@@ -41,7 +41,7 @@ trnscts <- data.frame(site = c("Kongsfjorden", "Isfjorden"),
 
 # Map ---------------------------------------------------------------------
 
-# Individual sites
+# Svalbard study sites
 ggplot(data = bboxs) +
   borders(fill = "grey80", colour = "black") +
   geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
@@ -52,6 +52,10 @@ ggplot(data = bboxs) +
   # coord_quickmap(xlim = c(bboxs$lon1, bboxs$lon2), ylim = c(bboxs$lat1, bboxs$lat2)) +
   # facet_wrap(~site) +
   labs(x = NULL, y = NULL)
+
+# Finland study sites
+
+# Greenland study sites
 
 # Full study area
 ggplot() +
