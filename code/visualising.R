@@ -48,13 +48,13 @@ Arctic_TCO2_count %>%
 # Bathymetry --------------------------------------------------------------
 
 # As a first trial run for visualising bathy data we will use a high-res file for Young Sound
-bathy_YS <- tidync("~/pCloudDrive/Data/ys_bathy_v3.0_raw.nc") %>% 
+bathy_YS <- tidync("~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc") %>% 
   hyper_tibble() %>% 
   filter(Landmask == 0)
 
 # Set limits for bathy projection
-xlon <- range(ncvar_get(nc_open("~/pCloudDrive/Data/ys_bathy_v3.0_raw.nc"), varid = 'Longitude'))
-xlat <- range(ncvar_get(nc_open("~/pCloudDrive/Data/ys_bathy_v3.0_raw.nc"), varid = 'Latitude'))
+xlon <- range(ncvar_get(nc_open("~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc"), varid = 'Longitude'))
+xlat <- range(ncvar_get(nc_open("~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc"), varid = 'Latitude'))
 lims <- c(xlon, xlat) # These are rough rounded values
 projection <- "+init=epsg:32636"
 
@@ -62,7 +62,7 @@ projection <- "+init=epsg:32636"
 basemap(limits = lims)
 
 # Convert NetCDF to raster
-rb <- raster_bathymetry(bathy = "~/pCloudDrive/Data/ys_bathy_v3.0_raw.nc",
+rb <- raster_bathymetry(bathy = "~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc",
                         depths = c(0, 10, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000), 
                         proj.out = projection, 
                         boundary = lims
@@ -78,8 +78,8 @@ bs_bathy <- vector_bathymetry(rb)
 sp::plot(bs_bathy)
 
 # Convert land file for use with new bathy file
-world <- rgdal::readOGR("~/pCloudDrive/Data/shape_files/ne_10m_land.shp")
-islands <- rgdal::readOGR("~/pCloudDrive/Data/shape_files/ne_10m_minor_islands.shp")
+world <- rgdal::readOGR("~/pCloudDrive/FACE-IT_data/shape_files/ne_10m_land.shp")
+islands <- rgdal::readOGR("~/pCloudDrive/FACE-IT_data/shape_files/ne_10m_minor_islands.shp")
 world <- rbind(world, islands)
 bs_land <- clip_shapefile(world, lims)
 bs_land <- sp::spTransform(bs_land, CRSobj = sp::CRS(projection))
@@ -88,7 +88,7 @@ rgeos::gIsValid(bs_land) # Has to return TRUE, if not use rgeos::gBuffer
 sp::plot(bs_land)
 
 # Create glacier shape files
-glaciers <- rgdal::readOGR("~/pCloudDrive/Data/shape_files/ne_10m_glaciated_areas.shp")
+glaciers <- rgdal::readOGR("~/pCloudDrive/FACE-IT_data/shape_files/ne_10m_glaciated_areas.shp")
 rgeos::gIsValid(glaciers) # Needs buffering
 glaciers <- rgeos::gBuffer(glaciers, byid = TRUE, width = 0)
 bs_glacier <- clip_shapefile(glaciers, lims)
@@ -99,3 +99,4 @@ sp::plot(bs_glacier)
 # Plot on ggOceanMaps
 basemap(shapefiles = list(land = bs_land, glacier = bs_glacier, bathy = bs_bathy), bathymetry = TRUE, glaciers = TRUE) +
   scale_fill_viridis_d("Depth (m)")
+
