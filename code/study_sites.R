@@ -17,7 +17,8 @@
 
 # Setup -------------------------------------------------------------------
 
-library(tidyverse)
+# Start with common project code
+source("code/functions.R")
 
 
 # Bounding boxes ----------------------------------------------------------

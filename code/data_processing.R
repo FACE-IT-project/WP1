@@ -4,7 +4,10 @@
 
 # Setup -------------------------------------------------------------------
 
-library(tidyverse)
+# Start with common project code
+source("code/functions.R")
+
+# Script specific libraries
 library(tidync)
 library(ncdump)
 library(ggOceanMaps)
@@ -16,10 +19,10 @@ library(ggOceanMaps)
 # Contact Robert Schlegel for access: robert.schlegel@imev-mer.fr
 
 # NetCDF info
-ncdump::NetCDF("~/pCloudDrive/Data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc")$variable
+ncdump::NetCDF(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc"))$variable
 
 # Bottle data
-GLODAP_Arctic_bottle <- read_csv("~/pCloudDrive/Data/GLODAPv2.2020_Arctic_Ocean.csv") %>% 
+GLODAP_Arctic_bottle <- read_csv(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2020_Arctic_Ocean.csv")) %>% 
   `colnames<-`(sub("G2", "", colnames(.))) %>% 
   mutate(t = as.Date(paste(year, month, day, sep = "-"))) %>% 
   dplyr::rename(lon = longitude, lat = latitude, TCO2 = tco2, TAlk = talk) %>% 
@@ -34,20 +37,20 @@ GLODAP_Arctic_bottle_mean <- GLODAP_Arctic_bottle %>%
   replace(is.na(.), NA)
 
 # NetCDF layers
-GLODAP_depth <- tidync::tidync("~/pCloudDrive/Data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc") %>% 
+GLODAP_depth <- tidync::tidync(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc")) %>% 
   tidync::activate("D2") %>% 
   tidync::hyper_tibble() %>% 
   dplyr::rename(depth = Depth)
-GLODAP_TCO2_grid <- tidync("~/pCloudDrive/Data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc") %>% 
+GLODAP_TCO2_grid <- tidync(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc")) %>% 
   hyper_tibble() %>%
   dplyr::select(lon, lat, depth_surface, TCO2)
-GLODAP_TAlk_grid <- tidync("~/pCloudDrive/Data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TAlk.nc") %>% 
+GLODAP_TAlk_grid <- tidync(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TAlk.nc")) %>% 
   hyper_tibble() %>% 
   dplyr::select(lon, lat, depth_surface, TAlk)
-GLODAP_sal_grid <- tidync("~/pCloudDrive/Data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.salinity.nc") %>% 
+GLODAP_sal_grid <- tidync(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.salinity.nc")) %>% 
   hyper_tibble() %>% 
   dplyr::select(lon, lat, depth_surface, salinity)
-GLODAP_temp_grid <- tidync("~/pCloudDrive/Data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.temperature.nc") %>% 
+GLODAP_temp_grid <- tidync(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.temperature.nc")) %>% 
   hyper_tibble() %>% 
   dplyr::select(lon, lat, depth_surface, temperature)
 
@@ -70,7 +73,7 @@ GLODAP_Arctic_carb_chem <- GLODAP_Arctic_bottle_mean %>%
          lon <= max(GLODAP_Arctic_bottle_mean$lon),
          lat >= min(GLODAP_Arctic_bottle_mean$lat),
          lat <= max(GLODAP_Arctic_bottle_mean$lat))
-write_csv(GLODAP_Arctic_carb_chem, "data/GLODAP_Arctic_carb_chem.csv")
+write_csv(GLODAP_Arctic_carb_chem, paste0(pCloud_path,"FACE-IT_data/GLODAP_Arctic_carb_chem.csv"))
 
 
 # Shape files for bathymetry ----------------------------------------------

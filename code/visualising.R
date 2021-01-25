@@ -4,32 +4,33 @@
 
 # Setup -------------------------------------------------------------------
 
-library(tidyverse)
+# Start with common project code
+source("code/functions.R")
+
+# Additional libraries
 library(tidync)
 library(ncdf4)
 library(ncdump)
 library(ggOceanMaps)
 
-map_base <- readRDS("metadata/map_base.Rda")
-
 
 # TCO2 data ---------------------------------------------------------------
 
 # Load data
-Arctic_TCO2 <- read_csv("data/Arctic_TCO2.csv")
+Arctic_carb_chem <- read_csv(paste0(pCloud_path,"FACE-IT_data/GLODAP_Arctic_carb_chem.csv"))
 
 # The count per grid cell/station
-Arctic_TCO2_count <- Arctic_TCO2 %>% 
+Arctic_carb_chem_count <- Arctic_carb_chem %>% 
   group_by(lon, lat) %>% 
   summarise(count = n(),
             layer = ifelse(max(depth) > 200, "grid", "bottle"), .groups = "drop")
 
 # Using ggOceanMaps
 basemap(limits = 60) +
-  geom_point(data = transform_coord(Arctic_TCO2_count), aes(x = lon, y = lat))
+  geom_point(data = transform_coord(Arctic_carb_chem_count), aes(x = lon, y = lat))
 
 # using base ggplot2
-Arctic_TCO2_count %>%
+Arctic_carb_chem_count %>%
   # filter(layer == "bottle") %>% 
   filter(layer == "grid") %>% 
   ggplot(aes(x = lon, y = lat)) +
@@ -44,17 +45,16 @@ Arctic_TCO2_count %>%
 # Mean value per grid/station
 
 
-
 # Bathymetry --------------------------------------------------------------
 
 # As a first trial run for visualising bathy data we will use a high-res file for Young Sound
-bathy_YS <- tidync("~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc") %>% 
+bathy_YS <- tidync(paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc")) %>% 
   hyper_tibble() %>% 
   filter(Landmask == 0)
 
 # Set limits for bathy projection
-xlon <- range(ncvar_get(nc_open("~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc"), varid = 'Longitude'))
-xlat <- range(ncvar_get(nc_open("~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc"), varid = 'Latitude'))
+xlon <- range(ncvar_get(nc_open(paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc")), varid = 'Longitude'))
+xlat <- range(ncvar_get(nc_open(paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc")), varid = 'Latitude'))
 lims <- c(xlon, xlat) # These are rough rounded values
 projection <- "+init=epsg:32636"
 
@@ -62,7 +62,7 @@ projection <- "+init=epsg:32636"
 basemap(limits = lims)
 
 # Convert NetCDF to raster
-rb <- raster_bathymetry(bathy = "~/pCloudDrive/FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc",
+rb <- raster_bathymetry(bathy = paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc"),
                         depths = c(0, 10, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000), 
                         proj.out = projection, 
                         boundary = lims
@@ -78,8 +78,8 @@ bs_bathy <- vector_bathymetry(rb)
 sp::plot(bs_bathy)
 
 # Convert land file for use with new bathy file
-world <- rgdal::readOGR("~/pCloudDrive/FACE-IT_data/shape_files/ne_10m_land.shp")
-islands <- rgdal::readOGR("~/pCloudDrive/FACE-IT_data/shape_files/ne_10m_minor_islands.shp")
+world <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_land.shp"))
+islands <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_minor_islands.shp"))
 world <- rbind(world, islands)
 bs_land <- clip_shapefile(world, lims)
 bs_land <- sp::spTransform(bs_land, CRSobj = sp::CRS(projection))
@@ -88,7 +88,7 @@ rgeos::gIsValid(bs_land) # Has to return TRUE, if not use rgeos::gBuffer
 sp::plot(bs_land)
 
 # Create glacier shape files
-glaciers <- rgdal::readOGR("~/pCloudDrive/FACE-IT_data/shape_files/ne_10m_glaciated_areas.shp")
+glaciers <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_glaciated_areas.shp"))
 rgeos::gIsValid(glaciers) # Needs buffering
 glaciers <- rgeos::gBuffer(glaciers, byid = TRUE, width = 0)
 bs_glacier <- clip_shapefile(glaciers, lims)
