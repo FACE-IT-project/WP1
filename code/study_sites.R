@@ -9,10 +9,11 @@
 # Norway: Porsangerfjorden (PF), Finnmark: Lis Lindal Jørgensen
 
 # Search the literature for the necessary bounding boxes and transects
-# Isfjorden nneds to be extended to the east
+# Isfjorden needs to be extended to the east
 # Add the bathymetry data from JP to the young sound bounding box
 # IBCAO for bathy data
 # Add bathymetry for all of the sites
+# Use ggOceanMaps to do this
 
 
 # Setup -------------------------------------------------------------------
@@ -20,6 +21,12 @@
 # Start with common project code
 source("code/functions.R")
 
+
+# Single points -----------------------------------------------------------
+
+site_point <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta", ),
+                         lon = c(),
+                         lat = c())
 
 # Bounding boxes ----------------------------------------------------------
 
@@ -36,26 +43,27 @@ bbox_sval <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta")
                         lat1 = c(78.86, 78.04, 77.92),
                         lat2 = c(79.1, 78.43, 77.82))
 
-# Finland
+
+# Eastern Greenland
+bbox_east <- data.frame(site = c("Young Sound"),
+                        lon1 = c(-22.367917),
+                        lon2 = c(-20.107644),
+                        lat1 = c(74.624304),
+                        lat2 = c(74.410137))
+
+# Western Greenland
+bbox_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
+                        lon1 = c(-55.56, -52.32),
+                        lon2 = c(-49.55, -48.93),
+                        lat1 = c(70.5, 64.8),
+                        lat2 = c(68.22, 64.01))
+# Norway
 bbox_fin <- data.frame(site = c("Porsangerfjorden"),
                        lon1 = c(24.5),
                        lon2 = c(27),
                        lat1 = c(70),
                        lat2 = c(71.2))
 
-# Eastern Greenland
-bbox_east <- data.frame(site = c("Young Sound"),
-                        lon1 = c(-21),
-                        lon2 = c(-16),
-                        lat1 = c(75.58),
-                        lat2 = c(74.43))
-
-# Western Greenland
-bbox_west <- data.frame(site = c("Disko Bay"),
-                        lon1 = c(-55.56),
-                        lon2 = c(-49.55),
-                        lat1 = c(70.5),
-                        lat2 = c(68.22))
 
 # Transects ---------------------------------------------------------------
 
@@ -75,17 +83,17 @@ trnsct_fin <- data.frame(site = c("Porsangerfjorden"),
 
 # East Greenland
 trnsct_east <- data.frame(site = c("Young Sound"),
-                          lat1 = c(75.19),
-                          lat2 = c(74.76),
-                          lon1 = c(-20.37),
-                          lon2 = c(-18.23))
+                          lat1 = c(74.611242),
+                          lat2 = c(74.214067),
+                          lon1 = c(-22.073400),
+                          lon2 = c(-20.043937))
 
 # East Greenland
-trnsct_west <- data.frame(site = c("Disko Bay"),
-                          lat1 = c(69.15),
-                          lat2 = c(68.89),
-                          lon1 = c(-51.49),
-                          lon2 = c(-54.15))
+trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
+                          lat1 = c(69.15, 64.736),
+                          lat2 = c(68.89, 64.074),
+                          lon1 = c(-51.49, -50.584),
+                          lon2 = c(-54.15, -51.979))
 
 
 # Map ---------------------------------------------------------------------
@@ -100,7 +108,7 @@ map_sval <- ggplot(data = bbox_sval) +
   # coord_quickmap(xlim = c(bbox_EU$lon1, bbox_EU$lon2), ylim = c(bbox_EU$lat1, bbox_EU$lat2)) +
   # coord_quickmap(xlim = c(bboxs$lon1, bboxs$lon2), ylim = c(bboxs$lat1, bboxs$lat2)) +
   # facet_wrap(~site) +
-  labs(x = NULL, y = NULL) +
+  labs(x = NULL, y = NULL, title = "Svalbard") +
   theme(legend.position = "bottom")
 
 # Finland study sites
@@ -129,7 +137,7 @@ map_west <- ggplot(data = bbox_west) +
   geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
                 fill = site, colour = site), alpha = 0.1) +
   geom_segment(data = trnsct_west, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
-  coord_quickmap(xlim = c(-56, -49), ylim = c(60, 72)) +
+  coord_quickmap(xlim = c(-56, -49), ylim = c(63, 71)) +
   labs(x = NULL, y = NULL) +
   theme(legend.position = "bottom")
 
@@ -159,4 +167,6 @@ map_small <- ggpubr::ggarrange(map_sval, map_fin, map_east, map_west, ncol = 2, 
 
 # Put them together
 map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 2)
+ggsave("figures/map_all.png", map_all, height = 10, width = 16)
 map_all
+
