@@ -11,7 +11,6 @@ source("code/functions.R")
 library(tidync)
 library(ncdf4)
 library(ncdump)
-library(ggOceanMaps)
 
 
 # TCO2 data ---------------------------------------------------------------
