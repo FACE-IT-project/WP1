@@ -49,3 +49,83 @@ bbox_to_poly <- function(lon1, lon2, lat1, lat2, ID = 1){
   return(bbox_spatial)
 }
 
+# Function that prepares custom bathymetry for ggOceanMaps based on bounding box
+lon1 <- bbox_nor$lon1; lon2 <- bbox_nor$lon2; lat1 <- bbox_nor$lat1; lat2 <- bbox_nor$lat2
+bbox_to_bathy <- function(lon1, lon2, lat1, lat2, 
+                          bathy_file = NA, projection = NA,
+                          lon_pad = 0, lat_pad = 0,
+                          depths = c(0, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
+  
+  # Use the default hi-res Arctic bathy unless the user specifies something else
+  if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/IBCAO_v4_200m.nc")
+  if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/ETOPO1_Ice_g_gmt4.grd")
+    
+  # Set limits for bathy projection
+  xlon <- c(lon1-lon_pad, lon2+lon_pad)
+  xlat <- c(lat1-lat_pad, lat2+lat_pad)
+  lims <- c(xlon, xlat)
+  
+  # Set projection
+  # if(is.na(projection)) 
+    projection <- "+init=epsg:6070"
+    projection <- "+init=epsg:3995"
+    projection <- "+init=epsg:4326"
+    projection <- "+init=epsg:32636"
+  
+  # Check the limits
+  # basemap(limits = lims)
+  
+  # Convert NetCDF to raster
+  rb <- raster_bathymetry(bathy = bathy_file,
+                          depths = depths, 
+                          proj.out = projection, 
+                          boundary = lims)
+  
+  # Check raster output
+  # class(rb)
+  # names(rb)
+  # raster::plot(rb$raster)
+  
+  # Convert to raster vector for plotting
+  bs_bathy <- vector_bathymetry(rb)
+  # sp::plot(bs_bathy)
+  
+  # Convert land file for use with new bathy file
+  world <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_land.shp"))
+  islands <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_minor_islands.shp"))
+  world <- rbind(world, islands)
+  bs_land <- clip_shapefile(world, lims)
+  bs_land <- sp::spTransform(bs_land, CRSobj = sp::CRS(projection))
+  if(!rgeos::gIsValid(bs_land)){  # Has to return TRUE, if not use rgeos::gBuffer
+    bs_land <- rgeos::gBuffer(bs_land, byid = TRUE, width = 0)
+  }
+  # sp::plot(bs_land)
+  
+  # Create glacier shape files
+  glaciers <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_glaciated_areas.shp"))
+  if(!rgeos::gIsValid(glaciers)){ # Needs buffering
+    glaciers <- rgeos::gBuffer(glaciers, byid = TRUE, width = 0)
+  }
+  bs_glacier <- clip_shapefile(glaciers, lims)
+  if(dim(bs_glacier)[1]){
+    bs_glacier <- sp::spTransform(bs_glacier, CRSobj = sp::CRS(projection))
+    rgeos::gIsValid(bs_glacier)
+    sp::plot(bs_glacier)
+  } else { 
+    bs_glacier <- NA
+  }
+  
+  # Return results
+  res <- list(bs_bathy, bs_land, bs_glacier)
+  return(res)
+}
+
+# Convenience function that allows a user to directly produce a ggOceanMaps from a bounding box
+bbox_to_ggOcean <- function(lon1, lon2, lat1, lat2, bathy_file = NA, lon_pad = 0, lat_pad = 0){
+  
+  
+  # Plot on ggOceanMaps
+  basemap(shapefiles = list(land = bs_land, glacier = bs_glacier, bathy = bs_bathy), bathymetry = TRUE, glaciers = TRUE) +
+    scale_fill_viridis_d("Depth (m)")
+}
+
