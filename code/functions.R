@@ -50,14 +50,14 @@ bbox_to_poly <- function(lon1, lon2, lat1, lat2, ID = 1){
 }
 
 # Function that prepares custom bathymetry for ggOceanMaps based on bounding box
-lon1 <- bbox_nor$lon1; lon2 <- bbox_nor$lon2; lat1 <- bbox_nor$lat1; lat2 <- bbox_nor$lat2
+# lon1 <- bbox_nor$lon1; lon2 <- bbox_nor$lon2; lat1 <- bbox_nor$lat1; lat2 <- bbox_nor$lat2
 bbox_to_bathy <- function(lon1, lon2, lat1, lat2, 
                           bathy_file = NA, projection = NA,
                           lon_pad = 0, lat_pad = 0,
                           depths = c(0, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
   
   # Use the default hi-res Arctic bathy unless the user specifies something else
-  if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/IBCAO_v4_200m.nc")
+  # if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/IBCAO_v4_200m.nc") # Super hi-res, but doesn't work...
   if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/ETOPO1_Ice_g_gmt4.grd")
     
   # Set limits for bathy projection
@@ -66,11 +66,11 @@ bbox_to_bathy <- function(lon1, lon2, lat1, lat2,
   lims <- c(xlon, xlat)
   
   # Set projection
-  # if(is.na(projection)) 
-    projection <- "+init=epsg:6070"
-    projection <- "+init=epsg:3995"
-    projection <- "+init=epsg:4326"
-    projection <- "+init=epsg:32636"
+  if(is.na(projection)) projection <- "+init=epsg:4326"#"+init=epsg:32636"
+    # projection <- "+init=epsg:6070"
+    # projection <- "+init=epsg:3995"
+    # projection <- "+init=epsg:4326"
+    # projection <- "+init=epsg:32636"
   
   # Check the limits
   # basemap(limits = lims)
@@ -107,25 +107,37 @@ bbox_to_bathy <- function(lon1, lon2, lat1, lat2,
     glaciers <- rgeos::gBuffer(glaciers, byid = TRUE, width = 0)
   }
   bs_glacier <- clip_shapefile(glaciers, lims)
-  if(dim(bs_glacier)[1]){
+  if(dim(bs_glacier)[1] > 0){
     bs_glacier <- sp::spTransform(bs_glacier, CRSobj = sp::CRS(projection))
-    rgeos::gIsValid(bs_glacier)
-    sp::plot(bs_glacier)
+    # rgeos::gIsValid(bs_glacier)
+    # sp::plot(bs_glacier)
   } else { 
     bs_glacier <- NA
   }
+  # sp::plot(bs_glacier)
+  # basemap(shapefiles = list(land = bs_land, glacier = bs_glacier, bathy = bs_bathy), bathymetry = TRUE, glaciers = TRUE)
   
   # Return results
-  res <- list(bs_bathy, bs_land, bs_glacier)
+  res <- list(bathy = bs_bathy, land = bs_land, glacier = bs_glacier)
   return(res)
 }
 
 # Convenience function that allows a user to directly produce a ggOceanMaps from a bounding box
+# lon1=9; lon2=30; lat1=76; lat2=81
 bbox_to_ggOcean <- function(lon1, lon2, lat1, lat2, bathy_file = NA, lon_pad = 0, lat_pad = 0){
   
+  # Prep the shape files
+  bs_res <- bbox_to_bathy(lon1, lon2, lat1, lat2, bathy_file = bathy_file, lon_pad = lon_pad, lat_pad = lat_pad)
   
   # Plot on ggOceanMaps
-  basemap(shapefiles = list(land = bs_land, glacier = bs_glacier, bathy = bs_bathy), bathymetry = TRUE, glaciers = TRUE) +
-    scale_fill_viridis_d("Depth (m)")
+  if(!is.na(bs_res[[3]])){
+    map_res <- basemap(shapefiles = list(bathy = bs_res$bathy, land = bs_res$land, glacier = bs_res$glacier),
+                       bathymetry = TRUE, glaciers = TRUE)
+  } else{
+    map_res <- basemap(shapefiles = list(bathy = bs_res[[1]], land = bs_res[[2]], glacier = NULL), 
+                       bathymetry = TRUE, glaciers = FALSE)
+  }
+  map_res <- map_res + scale_fill_viridis_d("Depth (m)")
+  return(map_res)
 }
 

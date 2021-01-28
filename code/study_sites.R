@@ -102,27 +102,36 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 # Map ---------------------------------------------------------------------
 
 # Svalbard study sites
-map_sval <- ggplot(data = bbox_sval) +
-  borders(fill = "grey80", colour = "black") +
-  geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-                fill = site, colour = site), alpha = 0.1) +
-  geom_segment(data = trnsct_sval, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
-  coord_quickmap(xlim = c(9, 30), ylim = c(76, 81)) +
-  # coord_quickmap(xlim = c(bbox_EU$lon1, bbox_EU$lon2), ylim = c(bbox_EU$lat1, bbox_EU$lat2)) +
-  # coord_quickmap(xlim = c(bboxs$lon1, bboxs$lon2), ylim = c(bboxs$lat1, bboxs$lat2)) +
-  # facet_wrap(~site) +
-  labs(x = NULL, y = NULL, title = "Svalbard") +
-  theme(legend.position = "bottom")
+map_sval <- bbox_to_ggOcean(9, 30, 76, 81) +
+  geom_spatial_point(data = site_points[1:3,], size = 9, crs = 4326,
+                     aes(x = lon, y = lat, colour = site)) 
+map_sval
+
+# map_sval <- ggplot(data = bbox_sval) +
+#   borders(fill = "grey80", colour = "black") +
+#   geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
+#                 fill = site, colour = site), alpha = 0.1) +
+#   geom_segment(data = trnsct_sval, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
+#   coord_quickmap(xlim = c(9, 30), ylim = c(76, 81)) +
+#   # coord_quickmap(xlim = c(bbox_EU$lon1, bbox_EU$lon2), ylim = c(bbox_EU$lat1, bbox_EU$lat2)) +
+#   # coord_quickmap(xlim = c(bboxs$lon1, bboxs$lon2), ylim = c(bboxs$lat1, bboxs$lat2)) +
+#   # facet_wrap(~site) +
+#   labs(x = NULL, y = NULL, title = "Svalbard") +
+#   theme(legend.position = "bottom")
 
 # Norway study sites
-map_nor <- ggplot(data = bbox_nor) +
-  borders(fill = "grey80", colour = "black") +
-  geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-                fill = site, colour = site), alpha = 0.1) +
-  geom_segment(data = trnsct_nor, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
-  coord_quickmap(xlim = c(21, 31), ylim = c(69, 72)) +
-  labs(x = NULL, y = NULL) +
-  theme(legend.position = "bottom")
+map_nor <- bbox_to_ggOcean(bbox_nor$lon1, bbox_nor$lon2, bbox_nor$lat1, bbox_nor$lat2,
+                           lon_pad = 0.1, lat_pad = 0.1)
+map_nor
+
+# map_nor <- ggplot(data = bbox_nor) +
+#   borders(fill = "grey80", colour = "black") +
+#   geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
+#                 fill = site, colour = site), alpha = 0.1) +
+#   geom_segment(data = trnsct_nor, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
+#   coord_quickmap(xlim = c(21, 31), ylim = c(69, 72)) +
+#   labs(x = NULL, y = NULL) +
+#   theme(legend.position = "bottom")
 
 # Eastern Greenland study sites
 map_east <- ggplot(data = bbox_east) +
