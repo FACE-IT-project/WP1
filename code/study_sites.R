@@ -5,7 +5,7 @@
 # Western Greenland: Nuup Kangerlua (Godthåbsfjord) (GF), Qeqertarsuup Tunua (Disko Bay) (DB): Thomas Juul-Pedersen
 # Eastern Greenland: Young Sound (YS): Mikael Kristian Sejr
 # Svalbard: Kongsfjorden (KF): Allison Bailey
-# Svalbard: Isfjorden (IF), Inglefieldbukta (IB) and Agardhbukta: Janne Søreide
+# Svalbard: Isfjorden (IF), Inglefieldbukta (IB) and Agardhbukta: Janne Søreide; UNIS - Borge Damsgard
 # Norway: Porsangerfjorden (PF), Finnmark: Lis Lindal Jørgensen
 
 # Search the literature for the necessary bounding boxes and transects
@@ -33,39 +33,35 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
 # Bounding boxes ----------------------------------------------------------
 
 # European Arctic
-bbox_EU <- data.frame(lon1 = -25,
-                      lon2 = 60,
-                      lat1 = 66,
-                      lat2 = 90)
-bbox_EU_poly <- bbox_to_poly(bbox_EU$lon1, bbox_EU$lon2, bbox_EU$lat1, bbox_EU$lat2, "EU")
+bbox_EU <- data.frame(lon1 = -25, lon2 = 60,
+                      lat1 = 66, lat2 = 90)
+bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 
 # Svalbard
 bbox_sval <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta"),
-                        lon1 = c(11, 12.95, 18.04),
-                        lon2 = c(12.69, 15.78, 18.58),
-                        lat1 = c(78.86, 78.04, 77.92),
-                        lat2 = c(79.1, 78.43, 77.82))
-
+                        lon1 = c(11, 12.95, 18.04), lon2 = c(12.69, 15.78, 18.58),
+                        lat1 = c(78.86, 78.04, 77.92), lat2 = c(79.1, 78.43, 77.82))
+bbox_sval_poly <- nest(group_by(bbox_sval, site)) %>%
+  mutate(data = map(data, bbox_to_poly, ID = site))
 
 # Eastern Greenland
 bbox_east <- data.frame(site = c("Young Sound"),
-                        lon1 = c(-22.367917),
-                        lon2 = c(-20.107644),
-                        lat1 = c(74.410137),
-                        lat2 = c(74.624304))
+                        lon1 = c(-22.367917), lon2 = c(-19.907644),
+                        lat1 = c(74.210137), lat2 = c(74.624304))
+bbox_east_poly <- bbox_to_poly(bbox_east)
 
 # Western Greenland
 bbox_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
-                        lon1 = c(-55.56, -52.32),
-                        lon2 = c(-49.55, -48.93),
-                        lat1 = c(70.5, 64.8),
-                        lat2 = c(68.22, 64.01))
+                        lon1 = c(-55.56, -52.32), lon2 = c(-49.55, -48.93),
+                        lat1 = c(68.22, 64.01), lat2 = c(70.5, 64.8))
+bbox_west_poly <- nest(group_by(bbox_west, site)) %>%
+  mutate(data = map(data, bbox_to_poly, ID = site))
+
 # Norway
 bbox_nor <- data.frame(site = c("Porsangerfjorden"),
-                       lon1 = c(24.5),
-                       lon2 = c(27),
-                       lat1 = c(70),
-                       lat2 = c(71.2))
+                       lon1 = c(24.5), lon2 = c(27),
+                       lat1 = c(70), lat2 = c(71.2))
+bbox_nor_poly <- bbox_to_poly(bbox_nor)
 
 
 # Transects ---------------------------------------------------------------
@@ -102,77 +98,37 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 # Map ---------------------------------------------------------------------
 
 # Svalbard study sites
-map_sval <- bbox_to_ggOcean(9, 30, 76, 81) +
+map_sval <- bbox_to_ggOcean(c(9, 30, 76, 81)) +
   geom_spatial_point(data = site_points[1:3,], size = 9, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) 
 map_sval
+ggsave("figures/map_svalbard.png", map_sval, width = 12, height = 6)
 
-# map_sval <- ggplot(data = bbox_sval) +
-#   borders(fill = "grey80", colour = "black") +
-#   geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-#                 fill = site, colour = site), alpha = 0.1) +
-#   geom_segment(data = trnsct_sval, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
-#   coord_quickmap(xlim = c(9, 30), ylim = c(76, 81)) +
-#   # coord_quickmap(xlim = c(bbox_EU$lon1, bbox_EU$lon2), ylim = c(bbox_EU$lat1, bbox_EU$lat2)) +
-#   # coord_quickmap(xlim = c(bboxs$lon1, bboxs$lon2), ylim = c(bboxs$lat1, bboxs$lat2)) +
-#   # facet_wrap(~site) +
-#   labs(x = NULL, y = NULL, title = "Svalbard") +
-#   theme(legend.position = "bottom")
+# Kongsfjorden
+map_kong <- bbox_to_ggOcean(bbox_sval[1,])
+map_kong
+ggsave("figures/map_kongsfjorden.png", map_kong, width = 12, height = 6)
 
 # Norway study sites
-map_nor <- bbox_to_ggOcean(bbox_nor$lon1, bbox_nor$lon2, bbox_nor$lat1, bbox_nor$lat2,
-                           lon_pad = 0.1, lat_pad = 0.1)
+map_nor <- bbox_to_ggOcean(bbox_nor, lon_pad = 0.5, lat_pad = 0.2, add_bbox = T)
 map_nor
 
-# map_nor <- ggplot(data = bbox_nor) +
-#   borders(fill = "grey80", colour = "black") +
-#   geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-#                 fill = site, colour = site), alpha = 0.1) +
-#   geom_segment(data = trnsct_nor, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
-#   coord_quickmap(xlim = c(21, 31), ylim = c(69, 72)) +
-#   labs(x = NULL, y = NULL) +
-#   theme(legend.position = "bottom")
-
 # Eastern Greenland study sites
-map_east <- ggplot(data = bbox_east) +
-  borders(fill = "grey80", colour = "black") +
-  geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-                fill = site, colour = site), alpha = 0.1) +
-  geom_segment(data = trnsct_east, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
-  coord_quickmap(xlim = c(-24, -15), ylim = c(73.5, 76)) +
-  labs(x = NULL, y = NULL) +
-  theme(legend.position = "bottom")
+map_east <- bbox_to_ggOcean(bbox_east, lon_pad = 0.2, lat_pad = 0.1,
+                            bathy_file = paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc")) +
+  annotation_spatial(bbox_east_poly, fill = "cadetblue1", colour = "black", alpha = 0.1) 
+map_east
 
 # Western Greenland study sites
-map_west <- ggplot(data = bbox_west) +
-  borders(fill = "grey80", colour = "black") +
-  geom_rect(aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-                fill = site, colour = site), alpha = 0.1) +
-  geom_segment(data = trnsct_west, aes(x = lon1, xend = lon2, y = lat1, yend = lat2, colour = site)) +
-  coord_quickmap(xlim = c(-56, -49), ylim = c(63, 71)) +
-  labs(x = NULL, y = NULL) +
-  theme(legend.position = "bottom")
+map_west <- bbox_to_ggOcean(bbox_west, lon_pad = 0.5, lat_pad = 0.5,
+                            depths = c(0, 50, 100, 200, 500, 1000, 2000)) +
+  geom_spatial_point(data = site_points[5:6, ], size = 2, crs = 4326,
+                     aes(x = lon, y = lat), colour = "black") +
+  annotation_spatial(bbox_west_poly$data[[2]], fill = "cadetblue1", colour = "black", alpha = 0.1) +
+  annotation_spatial(bbox_west_poly$data[[1]], fill = "forestgreen", colour = "black", alpha = 0.1)
+map_west
 
 # Full study area
-# map_full <- ggplot() +
-#   borders(fill = "grey80", colour = "black") +
-#   geom_rect(data = bbox_EU, fill = NA, colour = "black",
-#             aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2)) +
-#   geom_rect(data = bbox_sval,
-#             aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-#                 fill = site, colour = site)) +
-#   geom_rect(data = bbox_fin,
-#             aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-#                 fill = site, colour = site)) +
-#   geom_rect(data = bbox_east,
-#             aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-#                 fill = site, colour = site)) +
-#   geom_rect(data = bbox_west,
-#             aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2,
-#                 fill = site, colour = site)) +
-#   coord_quickmap(xlim = c(-60, 60), ylim = c(58, 90), expand = F) +
-#   labs(x = NULL, y = NULL) +
-#   theme(legend.position = "bottom")
 map_full <- basemap(limits = c(-50, 60, 60, 90), bathymetry = T) +
   annotation_spatial(bbox_EU_poly, fill = "cadetblue1", colour = "black", alpha = 0.1) +
   geom_spatial_point(data = site_points, size = 9, crs = 4326,
@@ -185,7 +141,7 @@ map_full <- basemap(limits = c(-50, 60, 60, 90), bathymetry = T) +
         # legend.margin = margin(10, 10, 10, 10),
         legend.box.margin = margin(10, 10, 10, 10), 
         legend.box.background = element_rect(fill = "white", colour = "black"))
-# map_full
+map_full
 ggsave("figures/map_full.png", map_full, height = 10, width = 16)
 
 # Assemble smaller figures

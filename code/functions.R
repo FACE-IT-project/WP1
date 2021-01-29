@@ -28,7 +28,18 @@ map_base <- readRDS("metadata/map_base.Rda")
 
 # Function that takes 4 bounding box coordinates and converts them to a polygon for ggOceanMaps
 # The 'ID' value can be used to hold the name of the site for the bounding box
-bbox_to_poly <- function(lon1, lon2, lat1, lat2, ID = 1){
+bbox_to_poly <- function(coords, ID = 1){
+  
+  # Get the coordinates
+  if(is.data.frame(coords)){
+    lon1 <- min(coords$lon1); lon2 <- max(coords$lon2)
+    lat1 <- min(coords$lat1); lat2 <- max(coords$lat2)
+  } else if(is.vector(coords)){
+    lon1 <- coords[1]; lon2 <- coords[2]
+    lat1 <- coords[3]; lat2 <- coords[4]
+  } else {
+    stop("Uh oh")
+  }
   
   # Create bounding box that can curve on a polar projection
   bbox_top <- data.frame(lon = seq(lon1, lon2, length.out = 100), 
@@ -51,14 +62,25 @@ bbox_to_poly <- function(lon1, lon2, lat1, lat2, ID = 1){
 
 # Function that prepares custom bathymetry for ggOceanMaps based on bounding box
 # lon1 <- bbox_nor$lon1; lon2 <- bbox_nor$lon2; lat1 <- bbox_nor$lat1; lat2 <- bbox_nor$lat2
-bbox_to_bathy <- function(lon1, lon2, lat1, lat2, 
+bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
                           bathy_file = NA, projection = NA,
-                          lon_pad = 0, lat_pad = 0,
                           depths = c(0, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
+  
+  # Get the coordinates
+  if(is.data.frame(coords)){
+    lon1 <- min(coords$lon1); lon2 <- max(coords$lon2)
+    lat1 <- min(coords$lat1); lat2 <- max(coords$lat2)
+  } else if(is.vector(coords)){
+    lon1 <- coords[1]; lon2 <- coords[2]
+    lat1 <- coords[3]; lat2 <- coords[4]
+  } else {
+    stop("Uh oh")
+  }
   
   # Use the default hi-res Arctic bathy unless the user specifies something else
   # if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/IBCAO_v4_200m.nc") # Super hi-res, but doesn't work...
-  if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/ETOPO1_Ice_g_gmt4.grd")
+  # if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/ETOPO1_Ice_g_gmt4.grd")
+  if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/GEBCO_2020.nc")
     
   # Set limits for bathy projection
   xlon <- c(lon1-lon_pad, lon2+lon_pad)
@@ -66,11 +88,12 @@ bbox_to_bathy <- function(lon1, lon2, lat1, lat2,
   lims <- c(xlon, xlat)
   
   # Set projection
-  if(is.na(projection)) projection <- "+init=epsg:4326"#"+init=epsg:32636"
+  if(is.na(projection)){
     # projection <- "+init=epsg:6070"
-    # projection <- "+init=epsg:3995"
-    # projection <- "+init=epsg:4326"
-    # projection <- "+init=epsg:32636"
+    # projection <- "+init=epsg:3995" # Arctic Polar Stereographic
+    # projection <- "+init=epsg:4326" # Cartesian global
+    projection <- "+init=epsg:32636"
+  } 
   
   # Check the limits
   # basemap(limits = lims)
@@ -124,10 +147,11 @@ bbox_to_bathy <- function(lon1, lon2, lat1, lat2,
 
 # Convenience function that allows a user to directly produce a ggOceanMaps from a bounding box
 # lon1=9; lon2=30; lat1=76; lat2=81
-bbox_to_ggOcean <- function(lon1, lon2, lat1, lat2, bathy_file = NA, lon_pad = 0, lat_pad = 0){
+bbox_to_ggOcean <- function(coords, bathy_file = NA, lon_pad = 0, lat_pad = 0, add_bbox = F,
+                            depths = c(0, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
   
   # Prep the shape files
-  bs_res <- bbox_to_bathy(lon1, lon2, lat1, lat2, bathy_file = bathy_file, lon_pad = lon_pad, lat_pad = lat_pad)
+  bs_res <- bbox_to_bathy(coords, bathy_file = bathy_file, lon_pad = lon_pad, lat_pad = lat_pad, depths = depths)
   
   # Plot on ggOceanMaps
   if(!is.na(bs_res[[3]])){
@@ -138,6 +162,12 @@ bbox_to_ggOcean <- function(lon1, lon2, lat1, lat2, bathy_file = NA, lon_pad = 0
                        bathymetry = TRUE, glaciers = FALSE)
   }
   map_res <- map_res + scale_fill_viridis_d("Depth (m)")
+  
+  # Add the bounding box as desired
+  if(add_bbox){
+    bbox_spatial <- bbox_to_poly(coords)
+    map_res <- map_res +   annotation_spatial(bbox_spatial, fill = "cadetblue1", alpha = 0.2)
+  }
   return(map_res)
 }
 
