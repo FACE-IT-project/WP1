@@ -73,6 +73,9 @@ bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
   } else if(is.vector(coords)){
     lon1 <- coords[1]; lon2 <- coords[2]
     lat1 <- coords[3]; lat2 <- coords[4]
+  } else if(is(coords, "SpatialPolygons")) {
+    lon1 <- coords@bbox[1,1]; lon2 <- coords@bbox[1,2]
+    lat1 <- coords@bbox[2,1]; lat2 <- coords@bbox[2,2]
   } else {
     stop("Uh oh")
   }
@@ -90,9 +93,9 @@ bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
   # Set projection
   if(is.na(projection)){
     # projection <- "+init=epsg:6070"
-    # projection <- "+init=epsg:3995" # Arctic Polar Stereographic
+    projection <- "+init=epsg:3995" # Arctic Polar Stereographic
     # projection <- "+init=epsg:4326" # Cartesian global
-    projection <- "+init=epsg:32636"
+    # projection <- "+init=epsg:32636"
   } 
   
   # Check the limits
@@ -114,8 +117,8 @@ bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
   # sp::plot(bs_bathy)
   
   # Convert land file for use with new bathy file
-  world <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_land.shp"))
-  islands <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_minor_islands.shp"))
+  world <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_land.shp"), verbose = F)
+  islands <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_minor_islands.shp"), verbose = F)
   world <- rbind(world, islands)
   bs_land <- clip_shapefile(world, lims)
   bs_land <- sp::spTransform(bs_land, CRSobj = sp::CRS(projection))
@@ -125,7 +128,7 @@ bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
   # sp::plot(bs_land)
   
   # Create glacier shape files
-  glaciers <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_glaciated_areas.shp"))
+  glaciers <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_glaciated_areas.shp"), verbose = F)
   if(!rgeos::gIsValid(glaciers)){ # Needs buffering
     glaciers <- rgeos::gBuffer(glaciers, byid = TRUE, width = 0)
   }
@@ -158,15 +161,19 @@ bbox_to_ggOcean <- function(coords, bathy_file = NA, lon_pad = 0, lat_pad = 0, a
     map_res <- basemap(shapefiles = list(bathy = bs_res$bathy, land = bs_res$land, glacier = bs_res$glacier),
                        bathymetry = TRUE, glaciers = TRUE)
   } else{
-    map_res <- basemap(shapefiles = list(bathy = bs_res[[1]], land = bs_res[[2]], glacier = NULL), 
+    map_res <- basemap(shapefiles = list(bathy = bs_res$bathy, land = bs_res$land, glacier = NULL), 
                        bathymetry = TRUE, glaciers = FALSE)
   }
   map_res <- map_res + scale_fill_viridis_d("Depth (m)")
   
   # Add the bounding box as desired
   if(add_bbox){
-    bbox_spatial <- bbox_to_poly(coords)
-    map_res <- map_res +   annotation_spatial(bbox_spatial, fill = "cadetblue1", alpha = 0.2)
+    if(!is(coords, "SpatialPolygons")){
+      bbox_spatial <- bbox_to_poly(coords)
+    } else {
+      bbox_spatial <- coords
+    }
+    map_res <- map_res + annotation_spatial(bbox_spatial, fill = "cadetblue1", alpha = 0.2)
   }
   return(map_res)
 }

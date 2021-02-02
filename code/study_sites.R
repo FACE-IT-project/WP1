@@ -33,35 +33,42 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
 # Bounding boxes ----------------------------------------------------------
 
 # European Arctic
-bbox_EU <- data.frame(lon1 = -25, lon2 = 60,
+bbox_EU <- data.frame(lon1 = -60, lon2 = 60,
                       lat1 = 66, lat2 = 90)
-bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
+bbox_EU_poly <- bbox_to_poly(c(-60, 60, 66, 90), "EU")
 
 # Svalbard
-bbox_sval <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta"),
-                        lon1 = c(11, 12.95, 18.04), lon2 = c(12.69, 15.78, 18.58),
-                        lat1 = c(78.86, 78.04, 77.92), lat2 = c(79.1, 78.43, 77.82))
-bbox_sval_poly <- nest(group_by(bbox_sval, site)) %>%
-  mutate(data = map(data, bbox_to_poly, ID = site))
+bbox_kong <- bbox_to_poly(c(11, 12.69, 78.86, 79.1), "Kongsfjorden")
+bbox_is <- bbox_to_poly(c(12.95, 15.78, 78.04, 78.43), "Isfjorden")
+bbox_ingle <- bbox_to_poly(c(18.04, 18.58, 77.92, 77.82), "Inglefieldbukta")
+# bbox_sval <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta"),
+#                         lon1 = c(11, 12.95, 18.04), lon2 = c(12.69, 15.78, 18.58),
+#                         lat1 = c(78.86, 78.04, 77.92), lat2 = c(79.1, 78.43, 77.82))
+# bbox_sval_poly <- nest(group_by(bbox_sval, site)) %>%
+#   mutate(data = map(data, bbox_to_poly, ID = site))
 
 # Eastern Greenland
-bbox_east <- data.frame(site = c("Young Sound"),
-                        lon1 = c(-22.367917), lon2 = c(-19.907644),
-                        lat1 = c(74.210137), lat2 = c(74.624304))
-bbox_east_poly <- bbox_to_poly(bbox_east)
+bbox_young <- bbox_to_poly(c(-22.367917, -19.907644, 74.210137, 74.624304), "Young Sound")
+# bbox_east <- data.frame(site = c("Young Sound"),
+#                         lon1 = c(-22.367917), lon2 = c(-19.907644),
+#                         lat1 = c(74.210137), lat2 = c(74.624304))
+# bbox_east_poly <- bbox_to_poly(bbox_east)
 
 # Western Greenland
-bbox_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
-                        lon1 = c(-55.56, -52.32), lon2 = c(-49.55, -48.93),
-                        lat1 = c(68.22, 64.01), lat2 = c(70.5, 64.8))
-bbox_west_poly <- nest(group_by(bbox_west, site)) %>%
-  mutate(data = map(data, bbox_to_poly, ID = site))
+bbox_disko <- bbox_to_poly(c(-55.56, -49.55, 68.22, 70.5), "Disko Bay")
+bbox_nuup <- bbox_to_poly(c(-53.32, -48.93, 64.01, 64.8), "Nuup Kangerlua")
+# bbox_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
+#                         lon1 = c(-55.56, -52.32), lon2 = c(-49.55, -48.93),
+#                         lat1 = c(68.22, 64.01), lat2 = c(70.5, 64.8))
+# bbox_west_poly <- nest(group_by(bbox_west, site)) %>%
+#   mutate(data = map(data, bbox_to_poly, ID = site))
 
 # Norway
-bbox_nor <- data.frame(site = c("Porsangerfjorden"),
-                       lon1 = c(24.5), lon2 = c(27),
-                       lat1 = c(70), lat2 = c(71.2))
-bbox_nor_poly <- bbox_to_poly(bbox_nor)
+bbox_por <- bbox_to_poly(c(24.5, 27, 70, 71.2), "Porsangerfjorden")
+# bbox_nor <- data.frame(site = c("Porsangerfjorden"),
+#                        lon1 = c(24.5), lon2 = c(27),
+#                        lat1 = c(70), lat2 = c(71.2))
+# bbox_nor_poly <- bbox_to_poly(bbox_nor)
 
 
 # Transects ---------------------------------------------------------------
@@ -100,18 +107,21 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 # Svalbard study sites
 map_sval <- bbox_to_ggOcean(c(9, 30, 76, 81)) +
   geom_spatial_point(data = site_points[1:3,], size = 9, crs = 4326,
-                     aes(x = lon, y = lat, colour = site)) 
-map_sval
+                     aes(x = lon, y = lat, colour = site)) +
+  ggtitle("Svalbard")
 ggsave("figures/map_svalbard.png", map_sval, width = 12, height = 6)
 
 # Kongsfjorden
-map_kong <- bbox_to_ggOcean(bbox_sval[1,])
-map_kong
-ggsave("figures/map_kongsfjorden.png", map_kong, width = 12, height = 6)
+map_kong <- bbox_to_ggOcean(bbox_kong) + ggtitle("Kongsfjorden")
+ggsave("figures/map_kongsfjorden.png", map_kong, width = 8, height = 6)
 
-# Norway study sites
-map_nor <- bbox_to_ggOcean(bbox_nor, lon_pad = 0.5, lat_pad = 0.2, add_bbox = T)
-map_nor
+# Isfjorden
+map_is <- bbox_to_ggOcean(bbox_is) + ggtitle("Isfjorden")
+ggsave("figures/map_isfjorden.png", map_is, width = 8, height = 6)
+
+# Porsangerfjorden
+map_por <- bbox_to_ggOcean(bbox_por) + ggtitle("Porsangerfjorden")
+ggsave("figures/map_kongsfjorden.png", map_por, width = 12, height = 6)
 
 # Eastern Greenland study sites
 map_east <- bbox_to_ggOcean(bbox_east, lon_pad = 0.2, lat_pad = 0.1,
