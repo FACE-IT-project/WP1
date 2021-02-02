@@ -64,7 +64,7 @@ bbox_to_poly <- function(coords, ID = 1){
 # lon1 <- bbox_nor$lon1; lon2 <- bbox_nor$lon2; lat1 <- bbox_nor$lat1; lat2 <- bbox_nor$lat2
 bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
                           bathy_file = NA, projection = NA,
-                          depths = c(0, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
+                          depths = c(25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
   
   # Get the coordinates
   if(is.data.frame(coords)){
@@ -151,7 +151,7 @@ bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
 # Convenience function that allows a user to directly produce a ggOceanMaps from a bounding box
 # lon1=9; lon2=30; lat1=76; lat2=81
 bbox_to_ggOcean <- function(coords, bathy_file = NA, lon_pad = 0, lat_pad = 0, add_bbox = F,
-                            depths = c(0, 25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
+                            depths = c(25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
   
   # Prep the shape files
   bs_res <- bbox_to_bathy(coords, bathy_file = bathy_file, lon_pad = lon_pad, lat_pad = lat_pad, depths = depths)

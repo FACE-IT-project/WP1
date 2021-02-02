@@ -33,79 +33,81 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
 # Bounding boxes ----------------------------------------------------------
 
 # European Arctic
-bbox_EU <- data.frame(lon1 = -60, lon2 = 60,
-                      lat1 = 66, lat2 = 90)
-bbox_EU_poly <- bbox_to_poly(c(-60, 60, 66, 90), "EU")
+bbox_EU <- bbox_to_poly(c(-60, 60, 63, 90), "EU")
 
 # Svalbard
 bbox_kong <- bbox_to_poly(c(11, 12.69, 78.86, 79.1), "Kongsfjorden")
 bbox_is <- bbox_to_poly(c(12.95, 15.78, 78.04, 78.43), "Isfjorden")
 bbox_ingle <- bbox_to_poly(c(18.04, 18.58, 77.92, 77.82), "Inglefieldbukta")
-# bbox_sval <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta"),
-#                         lon1 = c(11, 12.95, 18.04), lon2 = c(12.69, 15.78, 18.58),
-#                         lat1 = c(78.86, 78.04, 77.92), lat2 = c(79.1, 78.43, 77.82))
-# bbox_sval_poly <- nest(group_by(bbox_sval, site)) %>%
-#   mutate(data = map(data, bbox_to_poly, ID = site))
 
 # Eastern Greenland
 bbox_young <- bbox_to_poly(c(-22.367917, -19.907644, 74.210137, 74.624304), "Young Sound")
-# bbox_east <- data.frame(site = c("Young Sound"),
-#                         lon1 = c(-22.367917), lon2 = c(-19.907644),
-#                         lat1 = c(74.210137), lat2 = c(74.624304))
-# bbox_east_poly <- bbox_to_poly(bbox_east)
 
 # Western Greenland
 bbox_disko <- bbox_to_poly(c(-55.56, -49.55, 68.22, 70.5), "Disko Bay")
 bbox_nuup <- bbox_to_poly(c(-53.32, -48.93, 64.01, 64.8), "Nuup Kangerlua")
-# bbox_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
-#                         lon1 = c(-55.56, -52.32), lon2 = c(-49.55, -48.93),
-#                         lat1 = c(68.22, 64.01), lat2 = c(70.5, 64.8))
-# bbox_west_poly <- nest(group_by(bbox_west, site)) %>%
-#   mutate(data = map(data, bbox_to_poly, ID = site))
 
 # Norway
 bbox_por <- bbox_to_poly(c(24.5, 27, 70, 71.2), "Porsangerfjorden")
-# bbox_nor <- data.frame(site = c("Porsangerfjorden"),
-#                        lon1 = c(24.5), lon2 = c(27),
-#                        lat1 = c(70), lat2 = c(71.2))
-# bbox_nor_poly <- bbox_to_poly(bbox_nor)
 
 
 # Transects ---------------------------------------------------------------
 
 # Svalbard
 trnsct_sval <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta"),
-                          lon1 = c(12.440833, 15.1, 18.19),
-                          lon2 = c(11.139333, 13.39, 18.47),
-                          lat1 = c(78.89650, 78.32, 77.89),
-                          lat2 = c( 79.04633, 78.13, 77.91))
+                          lon1 = c(12.440833, 15.1, 18.19), lon2 = c(11.139333, 13.39, 18.47),
+                          lat1 = c(78.89650, 78.32, 77.89), lat2 = c( 79.04633, 78.13, 77.91))
 
 # Norway
 trnsct_nor <- data.frame(site = c("Porsangerfjorden"),
-                         lat1 = c(69.7),
-                         lat2 = c(71.5),
-                         lon1 = c(24.5),
-                         lon2 = c(27))
+                         lat1 = c(69.7), lat2 = c(71.5),
+                         lon1 = c(24.5), lon2 = c(27))
 
 # East Greenland
 trnsct_east <- data.frame(site = c("Young Sound"),
-                          lat1 = c(74.611242),
-                          lat2 = c(74.214067),
-                          lon1 = c(-22.073400),
-                          lon2 = c(-20.043937))
+                          lat1 = c(74.611242), lat2 = c(74.214067),
+                          lon1 = c(-22.073400), lon2 = c(-20.043937))
 
 # West Greenland
 trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
-                          lat1 = c(69.15, 64.736),
-                          lat2 = c(68.89, 64.074),
-                          lon1 = c(-51.49, -50.584),
-                          lon2 = c(-54.15, -51.979))
+                          lat1 = c(69.15, 64.736), lat2 = c(68.89, 64.074),
+                          lon1 = c(-51.49, -50.584), lon2 = c(-54.15, -51.979))
+
+
+
+
+# EU shapefiles -----------------------------------------------------------
+
+
+# rb <- raster_bathymetry(bathy = paste0(pCloud_path,"FACE-IT_data/shape_files/GEBCO_2020.nc"),
+#                         depths = c(25, 50, 100, 200, 500, 1000, 2000, 10000), 
+#                         proj.out = "+init=epsg:3995", 
+#                         boundary = c(-60, 60, 66, 90))
+# bs_bathy <- vector_bathymetry(rb)
+# world <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_land.shp"), verbose = F)
+# islands <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_minor_islands.shp"), verbose = F)
+# world <- rbind(world, islands)
+# bs_land <- clip_shapefile(world, lims)
+# bs_land <- sp::spTransform(bs_land, CRSobj = sp::CRS(projection))
+# if(!rgeos::gIsValid(bs_land)){  # Has to return TRUE, if not use rgeos::gBuffer
+#   bs_land <- rgeos::gBuffer(bs_land, byid = TRUE, width = 0)
+# }
+# glaciers <- rgdal::readOGR(paste0(pCloud_path,"FACE-IT_data/shape_files/ne_10m_glaciated_areas.shp"), verbose = F)
+# if(!rgeos::gIsValid(glaciers)){ # Needs buffering
+#   glaciers <- rgeos::gBuffer(glaciers, byid = TRUE, width = 0)
+# }
+# bs_glacier <- clip_shapefile(glaciers, lims)
+# bs_glacier <- sp::spTransform(bs_glacier, CRSobj = sp::CRS(projection))
+
+# EU_shapes <- bbox_to_bathy(bbox_EU)
+# save("~/pCloudDrive/FACE-IT_data/shape_files/EU_shapes.RData")
+# load(paste0(pCloud_path,"FACE-IT_data/shape_files/EU_shapes.RData"))
 
 
 # Map ---------------------------------------------------------------------
 
 # Svalbard study sites
-map_sval <- bbox_to_ggOcean(c(9, 30, 76, 81)) +
+map_sval <- basemap(c(9, 30, 76, 81)) +
   geom_spatial_point(data = site_points[1:3,], size = 9, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
   ggtitle("Svalbard")
@@ -119,46 +121,48 @@ ggsave("figures/map_kongsfjorden.png", map_kong, width = 8, height = 6)
 map_is <- bbox_to_ggOcean(bbox_is) + ggtitle("Isfjorden")
 ggsave("figures/map_isfjorden.png", map_is, width = 8, height = 6)
 
+# Inglefieldbukta
+map_ingle <- bbox_to_ggOcean(bbox_ingle) + ggtitle("Inglefieldbukta")
+ggsave("figures/map_inglefieldbukta.png", map_ingle, width = 8, height = 6)
+
 # Porsangerfjorden
 map_por <- bbox_to_ggOcean(bbox_por) + ggtitle("Porsangerfjorden")
-ggsave("figures/map_kongsfjorden.png", map_por, width = 12, height = 6)
+ggsave("figures/map_porsangerfjorden.png", map_por, width = 6, height = 6)
 
-# Eastern Greenland study sites
-map_east <- bbox_to_ggOcean(bbox_east, lon_pad = 0.2, lat_pad = 0.1,
-                            bathy_file = paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc")) +
-  annotation_spatial(bbox_east_poly, fill = "cadetblue1", colour = "black", alpha = 0.1) 
-map_east
+# Young Sound
+map_young <- bbox_to_ggOcean(bbox_young, lon_pad = 0.2, lat_pad = 0.1,
+                             bathy_file = paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc")) +
+  annotation_spatial(bbox_young, fill = "cadetblue1", colour = "black", alpha = 0.1) 
+ggsave("figures/map_young_sound.png", map_young, width = 12, height = 6)
 
-# Western Greenland study sites
-map_west <- bbox_to_ggOcean(bbox_west, lon_pad = 0.5, lat_pad = 0.5,
-                            depths = c(0, 50, 100, 200, 500, 1000, 2000)) +
-  geom_spatial_point(data = site_points[5:6, ], size = 2, crs = 4326,
-                     aes(x = lon, y = lat), colour = "black") +
-  annotation_spatial(bbox_west_poly$data[[2]], fill = "cadetblue1", colour = "black", alpha = 0.1) +
-  annotation_spatial(bbox_west_poly$data[[1]], fill = "forestgreen", colour = "black", alpha = 0.1)
-map_west
+## Western Greenland study sites
+# Disko Bay
+map_disko <- bbox_to_ggOcean(bbox_disko) + ggtitle("Disko Bay")
+ggsave("figures/map_disko_bay.png", map_disko, width = 6, height = 6)
+
+# Nuup Kangerlua
+map_nuup <- bbox_to_ggOcean(bbox_nuup) + ggtitle("Nuup Kangerlua")
+ggsave("figures/map_nuup_kangerlua.png", map_nuup, width = 6, height = 6)
 
 # Full study area
-map_full <- basemap(limits = c(-50, 60, 60, 90), bathymetry = T) +
-  annotation_spatial(bbox_EU_poly, fill = "cadetblue1", colour = "black", alpha = 0.1) +
+map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
+  annotation_spatial(bbox_EU, fill = "cadetblue1", colour = "black", alpha = 0.1) +
   geom_spatial_point(data = site_points, size = 9, crs = 4326,
                      aes(x = lon, y = lat), colour = "black") +
   geom_spatial_point(data = site_points, size = 8, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
   labs(colour = "Site") +
   theme(panel.border = element_rect(colour = "black", fill = NA),
-        legend.position = c(0.948, 0.276),
+        legend.position = c(0.948, 0.29),
         # legend.margin = margin(10, 10, 10, 10),
         legend.box.margin = margin(10, 10, 10, 10), 
         legend.box.background = element_rect(fill = "white", colour = "black"))
-map_full
 ggsave("figures/map_full.png", map_full, height = 10, width = 16)
 
 # Assemble smaller figures
-map_small <- ggpubr::ggarrange(map_sval, map_fin, map_east, map_west, ncol = 2, nrow = 2)
+map_small <- ggpubr::ggarrange(map_kong, map_is, map_ingle, map_young, map_disko, map_nuup, map_por, ncol = 2, nrow = 4)
 
 # Put them together
-map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 2)
-ggsave("figures/map_all.png", map_all, height = 10, width = 16)
-map_all
+map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 2, widths = c(2, 1))
+ggsave("figures/map_all.png", map_all, height = 10, width = 24)
 
