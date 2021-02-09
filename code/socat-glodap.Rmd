@@ -31,3 +31,4 @@ arctic <- dat %>%
 ```
 
 SOCAT v2020 has `r nrow(all)` records of pCO2water_SST_wet [uatm], including `r nrow(arctic)`, or `r 100*nrow(arctic)/nrow(all)`%, in the Arctic Ocean (North of 66°N). According to http://www.physicalgeography.net/fundamentals/8o.html, the surface area of the world ocean and the Arctic Ocean are, respectively, 361,132,000 and 14,056,000 km2. The Arctic Ocean is therefore `r 100  * 14056000 / 361132000`% of the ocean.
+
