@@ -14,6 +14,8 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
   pCloud_path = "~/pCloudDrive/" 
 }
 library(tidyverse)
+library(data.table) # For 'fread'
+library(doParallel) # For using multiple cores
 ```
 
 ```{r read socat}
@@ -22,8 +24,18 @@ library(tidyverse)
 # write_rds(dat, file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.rds"))
 
 #read rds file (quicker)
+# system.time(
+# dat_fread <- data.table::fread(input = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362, nThread = 10, fill = TRUE) %>%
+#   dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
+# ) # 20 seconds
+# system.time(
+# dat_readr <- readr::read_tsv(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6361) %>%
+#   dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
+# ) # 64 seconds
+# system.time(
 dat <- read_rds(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.rds")) %>%
   dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
+# ) # 126 seconds
 all <- dat %>% # whole ocean
   dplyr::filter(!is.na(`pCO2water_SST_wet [uatm]`)) # remove NAs
 arctic <- dat %>% 
