@@ -16,25 +16,26 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
 library(tidyverse)
 library(data.table) # For 'fread'
 library(doParallel) # For using multiple cores
+library(tidync)
 ```
 
-```{r read socat}
+```{r read socat, message=FALSE, warning=FALSE}
 #read tsv file; done only once
 # dat <- read_tsv(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6360, n_max = Inf) 
 # write_rds(dat, file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.rds"))
 
 #read rds file (quicker)
 # system.time(
-# dat_fread <- data.table::fread(input = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362, nThread = 10, fill = TRUE) %>%
-#   dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
+dat <- data.table::fread(input = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362, nThread = 10, fill = TRUE) %>%
+  dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
 # ) # 20 seconds
 # system.time(
-# dat_readr <- readr::read_tsv(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6361) %>%
+# dat <- readr::read_tsv(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6361) %>%
 #   dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
 # ) # 64 seconds
 # system.time(
-dat <- read_rds(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.rds")) %>%
-  dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
+# dat <- read_rds(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.rds")) %>%
+  # dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
 # ) # 126 seconds
 all <- dat %>% # whole ocean
   dplyr::filter(!is.na(`pCO2water_SST_wet [uatm]`)) # remove NAs
@@ -43,4 +44,26 @@ arctic <- dat %>%
 ```
 
 SOCAT v2020 has `r nrow(all)` records of pCO2water_SST_wet [uatm], including `r nrow(arctic)`, or `r 100*nrow(arctic)/nrow(all)`%, in the Arctic Ocean (North of 66°N). According to http://www.physicalgeography.net/fundamentals/8o.html, the surface area of the world ocean and the Arctic Ocean are, respectively, 361,132,000 and 14,056,000 km2. The Arctic Ocean is therefore `r 100  * 14056000 / 361132000`% of the ocean.
+
+```{r read-glodap}
+GLODAP_depth <- tidync::tidync(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc")) %>% 
+  tidync::activate("D2") %>% 
+  tidync::hyper_tibble() %>% 
+  dplyr::rename(depth = Depth)
+GLODAP_TCO2_grid <- tidync(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc")) %>% 
+  hyper_tibble() %>%
+  dplyr::select(lon, lat, depth_surface, TCO2)
+
+# Join data to grid
+GLODAP_carb_chem_grid <- GLODAP_TCO2_grid %>% 
+  mutate(lon = ifelse(lon > 180, lon-360, lon)) %>% 
+  left_join(GLODAP_depth, by = c("depth_surface")) %>% 
+  dplyr::filter(!is.na(TCO2))
+
+# Arctic data
+GLODAP_arctic <- GLODAP_carb_chem_grid %>% 
+    filter(lat > 66)
+```
+
+GLODAP v2.2016 has `r nrow(GLODAP_carb_chem_grid)` records of TCO2, including `r nrow(GLODAP_arctic)`, or `r 100*nrow(GLODAP_arctic)/nrow(GLODAP_carb_chem_grid)`%, in the Arctic Ocean (North of 66°N). According to http://www.physicalgeography.net/fundamentals/8o.html, the surface area of the world ocean and the Arctic Ocean are, respectively, 361,132,000 and 14,056,000 km2. The Arctic Ocean is therefore `r 100  * 14056000 / 361132000`% of the ocean.
 
