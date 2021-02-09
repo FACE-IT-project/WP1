@@ -15,11 +15,18 @@
 # Add bathymetry for all of the sites
 # Use ggOceanMaps to do this
 
+# Maps per study site that are more zoomed out and show the coordinates labelled per corner of
+# the bounding boxes so it is more clear within what lon/lat confines the data are desired for
+
 
 # Setup -------------------------------------------------------------------
 
 # Start with common project code
 source("code/functions.R")
+library(png)
+
+# Load FACE-IT logo
+logo <- grid::rasterGrob(png::readPNG("FACE-IT_Logo_PNG_900.png"), interpolate = TRUE)
 
 
 # Single points -----------------------------------------------------------
@@ -37,8 +44,8 @@ bbox_EU <- bbox_to_poly(c(-60, 60, 63, 90), "EU")
 
 # Svalbard
 bbox_kong <- bbox_to_poly(c(11, 12.69, 78.86, 79.1), "Kongsfjorden")
-bbox_is <- bbox_to_poly(c(12.95, 15.78, 78.04, 78.43), "Isfjorden")
-bbox_ingle <- bbox_to_poly(c(18.04, 18.58, 77.92, 77.82), "Inglefieldbukta")
+bbox_is <- bbox_to_poly(c(13.62, 17.14, 78.03, 78.71), "Isfjorden")
+bbox_ingle <- bbox_to_poly(c(18.15, 18.79, 77.87, 78.05), "Inglefieldbukta")
 
 # Eastern Greenland
 bbox_young <- bbox_to_poly(c(-22.367917, -19.907644, 74.210137, 74.624304), "Young Sound")
@@ -55,8 +62,8 @@ bbox_por <- bbox_to_poly(c(24.5, 27, 70, 71.2), "Porsangerfjorden")
 
 # Svalbard
 trnsct_sval <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta"),
-                          lon1 = c(12.440833, 15.1, 18.19), lon2 = c(11.139333, 13.39, 18.47),
-                          lat1 = c(78.89650, 78.32, 77.89), lat2 = c( 79.04633, 78.13, 77.91))
+                          lon1 = c(12.440833, 14.0, 18.19), lon2 = c(11.139333, 16.66, 18.47),
+                          lat1 = c(78.89650, 78.13, 77.89), lat2 = c( 79.04633, 78.66, 77.91))
 
 # Norway
 trnsct_nor <- data.frame(site = c("Porsangerfjorden"),
@@ -130,9 +137,10 @@ map_por <- bbox_to_ggOcean(bbox_por) + ggtitle("Porsangerfjorden")
 ggsave("figures/map_porsangerfjorden.png", map_por, width = 6, height = 6)
 
 # Young Sound
-map_young <- bbox_to_ggOcean(bbox_young, lon_pad = 0.2, lat_pad = 0.1,
+map_young <- bbox_to_ggOcean(bbox_young,#lon_pad = 0.2, lat_pad = 0.1,
                              bathy_file = paste0(pCloud_path,"FACE-IT_data/shape_files/ys_bathy_v3.0_raw.nc")) +
-  annotation_spatial(bbox_young, fill = "cadetblue1", colour = "black", alpha = 0.1) 
+  ggtitle("Young Sound") #+
+  # annotation_spatial(bbox_young, fill = "cadetblue1", colour = "black", alpha = 0.1) 
 ggsave("figures/map_young_sound.png", map_young, width = 12, height = 6)
 
 ## Western Greenland study sites
@@ -151,7 +159,9 @@ map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
                      aes(x = lon, y = lat), colour = "black") +
   geom_spatial_point(data = site_points, size = 8, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
-  labs(colour = "Site") +
+  labs(title = "FACE-IT study area and focal sites",
+       colour = "Site",
+       caption = "robert.schlegel@imev-mer.fr\nSorbonne Université") +
   theme(panel.border = element_rect(colour = "black", fill = NA),
         legend.position = c(0.948, 0.29),
         # legend.margin = margin(10, 10, 10, 10),
@@ -160,7 +170,7 @@ map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
 ggsave("figures/map_full.png", map_full, height = 10, width = 16)
 
 # Assemble smaller figures
-map_small <- ggpubr::ggarrange(map_kong, map_is, map_ingle, map_young, map_disko, map_nuup, map_por, ncol = 2, nrow = 4)
+map_small <- ggpubr::ggarrange(map_kong, map_is, map_ingle, map_young, map_disko, map_nuup, map_por, logo, ncol = 2, nrow = 4)
 
 # Put them together
 map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 2, widths = c(2, 1))
