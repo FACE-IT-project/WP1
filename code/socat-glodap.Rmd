@@ -48,6 +48,13 @@ GLODAP_carb_chem_grid <- GLODAP_TCO2_grid %>%
 # Arctic data
 GLODAP_arctic <- GLODAP_carb_chem_grid %>% 
     filter(lat > 66)
+
+# The bottle data
+GLODAP_bottle <- read_csv(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2020_Merged_Master_File.csv"))
+
+# Arctic bottle data
+GLODAP_bottle_arctic <- GLODAP_bottle %>% 
+    filter(latitude > 66)
 ```
 
 GLODAP v2.2016 has `r nrow(GLODAP_carb_chem_grid)` records of TCO2, including `r nrow(GLODAP_arctic)`, or `r 100*nrow(GLODAP_arctic)/nrow(GLODAP_carb_chem_grid)`%, in the Arctic Ocean (North of 66°N). According to http://www.physicalgeography.net/fundamentals/8o.html, the surface area of the world ocean and the Arctic Ocean are, respectively, 361,132,000 and 14,056,000 km2. The Arctic Ocean is therefore `r 100  * 14056000 / 361132000`% of the ocean.
