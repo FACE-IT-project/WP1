@@ -8,4 +8,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+Welcome to the [FACE-IT](https://www.face-it-project.eu/) GitHub repository. This repo has only newly been created and will be expanded upon greatly over the next two months.
