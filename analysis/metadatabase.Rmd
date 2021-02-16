@@ -1,0 +1,18 @@
+---
+title: "Metadatabase"
+author: "Robert Schlegel"
+date: "2020-02-25"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+# csl: FMars.csl
+bibliography: FACE-IT.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = TRUE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+```
+
+## Introduction
