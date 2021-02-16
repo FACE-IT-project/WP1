@@ -52,15 +52,21 @@ print(timel_socat_a75_plt)
 dat <- socat_arctic_75 %>% count(mon)
 month_socat_a75_plt <- dat %>% 
   ggplot() +
-  geom_bar(aes(x = mon, y = n)) +
+  geom_col(aes(x = mon, y = n)) +
   labs(title = "SOCAT: number of data per month at > 75°N", x = "Year", y = "pCO2water_SST_wet")
 print(month_socat_a75_plt)
+socat_summer <- dat %>% 
+  dplyr::filter(mon >= 6 & mon <=9) %>%
+  sum()
+socat_summer_pc <- round(100 * socat_summer / sum(dat$n), digits = 1)
 ```
 
 SOCAT v2020 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
 
 * `r nrow(socat_arctic_60)` in the Arctic Ocean (North of 60°N), or `r round(100*nrow(socat_arctic_60)/nrow(socat_all), digits = 1)`% of the total number of records
 * `r nrow(socat_arctic_75)` in the Arctic Ocean (North of 75°N), or `r round(100*nrow(socat_arctic_75)/nrow(socat_all), digits = 1)`% of the total number of records
+
+`r socat_summer_pc`% of the data have been collected over 4 months (June to September) and no data was collected in December and January.
 
 ```{r read-glodap, , message=FALSE, warning=FALSE, echo = FALSE}
 
@@ -82,9 +88,23 @@ timel_glodap_a75_plt <- dat %>%
   geom_point(aes(x = year, y = n)) +
   labs(title = "GLODAP: number of data per year at > 75°N", x = "Year", y = "tco2")
 print(timel_glodap_a75_plt)
+
+# monthly distribution
+dat <- glodap_arctic_75 %>% count(month)
+month_glodap_a75_plt <- dat %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n)) +
+  labs(title = "GLODAP: number of data per month at > 75°N", x = "Year", y = "pCO2water_SST_wet")
+print(month_glodap_a75_plt)
+glodap_summer <- dat %>% 
+  dplyr::filter(month >= 6 & month <=9) %>%
+  sum()
+glodap_summer_pc <- round(100 * glodap_summer / sum(dat$n), digits = 1)
 ```
 
 GLODAP v2.2016 has `r nrow(glodap_all)` records of TCO2, including:
 
 * `r nrow(glodap_arctic_60)` in the Arctic Ocean (North of 60°N), or `r round(100*nrow(glodap_arctic_60)/nrow(glodap_all), digits = 1)`% of the total number of records
 * `r nrow(glodap_arctic_75)` in the Arctic Ocean (North of 75°N) or `r round(100*nrow(glodap_arctic_75)/nrow(glodap_all), digits = 1)`% of the total number of records
+
+`r glodap_summer_pc`% of the data have been collected over 4 months (June to September) and no data was collected in December and January.
