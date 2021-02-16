@@ -8,7 +8,7 @@ output:
     number_sections: false
 ---
 
-```{r setup, include=FALSE}
+```{r setup, message = FALSE, warning = FALSE, echo = FALSE}
 # Start with common project code
 # Find who is the user and define the pCloud path
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -23,6 +23,7 @@ library(tidyverse)
 library(data.table) # For 'fread'
 library(doParallel) # For using multiple cores
 library(tidync)
+library(workflowr)
 ```
 The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical_properties). According to Wikipedia the Arctic Ocean is about 14,056,000 km2. Calculation of the surface area of the Arctic Ocean using GMT (script below):
 
@@ -30,17 +31,22 @@ The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical
 - north of 75°N: 7.11213e+06 km2, or `r round(100  * 7.11213e+06 / 361132000, digits = 1)`% of the global ocean.
 
 
-```{r read socat, message=FALSE, warning=FALSE, include = FALSE}
+```{r read socat, message = FALSE, warning = FALSE, echo = FALSE}
 socat <- data.table::fread(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), select = c("yr", "mon", "day", "longitude [dec.deg.E]", "latitude [dec.deg.N]", "pCO2water_SST_wet [uatm]"), skip = 6362, nrows = Inf, nThread = 10, fill = TRUE)
-#socat <- data.table::fread(input = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362, nThread = 10, fill = TRUE) %>%
-#socat <- read_csv(paste0(pCloud_path,"FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362) %>%
-#  dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
 socat_all <- socat %>% # whole ocean
   dplyr::filter(!is.na(`pCO2water_SST_wet [uatm]`)) # remove NAs
 socat_arctic_60 <- socat_all %>% 
   dplyr::filter(`latitude [dec.deg.N]` > 60, !is.na(`pCO2water_SST_wet [uatm]`))
 socat_arctic_75 <- socat_all %>% 
   dplyr::filter(`latitude [dec.deg.N]` > 75, !is.na(`pCO2water_SST_wet [uatm]`))
+
+# timeline
+dat <- socat_arctic_75 %>% count(yr)
+timel_socat_a75_plt <- dat %>% 
+  ggplot() +
+  geom_point(aes(x = yr, y = n)) +
+  labs(title = "SOCAT: number of data per year at > 75°N", x = "Year", y = "pCO2water_SST_wet")
+print(timel_socat_a75_plt)
 ```
 
 SOCAT v2020 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
@@ -48,7 +54,7 @@ SOCAT v2020 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], includi
 * `r nrow(socat_arctic_60)` in the Arctic Ocean (North of 60°N), or `r round(100*nrow(socat_arctic_60)/nrow(socat_all), digits = 1)`% of the total number of records
 * `r nrow(socat_arctic_75)` in the Arctic Ocean (North of 75°N), or `r round(100*nrow(socat_arctic_75)/nrow(socat_all), digits = 1)`% of the total number of records
 
-```{r read-glodap, include = FALSE}
+```{r read-glodap, , message=FALSE, warning=FALSE, echo = FALSE}
 
 # The bottle data
 GLODAP_bottle <- read_csv(paste0(pCloud_path,"FACE-IT_data/glodap/GLODAPv2.2020_Merged_Master_File.csv")) %>%
@@ -60,9 +66,15 @@ glodap_arctic_60 <- GLODAP_bottle %>%
   dplyr::filter(latitude > 60, !is.na(tco2))
 glodap_arctic_75 <- GLODAP_bottle %>% 
   dplyr::filter(latitude > 75, !is.na(tco2))
+
+# timeline
+dat <- glodap_arctic_75 %>% count(year)
+timel_glodap_a75_plt <- dat %>% 
+  ggplot() +
+  geom_point(aes(x = year, y = n)) +
+  labs(title = "GLODAP: number of data per year at > 75°N", x = "Year", y = "tco2")
+print(timel_glodap_a75_plt)
 ```
-
-
 
 GLODAP v2.2016 has `r nrow(glodap_all)` records of TCO2, including:
 
