@@ -8,6 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 # Start with common project code
 # Find who is the user and define the pCloud path
+Sys.setlocale("LC_ALL", "en_US.UTF-8")
+Sys.setenv(TZ='UTC') # on utilise UTC
+rm(list = ls())
 if (Sys.getenv("LOGNAME") == "gattuso"){
   pCloud_path = "~/pCloud\ Drive/"
 } else {
@@ -18,17 +21,29 @@ library(data.table) # For 'fread'
 library(doParallel) # For using multiple cores
 library(tidync)
 ```
+The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical_properties). According to Wikipedia the Arctic Ocean is about 14,056,000 km2. Calculation of the surface area of the Arctic Ocean using GMT (script below):
+
+- north of 60°N: 1.6751e+07 km2 or `r 100  * 1.6751e+07 / 361132000`% of the global ocean.
+- north of 75°N: 7.11213e+06 km2 or `r 100  * 7.11213e+06 / 361132000`% of the global ocean.
+
 
 ```{r read socat, message=FALSE, warning=FALSE}
-socat <- data.table::fread(input = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362, nThread = 10, fill = TRUE) %>%
-  dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
+socat <- data.table::fread(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), select = c("yr", "mon", "day", "longitude [dec.deg.E]", "latitude [dec.deg.N]", "pCO2water_SST_wet [uatm]"), skip = 6362, nrows = Inf, fill = TRUE)
+#socat <- data.table::fread(input = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362, nThread = 10, fill = TRUE) %>%
+#socat <- read_csv(paste0(pCloud_path,"FACE-IT_data/socat/SOCATv2020.tsv"), skip = 6362) %>%
+#  dplyr::select(yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`, `pCO2water_SST_wet [uatm]`)
 socat_all <- socat %>% # whole ocean
   dplyr::filter(!is.na(`pCO2water_SST_wet [uatm]`)) # remove NAs
-socat_arctic <- dat %>% 
+socat_arctic_60 <- socat_all %>% 
+  dplyr::filter(`latitude [dec.deg.N]` > 60, !is.na(`pCO2water_SST_wet [uatm]`))
+socat_arctic_75 <- socat_all %>% 
   dplyr::filter(`latitude [dec.deg.N]` > 75, !is.na(`pCO2water_SST_wet [uatm]`))
 ```
 
-SOCAT v2020 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including `r nrow(socat_arctic)`, or `r 100*nrow(socat_arctic)/nrow(socat_all)`%, in the Arctic Ocean (North of 75°N). According to http://www.physicalgeography.net/fundamentals/8o.html, the surface area of the world ocean and the Arctic Ocean are, respectively, 361,132,000 and 14,056,000 km2. The Arctic Ocean is therefore `r 100  * 14056000 / 361132000`% of the ocean.
+SOCAT v2020 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
+
+* `r nrow(socat_arctic_60)`, or `r 100*nrow(socat_arctic_60)/nrow(socat_all)`%, in the Arctic Ocean (North of 60°N). 
+* `r nrow(socat_arctic_75)`, or `r 100*nrow(socat_arctic_75)/nrow(socat_all)`%, in the Arctic Ocean (North of 75°N). 
 
 ```{r read-glodap}
 # # gridded data
@@ -51,14 +66,21 @@ SOCAT v2020 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], includi
 #     filter(lat > 66)
 
 # The bottle data
-GLODAP_bottle <- read_csv(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2020_Merged_Master_File.csv")) %>%
+GLODAP_bottle <- read_csv(paste0(pCloud_path,"FACE-IT_data/glodap/GLODAPv2.2020_Merged_Master_File.csv")) %>%
   dplyr::select(year, month, day, longitude, latitude, bottomdepth, depth, tco2, talk)
 
 glodap_all <- GLODAP_bottle %>% # whole ocean
   dplyr::filter(!is.na(tco2)) # remove NAs
-glodap_arctic <- GLODAP_bottle %>% 
+glodap_arctic_60 <- GLODAP_bottle %>% 
+  dplyr::filter(latitude > 60, !is.na(tco2))
+glodap_arctic_75 <- GLODAP_bottle %>% 
   dplyr::filter(latitude > 75, !is.na(tco2))
 ```
 
-GLODAP v2.2016 has `r nrow(glodap_all)` records of TCO2, including `r nrow(glodap_arctic)`, or `r 100*nrow(glodap_arctic)/nrow(glodap_all)`%, in the Arctic Ocean (North of 75°N). According to http://www.physicalgeography.net/fundamentals/8o.html, the surface area of the world ocean and the Arctic Ocean are, respectively, 361,132,000 and 14,056,000 km2. The Arctic Ocean is therefore `r 100  * 14056000 / 361132000`% of the ocean.
+
+
+GLODAP v2.2016 has `r nrow(glodap_all)` records of TCO2, including:
+
+* `r nrow(glodap_arctic_60)`, or `r 100*nrow(glodap_arctic_60)/nrow(glodap_all)`%, in the Arctic Ocean (North of 60°N)
+* `r nrow(glodap_arctic_75)`, or `r 100*nrow(glodap_arctic_75)/nrow(glodap_all)`%, in the Arctic Ocean (North of 75°N). 
 
