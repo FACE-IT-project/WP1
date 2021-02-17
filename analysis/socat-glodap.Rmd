@@ -2,10 +2,18 @@
 title: "SOCAT-GLODAP"
 author: "Jean-Pierre Gattuso"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
+site: workflowr::wflow_site
 output:
-  rmarkdown::html_document:
-    theme: paper
-    number_sections: false
+  workflowr::wflow_html:
+    toc: false
+# output:
+#   rmarkdown::html_document:
+#     theme: paper
+#     number_sections: false
+editor_options:
+  chunk_output_type: console
+csl: frontiers.csl
+bibliography: FACE-IT.bib
 ---
 
 ```{r setup, message = FALSE, warning = FALSE, echo = FALSE}

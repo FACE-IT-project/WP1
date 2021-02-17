@@ -1,5 +1,5 @@
 ---
-title: "Home"
+title: "FACE-IT"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -8,4 +8,12 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to the [FACE-IT](https://www.face-it-project.eu/) GitHub repository. This repo has only newly been created and will be expanded upon greatly over the next two months.
+Welcome to the [FACE-IT](https://www.face-it-project.eu/) GitHub pages site. This site has only newly been created and will be expanded upon greatly over the following two months.
+
+Please use the tabs above to navigate the site. The "Analyses" tabs contains discrete analyses performed on data in the Arctic that may be of interest to FACE-IT members and the broader public. To see the raw code used for the workflow/pipeline of these analyses please follow the link in the top right of this page to the `source code` repository. Once there the raw workflow code may be found in the `code/` folder in various scripts, and the markdown files for the analyses may be found in the `analysis` folder. The functions etc. utilised throughout the code base may be found in the `code/functions.R` script. The code used to create the figures and tables may be found in the `code/visualising.R` script. Please note that not all of the objects used in these scripts are saved in the GitHub repo for this project as many of them are far too large. For these larger files one will need to request access to the FACE-IT pCloud folder. Or one may search the metadatabase for links to where the original data may be found.
+
+A short summary of the FACE-IT project:  
+
+> Glacier fronts and sea ice systems are hotspots of biodiversity. Their retreat will pose threats to Arctic coastal ecosystem function and eventually local livelihoods. The Arctic is a harbinger of the consequences of multiple global and regional environmental change on ecosystems and livelihoods: The overarching objective of FACE-IT is to enable adaptive co-management of social-ecological fjord systems in the Arctic in the face of rapid cryosphere and biodiversity changes. 
+
+Learn more at the [official website](https://www.face-it-project.eu/).

@@ -1,11 +1,14 @@
 ---
 title: "Metadatabase"
 author: "Robert Schlegel"
-date: "2020-02-25"
-output: workflowr::wflow_html
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
 editor_options:
   chunk_output_type: console
-# csl: FMars.csl
+csl: frontiers.csl
 bibliography: FACE-IT.bib
 ---
 
@@ -16,3 +19,10 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 ```
 
 ## Introduction
+
+Many physical processes are known to drive ecology in the Arctic.
+
+```{r}
+
+```
+
