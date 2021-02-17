@@ -18,11 +18,12 @@ bibliography: FACE-IT.bib
 
 ```{r setup, message = FALSE, warning = FALSE, echo = FALSE}
 # Start with common project code
-# Find who is the user and define the pCloud path
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
-Sys.setenv(TZ='UTC') # on utilise UTC
+Sys.setenv(TZ = 'UTC') # on utilise UTC
 rm(list = ls())
-if (Sys.getenv("LOGNAME") == "gattuso"){
+
+# Find who is the user and define the pCloud path
+if (Sys.getenv("LOGNAME") == "gattuso") {
   pCloud_path = "~/pCloud\ Drive/"
 } else {
   pCloud_path = "~/pCloudDrive/" 
@@ -61,7 +62,7 @@ dat <- socat_arctic_75 %>% count(mon)
 month_socat_a75_plt <- dat %>% 
   ggplot() +
   geom_col(aes(x = mon, y = n)) +
-  labs(title = "SOCAT: number of data per month at > 75°N", x = "Year", y = "pCO2water_SST_wet")
+  labs(title = "SOCAT: number of data per month at > 75°N", x = "Month", y = "pCO2water_SST_wet")
 print(month_socat_a75_plt)
 socat_summer <- dat %>% 
   dplyr::filter(mon >= 6 & mon <=9) %>%
@@ -102,7 +103,7 @@ dat <- glodap_arctic_75 %>% count(month)
 month_glodap_a75_plt <- dat %>% 
   ggplot() +
   geom_col(aes(x = month, y = n)) +
-  labs(title = "GLODAP: number of data per month at > 75°N", x = "Year", y = "pCO2water_SST_wet")
+  labs(title = "GLODAP: number of data per month at > 75°N", x = "Month", y = "pCO2water_SST_wet")
 print(month_glodap_a75_plt)
 glodap_summer <- dat %>% 
   dplyr::filter(month >= 6 & month <=9) %>%

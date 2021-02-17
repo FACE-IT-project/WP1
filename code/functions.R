@@ -17,6 +17,20 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
   pCloud_path = "~/pCloudDrive/" 
 }
 
+# Workflowr code ----------------------------------------------------------
+
+# All analysis files
+# dir("analysis", pattern = ".Rmd", full.names = T)
+
+# Run this to re-compile the entire project
+system.time(
+  workflowr::wflow_publish(files = c("analysis/index.Rmd",
+                                     # "analysis/socat-glodap.Rmd", # Don't knit this unless necessary, it takes a long time
+                                     "analysis/metadatabase.Rmd"
+  ),
+  message = "Re-built site.")
+) # 102 seconds
+
 
 # Meta-data ---------------------------------------------------------------
 

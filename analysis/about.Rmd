@@ -7,6 +7,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-Glacier fronts and sea ice systems are hotspots of biodiversity. Their retreat will pose threats to Arctic coastal ecosystem function and eventually local livelihoods. The Arctic is a harbinger of the consequences of multiple global and regional environmental change on ecosystems and livelihoods: The overarching objective of FACE-IT is to enable adaptive co-management of social-ecological fjord systems in the Arctic in the face of rapid cryosphere and biodiversity changes.
-
-Learn more at the [official website](https://www.face-it-project.eu/).
+Describe your project.

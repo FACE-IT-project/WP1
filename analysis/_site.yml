@@ -3,12 +3,20 @@ output_dir: ../docs
 navbar:
   title: "FACE-IT"
   left:
-  - text: Home
+  - text: "Overview"
     href: index.html
-  - text: About
-    href: about.html
-  - text: License
+  - text: "Metadatabase"
+    href: metadatabase.html
+  - text: "Analyses"
+    menu:
+    - text: "SOCAT/GLODAP data in the Arctic"
+      href: socat-glodap.html
+  - text: "License"
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/robwschlegel/FACE-IT
 output:
   workflowr::wflow_html:
     toc: yes
