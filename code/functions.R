@@ -29,7 +29,7 @@ system.time(
                                      "analysis/metadatabase.Rmd"
   ),
   message = "Re-built site.")
-) # 102 seconds
+) # 311 seconds with the SOCAT analysis
 
 
 # Meta-data ---------------------------------------------------------------
