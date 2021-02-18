@@ -11,10 +11,10 @@ navbar:
     menu:
     - text: "SOCAT/GLODAP data in the Arctic"
       href: socat-glodap.html
-  - text: "License"
-    href: license.html
+  # - text: "License"
+  #   href: license.html
   right:
-  - icon: fa-github
+  - icon: fab fa-github-alt
     text: Source code
     href: https://github.com/robwschlegel/FACE-IT
 output:
