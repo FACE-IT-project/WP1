@@ -9,8 +9,8 @@ navbar:
     href: metadatabase.html
   - text: "Analyses"
     menu:
-    - text: "SOCAT/GLODAP data in the Arctic"
-      href: socat-glodap.html
+    # - text: "SOCAT/GLODAP data in the Arctic"
+    #   href: socat-glodap.html
   # - text: "License"
   #   href: license.html
   right:
