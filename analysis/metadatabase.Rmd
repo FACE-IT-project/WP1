@@ -26,6 +26,8 @@ library(DT)
 # Function for smoother meta-data creation
 make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
   
+  # Create fulll file name
+  
   # determine the file type and load
   if(str_detect(file_name, ".tsv")){
     dat <- read_tsv(file_name, guess_max = 100000)
@@ -42,16 +44,16 @@ make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
   # Find latitude range
   lat_col <- c(colnames(dat)[str_detect(colnames(dat), "lat")],
                colnames(dat)[str_detect(colnames(dat), "Lat")])
-  lat_min <- min(dat[,lat_col], na.rm = T)
-  lat_max <- max(dat[,lat_col], na.rm = T)
+  lat_min <- round(min(dat[,lat_col], na.rm = T), 2)
+  lat_max <- round(max(dat[,lat_col], na.rm = T), 2)
   
   # Find depth range
   depth_col <- c(colnames(dat)[str_detect(colnames(dat), "depth")],
                  colnames(dat)[str_detect(colnames(dat), "Depth")])
   depth_col <- depth_col[!str_detect(depth_col, "bottom")]
   depth_col <- depth_col[!str_detect(depth_col, "Bottom")]
-  depth_min <- min(dat[,depth_col], na.rm = T)
-  depth_max <- max(dat[,depth_col], na.rm = T)
+  depth_min <- round(min(dat[,depth_col], na.rm = T), 2)
+  depth_max <- round(max(dat[,depth_col], na.rm = T), 2)
   
   # Find depth range
   date_col <- c(colnames(dat)[str_detect(colnames(dat), "date")],
@@ -60,6 +62,9 @@ make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
     `colnames<-`("t")
   date_min <- as.Date(min(date_col$t))
   date_max <- as.Date(max(date_col$t))
+  
+  # Determine ecoregions
+  # Find point in MEOW polygons
   
   res <- data.frame(data_type, lon_min, lon_max, lat_min, lat_max, depth_min, depth_max, 
                     date_min, date_max, file_name, URL, reference)
@@ -88,7 +93,7 @@ metadata_EU_arctic <- rbind(EU_zooplankton, EU_zooplankton)
 ```{r EU-arctic-meta-data-table}
 DT::datatable(metadata_EU_arctic)
 ```
-
+<!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
 
 ## Svalbard
 
