@@ -332,18 +332,7 @@ $(document).ready(function () {
 <li>
   <a href="metadatabase.html">Metadatabase</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Analyses
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="socat-glodap.html">SOCAT/GLODAP data in the Arctic</a>
-    </li>
-  </ul>
-</li>
+<li class="dropdown-header">Analyses</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -480,16 +469,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtreeb09fb3f56daf99795741a2ce257e0bf140c9f9f3targetblankb09fb3fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/b09fb3f56daf99795741a2ce257e0bf140c9f9f3" target="_blank">b09fb3f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree93d152e63f555c58bf9af49fc381e682345189d3targetblank93d152ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/93d152e63f555c58bf9af49fc381e682345189d3" target="_blank">93d152e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtreeb09fb3f56daf99795741a2ce257e0bf140c9f9f3targetblankb09fb3fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree93d152e63f555c58bf9af49fc381e682345189d3targetblank93d152ea" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/b09fb3f56daf99795741a2ce257e0bf140c9f9f3" target="_blank">b09fb3f</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/93d152e63f555c58bf9af49fc381e682345189d3" target="_blank">93d152e</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -498,6 +487,9 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+
+Unstaged changes:
+    Modified:   analysis/_site.yml
 
 </code></pre>
 <p>
@@ -536,6 +528,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/robwschlegel/FACE-IT/blob/93d152e63f555c58bf9af49fc381e682345189d3/analysis/metadatabase.Rmd" target="_blank">93d152e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Adjusting file pathways
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/robwschlegel/FACE-IT/6208900599477d36a7ed04a32249f7b2a77adcbf/docs/metadatabase.html" target="_blank">6208900</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -736,7 +762,7 @@ The metadatabase Rmd file
 </div>
 <div id="drivers-of-change-in-the-european-arctic" class="section level2">
 <h2>Drivers of change in the European Arctic</h2>
-<p><img src="figures/map_full.png" /></p>
+<p><img src="/home/rws/FACE-IT/figures/map_full.png" /></p>
 <p>Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (<span class="citation">Pavlova et al. (2019)</span>). There are however many more, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (<span class="citation">Hop and Wiencke (2019)</span>). In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic.</p>
 <pre class="r"><code>DT::datatable(metadata_EU_arctic)</code></pre>
 <div id="htmlwidget-61ebf658e893460fe95c" style="width:100%;height:auto;" class="datatables html-widget"></div>
