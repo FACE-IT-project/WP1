@@ -28,7 +28,7 @@ make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
   
   # determine the file type and load
   if(str_detect(file_name, ".tsv")){
-    dat <- read_tsv(file_name, progress = T, guess_max = 100000)
+    dat <- read_tsv(file_name, guess_max = 100000)
   } else {
     stop("File type not currently accounted for.")
   }
