@@ -73,7 +73,7 @@ This document is designed to satisfy both D1.1 and D1.2 for the Horizon2020 proj
 
 ## Drivers of change in the European Arctic
 
-![](../figures/map_full.png)
+![](figures/map_full.png)
 
 Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (@Pavlova2019). There are however many more, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (@Hop2019). In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic.
 
@@ -92,7 +92,7 @@ DT::datatable(metadata_EU_arctic)
 
 ## Svalbard
 
-![](../figures/map_svalbard.png)
+![](figures/map_svalbard.png)
 
 While not a study site itself, there are a lot of studies and data products that focuss on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region 
 
