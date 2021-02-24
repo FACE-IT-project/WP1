@@ -26,7 +26,7 @@ library(DT)
 # Function for smoother meta-data creation
 make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
   
-  # Create fulll file name
+  # Create full file name
   
   # determine the file type and load
   if(str_detect(file_name, ".tsv")){
@@ -91,13 +91,13 @@ EU_zooplankton <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/EU_arct
 metadata_EU_arctic <- rbind(EU_zooplankton, EU_zooplankton)
 ```
 ```{r EU-arctic-meta-data-table}
-DT::datatable(metadata_EU_arctic)
+DT::datatable(metadata_EU_arctic, rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T) )
 ```
 <!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
 
 ## Svalbard
 
-![](figures/map_svalbard.png)
+![](~/FACE-IT/figures/map_svalbard.png)
 
 While not a study site itself, there are a lot of studies and data products that focuss on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region 
 
