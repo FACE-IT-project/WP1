@@ -319,7 +319,7 @@ $(document).ready(function () {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -328,7 +328,7 @@ $(document).ready(function () {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -340,7 +340,7 @@ $(document).ready(function () {
 <strong>Last updated:</strong> 2021-02-24
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>FACE-IT/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -356,12 +356,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -428,16 +428,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree3e8114ee6d4439c04818854fc4e57cc62f1a50d8targetblank3e8114ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/3e8114ee6d4439c04818854fc4e57cc62f1a50d8" target="_blank">3e8114e</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree6b2f047db1dc573542dce9fc27e46fd15c1ffebctargetblank6b2f047a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/6b2f047db1dc573542dce9fc27e46fd15c1ffebc" target="_blank">6b2f047</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree3e8114ee6d4439c04818854fc4e57cc62f1a50d8targetblank3e8114ea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree6b2f047db1dc573542dce9fc27e46fd15c1ffebctargetblank6b2f047a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/3e8114ee6d4439c04818854fc4e57cc62f1a50d8" target="_blank">3e8114e</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/6b2f047db1dc573542dce9fc27e46fd15c1ffebc" target="_blank">6b2f047</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -449,6 +449,8 @@ Ignored files:
 
 Unstaged changes:
     Modified:   analysis/_site.yml
+    Modified:   analysis/metadatabase.Rmd
+    Modified:   code/functions.R
 
 </code></pre>
 <p>
@@ -487,6 +489,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/robwschlegel/FACE-IT/6b2f047db1dc573542dce9fc27e46fd15c1ffebc/docs/metadatabase.html" target="_blank">6b2f047</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-24
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -772,7 +791,7 @@ The metadatabase Rmd file
 </div>
 <div id="drivers-of-change-in-the-european-arctic" class="section level2">
 <h2>Drivers of change in the European Arctic</h2>
-<p><img src="/home/rws/FACE-IT/figures/map_full.png" /></p>
+<p><img src="../figures/map_full.png" /></p>
 <p>Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (<span class="citation">Pavlova et al. (2019)</span>). There are however many more, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (<span class="citation">Hop and Wiencke (2019)</span>). In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic.</p>
 <pre class="r"><code>DT::datatable(metadata_EU_arctic, rownames = FALSE, filter=&quot;top&quot;, options = list(pageLength = 5, scrollX=T) )</code></pre>
 <div id="htmlwidget-61ebf658e893460fe95c" style="width:100%;height:auto;" class="datatables html-widget"></div>
@@ -781,7 +800,7 @@ The metadatabase Rmd file
 </div>
 <div id="svalbard" class="section level2">
 <h2>Svalbard</h2>
-<p><img src="/home/rws/FACE-IT/figures/map_svalbard.png" /></p>
+<p><img src="../figures/map_svalbard.png" /></p>
 <p>While not a study site itself, there are a lot of studies and data products that focuss on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region</p>
 </div>
 <div id="references" class="section level2">
@@ -824,7 +843,7 @@ attached base packages:
 other attached packages:
  [1] DT_0.17         forcats_0.5.1   stringr_1.4.0   dplyr_1.0.4    
  [5] purrr_0.3.4     readr_1.4.0     tidyr_1.1.2     tibble_3.0.6   
- [9] ggplot2_3.3.3   tidyverse_1.3.0 workflowr_1.6.2
+ [9] ggplot2_3.3.3   tidyverse_1.3.0
 
 loaded via a namespace (and not attached):
  [1] tidyselect_1.1.0  xfun_0.21         bslib_0.2.4       haven_2.3.1      
@@ -832,16 +851,16 @@ loaded via a namespace (and not attached):
  [9] yaml_2.2.1        rlang_0.4.10      jquerylib_0.1.3   later_1.1.0.1    
 [13] pillar_1.4.7      withr_2.4.1       glue_1.4.2        DBI_1.1.1        
 [17] dbplyr_2.1.0      modelr_0.1.8      readxl_1.3.1      lifecycle_1.0.0  
-[21] munsell_0.5.0     gtable_0.3.0      cellranger_1.1.0  rvest_0.3.6      
-[25] htmlwidgets_1.5.3 evaluate_0.14     knitr_1.31        crosstalk_1.1.1  
-[29] httpuv_1.5.5      broom_0.7.5       Rcpp_1.0.6        promises_1.2.0.1 
-[33] backports_1.2.1   scales_1.1.1      jsonlite_1.7.2    fs_1.5.0         
-[37] hms_1.0.0         digest_0.6.27     stringi_1.5.3     rprojroot_2.0.2  
-[41] grid_4.0.4        cli_2.3.0         tools_4.0.4       magrittr_2.0.1   
-[45] sass_0.3.1        crayon_1.4.1      whisker_0.4       pkgconfig_2.0.3  
-[49] ellipsis_0.3.1    xml2_1.3.2        reprex_1.0.0      lubridate_1.7.9.2
-[53] rstudioapi_0.13   assertthat_0.2.1  rmarkdown_2.7     httr_1.4.2       
-[57] R6_2.5.0          git2r_0.28.0      compiler_4.0.4   </code></pre>
+[21] munsell_0.5.0     gtable_0.3.0      workflowr_1.6.2   cellranger_1.1.0 
+[25] rvest_0.3.6       htmlwidgets_1.5.3 evaluate_0.14     knitr_1.31       
+[29] crosstalk_1.1.1   httpuv_1.5.5      broom_0.7.5       Rcpp_1.0.6       
+[33] promises_1.2.0.1  backports_1.2.1   scales_1.1.1      jsonlite_1.7.2   
+[37] fs_1.5.0          hms_1.0.0         digest_0.6.27     stringi_1.5.3    
+[41] rprojroot_2.0.2   grid_4.0.4        cli_2.3.0         tools_4.0.4      
+[45] magrittr_2.0.1    sass_0.3.1        crayon_1.4.1      whisker_0.4      
+[49] pkgconfig_2.0.3   ellipsis_0.3.1    xml2_1.3.2        reprex_1.0.0     
+[53] lubridate_1.7.9.2 rstudioapi_0.13   assertthat_0.2.1  rmarkdown_2.7    
+[57] httr_1.4.2        R6_2.5.0          git2r_0.28.0      compiler_4.0.4   </code></pre>
 </div>
 </div>
 
