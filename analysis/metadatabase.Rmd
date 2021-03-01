@@ -77,33 +77,15 @@ make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
                colnames(dat)[str_detect(colnames(dat), "Day")])
   if(length(date_col) > 0){
     date_dat <- dat[,date_col] %>% `colnames<-`("t")
-    date_min <- as.Date(min(date_dat$t))
-    date_max <- as.Date(max(date_dat$t))
+    date_min <- lubridate::year(as.Date(min(date_dat$t)))
+    date_max <- lubridate::year(as.Date(max(date_dat$t)))
   } else if(length(year_col) > 0) {
-    date_dat <- dat[,year_col] %>% `colnames<-`("year")
-    if(length(month_col) == 0){
-      month_dat <- dat[colnames(dat) %in% c(month.abb, month.name)]
-      if(ncol(month_dat) > 0) {
-        month_abb <- match(colnames(month_dat), month.abb)
-        month_name <- match(colnames(month_dat), month.name)
-        if(length(na.omit(month_name)) > length(na.omit(month_abb))){
-          month_int <- month_name
-        } else {
-          month_int <- month_abb
-          }
-        date_min <- paste0(min(date_dat$year),"-",min(month_int, na.rm = T))
-        date_max <- paste0(max(date_dat$year),"-",max(month_int, na.rm = T))
-      }
-      if()
-    } else{
-      date_min <- as.Date(paste0(min(date_dat$year, na.rm = T),"-01-01"))
-      date_max <- as.Date(paste0(max(date_dat$year, na.rm = T),"-12-31"))
-      }
-    # Here is where month and day values will be added when available
+    year_dat <- dat[,year_col] %>% `colnames<-`("year")
+    date_min <- min(year_dat$year, na.rm = T)
+    date_max <- max(year_dat$year, na.rm = T)
   } else {
     date_min <- NA; date_max <- NA
   }
-
   
   # Determine ecoregions
   # Find point in MEOW polygons
