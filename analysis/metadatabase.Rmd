@@ -28,6 +28,8 @@ make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
   # determine the file type and load
   if(str_detect(file_name, ".tsv")){
     dat <- read_tsv(file_name, guess_max = 100000)
+  } else if(str_detect(file_name, ".csv")) {
+    dat <- read_csv(file_name, guess_max = 100000)
   } else {
     stop("File type not currently accounted for.")
   }
@@ -35,36 +37,74 @@ make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
   # Find longitude range
   lon_col <- c(colnames(dat)[str_detect(colnames(dat), "lon")],
                colnames(dat)[str_detect(colnames(dat), "Lon")])
-  lon_min <- min(dat[,lon_col], na.rm = T)
-  lon_max <- max(dat[,lon_col], na.rm = T)
+  if(length(lon_col) > 0){
+    lon_min <- round(min(dat[,lon_col], na.rm = T), 2)
+    lon_max <- round(max(dat[,lon_col], na.rm = T), 2)
+  } else {
+    lon_min <- NA; lon_max <- NA
+  }
   
   # Find latitude range
   lat_col <- c(colnames(dat)[str_detect(colnames(dat), "lat")],
                colnames(dat)[str_detect(colnames(dat), "Lat")])
-  lat_min <- round(min(dat[,lat_col], na.rm = T), 2)
-  lat_max <- round(max(dat[,lat_col], na.rm = T), 2)
+  if(length(lat_col) > 0){
+    lat_min <- round(min(dat[,lat_col], na.rm = T), 2)
+    lat_max <- round(max(dat[,lat_col], na.rm = T), 2)
+  } else {
+    lat_min <- NA; lat_max <- NA
+  }
   
   # Find depth range
   depth_col <- c(colnames(dat)[str_detect(colnames(dat), "depth")],
                  colnames(dat)[str_detect(colnames(dat), "Depth")])
   depth_col <- depth_col[!str_detect(depth_col, "bottom")]
   depth_col <- depth_col[!str_detect(depth_col, "Bottom")]
-  depth_min <- round(min(dat[,depth_col], na.rm = T), 2)
-  depth_max <- round(max(dat[,depth_col], na.rm = T), 2)
-  
+  if(length(depth_col) > 0){
+    depth_min <- round(min(dat[,depth_col], na.rm = T), 2)
+    depth_max <- round(max(dat[,depth_col], na.rm = T), 2)
+  } else {
+    depth_min <- NA; depth_max <- NA
+  }
+
   # Find depth range
   date_col <- c(colnames(dat)[str_detect(colnames(dat), "date")],
                 colnames(dat)[str_detect(colnames(dat), "Date")])
-  date_col <- dat[,date_col] %>% 
-    `colnames<-`("t")
-  date_min <- as.Date(min(date_col$t))
-  date_max <- as.Date(max(date_col$t))
+  year_col <- c(colnames(dat)[str_detect(colnames(dat), "year")],
+                colnames(dat)[str_detect(colnames(dat), "Year")])
+  month_col <- c(colnames(dat)[str_detect(colnames(dat), "month")],
+                 colnames(dat)[str_detect(colnames(dat), "Month")])
+  day_col <- c(colnames(dat)[str_detect(colnames(dat), "day")],
+               colnames(dat)[str_detect(colnames(dat), "Day")])
+  if(length(date_col) > 0){
+    date_dat <- dat[,date_col] %>% `colnames<-`("t")
+    date_min <- as.Date(min(date_dat$t))
+    date_max <- as.Date(max(date_dat$t))
+  } else if(length(year_col) > 0) {
+    date_dat <- dat[,year_col] %>% `colnames<-`("year")
+    if(length(month_col) == 0){
+      month_dat <- dat[colnames(dat) %in% c(month.abb, month.name)]
+      if(ncol(month_dat) > 0) {
+        month_dat <- month_dat %>% 
+          pivot_longer(cols = everything(), names_to = "month", values_to = "val") %>% 
+          dplyr::select(month) %>% 
+          distinct()
+        date_min <- paste0(min(date_dat$year),"-",match(month_dat$month[1], month.abb, month.name))
+        }
+      }
+    # Here is where month and day values will be added when available
+  } else {
+    date_min <- NA; date_max <- NA
+  }
+
   
   # Determine ecoregions
   # Find point in MEOW polygons
   
-  res <- data.frame(data_type, lon_min, lon_max, lat_min, lat_max, depth_min, depth_max, 
-                    date_min, date_max, file_name, URL, reference)
+  res <- data.frame(data_type, 
+                    date_min, date_max,
+                    lon_min, lon_max, lat_min, lat_max, 
+                    depth_min, depth_max, 
+                    file_name, URL, reference)
   return(res)
 }
 ```
@@ -77,7 +117,16 @@ This document is designed to satisfy both D1.1 and D1.2 for the Horizon2020 proj
 
 ![](assets/map_full.png)
 
-Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (@Pavlova2019). There are however many more, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (@Hop2019). In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic.
+Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (@Pavlova2019). The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions that are primarily responsible for global increases in temperature. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere (@Meredith2019). Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.
+
+There are however many more important variables to consider, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (@Hop2019). Many of these important drivers are known from research conducted further south. Where datasets are easier to build, and time series are longer. For this reason one may find that the drivers of change in Arctic are more often inferred than they are 'known'. This is because historically there has been a paucity of data in the Arctic (@Bischof2019kongsfjorden). Many international projects, in coordination with many established Arctic research institutions, have been very busy to close this knowledge gap and the holes in our knowledge are being filled rapidly. FACE-IT is one of these projects that seeks to better understand biodiversity changes, while contributing to and drawing from this expanding body of knowledge.
+
+In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler (@Bischof2019kelps). The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there's a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity (@Bischof2019kelps). This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.
+
+```{r EU-arctic-table}
+knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
+                        Driver = c("Air temp.", "SST", "Sea ice")))
+```
 
 ```{r EU-arctic-meta-data, echo=FALSE}
 EU_zooplankton <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv",
@@ -85,11 +134,13 @@ EU_zooplankton <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/EU_arct
                                  URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
                                  reference = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. 
                                  Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8")
-metadata_EU_arctic <- rbind(EU_zooplankton, EU_zooplankton)
+metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
+
 ```{r EU-arctic-meta-data-table}
 DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T))
 ```
+
 <!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
 
 ## Svalbard
@@ -102,11 +153,32 @@ While not a study site itself, there are a lot of studies and data products that
 
 ![](assets/map_kongsfjorden.png)
 
-Much of the solar magnetic radiation going towards earth is focussed around Ny Alesund. This can have a knock on effect to air temperature when there are strong auroras. Up to 4°C. Models currently capture this effect very poorly. Land terminating glaciers have been retreating linearly. Water terminating glaciers are less linear. Occasionally water terminating glaciers may surge forward, making it look like the terminating edge has improved. But this is generally due to a destabilisation of the glacier and an overall decrease in the glacier mass balance. 2020 was a record breaking warm year that has led to record breaking melts. Smaller glaciers are more susceptible to the increased in melt driven by climate change as they have smaller areas to accumulate ice etc. during the cold period of the year. 
+Much of the solar magnetic radiation going towards earth is focussed around Ny Alesund. This can have a knock on effect to air temperature when there are strong auroras: up to 4°C! Unfortunately models currently capture this effect very poorly. 
+
+Land terminating glaciers around Kongsfjorden have been retreating linearly over the last decades. Water terminating glaciers retreat less linearly as there are occasions when the water terminating edge may surge forward, making it look like the terminating edge has improved. This is generally due to a destabilisation of the glacier that means an overall decrease in the glacier mass balance. 2020 was a record breaking warm year that has led to record breaking melts. Smaller glaciers are more susceptible to the increase in melt driven by climate change as they have smaller areas to accumulate ice etc. during the cold period of the year. 
 
 Up until 2007 the fjord tended to be frozen 100% until February. Since 2007 the fjord has been having less and less surface freezing. This is in part due to Atlantic water encroachment. These waters are higher in aragonite and pH. These are also less turbid, allowing for more light for use with plankton etc. The plankton do respond to this with Atlantic species favoured in warmer years.
 
-As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism.
+As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (@Bischof2019kongsfjorden). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months (@Bischof2019kongsfjorden).
+
+```{r kongsfjorden-table}
+knitr::kable(data.frame(Category = c("Physical", "Physical", "Physical", "Cryosphere", "Cryoshpere"),
+                        Driver = c("Q_lw", "Q_sw", "turbidity", "Land glacier mass balance", "Runoff")))
+```
+
+```{r kongsfjorden-meta-data, echo=FALSE}
+kong_sea_ice_inner <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv",
+                                     data_type = "Sea ice cover",
+                                     URL = "https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7",
+                                     reference = "Gerland, S., & Pavlova, O. (2020). 
+                                     Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. 
+                                     Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236")
+metadata_kongsfjorden <- rbind(kong_sea_ice_inner)
+```
+
+```{r kongsfjorden-meta-data-table}
+DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T))
+```
 
 ### Isfjorden
 
