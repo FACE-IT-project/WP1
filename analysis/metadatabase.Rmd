@@ -84,12 +84,20 @@ make_meta_data <- function(file_name, data_type, URL, reference, other = NA){
     if(length(month_col) == 0){
       month_dat <- dat[colnames(dat) %in% c(month.abb, month.name)]
       if(ncol(month_dat) > 0) {
-        month_dat <- month_dat %>% 
-          pivot_longer(cols = everything(), names_to = "month", values_to = "val") %>% 
-          dplyr::select(month) %>% 
-          distinct()
-        date_min <- paste0(min(date_dat$year),"-",match(month_dat$month[1], month.abb, month.name))
-        }
+        month_abb <- match(colnames(month_dat), month.abb)
+        month_name <- match(colnames(month_dat), month.name)
+        if(length(na.omit(month_name)) > length(na.omit(month_abb))){
+          month_int <- month_name
+        } else {
+          month_int <- month_abb
+          }
+        date_min <- paste0(min(date_dat$year),"-",min(month_int, na.rm = T))
+        date_max <- paste0(max(date_dat$year),"-",max(month_int, na.rm = T))
+      }
+      if()
+    } else{
+      date_min <- as.Date(paste0(min(date_dat$year, na.rm = T),"-01-01"))
+      date_max <- as.Date(paste0(max(date_dat$year, na.rm = T),"-12-31"))
       }
     # Here is where month and day values will be added when available
   } else {
