@@ -119,22 +119,27 @@ map_sval <- basemap(c(9, 30, 76, 81)) +
                      aes(x = lon, y = lat, colour = site)) +
   ggtitle("Svalbard")
 ggsave("figures/map_svalbard.png", map_sval, width = 12, height = 6)
+ggsave("docs/assets/map_svalbard.png", map_sval, width = 12, height = 6)
 
 # Kongsfjorden
 map_kong <- bbox_to_ggOcean(bbox_kong) + ggtitle("Kongsfjorden")
 ggsave("figures/map_kongsfjorden.png", map_kong, width = 8, height = 6)
+ggsave("docs/assets/map_kongsfjorden.png", map_kong, width = 8, height = 6)
 
 # Isfjorden
 map_is <- bbox_to_ggOcean(bbox_is) + ggtitle("Isfjorden")
 ggsave("figures/map_isfjorden.png", map_is, width = 8, height = 6)
+ggsave("docs/assets/map_isfjorden.png", map_is, width = 8, height = 6)
 
 # Inglefieldbukta
 map_ingle <- bbox_to_ggOcean(bbox_ingle) + ggtitle("Inglefieldbukta")
 ggsave("figures/map_inglefieldbukta.png", map_ingle, width = 8, height = 6)
+ggsave("docs/assets/map_inglefieldbukta.png", map_ingle, width = 8, height = 6)
 
 # Porsangerfjorden
 map_por <- bbox_to_ggOcean(bbox_por) + ggtitle("Porsangerfjorden")
 ggsave("figures/map_porsangerfjorden.png", map_por, width = 6, height = 6)
+ggsave("docs/assets/map_porsangerfjorden.png", map_por, width = 6, height = 6)
 
 # Young Sound
 map_young <- bbox_to_ggOcean(bbox_young,#lon_pad = 0.2, lat_pad = 0.1,
@@ -142,15 +147,18 @@ map_young <- bbox_to_ggOcean(bbox_young,#lon_pad = 0.2, lat_pad = 0.1,
   ggtitle("Young Sound") #+
   # annotation_spatial(bbox_young, fill = "cadetblue1", colour = "black", alpha = 0.1) 
 ggsave("figures/map_young_sound.png", map_young, width = 12, height = 6)
+ggsave("docs/assets/map_young_sound.png", map_young, width = 12, height = 6)
 
 ## Western Greenland study sites
 # Disko Bay
 map_disko <- bbox_to_ggOcean(bbox_disko) + ggtitle("Disko Bay")
 ggsave("figures/map_disko_bay.png", map_disko, width = 6, height = 6)
+ggsave("docs/assets/map_disko_bay.png", map_disko, width = 6, height = 6)
 
 # Nuup Kangerlua
 map_nuup <- bbox_to_ggOcean(bbox_nuup) + ggtitle("Nuup Kangerlua")
 ggsave("figures/map_nuup_kangerlua.png", map_nuup, width = 6, height = 6)
+ggsave("docs/assets/map_nuup_kangerlua.png", map_nuup, width = 6, height = 6)
 
 # Full study area
 map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
@@ -168,6 +176,7 @@ map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
         legend.box.margin = margin(10, 10, 10, 10), 
         legend.box.background = element_rect(fill = "white", colour = "black"))
 ggsave("figures/map_full.png", map_full, height = 10, width = 16)
+ggsave("docs/assets/map_full.png", map_full, height = 10, width = 16)
 
 # Assemble smaller figures
 map_small <- ggpubr::ggarrange(map_kong, map_is, map_ingle, map_young, map_disko, map_nuup, map_por, logo, ncol = 2, nrow = 4)
@@ -175,4 +184,5 @@ map_small <- ggpubr::ggarrange(map_kong, map_is, map_ingle, map_young, map_disko
 # Put them together
 map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 2, widths = c(2, 1))
 ggsave("figures/map_all.png", map_all, height = 10, width = 24)
+ggsave("docs/assets/map_all.png", map_all, height = 10, width = 24)
 
