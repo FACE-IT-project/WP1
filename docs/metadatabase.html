@@ -504,16 +504,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree9d463844f87b38392a1901e11faa5f0bfeb92b2etargetblank9d46384a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/9d463844f87b38392a1901e11faa5f0bfeb92b2e" target="_blank">9d46384</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree5d4b15e8403b453d7d5ceb1d54f64ba524c7fa82targetblank5d4b15ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/5d4b15e8403b453d7d5ceb1d54f64ba524c7fa82" target="_blank">5d4b15e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree9d463844f87b38392a1901e11faa5f0bfeb92b2etargetblank9d46384a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree5d4b15e8403b453d7d5ceb1d54f64ba524c7fa82targetblank5d4b15ea" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/9d463844f87b38392a1901e11faa5f0bfeb92b2e" target="_blank">9d46384</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/5d4b15e8403b453d7d5ceb1d54f64ba524c7fa82" target="_blank">5d4b15e</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -564,6 +564,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/robwschlegel/FACE-IT/blob/5d4b15e8403b453d7d5ceb1d54f64ba524c7fa82/analysis/metadatabase.Rmd" target="_blank">5d4b15e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/robwschlegel/FACE-IT/3a30630cef06a4ed71ed796b72fdb69fe6649fb0/docs/metadatabase.html" target="_blank">3a30630</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -949,28 +983,57 @@ The metadatabase Rmd file
 <h2>Introduction</h2>
 <p>This document is designed to satisfy both D1.1 and D1.2 for the Horizon2020 project “FACE-IT.” The text in this document is a report on the key drivers of changes in Arctic biodiversity (D1.1). The tables contain the meta-database for the data identified as key drivers of change (D1.2). The text and meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (D1.3). We begin with a review of known drivers of change in the Arctic before focussing in on each individual FACE-IT study site to discuss any differences from the broader Arctic. Within each section a table is given that shows the meta-data for the drivers of change for the topic of that section.</p>
 </div>
-<div id="drivers-of-change-in-the-european-arctic" class="section level2">
-<h2>Drivers of change in the European Arctic</h2>
+<div id="european-arctic" class="section level2">
+<h2>European Arctic</h2>
 <p><img src="assets/map_full.png" /></p>
-<p><img src="analysis/graph/map_full.png" /></p>
-<p><img src="figures/map_full.png" /></p>
-<p><img src="../figures/map_full.png" /></p>
 <p>Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (<span class="citation">Pavlova et al. (2019)</span>). There are however many more, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (<span class="citation">Hop and Wiencke (2019)</span>). In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic.</p>
-<pre class="r"><code>DT::datatable(metadata_EU_arctic, rownames = FALSE, filter=&quot;top&quot;, options = list(pageLength = 5, scrollX=T) )</code></pre>
+<pre class="r"><code>DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = &quot;top&quot;, options = list(pageLength = 5, scrollX = T))</code></pre>
 <div id="htmlwidget-61ebf658e893460fe95c" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-61ebf658e893460fe95c">{"x":{"filter":"top","filterHTML":"<tr>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["Zooplankton biodiversity","Zooplankton biodiversity"],[1.241667,1.241667],[40.824633,40.824633],[75.6,75.6],[82.45,82.45],[0,0],[1600,1600],["1995-06-17","1995-06-17"],["2008-08-20","2008-08-20"],["~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv","~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv"],["https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448","https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448"],["Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. \n                                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8","Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. \n                                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>data_type<\/th>\n      <th>lon_min<\/th>\n      <th>lon_max<\/th>\n      <th>lat_min<\/th>\n      <th>lat_max<\/th>\n      <th>depth_min<\/th>\n      <th>depth_max<\/th>\n      <th>date_min<\/th>\n      <th>date_max<\/th>\n      <th>file_name<\/th>\n      <th>URL<\/th>\n      <th>reference<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6]}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 <!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
 </div>
 <div id="svalbard" class="section level2">
 <h2>Svalbard</h2>
-<p><img src="graph/map_svalbard.png" /></p>
+<p><img src="assets/map_svalbard.png" /></p>
 <p>While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region</p>
-</div>
-<div id="kongsfjorden" class="section level2">
-<h2>Kongsfjorden</h2>
+<div id="kongsfjorden" class="section level3">
+<h3>Kongsfjorden</h3>
+<p><img src="assets/map_kongsfjorden.png" /></p>
 <p>Much of the solar magnetic radiation going towards earth is focussed around Ny Alesund. This can have a knock on effect to air temperature when there are strong auroras. Up to 4°C. Models currently capture this effect very poorly. Land terminating glaciers have been retreating linearly. Water terminating glaciers are less linear. Occasionally water terminating glaciers may surge forward, making it look like the terminating edge has improved. But this is generally due to a destabilisation of the glacier and an overall decrease in the glacier mass balance. 2020 was a record breaking warm year that has led to record breaking melts. Smaller glaciers are more susceptible to the increased in melt driven by climate change as they have smaller areas to accumulate ice etc. during the cold period of the year.</p>
 <p>Up until 2007 the fjord tended to be frozen 100% until February. Since 2007 the fjord has been having less and less surface freezing. This is in part due to Atlantic water encroachment. These waters are higher in aragonite and pH. These are also less turbid, allowing for more light for use with plankton etc. The plankton do respond to this with Atlantic species favoured in warmer years.</p>
 <p>As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism.</p>
+</div>
+<div id="isfjorden" class="section level3">
+<h3>Isfjorden</h3>
+<p><img src="assets/map_isfjorden.png" /></p>
+</div>
+<div id="inglefieldbukta" class="section level3">
+<h3>Inglefieldbukta</h3>
+<p><img src="assets/map_inglefieldbukta.png" /></p>
+</div>
+</div>
+<div id="greenland" class="section level2">
+<h2>Greenland</h2>
+<p>See the EU Arctic figure above for where the Greenland sites are located. They are too spread out to be shown here in a single figure with any better precision than the full study area.</p>
+<div id="young-sound" class="section level3">
+<h3>Young Sound</h3>
+<p><img src="assets/map_young_sound.png" /></p>
+</div>
+<div id="disko-bay" class="section level3">
+<h3>Disko Bay</h3>
+<p><img src="assets/map_disko_bay.png" /></p>
+</div>
+<div id="nuup-kangerlua" class="section level3">
+<h3>Nuup Kangerlua</h3>
+<p><img src="assets/map_nuup_kangerlua.png" /></p>
+</div>
+</div>
+<div id="norway" class="section level2">
+<h2>Norway</h2>
+<div id="porsangerfjorden" class="section level3">
+<h3>Porsangerfjorden</h3>
+<p><img src="../docs/assets/map_porsangerfjorden.png" /></p>
+</div>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
