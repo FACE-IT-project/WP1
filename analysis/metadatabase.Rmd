@@ -113,7 +113,7 @@ There are however many more important variables to consider, such as photosynthe
 
 In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler (@Bischof2019kelps). The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there's a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity (@Bischof2019kelps). This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.
 
-```{r EU-arctic-table}
+```{r EU-arctic-table, echo=FALSE}
 knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
                         Driver = c("Air temp.", "SST", "Sea ice")))
 ```
@@ -127,7 +127,7 @@ EU_zooplankton <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/EU_arct
 metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
 
-```{r EU-arctic-meta-data-table}
+```{r EU-arctic-meta-data-table, echo=FALSE}
 DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T))
 ```
 
@@ -151,7 +151,7 @@ Up until 2007 the fjord tended to be frozen 100% until February. Since 2007 the 
 
 As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (@Bischof2019kongsfjorden). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months (@Bischof2019kongsfjorden).
 
-```{r kongsfjorden-table}
+```{r kongsfjorden-table, echo=FALSE}
 knitr::kable(data.frame(Category = c("Physical", "Physical", "Physical", "Cryosphere", "Cryoshpere"),
                         Driver = c("Q_lw", "Q_sw", "turbidity", "Land glacier mass balance", "Runoff")))
 ```
@@ -166,7 +166,7 @@ kong_sea_ice_inner <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kon
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner)
 ```
 
-```{r kongsfjorden-meta-data-table}
+```{r kongsfjorden-meta-data-table, echo=FALSE}
 DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T))
 ```
 
@@ -198,6 +198,6 @@ See the EU Arctic figure above for where the Greenland sites are located. They a
 
 ### Porsangerfjorden
 
-![](../docs/assets/map_porsangerfjorden.png)
+![](assets/map_porsangerfjorden.png)
 
 ## References
