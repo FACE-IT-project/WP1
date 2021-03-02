@@ -5,6 +5,7 @@ date: '`r format(Sys.Date(), "%d %B %Y")`'
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
+css: acid.css
 csl: frontiers.csl
 bibliography: FACE-IT.bib
 ---
@@ -23,6 +24,9 @@ library(tidyverse)
 library(tidync)
 library(ijtiff)
 library(DT)
+
+# Datatable options for all tables
+options(DT.options = list(pageLength = 5))
 ```
 
 ```{r meta-data-func}
@@ -136,7 +140,7 @@ metadata_EU_arctic <- rbind(EU_zooplankton)
 
 ```{r EU-arctic-meta-data-table}
 DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T),
-              caption = "Note that all files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.")
+              caption = "Note that this table scrolls to the right. All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.")
 ```
 
 <!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
@@ -179,10 +183,12 @@ sval_tidal_glacier_front <- data.frame(data_type = "Tidal glacier front",
 metadata_svalbard <- rbind(sval_glacier_mass, sval_tidal_glacier_front)
 ```
 
+<div style="margin-left: -200px;">
 ```{r svalbard-meta-data-table}
 DT::datatable(metadata_svalbard, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T), 
-              caption = "Note that all data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.")
+              caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.")
 ```
+</div> 
 
 ### Kongsfjorden
 
@@ -295,10 +301,22 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_n
                                kong_weather_station)
 ```
 
+<div style="margin-left: -200px;">
 ```{r kongsfjorden-meta-data-table}
-DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T), 
-              caption = "Note that all data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.")
+DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", 
+              width = 1000,
+              caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.",
+              options = list(
+                pageLength = 5,
+                autoWidth = TRUE,
+                # columnDefs = list(list(width = '200px', targets = c(11))),
+                deferRender = TRUE,
+                scrollX = 1000,
+                scrollY = 400,
+                scrollCollapse = TRUE,
+                lengthMenu = c(5, 10, 25, 50, 100)))
 ```
+</div>
 
 ### Isfjorden
 
