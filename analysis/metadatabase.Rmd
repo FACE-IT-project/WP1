@@ -11,35 +11,23 @@ bibliography: FACE-IT.bib
 
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
-                      echo = TRUE, warning = FALSE, message = FALSE, 
+                      echo = FALSE, warning = FALSE, message = FALSE, 
                       eval = TRUE, tidy = FALSE)
 ```
 
 ## Introduction
 
-```{r setup, echo=FALSE}
+```{r setup}
 # Necessary libraries
 library(tidyverse)
 library(tidync)
+library(ijtiff)
 library(DT)
+```
 
+```{r meta-data-func}
 # Function for smoother meta-data creation
-make_meta_data <- function(dat_prep, file_name, data_type, URL, reference, nc_grid = NA, other = NA){
-  
-  # Create full file name
-  
-  # determine the file type and load
-  if(str_detect(file_name, ".tsv")){
-    dat <- read_tsv(file_name, guess_max = 100000)
-  } else if(str_detect(file_name, ".csv")) {
-    dat <- read_csv(file_name, guess_max = 100000)
-  } else if(str_detect(file_name, ".nc")) {
-    dat <- tidync(file_name) %>% 
-      activate(nc_grid) %>% 
-      hyper_tibble()
-  } else {
-    stop("File type not currently accounted for.")
-  }
+make_meta_data <- function(dat, file_name, data_type, URL, reference, note = NA){
   
   # Find longitude range
   lon_col <- c(colnames(dat)[str_detect(colnames(dat), "lon")],
@@ -62,10 +50,10 @@ make_meta_data <- function(dat_prep, file_name, data_type, URL, reference, nc_gr
   }
   
   # Find depth range
-  depth_col <- c(colnames(dat)[str_detect(colnames(dat), "dep")],
-                 colnames(dat)[str_detect(colnames(dat), "Dep")])
-  depth_col <- depth_col[!str_detect(depth_col, "bottom")]
-  depth_col <- depth_col[!str_detect(depth_col, "Bottom")]
+  depth_col <- c(colnames(dat)[str_detect(colnames(dat), "depth")],
+                 colnames(dat)[str_detect(colnames(dat), "Depth")])
+  depth_col <- depth_col[!str_detect(depth_col, "bot")]
+  depth_col <- depth_col[!str_detect(depth_col, "Bot")]
   if(length(depth_col) > 0){
     depth_min <- round(min(dat[,depth_col], na.rm = T), 2)
     depth_max <- round(max(dat[,depth_col], na.rm = T), 2)
@@ -78,10 +66,6 @@ make_meta_data <- function(dat_prep, file_name, data_type, URL, reference, nc_gr
                 colnames(dat)[str_detect(colnames(dat), "Date")])
   year_col <- c(colnames(dat)[str_detect(colnames(dat), "year")],
                 colnames(dat)[str_detect(colnames(dat), "Year")])
-  month_col <- c(colnames(dat)[str_detect(colnames(dat), "month")],
-                 colnames(dat)[str_detect(colnames(dat), "Month")])
-  day_col <- c(colnames(dat)[str_detect(colnames(dat), "day")],
-               colnames(dat)[str_detect(colnames(dat), "Day")])
   if(length(date_col) > 0){
     date_dat <- dat[,date_col] %>% `colnames<-`("t")
     if(!is.na(as.Date(date_dat$t[1], "%Y-%m-%d"))){
@@ -107,18 +91,18 @@ make_meta_data <- function(dat_prep, file_name, data_type, URL, reference, nc_gr
     year_dat <- dat[,year_col] %>% `colnames<-`("year")
     date_min <- min(year_dat$year, na.rm = T)
     date_max <- max(year_dat$year, na.rm = T)
-  } else {
-    date_min <- NA; date_max <- NA
   }
   
   # Determine ecoregions
   # Find point in MEOW polygons
   
+  # Combine and output
   res <- data.frame(data_type, 
                     date_min, date_max,
                     lon_min, lon_max, lat_min, lat_max, 
                     depth_min, depth_max, 
-                    file_name, URL, reference)
+                    file_name, URL, reference,
+                    note)
   return(res)
 }
 ```
@@ -135,22 +119,24 @@ There are however many more important variables to consider, such as photosynthe
 
 In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler (@Bischof2019kelps). The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there's a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity (@Bischof2019kelps). This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.
 
-```{r EU-arctic-table, echo=FALSE}
+```{r EU-arctic-table}
 knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
                         Driver = c("Air temp.", "SST", "Sea ice")))
 ```
 
-```{r EU-arctic-meta-data, echo=FALSE}
-EU_zooplankton <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv",
-                                 data_type = "Zooplankton biodiversity",
-                                 URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
-                                 reference = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. 
-                                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8")
+```{r EU-arctic-meta-data}
+EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", guess_max = 100000) %>% 
+  make_meta_data(file_name = "1995-2008-zooplankton-biodiversity.tsv",
+                 data_type = "Zooplankton biodiversity",
+                 URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
+                 reference = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. 
+                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8")
 metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
 
-```{r EU-arctic-meta-data-table, echo=FALSE}
-DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T))
+```{r EU-arctic-meta-data-table}
+DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T),
+              caption = "Note that all files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.")
 ```
 
 <!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
@@ -159,7 +145,44 @@ DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", options = li
 
 ![](assets/map_svalbard.png)
 
-While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region 
+While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it's own meta-data table. The primary drivers of change for each site are still listed in their own tables.
+
+```{r svalbard-meta-data}
+# Glacial topography + thickness
+sval_glacier_mass <- data.frame(data_type = "Glacier mass balance",
+                                date_min = 1967, date_max = 2019,
+                                lon_min = NA, lon_max = NA, lat_min = NA, lat_max = NA,
+                                depth_min = NA, depth_max = NA,
+                                file_name = "cumulative-mass-balance-for-glaciers-in-svalbard.csv\n
+                                             austre-broggerbreen-mass-balance.csv\n
+                                             etonbreen-austfonna-mass-balance.csv\n
+                                             kongsvegen-mass-balance.csv\n
+                                             kronebreenholtedahlfonna-mass-balance.csv\n
+                                             midtre-lovenbreen-mass-balance.csv",
+                                URL = "https://www.mosj.no/en/climate/land/mass-balance-glaciers.html",
+                                reference = "See website",
+                                note = NA)
+
+# Tidal glacier fronts
+sval_tidal_glacier_front <- data.frame(data_type = "Tidal glacier front",
+                                       date_min = 2015, date_max = 2019,
+                                lon_min = 9, lon_max = 36, lat_min = 76, lat_max = 81,
+                                depth_min = NA, depth_max = NA,
+                                file_name = "Tidewater/",
+                                URL = "https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d",
+                                reference = "Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). 
+                                Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute.
+                                https://doi.org/10.21334/npolar.2018.7cd67b1a",
+                                note = NA)
+
+# Combine
+metadata_svalbard <- rbind(sval_glacier_mass, sval_tidal_glacier_front)
+```
+
+```{r svalbard-meta-data-table}
+DT::datatable(metadata_svalbard, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T), 
+              caption = "Note that all data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.")
+```
 
 ### Kongsfjorden
 
@@ -173,72 +196,108 @@ Up until 2007 the fjord tended to be frozen 100% until February. Since 2007 the 
 
 As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (@Bischof2019kongsfjorden). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months (@Bischof2019kongsfjorden).
 
-```{r kongsfjorden-table, echo=FALSE}
-knitr::kable(data.frame(Category = c("Physical", "Physical", "Physical", "Cryosphere", "Cryoshpere"),
-                        Driver = c("Q_lw", "Q_sw", "turbidity", "Land glacier mass balance", "Runoff")))
+```{r kongsfjorden-table}
+knitr::kable(data.frame(Category = c("Physical", "Physical", 
+                                     "Physical", "Cryosphere", "Cryoshpere"),
+                        Driver = c("Longwave radiation (Q_lw)", "Shortwave radiation (Q_sw)", 
+                                   "turbidity", "Land glacier mass balance", "Runoff")))
 ```
 
-```{r kongsfjorden-meta-data, echo=FALSE}
+```{r kongsfjorden-meta-data}
 # Sea ice cover
-kong_sea_ice_inner <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv",
-                                     data_type = "Sea ice cover",
-                                     URL = "https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7",
-                                     reference = "Gerland, S., & Pavlova, O. (2020). 
-                                     Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. 
-                                     Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236")
+kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv", guess_max = 100000) %>% 
+  make_meta_data(file_name = "Kongsfjorden_sea_ice_cover_data.csv",
+                 data_type = "Sea ice cover",
+                 URL = "https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7",
+                 reference = "Gerland, S., & Pavlova, O. (2020). 
+                 Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. 
+                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236")
 
 # Zooplankton abundance and species
-# Rather the function should be given an object
-# And the file_name filed points to where those were loaded from
-kong_zoo_abundance <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_abundance_data.csv",
-                                     data_type = "Zooplankton abundance",
-                                     URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
-                                     reference = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019)
-                                     Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. 
-                                     In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.") %>% 
-  mutate(lon_min = NA, lon_max = NA) # Some species names are confused for longitude values
-kong_zoo_species <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv",
-                                   data_type = "Zooplankton species",
-                                   URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
-                                   reference = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019)
-                                   Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. 
-                                   In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.")
-kong_zoo_sampling <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv",
-                                    data_type = "Zooplankton sampling",
-                                    URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
-                                    reference = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019)
-                                    Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. 
-                                    In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.")
-kong_protist_species <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv",
-                                       data_type = "Protist species",
-                                       URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
-                                       reference = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) 
-                                       Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. 
-                                       In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.")
-kong_nutrients <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv",
-                                 data_type = "Nutrients & Chla",
-                                 URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
-                                 reference = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) 
-                                 Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. 
-                                 In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.")
-kong_nutrients_sampling <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv",
-                                          data_type = "Nutrients & Chla sampling",
-                                          URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
-                                          reference = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) 
-                                          Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. 
-                                          In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.")
-# kong_CTD_sampling <- make_meta_data(file_name = "~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc",
-#                                     data_type = "CTD sampling",
-#                                     URL = "https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6",
-#                                     reference = "Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). 
-#                                     Kongsfjorden Transect CTD data 1906-2016 [Data set]. 
-#                                     Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c")
-metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_abundance, kong_zoo_species, kong_zoo_sampling,
-                               kong_protist_species, kong_nutrients, kong_nutrients_sampling)
+kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv") %>% 
+  dplyr::rename(depth_from = from, depth_to = to) %>% 
+  make_meta_data(file_name = "kf_zooplankton_sampling_meta.csv\n 
+                              kf_zooplankton_abundance_data.csv\n
+                              kf_zooplankton_species_meta.csv",
+                 data_type = "Zooplankton species + abundance",
+                 URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
+                 reference = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019)
+                 Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. 
+                 In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.")
+
+# Protist species and nutrients and Chla
+kong_protist_nutrient_chla <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv") %>% 
+  filter(Depth != 3831) %>% # These values are deeper than the bottom depth
+  mutate(`Sampling date` = as.Date(`Sampling date`, "%Y%m%d")) %>% # Prep date data
+  make_meta_data(file_name = "Metadata_Kongsfjorden2009-2014_Hegseth et al.csv\n
+                              Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv\n
+                              Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv",
+                 data_type = "Protist species + Nutrients + Chla",
+                 URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
+                 reference = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) 
+                 Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. 
+                 In 'The ecosystem of Kongsfjorden, Svalbard' (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.",
+                 note = "The lon/lat coordinates are suspect.") %>% 
+  mutate(lon_min = 9.50, lon_max = 9.55, lat_min = 78.90, lat_max = 79.10)
+
+# CTD sampling data
+kong_CTD_database <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") %>% 
+  activate("D1") %>% hyper_tibble() %>% 
+  dplyr::rename(date = TIME, lat = LATITUDE, lon = LONGITUDE, depth = FDEP) %>% 
+  mutate(date = as.Date(date, origin = "1950-01-01")) %>% 
+  make_meta_data(file_name = "Kongsfjorden_ctd_1906_2017.nc",
+                 data_type = "CTD: temperature + salinity",
+                 URL = "https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6",
+                 reference = "Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019).
+                 Kongsfjorden Transect CTD data 1906-2016 [Data set].
+                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c")
+
+# CO2 data
+kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_Marine_CO2_system_2012_to_2014.csv") %>% 
+  dplyr::rename(date = `yyyy-mm-dd`) %>% 
+    make_meta_data(file_name = "Kongsfjorden_Marine_CO2_system_2012_to_2014.csv",
+                   data_type = "CTD: temperature + salinity + alkalinity (TA) + DIC",
+                   URL = "https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4",
+                   reference = "Fransson, A., & Chierici, M. (2019). 
+                   Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. 
+                   Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53")
+
+# Glacial topography + thickness
+kong_glacier_info <- data.frame(data_type = "Glacier surface + thickness + elevation",
+                                date_min = 2004, date_max = 2016,
+                                lon_min = 10, lon_max = 14, lat_min = 78.8, lat_max = 79.2,
+                                depth_min = NA, depth_max = NA,
+                                file_name = "TIGRIF_DEM_ice_surface_150m_v1.tif\n
+                                             TIGRIF_DEM_ice_thickness_150m_1.tif\n
+                                             TIGRIF_DEM_subglacial_elevation_150m_v1.tif\n
+                                             TIGRIF_radarprofiles_2004_2016_v1.txt",
+                                URL = "https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1",
+                                reference = "Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). 
+                                Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. 
+                                Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7",
+                                note = NA)
+# Kongsvegen weather station
+kong_weather_station <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsvegen-weather.tsv", n_max = 100000) %>% 
+  dplyr::rename(date = timestamp) %>% 
+  make_meta_data(file_name = "Kongsvegen-weather.tsv",
+                 data_type = "Kongsvegen weather station: longwave + shortwave + air temp. + humidity + wind",
+                 URL = "https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b",
+                 reference = "Kohler, J., Hudson, S. R., & Obleitner, F. (2017). 
+                 Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. 
+                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.5dc31930",
+                 note = "See website for full list of variables.")
+
+# Unknown data
+# test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
+
+# Bind them together
+metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, kong_CTD_CO2, kong_glacier_info,
+                               kong_weather_station)
 ```
 
-```{r kongsfjorden-meta-data-table, echo=FALSE}
-DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T))
+```{r kongsfjorden-meta-data-table}
+DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T), 
+              caption = "Note that all data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.")
 ```
 
 ### Isfjorden
