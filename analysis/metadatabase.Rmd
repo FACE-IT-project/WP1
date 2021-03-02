@@ -183,12 +183,12 @@ sval_tidal_glacier_front <- data.frame(data_type = "Tidal glacier front",
 metadata_svalbard <- rbind(sval_glacier_mass, sval_tidal_glacier_front)
 ```
 
-<div style="margin-left: -200px;">
+<!-- <div style="margin-left: -200px;"> -->
 ```{r svalbard-meta-data-table}
 DT::datatable(metadata_svalbard, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T), 
               caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.")
 ```
-</div> 
+<!-- </div>  -->
 
 ### Kongsfjorden
 
@@ -301,7 +301,7 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_n
                                kong_weather_station)
 ```
 
-<div style="margin-left: -200px;">
+<!-- <div style="margin-right: -200px; margin-left: -200px;"> -->
 ```{r kongsfjorden-meta-data-table}
 DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", 
               width = 1000,
@@ -309,14 +309,14 @@ DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top",
               options = list(
                 pageLength = 5,
                 autoWidth = TRUE,
-                # columnDefs = list(list(width = '200px', targets = c(11))),
+                columnDefs = list(list(width = '200px', targets = c(11))),
                 deferRender = TRUE,
                 scrollX = 1000,
                 scrollY = 400,
                 scrollCollapse = TRUE,
                 lengthMenu = c(5, 10, 25, 50, 100)))
 ```
-</div>
+<!-- </div> -->
 
 ### Isfjorden
 
