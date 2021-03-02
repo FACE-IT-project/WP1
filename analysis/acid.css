@@ -33,10 +33,10 @@
   color: #004466;
 }
 .row {
-    margin-left: -100px;
+  margin-right: -100px;
 }
 .row {
-  margin-right: -100px;
+  margin-left: -300px;
 }
 #TOC {
   position: fixed;
@@ -46,11 +46,9 @@
   overflow:auto;
 }
 #DataTables {
-  left: -200px;
-  right: -200px;
+  width: 1000px;
 }
 body {
   margin-left: 0;
-  line-height: 30px;
   font-size: 12pt;
 }

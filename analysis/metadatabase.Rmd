@@ -301,17 +301,25 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_n
                                kong_weather_station)
 ```
 
-<!-- <div style="margin-right: -200px; margin-left: -200px;"> -->
+<!-- <div style="margin-right: -200px;"> -->
 ```{r kongsfjorden-meta-data-table}
-DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top", 
-              width = 1000,
+DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top",
+              # width = 1000,
+              # height = 400,
               caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.",
               options = list(
                 pageLength = 5,
                 autoWidth = TRUE,
-                columnDefs = list(list(width = '200px', targets = c(11))),
+                columnDefs = list(list(
+                  targets = list(9, 11),
+                  render = JS(
+                    "function(data, type, row, meta) {",
+                    "return type === 'display' && data.length > 6 ?",
+                    "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+                    "}"))),
+                # columnDefs = list(list(width = '50%', targets = c(11))),
                 deferRender = TRUE,
-                scrollX = 1000,
+                scrollX = TRUE,
                 scrollY = 400,
                 scrollCollapse = TRUE,
                 lengthMenu = c(5, 10, 25, 50, 100)))
