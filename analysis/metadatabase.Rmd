@@ -26,7 +26,21 @@ library(ijtiff)
 library(DT)
 
 # Datatable options for all tables
-options(DT.options = list(pageLength = 5))
+options(DT.options = list(pageLength = 5,
+                          autoWidth = TRUE,
+                          columnDefs = list(list(
+                            targets = list(9, 11),
+                            render = JS(
+                              "function(data, type, row, meta) {",
+                              "return type === 'display' && data.length > 6 ?",
+                              "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+                              "}"))),
+                          # columnDefs = list(list(width = '50%', targets = c(11))),
+                          deferRender = TRUE,
+                          scrollX = TRUE,
+                          scrollY = 400,
+                          scrollCollapse = TRUE,
+                          lengthMenu = c(5, 10, 25, 50, 100)))
 ```
 
 ```{r meta-data-func}
@@ -117,15 +131,17 @@ This document is designed to satisfy both D1.1 and D1.2 for the Horizon2020 proj
 
 ![](assets/map_full.png)
 
-Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (@Pavlova2019). The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions that are primarily responsible for global increases in temperature. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere (@Meredith2019). Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.
+Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors [@Pavlova2019]. The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions that are primarily responsible for global increases in temperature. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere [@Meredith2019]. Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.
 
-There are however many more important variables to consider, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (@Hop2019). Many of these important drivers are known from research conducted further south. Where datasets are easier to build, and time series are longer. For this reason one may find that the drivers of change in Arctic are more often inferred than they are 'known'. This is because historically there has been a paucity of data in the Arctic (@Bischof2019kongsfjorden). Many international projects, in coordination with many established Arctic research institutions, have been very busy to close this knowledge gap and the holes in our knowledge are being filled rapidly. FACE-IT is one of these projects that seeks to better understand biodiversity changes, while contributing to and drawing from this expanding body of knowledge.
+There are however many more important variables to consider, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity [@Hop2019]. Many of these important drivers are known from research conducted further south. Where datasets are easier to build, and time series are longer. For this reason one may find that the drivers of change in Arctic are more often inferred than they are 'known'. This is because historically there has been a paucity of data in the Arctic [@Bischof2019kongsfjorden]. Many international projects, in coordination with many established Arctic research institutions, have been very busy to close this knowledge gap and the holes in our knowledge are being filled rapidly. FACE-IT is one of these projects that seeks to better understand biodiversity changes, while contributing to and drawing from this expanding body of knowledge.
 
-In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler (@Bischof2019kelps). The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there's a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity (@Bischof2019kelps). This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.
+In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler [@Bischof2019kelps]. The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there's a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity [@Bischof2019kelps]. This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.
 
 ```{r EU-arctic-table}
 knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
-                        Driver = c("Air temp.", "SST", "Sea ice")))
+                        Driver = c("Air temp.", "SST", "Sea ice"),
+                        Why = c("", "", ""),
+                        Reference = c("", "", "")))
 ```
 
 ```{r EU-arctic-meta-data}
@@ -133,13 +149,12 @@ EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zoopl
   make_meta_data(file_name = "1995-2008-zooplankton-biodiversity.tsv",
                  data_type = "Zooplankton biodiversity",
                  URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
-                 reference = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. 
-                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8")
+                 reference = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8")
 metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
 
 ```{r EU-arctic-meta-data-table}
-DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T),
+DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top",
               caption = "Note that this table scrolls to the right. All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.")
 ```
 
@@ -174,9 +189,7 @@ sval_tidal_glacier_front <- data.frame(data_type = "Tidal glacier front",
                                 depth_min = NA, depth_max = NA,
                                 file_name = "Tidewater/",
                                 URL = "https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d",
-                                reference = "Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). 
-                                Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute.
-                                https://doi.org/10.21334/npolar.2018.7cd67b1a",
+                                reference = "Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a",
                                 note = NA)
 
 # Combine
@@ -185,7 +198,7 @@ metadata_svalbard <- rbind(sval_glacier_mass, sval_tidal_glacier_front)
 
 <!-- <div style="margin-left: -200px;"> -->
 ```{r svalbard-meta-data-table}
-DT::datatable(metadata_svalbard, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T), 
+DT::datatable(metadata_svalbard, rownames = FALSE, filter = "top", 
               caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.")
 ```
 <!-- </div>  -->
@@ -198,15 +211,32 @@ Much of the solar magnetic radiation going towards earth is focussed around Ny A
 
 Land terminating glaciers around Kongsfjorden have been retreating linearly over the last decades. Water terminating glaciers retreat less linearly as there are occasions when the water terminating edge may surge forward, making it look like the terminating edge has improved. This is generally due to a destabilisation of the glacier that means an overall decrease in the glacier mass balance. 2020 was a record breaking warm year that has led to record breaking melts. Smaller glaciers are more susceptible to the increase in melt driven by climate change as they have smaller areas to accumulate ice etc. during the cold period of the year. 
 
-Up until 2007 the fjord tended to be frozen 100% until February. Since 2007 the fjord has been having less and less surface freezing. This is in part due to Atlantic water encroachment. These waters are higher in aragonite and pH. These are also less turbid, allowing for more light for use with plankton etc. The plankton do respond to this with Atlantic species favoured in warmer years.
+Up until 2007 the fjord tended to be frozen 100% until February [@Pavlova2019]. Since 2007 the fjord has been having less and less surface freezing. This is in part due to Atlantic water encroachment. These waters are higher in aragonite and pH. These are also less turbid, allowing for more light for use with plankton etc. The plankton do respond to this with Atlantic species favoured in warmer years.
 
-As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (@Bischof2019kongsfjorden). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months (@Bischof2019kongsfjorden).
+As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (@Bischof2019kongsfjorden). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months [@Bischof2019kongsfjorden].
+
+Because the higher trophic levels of Arctic ecosystems, including Kongsfjorden, are dominated by migratory species, such as sea birds, these will be less exposed to the build-up of contaminants in a given area. Such as those sources identified on Svalbard and around the Kongsfjorden area [@Granberg2017]. However, lower trophic level populations have shown the capacity to adapt rapidly enough to changes in local contamination that they are still able to carry contaminants up the food web [@Bischof2019kongsfjorden].
+
+A large priority area of Kongsfjorden research moving forward must be the processes of exchange between the neighbouring fjords of Kongsfjorden and the Atlantic ocean [@Bischof2019kongsfjorden]. Progressing from this regional analysis, the work being done in the other areas of western Svalbard should be upscaled so as to provide the basis across which modelling work could connect these areas into a single integrated region. The understanding of the effects of physical drivers on ecosystems, with a focus on primary and secondary producers, is a particularly important area of focus [@Bischof2019kongsfjorden]. Ultimately, one of the main goals of identifying these drivers is to better enhanced the predictive capabilities of science in the region.
 
 ```{r kongsfjorden-table}
-knitr::kable(data.frame(Category = c("Physical", "Physical", 
-                                     "Physical", "Cryosphere", "Cryoshpere"),
-                        Driver = c("Longwave radiation (Q_lw)", "Shortwave radiation (Q_sw)", 
-                                   "turbidity", "Land glacier mass balance", "Runoff")))
+knitr::kable(data.frame(Category = c("Physical", "Physical", "Physical", 
+                                     "Cryosphere", "cryosphere",  "Cryoshpere"),
+                        Driver = c("Longwave radiation (Q_lw)", 
+                                   "Shortwave radiation (Q_sw)", 
+                                   "turbidity", 
+                                   "Sea-ice cover", 
+                                   "Land glacier mass balance", 
+                                   "Runoff"),
+                        Why = c("Primary driver of warming waters.", 
+                                "Secondary driver of warming waters.", 
+                                "Prevents light to benthic producers.",
+                                "Affects pelagic and benthic production.", 
+                                "An indicator of the change to other drivers", 
+                                "Alters nutrients and turbidity of surface waters."),
+                        Reference = c("", "", "", "", 
+                                      "Pavlova et al. 2019", 
+                                      "")))
 ```
 
 ```{r kongsfjorden-meta-data}
@@ -304,25 +334,7 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_n
 <!-- <div style="margin-right: -200px;"> -->
 ```{r kongsfjorden-meta-data-table}
 DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top",
-              # width = 1000,
-              # height = 400,
-              caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.",
-              options = list(
-                pageLength = 5,
-                autoWidth = TRUE,
-                columnDefs = list(list(
-                  targets = list(9, 11),
-                  render = JS(
-                    "function(data, type, row, meta) {",
-                    "return type === 'display' && data.length > 6 ?",
-                    "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
-                    "}"))),
-                # columnDefs = list(list(width = '50%', targets = c(11))),
-                deferRender = TRUE,
-                scrollX = TRUE,
-                scrollY = 400,
-                scrollCollapse = TRUE,
-                lengthMenu = c(5, 10, 25, 50, 100)))
+              caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.")
 ```
 <!-- </div> -->
 

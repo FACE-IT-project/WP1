@@ -11,7 +11,7 @@
 
 <meta name="author" content="Robert Schlegel" />
 
-<meta name="date" content="2021-03-02" />
+<meta name="date" content="2021-03-03" />
 
 <title>Meta-database</title>
 
@@ -389,14 +389,14 @@ div.tocify {
 
 <h1 class="title toc-ignore">Meta-database</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">02 March 2021</h4>
+<h4 class="date">03 March 2021</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -405,7 +405,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -414,10 +414,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-03-02
+<strong>Last updated:</strong> 2021-03-03
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>FACE-IT/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -433,12 +433,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -505,16 +505,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtreef1c0ac2740cda84d2a2406f26dd4086866eac626targetblankf1c0ac2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/f1c0ac2740cda84d2a2406f26dd4086866eac626" target="_blank">f1c0ac2</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree75d8f9b4ee6418373656c283fd7cecfa2dc4b804targetblank75d8f9ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/75d8f9b4ee6418373656c283fd7cecfa2dc4b804" target="_blank">75d8f9b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtreef1c0ac2740cda84d2a2406f26dd4086866eac626targetblankf1c0ac2a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree75d8f9b4ee6418373656c283fd7cecfa2dc4b804targetblank75d8f9ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/f1c0ac2740cda84d2a2406f26dd4086866eac626" target="_blank">f1c0ac2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/75d8f9b4ee6418373656c283fd7cecfa2dc4b804" target="_blank">75d8f9b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -523,6 +523,10 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+
+Unstaged changes:
+    Modified:   analysis/FACE-IT.bib
+    Modified:   analysis/metadatabase.Rmd
 
 </code></pre>
 <p>
@@ -561,6 +565,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/robwschlegel/FACE-IT/75d8f9b4ee6418373656c283fd7cecfa2dc4b804/docs/metadatabase.html" target="_blank">75d8f9b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1272,33 +1293,41 @@ The metadatabase Rmd file
 <div id="european-arctic" class="section level2">
 <h2>European Arctic</h2>
 <p><img src="assets/map_full.png" /></p>
-<p>Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors (<span class="citation">Pavlova et al. (2019)</span>). The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions that are primarily responsible for global increases in temperature. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere (<span class="citation">Meredith et al. (2019)</span>). Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.</p>
-<p>There are however many more important variables to consider, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity (<span class="citation">Hop and Wiencke (2019)</span>). Many of these important drivers are known from research conducted further south. Where datasets are easier to build, and time series are longer. For this reason one may find that the drivers of change in Arctic are more often inferred than they are ‘known.’ This is because historically there has been a paucity of data in the Arctic (<span class="citation">Bischof et al. (2019b)</span>). Many international projects, in coordination with many established Arctic research institutions, have been very busy to close this knowledge gap and the holes in our knowledge are being filled rapidly. FACE-IT is one of these projects that seeks to better understand biodiversity changes, while contributing to and drawing from this expanding body of knowledge.</p>
-<p>In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler (<span class="citation">Bischof et al. (2019a)</span>). The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there’s a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity (<span class="citation">Bischof et al. (2019a)</span>). This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.</p>
+<p>Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors <span class="citation">(Pavlova et al., 2019)</span>. The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions that are primarily responsible for global increases in temperature. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere <span class="citation">(Meredith et al., 2019)</span>. Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.</p>
+<p>There are however many more important variables to consider, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity <span class="citation">(Hop and Wiencke, 2019)</span>. Many of these important drivers are known from research conducted further south. Where datasets are easier to build, and time series are longer. For this reason one may find that the drivers of change in Arctic are more often inferred than they are ‘known.’ This is because historically there has been a paucity of data in the Arctic <span class="citation">(Bischof et al., 2019b)</span>. Many international projects, in coordination with many established Arctic research institutions, have been very busy to close this knowledge gap and the holes in our knowledge are being filled rapidly. FACE-IT is one of these projects that seeks to better understand biodiversity changes, while contributing to and drawing from this expanding body of knowledge.</p>
+<p>In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler <span class="citation">(Bischof et al., 2019a)</span>. The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there’s a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity <span class="citation">(Bischof et al., 2019a)</span>. This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.</p>
 <table>
 <thead>
 <tr class="header">
 <th align="left">Category</th>
 <th align="left">Driver</th>
+<th align="left">Why</th>
+<th align="left">Reference</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">Physical</td>
 <td align="left">Air temp.</td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left">Physical</td>
 <td align="left">SST</td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left">Cryosphere</td>
 <td align="left">Sea ice</td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 </tbody>
 </table>
 <div id="htmlwidget-61ebf658e893460fe95c" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-61ebf658e893460fe95c">{"x":{"filter":"top","filterHTML":"<tr>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","caption":"<caption>Note that this table scrolls to the right. All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.<\/caption>","data":[["Zooplankton biodiversity"],[1995],[2008],[1.24],[40.82],[75.6],[82.45],[0],[1600],["1995-2008-zooplankton-biodiversity.tsv"],["https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448"],["Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. \n                 Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8"],[null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>data_type<\/th>\n      <th>date_min<\/th>\n      <th>date_max<\/th>\n      <th>lon_min<\/th>\n      <th>lon_max<\/th>\n      <th>lat_min<\/th>\n      <th>lat_max<\/th>\n      <th>depth_min<\/th>\n      <th>depth_max<\/th>\n      <th>file_name<\/th>\n      <th>URL<\/th>\n      <th>reference<\/th>\n      <th>note<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-61ebf658e893460fe95c">{"x":{"filter":"top","filterHTML":"<tr>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","caption":"<caption>Note that this table scrolls to the right. All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.<\/caption>","data":[["Zooplankton biodiversity"],[1995],[2008],[1.24],[40.82],[75.6],[82.45],[0],[1600],["1995-2008-zooplankton-biodiversity.tsv"],["https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448"],["Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8"],[null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>data_type<\/th>\n      <th>date_min<\/th>\n      <th>date_max<\/th>\n      <th>lon_min<\/th>\n      <th>lon_max<\/th>\n      <th>lat_min<\/th>\n      <th>lat_max<\/th>\n      <th>depth_min<\/th>\n      <th>depth_max<\/th>\n      <th>file_name<\/th>\n      <th>URL<\/th>\n      <th>reference<\/th>\n      <th>note<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"autoWidth":true,"columnDefs":[{"targets":[9,11],"render":"function(data, type, row, meta) {\nreturn type === 'display' && data.length > 6 ?\n'<span title=\"' + data + '\">' + data.substr(0, 6) + '...<\/span>' : data;\n}"},{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"deferRender":true,"scrollX":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"orderClasses":false,"orderCellsTop":true}},"evals":["options.columnDefs.0.render"],"jsHooks":[]}</script>
 <!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
 </div>
 <div id="svalbard" class="section level2">
@@ -1307,42 +1336,68 @@ The metadatabase Rmd file
 <p>While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it’s own meta-data table. The primary drivers of change for each site are still listed in their own tables.</p>
 <!-- <div style="margin-left: -200px;"> -->
 <div id="htmlwidget-6f4727a031e584dfdef1" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6f4727a031e584dfdef1">{"x":{"filter":"top","filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none; position: absolute; width: 200px;\">\n      <div data-min=\"1967\" data-max=\"2015\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","caption":"<caption>Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.<\/caption>","data":[["Glacier mass balance","Tidal glacier front"],[1967,2015],[2019,2019],[null,9],[null,36],[null,76],[null,81],[null,null],[null,null],["cumulative-mass-balance-for-glaciers-in-svalbard.csv\n\n                                             austre-broggerbreen-mass-balance.csv\n\n                                             etonbreen-austfonna-mass-balance.csv\n\n                                             kongsvegen-mass-balance.csv\n\n                                             kronebreenholtedahlfonna-mass-balance.csv\n\n                                             midtre-lovenbreen-mass-balance.csv","Tidewater/"],["https://www.mosj.no/en/climate/land/mass-balance-glaciers.html","https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d"],["See website","Kohler, J., König, M., Nuth, C., &amp; Villaflor, G. (2018). \n                                Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute.\n                                https://doi.org/10.21334/npolar.2018.7cd67b1a"],[null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>data_type<\/th>\n      <th>date_min<\/th>\n      <th>date_max<\/th>\n      <th>lon_min<\/th>\n      <th>lon_max<\/th>\n      <th>lat_min<\/th>\n      <th>lat_max<\/th>\n      <th>depth_min<\/th>\n      <th>depth_max<\/th>\n      <th>file_name<\/th>\n      <th>URL<\/th>\n      <th>reference<\/th>\n      <th>note<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6]}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-6f4727a031e584dfdef1">{"x":{"filter":"top","filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none; position: absolute; width: 200px;\">\n      <div data-min=\"1967\" data-max=\"2015\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"disabled\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","caption":"<caption>Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.<\/caption>","data":[["Glacier mass balance","Tidal glacier front"],[1967,2015],[2019,2019],[null,9],[null,36],[null,76],[null,81],[null,null],[null,null],["cumulative-mass-balance-for-glaciers-in-svalbard.csv\n\n                                             austre-broggerbreen-mass-balance.csv\n\n                                             etonbreen-austfonna-mass-balance.csv\n\n                                             kongsvegen-mass-balance.csv\n\n                                             kronebreenholtedahlfonna-mass-balance.csv\n\n                                             midtre-lovenbreen-mass-balance.csv","Tidewater/"],["https://www.mosj.no/en/climate/land/mass-balance-glaciers.html","https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d"],["See website","Kohler, J., König, M., Nuth, C., &amp; Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a"],[null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>data_type<\/th>\n      <th>date_min<\/th>\n      <th>date_max<\/th>\n      <th>lon_min<\/th>\n      <th>lon_max<\/th>\n      <th>lat_min<\/th>\n      <th>lat_max<\/th>\n      <th>depth_min<\/th>\n      <th>depth_max<\/th>\n      <th>file_name<\/th>\n      <th>URL<\/th>\n      <th>reference<\/th>\n      <th>note<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"autoWidth":true,"columnDefs":[{"targets":[9,11],"render":"function(data, type, row, meta) {\nreturn type === 'display' && data.length > 6 ?\n'<span title=\"' + data + '\">' + data.substr(0, 6) + '...<\/span>' : data;\n}"},{"className":"dt-right","targets":[1,2,3,4,5,6]}],"deferRender":true,"scrollX":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"orderClasses":false,"orderCellsTop":true}},"evals":["options.columnDefs.0.render"],"jsHooks":[]}</script>
 <!-- </div>  -->
 <div id="kongsfjorden" class="section level3">
 <h3>Kongsfjorden</h3>
 <p><img src="assets/map_kongsfjorden.png" /></p>
 <p>Much of the solar magnetic radiation going towards earth is focussed around Ny Alesund. This can have a knock on effect to air temperature when there are strong auroras: up to 4°C! Unfortunately models currently capture this effect very poorly.</p>
 <p>Land terminating glaciers around Kongsfjorden have been retreating linearly over the last decades. Water terminating glaciers retreat less linearly as there are occasions when the water terminating edge may surge forward, making it look like the terminating edge has improved. This is generally due to a destabilisation of the glacier that means an overall decrease in the glacier mass balance. 2020 was a record breaking warm year that has led to record breaking melts. Smaller glaciers are more susceptible to the increase in melt driven by climate change as they have smaller areas to accumulate ice etc. during the cold period of the year.</p>
-<p>Up until 2007 the fjord tended to be frozen 100% until February. Since 2007 the fjord has been having less and less surface freezing. This is in part due to Atlantic water encroachment. These waters are higher in aragonite and pH. These are also less turbid, allowing for more light for use with plankton etc. The plankton do respond to this with Atlantic species favoured in warmer years.</p>
-<p>As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (<span class="citation">Bischof et al. (2019b)</span>). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months (<span class="citation">Bischof et al. (2019b)</span>).</p>
+<p>Up until 2007 the fjord tended to be frozen 100% until February <span class="citation">(Pavlova et al., 2019)</span>. Since 2007 the fjord has been having less and less surface freezing. This is in part due to Atlantic water encroachment. These waters are higher in aragonite and pH. These are also less turbid, allowing for more light for use with plankton etc. The plankton do respond to this with Atlantic species favoured in warmer years.</p>
+<p>As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (<span class="citation">Bischof et al. (2019b)</span>). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months <span class="citation">(Bischof et al., 2019b)</span>.</p>
+<p>Because the higher trophic levels of Arctic ecosystems, including Kongsfjorden, are dominated by migratory species, such as sea birds, these will be less exposed to the build-up of contaminants in a given area. Such as those sources identified on Svalbard and around the Kongsfjorden area <span class="citation">(Granberg et al., 2017)</span>. However, lower trophic level populations have shown the capacity to adapt rapidly enough to changes in local contamination that they are still able to carry contaminants up the food web <span class="citation">(Bischof et al., 2019b)</span>.</p>
+<p>A large priority area of Kongsfjorden research moving forward must be the processes of exchange between the neighbouring fjords of Kongsfjorden and the Atlantic ocean <span class="citation">(Bischof et al., 2019b)</span>. Progressing from this regional analysis, the work being done in the other areas of western Svalbard should be upscaled so as to provide the basis across which modelling work could connect these areas into a single integrated region. The understanding of the effects of physical drivers on ecosystems, with a focus on primary and secondary producers, is a particularly important area of focus <span class="citation">(Bischof et al., 2019b)</span>. Ultimately, one of the main goals of identifying these drivers is to better enhanced the predictive capabilities of science in the region.</p>
 <table>
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="46%" />
+<col width="18%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Category</th>
 <th align="left">Driver</th>
+<th align="left">Why</th>
+<th align="left">Reference</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">Physical</td>
 <td align="left">Longwave radiation (Q_lw)</td>
+<td align="left">Primary driver of warming waters.</td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left">Physical</td>
 <td align="left">Shortwave radiation (Q_sw)</td>
+<td align="left">Secondary driver of warming waters.</td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left">Physical</td>
 <td align="left">turbidity</td>
+<td align="left">Prevents light to benthic producers.</td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left">Cryosphere</td>
-<td align="left">Land glacier mass balance</td>
+<td align="left">Sea-ice cover</td>
+<td align="left">Affects pelagic and benthic production.</td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
+<td align="left">cryosphere</td>
+<td align="left">Land glacier mass balance</td>
+<td align="left">An indicator of the change to other drivers</td>
+<td align="left">Pavlova et al. 2019</td>
+</tr>
+<tr class="even">
 <td align="left">Cryoshpere</td>
 <td align="left">Runoff</td>
+<td align="left">Alters nutrients and turbidity of surface waters.</td>
+<td align="left"></td>
 </tr>
 </tbody>
 </table>
@@ -1392,6 +1447,9 @@ Bischof, K., Buschbaum, C., Fredriksen, S., Gordillo, F. J., Heinrich, S., Jimé
 <div id="ref-Bischof2019kongsfjorden" class="csl-entry">
 Bischof, K., Convey, P., Duarte, P., Gattuso, J.-P., Granberg, M., Hop, H., et al. (2019b). <span>“Kongsfjorden as harbinger of the future arctic: Knowns, unknowns and research priorities,”</span> in <em>The ecosystem of kongsfjorden, svalbard</em> (Springer), 537–562.
 </div>
+<div id="ref-Granberg2017" class="csl-entry">
+Granberg, M. E., Ask, A., and Gabrielsen, G. W. (2017). Local contamination in svalbard. <em>Overview and suggestions for remediation actions. Norsk Polarinstitutt.[S. l.]</em>.
+</div>
 <div id="ref-Hop2019" class="csl-entry">
 Hop, H., and Wiencke, C. (2019). <span>“The ecosystem of kongsfjorden, svalbard,”</span> in <em>The ecosystem of kongsfjorden, svalbard</em>, eds. H. Hop and C. Wiencke (Cham: Springer International Publishing), 1–20. doi:<a href="https://doi.org/10.1007/978-3-319-46425-1_1">10.1007/978-3-319-46425-1_1</a>.
 </div>
@@ -1432,7 +1490,6 @@ other attached packages:
  [1] DT_0.17         ijtiff_2.2.5    tidync_0.2.4    forcats_0.5.1  
  [5] stringr_1.4.0   dplyr_1.0.4     purrr_0.3.4     readr_1.4.0    
  [9] tidyr_1.1.2     tibble_3.1.0    ggplot2_3.3.3   tidyverse_1.3.0
-[13] workflowr_1.6.2
 
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.6        lubridate_1.7.9.2 zeallot_0.1.0     assertthat_0.2.1 
@@ -1443,15 +1500,15 @@ loaded via a namespace (and not attached):
 [21] jquerylib_0.1.3   rmarkdown_2.7     htmlwidgets_1.5.3 munsell_0.5.0    
 [25] broom_0.7.5       compiler_4.0.4    httpuv_1.5.5      modelr_0.1.8     
 [29] xfun_0.21         pkgconfig_2.0.3   htmltools_0.5.1.1 tidyselect_1.1.0 
-[33] fansi_0.4.2       crayon_1.4.1      dbplyr_2.1.0      withr_2.4.1      
-[37] later_1.1.0.1     grid_4.0.4        jsonlite_1.7.2    gtable_0.3.0     
-[41] lifecycle_1.0.0   DBI_1.1.1         git2r_0.28.0      magrittr_2.0.1   
-[45] scales_1.1.1      ncdf4_1.17        cli_2.3.1         stringi_1.5.3    
-[49] fs_1.5.0          promises_1.2.0.1  xml2_1.3.2        bslib_0.2.4      
-[53] ellipsis_0.3.1    generics_0.1.0    vctrs_0.3.6       tools_4.0.4      
-[57] glue_1.4.2        RNetCDF_2.4-2     crosstalk_1.1.1   hms_1.0.0        
-[61] yaml_2.2.1        colorspace_2.0-0  rvest_0.3.6       knitr_1.31       
-[65] haven_2.3.1       sass_0.3.1       </code></pre>
+[33] workflowr_1.6.2   fansi_0.4.2       crayon_1.4.1      dbplyr_2.1.0     
+[37] withr_2.4.1       later_1.1.0.1     grid_4.0.4        jsonlite_1.7.2   
+[41] gtable_0.3.0      lifecycle_1.0.0   DBI_1.1.1         git2r_0.28.0     
+[45] magrittr_2.0.1    scales_1.1.1      ncdf4_1.17        cli_2.3.1        
+[49] stringi_1.5.3     fs_1.5.0          promises_1.2.0.1  xml2_1.3.2       
+[53] bslib_0.2.4       ellipsis_0.3.1    generics_0.1.0    vctrs_0.3.6      
+[57] tools_4.0.4       glue_1.4.2        RNetCDF_2.4-2     crosstalk_1.1.1  
+[61] hms_1.0.0         yaml_2.2.1        colorspace_2.0-0  rvest_0.3.6      
+[65] knitr_1.31        haven_2.3.1       sass_0.3.1       </code></pre>
 </div>
 </div>
 
