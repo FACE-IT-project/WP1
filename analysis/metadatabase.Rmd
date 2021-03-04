@@ -30,14 +30,14 @@ options(DT.options = list(pageLength = 5,
                           autoWidth = TRUE,
                           # This chunk of code only allows six characters to be shown in a column
                           # But it interferes with the HTML code for popups and links
-                          # columnDefs = list(list(
-                          #   targets = list(9, 11),
-                          #   render = JS(
-                          #     "function(data, type, row, meta) {",
-                          #     "return type === 'display' && data.length > 6 ?",
-                          #     "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
-                          #     "}"))),
-                          # columnDefs = list(list(width = '50%', targets = c(11))),
+                          columnDefs = list(list(
+                            targets = list(9),
+                            render = JS(
+                              "function(data, type, row, meta) {",
+                              "return type === 'display' && data.length > 6 ?",
+                              "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+                              "}"))),
+                          columnDefs = list(list(width = '50%', targets = c(11))),
                           deferRender = TRUE,
                           scrollX = TRUE,
                           scrollY = 400,
@@ -47,7 +47,7 @@ options(DT.options = list(pageLength = 5,
 
 ```{r meta-data-func}
 # Function for smoother meta-data creation
-make_meta_data <- function(dat, file_name, data_type, URL, reference, note = NA){
+make_meta_data <- function(dat, file_name, data_name, URL, reference, note = NA){
   
   # Find longitude range
   lon_col <- c(colnames(dat)[str_detect(colnames(dat), "lon")],
@@ -117,7 +117,7 @@ make_meta_data <- function(dat, file_name, data_type, URL, reference, note = NA)
   # Find point in MEOW polygons
   
   # Combine and output
-  res <- data.frame(data_type, 
+  res <- data.frame(data_name, 
                     date_min, date_max,
                     lon_min, lon_max, lat_min, lat_max, 
                     depth_min, depth_max, 
@@ -151,8 +151,8 @@ knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
 ```{r EU-arctic-meta-data}
 EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", guess_max = 100000) %>% 
   make_meta_data(file_name = "1995-2008-zooplankton-biodiversity.tsv",
-                 data_type = "Zooplankton biodiversity",
-                 URL = '<a href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
+                 data_name = '<a onclick="alert(\'<b>Reference:</b><br> Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8<hr> <b>Link:</b><br> https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448<hr> <b>File name:</b><br> 1995-2008-zooplankton-biodiversity.tsv\');">Zooplankton biodiversity</a>',
+                 URL = '<a target = "_blank", rel = "noopener noreferrer", href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
                  reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8\');">NPI 2020</a>')
 metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
@@ -172,7 +172,7 @@ While not a study site itself, there are a lot of studies and data products that
 
 ```{r svalbard-meta-data}
 # Glacial topography + thickness
-sval_glacier_mass <- data.frame(data_type = "Glacier mass balance",
+sval_glacier_mass <- data.frame(data_name = "Glacier mass balance",
                                 date_min = 1967, date_max = 2019,
                                 lon_min = NA, lon_max = NA, lat_min = NA, lat_max = NA,
                                 depth_min = NA, depth_max = NA,
@@ -187,7 +187,7 @@ sval_glacier_mass <- data.frame(data_type = "Glacier mass balance",
                                 note = NA)
 
 # Tidal glacier fronts
-sval_tidal_glacier_front <- data.frame(data_type = "Tidal glacier front",
+sval_tidal_glacier_front <- data.frame(data_name = "Tidal glacier front",
                                        date_min = 2015, date_max = 2019,
                                 lon_min = 9, lon_max = 36, lat_min = 76, lat_max = 81,
                                 depth_min = NA, depth_max = NA,
@@ -247,7 +247,7 @@ knitr::kable(data.frame(Category = c("Physical", "Physical", "Physical",
 # Sea ice cover
 kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv", guess_max = 100000) %>% 
   make_meta_data(file_name = "Kongsfjorden_sea_ice_cover_data.csv",
-                 data_type = "Sea ice cover",
+                 data_name = "Sea ice cover",
                  URL = "https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7",
                  reference = "Gerland, S., & Pavlova, O. (2020). 
                  Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. 
@@ -259,7 +259,7 @@ kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankto
   make_meta_data(file_name = "kf_zooplankton_sampling_meta.csv\n 
                               kf_zooplankton_abundance_data.csv\n
                               kf_zooplankton_species_meta.csv",
-                 data_type = "Zooplankton species + abundance",
+                 data_name = "Zooplankton species + abundance",
                  URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
                  reference = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019)
                  Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. 
@@ -272,7 +272,7 @@ kong_protist_nutrient_chla <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/
   make_meta_data(file_name = "Metadata_Kongsfjorden2009-2014_Hegseth et al.csv\n
                               Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv\n
                               Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv",
-                 data_type = "Protist species + Nutrients + Chla",
+                 data_name = "Protist species + Nutrients + Chla",
                  URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
                  reference = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) 
                  Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. 
@@ -286,7 +286,7 @@ kong_CTD_database <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorde
   dplyr::rename(date = TIME, lat = LATITUDE, lon = LONGITUDE, depth = FDEP) %>% 
   mutate(date = as.Date(date, origin = "1950-01-01")) %>% 
   make_meta_data(file_name = "Kongsfjorden_ctd_1906_2017.nc",
-                 data_type = "CTD: temperature + salinity",
+                 data_name = "CTD: temperature + salinity",
                  URL = "https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6",
                  reference = "Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019).
                  Kongsfjorden Transect CTD data 1906-2016 [Data set].
@@ -296,14 +296,14 @@ kong_CTD_database <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorde
 kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_Marine_CO2_system_2012_to_2014.csv") %>% 
   dplyr::rename(date = `yyyy-mm-dd`) %>% 
     make_meta_data(file_name = "Kongsfjorden_Marine_CO2_system_2012_to_2014.csv",
-                   data_type = "CTD: temperature + salinity + alkalinity (TA) + DIC",
+                   data_name = "CTD: temperature + salinity + alkalinity (TA) + DIC",
                    URL = "https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4",
                    reference = "Fransson, A., & Chierici, M. (2019). 
                    Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. 
                    Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53")
 
 # Glacial topography + thickness
-kong_glacier_info <- data.frame(data_type = "Glacier surface + thickness + elevation",
+kong_glacier_info <- data.frame(data_name = "Glacier surface + thickness + elevation",
                                 date_min = 2004, date_max = 2016,
                                 lon_min = 10, lon_max = 14, lat_min = 78.8, lat_max = 79.2,
                                 depth_min = NA, depth_max = NA,
@@ -320,7 +320,7 @@ kong_glacier_info <- data.frame(data_type = "Glacier surface + thickness + eleva
 kong_weather_station <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsvegen-weather.tsv", n_max = 100000) %>% 
   dplyr::rename(date = timestamp) %>% 
   make_meta_data(file_name = "Kongsvegen-weather.tsv",
-                 data_type = "Kongsvegen weather station: longwave + shortwave + air temp. + humidity + wind",
+                 data_name = "Kongsvegen weather station: longwave + shortwave + air temp. + humidity + wind",
                  URL = "https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b",
                  reference = "Kohler, J., Hudson, S. R., & Obleitner, F. (2017). 
                  Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. 
