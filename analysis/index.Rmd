@@ -8,6 +8,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+![](assets/FACE-IT_Logo_900.png)
+
 Welcome to the [FACE-IT](https://www.face-it-project.eu/) GitHub pages site. This site has only newly been created and will be expanded upon greatly over the following two months.
 
 Please use the tabs above to navigate the site. The "Analyses" tabs contains discrete analyses performed on data in the Arctic that may be of interest to FACE-IT members and the broader public. To see the raw code used for the workflow/pipeline of these analyses please follow the link in the top right of this page to the `source code` repository. Once there the raw workflow code may be found in the `code/` folder in various scripts, and the markdown files for the analyses may be found in the `analysis` folder. The functions etc. utilised throughout the code base may be found in the `code/functions.R` script. The code used to create the figures and tables may be found in the `code/visualising.R` script. Please note that not all of the objects used in these scripts are saved in the GitHub repo for this project as many of them are far too large. For these larger files one will need to request access to the FACE-IT pCloud folder. Or one may search the meta-database for links to where the original data may be found.

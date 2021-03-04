@@ -1,5 +1,5 @@
 ---
-title: "Meta-database"
+title: "Meta-database: environmental and societal drivers of change in Arctic fjord ecosystems"
 author: "Robert Schlegel"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output: workflowr::wflow_html
@@ -15,6 +15,8 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
                       echo = FALSE, warning = FALSE, message = FALSE, 
                       eval = TRUE, tidy = FALSE)
 ```
+
+![](assets/FACE-IT_Logo_900.png)
 
 ## Introduction
 
@@ -338,9 +340,13 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_n
                                kong_weather_station)
 ```
 
+<!-- See if it's possible to have ghost columns to aid in searching for variables -->
+<!-- COmbine the smaller metadata columns into text strings -->
+
 <!-- <div style="margin-right: -200px;"> -->
 ```{r kongsfjorden-meta-data-table}
-DT::datatable(metadata_kongsfjorden, rownames = FALSE, filter = "top",
+DT::datatable(metadata_kongsfjorden, rownames = FALSE, 
+              # filter = "top",
               caption = "Note that this table scrolls to the right. All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.")
 ```
 <!-- </div> -->
