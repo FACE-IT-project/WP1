@@ -28,13 +28,15 @@ library(DT)
 # Datatable options for all tables
 options(DT.options = list(pageLength = 5,
                           autoWidth = TRUE,
-                          columnDefs = list(list(
-                            targets = list(9, 11),
-                            render = JS(
-                              "function(data, type, row, meta) {",
-                              "return type === 'display' && data.length > 6 ?",
-                              "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
-                              "}"))),
+                          # This chunk of code only allows six characters to be shown in a column
+                          # But it interferes with the HTML code for popups and links
+                          # columnDefs = list(list(
+                          #   targets = list(9, 11),
+                          #   render = JS(
+                          #     "function(data, type, row, meta) {",
+                          #     "return type === 'display' && data.length > 6 ?",
+                          #     "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+                          #     "}"))),
                           # columnDefs = list(list(width = '50%', targets = c(11))),
                           deferRender = TRUE,
                           scrollX = TRUE,
@@ -137,6 +139,8 @@ There are however many more important variables to consider, such as photosynthe
 
 In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler [@Bischof2019kelps]. The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there's a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity [@Bischof2019kelps]. This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.
 
+Consider that even if global temperature rise is limited to 2°C, this will mean a +4°C increase in the Arctic [@Overland2019]. Land ice melt is also projected to continue regardless of emission reductions due to internal lags, meaning that continued sea level rise throughout the century is a certainty. One must also keep in mind that the disproportionately larger surface heat fluxes into the Arctic may inhibit the stabilisation of the global climate even if an effective emissions reduction strategy is implemented [@Overland2019].
+
 ```{r EU-arctic-table}
 knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
                         Driver = c("Air temp.", "SST", "Sea ice"),
@@ -148,13 +152,13 @@ knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
 EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", guess_max = 100000) %>% 
   make_meta_data(file_name = "1995-2008-zooplankton-biodiversity.tsv",
                  data_type = "Zooplankton biodiversity",
-                 URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
-                 reference = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8")
+                 URL = '<a href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
+                 reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8\');">NPI 2020</a>')
 metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
 
 ```{r EU-arctic-meta-data-table}
-DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top",
+DT::datatable(metadata_EU_arctic, rownames = FALSE, filter = "top", escape = FALSE,
               caption = "Note that this table scrolls to the right. All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.")
 ```
 
