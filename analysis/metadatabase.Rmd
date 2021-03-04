@@ -24,6 +24,8 @@ library(tidyverse)
 library(tidync)
 library(ijtiff)
 library(DT)
+library(htmltools)
+library(bsplus)
 
 # Datatable options for all tables
 options(DT.options = list(pageLength = 5,
@@ -152,7 +154,8 @@ knitr::kable(data.frame(Category = c("Physical", "Physical", "Cryosphere"),
 EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", guess_max = 100000) %>% 
   make_meta_data(file_name = "1995-2008-zooplankton-biodiversity.tsv",
                  data_name = '<a onclick="alert(\'<b>Reference:</b><br> Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8<hr> <b>Link:</b><br> https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448<hr> <b>File name:</b><br> 1995-2008-zooplankton-biodiversity.tsv\');">Zooplankton biodiversity</a>',
-                 URL = '<a target = "_blank", rel = "noopener noreferrer", href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
+                 # data_name = '<a onclick="alert(\'Reference: Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8 Link: https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448 File name: 1995-2008-zooplankton-biodiversity.tsv\');">Zooplankton biodiversity</a>',
+                 URL = '<a target="_blank", rel="noopener noreferrer", href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
                  reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8\');">NPI 2020</a>')
 metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
