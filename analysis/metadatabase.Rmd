@@ -17,7 +17,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 ```
 
 <center>
-![](assets/FACE-IT_Logo_900.png){ width=100% }
+![](assets/FACE-IT_Logo_900.png){ width=70% }
 </center>
 
 # Introduction
@@ -163,6 +163,8 @@ In addition to knowing what it is that may cause changes, it is necessary to ide
 
 Consider that even if global temperature rise is limited to 2°C, this will mean a +4°C increase in the Arctic [@Overland2019]. Land ice melt is also projected to continue regardless of emission reductions due to internal lags, meaning that continued sea level rise throughout the century is a certainty. One must also keep in mind that the disproportionately larger surface heat fluxes into the Arctic may inhibit the stabilisation of the global climate even if an effective emissions reduction strategy is implemented [@Overland2019].
 
+_NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._
+
 #### Tables {.tabset .tabset-fade .tabset-pills} 
 
 ##### Drivers {-}
@@ -193,8 +195,6 @@ DT::datatable(metadata_EU_arctic, rownames = FALSE, escape = FALSE, colnames = D
               # filter = "top", 
               caption = "All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.")
 ```
-
-<!-- Rather have the table be clickable, and the clicked entry pops-up with the larger bits of info. This will save on the width of the table. -->
 
 # Svalbard
 
@@ -272,24 +272,47 @@ Because the higher trophic levels of Arctic ecosystems, including Kongsfjorden, 
 
 A large priority area of Kongsfjorden research moving forward must be the processes of exchange between the neighbouring fjords of Kongsfjorden and the Atlantic ocean [@Bischof2019kongsfjorden]. Progressing from this regional analysis, the work being done in the other areas of western Svalbard should be upscaled so as to provide the basis across which modelling work could connect these areas into a single integrated region. The understanding of the effects of physical drivers on ecosystems, with a focus on primary and secondary producers, is a particularly important area of focus [@Bischof2019kongsfjorden]. Ultimately, one of the main goals of identifying these drivers is to better enhanced the predictive capabilities of science in the region.
 
+A study conducted _in situ_ compared biomass records from 2012-2014 against those from 1996-1998 and found that biomass had increased by 8.2 fold at the shallower depth of 2.5 m [@Bartsch2016]. These findings are similar to other macroalgae research throughout the Arctic that show a general increase in biomass accompanied by a shift to shallower depths. The physical processes that explain these observations are that increasing coastal sea-ice leads to less ice scour at these shallow depths, while less PAR is penetrating to the deeper range of macroalgae [@Bartsch2016].
+
+The distribution, abundance, and species composition of pelagic macro zooplankton are very sensitive to oceanic changes. It was found that the warming occurring in the Kongsfjorden ecosystem is having a dramatic positive effect on the abundance of euphausiids and amphipods [@Dalpadado2016]. This is of particular importance as these are key prey species for target fishery species such as capelin and polar cod. 
+
 ```{r kongsfjorden-table}
 knitr::kable(data.frame(Category = c("Cryosphere", "cryosphere",  "Cryoshpere",
-                                     "Physical", "Physical", "Physical"),
+                                     "Physical", "Physical", "Physical", "Physical",
+                                     "Chemistry",
+                                     "Biological", "Biological",
+                                     "Social"),
                         Driver = c("Sea-ice cover", "Land glacier mass balance", "Runoff",
                                    "Longwave radiation (Q_lw)", 
                                    "Shortwave radiation (Q_sw)", 
-                                   "turbidity"),
+                                   "Turbidity",
+                                   "Circulation",
+                                   "Acidification",
+                                   "Benthic macroalgal biomass/production",
+                                   "Macro zooplankton",
+                                   "Ship traffic"),
                         Why = c("Affects pelagic and benthic production.", 
                                 "An indicator of the change to other drivers", 
-                                "Alters nutrients and turbidity of surface waters.",
+                                "Alters salinity, nutrients, and turbidity of surface waters.",
                                 "Primary driver of warming waters.", 
                                 "Secondary driver of warming waters.", 
-                                "Prevents light to benthic producers."),
+                                "Prevents light to benthic producers.",
+                                "Allows for more encroachment of Atlantic waters.",
+                                "Affects pelagic primary production.",
+                                "Changes where coastal ecosystems will be found and at what scale.",
+                                "Top down pressure on phytoplankton and a source of food higher up.",
+                                "Indicative of direct anthropogenic disturbance."),
                         Reference = c("Bischof et al. (2019a)", "Pavlova et al. (2019)", "Bischof et al. (2019a)",
-                                      "Bischof et al. (2019b)", "Bischof et al. (2019b)", "Bischof et al. (2019a)"))) %>% 
+                                      "Bischof et al. (2019b)", "Bischof et al. (2019b)", "Bischof et al. (2019a)", "Hop and Wiencke (2019)",
+                                      "Hop and Wiencke (2019)",
+                                      "Bartsch et al. (2016)", "Dalpadado et al. (2016)",
+                                      ""))) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
   row_spec(1:3, background = "mintcream") %>%
-  row_spec(4:6, color = "black", background = "skyblue") #%>% 
+  row_spec(4:7, color = "black", background = "skyblue") %>%
+  row_spec(8, background = "#F6EA7C") %>% 
+  row_spec(9:10, background = "#A2ED84") %>% 
+  row_spec(11, background = "#F48080")
   # column_spec(popover = )
 ```
 
@@ -316,8 +339,7 @@ kong_protist_nutrient_chla <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/
   make_meta_data(data_name = "Protist species + Nutrients + Chla",
                  file_name = '<a onclick="alert(\'Metadata_Kongsfjorden2009-2014_Hegseth et al.csv      Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv      Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv\');">3 files</a>',
                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4">NPDC</a>',
-                 # reference = '<a onclick="alert(\'Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In "The ecosystem of Kongsfjorden, Svalbard" (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hegseth et. (2019)</a>',
-                                  reference = '<a onclick="alert(\'Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hegseth et. (2019)</a>',
+                 reference = '<a onclick="alert(\'Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hegseth et. (2019)</a>',
                  note = "The lon/lat coordinates are suspect.") %>% 
   # mutate(lon_min = 9.50, lon_max = 9.55, lat_min = 78.90, lat_max = 79.10)
   mutate(lon_range = "95 to 95.5", lat_range = "78.9 to 79.1")
@@ -385,6 +407,43 @@ DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames 
 <center>
 ![](assets/map_isfjorden.png){ width=50% }
 </center>
+
+```{r isfjorden-table}
+knitr::kable(data.frame(Category = c("Social", "Social"),
+                        Driver = c("Fish landings",
+                                   "Tourism arrivals"),
+                        Why = c("Alters top down trophic pressure.",
+                                "Increases to a range of pollutants from light to chemical."),
+                        Reference = c("", ""))) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  # row_spec(1:3, background = "mintcream") %>%
+  # row_spec(4:7, color = "black", background = "skyblue") %>%
+  # row_spec(8, background = "#F6EA7C") %>% 
+  # row_spec(9:10, background = "#A2ED84") %>% 
+  row_spec(1:2, background = "#F48080")
+  # column_spec(popover = )
+```
+
+```{r isfjorden-meta-data}
+# Sea ice cover
+kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv", guess_max = 100000) %>% 
+  make_meta_data(data_name = "Sea-ice cover",
+                 file_name = '<a onclick="alert(\'Kongsfjorden_sea_ice_cover_data.csv\');">1 file</a>',
+                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7">NPDC</a>',
+                 reference = '<a onclick="alert(\'Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236\');">Gerland & Pavlova (2020)</a>')
+
+# Unknown data
+# test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
+
+# Bind them together
+metadata_isfjorden <- rbind(kong_sea_ice_inner)
+```
+
+_NB: This is just a place holder until Isfjorden data are added._
+```{r isfjorden-meta-data-table}
+DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/isfjorden/'.")
+```
 
 ## Inglefieldbukta
 
