@@ -394,7 +394,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -403,7 +403,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -415,7 +415,7 @@ div.tocify {
 <strong>Last updated:</strong> 2021-03-08
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>FACE-IT/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -431,12 +431,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -503,16 +503,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtreed4b695ca9bc1921fb55747b05e7837e3b853f75ctargetblankd4b695ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/d4b695ca9bc1921fb55747b05e7837e3b853f75c" target="_blank">d4b695c</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree8519c689472f140f02a98e6c6230d29d4cf2825btargetblank8519c68a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/robwschlegel/FACE-IT/tree/8519c689472f140f02a98e6c6230d29d4cf2825b" target="_blank">8519c68</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtreed4b695ca9bc1921fb55747b05e7837e3b853f75ctargetblankd4b695ca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomrobwschlegelFACEITtree8519c689472f140f02a98e6c6230d29d4cf2825btargetblank8519c68a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/d4b695ca9bc1921fb55747b05e7837e3b853f75c" target="_blank">d4b695c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/robwschlegel/FACE-IT/tree/8519c689472f140f02a98e6c6230d29d4cf2825b" target="_blank">8519c68</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -524,6 +524,7 @@ Ignored files:
 
 Unstaged changes:
     Modified:   analysis/FACE-IT.bib
+    Modified:   analysis/metadatabase.Rmd
 
 </code></pre>
 <p>
@@ -562,6 +563,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/robwschlegel/FACE-IT/f8fbec0158645d8a7cb8030a2926bc8f021a31be/docs/metadatabase.html" target="_blank">f8fbec0</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1548,7 +1566,31 @@ Reference
 Cryosphere
 </td>
 <td style="text-align:left;background-color: mintcream !important;">
-Sea-ice
+Sea-ice cover
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: mintcream !important;">
+Cryosphere
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+Glacial melt
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: mintcream !important;">
+Cryosphere
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+Permafrost thaw
 </td>
 <td style="text-align:left;background-color: mintcream !important;">
 </td>
@@ -1560,7 +1602,7 @@ Sea-ice
 Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Air temp.
+Air temperature
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 </td>
@@ -1577,6 +1619,33 @@ SST
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Physical
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Precipitation
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Affects the amount of fresh water runoff into coasts.
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Physical
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Freshwater runoff
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Delivers carbon and nutrient rich freshwater to coast.
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Delpech et al. (2021)
 </td>
 </tr>
 </tbody>
@@ -1830,6 +1899,9 @@ Indicative of direct anthropogenic disturbance.
 <center>
 <img src="assets/map_isfjorden.png" style="width:50.0%" />
 </center>
+<p>Changes to the abundance of euphausiids and amphipods have been noted in Isfjorden, but not to the same extent as Kongsfjorden <span class="citation">(Dalpadado et al., 2016)</span>. This is attributed primarily to the fact that the thermal regime of Isfjorden is not changing as rapidly as Kongsfjorden. Likely because Isfjorden does not experience as much encroachment from the Atlantic.</p>
+<p>Atlantic inflows of water in the late summer can create pelagic microbial communities more similar to periods of summer stratification <span class="citation">(Delpech et al., 2021)</span>. On the other end of the fjord, high riverine inputs can have a different effect on the expected microbial community for the time of year.</p>
+<p>Fast ice, e.g. sea-ice attached to the coast, has decreased significantly in the fjord <span class="citation">(Muckenhuber et al., 2016)</span>. The shift appears to have been most pronounce from 2006. Fast ice coverage correlates well with remotely sensed SST and and <em>in situ</em> air temperatures, meaning that these could perhaps be used as proxies where no ice cover data are available. As fast ice cover began to decrease more rapidly, there was an observed uptick in the heat content of the fjord in Autumn <span class="citation">(Muckenhuber et al., 2016)</span>. The authors allude to, without concluding that, changes in sea ice cover must have a discernible connection to changes in heat flux into the ocean. Likely in both strength and phenology.</p>
 <table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -1848,6 +1920,34 @@ Reference
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;background-color: mintcream !important;">
+Cryosphere
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+Fast ice cover
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+Decreasing (fast) ice cover can have a range of ecological effect.
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+Muckenhuber et al. (2016)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+Biological
+</td>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+Microbial communtiy
+</td>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+Affects the decomposition of material.
+</td>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+Delpech et al (2021)
+</td>
+</tr>
 <tr>
 <td style="text-align:left;background-color: #F48080 !important;">
 Social
@@ -1933,6 +2033,9 @@ Bischof, K., Convey, P., Duarte, P., Gattuso, J.-P., Granberg, M., Hop, H., et a
 <div id="ref-Dalpadado2016" class="csl-entry">
 Dalpadado, P., Hop, H., Rønning, J., Pavlov, V., Sperfeld, E., Buchholz, F., et al. (2016). Distribution and abundance of euphausiids and pelagic amphipods in kongsfjorden, isfjorden and rijpfjorden (svalbard) and changes in their relative importance as key prey in a warming marine ecosystem. <em>Polar Biology</em> 39, 1765–1784.
 </div>
+<div id="ref-Delpech2021" class="csl-entry">
+Delpech, L.-M., Vonnahme, T. R., McGovern, M., Gradinger, R., Præbel, K., and Poste, A. E. (2021). Terrestrial inputs shape coastal bacterial and archaeal communities in a high arctic fjord (isfjorden, svalbard). <em>Frontiers in Microbiology</em> 12, 295.
+</div>
 <div id="ref-Granberg2017" class="csl-entry">
 Granberg, M. E., Ask, A., and Gabrielsen, G. W. (2017). Local contamination in svalbard. <em>Overview and suggestions for remediation actions. Norsk Polarinstitutt.[S. l.]</em>.
 </div>
@@ -1941,6 +2044,9 @@ Hop, H., and Wiencke, C. (2019). <span>“The ecosystem of kongsfjorden, svalbar
 </div>
 <div id="ref-Meredith2019" class="csl-entry">
 Meredith, M., Sommerkorn, M., Cassotta, S., Derksen, C., Ekaykin, A., Hollowed, A., et al. (2019). Polar regions. Chapter 3, IPCC special report on the ocean and cryosphere in a changing climate.
+</div>
+<div id="ref-Muckenhuber2016" class="csl-entry">
+Muckenhuber, S., Nilsen, F., Korosov, A., and Sandven, S. (2016). Sea ice cover in isfjorden and hornsund, svalbard (2000–2014) from remote sensing data. <em>The Cryosphere</em> 10, 149–158.
 </div>
 <div id="ref-Overland2019" class="csl-entry">
 Overland, J., Dunlea, E., Box, J. E., Corell, R., Forsius, M., Kattsov, V., et al. (2019). The urgency of arctic change. <em>Polar Science</em> 21, 6–13.
@@ -1979,7 +2085,6 @@ other attached packages:
  [1] kableExtra_1.3.4 DT_0.17          tidync_0.2.4     forcats_0.5.1   
  [5] stringr_1.4.0    dplyr_1.0.4      purrr_0.3.4      readr_1.4.0     
  [9] tidyr_1.1.2      tibble_3.1.0     ggplot2_3.3.3    tidyverse_1.3.0 
-[13] workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.6        svglite_2.0.0     lubridate_1.7.9.2 assertthat_0.2.1 
@@ -1990,16 +2095,16 @@ loaded via a namespace (and not attached):
 [21] jquerylib_0.1.3   rmarkdown_2.7     webshot_0.5.2     htmlwidgets_1.5.3
 [25] munsell_0.5.0     broom_0.7.5       compiler_4.0.4    httpuv_1.5.5     
 [29] modelr_0.1.8      xfun_0.21         systemfonts_1.0.1 pkgconfig_2.0.3  
-[33] htmltools_0.5.1.1 tidyselect_1.1.0  viridisLite_0.3.0 fansi_0.4.2      
-[37] crayon_1.4.1      dbplyr_2.1.0      withr_2.4.1       later_1.1.0.1    
-[41] grid_4.0.4        jsonlite_1.7.2    gtable_0.3.0      lifecycle_1.0.0  
-[45] DBI_1.1.1         git2r_0.28.0      magrittr_2.0.1    scales_1.1.1     
-[49] ncdf4_1.17        cli_2.3.1         stringi_1.5.3     fs_1.5.0         
-[53] promises_1.2.0.1  xml2_1.3.2        bslib_0.2.4       ellipsis_0.3.1   
-[57] generics_0.1.0    vctrs_0.3.6       tools_4.0.4       glue_1.4.2       
-[61] RNetCDF_2.4-2     crosstalk_1.1.1   hms_1.0.0         yaml_2.2.1       
-[65] colorspace_2.0-0  rvest_0.3.6       knitr_1.31        haven_2.3.1      
-[69] sass_0.3.1       </code></pre>
+[33] htmltools_0.5.1.1 tidyselect_1.1.0  workflowr_1.6.2   viridisLite_0.3.0
+[37] fansi_0.4.2       crayon_1.4.1      dbplyr_2.1.0      withr_2.4.1      
+[41] later_1.1.0.1     grid_4.0.4        jsonlite_1.7.2    gtable_0.3.0     
+[45] lifecycle_1.0.0   DBI_1.1.1         git2r_0.28.0      magrittr_2.0.1   
+[49] scales_1.1.1      ncdf4_1.17        cli_2.3.1         stringi_1.5.3    
+[53] fs_1.5.0          promises_1.2.0.1  xml2_1.3.2        bslib_0.2.4      
+[57] ellipsis_0.3.1    generics_0.1.0    vctrs_0.3.6       tools_4.0.4      
+[61] glue_1.4.2        RNetCDF_2.4-2     crosstalk_1.1.1   hms_1.0.0        
+[65] yaml_2.2.1        colorspace_2.0-0  rvest_0.3.6       knitr_1.31       
+[69] haven_2.3.1       sass_0.3.1       </code></pre>
 </div>
 </div>
 

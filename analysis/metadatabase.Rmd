@@ -170,13 +170,20 @@ _NB: This is one option for how to show tabular information. I've put the tables
 ##### Drivers {-}
 
 ```{r EU-arctic-table}
-knitr::kable(data.frame(Category = c("Cryosphere", "Physical", "Physical"),
-                        Driver = c("Sea-ice", "Air temp.", "SST"),
-                        Why = c("", "", ""),
-                        Reference = c("", "", ""))) %>% 
+knitr::kable(data.frame(Category = c("Cryosphere", "Cryosphere", "Cryosphere",
+                                     "Physical", "Physical", "Physical", "Physical"),
+                        Driver = c("Sea-ice cover", "Glacial melt", "Permafrost thaw",
+                                   "Air temperature", "SST", "Precipitation", "Freshwater runoff"),
+                        Why = c("", "", "",
+                                "", "", 
+                                "Affects the amount of fresh water runoff into coasts.", 
+                                "Delivers carbon and nutrient rich freshwater to coast."),
+                        Reference = c("", "", "", 
+                                      "", "", "",
+                                      "Delpech et al. (2021)"))) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-  row_spec(1, background = "mintcream") %>% 
-  row_spec(2:3, color = "black", background = "skyblue")
+  row_spec(1:3, background = "mintcream") %>% 
+  row_spec(4:7, color = "black", background = "skyblue")
 ```
 
 ##### Meta-data {-}
@@ -388,8 +395,7 @@ kong_weather_station <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsv
 # test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
 
 # Bind them together
-metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, kong_CTD_CO2, kong_glacier_info,
-                               kong_weather_station)
+metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, kong_CTD_CO2, kong_glacier_info, kong_weather_station)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
@@ -408,19 +414,30 @@ DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames 
 ![](assets/map_isfjorden.png){ width=50% }
 </center>
 
+Changes to the abundance of euphausiids and amphipods have been noted in Isfjorden, but not to the same extent as Kongsfjorden [@Dalpadado2016]. This is attributed primarily to the fact that the thermal regime of Isfjorden is not changing as rapidly as Kongsfjorden. Likely because Isfjorden does not experience as much encroachment from the Atlantic.
+
+Atlantic inflows of water in the late summer can create pelagic microbial communities more similar to periods of summer stratification [@Delpech2021]. On the other end of the fjord, high riverine inputs can have a different effect on the expected microbial community for the time of year.
+
+Fast ice, e.g. sea-ice attached to the coast, has decreased significantly in the fjord [@Muckenhuber2016]. The shift appears to have been most pronounce from 2006. Fast ice coverage correlates well with remotely sensed SST and and _in situ_ air temperatures, meaning that these could perhaps be used as proxies where no ice cover data are available. As fast ice cover began to decrease more rapidly, there was an observed uptick in the heat content of the fjord in Autumn [@Muckenhuber2016]. The authors allude to, without concluding that, changes in sea ice cover must have a discernible connection to changes in heat flux into the ocean. Likely in both strength and phenology.
+
 ```{r isfjorden-table}
-knitr::kable(data.frame(Category = c("Social", "Social"),
-                        Driver = c("Fish landings",
+knitr::kable(data.frame(Category = c("Cryosphere", "Biological", "Social", "Social"),
+                        Driver = c("Fast ice cover",
+                                   "Microbial communtiy",
+                                   "Fish landings",
                                    "Tourism arrivals"),
-                        Why = c("Alters top down trophic pressure.",
+                        Why = c("Decreasing (fast) ice cover can have a range of ecological effect.", 
+                                "Affects the decomposition of material.",
+                                "Alters top down trophic pressure.",
                                 "Increases to a range of pollutants from light to chemical."),
-                        Reference = c("", ""))) %>% 
+                        Reference = c("Muckenhuber et al. (2016)", "Delpech et al (2021)", 
+                                      "", ""))) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-  # row_spec(1:3, background = "mintcream") %>%
+  row_spec(1, background = "mintcream") %>%
   # row_spec(4:7, color = "black", background = "skyblue") %>%
-  # row_spec(8, background = "#F6EA7C") %>% 
-  # row_spec(9:10, background = "#A2ED84") %>% 
-  row_spec(1:2, background = "#F48080")
+  # row_spec(8, background = "#F6EA7C") %>%
+  row_spec(2, background = "#A2ED84") %>%
+  row_spec(3:4, background = "#F48080")
   # column_spec(popover = )
 ```
 
