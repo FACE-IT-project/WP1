@@ -155,7 +155,10 @@ This document is designed to satisfy D1.1 and eventually D1.2 for the Horizon202
 ![](assets/map_full.png){ width=50% }
 </center>
 
-Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors [@Pavlova2019]. The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions that are primarily responsible for global increases in temperature. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere [@Meredith2019]. Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.
+> The decline in the floating sea ice cover in the Arctic is one of the most striking manifestations of climate change.  
+[@Stroeve2018]
+
+Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors [@Pavlova2019]. The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the changes in temperature that are in turn driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions from human activities. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere [@Meredith2019], and there is a robust linear relationship between increases in atmospheric CO2 and deceases in sea ice extent [@Stroeve2018]. Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.
 
 There are however many more important variables to consider, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity [@Hop2019]. Many of these important drivers are known from research conducted further south. Where datasets are easier to build, and time series are longer. For this reason one may find that the drivers of change in Arctic are more often inferred than they are 'known'. This is because historically there has been a paucity of data in the Arctic [@Bischof2019kongsfjorden]. Many international projects, in coordination with many established Arctic research institutions, have been very busy to close this knowledge gap and the holes in our knowledge are being filled rapidly. FACE-IT is one of these projects that seeks to better understand biodiversity changes, while contributing to and drawing from this expanding body of knowledge.
 
@@ -178,7 +181,7 @@ knitr::kable(data.frame(Category = c("Cryosphere", "Cryosphere", "Cryosphere",
                                 "", "", 
                                 "Affects the amount of fresh water runoff into coasts.", 
                                 "Delivers carbon and nutrient rich freshwater to coast."),
-                        Reference = c("", "", "", 
+                        Reference = c("Stroeve and Notz (2018)", "", "", 
                                       "", "", "",
                                       "Delpech et al. (2021)"))) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
@@ -281,13 +284,13 @@ A large priority area of Kongsfjorden research moving forward must be the proces
 
 A study conducted _in situ_ compared biomass records from 2012-2014 against those from 1996-1998 and found that biomass had increased by 8.2 fold at the shallower depth of 2.5 m [@Bartsch2016]. These findings are similar to other macroalgae research throughout the Arctic that show a general increase in biomass accompanied by a shift to shallower depths. The physical processes that explain these observations are that increasing coastal sea-ice leads to less ice scour at these shallow depths, while less PAR is penetrating to the deeper range of macroalgae [@Bartsch2016].
 
-The distribution, abundance, and species composition of pelagic macro zooplankton are very sensitive to oceanic changes. It was found that the warming occurring in the Kongsfjorden ecosystem is having a dramatic positive effect on the abundance of euphausiids and amphipods [@Dalpadado2016]. This is of particular importance as these are key prey species for target fishery species such as capelin and polar cod. 
+The distribution, abundance, and species composition of pelagic macro zooplankton are very sensitive to oceanic changes. It was found that the warming occurring in the Kongsfjorden ecosystem is having a dramatic positive effect on the abundance of euphausiids and amphipods [@Dalpadado2016]. This is of particular importance as these are key prey species for target fishery species such as capelin and polar cod. As the borealisation of the fjord continues it may alter the population dynamics of prey species so dramatically that the changes may be tracked in the by monitoring the diets of the local black-legged kittiwakes [@Vihtakari2018].
 
 ```{r kongsfjorden-table}
 knitr::kable(data.frame(Category = c("Cryosphere", "cryosphere",  "Cryoshpere",
                                      "Physical", "Physical", "Physical", "Physical",
                                      "Chemistry",
-                                     "Biological", "Biological",
+                                     "Biological", "Biological", "Biological",
                                      "Social"),
                         Driver = c("Sea-ice cover", "Land glacier mass balance", "Runoff",
                                    "Longwave radiation (Q_lw)", 
@@ -297,6 +300,7 @@ knitr::kable(data.frame(Category = c("Cryosphere", "cryosphere",  "Cryoshpere",
                                    "Acidification",
                                    "Benthic macroalgal biomass/production",
                                    "Macro zooplankton",
+                                   "Seabird diet",
                                    "Ship traffic"),
                         Why = c("Affects pelagic and benthic production.", 
                                 "An indicator of the change to other drivers", 
@@ -308,18 +312,19 @@ knitr::kable(data.frame(Category = c("Cryosphere", "cryosphere",  "Cryoshpere",
                                 "Affects pelagic primary production.",
                                 "Changes where coastal ecosystems will be found and at what scale.",
                                 "Top down pressure on phytoplankton and a source of food higher up.",
+                                "Changes to prey items serve as an indicator of borealisation.",
                                 "Indicative of direct anthropogenic disturbance."),
                         Reference = c("Bischof et al. (2019a)", "Pavlova et al. (2019)", "Bischof et al. (2019a)",
                                       "Bischof et al. (2019b)", "Bischof et al. (2019b)", "Bischof et al. (2019a)", "Hop and Wiencke (2019)",
                                       "Hop and Wiencke (2019)",
-                                      "Bartsch et al. (2016)", "Dalpadado et al. (2016)",
+                                      "Bartsch et al. (2016)", "Dalpadado et al. (2016)", "Vihtakari et al. (2018)",
                                       ""))) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
   row_spec(1:3, background = "mintcream") %>%
   row_spec(4:7, color = "black", background = "skyblue") %>%
   row_spec(8, background = "#F6EA7C") %>% 
-  row_spec(9:10, background = "#A2ED84") %>% 
-  row_spec(11, background = "#F48080")
+  row_spec(9:11, background = "#A2ED84") %>% 
+  row_spec(12, background = "#F48080")
   # column_spec(popover = )
 ```
 
@@ -420,24 +425,49 @@ Atlantic inflows of water in the late summer can create pelagic microbial commun
 
 Fast ice, e.g. sea-ice attached to the coast, has decreased significantly in the fjord [@Muckenhuber2016]. The shift appears to have been most pronounce from 2006. Fast ice coverage correlates well with remotely sensed SST and and _in situ_ air temperatures, meaning that these could perhaps be used as proxies where no ice cover data are available. As fast ice cover began to decrease more rapidly, there was an observed uptick in the heat content of the fjord in Autumn [@Muckenhuber2016]. The authors allude to, without concluding that, changes in sea ice cover must have a discernible connection to changes in heat flux into the ocean. Likely in both strength and phenology.
 
+Atlantic Water (AW) has traditionally formed much of the bottom layer of the fjord in summer, but starting in 2006 a shift has begun in which AW is occupying much more of the water column [@Skogseth2020]. In combination with the disappearance of fast ice, this is one of the main forces attributed to the increasing SST trend of 0.7°C/dec. @Skogseth2020 therefore conclude that the increased AW advection is the main reason for the changing climate of Isfjorden. The advection of AW into the fjord, and therefore the warming that it causes, is largely dictated by the competition between the Spitsbergen Polar Current (Arctic Water) and the Spitsbergen Trough Current (AW). AS the borealisation of the Arctic continues, the advection of AW into the fjord is only likely to increase. These inflows of AW are driven largely by changes to the patterns of the wind stress field in the area [@Pavlov2013]. Mean sea-level pressure (MSLP) data can be used as a proxy to determine changes in wind stress, and @Pavlov2013 used ERA data to do so. This climate reanalysis product is freely available from CMEMS and is commonly used in climate science.
+
+For zooplankton communities in the fjord, seasonality is the largest predictive factor [@Vereide2019]. This is however influenced by local scale perturbations in temperature, salinity, and light availability. Therefore, anything affecting these variables, such as runoff from glaciers and rivers, will also affect the zooplankton communities. As the Arctic warms, runoff will almost certainly increase, meaning that this will likely be a noteworthy driver of change. Accompanying these changes brought on by increased runoff are the changes to nutrient inflow from land to sea. Nutrient concentrations in rivers can be 12-fold higher than in the fjord [@Mcgovern2020]. So as increased warming leads to increased melt leads to increased runoff leads to increased nutrient input, the biogeochemical properties of the fjord are projected to change apace with climate [@Mcgovern2020]. One must remember however that with increased runoff comes increased turbidity, which may have a counteracting effect to nutrient input by preventing access to light at the surface. The effects of these fresh water plumes on coastal communities is very dramatic but also tends to be very localised [@Mcgovern2020]. They can be captured with some fidelity using remotely sensed ocean colour data, but future studies should aim to use not only high spatial resolution data, but high temporal resolutions as well in order to better resolve seasonal changes driven by this phenomenon [@Mcgovern2020]. 
+
+In support of this line of reasoning, surveys of benthic macrofauna in the smaller adjoining fjords has shown that small scale local differences in physical variables have a much stronger relationship to local community structure than do any fjord-wide gradients [@Ugelstad2019]. @Ugelstad2019 also found that species richness was higher in less disturbed environments. This implies that as the fjord continues to change, species that are able to persist at deeper depths (which will also be subject to less PAR) may have more time to adapt to the changing climate. Conversely, we also know that it is these deper areas that are experiencing increased amounts of AW inflow [@Skogseth2020]. So with increased runoff into the surface waters, and a rising of AW from below, it appears that the comfortable historic ranges for species in the fjord and it's adjoining systems are being pinched off.
+
 ```{r isfjorden-table}
-knitr::kable(data.frame(Category = c("Cryosphere", "Biological", "Social", "Social"),
+knitr::kable(data.frame(Category = c("Cryosphere", 
+                                     "Physical", "Physical", "Physical",
+                                     "Chemistry",
+                                     "Biological", "Biological", "Biological",
+                                     "Social", "Social"),
                         Driver = c("Fast ice cover",
+                                   "Atlantic water inflow",
+                                   "Freshwater runoff",
+                                   "Wind stress",
+                                   "Nutrient input",
                                    "Microbial communtiy",
+                                   "Zooplankton community",
+                                   "Benthic community",
                                    "Fish landings",
                                    "Tourism arrivals"),
-                        Why = c("Decreasing (fast) ice cover can have a range of ecological effect.", 
+                        Why = c("Decreasing (fast) ice cover can have a range of ecological effect.",
+                                "Increases the temperature and salinity of fjord waters.",
+                                "Changes the temperature, salinity, and turbidity of surface waters.",
+                                "Responsible for increasing Atlantic water inflow from the West Spitsbergen Current.",
+                                "Can tip ecological balances by inordinately favouring some species over others.",
                                 "Affects the decomposition of material.",
+                                "Foundational prey species for many pelagics.",
+                                "Contribute to biogeochemical processes; re-mineralise nutrients; food for higher trophic levels.",
                                 "Alters top down trophic pressure.",
                                 "Increases to a range of pollutants from light to chemical."),
-                        Reference = c("Muckenhuber et al. (2016)", "Delpech et al (2021)", 
+                        Reference = c("Muckenhuber et al. (2016)", 
+                                      "Skogseth et al. (2020)", "Vereide (2019); Mcgovern et al. (2020)", "Pavlov et al. (2013)",
+                                      "Mcgovern et al. (2020)",
+                                      "Delpech et al. (2021)", "Vereide (2019)", "Ugelstad (2019)",
                                       "", ""))) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
   row_spec(1, background = "mintcream") %>%
-  # row_spec(4:7, color = "black", background = "skyblue") %>%
-  # row_spec(8, background = "#F6EA7C") %>%
-  row_spec(2, background = "#A2ED84") %>%
-  row_spec(3:4, background = "#F48080")
+  row_spec(2:4, color = "black", background = "skyblue") %>%
+  row_spec(5, background = "#F6EA7C") %>%
+  row_spec(6:8, background = "#A2ED84") %>%
+  row_spec(9:10, background = "#F48080")
   # column_spec(popover = )
 ```
 
