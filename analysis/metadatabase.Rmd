@@ -192,11 +192,21 @@ knitr::kable(data.frame(Category = c("Cryosphere", "Cryosphere", "Cryosphere",
 ##### Meta-data {-}
 
 ```{r EU-arctic-meta-data}
+# Zooplankton biodiversity
 EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", guess_max = 100000) %>% 
   make_meta_data(data_name = 'Zooplankton biodiversity',
                  file_name = '<a onclick="alert(\'1995-2008-zooplankton-biodiversity.tsv\');">1 file</a>',
                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
                  reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8\');">NPI (2020)</a>')
+
+# Ice modelling output
+# EU_ice <- tidync() %>% 
+#   make_meta_data(data_name = "Model: ice thickness + snow-ice + snow depth",
+#                  file_name = '<a onclick="alert(\'HIGHTSI/\');">1 folder</a>',
+#                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66">NPDC</a>',
+#                  reference = '<a onclick="alert(\'Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a\');">Liston et al. (2016)</a>')
+
+# Combine
 metadata_EU_arctic <- rbind(EU_zooplankton)
 ```
 
@@ -219,13 +229,16 @@ While not a study site itself, there are a lot of studies and data products that
 <!-- ##### Drivers {-} -->
 
 ```{r svalbard-table}
-knitr::kable(data.frame(Category = c(""),
-                        Driver = c(""),
-                        Why = c(""),
+knitr::kable(data.frame(Category = c("Biological"),
+                        Driver = c("Seabirds"),
+                        Why = c("Changes in top down predation can affect most trophic levels"),
                         Reference = c(""))) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) #%>% 
-  # row_spec(1, background = "mintcream") %>% 
-  # row_spec(2:3, color = "black", background = "skyblue")
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  # row_spec(1:3, background = "mintcream") %>%
+  # row_spec(4:7, color = "black", background = "skyblue") %>%
+  # row_spec(8, background = "#F6EA7C") %>% 
+  row_spec(1, background = "#A2ED84") #%>% 
+  # row_spec(12, background = "#F48080")
 ```
 
 <!-- ##### Meta-data {-} -->
@@ -244,17 +257,49 @@ sval_glacier_mass <- data.frame(data_name = "Glacier mass balance",
 
 # Tidal glacier fronts
 sval_tidal_glacier_front <- data.frame(data_name = "Tidal glacier front",
-                                       date_range = "2015 to 2019", #date_min = 2015, date_max = 2019,
-                                       lon_range = "9 to 36", #lon_min = 9, lon_max = 36, 
-                                       lat_range = "76 to 81", #lat_min = 76, lat_max = 81,
-                                       depth_range = NA, #depth_min = NA, depth_max = NA,
+                                       date_range = "2015 to 2019",
+                                       lon_range = "9 to 36",
+                                       lat_range = "76 to 81",
+                                       depth_range = NA,
                                        file_name = '<a onclick="alert(\'Tidewater/\');">1 folder</a>',
                                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d">NPDC</a>',
                                        reference = '<a onclick="alert(\'Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a\');">Kohler et al. (2018)</a>',
                                        note = NA)
 
+# Surface meteorology
+sval_surface_met <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") %>% 
+  hyper_tibble() %>% 
+  dplyr::select(year, longitude, latitude) %>% 
+  make_meta_data(data_name = "Air temperature/pressure + relative humidity + wind speed/direction",
+                 file_name = '<a onclick="alert(\'N-ICE_metData_v2.nc      N-ICE_metData_QC.py      README_N-ICE_metData_v2.txt\');">3 files</a>',
+                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d">NPDC</a>',
+                 reference = '<a onclick="alert(\'Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1\');">Hudson et. (2015)</a>', 
+                 note = "Has a python script to help with extracting.")
+
+# UNIS database
+sval_UNIS_database <- data.frame(data_name = "CTD: temperature + salinity",
+                                 date_range = "1876 to 2019",
+                                 lon_range = "0 to 75",
+                                 lat_range = "34 to 83",
+                                 depth_range = "? to ?",
+                                 file_name = '<a onclick="alert(\'UNIS_hydrographic_database/\');">1 folder</a>',
+                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/39d9f0f9-af12-420c-a879-10990df2e22d">NPDC</a>',
+                                       reference = '<a onclick="alert(\'Skogseth, R., Ellingsen, P., Berge, J., Cottier, F., Falk-Petersen, S., Ivanov, B., … Vader, A. (2019). UNIS hydrographic database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/unis-hydrography\');">Skogseth et al. (2019)</a>',
+                                       note = NA)
+
+# Seabird database
+sval_seabird_database <- data.frame(data_name = "Seabird",
+                                    date_range = "1880 to 2020",
+                                    lon_range = "9 to 74",
+                                    lat_range = "35 to 81",
+                                    depth_range = NA,
+                                    file_name = '<a onclick="alert(\'See the website\');">0 files</a>',
+                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/fd4fd3aa-7249-53c9-9846-6e28c5a42587">NPDC</a>',
+                                    reference = '<a onclick="alert(\'Strøm, H., Descamps, S., & Bakken, V. . (2008). Seabird Colonies by the Barents Sea, White Sea and Kara Sea [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.fd4fd3aa\');">Strøm et al. (2008)</a>',
+                                    note = NA)
+
 # Combine
-metadata_svalbard <- rbind(sval_glacier_mass, sval_tidal_glacier_front)
+metadata_svalbard <- rbind(sval_glacier_mass, sval_tidal_glacier_front, sval_surface_met, sval_UNIS_database, sval_seabird_database)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->
