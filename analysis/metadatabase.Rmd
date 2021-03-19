@@ -152,7 +152,9 @@ make_meta_data <- function(dat, data_name, file_name, URL, reference, note = NA)
 }
 ```
 
-This document is designed to satisfy D1.1 and eventually D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The text and static tables in this document are a report on the key drivers of change in Arctic fjord biodiversity (D1.1). The interactive tables contain the meta-database for the data identified as key drivers of change (D1.2). The text and meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (D1.3). This document begins with a review of known drivers of change in the European Arctic before focussing in on each individual FACE-IT study site to discuss any differences from the broader Arctic. Each of the following sections for each region/study site contain tables that show a summary of their key drivers and meta-data. There is no central table for all of the drivers or meta-data.
+This document is designed to satisfy D1.1 and eventually D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The text and first table (Table 1) in this document form a report on the key drivers of change in Arctic fjord biodiversity (D1.1). The interactive tables contain the meta-database for the data identified as key drivers of change (D1.2). The text and meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (D1.3). 
+
+This document begins with a review of known drivers of change in the European Arctic before focussing in on each individual FACE-IT study site to discuss any differences from the broader Arctic. The following section (European Arctic) has a large table (Table 1) that lists all of the key drivers of change identified as important by the expert members of FACE-IT from the relevant fields of study. Each of the following sections for each region/study site contain a table  of the meta-data for the files containing data related to the key drivers identified in the aforementioned table. Note that if a file contains data for more than one site, it will be listed in the meta-data tables for each relevant site. One may click on the links within the meta-data tables to go to the website where the data are hosted. There are also pop-ups that show what the file-names are as well as what the correct references for the use of the data. 
 
 # European Arctic
 
@@ -268,7 +270,8 @@ soc_ALL <- rbind(soc_fish_landings_com, soc_fish_landings_rec, soc_game_landings
 # nrow(soc_ALL)
 
 # Combine and print
-knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL)) %>% 
+knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL), 
+             caption = "Table 1: The key drivers of changes on Arctic fjord biodiversity as identified by the experts in FACE-IT for the relevant fields. The drivers have been separated into the following categories for convenience: Cryosphere, Physical, Chemistry, Biology, Social. The 'Crysophere' category contains any drivers related to ice, glaciers, and/or snow. This category contains both marine and terrestrial drivers that impact the marine environements of Arctic fjords. The 'Physical' category contains atmospheric and oceanic drivers. The 'Chemistry' category contains primarily water quality variables that are no longer physical, but not yet biological. This includes inorganic as well as organic nutrients. The 'Biology' category contains drivers related to biology as well as ecology. The final category 'Social' contains drivers that are primarily related to anthropogenic impacts on the natural world, as well as drivers that directly affect the well-being of local stakeholders. This category therefore contains all drivers relating to fisheries.") %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
   row_spec(1:7, background = "mintcream") %>% # Cryosphere
   row_spec(8:29, color = "black", background = "skyblue") %>% # Physical
