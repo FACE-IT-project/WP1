@@ -171,7 +171,7 @@ In addition to knowing what it is that may cause changes, it is necessary to ide
 
 Consider that even if global temperature rise is limited to 2°C, this will mean a +4°C increase in the Arctic [@Overland2019]. Land ice melt is also projected to continue regardless of emission reductions due to internal lags, meaning that continued sea level rise throughout the century is a certainty. One must also keep in mind that the disproportionately larger surface heat fluxes into the Arctic may inhibit the stabilisation of the global climate even if an effective emissions reduction strategy is implemented [@Overland2019].
 
-_NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._
+<!-- _NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._ -->
 
 <!-- #### Tables {.tabset .tabset-fade .tabset-pills}  -->
 
@@ -193,7 +193,7 @@ cryo_sea_ice_thic <- make_driver("Cryosphere", "Sea ice: thickness", "", "EU Arc
 cryo_snow_cover_thic <- make_driver("Cryosphere", "Snow cover: thickness", "", "EU Arctic", "")
 cryo_ALL <- rbind(cryo_coastal_ice, cryo_glacier, cryo_permafrost, cryo_sea_ice_conc, cryo_sea_ice_ext,
                   cryo_sea_ice_thic, cryo_snow_cover_thic)
-nrow(cryo_ALL)
+# nrow(cryo_ALL)
 
 ## Physical
 phys_bathy <- make_driver("Physical", "Bathymetry", "", "", "")
@@ -222,7 +222,7 @@ phys_ALL <- rbind(phys_bathy, phys_evap, phys_qnet, phys_qsw, phys_qlw, phys_qlh
                   phys_precip, phys_river_discharge, phys_salinity, phys_mslp, phys_sst, phys_sedimentation,
                   phys_suspended_matter, phys_suspended_solids, phys_suspended_organics, phys_water_quality,
                   phys_wind_direction, phys_wind_speed_mean, phys_wind_speed_max)
-nrow(phys_ALL)
+# nrow(phys_ALL)
 
 ## Chemistry
 chem_pCO2 <- make_driver("Chemistry", "pCO2", "", "EU Arctic", "Popova et al. (2014)")
@@ -238,7 +238,7 @@ chem_nutrient_phosphate <- make_driver("Chemistry", "Nutrient: phosphate", "", "
 chem_nutrient_silicic_acid <- make_driver("Chemistry", "Nutrient: silicic acid", "", "", "")
 chem_ALL <- rbind(chem_pCO2, chem_DIC, chem_DOC, chem_DON, chem_dissolved_O2, chem_nutrient_nitrate, chem_nutrient_nitrite,
                   chem_nutrient_NPP, chem_nutrient_omega, chem_nutrient_phosphate, chem_nutrient_silicic_acid)
-nrow(chem_ALL)
+# nrow(chem_ALL)
 
 ## Biology
 bio_biodiversity <- make_driver("Biology", "Biodiversity", "", "", "")
@@ -251,7 +251,7 @@ bio_primary_productivity <- make_driver("Biology", "Primary productivity", "", "
 bio_seabirds <- make_driver("Biology", "Seabirds", "Changes in top down predation can affect most trophic levels", "Kongsfjorden + Isfjorden", "")
 bio_ALL <- rbind(bio_biodiversity, bio_invasive_species, bio_species_abundance, bio_species_PA, bio_species_bio_con_phyto,
                  bio_species_bio_conc_zoo, bio_primary_productivity, bio_seabirds)
-nrow(bio_ALL)
+# nrow(bio_ALL)
 
 ## Social
 soc_fish_landings_com <- make_driver("Social", "Fish landings: commercial", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
@@ -265,7 +265,7 @@ soc_tourist_vessels_count <- make_driver("Social", "Tourist vessels: count", "",
 soc_tourist_vessels_mileage <- make_driver("Social", "Tourist vessels: mileage", "", "Isfjorden + Disko Bay", "")
 soc_ALL <- rbind(soc_fish_landings_com, soc_fish_landings_rec, soc_game_landings, soc_local_management, soc_national_statistics,
                  soc_tourist_arrivals_month, soc_tourist_arrivals_nation, soc_tourist_vessels_count, soc_tourist_vessels_mileage)
-nrow(soc_ALL)
+# nrow(soc_ALL)
 
 # Combine and print
 knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL)) %>% 
