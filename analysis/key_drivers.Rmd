@@ -1,0 +1,188 @@
+---
+title: "Key drivers of change in Arctic fjord ecosystems"
+author: "Robert Schlegel"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+css: acid.css
+csl: frontiers.csl
+bibliography: FACE-IT.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+```
+
+<center>
+![](assets/FACE-IT_Logo_900.png){ width=70% }
+</center>
+
+# Overview
+
+```{r setup}
+# Necessary libraries
+library(tidyverse) # The tidy dialect of R
+library(tidync) # For reading NetCDF
+library(DT) # For interactive tables
+library(kableExtra) # For formatting static tables
+# library(htmltools) # For additional HTML options
+# library(bsplus) # For additional buttons
+# library(ijtiff) # For reading the glacier tif files
+```
+
+```{r meta-data-setup}
+# Convenience wrapper for drivers
+make_driver <- function(category, driver, why, sites, reference){
+  res <- data.frame(Category = category, Driver = driver, Why = why, Sites = sites, Reference = reference)
+}
+```
+
+This document is designed to satisfy D1.1 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/).
+
+It is well known that the Arctic is undergoing rapid systemic changes, and that these changes are likely to increase in both rate and extent. The FACE-IT project is primarily interested in how these changes will be impacting the socio-ecological fjord systems at seven study sites in the Arctic. There is a steadily growing body of data from these sites that can be used to document and investigate the changes that would be of scientific and societal interest. However, there is perhaps too much information/data to document and download everything. It is therefore necessary, at the outset of the FACE-IT project, to identify the key drivers of change in Arctic biodiversity and to identify the availability of data relating to these drivers. 
+
+A Google Sheet was created to allow the experts at FACE-IT to fill-in which drivers were relevant for their work/study sites. The key drivers identified have been distributed into several clusters presented below.
+
+## Cryosphere
+
+The FACE-IT project is focussed on fjord socio-ecological systems, which means it is concerned primarily with marine data, but changes in the terrestrial cryosphere have a direct impact on coastal systems and so are key variables when considering drivers of change. These terrestrial variables include any measure of glaciers, such as mass balance and changes to their terminating edges. Also of interest are changes to permafrost and snow cover thickness. All of these terrestrial changes are important to fjords as they have direct impacts on the rates of runoff and river discharge into the coast, which have in turn very large impacts on water quality variables such as salinity, nutrients concentration and turbidity. The importance of changes to water quality are discussed again in the physical and chemistry section.
+
+One of the aspects of the cryosphere that most directly impacts fjord systems is sea-ice (Stroeve and Notz, 2018). This is because the presence of ice can have a dramatic effect on what may be considered the three most fundamental important physical variables of sea water: temperature, salinity, and light. There are many ways of measuring sea-ice including: concentration, extent, thickness, and age. Whereas only one of these variables can be used when necessary, it is almost always preferable to have as many different measures of sea-ice as possible. It has been documented that there is a reliable correlation between fast-ice (ice attached to the coast) and local air and sea temperatures (Muckenhuber et al., 2016). This means that it may be possible to use air and sea temperatures as a proxy for sea-ice when there is a paucity of these data.
+
+```{r cryo-table}
+cryo_coastal_ice <- make_driver("Cryosphere", "Coastal ice", "", "", "")
+cryo_glacier <- make_driver("Cryosphere", "Glacier", "", "", "")
+cryo_permafrost <- make_driver("Cryosphere", "Permafrost", "", "", "")
+cryo_sea_ice_conc <- make_driver("Cryosphere", "Sea ice: concentration", "", "EU Arctic", "Stroeve and Notz (2018)")
+cryo_sea_ice_ext <- make_driver("Cryosphere", "Sea ice: extent", "", "EU Arctic", "Stroeve and Notz (2018)")
+cryo_sea_ice_thic <- make_driver("Cryosphere", "Sea ice: thickness", "", "EU Arctic", "Stroeve and Notz (2018)")
+cryo_snow_cover_thic <- make_driver("Cryosphere", "Snow cover: thickness", "", "EU Arctic", "")
+cryo_ALL <- rbind(cryo_coastal_ice, cryo_glacier, cryo_permafrost, cryo_sea_ice_conc, cryo_sea_ice_ext,
+                  cryo_sea_ice_thic, cryo_snow_cover_thic)
+
+knitr::kable(cryo_ALL, caption = "Table 1: The key cryosphere drivers of changes on Arctic fjord biodiversity as identified by the experts in FACE-IT for the relevant fields.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1:7, background = "mintcream") # Cryosphere
+```
+
+## Physical
+
+By far the largest category of drivers, the physical aspects of fjord systems are generally well documented as part of global gridded datasets. The resolution of gridded data is often too coarse to capture well the local scale variability of the FACE-IT study sites. It is therefore preferable to identify local sources of these key drivers wherever possible. Bathymetry being a primary example of this issue.
+
+As mentioned in the cryosphere section, potentially the three most important variables for fjord systems are water temperature, salinity, and light. This is because these three variables have systemic effects on the biology  of the foundational species and ecosystems from which the other socio-ecological functioning of the fjords are based on. There are a number of global products that provide these data as well as a host of locally collected in situ data. While these three variables alone would generally suffice for the physical characterisation of drivers of change, there are many other variables that are of interest to FACE-IT. For example, water temperatures do not change uninvited. They are acted on by air-sea heat flux and so it is also desirable to know what changes may be occurring in: net heat flux, long+shortwave radiation, latent+sensible heat flux. As part of the balance of flux across the air-sea border, one would also want to know about: the mixed layer depth, sea level pressure, precipitation, evaporation, and wind speed+direction. All of these are important variables in their own right as they tell a more specific part of the story of a changing climate.
+
+In addition to changes in the air-sea fluxes, it is also of great importance to understand what changes to water quality may be occurring. Many of these drivers have been grouped into the chemistry section below, so in this section we focus on river discharge and the more physical aspects of water quality: sedimentation, suspended matter, suspended solids, suspended organics. These drivers are important because they may have a very large impact on the ability of light to penetrate at depth, which can change the competitiveness of different biological groups and have disruptive influences on local ecosystems. For example, changes in the timing and intensity of river runoff can unduly promote the early growth of phytoplankton blooms, which will then deplete the nutrients from the water earlier than expected, making it more difficult for kelp forests to grow, thereby limiting primary production, which in turn may cascade up the trophic food-web.
+
+```{r physical-table}
+phys_bathy <- make_driver("Physical", "Bathymetry", "", "", "")
+phys_evap <- make_driver("Physical", "Evaporation", "", "", "")
+phys_qnet <- make_driver("Physical", "Net heatflux", "", "EU Arctic", "")
+phys_qsw <- make_driver("Physical", "Shortwave radiation", "", "EU Arctic", "")
+phys_qlw <- make_driver("Physical", "Longwave radiation", "", "EU Arctic", "")
+phys_qsh <- make_driver("Physical", "Sensible heatflux", "", "EU Arctic", "")
+phys_qlh <- make_driver("Physical", "Latent heatflux", "", "EU Arctic", "")
+phys_extinct <- make_driver("Physical", "Water light extinction coefficient", "", "EU Arctic", "")
+phys_mld <- make_driver("Physical", "Mixed layer depth", "", "EU Arctic", "Popova et al. (2014)")
+phys_precip <- make_driver("Physical", "Precipitation", "Affects the amount of fresh water runoff into coasts.", "EU Arctic", "")
+phys_river_discharge <- make_driver("Physical", "River discharge", "Delivers carbon and nutrient rich freshwater to coast.", "EU Arctic", "Delpech et al. (2021)")
+phys_salinity <- make_driver("Physical", "Salinity", "", "EU Arctic", "")
+phys_mslp <- make_driver("Physical", "Sea level pressure", "", "", "")
+phys_sst <- make_driver("Physical", "Sea surface temperature", "", "EU Arctic", "Popova et al. (2014)")
+phys_sedimentation <- make_driver("Physical", "Sedimentation", "", "", "")
+phys_suspended_matter <- make_driver("Physical", "Suspended matter", "", "", "")
+phys_suspended_solids <- make_driver("Physical", "Suspended solids", "", "", "")
+phys_suspended_organics <- make_driver("Physical", "Suspended organics", "", "", "")
+phys_water_quality <- make_driver("Physical", "Water quality", "", "", "")
+phys_wind_direction <- make_driver("Physical", "Wind direction", "", "", "")
+phys_wind_speed_mean <- make_driver("Physical", "Wind speed mean", "", "", "")
+phys_wind_speed_max <- make_driver("Physical", "Wind speed max", "", "", "")
+phys_ALL <- rbind(phys_bathy, phys_evap, phys_qnet, phys_qsw, phys_qlw, phys_qlh, phys_qsh, phys_extinct, phys_mld,
+                  phys_precip, phys_river_discharge, phys_salinity, phys_mslp, phys_sst, phys_sedimentation,
+                  phys_suspended_matter, phys_suspended_solids, phys_suspended_organics, phys_water_quality,
+                  phys_wind_direction, phys_wind_speed_mean, phys_wind_speed_max)
+# nrow(phys_ALL)
+knitr::kable(phys_ALL, caption = "Table 2: The key physical drivers of changes on Arctic fjord biodiversity as identified by the experts in FACE-IT for the relevant fields.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1:22, color = "black", background = "skyblue") # Physical
+```
+
+## Chemistry
+
+The first of the two primary areas of interest for the chemistry drivers is the amount of inorganic carbon and related minerals such as aragonite and calcite as changes to these minerals are related to shifts in the pH of seawater. This is of concern because the acidification of the ocean has a wide range of well documented effects on sea life. Primarily on calcifying organisms such as coralline algae, coccolithophores, mollusks and sea urchins, which are a foundational species in some pelagic and benthic ecosystems. Parameters of the carbonate system which are of interest are pCO2, pH, total alkalinity, and the concentration of dissolved inorganic carbon. 
+
+The other primary area of interest for this category is the changes to the nutrient load of seawater. The main nutrients of interest are: nitrate, nitrite, ammonium, phosphate, and silicate. These are important to monitor as dramatic short-term, or significant long-term changes to the nutrient profiles in fjord waters can cause bottom up forcing of ecological structures. Potentially fundamental restructuring the species composition/biodiversity of a study site. Also of interest for water quality measurements, are dissolved inorganic carbon (DIC), dissolved organic carbon (DOC), dissolved organic nitrogen (DON), and dissolved O2. These variables are important for similar reasons to the nutrients.
+
+```{r chemistry-table}
+chem_pCO2 <- make_driver("Chemistry", "pCO2", "", "EU Arctic", "Popova et al. (2014)")
+chem_DIC <- make_driver("Chemistry", "DIC", "", "EU Arctic", "Popova et al. (2014)")
+chem_DOC <- make_driver("Chemistry", "DOC", "", "", "")
+chem_DON <- make_driver("Chemistry", "DON", "", "", "")
+chem_dissolved_O2 <- make_driver("Chemistry", "Dissolved 02", "", "", "")
+chem_nutrient_nitrate <- make_driver("Chemistry", "Nutrient: nitrate", "", "", "")
+chem_nutrient_nitrite <- make_driver("Chemistry", "Nutrient: nitrite", "", "", "")
+chem_nutrient_NPP <- make_driver("Chemistry", "Nutrient: NPP", "", "EU Arctic", "Popova et al. (2014)")
+chem_nutrient_omega <- make_driver("Chemistry", "Nutrient: omega", "", "EU Arctic", "Popova et al. (2014)")
+chem_nutrient_phosphate <- make_driver("Chemistry", "Nutrient: phosphate", "", "", "")
+chem_nutrient_silicic_acid <- make_driver("Chemistry", "Nutrient: silicic acid", "", "", "")
+chem_ALL <- rbind(chem_pCO2, chem_DIC, chem_DOC, chem_DON, chem_dissolved_O2, chem_nutrient_nitrate, chem_nutrient_nitrite,
+                  chem_nutrient_NPP, chem_nutrient_omega, chem_nutrient_phosphate, chem_nutrient_silicic_acid)
+# nrow(chem_ALL)
+
+knitr::kable(chem_ALL, caption = "Table 3: The key chemistry drivers of changes on Arctic fjord biodiversity as identified by the experts in FACE-IT for the relevant fields.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1:11, background = "#F6EA7C") # Chemistry
+```
+
+## Biology
+
+This category envelops individual species and the broader ecosystems that they populate, as well as their functioning. Foremost amongst the drivers for these categories is the very broad concept of biodiversity. One of the FACE-IT work packages focuses on this driver primarily oriented around their target species (e.g. kelps and seabirds). To this end the biology category could contain a near limitless list of drivers if every aspect of biological change for the myriad of potential target species found within fjord systems were to be considered. As the FACE-ITresearchers are experts in their field of study, the specifics of a given target species are left to them to track. In most cases this is of no concern as they will have been the one who generated the original data. 
+
+Variables that have a broader interest across focal species and ecosystems are however considered as key drivers of change. These include biogeochemical variables such as photosynthesis, respiration, primary production, calcification and nitrogen fixation. These variables are controlled by a lot of chemical, physical, and biological drivers and their change is itself a driver of changes, for example on upper trophic levels of relevance for humans, including emblematic and species of commercial interest.
+
+Another requirement for biology data is to be able to perform species distribution modelling (SDM) in order to project where the target species may currently be present, and where they may be with future projections. In order to perform SDM a researcher needs access to as much data describing the focal species as possible. Traditionally this is species abundance and presence/absence for a given site or lon/lat coordinate system. For phyto/zooplankton it is also desirable to know the species biomass concentration as this allows for more numeric modelling approaches.
+
+```{r biology-table}
+bio_biodiversity <- make_driver("Biology", "Biodiversity", "", "", "")
+bio_invasive_species <- make_driver("Biology", "Invasive species", "", "", "")
+bio_species_abundance <- make_driver("Biology", "Species abundance", "", "", "")
+bio_species_PA <- make_driver("Biology", "Species presence/absence", "", "", "")
+bio_species_bio_con_phyto <- make_driver("Biology", "Species biomass concentration: phytoplankton", "", "", "")
+bio_species_bio_conc_zoo <- make_driver("Biology", "Species biomass concentration: zooplankton", "", "", "")
+bio_primary_productivity <- make_driver("Biology", "Primary productivity", "", "", "")
+bio_seabirds <- make_driver("Biology", "Seabirds", "Changes in top down predation can affect most trophic levels", "Kongsfjorden + Isfjorden", "")
+bio_ALL <- rbind(bio_biodiversity, bio_invasive_species, bio_species_abundance, bio_species_PA, bio_species_bio_con_phyto,
+                 bio_species_bio_conc_zoo, bio_primary_productivity, bio_seabirds)
+# nrow(bio_ALL)
+
+knitr::kable(bio_ALL, caption = "Table 4: The key biology drivers of changes on Arctic fjord biodiversity as identified by the experts in FACE-IT for the relevant fields.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1:8, background = "#A2ED84") # Biology
+```
+
+## Social
+
+Putting the ‘socio’ in socio-ecological fjord systems, the social category of drivers contains anything that involves or directly affects humans. Of most direct impact on fjord systems for this category is fish landings, both commercial and recreational. This is because the biomass removed from the study sites in this way does not have a negligible impact on the ecosystem. Also, species migration could create opportunities. Hunting (i.e. game landings) are also of importance as the removal of larger terrestrial organisms from coastal communities can have a trickle down effect on the pressure between trophic levels. To this end it is necessary to document the local management strategies for these extractive activities.
+
+The presence and activities of humans themselves, apart from any intentionally  direct impact on the natural world, are also of interest. This is because human activity necessarily creates a certain amount of waste to such a degree that it can have disturbing effects on the natural state of the study sites. The drivers that may be tracked to determine changes to anthropogenic perturbations at a study site are: tourist arrivals per month and their nationality, tourist vessel counts and mileage, and the national statistics of demography, income, and unemployment.
+
+```{r social-table}
+soc_fish_landings_com <- make_driver("Social", "Fish landings: commercial", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
+soc_fish_landings_rec <- make_driver("Social", "Fish landings: recreational", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
+soc_game_landings <- make_driver("Social", "Game landings", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
+soc_local_management <- make_driver("Social", "Local management", "", "", "")
+soc_national_statistics <- make_driver("Social", "National statistics: demography + income + unemployment", "", "EU Arctic", "")
+soc_tourist_arrivals_month <- make_driver("Social", "Tourist arrivals: per month", "", "Isfjorden + Disko Bay", "")
+soc_tourist_arrivals_nation <- make_driver("Social", "Tourist arrivals: nationality", "", "Isfjorden + Disko Bay", "")
+soc_tourist_vessels_count <- make_driver("Social", "Tourist vessels: count", "", "Isfjorden + Disko Bay", "")
+soc_tourist_vessels_mileage <- make_driver("Social", "Tourist vessels: mileage", "", "Isfjorden + Disko Bay", "")
+soc_ALL <- rbind(soc_fish_landings_com, soc_fish_landings_rec, soc_game_landings, soc_local_management, soc_national_statistics,
+                 soc_tourist_arrivals_month, soc_tourist_arrivals_nation, soc_tourist_vessels_count, soc_tourist_vessels_mileage)
+# nrow(soc_ALL)
+
+knitr::kable(soc_ALL, caption = "Table 1: The key social drivers of changes on Arctic fjord biodiversity as identified by the experts in FACE-IT for the relevant fields.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1:9, background = "#F48080") # Social
+```
