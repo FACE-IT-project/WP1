@@ -20,7 +20,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 ![](assets/FACE-IT_Logo_900.png){ width=70% }
 </center>
 
-# Introduction
+# Overview
 
 ```{r setup}
 # Necessary libraries
@@ -166,15 +166,7 @@ This document begins with a review of known drivers of change in the European Ar
 
 <!-- Start with combining temperature data so that we can get trends as much as possible. Allow for one to choose a box and to get a trend from the points in the area. -->
 
-
-# Key drivers
-
-## Cryosphere
-
-<!-- One paragraph of text -->
-<!-- Table of these drivers -->
-
-## Physical
+<!-- # Key drivers -->
 
 # Meta-data
 
@@ -201,7 +193,7 @@ Consider that even if global temperature rise is limited to 2°C, this will mean
 
 <!-- ##### Drivers {-} -->
 
-```{r EU-arctic-table}
+```{r EU-arctic-table, eval=FALSE}
 # Easiest to show each variable as an smol individual data.frame
 
 # The order of the info:
