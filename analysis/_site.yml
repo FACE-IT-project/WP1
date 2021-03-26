@@ -5,6 +5,8 @@ navbar:
   left:
   # - text: "Overview"
   #   href: index.html
+  - text: "Key drivers"
+    href: key_drivers.html
   - text: "Meta-database"
     href: metadatabase.html
   # - text: "Analyses"

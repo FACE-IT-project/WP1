@@ -26,6 +26,7 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
 system.time(
   workflowr::wflow_publish(files = c("analysis/index.Rmd",
                                      # "analysis/socat-glodap.Rmd", # Don't knit this unless necessary, it takes a long time
+                                     "analysis/key_drivers.Rmd",
                                      "analysis/metadatabase.Rmd"
   ),
   message = "Re-built site.")
