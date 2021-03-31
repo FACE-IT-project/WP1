@@ -32,7 +32,7 @@ A Google Sheet was created to allow the experts at FACE-IT to fill-in which driv
 
 The FACE-IT project is focussed on fjord socio-ecological systems, which means it is concerned primarily with marine data, but changes in the terrestrial cryosphere have a direct impact on coastal systems and so are key variables when considering drivers of change. These terrestrial variables include any measure of glaciers, such as mass balance and changes to their terminating edges. Also of interest are changes to permafrost and snow cover thickness. All of these terrestrial changes are important to fjords as they have direct impacts on the rates of runoff and river discharge into the coast, which have in turn very large impacts on water quality variables such as salinity, nutrients concentration and turbidity. The importance of changes to water quality are discussed again in the physical and chemistry section.
 
-One of the aspects of the cryosphere that most directly impacts fjord systems is sea-ice (Stroeve and Notz, 2018). This is because the presence of ice can have a dramatic effect on what may be considered the three most fundamental important physical variables of sea water: temperature, salinity, and light. There are many ways of measuring sea-ice including: concentration, extent, thickness, and age. Whereas only one of these variables can be used when necessary, it is almost always preferable to have as many different measures of sea-ice as possible. It has been documented that there is a reliable correlation between fast-ice (ice attached to the coast) and local air and sea temperatures (Muckenhuber et al., 2016). This means that it may be possible to use air and sea temperatures as a proxy for sea-ice when there is a paucity of these data.
+One of the aspects of the cryosphere that most directly impacts fjord systems is sea-ice. This is because the presence of ice can have a dramatic effect on what may be considered the three most fundamental important physical variables of sea water: temperature, salinity, and light. There are many ways of measuring sea-ice including: concentration, extent, thickness, and age. Whereas only one of these variables can be used when necessary, it is almost always preferable to have as many different measures of sea-ice as possible. It has been documented that there is a reliable correlation between fast-ice (ice attached to the coast) and local air and sea temperatures. This means that it may be possible to use air and sea temperatures as a proxy for sea-ice when there is a paucity of these data.
 
 __Key Cryosphere Drivers__   
 
@@ -48,7 +48,7 @@ In addition to changes in the air-sea fluxes, it is also of great importance to 
   
 __Key Physical Drivers__  
   
-> Bathymetry; Evaporation; Heatflux: Net, latent/sensible, long/shortwave radiation; Light extinction coefficient; Mixed layer depth; Precipitation; River discharge; Salinity; Sea level pressure; Sea surface temperature; Sedimentation; Suspended: matter, solids, organics; Water quality; WInd: direction, max/mean speed
+> __Bathymetry__; __Evaporation__; __Heatflux__: Net, latent/sensible, long/shortwave radiation; __Light extinction coefficient__; __Mixed layer depth__; __Precipitation__; __River discharge__; __Salinity__; __Sea level pressure__; __Sea surface temperature__; __Sedimentation__; __Suspended__: matter, solids, organics; __Water quality__; __Wind__: direction, max/mean speed
 
 ## Chemistry
 
@@ -58,7 +58,7 @@ The other primary area of interest for this category is the changes to the nutri
 
 __Key Chemistry Drivers__  
   
-> pCO~2~; pH; total alkalinity; DIC; DOC; DON; DO~2~; Nutrients: nitrate, nitrite, ammonium, phosphate, silicate
+> __pCO~2~__; __pH__; __Total alkalinity__; __DIC__; __DOC__; __DON__; __DO~2~__; __Nutrients__: nitrate, nitrite, ammonium, phosphate, silicate
   
 ## Biology
 
@@ -70,7 +70,7 @@ Another requirement for biology data is to be able to perform species distributi
 
 __Key Biology Drivers__  
 
-> Photosynthesis; Respiration; Primary production; Calcification; Nitrogen fixation; Species: presence/absence, abundance/biomass.
+> __Photosynthesis__; __Respiration__; __Primary production__; __Calcification__; __Nitrogen fixation__; __Species__: presence/absence, abundance/biomass
 
 ## Social
 
@@ -80,5 +80,5 @@ The presence and activities of humans themselves, apart from any intentionally  
 
 __Key Social Drivers__  
 
-> Fish landings: commercial, recreational; Game landings; Local management; Tourist arrivals: per month, nationality; Tourist vessels: count, mileage; National statistics: demography, income, unemployment
+> __Fish landings__: commercial, recreational; __Game landings__; __Local management__; __Tourist arrivals__: per month, nationality; __Tourist vessels__: count, mileage; __National statistics__: demography, income, unemployment
 
