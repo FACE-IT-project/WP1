@@ -371,6 +371,17 @@ sval_tidal_glacier_front <- data.frame(data_name = "Tidal glacier front",
                                        reference = '<a onclick="alert(\'Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a\');">Kohler et al. (2018)</a>',
                                        note = NA)
 
+# Marine terminating glacier fronts
+sval_marine_glacier_front <- data.frame(data_name = "Marine glacier front",
+                                        date_range = "2008 to 2020",
+                                       lon_range = "10 to 34",
+                                       lat_range = "76 to 81",
+                                       depth_range = NA,
+                                       file_name = '<a onclick="alert(\'Glacier_Fronts/\');">1 folder</a>',
+                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338">NPDC</a>',
+                                       reference = '<a onclick="alert(\'Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a\');">Moholdt et al. (2021)</a>',
+                                       note = NA)
+
 # Surface meteorology
 sval_surface_met <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") %>% 
   hyper_tibble() %>% 
@@ -387,7 +398,7 @@ sval_UNIS_database <- data.frame(data_name = "CTD: temperature + salinity",
                                  lon_range = "0 to 75",
                                  lat_range = "34 to 83",
                                  depth_range = "? to ?",
-                                 file_name = '<a onclick="alert(\'UNIS_hydrographic_database/\');">1 folder</a>',
+                                 file_name = '<a onclick="alert(\'CTD_all_1876-2019.nc\');">1 file</a>',
                                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/39d9f0f9-af12-420c-a879-10990df2e22d">NPDC</a>',
                                        reference = '<a onclick="alert(\'Skogseth, R., Ellingsen, P., Berge, J., Cottier, F., Falk-Petersen, S., Ivanov, B., … Vader, A. (2019). UNIS hydrographic database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/unis-hydrography\');">Skogseth et al. (2019)</a>',
                                        note = NA)
