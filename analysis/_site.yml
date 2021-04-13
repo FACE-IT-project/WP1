@@ -1,7 +1,7 @@
 name: "FACE-IT"
 output_dir: ../docs
 navbar:
-  title: "FACE-IT"
+  title: "WP1"
   left:
   # - text: "Overview"
   #   href: index.html
