@@ -10,6 +10,8 @@ editor_options:
 
 <center>
 ![](assets/FACE-IT_Logo_900.png){ width=100% }
+<hr>
+![](assets/h2020_grant.png){ width=100% }
 </center>
 <br>
 

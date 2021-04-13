@@ -154,8 +154,6 @@ make_meta_data <- function(dat, data_name, file_name, URL, reference, note = NA)
 
 This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The interactive tables contain the meta-database for the data that contain variables identified as key drivers of change ([D1.1](https://face-it-project.github.io/FACE-IT/key_drivers.html)). The meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/FACE-IT/review.html)). The meta-database has been broken up into the different sites for convenience, with a table of meta-data given for the relevant data per site. This means that some meta-data will be repeated in the tables below as some data files are relevant to multiple sites. The following table is a condensed recap of the drivers identified for [D1.1](https://face-it-project.github.io/FACE-IT/key_drivers.html).
 
-<!-- ##### Drivers {-} -->
-
 ```{r key-drivers-table, eval=FALSE}
 # Easiest to show each variable as an smol individual data.frame
 
@@ -163,98 +161,80 @@ This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](
 ## Category, Driver, Why, Sites, Reference
 
 ## Cryosphere
-cryo_coastal_ice <- make_driver("Cryosphere", "Coastal ice", "", "", "")
-cryo_glacier <- make_driver("Cryosphere", "Glacier", "", "", "")
-cryo_permafrost <- make_driver("Cryosphere", "Permafrost", "", "", "")
-cryo_sea_ice_conc <- make_driver("Cryosphere", "Sea ice: concentration", "", "EU Arctic", "Stroeve and Notz (2018)")
-cryo_sea_ice_ext <- make_driver("Cryosphere", "Sea ice: extent", "", "EU Arctic", "Stroeve and Notz (2018)")
-cryo_sea_ice_thic <- make_driver("Cryosphere", "Sea ice: thickness", "", "EU Arctic", "Stroeve and Notz (2018)")
-cryo_snow_cover_thic <- make_driver("Cryosphere", "Snow cover: thickness", "", "EU Arctic", "")
-cryo_ALL <- rbind(cryo_coastal_ice, cryo_glacier, cryo_permafrost, cryo_sea_ice_conc, cryo_sea_ice_ext,
-                  cryo_sea_ice_thic, cryo_snow_cover_thic)
+cryo_coastal_ice <- make_driver("Cryosphere", "Coastal ice: formation/break up date, thickness", "", "", "")
+cryo_fast_ice <- make_driver("Cryosphere", "Fast ice", "Decreasing (fast) ice cover can have a range of ecological effect.", "", "Muckenhuber et al. (2016)")
+cryo_glacier <- make_driver("Cryosphere", "Glacier: land mass balance, terminating edge", "An indicator of the change to other drivers.", "", "")
+cryo_permafrost <- make_driver("Cryosphere", "Permafrost: temperature, thickness", "", "", "")
+cryo_sea_ice <- make_driver("Cryosphere", "Sea ice: concentration, extent, freeboard, thickness", 
+                            "Affects pelagic and benthic production.", "EU Arctic", "Stroeve and Notz (2018)")
+cryo_snow_cover <- make_driver("Cryosphere", "Snow cover: thickness", "", "EU Arctic", "")
+cryo_ALL <- rbind(cryo_coastal_ice, cryo_fast_ice, cryo_glacier, cryo_permafrost, cryo_sea_ice, cryo_snow_cover)
 # nrow(cryo_ALL)
 
 ## Physical
 phys_bathy <- make_driver("Physical", "Bathymetry", "", "", "")
 phys_evap <- make_driver("Physical", "Evaporation", "", "", "")
-phys_qnet <- make_driver("Physical", "Net heatflux", "", "EU Arctic", "")
-phys_qsw <- make_driver("Physical", "Shortwave radiation", "", "EU Arctic", "")
-phys_qlw <- make_driver("Physical", "Longwave radiation", "", "EU Arctic", "")
-phys_qsh <- make_driver("Physical", "Sensible heatflux", "", "EU Arctic", "")
-phys_qlh <- make_driver("Physical", "Latent heatflux", "", "EU Arctic", "")
-phys_extinct <- make_driver("Physical", "Water light extinction coefficient", "", "EU Arctic", "")
+phys_heatflux <- make_driver("Physical", "Heatflux: net, latent/sensible, long/shortwave radiation", 
+                             "Responsible for the changing of seawater temperature in various important ways.", "EU Arctic", "")
+phys_extinct <- make_driver("Physical", "Light extinction coefficient", "Indicates the amount of light to benthic producers.", "EU Arctic", "")
 phys_mld <- make_driver("Physical", "Mixed layer depth", "", "EU Arctic", "Popova et al. (2014)")
 phys_precip <- make_driver("Physical", "Precipitation", "Affects the amount of fresh water runoff into coasts.", "EU Arctic", "")
-phys_river_discharge <- make_driver("Physical", "River discharge", "Delivers carbon and nutrient rich freshwater to coast.", "EU Arctic", "Delpech et al. (2021)")
+phys_river_discharge <- make_driver("Physical", "River discharge", 
+                                    "Delivers carbon and nutrient rich freshwater to coast.", "EU Arctic", "Delpech et al. (2021)")
 phys_salinity <- make_driver("Physical", "Salinity", "", "EU Arctic", "")
 phys_mslp <- make_driver("Physical", "Sea level pressure", "", "", "")
-phys_sst <- make_driver("Physical", "Sea surface temperature", "", "EU Arctic", "Popova et al. (2014)")
+phys_sst <- make_driver("Physical", "Sea temperature: surface, mid, bottom", "", "EU Arctic", "Popova et al. (2014)")
 phys_sedimentation <- make_driver("Physical", "Sedimentation", "", "", "")
-phys_suspended_matter <- make_driver("Physical", "Suspended matter", "", "", "")
-phys_suspended_solids <- make_driver("Physical", "Suspended solids", "", "", "")
-phys_suspended_organics <- make_driver("Physical", "Suspended organics", "", "", "")
-phys_water_quality <- make_driver("Physical", "Water quality", "", "", "")
-phys_wind_direction <- make_driver("Physical", "Wind direction", "", "", "")
-phys_wind_speed_mean <- make_driver("Physical", "Wind speed mean", "", "", "")
-phys_wind_speed_max <- make_driver("Physical", "Wind speed max", "", "", "")
-phys_ALL <- rbind(phys_bathy, phys_evap, phys_qnet, phys_qsw, phys_qlw, phys_qlh, phys_qsh, phys_extinct, phys_mld,
-                  phys_precip, phys_river_discharge, phys_salinity, phys_mslp, phys_sst, phys_sedimentation,
-                  phys_suspended_matter, phys_suspended_solids, phys_suspended_organics, phys_water_quality,
-                  phys_wind_direction, phys_wind_speed_mean, phys_wind_speed_max)
+phys_suspended <- make_driver("Physical", "Suspended: matter, solids, organics", "", "", "")
+phys_wind <- make_driver("Physical", "Wind: direction, max/mean speed", "", "", "")
+phys_ALL <- rbind(phys_bathy, phys_evap, phys_heatflux, phys_extinct, phys_mld, phys_precip, phys_river_discharge, 
+                  phys_salinity, phys_mslp, phys_sst, phys_sedimentation, phys_suspended, phys_wind)
 # nrow(phys_ALL)
 
 ## Chemistry
-chem_pCO2 <- make_driver("Chemistry", "pCO2", "", "EU Arctic", "Popova et al. (2014)")
 chem_DIC <- make_driver("Chemistry", "DIC", "", "EU Arctic", "Popova et al. (2014)")
 chem_DOC <- make_driver("Chemistry", "DOC", "", "", "")
 chem_DON <- make_driver("Chemistry", "DON", "", "", "")
-chem_dissolved_O2 <- make_driver("Chemistry", "Dissolved 02", "", "", "")
-chem_nutrient_nitrate <- make_driver("Chemistry", "Nutrient: nitrate", "", "", "")
-chem_nutrient_nitrite <- make_driver("Chemistry", "Nutrient: nitrite", "", "", "")
-chem_nutrient_NPP <- make_driver("Chemistry", "Nutrient: NPP", "", "EU Arctic", "Popova et al. (2014)")
-chem_nutrient_omega <- make_driver("Chemistry", "Nutrient: omega", "", "EU Arctic", "Popova et al. (2014)")
-chem_nutrient_phosphate <- make_driver("Chemistry", "Nutrient: phosphate", "", "", "")
-chem_nutrient_silicic_acid <- make_driver("Chemistry", "Nutrient: silicic acid", "", "", "")
-chem_ALL <- rbind(chem_pCO2, chem_DIC, chem_DOC, chem_DON, chem_dissolved_O2, chem_nutrient_nitrate, chem_nutrient_nitrite,
-                  chem_nutrient_NPP, chem_nutrient_omega, chem_nutrient_phosphate, chem_nutrient_silicic_acid)
+chem_DO2 <- make_driver("Chemistry", "Dissolved 02", "", "", "")
+chem_nutrients <- make_driver("Chemistry", "Nutrient: nitrate, nitrite, ammonium, phosphate, silicate", "", "", "")
+chem_pCO2 <- make_driver("Chemistry", "pCO2", "", "EU Arctic", "Popova et al. (2014)")
+chem_pH <- make_driver("Chemistry", "pH", "", "EU Arctic", "")
+chem_alk <- make_driver("Chemistry", "Total alkalinity", "", "EU Arctic", "")
+chem_ALL <- rbind(chem_DIC, chem_DOC, chem_DON, chem_DO2, chem_nutrients, chem_pCO2, chem_pH, chem_alk)
 # nrow(chem_ALL)
 
 ## Biology
-bio_biodiversity <- make_driver("Biology", "Biodiversity", "", "", "")
-bio_invasive_species <- make_driver("Biology", "Invasive species", "", "", "")
-bio_species_abundance <- make_driver("Biology", "Species abundance", "", "", "")
-bio_species_PA <- make_driver("Biology", "Species presence/absence", "", "", "")
-bio_species_bio_con_phyto <- make_driver("Biology", "Species biomass concentration: phytoplankton", "", "", "")
-bio_species_bio_conc_zoo <- make_driver("Biology", "Species biomass concentration: zooplankton", "", "", "")
-bio_primary_productivity <- make_driver("Biology", "Primary productivity", "", "", "")
-bio_seabirds <- make_driver("Biology", "Seabirds", "Changes in top down predation can affect most trophic levels", "Kongsfjorden + Isfjorden", "")
-bio_ALL <- rbind(bio_biodiversity, bio_invasive_species, bio_species_abundance, bio_species_PA, bio_species_bio_con_phyto,
-                 bio_species_bio_conc_zoo, bio_primary_productivity, bio_seabirds)
+bio_calc <- make_driver("Biology", "Calcification", "", "", "")
+bio_N_fix <- make_driver("Biology", "Nitrogen fixation", "", "", "")
+bio_photo <- make_driver("Biology", "Photosynthesis", "", "", "")
+bio_prim_prod <- make_driver("Biology", "Primary production", "", "", "")
+bio_resp <- make_driver("Biology", "Respiration", "", "", "")
+bio_species <- make_driver("Biology", "Species: presence/absence, abundance/biomass", "", "", "")
+bio_ALL <- rbind(bio_calc, bio_N_fix, bio_photo, bio_prim_prod, bio_prim_prod, bio_resp, bio_species)
 # nrow(bio_ALL)
 
 ## Social
-soc_fish_landings_com <- make_driver("Social", "Fish landings: commercial", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
-soc_fish_landings_rec <- make_driver("Social", "Fish landings: recreational", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
-soc_game_landings <- make_driver("Social", "Game landings", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
-soc_local_management <- make_driver("Social", "Local management", "", "", "")
-soc_national_statistics <- make_driver("Social", "National statistics: demography + income + unemployment", "", "EU Arctic", "")
-soc_tourist_arrivals_month <- make_driver("Social", "Tourist arrivals: per month", "", "Isfjorden + Disko Bay", "")
-soc_tourist_arrivals_nation <- make_driver("Social", "Tourist arrivals: nationality", "", "Isfjorden + Disko Bay", "")
-soc_tourist_vessels_count <- make_driver("Social", "Tourist vessels: count", "", "Isfjorden + Disko Bay", "")
-soc_tourist_vessels_mileage <- make_driver("Social", "Tourist vessels: mileage", "", "Isfjorden + Disko Bay", "")
-soc_ALL <- rbind(soc_fish_landings_com, soc_fish_landings_rec, soc_game_landings, soc_local_management, soc_national_statistics,
-                 soc_tourist_arrivals_month, soc_tourist_arrivals_nation, soc_tourist_vessels_count, soc_tourist_vessels_mileage)
+soc_fish_landings <- make_driver("Social", "Fish landings: commercial, recreational, quotas, seasonality", 
+                                "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
+soc_game_landings <- make_driver("Social", "Game landings: quotas, seasonality", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
+soc_local_management <- make_driver("Social", "Local and national resource management", "", "", "")
+soc_national_statistics <- make_driver("Social", "National statistics: demography, income, unemployment", "", "EU Arctic", "")
+soc_tourist_arrivals <- make_driver("Social", "Tourist arrivals: per month, nationality", "", "Isfjorden + Disko Bay", "")
+soc_tourist_vessels <- make_driver("Social", "Tourist vessels: count, mileage", 
+                                   "Indicative of direct anthropogenic disturbance.", "Isfjorden + Disko Bay", "")
+soc_ALL <- rbind(soc_fish_landings, soc_game_landings, soc_local_management, 
+                 soc_national_statistics, soc_tourist_arrivals, soc_tourist_vessels)
 # nrow(soc_ALL)
 
 # Combine and print
 knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL), 
-             caption = "Table 1: The key drivers of changes on Arctic fjord biodiversity as identified by the experts in FACE-IT for the relevant fields. The drivers have been separated into the following categories for convenience: Cryosphere, Physical, Chemistry, Biology, Social. The 'Crysophere' category contains any drivers related to ice, glaciers, and/or snow. This category contains both marine and terrestrial drivers that impact the marine environements of Arctic fjords. The 'Physical' category contains atmospheric and oceanic drivers. The 'Chemistry' category contains primarily water quality variables that are no longer physical, but not yet biological. This includes inorganic as well as organic nutrients. The 'Biology' category contains drivers related to biology as well as ecology. The final category 'Social' contains drivers that are primarily related to anthropogenic impacts on the natural world, as well as drivers that directly affect the well-being of local stakeholders. This category therefore contains all drivers relating to fisheries.") %>% 
+             caption = "Table 1: The key drivers of changes on Arctic fjord and adjacent coastal systems as identified by the experts in FACE-IT for the relevant fields. The drivers have been separated into the following categories for convenience: Cryosphere, Physical, Chemistry, Biology, Social. The 'Crysophere' category contains any drivers related to ice, glaciers, and/or snow. This category contains both marine and terrestrial drivers that impact the marine environements of Arctic fjords and adjacent coastlines. The 'Physical' category contains atmospheric and oceanic drivers. The 'Chemistry' category contains primarily water quality variables that are no longer physical, but not yet biological. This includes inorganic as well as organic nutrients. The 'Biology' category contains drivers related to biology and ecology. The final category 'Social' contains drivers that are primarily related to anthropogenic impacts on the natural world, as well as drivers that directly affect the well-being of local stakeholders. This category therefore contains all drivers relating to fisheries.") %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-  row_spec(1:7, background = "mintcream") %>% # Cryosphere
-  row_spec(8:29, color = "black", background = "skyblue") %>% # Physical
-  row_spec(30:40, background = "#F6EA7C") %>% # Chemistry
-  row_spec(41:48, background = "#A2ED84") %>% # Biology
-  row_spec(49:57, background = "#F48080") # Social
+  row_spec(1:6, background = "mintcream") %>% # Cryosphere
+  row_spec(7:19, color = "black", background = "skyblue") %>% # Physical
+  row_spec(20:27, background = "#F6EA7C") %>% # Chemistry
+  row_spec(28:34, background = "#A2ED84") %>% # Biology
+  row_spec(35:40, background = "#F48080") # Social
 ```
 
 <!-- The current thinking with this is to list all of the data of interest by site and provide a quick meta-data summary for each (e.g. start-end date, temporal/spatial resolution) as well as providing the correct citation for each data source. -->
@@ -267,20 +247,13 @@ knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL),
 
 <!-- Start with combining temperature data so that we can get trends as much as possible. Allow for one to choose a box and to get a trend from the points in the area. -->
 
-<!-- # Key drivers -->
-
-<!-- # Meta-data -->
-
 # European Arctic
 
 <center>
 ![](assets/map_full.png){ width=50% }
 </center>
 
-> The decline in the floating sea ice cover in the Arctic is one of the most striking manifestations of climate change.  
-[@Stroeve2018]
-
-This section contains meta-data for pan-Arctic data files. These are almost exclusivley large gridded data sets or large combined sets of CTD data.
+This section contains meta-data for pan-Arctic data files. These are almost exclusively large gridded data sets or large combined sets of CTD data.
 
 <!-- _NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._ -->
 
@@ -297,14 +270,18 @@ EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zoopl
                  reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8\');">NPI (2020)</a>')
 
 # Ice modelling output
-# EU_ice <- tidync() %>% 
-#   make_meta_data(data_name = "Model: ice thickness + snow-ice + snow depth",
-#                  file_name = '<a onclick="alert(\'HIGHTSI/\');">1 folder</a>',
-#                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66">NPDC</a>',
-#                  reference = '<a onclick="alert(\'Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a\');">Liston et al. (2016)</a>')
+EU_ice <- data.frame(data_name = "Model: ice thickness, snow-ice, snow depth",
+                     date_range = "1980 to 2016",
+                     lon_range = "-180 to 180",
+                     lat_range = "60 to 90",
+                     depth_range = NA,
+                     file_name = 'See URL',
+                     URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66">NPDC</a>',
+                     reference = '<a onclick="alert(\'Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a\');">Liston et al. (2016)</a>',
+                     note = "The file is too large to download from NPDC.")
 
 # Combine
-metadata_EU_arctic <- rbind(EU_zooplankton)
+metadata_EU_arctic <- rbind(EU_zooplankton, EU_ice)
 ```
 
 ```{r EU-arctic-meta-data-table}
@@ -320,25 +297,6 @@ DT::datatable(metadata_EU_arctic, rownames = FALSE, escape = FALSE, colnames = D
 </center>
 
 While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it's own meta-data table. The primary drivers of change for each site are still listed in their own tables below.
-
-<!-- #### Tables {.tabset .tabset-fade .tabset-pills}  -->
-
-<!-- ##### Drivers {-} -->
-
-```{r svalbard-table}
-knitr::kable(data.frame(Category = c("Biological"),
-                        Driver = c("Seabirds"),
-                        Why = c("Changes in top down predation can affect most trophic levels"),
-                        Reference = c(""))) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-  # row_spec(1:3, background = "mintcream") %>%
-  # row_spec(4:7, color = "black", background = "skyblue") %>%
-  # row_spec(8, background = "#F6EA7C") %>% 
-  row_spec(1, background = "#A2ED84") #%>% 
-  # row_spec(12, background = "#F48080")
-```
-
-<!-- ##### Meta-data {-} -->
 
 ```{r svalbard-meta-data}
 # Glacial topography + thickness
@@ -423,48 +381,6 @@ DT::datatable(metadata_svalbard, rownames = FALSE, escape = FALSE, colnames = DT
 ![](assets/map_kongsfjorden.png){ width=50% }
 </center>
 
-```{r kongsfjorden-table}
-knitr::kable(data.frame(Category = c("Cryosphere", "cryosphere",  "Cryoshpere",
-                                     "Physical", "Physical", "Physical", "Physical",
-                                     "Chemistry",
-                                     "Biological", "Biological", "Biological",
-                                     "Social"),
-                        Driver = c("Sea-ice cover", "Land glacier mass balance", "Runoff",
-                                   "Longwave radiation (Q_lw)", 
-                                   "Shortwave radiation (Q_sw)", 
-                                   "Turbidity",
-                                   "Circulation",
-                                   "Acidification",
-                                   "Benthic macroalgal biomass/production",
-                                   "Macro zooplankton",
-                                   "Seabird diet",
-                                   "Ship traffic"),
-                        Why = c("Affects pelagic and benthic production.", 
-                                "An indicator of the change to other drivers", 
-                                "Alters salinity, nutrients, and turbidity of surface waters.",
-                                "Primary driver of warming waters.", 
-                                "Secondary driver of warming waters.", 
-                                "Prevents light to benthic producers.",
-                                "Allows for more encroachment of Atlantic waters.",
-                                "Affects pelagic primary production.",
-                                "Changes where coastal ecosystems will be found and at what scale.",
-                                "Top down pressure on phytoplankton and a source of food higher up.",
-                                "Changes to prey items serve as an indicator of borealisation.",
-                                "Indicative of direct anthropogenic disturbance."),
-                        Reference = c("Bischof et al. (2019a)", "Pavlova et al. (2019)", "Bischof et al. (2019a)",
-                                      "Bischof et al. (2019b)", "Bischof et al. (2019b)", "Bischof et al. (2019a)", "Hop and Wiencke (2019)",
-                                      "Hop and Wiencke (2019)",
-                                      "Bartsch et al. (2016)", "Dalpadado et al. (2016)", "Vihtakari et al. (2018)",
-                                      ""))) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-  row_spec(1:3, background = "mintcream") %>%
-  row_spec(4:7, color = "black", background = "skyblue") %>%
-  row_spec(8, background = "#F6EA7C") %>% 
-  row_spec(9:11, background = "#A2ED84") %>% 
-  row_spec(12, background = "#F48080")
-  # column_spec(popover = )
-```
-
 ```{r kongsfjorden-meta-data}
 # Sea ice cover
 kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv", guess_max = 100000) %>% 
@@ -513,11 +429,8 @@ kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_M
 
 # Glacial topography + thickness
 kong_glacier_info <- data.frame(data_name = "Glacier surface + thickness + elevation",
-                                # date_min = 2004, date_max = 2016,
                                 date_range = "2004 to 2016",
-                                # lon_min = 10, lon_max = 14, lat_min = 78.8, lat_max = 79.2,
                                 lon_range = "10 to 14", lat_range = "78.8 to 79.2",
-                                # depth_min = NA, depth_max = NA,
                                 depth_range = NA,
                                 file_name = '<a onclick="alert(\'TIGRIF_DEM_ice_surface_150m_v1.tif      TIGRIF_DEM_ice_thickness_150m_1.tif      TIGRIF_DEM_subglacial_elevation_150m_v1.tif      TIGRIF_radarprofiles_2004_2016_v1.txt\');">4 files</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1">NPDC</a>',
@@ -555,46 +468,6 @@ DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames 
 <center>
 ![](assets/map_isfjorden.png){ width=50% }
 </center>
-
-```{r isfjorden-table}
-knitr::kable(data.frame(Category = c("Cryosphere", 
-                                     "Physical", "Physical", "Physical",
-                                     "Chemistry",
-                                     "Biological", "Biological", "Biological",
-                                     "Social", "Social"),
-                        Driver = c("Fast ice cover",
-                                   "Atlantic water inflow",
-                                   "Freshwater runoff",
-                                   "Wind stress",
-                                   "Nutrient input",
-                                   "Microbial communtiy",
-                                   "Zooplankton community",
-                                   "Benthic community",
-                                   "Fish landings",
-                                   "Tourism arrivals"),
-                        Why = c("Decreasing (fast) ice cover can have a range of ecological effect.",
-                                "Increases the temperature and salinity of fjord waters.",
-                                "Changes the temperature, salinity, and turbidity of surface waters.",
-                                "Responsible for increasing Atlantic water inflow from the West Spitsbergen Current.",
-                                "Can tip ecological balances by inordinately favouring some species over others.",
-                                "Affects the decomposition of material.",
-                                "Foundational prey species for many pelagics.",
-                                "Contribute to biogeochemical processes; re-mineralise nutrients; food for higher trophic levels.",
-                                "Alters top down trophic pressure.",
-                                "Increases to a range of pollutants from light to chemical."),
-                        Reference = c("Muckenhuber et al. (2016)", 
-                                      "Skogseth et al. (2020)", "Vereide (2019); Mcgovern et al. (2020)", "Pavlov et al. (2013)",
-                                      "Mcgovern et al. (2020)",
-                                      "Delpech et al. (2021)", "Vereide (2019)", "Ugelstad (2019)",
-                                      "", ""))) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-  row_spec(1, background = "mintcream") %>%
-  row_spec(2:4, color = "black", background = "skyblue") %>%
-  row_spec(5, background = "#F6EA7C") %>%
-  row_spec(6:8, background = "#A2ED84") %>%
-  row_spec(9:10, background = "#F48080")
-  # column_spec(popover = )
-```
 
 ```{r isfjorden-meta-data}
 # Sea ice cover
