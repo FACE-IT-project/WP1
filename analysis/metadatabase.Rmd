@@ -147,7 +147,7 @@ make_meta_data <- function(dat, data_name, file_name, URL, reference, note = NA)
 }
 ```
 
-This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The interactive tables contain the meta-database for the data that contain variables identified as key drivers of change ([D1.1](https://face-it-project.github.io/FACE-IT/key_drivers.html)). The meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/FACE-IT/review.html)). The meta-database has been broken up into the different sites for convenience, with a table of meta-data given for the relevant data per site. This means that some meta-data will be repeated in the tables below as some data files are relevant to multiple sites.
+This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The interactive tables contain the meta-database for the data that contain variables identified as key drivers of change ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). The meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). The meta-database has been broken up into the different sites for convenience, with a table of meta-data given for the relevant data per site. This means that some meta-data will be repeated in the tables below as some data files are relevant to multiple sites.
 
 <!-- The current thinking with this is to list all of the data of interest by site and provide a quick meta-data summary for each (e.g. start-end date, temporal/spatial resolution) as well as providing the correct citation for each data source. -->
 
@@ -205,7 +205,7 @@ DT::datatable(metadata_EU_arctic, rownames = FALSE, escape = FALSE, colnames = D
 # Svalbard
 
 <center>
-![](assets/map_svalbard.png){ width=50% }
+![](assets/map_svalbard.png){ width=70% }
 </center>
 
 While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it's own meta-data table. The primary drivers of change for each site are still listed in their own tables below.

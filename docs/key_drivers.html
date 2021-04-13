@@ -392,7 +392,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -401,7 +401,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -413,7 +413,7 @@ div.tocify {
 <strong>Last updated:</strong> 2021-04-13
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -429,12 +429,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -501,16 +501,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree80c27b687eac69ab854a7be03f9750132195e897targetblank80c27b6a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/80c27b687eac69ab854a7be03f9750132195e897" target="_blank">80c27b6</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree30c05cf9db15320ef8382a3e9ebb560febdbe8e9targetblank30c05cfa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/30c05cf9db15320ef8382a3e9ebb560febdbe8e9" target="_blank">30c05cf</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree80c27b687eac69ab854a7be03f9750132195e897targetblank80c27b6a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree30c05cf9db15320ef8382a3e9ebb560febdbe8e9targetblank30c05cfa" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/80c27b687eac69ab854a7be03f9750132195e897" target="_blank">80c27b6</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/30c05cf9db15320ef8382a3e9ebb560febdbe8e9" target="_blank">30c05cf</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -519,6 +519,10 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+
+Unstaged changes:
+    Modified:   analysis/key_drivers.Rmd
+    Modified:   analysis/metadatabase.Rmd
 
 </code></pre>
 <p>
@@ -557,6 +561,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/30c05cf9db15320ef8382a3e9ebb560febdbe8e9/docs/key_drivers.html" target="_blank">30c05cf</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+More troubleshooting
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -860,7 +881,7 @@ Re-built site.
 </div>
 <div id="data-availability" class="section level1">
 <h1>Data availability</h1>
-<p>The data for the drivers outlined above are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: <a href="https://marine.copernicus.eu/">Copernicus</a>, <a href="https://www.emodnet.eu/en">EMODnet</a>, and <a href="https://www.ncei.noaa.gov/">NOAA</a>. Site specific datasets can be accessed via: <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://arcticdata.io/">NSF</a>, <a href="https://openpolar.no/">openpolar</a>, <a href="https://pangaea.de/">PANGAEA</a>, and <a href="https://sios-svalbard.org/metadata_search">SIOS</a>. Data for drivers pertaining more to policy may be found at: <a href="https://intaros.nersc.no/">INTAROS</a> and <a href="https://www.arcticobserving.org/">SAON</a>. The data portals for national statistics and other social drivers are: <a href="https://stat.gl/dialog/topmain.asp?lang=da&amp;subject=Fiskeri%20og%20fangst&amp;sc=FI">Grønlands statistik</a>, <a href="https://ais-public.kystverket.no/ais-download/">kystverket</a>, <a href="https://www.ssb.no/">SSB</a>, and <a href="https://statistikknett.no/">statistikknett</a>. The specific data of relevance to the key drivers that may be found within each of these sources are given in greater detail in <a href="https://FACE-IT-project.github.io/FACE-IT/metadatabase.html">D1.2: Meta-database</a>.</p>
+<p>The data for the drivers outlined above are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: <a href="https://marine.copernicus.eu/">Copernicus</a>, <a href="https://www.emodnet.eu/en">EMODnet</a>, and <a href="https://www.ncei.noaa.gov/">NOAA</a>. Site specific datasets can be accessed via: <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://arcticdata.io/">NSF</a>, <a href="https://openpolar.no/">openpolar</a>, <a href="https://pangaea.de/">PANGAEA</a>, and <a href="https://sios-svalbard.org/metadata_search">SIOS</a>. Data for drivers pertaining more to policy may be found at: <a href="https://intaros.nersc.no/">INTAROS</a> and <a href="https://www.arcticobserving.org/">SAON</a>. The data portals for national statistics and other social drivers are: <a href="https://stat.gl/dialog/topmain.asp?lang=da&amp;subject=Fiskeri%20og%20fangst&amp;sc=FI">Grønlands statistik</a>, <a href="https://ais-public.kystverket.no/ais-download/">kystverket</a>, <a href="https://www.ssb.no/">SSB</a>, and <a href="https://statistikknett.no/">statistikknett</a>. The specific data of relevance to the key drivers that may be found within each of these sources are given in greater detail in <a href="https://FACE-IT-project.github.io/WP1/metadatabase.html">D1.2: Meta-database</a>.</p>
 </div>
 <div id="summary" class="section level1">
 <h1>Summary</h1>
