@@ -45,8 +45,6 @@
 <script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
 <link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
 <script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
-<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
-<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -360,7 +358,7 @@ div.tocify {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">FACE-IT</a>
+      <a class="navbar-brand" href="index.html">WP1</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -509,27 +507,24 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree19eac7920c2e8fc11293379c759e20aebcd40447targetblank19eac79a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/19eac7920c2e8fc11293379c759e20aebcd40447" target="_blank">19eac79</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treea1dcb70974f8a6197877e30e77b7945675081b18targetblanka1dcb70a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/a1dcb70974f8a6197877e30e77b7945675081b18" target="_blank">a1dcb70</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree19eac7920c2e8fc11293379c759e20aebcd40447targetblank19eac79a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treea1dcb70974f8a6197877e30e77b7945675081b18targetblanka1dcb70a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/19eac7920c2e8fc11293379c759e20aebcd40447" target="_blank">19eac79</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/a1dcb70974f8a6197877e30e77b7945675081b18" target="_blank">a1dcb70</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-
-Unstaged changes:
-    Modified:   analysis/_site.yml
-    Modified:   code/functions.R
 
 </code></pre>
 <p>
@@ -568,6 +563,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/18c0f2e7dca7c51dbffd5cd5526b348ed4f2a8fd/analysis/metadatabase.Rmd" target="_blank">18c0f2e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Update to meta-databse
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/7e3f348f35c8895c16d6ce81bf4f8099c31286a3/docs/metadatabase.html" target="_blank">7e3f348</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1856,30 +1885,23 @@ The metadatabase Rmd file
 <div id="overview" class="section level1">
 <h1>Overview</h1>
 <p>This document is designed to satisfy D1.2 for the Horizon2020 project <a href="https://www.face-it-project.eu/">FACE-IT</a>. The interactive tables contain the meta-database for the data that contain variables identified as key drivers of change (<a href="https://face-it-project.github.io/FACE-IT/key_drivers.html">D1.1</a>). The meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (<a href="https://face-it-project.github.io/FACE-IT/review.html">D1.3</a>). The meta-database has been broken up into the different sites for convenience, with a table of meta-data given for the relevant data per site. This means that some meta-data will be repeated in the tables below as some data files are relevant to multiple sites. The following table is a condensed recap of the drivers identified for <a href="https://face-it-project.github.io/FACE-IT/key_drivers.html">D1.1</a>.</p>
-<!-- ##### Drivers {-} -->
 <!-- The current thinking with this is to list all of the data of interest by site and provide a quick meta-data summary for each (e.g. start-end date, temporal/spatial resolution) as well as providing the correct citation for each data source. -->
 <!-- Thinking now, it may be better to create this as an RMarkdown document. This way the links and code used can be housed directly in with the text talking about the data availability, meta-data and citations. -->
 <!-- Start with a discussion of what the key drivers are across all study sites. A literature search of keywords can be used to generate info on the key drivers: Arctic, biodiversity, drivers, etc. Do this for titles, abstracts, and keywords. For each study site afterwards one can discuss why some drivers are more or less important. Like light pollution in Young Sound, because there are no humans there. Or like ice cover in Kongsfjorden being very important because of borealisation. -->
 <!-- One must list all available data, but this does not mean they all need to be downloaded. And it does not mean that they all need to be combined. Consider that trends are going to be one of the main benefits of combining multiple data sets. -->
 <!-- Start with combining temperature data so that we can get trends as much as possible. Allow for one to choose a box and to get a trend from the points in the area. -->
-<!-- # Key drivers -->
-<!-- # Meta-data -->
 </div>
 <div id="european-arctic" class="section level1">
 <h1>European Arctic</h1>
 <center>
 <img src="assets/map_full.png" style="width:50.0%" />
 </center>
-<blockquote>
-<p>The decline in the floating sea ice cover in the Arctic is one of the most striking manifestations of climate change.<br />
-<span class="citation">(Stroeve and Notz, 2018)</span></p>
-</blockquote>
-<p>This section contains meta-data for pan-Arctic data files. These are almost exclusivley large gridded data sets or large combined sets of CTD data.</p>
+<p>This section contains meta-data for pan-Arctic data files. These are almost exclusively large gridded data sets or large combined sets of CTD data.</p>
 <!-- _NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._ -->
 <!-- #### Tables {.tabset .tabset-fade .tabset-pills}  -->
 <!-- ##### Meta-data {-} -->
 <div id="htmlwidget-61ebf658e893460fe95c" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-61ebf658e893460fe95c">{"x":{"filter":"none","caption":"<caption>All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.<\/caption>","data":[["Zooplankton biodiversity"],["1995 to 2008"],["1.24 to 40.82"],["75.6 to 82.45"],["0 to 1600"],["<a onclick=\"alert('1995-2008-zooplankton-biodiversity.tsv');\">1 file<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448\">NPDC<\/a>"],["<a onclick=\"alert('Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8');\">NPI (2020)<\/a>"],[null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Name<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>File(s)<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Note(s)<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-61ebf658e893460fe95c">{"x":{"filter":"none","caption":"<caption>All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.<\/caption>","data":[["Zooplankton biodiversity","Model: ice thickness, snow-ice, snow depth"],["1995 to 2008","1980 to 2016"],["1.24 to 40.82","-180 to 180"],["75.6 to 82.45","60 to 90"],["0 to 1600",null],["<a onclick=\"alert('1995-2008-zooplankton-biodiversity.tsv');\">1 file<\/a>","See URL"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66\">NPDC<\/a>"],["<a onclick=\"alert('Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8');\">NPI (2020)<\/a>","<a onclick=\"alert('Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a');\">Liston et al. (2016)<\/a>"],[null,"The file is too large to download from NPDC."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Name<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>File(s)<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Note(s)<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
@@ -1887,42 +1909,6 @@ The metadatabase Rmd file
 <img src="assets/map_svalbard.png" style="width:50.0%" />
 </center>
 <p>While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it’s own meta-data table. The primary drivers of change for each site are still listed in their own tables below.</p>
-<!-- #### Tables {.tabset .tabset-fade .tabset-pills}  -->
-<!-- ##### Drivers {-} -->
-<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Category
-</th>
-<th style="text-align:left;">
-Driver
-</th>
-<th style="text-align:left;">
-Why
-</th>
-<th style="text-align:left;">
-Reference
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Biological
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Seabirds
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Changes in top down predation can affect most trophic levels
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-</tr>
-</tbody>
-</table>
-<!-- ##### Meta-data {-} -->
 <!-- <div style="margin-left: -200px;"> -->
 <div id="htmlwidget-6f4727a031e584dfdef1" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-6f4727a031e584dfdef1">{"x":{"filter":"none","caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.<\/caption>","data":[["Glacier mass balance","Tidal glacier front","Air temperature/pressure + relative humidity + wind speed/direction","CTD: temperature + salinity","Seabird"],["1967 to 2019","2015 to 2019","2015 to 2015","1876 to 2019","1880 to 2020"],[null,"9 to 36","2.94 to 29.94","0 to 75","9 to 74"],[null,"76 to 81","78.13 to 83.33","34 to 83","35 to 81"],[null,null,null,"? to ?",null],["<a onclick=\"alert('cumulative-mass-balance-for-glaciers-in-svalbard.csv      austre-broggerbreen-mass-balance.csv      etonbreen-austfonna-mass-balance.csv      kongsvegen-mass-balance.csv      kronebreenholtedahlfonna-mass-balance.csv      midtre-lovenbreen-mass-balance.csv');\">6 files<\/a>","<a onclick=\"alert('Tidewater/');\">1 folder<\/a>","<a onclick=\"alert('N-ICE_metData_v2.nc      N-ICE_metData_QC.py      README_N-ICE_metData_v2.txt');\">3 files<\/a>","<a onclick=\"alert('CTD_all_1876-2019.nc');\">1 file<\/a>","<a onclick=\"alert('See the website');\">0 files<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.mosj.no/en/climate/land/mass-balance-glaciers.html\">MOSJ<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/39d9f0f9-af12-420c-a879-10990df2e22d\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/fd4fd3aa-7249-53c9-9846-6e28c5a42587\">NPDC<\/a>"],["See website","<a onclick=\"alert('Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a');\">Kohler et al. (2018)<\/a>","<a onclick=\"alert('Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1');\">Hudson et. (2015)<\/a>","<a onclick=\"alert('Skogseth, R., Ellingsen, P., Berge, J., Cottier, F., Falk-Petersen, S., Ivanov, B., … Vader, A. (2019). UNIS hydrographic database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/unis-hydrography');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('Strøm, H., Descamps, S., & Bakken, V. . (2008). Seabird Colonies by the Barents Sea, White Sea and Kara Sea [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.fd4fd3aa');\">Strøm et al. (2008)<\/a>"],[null,null,"Has a python script to help with extracting.",null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Name<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>File(s)<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Note(s)<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
@@ -1932,193 +1918,6 @@ Changes in top down predation can affect most trophic levels
 <center>
 <img src="assets/map_kongsfjorden.png" style="width:50.0%" />
 </center>
-<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Category
-</th>
-<th style="text-align:left;">
-Driver
-</th>
-<th style="text-align:left;">
-Why
-</th>
-<th style="text-align:left;">
-Reference
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;background-color: mintcream !important;">
-Cryosphere
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Sea-ice cover
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Affects pelagic and benthic production.
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Bischof et al. (2019a)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: mintcream !important;">
-cryosphere
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Land glacier mass balance
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-An indicator of the change to other drivers
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Pavlova et al. (2019)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: mintcream !important;">
-Cryoshpere
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Runoff
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Alters salinity, nutrients, and turbidity of surface waters.
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Bischof et al. (2019a)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Physical
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Longwave radiation (Q_lw)
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Primary driver of warming waters.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Bischof et al. (2019b)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Physical
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Shortwave radiation (Q_sw)
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Secondary driver of warming waters.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Bischof et al. (2019b)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Physical
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Turbidity
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Prevents light to benthic producers.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Bischof et al. (2019a)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Physical
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Circulation
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Allows for more encroachment of Atlantic waters.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Hop and Wiencke (2019)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Chemistry
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Acidification
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Affects pelagic primary production.
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Hop and Wiencke (2019)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Biological
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Benthic macroalgal biomass/production
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Changes where coastal ecosystems will be found and at what scale.
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Bartsch et al. (2016)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Biological
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Macro zooplankton
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Top down pressure on phytoplankton and a source of food higher up.
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Dalpadado et al. (2016)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Biological
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Seabird diet
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Changes to prey items serve as an indicator of borealisation.
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Vihtakari et al. (2018)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #F48080 !important;">
-Social
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Ship traffic
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Indicative of direct anthropogenic disturbance.
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-</tr>
-</tbody>
-</table>
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
 <!-- Combine the smaller metadata columns into text strings -->
 <!-- <div style="margin-right: -200px;"> -->
@@ -2131,164 +1930,6 @@ Indicative of direct anthropogenic disturbance.
 <center>
 <img src="assets/map_isfjorden.png" style="width:50.0%" />
 </center>
-<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Category
-</th>
-<th style="text-align:left;">
-Driver
-</th>
-<th style="text-align:left;">
-Why
-</th>
-<th style="text-align:left;">
-Reference
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;background-color: mintcream !important;">
-Cryosphere
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Fast ice cover
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Decreasing (fast) ice cover can have a range of ecological effect.
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Muckenhuber et al. (2016)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Physical
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Atlantic water inflow
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Increases the temperature and salinity of fjord waters.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Skogseth et al. (2020)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Physical
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Freshwater runoff
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Changes the temperature, salinity, and turbidity of surface waters.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Vereide (2019); Mcgovern et al. (2020)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Physical
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Wind stress
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Responsible for increasing Atlantic water inflow from the West Spitsbergen Current.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Pavlov et al. (2013)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Chemistry
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Nutrient input
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Can tip ecological balances by inordinately favouring some species over others.
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Mcgovern et al. (2020)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Biological
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Microbial communtiy
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Affects the decomposition of material.
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Delpech et al. (2021)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Biological
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Zooplankton community
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Foundational prey species for many pelagics.
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Vereide (2019)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Biological
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Benthic community
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Contribute to biogeochemical processes; re-mineralise nutrients; food for higher trophic levels.
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-Ugelstad (2019)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #F48080 !important;">
-Social
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Fish landings
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Alters top down trophic pressure.
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;background-color: #F48080 !important;">
-Social
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Tourism arrivals
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Increases to a range of pollutants from light to chemical.
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-</tr>
-</tbody>
-</table>
 <p><em>NB: This is just a place holder until Isfjorden data are added.</em></p>
 <div id="htmlwidget-f12d2f62556314a2a035" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-f12d2f62556314a2a035">{"x":{"filter":"none","caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/isfjorden/'.<\/caption>","data":[["Sea-ice cover"],["2003 to 2019"],[null],[null],[null],["<a onclick=\"alert('Kongsfjorden_sea_ice_cover_data.csv');\">1 file<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7\">NPDC<\/a>"],["<a onclick=\"alert('Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236');\">Gerland & Pavlova (2020)<\/a>"],[null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Name<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>File(s)<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Note(s)<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
@@ -2333,10 +1974,8 @@ Increases to a range of pollutants from light to chemical.
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-Stroeve2018" class="csl-entry">
-Stroeve, J., and Notz, D. (2018). Changing state of arctic sea ice across all seasons. <em>Environmental Research Letters</em> 13, 103001.
-</div>
+<div id="refs">
+
 </div>
 <br>
 <p>
@@ -2374,21 +2013,20 @@ loaded via a namespace (and not attached):
  [1] Rcpp_1.0.6        svglite_2.0.0     lubridate_1.7.10  assertthat_0.2.1 
  [5] rprojroot_2.0.2   digest_0.6.27     utf8_1.2.1        R6_2.5.0         
  [9] cellranger_1.1.0  backports_1.2.1   reprex_1.0.0      evaluate_0.14    
-[13] highr_0.8         httr_1.4.2        pillar_1.5.1      rlang_0.4.10     
-[17] readxl_1.3.1      ncmeta_0.3.0      rstudioapi_0.13   whisker_0.4      
-[21] jquerylib_0.1.3   rmarkdown_2.7     webshot_0.5.2     htmlwidgets_1.5.3
-[25] munsell_0.5.0     broom_0.7.5       compiler_4.0.5    httpuv_1.5.5     
-[29] modelr_0.1.8      xfun_0.21         systemfonts_1.0.1 pkgconfig_2.0.3  
-[33] htmltools_0.5.1.1 tidyselect_1.1.0  viridisLite_0.3.0 fansi_0.4.2      
-[37] crayon_1.4.1      dbplyr_2.1.0      withr_2.4.1       later_1.1.0.1    
-[41] grid_4.0.5        jsonlite_1.7.2    gtable_0.3.0      lifecycle_1.0.0  
-[45] DBI_1.1.1         git2r_0.28.0      magrittr_2.0.1    scales_1.1.1     
-[49] ncdf4_1.17        cli_2.3.1         stringi_1.5.3     fs_1.5.0         
-[53] promises_1.2.0.1  xml2_1.3.2        bslib_0.2.4       ellipsis_0.3.1   
-[57] generics_0.1.0    vctrs_0.3.6       tools_4.0.5       glue_1.4.2       
-[61] RNetCDF_2.4-2     crosstalk_1.1.1   hms_1.0.0         yaml_2.2.1       
-[65] colorspace_2.0-0  rvest_0.3.6       knitr_1.31        haven_2.3.1      
-[69] sass_0.3.1       </code></pre>
+[13] httr_1.4.2        pillar_1.5.1      rlang_0.4.10      readxl_1.3.1     
+[17] ncmeta_0.3.0      rstudioapi_0.13   whisker_0.4       jquerylib_0.1.3  
+[21] rmarkdown_2.7     webshot_0.5.2     htmlwidgets_1.5.3 munsell_0.5.0    
+[25] broom_0.7.5       compiler_4.0.5    httpuv_1.5.5      modelr_0.1.8     
+[29] xfun_0.21         systemfonts_1.0.1 pkgconfig_2.0.3   htmltools_0.5.1.1
+[33] tidyselect_1.1.0  viridisLite_0.3.0 fansi_0.4.2       crayon_1.4.1     
+[37] dbplyr_2.1.0      withr_2.4.1       later_1.1.0.1     grid_4.0.5       
+[41] jsonlite_1.7.2    gtable_0.3.0      lifecycle_1.0.0   DBI_1.1.1        
+[45] git2r_0.28.0      magrittr_2.0.1    scales_1.1.1      ncdf4_1.17       
+[49] cli_2.3.1         stringi_1.5.3     fs_1.5.0          promises_1.2.0.1 
+[53] xml2_1.3.2        bslib_0.2.4       ellipsis_0.3.1    generics_0.1.0   
+[57] vctrs_0.3.6       tools_4.0.5       glue_1.4.2        RNetCDF_2.4-2    
+[61] crosstalk_1.1.1   hms_1.0.0         yaml_2.2.1        colorspace_2.0-0 
+[65] rvest_0.3.6       knitr_1.31        haven_2.3.1       sass_0.3.1       </code></pre>
 </div>
 </div>
 
