@@ -9,6 +9,8 @@ navbar:
     href: key_drivers.html
   - text: "Meta-database"
     href: metadatabase.html
+  - text: "Review of drivers"
+    href: review.html
   # - text: "Analyses"
     # menu:
     # - text: "SOCAT/GLODAP data in the Arctic"
@@ -18,7 +20,7 @@ navbar:
   right:
   - icon: fab fa-github-alt
     text: Source code
-    href: https://github.com/robwschlegel/FACE-IT
+    href: https://github.com/FACE-IT-project/FACE-IT
 output:
   workflowr::wflow_html:
     toc: yes
