@@ -14,6 +14,10 @@ bibliography: FACE-IT.bib
 knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
                       echo = FALSE, warning = FALSE, message = FALSE, 
                       eval = TRUE, tidy = FALSE)
+
+# Libraries
+library(tidyverse) # The tidy dialect of R
+library(kableExtra) # For formatting static tables
 ```
 
 <center>
@@ -85,3 +89,93 @@ __Key Social Drivers__
 # Data availability
 
 The data for the drivers outlined above are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: [Copernicus](https://marine.copernicus.eu/), [EMODnet](https://www.emodnet.eu/en), and [NOAA](https://www.ncei.noaa.gov/). Site specific datasets can be accessed via: [NPDC](https://data.npolar.no/home/), [NSF](https://arcticdata.io/), [openpolar](https://openpolar.no/), [PANGAEA](https://pangaea.de/), and [SIOS](https://sios-svalbard.org/metadata_search). Data for drivers pertaining more to policy may be found at: [INTAROS](https://intaros.nersc.no/) and [SAON](https://www.arcticobserving.org/). The data portals for national statistics and other social drivers are: [Grønlands statistik](https://stat.gl/dialog/topmain.asp?lang=da&subject=Fiskeri%20og%20fangst&sc=FI), [kystverket](https://ais-public.kystverket.no/ais-download/), [SSB](https://www.ssb.no/), and [statistikknett](https://statistikknett.no/). The specific data of relevance to the key drivers that may be found within each of these sources are given in greater detail in [D1.2: Meta-database](https://FACE-IT-project.github.io/FACE-IT/metadatabase.html).
+
+# Summary
+
+```{r key-drivers-table, eval=TRUE}
+# Easiest to show each variable as an smol individual data.frame
+
+# Convenience wrapper for drivers
+make_driver <- function(category, driver, why, sites, reference){
+  res <- data.frame(Category = category, Driver = driver, Why = why, Sites = sites, Reference = reference)
+}
+
+# The order of the info:
+## Category, Driver, Why, Sites, Reference
+
+## Cryosphere
+cryo_coastal_ice <- make_driver("Cryosphere", "Coastal ice: formation/break up date, thickness", "", "", "")
+cryo_fast_ice <- make_driver("Cryosphere", "Fast ice", "Decreasing (fast) ice cover can have a range of ecological effect.", "", "Muckenhuber et al. (2016)")
+cryo_glacier <- make_driver("Cryosphere", "Glacier: land mass balance, terminating edge", "An indicator of the change to other drivers.", "", "")
+cryo_permafrost <- make_driver("Cryosphere", "Permafrost: temperature, thickness", "", "", "")
+cryo_sea_ice <- make_driver("Cryosphere", "Sea ice: concentration, extent, freeboard, thickness", 
+                            "Affects pelagic and benthic production.", "EU Arctic", "Stroeve and Notz (2018)")
+cryo_snow_cover <- make_driver("Cryosphere", "Snow cover: thickness", "", "EU Arctic", "")
+cryo_ALL <- rbind(cryo_coastal_ice, cryo_fast_ice, cryo_glacier, cryo_permafrost, cryo_sea_ice, cryo_snow_cover)
+# nrow(cryo_ALL)
+
+## Physical
+phys_bathy <- make_driver("Physical", "Bathymetry", "", "", "")
+phys_evap <- make_driver("Physical", "Evaporation", "", "", "")
+phys_heatflux <- make_driver("Physical", "Heatflux: net, latent/sensible, long/shortwave radiation", 
+                             "Responsible for the changing of seawater temperature in various important ways.", "EU Arctic", "")
+phys_extinct <- make_driver("Physical", "Light extinction coefficient", "Indicates the amount of light to benthic producers.", "EU Arctic", "")
+phys_mld <- make_driver("Physical", "Mixed layer depth", "", "EU Arctic", "Popova et al. (2014)")
+phys_precip <- make_driver("Physical", "Precipitation", "Affects the amount of fresh water runoff into coasts.", "EU Arctic", "")
+phys_river_discharge <- make_driver("Physical", "River discharge", 
+                                    "Delivers carbon and nutrient rich freshwater to coast.", "EU Arctic", "Delpech et al. (2021)")
+phys_salinity <- make_driver("Physical", "Salinity", "", "EU Arctic", "")
+phys_mslp <- make_driver("Physical", "Sea level pressure", "", "", "")
+phys_sst <- make_driver("Physical", "Sea temperature: surface, mid, bottom", "", "EU Arctic", "Popova et al. (2014)")
+phys_sedimentation <- make_driver("Physical", "Sedimentation", "", "", "")
+phys_suspended <- make_driver("Physical", "Suspended: matter, solids, organics", "", "", "")
+phys_wind <- make_driver("Physical", "Wind: direction, max/mean speed", "", "", "")
+phys_ALL <- rbind(phys_bathy, phys_evap, phys_heatflux, phys_extinct, phys_mld, phys_precip, phys_river_discharge, 
+                  phys_salinity, phys_mslp, phys_sst, phys_sedimentation, phys_suspended, phys_wind)
+# nrow(phys_ALL)
+
+## Chemistry
+chem_DIC <- make_driver("Chemistry", "DIC", "", "EU Arctic", "Popova et al. (2014)")
+chem_DOC <- make_driver("Chemistry", "DOC", "", "", "")
+chem_DON <- make_driver("Chemistry", "DON", "", "", "")
+chem_DO2 <- make_driver("Chemistry", "Dissolved 02", "", "", "")
+chem_nutrients <- make_driver("Chemistry", "Nutrient: nitrate, nitrite, ammonium, phosphate, silicate", "", "", "")
+chem_pCO2 <- make_driver("Chemistry", "pCO2", "", "EU Arctic", "Popova et al. (2014)")
+chem_pH <- make_driver("Chemistry", "pH", "", "EU Arctic", "")
+chem_alk <- make_driver("Chemistry", "Total alkalinity", "", "EU Arctic", "")
+chem_ALL <- rbind(chem_DIC, chem_DOC, chem_DON, chem_DO2, chem_nutrients, chem_pCO2, chem_pH, chem_alk)
+# nrow(chem_ALL)
+
+## Biology
+bio_calc <- make_driver("Biology", "Calcification", "", "", "")
+bio_N_fix <- make_driver("Biology", "Nitrogen fixation", "", "", "")
+bio_photo <- make_driver("Biology", "Photosynthesis", "", "", "")
+bio_prim_prod <- make_driver("Biology", "Primary production", "", "", "")
+bio_resp <- make_driver("Biology", "Respiration", "", "", "")
+bio_species <- make_driver("Biology", "Species: presence/absence, abundance/biomass", "", "", "")
+bio_ALL <- rbind(bio_calc, bio_N_fix, bio_photo, bio_prim_prod, bio_prim_prod, bio_resp, bio_species)
+# nrow(bio_ALL)
+
+## Social
+soc_fish_landings <- make_driver("Social", "Fish landings: commercial, recreational, quotas, seasonality", 
+                                "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
+soc_game_landings <- make_driver("Social", "Game landings: quotas, seasonality", "", "Porsangerfjorden + Isfjorden + Disko Bay", "")
+soc_local_management <- make_driver("Social", "Local and national resource management", "", "", "")
+soc_national_statistics <- make_driver("Social", "National statistics: demography, income, unemployment", "", "EU Arctic", "")
+soc_tourist_arrivals <- make_driver("Social", "Tourist arrivals: per month, nationality", "", "Isfjorden + Disko Bay", "")
+soc_tourist_vessels <- make_driver("Social", "Tourist vessels: count, mileage", 
+                                   "Indicative of direct anthropogenic disturbance.", "Isfjorden + Disko Bay", "")
+soc_ALL <- rbind(soc_fish_landings, soc_game_landings, soc_local_management, 
+                 soc_national_statistics, soc_tourist_arrivals, soc_tourist_vessels)
+# nrow(soc_ALL)
+
+# Combine and print
+knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL), 
+             caption = "Table 1: The key drivers of changes on Arctic fjord and adjacent coastal systems as identified by the experts in FACE-IT for the relevant fields. The drivers have been separated into the following categories for convenience: Cryosphere, Physical, Chemistry, Biology, Social. The 'Crysophere' category contains any drivers related to ice, glaciers, and/or snow. This category contains both marine and terrestrial drivers that impact the marine environements of Arctic fjords and adjacent coastlines. The 'Physical' category contains atmospheric and oceanic drivers. The 'Chemistry' category contains primarily water quality variables that are no longer physical, but not yet biological. This includes inorganic as well as organic nutrients. The 'Biology' category contains drivers related to biology and ecology. The final category 'Social' contains drivers that are primarily related to anthropogenic impacts on the natural world, as well as drivers that directly affect the well-being of local stakeholders. This category therefore contains all drivers relating to fisheries.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1:6, background = "mintcream") %>% # Cryosphere
+  row_spec(7:19, color = "black", background = "skyblue") %>% # Physical
+  row_spec(20:27, background = "#F6EA7C") %>% # Chemistry
+  row_spec(28:34, background = "#A2ED84") %>% # Biology
+  row_spec(35:40, background = "#F48080") # Social
+```
