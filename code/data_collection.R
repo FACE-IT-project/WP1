@@ -24,6 +24,9 @@ library(pangaear)
 # 1995-2008
 # https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448
 
+## CTD data on PANGAEA
+pangaear::pg_search()
+
 
 # Svalbard ----------------------------------------------------------------
 
