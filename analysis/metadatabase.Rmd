@@ -326,7 +326,7 @@ sval_NICE <- data.frame(data_name = "N-ICE2015: most drivers",
 
 # Combine
 metadata_svalbard <- rbind(sval_glacier_mass, sval_tidal_glacier_front, sval_surface_met, sval_UNIS_database, 
-                           sval_seabird_database, sval_protection, SVAL_NICE)
+                           sval_seabird_database, sval_protection, sval_NICE)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->
