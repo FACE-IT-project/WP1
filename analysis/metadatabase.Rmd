@@ -33,7 +33,7 @@ library(kableExtra) # For formatting static tables
 # library(ijtiff) # For reading the glacier tif files
 
 # Table column names
-DT_cols <- c("Name", "Date", "Longitude", "Latitude", "Depth", "File(s)", "Link", "Reference", "Note(s)")
+DT_cols <- c("Name", "Date", "Longitude", "Latitude", "Depth", "Files", "Link", "Reference", "Notes")
 
 # Datatable options for all tables
 options(DT.options = list(pageLength = 5,
@@ -454,13 +454,34 @@ is_mooring_S <- data.frame(data_name = "Mooring: temperature, salinity, O2, velo
 Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2006 to September 2007 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a1239ca3        Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the outer Isfjorden - South (I-S) during September 2007 to January 2008 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.064a09b7         Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 9 Sep 2010 to 3 Sep 2011 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.b0e473c4          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 8 Sep 2011 to 3 Sep 2012 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.2be7bdee          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 6 Sep 2012 to 28 Aug 2013 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a247e9a9          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 2 Sep 2013 to 26 Aug 2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.6813ce6d          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2014 to 24 Aug 2015 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.11b7e849          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.21838303          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 19 Aug 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.cd7a2f7c          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 5 Oct 2017 to 25 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.54dcd0c9 \');">Skogseth et al. (2019)</a>',
                            note = NA)
 
+# Mooring IFO
 is_mooring_IFO <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
                              date_range = "2016 to 2017",
                              lon_range = "15.33116", lat_range = "78.247416",
-                             depth_range = "60",
+                             depth_range = "0 to 60",
                              file_name = '<a onclick="alert(\'mooring_IFO: IFO1617.nc, IFO1617_ADCP.nc\');">1 folder, 2 files</a>',
                              URL = '<a onclick="alert(\'https://data.npolar.no/dataset/7718a106-5d13-42d9-bb79-1d2adf0f51c4\');">NPDC multiple</a>',
-                             reference = '<a onclick="alert(\' Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from Isfjorden online mooring (IFO) during 30 Sep 2016 to 11 Mar 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.7718a106\');">Skogseth et al. (2019)</a>',
+                             reference = '<a onclick="alert(\'Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from Isfjorden online mooring (IFO) during 30 Sep 2016 to 11 Mar 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.7718a106\');">Skogseth et al. (2019)</a>',
+                             note = NA)
+
+# Mooring data from outer Isfjorden
+is_mooring_outer <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
+                             date_range = "2007 to 2008",
+                             lon_range = "14.41716", lat_range = "78.1383",
+                             depth_range = "220",
+                             file_name = '<a onclick="alert(\'IS0708.nc\');">1 file</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=064a09b7-f590-4448-810e-3f287b182dd2&calling_results_page=https://sios-svalbard.org/results?page=2">SIOS</a>',
+                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                             note = NA)
+
+# Mouth mooring GFI
+is_mooring_GFI <- data.frame(data_name = "Mooring: temperature, turbidity, current (direction, speed)",
+                             date_range = "2012 to 2013",
+                             lon_range = "13.52211", lat_range = "78.06071",
+                             depth_range = "50 to 182",
+                             file_name = '<a onclick="alert(\'mooring_GFI: 0710_RCM_783_QC.nc, 0711_RCM_784_QC.nc, 1841_RCM_464_QC.nc\');">1 folder, 3 files</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=SV_201209_A&calling_results_page=https://sios-svalbard.org/results?page=1">SIOS</a>',
+                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                              note = NA)
 
 # CO2 station at Tempelfjorden
@@ -470,29 +491,50 @@ is_CO2_tempelfjorden <- data.frame(data_name = "CTD: temperature, salinity, TA, 
                                    depth_range = "1.43 to 98",
                                    file_name = '<a onclick="alert(\'Marine_CO2_system_data_from_Tempelfjorden_2015_to_2017.xlsx\');"1 file</a>',
                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=UNIS_MARINE_CO2_2019_1&calling_results_page=https://sios-svalbard.org/results?page=1">SIOS</a>',
-                                   reference = '<a onclick="alert(\'No reference provided by SIOS.\');">NA</a>',
+                                   reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                                    note = NA)
 
-# CO2 station at Tempelfjorden
-is_met_station <- data.frame(data_name = "Met station: air temperature (2m), air presure (sea level, 2m), wind: speed+direction (10m), relative humidity",
+# CO2 station at IsA
+is_CO2_IsA <- data.frame(data_name = "CTD: temperature, salinity, TA, pH, EP TA",
+                         date_range = "2015 to 2017",
+                         lon_range = "15.5 to 15.533", lat_range = "78.257 to 78.267",
+                         depth_range = "1.44 to 90.52",
+                         file_name = '<a onclick="alert(\'Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.xlsx\');"1 file</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=UNIS_MARINE_CO2_2019_2&calling_results_page=https://sios-svalbard.org/results?page=1">SIOS</a>',
+                         reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                         note = NA)
+
+# Chlorophyl station at IsA
+is_Chla_IsA <- data.frame(data_name = "CTD: chlorophyl A, phaeophytin",
+                          date_range = "2011 to 2019",
+                         lon_range = "15.52992", lat_range = "78.26105",
+                         depth_range = "0 to 980",
+                         file_name = '<a onclick="alert(\'mooring_GFI: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc, IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">1 folder, 2 files</a>',
+                         URL = '<a onclick="alert(\'https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=8d81280a-3876-11eb-9f85-934f5f03b0c4&calling_results_page=https://sios-svalbard.org/results?page=1        https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=8ce2a482-3876-11eb-9f85-934f5f03b0c4&calling_results_page=https://sios-svalbard.org/results?page=1\');">SIOS multiple</a>',
+                         reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                         note = NA)
+
+# Meteorological station
+is_met_station <- data.frame(data_name = "Met station: air temperature (2m), air presure (sea level; 2m), wind (speed, direction; 10m), relative humidity",
                              date_range = "1934 to 2019",
                              lon_range = "13.6192", 
                              lat_range = "78.0625",
                              depth_range = NA,
                              file_name = '<a onclick="alert(\'SN99790.nc\');"1 file</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=f1772639-91f9-5c2d-a0d1-5110ee186c3f&calling_results_page=https://sios-svalbard.org/results?page=1">SIOS</a>',
-                             reference = '<a onclick="alert(\'No reference provided by SIOS.\');">NA</a>',
+                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                              note = NA)
 
 # Unknown data
 # test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
-# test <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1516.nc") %>% 
-  # activate("D2") %>% 
-  # hyper_tibble()
-# ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1516.nc")$variable$longname
+# test <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/IS0708.nc") %>%
+#   activate("D2") %>%
+#   hyper_tibble()
+# ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/IS0708.nc")$variable$longname
 
 # Bind them together
-metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_CO2_tempelfjorden, is_met_station)
+metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_outer, is_mooring_GFI, is_CO2_tempelfjorden, is_met_station,
+                            is_CO2_IsA, is_Chla_IsA)
 ```
 
 ```{r isfjorden-meta-data-table}
