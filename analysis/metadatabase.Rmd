@@ -174,6 +174,17 @@ This section contains meta-data for pan-Arctic data files. These are almost excl
 <!-- ##### Meta-data {-} -->
 
 ```{r EU-arctic-meta-data}
+# Bathymetry data
+EU_GEBCO <- data.frame(data_name = "Bathymetry",
+                       date_range = NA,
+                       lon_range = "-180 to 180",
+                       lat_range = "60 to 90",
+                       depth_range = "0 to 10920",
+                       file_name = '<a onclick="alert(\'Not currently hosted\');">1 file</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.gebco.net/">GEBCO</a>',
+                       reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                       note = NA)
+
 # Zooplankton biodiversity
 EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", guess_max = 100000) %>% 
   make_meta_data(data_name = 'Zooplankton biodiversity',
@@ -634,35 +645,28 @@ See the EU Arctic figure above for where the Greenland sites are located. They a
 </center>
 
 ```{r porsangerfjorden-meta-data}
-# Mooring IFO
-por_mooring_IFO <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
-                             date_range = "2016 to 2017",
-                             lon_range = "15.33116", lat_range = "78.247416",
-                             depth_range = "0 to 60",
-                             file_name = '<a onclick="alert(\'mooring_IFO: IFO1617.nc, IFO1617_ADCP.nc\');">1 folder, 2 files</a>',
-                             URL = '<a onclick="alert(\'https://data.npolar.no/dataset/7718a106-5d13-42d9-bb79-1d2adf0f51c4\');">NPDC multiple</a>',
-                             reference = '<a onclick="alert(\'Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from Isfjorden online mooring (IFO) during 30 Sep 2016 to 11 Mar 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.7718a106\');">Skogseth et al. (2019)</a>',
-                             note = NA)
+# Fish species biomass
+por_fish_bio <- data.frame(data_name = "Fish species biomass",
+                           date_range = "2007 to 2016",
+                           lon_range = "?", lat_range = "?",
+                           depth_range = "?",
+                           file_name = '<a onclick="alert(\'Not currently hosted\');">1 file</a>',
+                           URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
+                           reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                           note = NA)
 
-# Mooring data from outer Isfjorden
-por_mooring_outer <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
-                             date_range = "2007 to 2008",
-                             lon_range = "14.41716", lat_range = "78.1383",
-                             depth_range = "220",
-                             file_name = '<a onclick="alert(\'IS0708.nc\');">1 file</a>',
-                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=064a09b7-f590-4448-810e-3f287b182dd2&calling_results_page=https://sios-svalbard.org/results?page=2">SIOS</a>',
-                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
-                             note = NA)
-
-# Unknown data
-# test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
-# test <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/IS0708.nc") %>%
-#   activate("D2") %>%
-#   hyper_tibble()
-# ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/IS0708.nc")$variable$longname
+# Fish species biomass
+por_benthos_bio <- data.frame(data_name = "Benthos species biomass",
+                              date_range = "2007 to 2016",
+                              lon_range = "?", lat_range = "?",
+                              depth_range = "?",
+                              file_name = '<a onclick="alert(\'Not currently hosted\');">1 file</a>',
+                              URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
+                              reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                              note = NA)
 
 # Bind them together
-metadata_porsangerfjorden <- rbind(por_mooring_IFO, por_mooring_outer)
+metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio)
 ```
 
 ```{r porsangerfjorden-meta-data-table}
