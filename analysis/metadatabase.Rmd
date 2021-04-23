@@ -666,7 +666,7 @@ por_benthos_bio <- data.frame(data_name = "Benthos species biomass",
                               note = NA)
 
 # NorKyst-800 physical model
-por_NorKyst <- data.frame(data_name = "Met station: air temperature (2m), air presure (sea level; 2m), wind (speed, direction; 10m), relative humidity",
+por_NorKyst <- data.frame(data_name = "Model: sea temperature (surface, mid, bottom), sea ice (thickness)",
                              date_range = "2012 to 2020",
                              lon_range = "? to ?", 
                              lat_range = "? to ?",
@@ -677,7 +677,7 @@ por_NorKyst <- data.frame(data_name = "Met station: air temperature (2m), air pr
                              note = NA)
 
 # Bind them together
-metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio)
+metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio, por_NorKyst)
 ```
 
 ```{r porsangerfjorden-meta-data-table}
