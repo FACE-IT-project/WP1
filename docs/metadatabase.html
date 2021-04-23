@@ -398,7 +398,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -407,7 +407,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -419,7 +419,7 @@ div.tocify {
 <strong>Last updated:</strong> 2021-04-23
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -435,12 +435,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -507,16 +507,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree68676ee475820bb5c5c33d70fb9375a91ad79c9ftargetblank68676eea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/68676ee475820bb5c5c33d70fb9375a91ad79c9f" target="_blank">68676ee</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree1f276c2a8d908b59c5cd150cfeae23de566b17d7targetblank1f276c2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/1f276c2a8d908b59c5cd150cfeae23de566b17d7" target="_blank">1f276c2</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree68676ee475820bb5c5c33d70fb9375a91ad79c9ftargetblank68676eea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree1f276c2a8d908b59c5cd150cfeae23de566b17d7targetblank1f276c2a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/68676ee475820bb5c5c33d70fb9375a91ad79c9f" target="_blank">68676ee</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/1f276c2a8d908b59c5cd150cfeae23de566b17d7" target="_blank">1f276c2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -525,6 +525,9 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+
+Unstaged changes:
+    Modified:   analysis/metadatabase.Rmd
 
 </code></pre>
 <p>
@@ -563,6 +566,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/1f276c2a8d908b59c5cd150cfeae23de566b17d7/analysis/metadatabase.Rmd" target="_blank">1f276c2</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+More updates
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/05db53f7aada80e8a7615b8dffcf9eff3407ce42/docs/metadatabase.html" target="_blank">05db53f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -2173,7 +2210,7 @@ The metadatabase Rmd file
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This document is designed to satisfy D1.2 for the Horizon2020 project <a href="https://www.face-it-project.eu/">FACE-IT</a>. The interactive tables contain the meta-database for the data that contain variables identified as key drivers of change (<a href="https://face-it-project.github.io/WP1/key_drivers.html">D1.1</a>). The meta-data from this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (<a href="https://face-it-project.github.io/WP1/review.html">D1.3</a>). The meta-database has been broken up into the different sites for convenience, with a table of meta-data given for the relevant data per site. This means that some meta-data will be repeated in the tables below as some data files are relevant to multiple sites.</p>
+<p>This document is designed to satisfy D1.2 for the Horizon2020 project <a href="https://www.face-it-project.eu/">FACE-IT</a>. The interactive tables contain the meta-database for the data files/products identified as key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites (<a href="https://face-it-project.github.io/WP1/key_drivers.html">D1.1</a>). The data files/products identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (<a href="https://face-it-project.github.io/WP1/review.html">D1.3</a>). The meta-database has been broken up into the different sites for convenience. The tables are organised in a hierarchical manner, meaning that their are tables for data across broad geographic regions if they would contain multiple sites. One may see below that the first section contains data that span the entire European Arctic as this is the broadest area of interest for FACE-IT. Within the EU Arctic there are also tables for data that span all of Svalbard and all of Greenland. Within these section are sub-sections for the individual sites. Note that because there is only one site in Norway (Porsangerfjorden), there can be no table for data spanning multiple Norwegian sites.</p>
 <!-- The current thinking with this is to list all of the data of interest by site and provide a quick meta-data summary for each (e.g. start-end date, temporal/spatial resolution) as well as providing the correct citation for each data source. -->
 <!-- Thinking now, it may be better to create this as an RMarkdown document. This way the links and code used can be housed directly in with the text talking about the data availability, meta-data and citations. -->
 <!-- Start with a discussion of what the key drivers are across all study sites. A literature search of keywords can be used to generate info on the key drivers: Arctic, biodiversity, drivers, etc. Do this for titles, abstracts, and keywords. For each study site afterwards one can discuss why some drivers are more or less important. Like light pollution in Young Sound, because there are no humans there. Or like ice cover in Kongsfjorden being very important because of borealisation. -->
@@ -2260,7 +2297,7 @@ The metadatabase Rmd file
 <img src="assets/map_porsangerfjorden.png" style="width:50.0%" />
 </center>
 <div id="htmlwidget-d1f128498effdf11ecfa" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-d1f128498effdf11ecfa">{"x":{"filter":"none","caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.<\/caption>","data":[["Fish species biomass","Benthos species biomass"],["2007 to 2016","2007 to 2016"],["?","?"],["?","?"],["?","?"],["<a onclick=\"alert('Not currently hosted');\">1 file<\/a>","<a onclick=\"alert('Not currently hosted');\">1 file<\/a>"],["<a onclick=\"alert('Unknown source');\">NA<\/a>","<a onclick=\"alert('Unknown source');\">NA<\/a>"],["<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>"],[null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Name<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-d1f128498effdf11ecfa">{"x":{"filter":"none","caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.<\/caption>","data":[["Fish species biomass","Benthos species biomass","Model: sea temperature (surface, mid, bottom), sea ice (thickness)"],["2007 to 2016","2007 to 2016","2012 to 2020"],["?","?","? to ?"],["?","?","? to ?"],["?","?","? to ?"],["<a onclick=\"alert('Not currently hosted');\">0 files<\/a>","<a onclick=\"alert('Not currently hosted');\">0 files<\/a>","<a onclick=\"alert('Not hosted on pCloud');\"0 files<\/a>"],["<a onclick=\"alert('Unknown source');\">NA<\/a>","<a onclick=\"alert('Unknown source');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://thredds.met.no/thredds/fou-hi/fou-hi.html\">NMI<\/a>"],["<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>"],[null,null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Name<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div id="references" class="section level1">
@@ -2298,7 +2335,6 @@ other attached packages:
  [1] kableExtra_1.3.4 DT_0.18          tidync_0.2.4     forcats_0.5.1   
  [5] stringr_1.4.0    dplyr_1.0.5      purrr_0.3.4      readr_1.4.0     
  [9] tidyr_1.1.2      tibble_3.1.0     ggplot2_3.3.3    tidyverse_1.3.0 
-[13] workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
  [1] httr_1.4.2        sass_0.3.1        jsonlite_1.7.2    viridisLite_0.3.0
@@ -2317,8 +2353,9 @@ loaded via a namespace (and not attached):
 [53] grid_4.0.5        rstudioapi_0.13   htmlwidgets_1.5.3 crosstalk_1.1.1  
 [57] rmarkdown_2.7     gtable_0.3.0      DBI_1.1.1         R6_2.5.0         
 [61] ncmeta_0.3.0      lubridate_1.7.10  knitr_1.31        fastmap_1.1.0    
-[65] utf8_1.2.1        rprojroot_2.0.2   stringi_1.5.3     Rcpp_1.0.6       
-[69] vctrs_0.3.6       dbplyr_2.1.1      tidyselect_1.1.0  xfun_0.22        </code></pre>
+[65] utf8_1.2.1        workflowr_1.6.2   rprojroot_2.0.2   stringi_1.5.3    
+[69] Rcpp_1.0.6        vctrs_0.3.6       dbplyr_2.1.1      tidyselect_1.1.0 
+[73] xfun_0.22        </code></pre>
 </div>
 </div>
 
