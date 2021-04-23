@@ -665,6 +665,17 @@ por_benthos_bio <- data.frame(data_name = "Benthos species biomass",
                               reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                               note = NA)
 
+# NorKyst-800 physical model
+por_NorKyst <- data.frame(data_name = "Met station: air temperature (2m), air presure (sea level; 2m), wind (speed, direction; 10m), relative humidity",
+                             date_range = "2012 to 2020",
+                             lon_range = "? to ?", 
+                             lat_range = "? to ?",
+                             depth_range = "? to ?",
+                             file_name = '<a onclick="alert(\'Not hosted on pCloud\');"0 files</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/fou-hi/fou-hi.html">NMI</a>',
+                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                             note = NA)
+
 # Bind them together
 metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio)
 ```
