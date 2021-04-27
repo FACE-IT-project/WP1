@@ -33,7 +33,7 @@ library(kableExtra) # For formatting static tables
 # library(ijtiff) # For reading the glacier tif files
 
 # Table column names
-DT_cols <- c("Name", "Date", "Longitude", "Latitude", "Depth", "Files", "Link", "Reference", "Notes")
+DT_cols <- c("Type", "Driver", "Date", "Longitude", "Latitude", "Depth", "Files", "Link", "Reference", "Notes")
 
 # Datatable options for all tables
 options(DT.options = list(pageLength = 5,
@@ -57,7 +57,7 @@ options(DT.options = list(pageLength = 5,
 
 ```{r meta-data-setup}
 # Function for smoother meta-data creation
-make_meta_data <- function(dat, data_name, file_name, URL, reference, note = NA){
+make_meta_data <- function(dat, type, data_name, file_name, URL, reference, note = NA){
   
   # Find longitude range
   lon_col <- c(colnames(dat)[str_detect(colnames(dat), "lon")],
@@ -138,7 +138,7 @@ make_meta_data <- function(dat, data_name, file_name, URL, reference, note = NA)
   # Find point in MEOW polygons
   
   # Combine and output
-  res <- data.frame(data_name, 
+  res <- data.frame(type, data_name, 
                     date_range, lon_range, lat_range, depth_range,
                     # date_min, date_max, lon_min, lon_max, lat_min, lat_max, depth_min, depth_max, 
                     file_name, URL, reference,
@@ -175,7 +175,8 @@ This section contains meta-data for pan-Arctic data files. These are almost excl
 
 ```{r EU-arctic-meta-data}
 # Bathymetry data
-EU_GEBCO <- data.frame(data_name = "Bathymetry",
+EU_GEBCO <- data.frame(type = "",
+                       data_name = "Bathymetry",
                        date_range = NA,
                        lon_range = "-180 to 180",
                        lat_range = "60 to 90",
@@ -186,14 +187,20 @@ EU_GEBCO <- data.frame(data_name = "Bathymetry",
                        note = NA)
 
 # Zooplankton biodiversity
-EU_zooplankton <- read_tsv("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", guess_max = 100000) %>% 
-  make_meta_data(data_name = 'Zooplankton biodiversity',
-                 file_name = '<a onclick="alert(\'1995-2008-zooplankton-biodiversity.tsv\');">1 file</a>',
-                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
-                 reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8\');">NPI (2020)</a>')
+EU_zooplankton <- data.frame(type = "Net",
+                             data_name = 'Zooplankton: biodiversity',
+                             date_range = "1995 to 2008",
+                             lon_range = "1.2 to 40.8",
+                             lat_range = "75.6 to 82.5",
+                             depth_range = "0 to 1600",
+                             file_name = '<a onclick="alert(\'1995-2008-zooplankton-biodiversity.tsv\');">1 file</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448">NPDC</a>',
+                             reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8\');">NPI (2020)</a>',
+                             note = NA)
 
 # Ice modelling output
-EU_ice <- data.frame(data_name = "Model: ice thickness, snow-ice, snow depth",
+EU_ice <- data.frame(type = "Model",
+                     data_name = "Sea ice: thickness; Snow cover: depth",
                      date_range = "1980 to 2016",
                      lon_range = "-180 to 180",
                      lat_range = "60 to 90",
@@ -204,7 +211,8 @@ EU_ice <- data.frame(data_name = "Model: ice thickness, snow-ice, snow depth",
                      note = "The file is too large to download from NPDC.")
 
 # CTD data from YMER cruise in 1980
-EU_YMER <- data.frame(data_name = "CTD + bottles: temperature, salinity, oxygen, nutrients",
+EU_YMER <- data.frame(type = "CTD, bottles",
+                      data_name = "Sea temperature; salinity; oxygen; nutrients",
                       date_range = "1980-08-11 to 1980-09-19",
                       lon_range = "-16.462 to 46.883", 
                       lat_range = "74 to 82.5",
@@ -215,7 +223,8 @@ EU_YMER <- data.frame(data_name = "CTD + bottles: temperature, salinity, oxygen,
                       note = NA)
 
 # CTD data from YMER cruise in 1980
-EU_Codispoti <- data.frame(data_name = "CTD + bottles: temperature, salinity, nutrients",
+EU_Codispoti <- data.frame(type = "CTD, bottles",
+                           data_name = "Sea temperature; salinity; nutrients",
                            date_range = "1928 to 2007",
                            lon_range = "-180 to 180",
                            lat_range = "60 to 90",
@@ -226,18 +235,20 @@ EU_Codispoti <- data.frame(data_name = "CTD + bottles: temperature, salinity, nu
                            note = NA)
 
 # Ice core samples for protist presence
-EU_protists <- data.frame(data_name = "Ice cores: protist presence (%)",
-                      date_range = "1980 to 2015",
-                      lon_range = "-179.916 to 176.567", 
-                      lat_range = "74.851 to 89.964",
-                      depth_range = "0 to 4305",
-                      file_name = '<a onclick="alert(\'protists\');">1 folder</a>',
-                      URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842">NPDC</a>',
-                      reference = '<a onclick="alert(\'Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.\');">Hop et al. (2020)</a>',
-                      note = NA)
+EU_protists <- data.frame(type = "Ice cores",
+                          data_name = "Protist: presence (%)",
+                          date_range = "1980 to 2015",
+                          lon_range = "-179.916 to 176.567", 
+                          lat_range = "74.851 to 89.964",
+                          depth_range = "0 to 4305",
+                          file_name = '<a onclick="alert(\'protists\');">1 folder</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842">NPDC</a>',
+                          reference = '<a onclick="alert(\'Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.\');">Hop et al. (2020)</a>',
+                          note = NA)
 
 # CTD data from NCEI Accession 9700302
-EU_NCEI_1989 <- data.frame(data_name = "CTD: temperature, salinity",
+EU_NCEI_1989 <- data.frame(type = "CTD",
+                           data_name = "Sea temperature; salinity",
                            date_range = "1989-06-01 to 1989-09-09",
                            lon_range = "-10 to 62", 
                            lat_range = "60.57 to 80",
@@ -248,7 +259,8 @@ EU_NCEI_1989 <- data.frame(data_name = "CTD: temperature, salinity",
                            note = NA)
 
 # GRDC river discharge data
-EU_GRDC <- data.frame(data_name = "River discharge",
+EU_GRDC <- data.frame(type = "Flow meter",
+                      data_name = "River discharge",
                       date_range = "1877 to 2020",
                       lon_range = "-10 to 161.17", 
                       lat_range = "-163.6774 to 78.934418",
@@ -262,7 +274,7 @@ EU_GRDC <- data.frame(data_name = "River discharge",
 # Cruises: ARK-IV/2, ARK-IV/3, ARK-IV/2, ARK-XIII/2, ARK-XIV/2, ARK-XV/3, ARK-XXI/1, ARK-XXVII/3, ARK-XXIX/1, ARK-XXIX/3, ARK-XXX/2
 
 # Combine
-metadata_EU_arctic <- rbind(EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, EU_NCEI_1989, EU_GRDC)
+metadata_EU_arctic <- rbind(EU_GEBCO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, EU_NCEI_1989, EU_GRDC)
 ```
 
 ```{r EU-arctic-meta-data-table}
@@ -281,7 +293,8 @@ While not a study site itself, there are a lot of studies and data products that
 
 ```{r svalbard-meta-data}
 # Glacial topography + thickness
-sval_glacier_mass <- data.frame(data_name = "Glacier: mass balance",
+sval_glacier_mass <- data.frame(type = "",
+                                data_name = "Glacier: mass balance",
                                 date_range = "1967 to 2019",
                                 lon_range = NA, lat_range = NA, depth_range = NA,
                                 file_name = '<a onclick="alert(\'cumulative-mass-balance-for-glaciers-in-svalbard.csv, austre-broggerbreen-mass-balance.csv, etonbreen-austfonna-mass-balance.csv, kongsvegen-mass-balance.csv, kronebreenholtedahlfonna-mass-balance.csv, midtre-lovenbreen-mass-balance.csv\');">6 files</a>',
@@ -290,18 +303,20 @@ sval_glacier_mass <- data.frame(data_name = "Glacier: mass balance",
                                 note = NA)
 
 # Glacier area outlines
-sval_glacier_area <- data.frame(data_name = "Glacier: area",
+sval_glacier_area <- data.frame(type = "",
+                                data_name = "Glacier: area",
                                 date_range = "1936 to 2010",
-                                       lon_range = "9 to 30",
-                                       lat_range = "76 to 81",
-                                       depth_range = NA,
-                                       file_name = '<a onclick="alert(\'glacier_area/\');">1 folder</a>',
-                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004">NPDC</a>',
-                                       reference = '<a onclick="alert(\'König, M., Kohler, J., & Nuth, C. (2013). Glacier Area Outlines - Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2013.89f430f8\');">König et al. (2013)</a>',
-                                       note = NA)
+                                lon_range = "9 to 30",
+                                lat_range = "76 to 81",
+                                depth_range = NA,
+                                file_name = '<a onclick="alert(\'glacier_area/\');">1 folder</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004">NPDC</a>',
+                                reference = '<a onclick="alert(\'König, M., Kohler, J., & Nuth, C. (2013). Glacier Area Outlines - Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2013.89f430f8\');">König et al. (2013)</a>',
+                                note = NA)
 
 # Tidal glacier fronts
-sval_tidal_glacier_front <- data.frame(data_name = "Glacier: tidal front",
+sval_tidal_glacier_front <- data.frame(type = "",
+                                       data_name = "Glacier: tidal front",
                                        date_range = "2015 to 2019",
                                        lon_range = "9 to 36",
                                        lat_range = "76 to 81",
@@ -312,39 +327,44 @@ sval_tidal_glacier_front <- data.frame(data_name = "Glacier: tidal front",
                                        note = NA)
 
 # Marine terminating glacier fronts
-sval_marine_glacier_front <- data.frame(data_name = "Glacier: marine front",
+sval_marine_glacier_front <- data.frame(type = "",
+                                        data_name = "Glacier: marine front",
                                         date_range = "2008 to 2020",
-                                       lon_range = "10 to 34",
-                                       lat_range = "76 to 81",
-                                       depth_range = NA,
-                                       file_name = '<a onclick="alert(\'glacier_fronts/\');">1 folder</a>',
-                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338">NPDC</a>',
-                                       reference = '<a onclick="alert(\'Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a\');">Moholdt et al. (2021)</a>',
-                                       note = NA)
+                                        lon_range = "10 to 34",
+                                        lat_range = "76 to 81",
+                                        depth_range = NA,
+                                        file_name = '<a onclick="alert(\'glacier_fronts/\');">1 folder</a>',
+                                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338">NPDC</a>',
+                                        reference = '<a onclick="alert(\'Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a\');">Moholdt et al. (2021)</a>',
+                                        note = NA)
 
 # Surface meteorology
-sval_surface_met <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") %>% 
-  hyper_tibble() %>% 
-  dplyr::select(year, longitude, latitude) %>% 
-  make_meta_data(data_name = "Air temperature/pressure + relative humidity + wind speed/direction",
-                 file_name = '<a onclick="alert(\'N-ICE_metData_v2.nc      N-ICE_metData_QC.py      README_N-ICE_metData_v2.txt\');">3 files</a>',
-                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d">NPDC</a>',
-                 reference = '<a onclick="alert(\'Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1\');">Hudson et. (2015)</a>', 
-                 note = "Has a python script to help with extracting.")
+sval_surface_met <- data.frame(type = "Cruise",
+                               data_name = "Air: temperature, pressure; relative humidity; wind: speed, direction",
+                               date_range = "2015-01-19 to 2015-06-01",
+                               lon_range = "2.9 to 29.9",
+                               lat_range = "78.1 to 83.3",
+                               depth_range = NA,
+                               file_name = '<a onclick="alert(\'N-ICE_metData_v2.nc      N-ICE_metData_QC.py      README_N-ICE_metData_v2.txt\');">3 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d">NPDC</a>',
+                               reference = '<a onclick="alert(\'Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1\');">Hudson et. (2015)</a>', 
+                               note = "Has a python script to help with extracting.")
 
 # UNIS database
-sval_UNIS_database <- data.frame(data_name = "CTD: temperature + salinity",
+sval_UNIS_database <- data.frame(type = "CTD",
+                                 data_name = "Sea temperature; salinity",
                                  date_range = "1876 to 2019",
                                  lon_range = "0 to 34",
                                  lat_range = "75 to 83",
-                                 depth_range = "? to ?",
+                                 depth_range = "0 to 5600",
                                  file_name = '<a onclick="alert(\'CTD_all_1876-2019.nc\');">1 file</a>',
                                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/39d9f0f9-af12-420c-a879-10990df2e22d">NPDC</a>',
                                  reference = '<a onclick="alert(\'Skogseth, R., Ellingsen, P., Berge, J., Cottier, F., Falk-Petersen, S., Ivanov, B., … Vader, A. (2019). UNIS hydrographic database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/unis-hydrography\');">Skogseth et al. (2019)</a>',
                                  note = NA)
 
 # Seabird database
-sval_seabird_database <- data.frame(data_name = "Seabird Colonies",
+sval_seabird_database <- data.frame(type = "Database",
+                                    data_name = "Seabird Colonies",
                                     date_range = "1880 to 2020",
                                     lon_range = "9 to 35",
                                     lat_range = "74 to 81",
@@ -355,7 +375,8 @@ sval_seabird_database <- data.frame(data_name = "Seabird Colonies",
                                     note = NA)
 
 # Protection of sites
-sval_protection <- data.frame(data_name = "Protection of geological sites",
+sval_protection <- data.frame(type = "Database",
+                              data_name = "Protection of geological sites",
                               date_range = "1993 to 2020",
                               lon_range = "20 to 80",
                               lat_range = "45 to 81",
@@ -366,7 +387,8 @@ sval_protection <- data.frame(data_name = "Protection of geological sites",
                               note = NA)
 
 # N-ICE21015 many data products
-sval_NICE <- data.frame(data_name = "N-ICE2015: most drivers",
+sval_NICE <- data.frame(type = "Database",
+                        data_name = "Most drivers",
                         date_range = "2015-01-11 to 2017-06-24",
                         lon_range = "-12.48 to 35.51", 
                         lat_range = "68.53 to 84.96",
@@ -378,7 +400,8 @@ sval_NICE <- data.frame(data_name = "N-ICE2015: most drivers",
                         note = "Follow the URL to see the list of the individual files with data for many drivers.")
 
 # Fast ice persistence
-sval_fast <- data.frame(data_name = "Fast ice (duration)",
+sval_fast <- data.frame(type = "",
+                        data_name = "Fast ice: duration",
                         date_range = "2014 to 2016",
                         lon_range = " 8.7 to 28.28",
                         lat_range = "76.37 to  80.73",
@@ -389,8 +412,8 @@ sval_fast <- data.frame(data_name = "Fast ice (duration)",
                         note = NA)
 
 # Combine
-metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_surface_met, sval_UNIS_database, 
-                           sval_seabird_database, sval_protection, sval_NICE, sval_fast)
+metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_marine_glacier_front,
+                           sval_surface_met, sval_UNIS_database, sval_seabird_database, sval_protection, sval_NICE, sval_fast)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->
@@ -408,68 +431,88 @@ DT::datatable(metadata_svalbard, rownames = FALSE, escape = FALSE, colnames = DT
 
 ```{r kongsfjorden-meta-data}
 # Sea ice cover
-kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv", guess_max = 100000) %>% 
-  make_meta_data(data_name = "Sea-ice cover",
-                 file_name = '<a onclick="alert(\'Kongsfjorden_sea_ice_cover_data.csv\');">1 file</a>',
-                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7">NPDC</a>',
-                 reference = '<a onclick="alert(\'Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236\');">Gerland & Pavlova (2020)</a>')
+kong_sea_ice_inner <- data.frame(type = "Survey",
+                                 data_name = "Sea ice: cover",
+                                 date_range = "2003 to 2019",
+                                 lon_range = NA,
+                                 lat_range = NA,
+                                 depth_range = NA,
+                                 file_name = '<a onclick="alert(\'Kongsfjorden_sea_ice_cover_data.csv\');">1 file</a>',
+                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7">NPDC</a>',
+                                 reference = '<a onclick="alert(\'Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236\');">Gerland & Pavlova (2020)</a>',
+                                 note = NA)
 
 # Zooplankton abundance and species
-kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv") %>% 
-  dplyr::rename(depth_from = from, depth_to = to) %>% 
-  make_meta_data(data_name = "Zooplankton species + abundance",
-                 file_name = '<a onclick="alert(\'kf_zooplankton_sampling_meta.csv      kf_zooplankton_abundance_data.csv      kf_zooplankton_species_meta.csv\');">3 files</a>',
-                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2">NPDC</a>',
-                 reference = '<a onclick="alert(\'Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hop et. (2019)</a>')
+kong_zoo_data <- data.frame(type = "Net",
+                            data_name = "Zooplankton: species, abundance",
+                            date_range = "1996 to 2016",
+                            lon_range = "4.2 to 12.4",
+                            lat_range = "78.9 to 79.1",
+                            depth_range = "0 to 2000",
+                            file_name = '<a onclick="alert(\'kf_zooplankton_sampling_meta.csv; kf_zooplankton_abundance_data.csv; kf_zooplankton_species_meta.csv\');">3 files</a>',
+                            URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2">NPDC</a>',
+                            reference = '<a onclick="alert(\'Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hop et. (2019)</a>',
+                            note = NA)
 
 # Protist species and nutrients and Chla
-kong_protist_nutrient_chla <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv") %>% 
-  filter(Depth != 3831) %>% # These values are deeper than the bottom depth
-  mutate(`Sampling date` = as.Date(`Sampling date`, "%Y%m%d")) %>% # Prep date data
-  make_meta_data(data_name = "Protist species + Nutrients + Chla",
-                 file_name = '<a onclick="alert(\'Metadata_Kongsfjorden2009-2014_Hegseth et al.csv      Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv      Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv\');">3 files</a>',
-                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4">NPDC</a>',
-                 reference = '<a onclick="alert(\'Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hegseth et. (2019)</a>',
-                 note = "The lon/lat coordinates are suspect.") %>% 
-  # mutate(lon_min = 9.50, lon_max = 9.55, lat_min = 78.90, lat_max = 79.10)
-  mutate(lon_range = "95 to 95.5", lat_range = "78.9 to 79.1")
+kong_protist_nutrient_chla <- data.frame(type = "Bottle",
+                                         data_name = "Protist: species; nutrients; ChlA",
+                                         date_range = "2009 to 2010",
+                                         lon_range = "4.2 to 12.0",
+                                         lat_range = "78.9 to 79.1",
+                                         depth_range = "0 to 1129",
+                                         file_name = '<a onclick="alert(\'Metadata_Kongsfjorden2009-2014_Hegseth et al.csv; Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv; Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv\');">3 files</a>',
+                                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4">NPDC</a>',
+                                         reference = '<a onclick="alert(\'Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hegseth et. (2019)</a>',
+                                         note = "The lon/lat coordinates are suspect.")
 
 # CTD sampling data
-kong_CTD_database <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") %>% 
-  activate("D1") %>% hyper_tibble() %>% 
-  dplyr::rename(date = TIME, lat = LATITUDE, lon = LONGITUDE, depth = FDEP) %>% 
-  mutate(date = as.Date(date, origin = "1950-01-01")) %>% 
-  make_meta_data(data_name = "CTD: temperature + salinity",
-                 file_name = '<a onclick="alert(\'Kongsfjorden_ctd_1906_2017.nc\');">1 file</a>',
-                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6">NPDC</a>',
-                 reference = '<a onclick="alert(\'Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c\');">Skogseth et. (2019)</a>')
+kong_CTD_database <- data.frame(type = "CTD",
+                                data_name = "Sea temperature; salinity",
+                                date_range = "1906 to 2016",
+                                lon_range = "7.5 to 12.6",
+                                lat_range = "78.8 to 79.2",
+                                depth_range = "0 to 1250",
+                                file_name = '<a onclick="alert(\'Kongsfjorden_ctd_1906_2017.nc\');">1 file</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6">NPDC</a>',
+                                reference = '<a onclick="alert(\'Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c\');">Skogseth et. (2019)</a>',
+                                note = NA)
 
 # CO2 data
-kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_Marine_CO2_system_2012_to_2014.csv") %>% 
-  dplyr::rename(date = `yyyy-mm-dd`) %>% 
-    make_meta_data(data_name = "CTD: temperature + salinity + alkalinity (TA) + DIC",
-                   file_name = '<a onclick="alert(\'Kongsfjorden_Marine_CO2_system_2012_to_2014.csv\');">1 file</a>',
-                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4">NPDC</a>',
-                   reference = '<a onclick="alert(\'Fransson, A., & Chierici, M. (2019). Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53\');">Fransson & Chierici (2019)</a>')
+kong_CTD_CO2 <- data.frame(type = "CTD",
+                           data_name = "Sea temperature; salinity; alkalinity (TA); DIC",
+                           date_range = "2012 to 2014",
+                           lon_range = "4.2 to 12.4",
+                           lat_range = "78.9 to 79.1",
+                           depth_range = "0 to 1000",
+                           file_name = '<a onclick="alert(\'Kongsfjorden_Marine_CO2_system_2012_to_2014.csv\');">1 file</a>',
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4">NPDC</a>',
+                           reference = '<a onclick="alert(\'Fransson, A., & Chierici, M. (2019). Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53\');">Fransson & Chierici (2019)</a>',
+                           note = NA)
 
 # Glacial topography + thickness
-kong_glacier_info <- data.frame(data_name = "Glacier surface + thickness + elevation",
+kong_glacier_info <- data.frame(type = "",
+                                data_name = "Glacier: surface, thickness, elevation",
                                 date_range = "2004 to 2016",
-                                lon_range = "10 to 14", lat_range = "78.8 to 79.2",
+                                lon_range = "10 to 14", 
+                                lat_range = "78.8 to 79.2",
                                 depth_range = NA,
-                                file_name = '<a onclick="alert(\'TIGRIF_DEM_ice_surface_150m_v1.tif      TIGRIF_DEM_ice_thickness_150m_1.tif      TIGRIF_DEM_subglacial_elevation_150m_v1.tif      TIGRIF_radarprofiles_2004_2016_v1.txt\');">4 files</a>',
+                                file_name = '<a onclick="alert(\'TIGRIF_DEM_ice_surface_150m_v1.tif; TIGRIF_DEM_ice_thickness_150m_1.tif; TIGRIF_DEM_subglacial_elevation_150m_v1.tif; TIGRIF_radarprofiles_2004_2016_v1.txt\');">4 files</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1">NPDC</a>',
                                 reference = '<a onclick="alert(\'Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7\');">Lindbäck et al. (2018)</a>',
                                 note = NA)
 
 # Kongsvegen weather station
-kong_weather_station <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsvegen-weather.tsv", n_max = 100000) %>% 
-  dplyr::rename(date = timestamp) %>% 
-  make_meta_data(data_name = "Kongsvegen weather station: longwave + shortwave + air temperature + humidity + wind",
-                 file_name = '<a onclick="alert(\'Kongsvegen-weather.tsv\');">1 file</a>',
-                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b">NPDC</a>',
-                 reference = '<a onclick="alert(\'Kohler, J., Hudson, S. R., & Obleitner, F. (2017). Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.5dc31930\');">Kohler et al. (2017)</a>',
-                 note = "See website for full list of variables.")
+kong_weather_station <- data.frame(type = "Met station",
+                                   data_name = "Heatflux: longwave, shortwave; Air temperature; humidity; wind",
+                                   date_range = "2007 to 2016",
+                                   lon_range = "13.5", 
+                                   lat_range = "78.78",
+                                   depth_range = NA,
+                                   file_name = '<a onclick="alert(\'Kongsvegen-weather.tsv\');">1 file</a>',
+                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b">NPDC</a>',
+                                   reference = '<a onclick="alert(\'Kohler, J., Hudson, S. R., & Obleitner, F. (2017). Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.5dc31930\');">Kohler et al. (2017)</a>',
+                                   note = "See website for full list of variables.")
 
 # Unknown data
 # test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
@@ -496,30 +539,31 @@ DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames 
 
 ```{r isfjorden-meta-data}
 # Mouth mooring North
-is_mooring_N <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
+is_mooring_N <- data.frame(type = "Mooring",
+                           data_name = "Sea temperature; salinity; O2; current: velocity (U, V)",
                            date_range = "2015 to 2018",
                            lon_range = "13.37895", lat_range = "78.18048",
                            depth_range = "228",
                            file_name = '<a onclick="alert(\'mooring_N: IN1516.nc, IN1617.nc, IN1718.nc\');">1 folder, 3 files</a>',
-                           URL = '<a onclick="alert(\'https://data.npolar.no/dataset/111aca43-7f5c-4c15-9f31-dcd3214dbfcb        https://data.npolar.no/dataset/3078f619-9955-4a7f-9316-fab598fec382        https://data.npolar.no/dataset/e9106051-6c44-4849-9d62-04e4a82f1ca9\');">NPDC multiple</a>',
+                           URL = '<a onclick="alert(\'https://data.npolar.no/dataset/111aca43-7f5c-4c15-9f31-dcd3214dbfcb; https://data.npolar.no/dataset/3078f619-9955-4a7f-9316-fab598fec382; https://data.npolar.no/dataset/e9106051-6c44-4849-9d62-04e4a82f1ca9\');">NPDC multiple</a>',
                            reference = '<a onclick="alert(\'
-Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.111aca43        Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 15 Oct 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.3078f619        
-Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 5 Oct 2017 to 24 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e9106051\');">Skogseth et al. (2019)</a>',
+Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.111aca43; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 15 Oct 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.3078f619; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 5 Oct 2017 to 24 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e9106051\');">Skogseth et al. (2019)</a>',
                            note = NA)
 
 # Mouth mooring South
-is_mooring_S <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
+is_mooring_S <- data.frame(type = "Mooring",
+                           data_name = "Sea temperature; salinity; O2; current: velocity (U, V)",
                            date_range = "2005 to 2018",
                            lon_range = "13.522816", lat_range = "78.06083",
                            depth_range = "210",
                            file_name = '<a onclick="alert(\'mooring_S\');">1 folder, 13 files</a>',
-                           URL = '<a onclick="alert(\'https://data.npolar.no/dataset/176eea39-7d99-49d7-a082-b18acf42850c        https://data.npolar.no/dataset/a1239ca3-79e6-4284-bba5-38028358994a        https://data.npolar.no/dataset/064a09b7-f590-4448-810e-3f287b182dd2        https://data.npolar.no/dataset/b0e473c4-b5b9-4ebc-96eb-411d47f1d850        https://data.npolar.no/dataset/2be7bdee-c899-45b8-901b-9ec5baa9397a        https://data.npolar.no/dataset/a247e9a9-4b62-4149-bbf4-83df3576a7c4        https://data.npolar.no/dataset/6813ce6d-bdc9-4375-a310-679e074bee6b        https://data.npolar.no/dataset/11b7e849-e53d-40d8-909b-13e29c7971a0        https://data.npolar.no/dataset/21838303-c9a0-4fc4-aac3-f537b37356df        https://data.npolar.no/dataset/cd7a2f7c-abed-4284-b7c5-a9ff43c89afc        https://data.npolar.no/dataset/54dcd0c9-b863-41b1-a72b-0827099ad2b0\');">NPDC multiple</a>',
-                           reference = '<a onclick="alert(\'Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2005 to September 2006 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.176eea39        
-Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2006 to September 2007 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a1239ca3        Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the outer Isfjorden - South (I-S) during September 2007 to January 2008 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.064a09b7         Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 9 Sep 2010 to 3 Sep 2011 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.b0e473c4          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 8 Sep 2011 to 3 Sep 2012 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.2be7bdee          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 6 Sep 2012 to 28 Aug 2013 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a247e9a9          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 2 Sep 2013 to 26 Aug 2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.6813ce6d          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2014 to 24 Aug 2015 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.11b7e849          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.21838303          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 19 Aug 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.cd7a2f7c          Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 5 Oct 2017 to 25 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.54dcd0c9 \');">Skogseth et al. (2019)</a>',
+                           URL = '<a onclick="alert(\'https://data.npolar.no/dataset/176eea39-7d99-49d7-a082-b18acf42850c; https://data.npolar.no/dataset/a1239ca3-79e6-4284-bba5-38028358994a; https://data.npolar.no/dataset/064a09b7-f590-4448-810e-3f287b182dd2; https://data.npolar.no/dataset/b0e473c4-b5b9-4ebc-96eb-411d47f1d850; https://data.npolar.no/dataset/2be7bdee-c899-45b8-901b-9ec5baa9397a; https://data.npolar.no/dataset/a247e9a9-4b62-4149-bbf4-83df3576a7c4; https://data.npolar.no/dataset/6813ce6d-bdc9-4375-a310-679e074bee6b; https://data.npolar.no/dataset/11b7e849-e53d-40d8-909b-13e29c7971a0; https://data.npolar.no/dataset/21838303-c9a0-4fc4-aac3-f537b37356df; https://data.npolar.no/dataset/cd7a2f7c-abed-4284-b7c5-a9ff43c89afc; https://data.npolar.no/dataset/54dcd0c9-b863-41b1-a72b-0827099ad2b0\');">NPDC multiple</a>',
+                           reference = '<a onclick="alert(\'Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2005 to September 2006 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.176eea39; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2006 to September 2007 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a1239ca3; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the outer Isfjorden - South (I-S) during September 2007 to January 2008 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.064a09b7; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 9 Sep 2010 to 3 Sep 2011 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.b0e473c4; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 8 Sep 2011 to 3 Sep 2012 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.2be7bdee; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 6 Sep 2012 to 28 Aug 2013 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a247e9a9; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 2 Sep 2013 to 26 Aug 2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.6813ce6d; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2014 to 24 Aug 2015 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.11b7e849; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.21838303; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 19 Aug 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.cd7a2f7c; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 5 Oct 2017 to 25 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.54dcd0c9 \');">Skogseth et al. (2019)</a>',
                            note = NA)
 
 # Mooring IFO
-is_mooring_IFO <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
+is_mooring_IFO <- data.frame(type = "Mooring",
+                             data_name = "Sea temperature; salinity; O2; current: velocity (U, V)",
                              date_range = "2016 to 2017",
                              lon_range = "15.33116", lat_range = "78.247416",
                              depth_range = "0 to 60",
@@ -529,17 +573,20 @@ is_mooring_IFO <- data.frame(data_name = "Mooring: temperature, salinity, O2, ve
                              note = NA)
 
 # Mooring data from outer Isfjorden
-is_mooring_outer <- data.frame(data_name = "Mooring: temperature, salinity, O2, velocity (U, V)",
-                             date_range = "2007 to 2008",
-                             lon_range = "14.41716", lat_range = "78.1383",
-                             depth_range = "220",
-                             file_name = '<a onclick="alert(\'IS0708.nc\');">1 file</a>',
-                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=064a09b7-f590-4448-810e-3f287b182dd2&calling_results_page=https://sios-svalbard.org/results?page=2">SIOS</a>',
-                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
-                             note = NA)
+is_mooring_outer <- data.frame(type = "Mooring",
+                               data_name = "Sea temperature; salinity; O2; current: velocity (U, V)",
+                               date_range = "2007 to 2008",
+                               lon_range = "14.41716", 
+                               lat_range = "78.1383",
+                               depth_range = "220",
+                               file_name = '<a onclick="alert(\'IS0708.nc\');">1 file</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=064a09b7-f590-4448-810e-3f287b182dd2&calling_results_page=https://sios-svalbard.org/results?page=2">SIOS</a>',
+                               reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                               note = NA)
 
 # Mouth mooring GFI
-is_mooring_GFI <- data.frame(data_name = "Mooring: temperature, turbidity, current (direction, speed)",
+is_mooring_GFI <- data.frame(type = "Mooring",
+                             data_name = "Sea temperature; turbidity; current: direction, speed",
                              date_range = "2012 to 2013",
                              lon_range = "13.52211", lat_range = "78.06071",
                              depth_range = "50 to 182",
@@ -549,7 +596,8 @@ is_mooring_GFI <- data.frame(data_name = "Mooring: temperature, turbidity, curre
                              note = NA)
 
 # CO2 station at Tempelfjorden
-is_CO2_tempelfjorden <- data.frame(data_name = "CTD: temperature, salinity, TA, pH, EP TA",
+is_CO2_tempelfjorden <- data.frame(type = "CTD",
+                                   data_name = "Sea temperature; salinity; TA; pH; EP TA",
                                    date_range = "2015 to 2017",
                                    lon_range = "16.945 to 17.353", lat_range = "78.391 to 78.441",
                                    depth_range = "1.43 to 98",
@@ -559,9 +607,11 @@ is_CO2_tempelfjorden <- data.frame(data_name = "CTD: temperature, salinity, TA, 
                                    note = NA)
 
 # CO2 station at IsA
-is_CO2_IsA <- data.frame(data_name = "CTD: temperature, salinity, TA, pH, EP TA",
+is_CO2_IsA <- data.frame(type = "CTD",
+                         data_name = "Sea temperature; salinity; TA; pH; EP TA",
                          date_range = "2015 to 2017",
-                         lon_range = "15.5 to 15.533", lat_range = "78.257 to 78.267",
+                         lon_range = "15.5 to 15.533", 
+                         lat_range = "78.257 to 78.267",
                          depth_range = "1.44 to 90.52",
                          file_name = '<a onclick="alert(\'Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.xlsx\');"1 file</a>',
                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=UNIS_MARINE_CO2_2019_2&calling_results_page=https://sios-svalbard.org/results?page=1">SIOS</a>',
@@ -569,17 +619,19 @@ is_CO2_IsA <- data.frame(data_name = "CTD: temperature, salinity, TA, pH, EP TA"
                          note = NA)
 
 # Chlorophyl station at IsA
-is_Chla_IsA <- data.frame(data_name = "CTD: chlorophyl A, phaeophytin",
+is_Chla_IsA <- data.frame(type = "CTD",
+                          data_name = "ChlA",
                           date_range = "2011 to 2019",
-                         lon_range = "15.52992", lat_range = "78.26105",
-                         depth_range = "0 to 980",
-                         file_name = '<a onclick="alert(\'mooring_GFI: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc, IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">1 folder, 2 files</a>',
-                         URL = '<a onclick="alert(\'https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=8d81280a-3876-11eb-9f85-934f5f03b0c4&calling_results_page=https://sios-svalbard.org/results?page=1        https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=8ce2a482-3876-11eb-9f85-934f5f03b0c4&calling_results_page=https://sios-svalbard.org/results?page=1\');">SIOS multiple</a>',
-                         reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
-                         note = NA)
+                          lon_range = "15.52992", lat_range = "78.26105",
+                          depth_range = "0 to 980",
+                          file_name = '<a onclick="alert(\'mooring_GFI: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc, IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">1 folder, 2 files</a>',
+                          URL = '<a onclick="alert(\'https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=8d81280a-3876-11eb-9f85-934f5f03b0c4&calling_results_page=https://sios-svalbard.org/results?page=1        https://sios-svalbard.org/metsis/display/metadata/?core=l1&datasetID=8ce2a482-3876-11eb-9f85-934f5f03b0c4&calling_results_page=https://sios-svalbard.org/results?page=1\');">SIOS multiple</a>',
+                          reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                          note = NA)
 
 # Meteorological station
-is_met_station <- data.frame(data_name = "Met station: air temperature (2m), air presure (sea level; 2m), wind (speed, direction; 10m), relative humidity",
+is_met_station <- data.frame(type = "Met station",
+                             data_name = "Air: temperature (2m), air pressure (sea level; 2m); wind: speed, direction (10m); relative humidity",
                              date_range = "1934 to 2019",
                              lon_range = "13.6192", 
                              lat_range = "78.0625",
@@ -646,7 +698,8 @@ See the EU Arctic figure above for where the Greenland sites are located. They a
 
 ```{r porsangerfjorden-meta-data}
 # Fish species biomass
-por_fish_bio <- data.frame(data_name = "Fish species biomass",
+por_fish_bio <- data.frame(type = "Survey",
+                           data_name = "Fish species biomass",
                            date_range = "2007 to 2016",
                            lon_range = "?", lat_range = "?",
                            depth_range = "?",
@@ -656,7 +709,8 @@ por_fish_bio <- data.frame(data_name = "Fish species biomass",
                            note = NA)
 
 # Fish species biomass
-por_benthos_bio <- data.frame(data_name = "Benthos species biomass",
+por_benthos_bio <- data.frame(type = "Survey",
+                              data_name = "Benthos species biomass",
                               date_range = "2007 to 2016",
                               lon_range = "?", lat_range = "?",
                               depth_range = "?",
@@ -666,15 +720,16 @@ por_benthos_bio <- data.frame(data_name = "Benthos species biomass",
                               note = NA)
 
 # NorKyst-800 physical model
-por_NorKyst <- data.frame(data_name = "Model: sea temperature (surface, mid, bottom), sea ice (thickness)",
-                             date_range = "2012 to 2020",
-                             lon_range = "? to ?", 
-                             lat_range = "? to ?",
-                             depth_range = "? to ?",
-                             file_name = '<a onclick="alert(\'Not hosted on pCloud\');"0 files</a>',
-                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/fou-hi/fou-hi.html">NMI</a>',
-                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
-                             note = NA)
+por_NorKyst <- data.frame(type = "Model",
+                          data_name = "Sea temperature (surface, mid, bottom); sea ice: thickness",
+                          date_range = "2012 to 2020",
+                          lon_range = "? to ?", 
+                          lat_range = "? to ?",
+                          depth_range = "? to ?",
+                          file_name = '<a onclick="alert(\'Not hosted on pCloud\');"0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/fou-hi/fou-hi.html">NMI</a>',
+                          reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                          note = NA)
 
 # Bind them together
 metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio, por_NorKyst)
