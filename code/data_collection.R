@@ -7,6 +7,14 @@
 library(tidyverse)
 library(pangaear)
 
+# Function for downloading and prepping PANGAEA data for merging
+pg_dl_prep <- function(pg_doi){
+  # Get data
+  dl_dat <- pg_data(pg_doi)
+  # Extract data.frame
+  # Attach URL and citation
+  # Exit
+}
 
 # European Arctic ---------------------------------------------------------
 
@@ -38,16 +46,24 @@ pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), topic = "Oceans", 
 
 # Kongsfjorden ------------------------------------------------------------
 
-## Light: PAR: Can be queried here:
-# https://dashboard.awi.de/?dashboard=5544
-# And downloaded from PANGAEA, but not presently due to an issue
-pangaear::pg_search(query = "PAR", bbox = c(11, 78.86, 12.69, 79.1), topic = "Oceans", count = 500)
+# All Kongsfjorden data files
+kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500)
 
-## Light: PAR. Created by Kai Bischof as part of FACE-IT
+# CTD data
+kong_ctd <- pangaear::pg_search(query = "CTD", bbox = c(11, 78.86, 12.69, 79.1), count = 500)
 
-## Precipitation. Needed but no link given.
+# Get a swath of files from the same lead author
 
-## River discharge. Needed but no link given.
+# Light: PAR
+## NB: Only the first file is strictly for PAR
+kong_PAR <- pangaear::pg_search(query = "parameter:PAR", bbox = c(11, 78.86, 12.69, 79.1), topic = "Oceans", count = 500)
+kong_PAR_secchi <- pg_data(kong_PAR$doi[1])
+save(kong_PAR_secchi, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_PAR_secchi.RData")
+write_csv(kong_PAR_secchi[[1]]$data, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_PAR_secchi.csv")
+
+# Precipitation. Needed but no link given.
+
+# River discharge. Needed but no link given.
 
 ## Salinity: One site. Can be queried in dashboard:
 # https://dashboard.awi.de/?dashboard=3760

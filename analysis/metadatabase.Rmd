@@ -514,11 +514,24 @@ kong_weather_station <- data.frame(type = "Met station",
                                    reference = '<a onclick="alert(\'Kohler, J., Hudson, S. R., & Obleitner, F. (2017). Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.5dc31930\');">Kohler et al. (2017)</a>',
                                    note = "See website for full list of variables.")
 
+# Dedicated PAR data
+kong_PAR_secchi <- data.frame(type = "Secchi disk",
+                              data_name = "PAR",
+                              date_range = "2006",
+                              lon_range = "13.5",
+                              lat_range = "78.78",
+                              depth_range = NA,
+                              file_name = '<a onclick="alert(\'kong_PAR_secchi.csv\');">1 file</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.1594/PANGAEA.860041">PANGAEA</a>',
+                              reference = '<a onclick="alert(\'Woelfel, Jana; Schumann, Rhena; Leopold, Peter; Wiencke, Christian; Karsten, Ulf (2009): (Table 3) Underwater PAR intensities and Secchi depths measured close to the Ny Alesund harbour in Kongsfjorden (2006) under different weather conditions. PANGAEA, https://doi.org/10.1594/PANGAEA.860041, In supplement to: Woelfel, J et al. (2009): Microphytobenthic biomass along gradients of physical conditions in Arctic Kongsfjorden, Svalbard. Botanica Marina, 52(6), 573-583, https://doi.org/10.1515/BOT.2009.075\');">Woelfel et al. (2009)</a>',
+                              note = NA)
+
 # Unknown data
 # test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
 
 # Bind them together
-metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, kong_CTD_CO2, kong_glacier_info, kong_weather_station)
+metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
+                               kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_PAR_secchi)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
