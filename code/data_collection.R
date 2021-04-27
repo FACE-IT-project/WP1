@@ -25,7 +25,7 @@ library(pangaear)
 # https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448
 
 ## CTD data on PANGAEA
-pangaear::pg_search()
+pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), topic = "Oceans", count = 500)
 
 
 # Svalbard ----------------------------------------------------------------
@@ -38,44 +38,10 @@ pangaear::pg_search()
 
 # Kongsfjorden ------------------------------------------------------------
 
-### Cryosphere
-## No links for: coastal ice, permafrost, snow cover
-
-## Glacier: Mass balance
-# http://www.mosj.no/en/climate/land/mass-balance-glaciers.html
-
-## Glacier: Tidal fronts
-# https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d
-
-## Sea ice: Concentration
-# There are a couple of pan-Arctic options which may work for this
-# 2003 - 2019
-# https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7
-
-### Physical
-## No links for: evaporation, heat flux, MLD, SLP, suspended matter
-  # total suspended solids, water quality
-
-## Bathymetry
-# https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1
-
-## UNIS CTD database
-# 1876 - 2019
-# https://data.npolar.no/dataset/39d9f0f9-af12-420c-a879-10990df2e22d
-
-## CTD transects for multiple variables
-# 1906 - 2017
-# https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6
-
 ## Light: PAR: Can be queried here:
 # https://dashboard.awi.de/?dashboard=5544
 # And downloaded from PANGAEA, but not presently due to an issue
-
-## Light: PAR. Available on NPI website
-# Couldn't find
-
-## Light: PAR/Kd/UV. See references and data given in Pavlov et al. 2019
-# https://link.springer.com/chapter/10.1007/978-3-319-46425-1_5
+pangaear::pg_search(query = "PAR", bbox = c(11, 78.86, 12.69, 79.1), topic = "Oceans", count = 500)
 
 ## Light: PAR. Created by Kai Bischof as part of FACE-IT
 
@@ -90,12 +56,6 @@ pangaear::pg_search()
 ## Salinity: Mooring. Scottish Association of Marine Sciences (SAMS): 
 # Haakon Hop (NP) Finlo Cottier (SAMS) Jørgen Berge (UiT, Tromsø)
 
-## Salinity: Vertical profiles. NPI:
-# Haakon Hop (NP)
-
-## Salinity: Vertical profiles. NPI:
-# Geir Gabrielsen (NP)
-
 ## Sedimentation. Needed but no link given.
 
 ## Temperature: One site. Can be queried in dashboard:
@@ -104,12 +64,6 @@ pangaear::pg_search()
 
 ## Temperature: Mooring. Scottish Association of Marine Sciences (SAMS): 
 # Haakon Hop (NP) Finlo Cottier (SAMS) Jørgen Berge (UiT, Tromsø)
-
-## Temperature: Vertical profiles. NPI:
-# Haakon Hop (NP)
-
-## Temperature: Vertical profiles. NPI:
-# Geir Gabrielsen (NP)
 
 ## Wind: Direction. Needed but no link given.
 
