@@ -4,8 +4,23 @@
 
 # Setup -------------------------------------------------------------------
 
+# Libraries used in this script
 library(tidyverse)
 library(pangaear)
+library(doParallel); registerDoParallel(cores = 15)
+
+# Previously downloaded PANGAEA data
+pg_files <- dir("~/pCloudDrive/FACE-IT_data/", pattern = "pg_", recursive = T, full.names = T)
+pg_files <- pg_files[grepl(".csv", pg_files)]
+
+# Function that loads all PANGAEA data previously downloaded and checks for DOI's
+# so as not to download the same files again
+pg_doi_list_func <- function(pg_file){
+  df <- read_csv(pg_file)
+  res <- data.frame(doi = unique(df$doi))
+  return(res)
+}
+pg_doi_list <- plyr::ldply(pg_files, pg_doi_list_func, .parallel = T)
 
 # Function for downloading and prepping PANGAEA data for merging
 pg_dl_prep <- function(pg_doi){
@@ -15,6 +30,7 @@ pg_dl_prep <- function(pg_doi){
   # Extract data.frame and attach URL + citation
   dl_df <- dl_dat[[1]]$data %>% 
     mutate(URL = dl_dat[[1]]$url,
+           doi = dl_dat[[1]]$doi,
            citation = dl_dat[[1]]$citation)
   
   # Exit
@@ -31,44 +47,31 @@ pg_dl_prep <- function(pg_doi){
 # 6.25 km, possibly 10 m, 2002 - 2021: daily
 # https://seaice.uni-bremen.de/data/amsr2/
 
-
-### Bio/chemi
-
-## Zooplankton
-# 1995-2008
-# https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448
-
-## CTD data on PANGAEA
+## EU Arctic oceanography CTD data on PANGAEA
 pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), topic = "Oceans", count = 500)
 
 
 # Svalbard ----------------------------------------------------------------
 
-## Geology
-# https://data.npolar.no/dataset/645336c7-adfe-4d5a-978d-9426fe788ee3
-# https://data.npolar.no/dataset/616f7504-d68d-4018-a1ac-34e329d8ad45
-# https://data.npolar.no/dataset/09dbe7b2-b5ee-485e-bb2f-60455c4f82cd
-
 
 # Kongsfjorden ------------------------------------------------------------
 
 # All Kongsfjorden data files
-kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500)
+pg_kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500)
 
 # CTD data
-kong_ctd <- pangaear::pg_search(query = "CTD", bbox = c(11, 78.86, 12.69, 79.1), count = 500)
+pg_kong_ctd <- pangaear::pg_search(query = "CTD", bbox = c(11, 78.86, 12.69, 79.1), count = 500)
 
 # Get a swath of files from the same lead author
-kong_ctd_Golubev <- plyr::ldply(kong_ctd$doi[grepl("Golubev", kong_ctd$citation)], pg_dl_prep)
-
-
+pg_kong_ctd_Golubev <- plyr::ldply(pg_kong_ctd$doi[grepl("Golubev", pg_kong_ctd$citation)], pg_dl_prep)
 
 # Light: PAR
 ## NB: Only the first file is strictly for PAR
-kong_PAR <- pangaear::pg_search(query = "parameter:PAR", bbox = c(11, 78.86, 12.69, 79.1), topic = "Oceans", count = 500)
-kong_PAR_secchi <- pg_data(kong_PAR$doi[1])
-save(kong_PAR_secchi, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_PAR_secchi.RData")
-write_csv(kong_PAR_secchi[[1]]$data, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_PAR_secchi.csv")
+pg_kong_PAR <- pangaear::pg_search(query = "parameter:PAR", bbox = c(11, 78.86, 12.69, 79.1), topic = "Oceans", count = 500)
+pg_kong_PAR_secchi <- pg_data(pg_kong_PAR$doi[1])
+save(pg_kong_PAR_secchi, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_PAR_secchi.RData")
+pg_kong_PAR_secchi <- pg_dl_prep(pg_kong_PAR$doi[1])
+write_csv(pg_kong_PAR_secchi, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_PAR_secchi.csv")
 
 # Precipitation. Needed but no link given.
 
