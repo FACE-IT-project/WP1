@@ -13,7 +13,7 @@ library(pangaear)
 library(doParallel); registerDoParallel(cores = 15)
 
 # Previously downloaded PANGAEA data
-pg_files <- dir("~/pCloudDrive/FACE-IT_data/", pattern = "pg_", recursive = T, full.names = T)
+pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)
 pg_files <- pg_files[grepl(".csv", pg_files)]
 
 # Function that loads all PANGAEA data previously downloaded and checks for DOIs
@@ -25,16 +25,40 @@ pg_doi_list_func <- function(pg_file){
 }
 pg_doi_list <- plyr::ldply(pg_files, pg_doi_list_func, .parallel = T)
 
-# Function for downloading and prepping PANGAEA data for merging
-pg_dl_prep <- function(pg_doi){
-  # Get data
-  dl_dat <- pg_data(pg_doi)
-  
+# Function for extracting info from PANGAEA data
+pg_dl_prep <- function(pg_dl){
   # Extract data.frame and attach URL + citation
-  dl_df <- dl_dat[[1]]$data %>% 
-    mutate(URL = dl_dat[[1]]$url,
-           # doi = dl_dat[[1]]$doi,
-           citation = dl_dat[[1]]$citation)
+  if(is.data.frame(pg_dl$data)){
+    if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
+      dl_single <- pg_dl$data %>% 
+        mutate(URL = pg_dl$url,
+               parent_doi = pg_dl$parent_doi,
+               citation = pg_dl$citation)
+    } else {
+      dl_single <- data.frame(URL = pg_dl$url,
+                              parent_doi = pg_dl$parent_doi,
+                              citation = pg_dl$citation)
+    }
+  } else {
+    dl_single <- data.frame(URL = pg_dl$url,
+                            parent_doi = pg_dl$parent_doi,
+                            citation = pg_dl$citation)
+  }
+  return(dl_single)
+}
+
+# Function for downloading and processing PANGAEA data for merging
+pg_dl_proc <- function(pg_doi){
+  # Get data
+  dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) NA)
+  
+  # Extract data from multiple lists as necessary
+  if(!is.na(dl_dat)){
+    dl_df <- plyr::ldply(dl_dat, pg_dl_prep) %>% 
+      dplyr::select(-URL, -citation, -parent_doi, everything(), URL, citation, parent_doi)
+  } else {
+    dl_df <- NULL
+  }
   
   # Exit
   return(dl_df)
@@ -51,14 +75,23 @@ pg_dl_prep <- function(pg_doi){
 # https://seaice.uni-bremen.de/data/amsr2/
 
 ## EU Arctic oceanography CTD data on PANGAEA
-pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500)
+pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500) %>% 
+  filter(doi != "10.1594/PANGAEA.852715")
+pg_EU_ctd_1_dl <- plyr::ldply(pg_EU_ctd_1$doi, pg_dl_proc)
 pg_EU_ctd_2 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 500)
+pg_EU_ctd_2_dl <- plyr::ldply(pg_EU_ctd_2$doi, pg_dl_proc)
 pg_EU_ctd_3 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1000)
+pg_EU_ctd_3_dl <- plyr::ldply(pg_EU_ctd_3$doi, pg_dl_proc)
 pg_EU_ctd_4 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1500)
+pg_EU_ctd_4_dl <- plyr::ldply(pg_EU_ctd_4$doi, pg_dl_proc)
 pg_EU_ctd_5 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2000)
+pg_EU_ctd_5_dl <- plyr::ldply(pg_EU_ctd_5$doi, pg_dl_proc)
 pg_EU_ctd_6 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2500)
-pg_EU_ctd_all <- rbind(pg_EU_ctd_1, pg_EU_ctd_2, pg_EU_ctd_3, pg_EU_ctd_4, pg_EU_ctd_5, pg_EU_ctd_6)
-pg_EU_ctd_all_dl <- plyr::ldply(pg_EU_ctd_all, pg_dl_prep)
+pg_EU_ctd_6_dl <- plyr::ldply(pg_EU_ctd_6$doi, pg_dl_proc)
+
+# Combine and save
+pg_EU_ctd_all <- rbind(pg_EU_ctd_1_dl, pg_EU_ctd_2_dl, pg_EU_ctd_3_dl, 
+                       pg_EU_ctd_4_dl, pg_EU_ctd_5_dl, pg_EU_ctd_6_dl)
 
 
 # Svalbard ----------------------------------------------------------------
