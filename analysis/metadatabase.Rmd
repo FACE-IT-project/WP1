@@ -741,7 +741,7 @@ por_NorKyst <- data.frame(type = "Model",
                           depth_range = "? to ?",
                           file_name = '<a onclick="alert(\'Not hosted on pCloud\');"0 files</a>',
                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/fou-hi/fou-hi.html">NMI</a>',
-                          reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                          reference = '<a onclick="alert(\'Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.\');">Albretsen et al. (2011)</a>',
                           note = NA)
 
 # Bind them together

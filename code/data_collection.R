@@ -11,10 +11,16 @@ library(pangaear)
 pg_dl_prep <- function(pg_doi){
   # Get data
   dl_dat <- pg_data(pg_doi)
-  # Extract data.frame
-  # Attach URL and citation
+  
+  # Extract data.frame and attach URL + citation
+  dl_df <- dl_dat[[1]]$data %>% 
+    mutate(URL = dl_dat[[1]]$url,
+           citation = dl_dat[[1]]$citation)
+  
   # Exit
+  return(dl_df)
 }
+
 
 # European Arctic ---------------------------------------------------------
 
@@ -53,6 +59,9 @@ kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500)
 kong_ctd <- pangaear::pg_search(query = "CTD", bbox = c(11, 78.86, 12.69, 79.1), count = 500)
 
 # Get a swath of files from the same lead author
+kong_ctd_Golubev <- plyr::ldply(kong_ctd$doi[grepl("Golubev", kong_ctd$citation)], pg_dl_prep)
+
+
 
 # Light: PAR
 ## NB: Only the first file is strictly for PAR
