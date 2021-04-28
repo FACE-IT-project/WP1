@@ -75,23 +75,16 @@ pg_dl_proc <- function(pg_doi){
 # https://seaice.uni-bremen.de/data/amsr2/
 
 ## EU Arctic oceanography CTD data on PANGAEA
-pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500) %>% 
-  filter(doi != "10.1594/PANGAEA.852715")
-pg_EU_ctd_1_dl <- plyr::ldply(pg_EU_ctd_1$doi, pg_dl_proc)
-pg_EU_ctd_2 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 500)
-pg_EU_ctd_2_dl <- plyr::ldply(pg_EU_ctd_2$doi, pg_dl_proc)
-pg_EU_ctd_3 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1000)
-pg_EU_ctd_3_dl <- plyr::ldply(pg_EU_ctd_3$doi, pg_dl_proc)
-pg_EU_ctd_4 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1500)
-pg_EU_ctd_4_dl <- plyr::ldply(pg_EU_ctd_4$doi, pg_dl_proc)
-pg_EU_ctd_5 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2000)
-pg_EU_ctd_5_dl <- plyr::ldply(pg_EU_ctd_5$doi, pg_dl_proc)
-pg_EU_ctd_6 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2500)
-pg_EU_ctd_6_dl <- plyr::ldply(pg_EU_ctd_6$doi, pg_dl_proc)
-
-# Combine and save
-pg_EU_ctd_all <- rbind(pg_EU_ctd_1_dl, pg_EU_ctd_2_dl, pg_EU_ctd_3_dl, 
-                       pg_EU_ctd_4_dl, pg_EU_ctd_5_dl, pg_EU_ctd_6_dl)
+# pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500) %>% 
+#   filter(doi != "10.1594/PANGAEA.852715") # Dead links
+# pg_EU_ctd_2 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 500)
+# pg_EU_ctd_3 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1000)
+# pg_EU_ctd_4 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1500)
+# pg_EU_ctd_5 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2000)
+# pg_EU_ctd_6 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2500)
+# pg_EU_ctd_all <- rbind(pg_EU_ctd_1, pg_EU_ctd_2, pg_EU_ctd_3, pg_EU_ctd_4, pg_EU_ctd_5, pg_EU_ctd_6)
+# pg_EU_ctd_all_dl <- plyr::ldply(pg_EU_ctd_all$doi, pg_dl_proc)
+# write_csv(pg_EU_ctd_all_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv")
 
 
 # Svalbard ----------------------------------------------------------------
