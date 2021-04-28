@@ -1,5 +1,8 @@
 # data_collection.R
 # The location of collected data and the code used when possible
+# Note that download lines that have been commented out have already been downloaded
+# They are left in this script as a record of what has been done
+# Uncommenting them will cause issues with how the script tracks the DOI's of downloads
 
 
 # Setup -------------------------------------------------------------------
@@ -13,11 +16,11 @@ library(doParallel); registerDoParallel(cores = 15)
 pg_files <- dir("~/pCloudDrive/FACE-IT_data/", pattern = "pg_", recursive = T, full.names = T)
 pg_files <- pg_files[grepl(".csv", pg_files)]
 
-# Function that loads all PANGAEA data previously downloaded and checks for DOI's
+# Function that loads all PANGAEA data previously downloaded and checks for DOIs
 # so as not to download the same files again
 pg_doi_list_func <- function(pg_file){
   df <- read_csv(pg_file)
-  res <- data.frame(doi = unique(df$doi))
+  res <- data.frame(doi = unique(str_remove(df$URL, "https://doi.org/")))
   return(res)
 }
 pg_doi_list <- plyr::ldply(pg_files, pg_doi_list_func, .parallel = T)
@@ -30,7 +33,7 @@ pg_dl_prep <- function(pg_doi){
   # Extract data.frame and attach URL + citation
   dl_df <- dl_dat[[1]]$data %>% 
     mutate(URL = dl_dat[[1]]$url,
-           doi = dl_dat[[1]]$doi,
+           # doi = dl_dat[[1]]$doi,
            citation = dl_dat[[1]]$citation)
   
   # Exit
@@ -48,7 +51,14 @@ pg_dl_prep <- function(pg_doi){
 # https://seaice.uni-bremen.de/data/amsr2/
 
 ## EU Arctic oceanography CTD data on PANGAEA
-pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), topic = "Oceans", count = 500)
+pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500)
+pg_EU_ctd_2 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 500)
+pg_EU_ctd_3 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1000)
+pg_EU_ctd_4 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1500)
+pg_EU_ctd_5 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2000)
+pg_EU_ctd_6 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2500)
+pg_EU_ctd_all <- rbind(pg_EU_ctd_1, pg_EU_ctd_2, pg_EU_ctd_3, pg_EU_ctd_4, pg_EU_ctd_5, pg_EU_ctd_6)
+pg_EU_ctd_all_dl <- plyr::ldply(pg_EU_ctd_all, pg_dl_prep)
 
 
 # Svalbard ----------------------------------------------------------------
@@ -63,7 +73,8 @@ pg_kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500)
 pg_kong_ctd <- pangaear::pg_search(query = "CTD", bbox = c(11, 78.86, 12.69, 79.1), count = 500)
 
 # Get a swath of files from the same lead author
-pg_kong_ctd_Golubev <- plyr::ldply(pg_kong_ctd$doi[grepl("Golubev", pg_kong_ctd$citation)], pg_dl_prep)
+# pg_kong_ctd_Golubev <- plyr::ldply(pg_kong_ctd$doi[grepl("Golubev", pg_kong_ctd$citation)], pg_dl_prep)
+# write_csv(pg_kong_ctd_Golubev, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ctd_Golubev.csv")
 
 # Light: PAR
 ## NB: Only the first file is strictly for PAR
