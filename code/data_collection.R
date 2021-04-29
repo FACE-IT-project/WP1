@@ -15,15 +15,17 @@ library(doParallel); registerDoParallel(cores = 15)
 # Previously downloaded PANGAEA data
 pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)
 pg_files <- pg_files[grepl(".csv", pg_files)]
+pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 # Function that loads all PANGAEA data previously downloaded and checks for DOIs
 # so as not to download the same files again
-pg_doi_list_func <- function(pg_file){
-  df <- read_csv(pg_file)
-  res <- data.frame(doi = unique(str_remove(df$URL, "https://doi.org/")))
-  return(res)
-}
-pg_doi_list <- plyr::ldply(pg_files, pg_doi_list_func, .parallel = T)
+# Leaning away from running this here because the EU CTD file is so massive
+# pg_doi_list_func <- function(pg_file){
+#   df <- read_csv(pg_file)
+#   res <- data.frame(doi = unique(str_remove(df$URL, "https://doi.org/")))
+#   return(res)
+# }
+# pg_doi_list <- plyr::ldply(pg_files, pg_doi_list_func, .parallel = T)
 
 # Function for extracting info from PANGAEA data
 pg_dl_prep <- function(pg_dl){
@@ -55,7 +57,7 @@ pg_dl_proc <- function(pg_doi){
   # Extract data from multiple lists as necessary
   if(!is.na(dl_dat)){
     dl_df <- plyr::ldply(dl_dat, pg_dl_prep) %>% 
-      dplyr::select(-URL, -citation, -parent_doi, everything(), URL, citation, parent_doi)
+      dplyr::select(URL, parent_doi, citation, everything())
   } else {
     dl_df <- NULL
   }
@@ -63,6 +65,45 @@ pg_dl_proc <- function(pg_doi){
   # Exit
   return(dl_df)
 }
+
+
+# Key drivers -------------------------------------------------------------
+
+## Cryosphere
+# Coastal ice
+# Fast ice
+# Glacier
+# Permafrost
+# Sea ice
+# Snow cover
+
+## Chemistry
+# CaCO3 saturation state
+# Dissolved inorganic carbon
+# Dissolved organic carbon
+# Dissolved organic nitrogen
+# Dissolved O2
+# Nutrients: nitrate, nitrite, ammonium, phosphate, silicate
+# Partial pressure of CO2
+# pH
+# Total alkalinity
+
+## Biology
+# Calcification
+# Nitrogen fixation
+# Photosynthesis
+# Primary production
+# Respiration
+# Species: presence/absence, abundance/biomass
+
+## Social
+# Fish landings: commercial, recreational, quotas, seasonality
+# Game landings: quotas, seasonality
+# Local and national resource management
+# National statistics: demography, income, unemployment
+# Tourist arrivals: per month, nationality
+# Tourist vessels: count, mileage
+
 
 
 # European Arctic ---------------------------------------------------------
@@ -74,8 +115,8 @@ pg_dl_proc <- function(pg_doi){
 # 6.25 km, possibly 10 m, 2002 - 2021: daily
 # https://seaice.uni-bremen.de/data/amsr2/
 
-## EU Arctic oceanography CTD data on PANGAEA
-# pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500) %>% 
+## EU Arctic CTD data on PANGAEA
+# pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500) %>%
 #   filter(doi != "10.1594/PANGAEA.852715") # Dead links
 # pg_EU_ctd_2 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 500)
 # pg_EU_ctd_3 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1000)
@@ -84,7 +125,29 @@ pg_dl_proc <- function(pg_doi){
 # pg_EU_ctd_6 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2500)
 # pg_EU_ctd_all <- rbind(pg_EU_ctd_1, pg_EU_ctd_2, pg_EU_ctd_3, pg_EU_ctd_4, pg_EU_ctd_5, pg_EU_ctd_6)
 # pg_EU_ctd_all_dl <- plyr::ldply(pg_EU_ctd_all$doi, pg_dl_proc)
-# write_csv(pg_EU_ctd_all_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv")
+
+# Update PANGAEA DOI list
+## NB: Some of these files will be removed from the following clean up of the data.frame
+## This is an intentional choice as we don't want to re-download a file we decided we didn't need
+## This includes the removal of the Voß et al. Absorbance datasets
+# pg_doi_list <- distinct(data.frame(doi = pg_EU_ctd_all$doi))
+# write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+
+# Clean up the CTD file
+# colnames(pg_EU_ctd_all_dl)
+# pg_EU_ctd_all[grep("Absorbance", pg_EU_ctd_all$citation),]
+# pg_EU_ctd_all_clean <- pg_EU_ctd_all_dl %>% 
+#   select(-contains(c("ac std", "OD ", "Abund v", "Biovol v", "Absorbance ", "URL ",
+#                      "ac1", "ac2", "ac3", "ac4", "ac5", "ac6", "ac7", "ac8", "ac9")))
+# colnames(pg_EU_ctd_all_clean)
+## Addtional filtering - not run/doesn't work
+# num_cols <- colnames(pg_EU_ctd_all_clean)[unlist(lapply(pg_EU_ctd_all_clean, is.numeric))][c(-1, -2)]
+# pg_EU_ctd_all_clean <- pg_EU_ctd_all_clean %>% 
+  # mutate(row_sum = rowSums(across(all_of(num_cols)), na.rm = T)) %>% 
+  # filter(!is.na(row_sum))
+
+# Save as .csv
+# write_csv(pg_EU_ctd_all_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv")
 
 
 # Svalbard ----------------------------------------------------------------
@@ -92,83 +155,88 @@ pg_dl_proc <- function(pg_doi){
 
 # Kongsfjorden ------------------------------------------------------------
 
-# All Kongsfjorden data files
-pg_kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500)
-
-# CTD data
-pg_kong_ctd <- pangaear::pg_search(query = "CTD", bbox = c(11, 78.86, 12.69, 79.1), count = 500)
-
-# Get a swath of files from the same lead author
-# pg_kong_ctd_Golubev <- plyr::ldply(pg_kong_ctd$doi[grepl("Golubev", pg_kong_ctd$citation)], pg_dl_prep)
-# write_csv(pg_kong_ctd_Golubev, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ctd_Golubev.csv")
-
-# Light: PAR
-## NB: Only the first file is strictly for PAR
-pg_kong_PAR <- pangaear::pg_search(query = "parameter:PAR", bbox = c(11, 78.86, 12.69, 79.1), topic = "Oceans", count = 500)
-pg_kong_PAR_secchi <- pg_data(pg_kong_PAR$doi[1])
-save(pg_kong_PAR_secchi, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_PAR_secchi.RData")
-pg_kong_PAR_secchi <- pg_dl_prep(pg_kong_PAR$doi[1])
-write_csv(pg_kong_PAR_secchi, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_PAR_secchi.csv")
-
-# Precipitation. Needed but no link given.
-
-# River discharge. Needed but no link given.
-
-## Salinity: One site. Can be queried in dashboard:
-# https://dashboard.awi.de/?dashboard=3760
-# Downloaded from PANGAEA
-
 ## Salinity: Mooring. Scottish Association of Marine Sciences (SAMS): 
 # Haakon Hop (NP) Finlo Cottier (SAMS) Jørgen Berge (UiT, Tromsø)
-
-## Sedimentation. Needed but no link given.
-
-## Temperature: One site. Can be queried in dashboard:
-# https://dashboard.awi.de/?dashboard=2847
-# Downloaded from PANGAEA
 
 ## Temperature: Mooring. Scottish Association of Marine Sciences (SAMS): 
 # Haakon Hop (NP) Finlo Cottier (SAMS) Jørgen Berge (UiT, Tromsø)
 
-## Wind: Direction. Needed but no link given.
-
-## Wind: Max speed. Needed but no link given.
-
-## Wind: Mean speed. Needed but no link given.
-
-### Bio/chemi
-## No links for: Biodiversity, ecological processes, invasive species, primary productivity,
-  # species presence/absence, species survival/success
-
 ## Carbonate chemistry: pH, DIC, TA, pCO2. Available upon request:
 # http://www.obs-vlfr.fr/~gattuso/data/awipev-CO2_web.html
 
-## Carbonate chemistry: pH, DIC, TA, pCO2: vertical profiles. NPI
-# 2012 - 2014
-# https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4
-
-# Nutrients: Vertical profiles. NPI
+## Nutrients: Vertical profiles. NPI
 # https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5
 
-# Seabirds: Abundance, vital rates, diet. NPI, S Descamps.
+## Seabirds: Abundance, vital rates, diet. NPI, S Descamps.
 
-# Phytoplankton: Vertical profiles. NPI
-
-# Protists/nutrients/Chla:
-# 2009 - 2014
-# https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4
-
-# Zooplankton: Vertical profiles. NPI
-# https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2
-
-# Macroalgae: One site.
-# Download from PANGAEA
-
-# Macroalgae: Along fjord axis. Hop et al. 2016
+## Macroalgae: Along fjord axis. Hop et al. 2016
 # https://github.com/MikkoVihtakari/MarineDatabase
 
-# Benthic invertebrates: one site. AWI.
-# Download from PANGAEA
+## All Kongsfjorden data files
+pg_kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500) %>% 
+  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
 
-## Social
-# No one here but us chickens
+## Cryosphere - 0
+pg_kong_cryo <- pangaear::pg_search(query = "kongsfjorden", topic = "Cryosphere", count = 500)
+
+## Oceans - 41
+pg_kong_oceans <- pangaear::pg_search(query = "kongsfjorden", topic = "Oceans", count = 500) %>%
+  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_kong_oceans$doi)))
+write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+
+# Saccharina experiment - not a driver so not included in meta-database
+# pg_kong_diehl_2021 <- pg_dl_proc(pg_kong_oceans$doi[2])
+
+# Hydrographical time series
+pg_kong_Fischer <- plyr::ldply(pg_kong_oceans$doi[grepl("Fischer", pg_kong_oceans$citation)], pg_dl_proc)
+pg_kong_Fischer <- pg_kong_Fischer[!grepl("10.1594/PANGAEA.927379", pg_kong_Fischer$URL),] # Remove Helgoland data
+write_csv(pg_kong_Fischer, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Fischer.csv")
+
+# Physical values at fish sampling - This is in the EU CTD file
+# pg_kong_Nahrgang <- pg_dl_proc(pg_kong_oceans$doi[26])
+# write_csv(pg_kong_Nahrgang, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Nahrgang.csv")
+
+# Seaweed morphology data
+pg_kong_Scheschonk <- plyr::ldply(pg_kong_oceans$doi[grepl("Scheschonk", pg_kong_oceans$citation)], pg_dl_proc)
+write_csv(pg_kong_Scheschonk, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Scheschonk.csv")
+
+# Sediment, water and biomass characteristics
+pg_kong_Woelfel <- plyr::ldply(pg_kong_oceans$doi[grepl("Woelfel", pg_kong_oceans$citation)], pg_dl_proc)
+write_csv(pg_kong_Woelfel, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Woelfel.csv")
+
+## Atmosphere - 0
+pg_kong_atmosphere <- pangaear::pg_search(query = "kongsfjorden", topic = "Atmosphere", count = 500) %>%
+  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+
+## Chemistry - 83
+pg_kong_chemistry <- pangaear::pg_search(query = "kongsfjorden", topic = "Chemistry", count = 500) %>%
+  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_kong_chemistry$doi)))
+write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+
+# Abundances, dominance and diversity of benthic + abiotic variables
+pg_kong_Bick <- plyr::ldply(pg_kong_chemistry$doi[grepl("Bick", pg_kong_chemistry$citation)], pg_dl_proc)
+write_csv(pg_kong_Bick, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Bick.csv")
+
+# Hydrological, biogeochemical and carbonate system data
+pg_kong_Cantoni <- plyr::ldply(pg_kong_chemistry$doi[grepl("Cantoni", pg_kong_chemistry$citation)], pg_dl_proc)
+write_csv(pg_kong_Cantoni, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Cantoni.csv")
+
+# Seawater carbonate chemistry
+pg_kong_Co <- plyr::ldply(pg_kong_chemistry$doi[grepl("Cantoni", pg_kong_chemistry$citation)], pg_dl_proc)
+write_csv(pg_kong_Cantoni, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Cantoni.csv")
+
+# Chemical and biological water column characteristics + zoo/phytoplankton %
+pg_kong_van_De_Poll <- plyr::ldply(pg_kong_chemistry$doi[grepl("van De Poll", pg_kong_chemistry$citation)], pg_dl_proc)
+write_csv(pg_kong_van_De_Poll, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_van_De_Poll.csv")
+
+## Biological classification - 0
+pg_kong_bio_class <- pangaear::pg_search(query = "kongsfjorden", topic = "Biological Classification", count = 500) %>%
+  filter(doi %in% pg_doi_list$doi) %>% arrange(citation)
+
+## Biosphere - 0
+pg_kong_biosphere <- pangaear::pg_search(query = "kongsfjorden", topic = "Biosphere", count = 500) %>%
+  filter(doi %in% pg_doi_list$doi) %>% arrange(citation)
+
+
