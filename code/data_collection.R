@@ -17,16 +17,6 @@ pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, fu
 pg_files <- pg_files[grepl(".csv", pg_files)]
 pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
-# Function that loads all PANGAEA data previously downloaded and checks for DOIs
-# so as not to download the same files again
-# Leaning away from running this here because the EU CTD file is so massive
-# pg_doi_list_func <- function(pg_file){
-#   df <- read_csv(pg_file)
-#   res <- data.frame(doi = unique(str_remove(df$URL, "https://doi.org/")))
-#   return(res)
-# }
-# pg_doi_list <- plyr::ldply(pg_files, pg_doi_list_func, .parallel = T)
-
 # Function for extracting info from PANGAEA data
 pg_dl_prep <- function(pg_dl){
   # Extract data.frame and attach URL + citation
@@ -148,6 +138,7 @@ colnames(pg_EU_ctd_all_clean)
 
 # Save as .csv
 write_csv(pg_EU_ctd_all_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv")
+# pg_EU_ctd_all_clean <- data.table::fread("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv", nThread = 15)
 
 
 # Svalbard ----------------------------------------------------------------
@@ -265,21 +256,21 @@ pg_ingle_all <- pangaear::pg_search(query = "inglefieldbukta", count = 500)
 
 # Young sound -------------------------------------------------------------
 
-## All Isfjorden data files - xxx need to insert correct site name from GEM database
-pg_young_all <- pangaear::pg_search(query = "young sound", count = 500) %>% 
-  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+## All Isfjorden data files - 0
+pg_young_all <- pangaear::pg_search(query = "zackenburg", count = 500) #%>% 
+  # filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
 
 
 # Disko Bay ---------------------------------------------------------------
 
-## All Isfjorden data files - 83 - xxx need to insert correct site name from GEM database
-pg_disko_all <- pangaear::pg_search(query = "disko bay", count = 500) %>% 
+## All Isfjorden data files - 113
+pg_disko_all <- pangaear::pg_search(query = "disko", count = 500) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
 
 
 # Nuup Kangerlua ----------------------------------------------------------
 
-## All Nuup Kangerlua data files - 374 - xxx need to insert correct site name from GEM database
+## All Nuup Kangerlua data files - 374
 pg_nuup_all <- pangaear::pg_search(query = "nuuk", count = 500) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
 

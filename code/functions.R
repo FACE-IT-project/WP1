@@ -17,6 +17,7 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
   pCloud_path = "~/pCloudDrive/" 
 }
 
+
 # Workflowr code ----------------------------------------------------------
 
 # All analysis files
@@ -192,5 +193,96 @@ bbox_to_ggOcean <- function(coords, bathy_file = NA, lon_pad = 0, lat_pad = 0, a
     map_res <- map_res + annotation_spatial(bbox_spatial, fill = "cadetblue1", alpha = 0.2)
   }
   return(map_res)
+}
+
+# Function for smoother meta-data creation
+# Not currently used
+make_meta_data <- function(dat, type, data_name, file_name, URL, reference, note = NA){
+  
+  # Find longitude range
+  lon_col <- c(colnames(dat)[str_detect(colnames(dat), "lon")],
+               colnames(dat)[str_detect(colnames(dat), "Lon")])
+  if(length(lon_col) > 0){
+    lon_min <- round(min(dat[,lon_col], na.rm = T), 2)
+    lon_max <- round(max(dat[,lon_col], na.rm = T), 2)
+    lon_range <- paste0(lon_min," to ", lon_max)
+  } else {
+    lon_min <- NA; lon_max <- NA
+    lon_range <- NA
+  }
+  
+  # Find latitude range
+  lat_col <- c(colnames(dat)[str_detect(colnames(dat), "lat")],
+               colnames(dat)[str_detect(colnames(dat), "Lat")])
+  if(length(lat_col) > 0){
+    lat_min <- round(min(dat[,lat_col], na.rm = T), 2)
+    lat_max <- round(max(dat[,lat_col], na.rm = T), 2)
+    lat_range <- paste0(lat_min," to ", lat_max)
+  } else {
+    lat_min <- NA; lat_max <- NA
+    lat_range <- NA
+  }
+  
+  # Find depth range
+  depth_col <- c(colnames(dat)[str_detect(colnames(dat), "depth")],
+                 colnames(dat)[str_detect(colnames(dat), "Depth")])
+  depth_col <- depth_col[!str_detect(depth_col, "bot")]
+  depth_col <- depth_col[!str_detect(depth_col, "Bot")]
+  if(length(depth_col) > 0){
+    depth_min <- round(min(dat[,depth_col], na.rm = T), 2)
+    depth_max <- round(max(dat[,depth_col], na.rm = T), 2)
+    depth_range <- paste0(depth_min," to ", depth_max)
+  } else {
+    depth_min <- NA; depth_max <- NA
+    depth_range <- NA
+  }
+  
+  # Find depth range
+  date_col <- c(colnames(dat)[str_detect(colnames(dat), "date")],
+                colnames(dat)[str_detect(colnames(dat), "Date")])
+  year_col <- c(colnames(dat)[str_detect(colnames(dat), "year")],
+                colnames(dat)[str_detect(colnames(dat), "Year")])
+  if(length(date_col) > 0){
+    date_dat <- dat[,date_col] %>% `colnames<-`("t")
+    if(!is.na(as.Date(date_dat$t[1], "%Y-%m-%d"))){
+      date_min <- min(lubridate::year(as.Date(date_dat$t, "%Y-%m-%d")), na.rm = T)
+      date_max <- max(lubridate::year(as.Date(date_dat$t, "%Y-%m-%d")), na.rm = T)
+    } else if(!is.na(as.Date(date_dat$t[1], "%Y%m%d"))){
+      date_min <- min(lubridate::year(as.Date(date_dat$t, "%Y%m%d")), na.rm = T)
+      date_max <- max(lubridate::year(as.Date(date_dat$t, "%Y%m%d")), na.rm = T)
+    }else if(!is.na(as.Date(date_dat$t[1], "%Y/%m/%d"))){
+      date_min <- min(lubridate::year(as.Date(date_dat$t, "%Y/%m/%d")), na.rm = T)
+      date_max <- max(lubridate::year(as.Date(date_dat$t, "%Y/%m/%d")), na.rm = T)
+    } else if(!is.na(as.Date(date_dat$t[1], "%d/%m/%Y"))){
+      date_min <- min(lubridate::year(as.Date(date_dat$t, "%d/%m/%Y")), na.rm = T)
+      date_max <- max(lubridate::year(as.Date(date_dat$t, "%d/%m/%Y")), na.rm = T)
+    } else if(!is.na(as.Date(date_dat$t[1], "%m/%d/%Y"))){
+      date_min <- min(lubridate::year(as.Date(date_dat$t, "%m/%d/%Y")), na.rm = T)
+      date_max <- max(lubridate::year(as.Date(date_dat$t, "%m/%d/%Y")), na.rm = T)
+    } else {
+      date_min <- NA; date_max <- NA
+    }
+  }
+  if(is.na(depth_min) & length(year_col) > 0) {
+    year_dat <- dat[,year_col] %>% `colnames<-`("year")
+    date_min <- min(year_dat$year, na.rm = T)
+    date_max <- max(year_dat$year, na.rm = T)
+  }
+  if(!is.na(date_min)){
+    date_range <- paste0(date_min," to ", date_max)
+  } else {
+    date_range <- NA
+  }
+  
+  # Determine ecoregions
+  # Find point in MEOW polygons
+  
+  # Combine and output
+  res <- data.frame(type, data_name, 
+                    date_range, lon_range, lat_range, depth_range,
+                    # date_min, date_max, lon_min, lon_max, lat_min, lat_max, depth_min, depth_max, 
+                    file_name, URL, reference,
+                    note)
+  return(res)
 }
 
