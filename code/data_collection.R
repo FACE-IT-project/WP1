@@ -141,9 +141,6 @@ write_csv(pg_EU_ctd_all_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_a
 # pg_EU_ctd_all_clean <- data.table::fread("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv", nThread = 15)
 
 
-# Svalbard ----------------------------------------------------------------
-
-
 # Kongsfjorden ------------------------------------------------------------
 
 ## Salinity: Mooring. Scottish Association of Marine Sciences (SAMS): 
@@ -164,8 +161,18 @@ write_csv(pg_EU_ctd_all_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_a
 # https://github.com/MikkoVihtakari/MarineDatabase
 
 ## All Kongsfjorden data files - 199
+pg_kong_all_short <- pangaear::pg_search(query = "kongsfjord", count = 500) %>% 
+  filter(!doi %in% pg_doi_list$doi)
 pg_kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500) %>% 
-  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+  filter(!doi %in% pg_doi_list$doi) %>%
+  filter(!doi %in% pg_kong_all_short$doi) %>%
+  rbind(pg_kong_all_short) %>% 
+  arrange(citation) %>% 
+  distinct(); rm(pg_kong_all_short)
+
+# Species density and composition
+pg_kong_Bergmann <- plyr::ldply(pg_kong_all$doi[grepl("Bergmann", pg_kong_all$citation)], pg_dl_proc)
+write_csv(pg_kong_Bergmann, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Bergmann.csv")
 
 # Abundances, dominance and diversity of benthic + abiotic variables
 pg_kong_Bick <- plyr::ldply(pg_kong_all$doi[grepl("Bick", pg_kong_all$citation)], pg_dl_proc)
@@ -201,12 +208,27 @@ write_csv(pg_kong_Friedrichs, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_F
 pg_kong_Herrmann <- plyr::ldply(pg_kong_all$doi[grepl("Herrmann", pg_kong_all$citation)][-7], pg_dl_proc)
 write_csv(pg_kong_Herrmann, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Herrmann.csv")
 
-# Physical oceanography and benthic ocmmunity structures
+# Macroalgal biomass
+pg_kong_Hop <- plyr::ldply(pg_kong_all$doi[grepl("Hop", substr(pg_kong_all$citation, 1, 3))], pg_dl_proc)
+write_csv(pg_kong_Hop, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Hop.csv")
+
+# Sea ice thickness and radiation - Doesn't contain data
+# pg_kong_Krumpen <- plyr::ldply(pg_kong_all$doi[grepl("Krumpen", pg_kong_all$citation)], pg_dl_proc)
+
+# Physical oceanography and benthic community structures
 pg_kong_Laudien <- pg_kong_all[grepl("Laudien", substr(pg_kong_all$citation, 1, 7)),]
 pg_kong_Laudien <- pg_kong_Laudien[!grepl("Photograph", pg_kong_Laudien$citation),]
 pg_kong_Laudien <- pg_kong_Laudien[!grepl("video", pg_kong_Laudien$citation),]
 pg_kong_Laudien <- plyr::ldply(pg_kong_Laudien$doi, pg_dl_proc)
 write_csv(pg_kong_Laudien, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Laudien.csv")
+
+# Turbulent flux and meteorological measurement
+pg_kong_Luers <- plyr::ldply(pg_kong_all$doi[grepl("Lüers", pg_kong_all$citation)], pg_dl_proc)
+write_csv(pg_kong_Luers, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Luers.csv")
+
+# Species data
+pg_kong_Nowak <- plyr::ldply(pg_kong_all$doi[grepl("Nowak", pg_kong_all$citation)], pg_dl_proc)
+write_csv(pg_kong_Nowak, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Nowak.csv")
 
 # Species data
 pg_kong_Petrowski <- plyr::ldply(pg_kong_all$doi[grepl("Petrowski", pg_kong_all$citation)], pg_dl_proc)
@@ -216,6 +238,10 @@ write_csv(pg_kong_Petrowski, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Pe
 pg_kong_Scheschonk <- plyr::ldply(pg_kong_all$doi[grepl("Scheschonk", pg_kong_all$citation)], pg_dl_proc)
 write_csv(pg_kong_Scheschonk, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Scheschonk.csv")
 
+# Seawater carbonate chemistry
+pg_kong_Schmidt <- plyr::ldply(pg_kong_all$doi[grepl("Schmidt", pg_kong_all$citation)], pg_dl_proc)
+write_csv(pg_kong_Schmidt, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Schmidt.csv")
+
 # Early succession in benthic hard bottom communities
 pg_kong_Schmiing <- plyr::ldply(pg_kong_all$doi[grepl("Schmiing", pg_kong_all$citation)], pg_dl_proc)
 write_csv(pg_kong_Schmiing, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Schmiing.csv")
@@ -224,9 +250,19 @@ write_csv(pg_kong_Schmiing, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Sch
 pg_kong_Sevilgen <- plyr::ldply(pg_kong_all$doi[grepl("Sevilgen", pg_kong_all$citation)], pg_dl_proc)
 write_csv(pg_kong_Sevilgen, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Sevilgen.csv")
 
+# Seawater pH predicted for the year 2100 - Column names issue
+# pg_kong_Thor <- plyr::ldply(pg_kong_all$doi[grepl("Thor", pg_kong_all$citation)], pg_dl_proc)
+
 # Chemical and biological water column characteristics + zoo/phytoplankton %
 pg_kong_van_De_Poll <- plyr::ldply(pg_kong_all$doi[grepl("van De Poll", pg_kong_all$citation)], pg_dl_proc)
 write_csv(pg_kong_van_De_Poll, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_van_De_Poll.csv")
+
+# Meiobenthic assemblages
+pg_kong_Veit_Kohler <- plyr::ldply(pg_kong_all$doi[grepl("Veit-Köhler", pg_kong_all$citation)], pg_dl_proc)
+write_csv(pg_kong_Veit_Kohler, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Veit_Kohler.csv")
+
+# Seawater carbonate chemistry - Column names issue
+# pg_kong_Venello <- plyr::ldply(pg_kong_all$doi[grepl("Venello", pg_kong_all$citation)], pg_dl_proc)
 
 # Abundance of zooplankton
 pg_kong_Walkusz <- plyr::ldply(pg_kong_all$doi[grepl("Walkusz", pg_kong_all$citation)], pg_dl_proc)
@@ -236,6 +272,11 @@ write_csv(pg_kong_Walkusz, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Walk
 pg_kong_Woelfel <- plyr::ldply(pg_kong_all$doi[grepl("Woelfel", pg_kong_all$citation)], pg_dl_proc)
 write_csv(pg_kong_Woelfel, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Woelfel.csv")
 
+# Glacier length change and mass balance data
+# NB: This is an EU file
+pg_EU_World_Glacier <- plyr::ldply(pg_kong_all$doi[grepl("World Glacier", pg_kong_all$citation)], pg_dl_proc)
+write_csv(pg_EU_World_Glacier, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_World_Glacier.csv")
+
 # Update DOI list with Kongsfjorden
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_kong_all$doi)))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
@@ -244,8 +285,28 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 # Isfjorden ---------------------------------------------------------------
 
 ## All Isfjorden data files - 15
+pg_is_all_short <- pangaear::pg_search(query = "isfjord", count = 500) %>% 
+  filter(!doi %in% pg_doi_list$doi)
 pg_is_all <- pangaear::pg_search(query = "isfjorden", count = 500) %>% 
-  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+  filter(!doi %in% pg_doi_list$doi) %>%
+  filter(!doi %in% pg_is_all_short$doi) %>%
+  rbind(pg_is_all_short) %>% 
+  arrange(citation) %>% 
+  distinct(); rm(pg_is_all_short)
+
+# Temperature dependence of CO2-enhanced primary production - Column names issue
+# NB: This is an EU file
+# pg_EU_Holding <- plyr::ldply(pg_is_all$doi[grepl("Holding", pg_is_all$citation)], pg_dl_proc)
+# write_csv(pg_EU_Holding, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_Holding.csv")
+
+# Shipborne visual observations of Arctic sea ice - Column names issue
+# pg_is_King <- plyr::ldply(pg_is_all$doi[grepl("King", pg_is_all$citation)], pg_dl_proc)
+# write_csv(pg_is_King, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_King.csv")
+
+# Update DOI list with Isfjorden
+# NB: Not added yet as I want to sort out the above column name issue first
+# pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_is_all$doi)))
+# write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 
 # Inglefieldbukta ---------------------------------------------------------
@@ -254,18 +315,89 @@ pg_is_all <- pangaear::pg_search(query = "isfjorden", count = 500) %>%
 pg_ingle_all <- pangaear::pg_search(query = "inglefieldbukta", count = 500)
 
 
-# Young sound -------------------------------------------------------------
+# Svalbard ----------------------------------------------------------------
 
-## All Isfjorden data files - 0
-pg_young_all <- pangaear::pg_search(query = "zackenburg", count = 500) #%>% 
-  # filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+# NB: These files were searched for after the specific sites intentionally
+# This was so that site specific files would be allocated to the appropriate folders
+# And the files not attributed to a given site would be downloaded in this chunk
+# However, I'm currently thinking we don't want these data...
+pg_sval_all <- pangaear::pg_search(query = "svalbard", count = 500) %>% 
+  filter(!doi %in% pg_doi_list$doi) %>%  arrange(citation)
+
+
+# Young Sound -------------------------------------------------------------
+
+## All Young sound data files - 0
+pg_young_all_short <- pangaear::pg_search(query = "zackenberg", count = 500) 
+pg_young_all <- pangaear::pg_search(query = "young sound", count = 500,
+                                    bbox = c(-22.367917, 74.210137, -19.907644, 74.624304),) %>% 
+  filter(!doi %in% pg_doi_list$doi) %>%
+  filter(!doi %in% pg_young_all_short$doi) %>%
+  rbind(pg_young_all_short) %>% 
+  arrange(citation) %>% 
+  distinct(); rm(pg_young_all_short)
+
+# Permafrost longterm monitoring sites
+# NB: This is an EU file
+pg_EU_Bartsch <- plyr::ldply(pg_young_all$doi[grepl("Bartsch", pg_young_all$citation)], pg_dl_proc)
+write_csv(pg_EU_Bartsch, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_Bartsch.csv")
+
+# Permafrost borehole characteristics
+# NB: This is an EU file
+pg_EU_Christiansen <- plyr::ldply(pg_young_all$doi[grepl("Christiansen", substr(pg_young_all$citation, 1, 12))], pg_dl_proc)
+write_csv(pg_EU_Christiansen, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_Christiansen.csv")
+
+# Freya Glacier
+pg_young_Hynek <- plyr::ldply(pg_young_all$doi[grepl("Hynek", pg_young_all$citation)], pg_dl_proc)
+write_csv(pg_young_Hynek, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_Hynek.csv")
+
+# CO2 sampling - Login required
+# pg_young_Jorgensen <- plyr::ldply(pg_young_all$doi[grepl("Jørgensen", pg_young_all$citation)][1], pg_dl_proc)
+
+# Update DOI list with Young Sound
+pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_young_all$doi)))
+write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 
 # Disko Bay ---------------------------------------------------------------
 
-## All Isfjorden data files - 113
+## All Disko Bay data files - 113
+pg_disko_all_short <- pangaear::pg_search(query = "Qeqertarsuup", count = 500) %>% 
+  filter(!doi %in% pg_doi_list$doi)
 pg_disko_all <- pangaear::pg_search(query = "disko", count = 500) %>% 
-  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+  filter(!doi %in% pg_doi_list$doi) %>%
+  filter(!doi %in% pg_disko_all_short$doi) %>%
+  rbind(pg_disko_all_short) %>% 
+  arrange(citation) %>% 
+  distinct(); rm(pg_disko_all_short)
+
+# Tide amplitude, surface height, and flow velocities
+pg_disko_Dietrich <- plyr::ldply(pg_disko_all$doi[grepl("Dietrich", pg_disko_all$citation)], pg_dl_proc)
+write_csv(pg_disko_Dietrich, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Dietrich.csv")
+
+# Seawater carbonate chemistry and oxygen concentrations in the Greenland tidal pools - Column names issue
+# pg_disko_Duarte <- plyr::ldply(pg_disko_all$doi[grepl("Duarte", pg_disko_all$citation)], pg_dl_proc)
+# write_csv(pg_disko_Duarte, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Duarte.csv")
+
+# Phytoplankton info
+pg_disko_Dunweber <- plyr::ldply(pg_disko_all$doi[grepl("Dünweber", substr(pg_disko_all$citation, 1, 8))], pg_dl_proc)
+write_csv(pg_disko_Dunweber, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Dunweber.csv")
+
+# Phytoplankton info - Column names issue
+pg_disko_Elferink <- plyr::ldply(pg_disko_all$doi[grepl("Elferink", pg_disko_all$citation)], pg_dl_proc)
+write_csv(pg_disko_Elferink, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Elferink.csv")
+
+# Silicon isotopes in Arctic and sub-Arctic glacial meltwaters
+# NB: This is an EU file
+pg_EU_Hatton <- plyr::ldply(pg_disko_all$doi[grepl("Hatton", pg_disko_all$citation)], pg_dl_proc)
+write_csv(pg_EU_Hatton, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_EU_Hatton.csv")
+
+# Light data -  Login required for data
+# NB: THhs is probably an EU file
+# pg_EU_Holinde <- plyr::ldply(pg_disko_all$doi[grepl("Holinde", pg_disko_all$citation)], pg_dl_proc)
+
+
+# Laidre
 
 
 # Nuup Kangerlua ----------------------------------------------------------
@@ -278,5 +410,5 @@ pg_nuup_all <- pangaear::pg_search(query = "nuuk", count = 500) %>%
 # Porsangerfjorden --------------------------------------------------------
 
 ## All Porsangerfjorden data files - 0
-pg_por_all <- pangaear::pg_search(query = "porsangerfjorden", count = 500)
+pg_por_all <- pangaear::pg_search(query = "porsanger", count = 500)
 
