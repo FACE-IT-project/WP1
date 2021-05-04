@@ -17,6 +17,11 @@ pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, fu
 pg_files <- pg_files[grepl(".csv", pg_files)]
 pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
+# Function for printing PANGAEA meta-data
+pg_meta_print <- function(pg_doi){
+  pg_test <- pangaear::pg_data(pg_doi)
+}
+
 # Function for extracting info from PANGAEA data
 pg_dl_prep <- function(pg_dl){
   # Extract data.frame and attach URL + citation
@@ -105,7 +110,7 @@ pg_dl_proc <- function(pg_doi){
 # 6.25 km, possibly 10 m, 2002 - 2021: daily
 # https://seaice.uni-bremen.de/data/amsr2/
 
-## EU Arctic CTD data on PANGAEA
+## EU Arctic CTD data on PANGAEA - 2990
 pg_EU_ctd_1 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500) %>%
   filter(doi != "10.1594/PANGAEA.852715") # Dead links
 pg_EU_ctd_2 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 500)
@@ -113,7 +118,7 @@ pg_EU_ctd_3 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), cou
 pg_EU_ctd_4 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 1500)
 pg_EU_ctd_5 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2000)
 pg_EU_ctd_6 <- pangaear::pg_search(query = "CTD", bbox = c(-60, 63, 60, 90), count = 500, offset = 2500)
-pg_EU_ctd_all <- rbind(pg_EU_ctd_1, pg_EU_ctd_2, pg_EU_ctd_3, pg_EU_ctd_4, pg_EU_ctd_5, pg_EU_ctd_6)
+pg_EU_ctd_all <- distinct(rbind(pg_EU_ctd_1, pg_EU_ctd_2, pg_EU_ctd_3, pg_EU_ctd_4, pg_EU_ctd_5, pg_EU_ctd_6))
 pg_EU_ctd_all_dl <- plyr::ldply(pg_EU_ctd_all$doi, pg_dl_proc)
 
 # Update PANGAEA DOI list
@@ -139,6 +144,66 @@ colnames(pg_EU_ctd_all_clean)
 # Save as .csv
 write_csv(pg_EU_ctd_all_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv")
 # pg_EU_ctd_all_clean <- data.table::fread("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv", nThread = 15)
+
+# EU Arctic cruise data on PANGAEA - 
+pg_EU_cruise_all <- data.frame()
+query_nrow <- 500
+query_offset <- 0
+while(query_nrow == 500){
+  pg_EU_cruise_query <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = query_offset)
+  pg_EU_cruise_all <- rbind(pg_EU_cruise_all, pg_EU_cruise_query)
+  query_offset <- query_offset+500
+  query_nrow <- nrow(pg_EU_cruise_query)
+}
+
+pg_EU_cruise_1 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 0)
+pg_EU_cruise_2 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 500)
+pg_EU_cruise_3 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 1000)
+pg_EU_cruise_4 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 1500)
+pg_EU_cruise_5 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 2000)
+pg_EU_cruise_6 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 2500)
+pg_EU_cruise_7 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 3000)
+pg_EU_cruise_8 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 3500)
+pg_EU_cruise_9 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 4000)
+pg_EU_cruise_10 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 4500)
+pg_EU_cruise_11 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 5000)
+pg_EU_cruise_12 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 5500)
+pg_EU_cruise_13 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 6000)
+pg_EU_cruise_14 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 6500)
+pg_EU_cruise_15 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 7000)
+pg_EU_cruise_16 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 7500)
+pg_EU_cruise_17 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 8000)
+pg_EU_cruise_18 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 8500)
+pg_EU_cruise_19 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 9000)
+pg_EU_cruise_20 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 9500)
+pg_EU_cruise_21 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 10000)
+pg_EU_cruise_22 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 10500)
+pg_EU_cruise_23 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 11000)
+pg_EU_cruise_24 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 11500)
+pg_EU_cruise_25 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 12000)
+pg_EU_cruise_26 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 12500)
+pg_EU_cruise_27 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 13000)
+pg_EU_cruise_28 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 13500)
+pg_EU_cruise_29 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 14000)
+pg_EU_cruise_30 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 14500)
+pg_EU_cruise_31 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 15000)
+pg_EU_cruise_32 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 15500)
+pg_EU_cruise_33 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 16000)
+pg_EU_cruise_34 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 16500)
+pg_EU_cruise_35 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 17000)
+pg_EU_cruise_36 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 17500)
+pg_EU_cruise_37 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 18000)
+pg_EU_cruise_38 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 18500)
+pg_EU_cruise_39 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 19000)
+pg_EU_cruise_40 <- pangaear::pg_search(query = "cruise", bbox = c(-60, 63, 60, 90), count = 500, offset = 18500)
+
+
+pg_EU_cruise_dl <- plyr::ldply(pg_EU_cruise_1$doi, pg_dl_proc)
+write_csv(pg_EU_cruise_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_cruise.csv")
+
+# Update DOI list with EU cruise data
+pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_$doi)))
+write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 
 # Kongsfjorden ------------------------------------------------------------
@@ -393,18 +458,85 @@ pg_EU_Hatton <- plyr::ldply(pg_disko_all$doi[grepl("Hatton", pg_disko_all$citati
 write_csv(pg_EU_Hatton, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_EU_Hatton.csv")
 
 # Light data -  Login required for data
-# NB: THhs is probably an EU file
+# NB: This is probably an EU file
 # pg_EU_Holinde <- plyr::ldply(pg_disko_all$doi[grepl("Holinde", pg_disko_all$citation)], pg_dl_proc)
 
+# Ice, ChlA, whales
+pg_disko_Laidre <- plyr::ldply(pg_disko_all$doi[grepl("Laidre", substr(pg_disko_all$citation, 1, 6))], pg_dl_proc)
+write_csv(pg_disko_Laidre, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Laidre.csv")
 
-# Laidre
+# Carbonate chemistry
+pg_disko_Lichtfouse <- plyr::ldply(pg_disko_all$doi[grepl("Lichtfouse", pg_disko_all$citation)], pg_dl_proc)
+write_csv(pg_disko_Lichtfouse, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Lichtfouse.csv")
+
+# Light data
+pg_disko_Mascarenhas <- plyr::ldply(pg_disko_all$doi[grepl("Mascarenhas", pg_disko_all$citation)], pg_dl_proc)
+write_csv(pg_disko_Mascarenhas, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Mascarenhas.csv")
+
+# Bathymetry
+pg_disko_Schumann <- plyr::ldply(pg_disko_all$doi[grepl("Schumann", pg_disko_all$citation)], pg_dl_proc) %>% 
+  filter(Latitude > 0) %>%  dplyr::select(URL:`Slope inc m [deg]`)
+write_csv(pg_disko_Schumann, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Schumann.csv")
+
+# Mesozooplankton info
+pg_disko_Swalethorp <- plyr::ldply(pg_disko_all$doi[grepl("Swalethorp", pg_disko_all$citation)][4:6], pg_dl_proc)
+write_csv(pg_disko_Swalethorp, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Swalethorp.csv")
+
+# Phytoplankton and carbonate chemistry
+# NB: These appear to be experimental data, not field observations
+# pg_disko_Thoisen <- plyr::ldply(pg_disko_all$doi[grepl("Thoisen", pg_disko_all$citation)], pg_dl_proc)
+# write_csv(pg_disko_Thoisen, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Thoisen.csv")
+
+# Ice velocity
+# Not data, but rather links to other data files
+# pg_disko_Vijay <- plyr::ldply(pg_disko_all$doi[grepl("Vijay", pg_disko_all$citation)], pg_dl_proc)
+
+# Update DOI list with Disko Bay
+pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_disko_all$doi)))
+write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 
 # Nuup Kangerlua ----------------------------------------------------------
 
-## All Nuup Kangerlua data files - 374
-pg_nuup_all <- pangaear::pg_search(query = "nuuk", count = 500) %>% 
+## All Nuup Kangerlua data files - 194
+pg_nuup_all_short_1 <- pangaear::pg_search(query = "kangerlua", count = 500,
+                                           bbox = c(-53.32, 64.01, -48.93, 64.8))# %>% 
+  # filter(!doi %in% pg_doi_list$doi)
+pg_nuup_all <- pangaear::pg_search(query = "nuuk", count = 500,
+                                   bbox = c(-53.32, 64.01, -48.93, 64.8)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
+
+# Bathymetry - Login required for 2 files
+# Not data, rather links to other data files
+# pg_nuup_Dreutter <- plyr::ldply(pg_nuup_all$doi[grepl("Dreutter", substr(pg_nuup_all$citation, 1, 8))], pg_dl_proc)
+
+# Winter temperatures
+pg_nuup_Groissmayr <- plyr::ldply(pg_nuup_all$doi[grepl("Groissmayr", pg_nuup_all$citation)], pg_dl_proc)
+write_csv(pg_nuup_Groissmayr, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Groissmayr.csv")
+
+# Physical oceanography and carbonate chemistry
+pg_nuup_Johannessen <- plyr::ldply(pg_nuup_all$doi[grepl("Johannessen", substr(pg_nuup_all$citation, 1, 11))], pg_dl_proc)
+write_csv(pg_nuup_Johannessen, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Johannessen.csv")
+
+# Physical oceanography and carbonate chemistry - Repeat column name issue
+pg_nuup_Olsen <- plyr::ldply(pg_nuup_all$doi[grepl("Olsen", substr(pg_nuup_all$citation, 1, 5))], pg_dl_proc)
+write_csv(pg_nuup_Olsen, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Olsen.csv")
+
+# Physical oceanography and carbonate chemistry
+pg_nuup_Omar <- plyr::ldply(pg_nuup_all$doi[grepl("Omar", substr(pg_nuup_all$citation, 1, 4))], pg_dl_proc)
+write_csv(pg_nuup_Omar, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Omar.csv")
+
+# Met station data
+pg_nuup_Paulsen <- plyr::ldply(pg_nuup_all$doi[grepl("Paulsen", substr(pg_nuup_all$citation, 1, 7))][1:5], pg_dl_proc)
+write_csv(pg_nuup_Paulsen, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Paulsen.csv")
+
+# Light data
+pg_nuup_Zielinski <- plyr::ldply(pg_nuup_all$doi[grepl("Zielinski", substr(pg_nuup_all$citation, 1, 9))], pg_dl_proc)
+write_csv(pg_nuup_Zielinski, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Zielinski.csv")
+
+# Update DOI list with Nuup Kangerlua - Repeat column name issue
+pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_nuup_all$doi)))
+write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 
 # Porsangerfjorden --------------------------------------------------------
