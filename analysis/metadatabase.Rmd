@@ -621,17 +621,139 @@ See the EU Arctic figure above for where the Greenland sites are located. They a
 ![](assets/map_young_sound.png){ width=50% }
 </center>
 
+```{r young-sound-meta-data}
+# Air pCO2 data
+young_air_pCO2 <- data.frame(type = "CTD",
+                             data_name = "pCO2 (air)",
+                             date_range = "2006 to 2016",
+                             lon_range = "-20.57",
+                             lat_range = "74.47",
+                             depth_range = NA,
+                             file_name = '<a onclick="alert(\'Zackenberg_Data_Water_column_CTD_measurements.csv\');"1 file</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
+                             reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75.\');">GEM</a>',
+                              note = NA)
+
+# CTD water column bottom data
+young_CTD_bottom <- data.frame(type = "CTD",
+                               data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
+                               date_range = "2004 to 2014",
+                               lon_range = "-20.57",
+                               lat_range = "74.47",
+                               depth_range = "200 to 335",
+                               file_name = '<a onclick="alert(\'NA\');"0 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12">GEM</a>',
+                               reference = '<a onclick="alert(\'Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733. doi: 10.17897/J1J5-W960\');">Boone et al. (2018)</a>',
+                              note = NA)
+
+# CTD water column data
+young_CTD_water <- data.frame(type = "CTD",
+                              data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
+                              date_range = "2003 to 2015",
+                              lon_range = "-20.57",
+                              lat_range = "74.47",
+                              depth_range = "0 to 160",
+                              file_name = '<a onclick="alert(\'Zackenberg_Data_Water_column_CTD_measurements.csv\');"1 file</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12">GEM</a>',
+                              reference = '<a onclick="alert(\'CTD measurements Water column: Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12.\');">GEM</a>',
+                              note = NA)
+
+# CTD mooring data
+
+# Phytoplankton species composition
+
+# CTD sill data
+
+# DIC concentrations
+
+# Nitrate+nitrite concentrations
+
+# Water pCO2 data
+
+# Phosphate concentrations
+
+# Silicate concentrations
+
+# TA concentrations
+
+# Zooplankton abundance
+
+# Open water duration
+
+# Sea ice breakup
+
+# Sea ice formation
+
+# Sea ice thickness
+
+# Snow thickness
+
+# Bind them together
+metadata_young_sound <- rbind(young_CTD_water)
+```
+
+```{r young-sound-meta-data-table}
+DT::datatable(metadata_young_sound, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
+```
+
 ## Disko Bay
 
 <center>
 ![](assets/map_disko_bay.png){ width=50% }
 </center>
 
+```{r disko-bay-meta-data}
+# Air pCO2 data
+disko_CTD_water <- data.frame(type = "CTD",
+                              data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
+                              date_range = "2018 to 2018",
+                              lon_range = "-53.51",
+                              lat_range = "69.251",
+                              depth_range = "1 to 99",
+                              file_name = '<a onclick="alert(\'NA\');"0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61">GEM</a>',
+                              reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61.\');">GEM</a>',
+                              note = NA)
+
+
+# Bind them together
+metadata_disko_bay <- rbind(disko_CTD_water)
+```
+
+```{r disko-bay-meta-data-table}
+DT::datatable(metadata_disko_bay, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
+```
+
 ## Nuup Kangerlua
 
 <center>
 ![](assets/map_nuup_kangerlua.png){ width=50% }
 </center>
+
+```{r nuup-meta-data}
+# Air pCO2 data
+nuup_air_pCO2 <- data.frame(type = "CTD",
+                             data_name = "pCO2 (air)",
+                             date_range = "2006 to 2016",
+                             lon_range = "-20.57",
+                             lat_range = "74.47",
+                             depth_range = NA,
+                             file_name = '<a onclick="alert(\'Zackenberg_Data_Water_column_CTD_measurements.csv\');"1 file</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
+                             reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75.\');">GEM</a>',
+                              note = NA)
+
+
+# Bind them together
+metadata_nuup <- rbind(nuup_air_pCO2)
+```
+
+```{r disko-bay-meta-data-table}
+DT::datatable(metadata_nuup, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
+```
 
 # Norway
 
