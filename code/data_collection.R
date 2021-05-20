@@ -304,8 +304,8 @@ pg_kong_Scheschonk <- plyr::ldply(pg_kong_all$doi[grepl("Scheschonk", pg_kong_al
 write_csv(pg_kong_Scheschonk, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Scheschonk.csv")
 
 # Seawater carbonate chemistry - Column issues
-# pg_kong_Schmidt <- plyr::ldply(pg_kong_all$doi[grepl("Schmidt", pg_kong_all$citation)], pg_dl_proc)
-# write_csv(pg_kong_Schmidt, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Schmidt.csv")
+pg_kong_Schmidt <- plyr::ldply(pg_kong_all$doi[grepl("Schmidt", pg_kong_all$citation)], pg_dl_proc)
+write_csv(pg_kong_Schmidt, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Schmidt.csv")
 
 # Early succession in benthic hard bottom communities
 pg_kong_Schmiing <- plyr::ldply(pg_kong_all$doi[grepl("Schmiing", pg_kong_all$citation)], pg_dl_proc)
@@ -451,8 +451,8 @@ pg_disko_Dunweber <- plyr::ldply(pg_disko_all$doi[grepl("Dünweber", substr(pg_d
 write_csv(pg_disko_Dunweber, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Dunweber.csv")
 
 # Phytoplankton info - Column names issue
-# pg_disko_Elferink <- plyr::ldply(pg_disko_all$doi[grepl("Elferink", pg_disko_all$citation)], pg_dl_proc)
-# write_csv(pg_disko_Elferink, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Elferink.csv")
+pg_disko_Elferink <- plyr::ldply(pg_disko_all$doi[grepl("Elferink", pg_disko_all$citation)], pg_dl_proc)
+write_csv(pg_disko_Elferink, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Elferink.csv")
 
 # Silicon isotopes in Arctic and sub-Arctic glacial meltwaters
 # NB: This is an EU file
@@ -472,8 +472,8 @@ pg_disko_Lichtfouse <- plyr::ldply(pg_disko_all$doi[grepl("Lichtfouse", pg_disko
 write_csv(pg_disko_Lichtfouse, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Lichtfouse.csv")
 
 # Light data
-# pg_disko_Mascarenhas <- plyr::ldply(pg_disko_all$doi[grepl("Mascarenhas", pg_disko_all$citation)], pg_dl_proc)
-# write_csv(pg_disko_Mascarenhas, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Mascarenhas.csv")
+pg_disko_Mascarenhas <- plyr::ldply(pg_disko_all$doi[grepl("Mascarenhas", pg_disko_all$citation)], pg_dl_proc)
+write_csv(pg_disko_Mascarenhas, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Mascarenhas.csv")
 
 # Bathymetry
 pg_disko_Schumann <- plyr::ldply(pg_disko_all$doi[grepl("Schumann", pg_disko_all$citation)], pg_dl_proc) %>% 
@@ -515,6 +515,18 @@ pg_nuup_all <- pangaear::pg_search(query = "nuuk", count = 500,
 # Winter temperatures
 pg_nuup_Groissmayr <- plyr::ldply(pg_nuup_all$doi[grepl("Groissmayr", pg_nuup_all$citation)], pg_dl_proc)
 write_csv(pg_nuup_Groissmayr, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Groissmayr.csv")
+
+# Physical oceanography and carbonate chemistry
+pg_nuup_Johannessen <- plyr::ldply(pg_nuup_all$doi[grepl("Johannessen", substr(pg_nuup_all$citation, 1, 11))], pg_dl_proc)
+write_csv(pg_nuup_Johannessen, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Johannessen.csv")
+
+# Physical oceanography and carbonate chemistry - Repeat column name issue
+pg_nuup_Olsen <- plyr::ldply(pg_nuup_all$doi[grepl("Olsen", substr(pg_nuup_all$citation, 1, 5))], pg_dl_proc)
+write_csv(pg_nuup_Olsen, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Olsen.csv")
+
+# Physical oceanography and carbonate chemistry
+pg_nuup_Omar <- plyr::ldply(pg_nuup_all$doi[grepl("Omar", substr(pg_nuup_all$citation, 1, 4))], pg_dl_proc)
+write_csv(pg_nuup_Omar, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_Omar.csv")
 
 # Met station data
 pg_nuup_Paulsen <- plyr::ldply(pg_nuup_all$doi[grepl("Paulsen", substr(pg_nuup_all$citation, 1, 7))][1:5], pg_dl_proc)
