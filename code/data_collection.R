@@ -124,86 +124,9 @@ pg_EU_search <- function(bbox = c(-60, 63, 60, 90), ...){
   return(pg_EU_res_all)
 }
 
-## EU Arctic cruise Oceans data on PANGAEA - 272
-pg_EU_cruise_oceans <- pg_EU_search(query = "cruise", topic = "Oceans") 
-pg_doi_list <- distinct(data.frame(doi = pg_EU_cruise_oceans$doi))
-pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)
-pg_EU_cruise_oceans_clean <- pg_EU_cruise_oceans_dl %>%
-  select(-contains(c("File format", "File name", "File size", "URL file", 
-                     "206Pb", "207Pb", "208Pb", "210Po", "210Pb")))
-colnames(pg_EU_cruise_oceans_clean)
-write_csv(pg_EU_cruise_oceans_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
-
-
-## EU Arctic cruise Atmosphere data on PANGAEA - 138
-pg_EU_cruise_atmosphere <- pg_EU_search(query = "cruise", topic = "Atmosphere") %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_atmosphere$doi)))
-pg_EU_cruise_atmosphere_dl <- plyr::ldply(pg_EU_cruise_atmosphere$doi, pg_dl_proc)
-
-
-## EU Arctic cruise Cryosphere data on PANGAEA - 7
-pg_EU_cruise_cryosphere <- pg_EU_search(query = "cruise", topic = "Cryosphere") %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_cryosphere$doi)))
-pg_EU_cruise_cryosphere_dl <- plyr::ldply(pg_EU_cruise_cryosphere$doi, pg_dl_proc)
-colnames(pg_EU_cruise_cryosphere_dl)
-
-
-## EU Arctic cruise Biological Classification data on PANGAEA - 257
-pg_EU_cruise_bio_class <- pg_EU_search(query = "cruise", topic = "Biological Classification") %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_bio_class$doi)))
-pg_EU_cruise_bio_class_dl <- plyr::ldply(pg_EU_cruise_bio_class$doi, pg_dl_proc)
-
-
-## EU Arctic cruise Biosphere data on PANGAEA - 3
-pg_EU_cruise_biosphere <- pg_EU_search(query = "cruise", topic = "Biosphere") %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_biosphere$doi)))
-pg_EU_cruise_biosphere_dl <- plyr::ldply(pg_EU_cruise_biosphere$doi, pg_dl_proc)
-
-
-## EU Arctic cruise Ecology data on PANGAEA - 934
-pg_EU_cruise_ecology <- pg_EU_search(query = "cruise", topic = "Ecology") %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_ecology$doi)))
-pg_EU_cruise_ecology_dl <- plyr::ldply(pg_EU_cruise_ecology$doi, pg_dl_proc)
-
-
-## EU Arctic cruise Human Dimensions data on PANGAEA - 0
-pg_EU_cruise_human <- pg_EU_search(query = "cruise", topic = "Human Dimensions") %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_human$doi)))
-pg_EU_cruise_human_dl <- plyr::ldply(pg_EU_cruise_human$doi, pg_dl_proc)
-
-
-## EU Arctic cruise Chemistry data on PANGAEA west - 3800
-pg_EU_cruise_chemistry_west <- pg_EU_search(query = "cruise", topic = "Chemistry",
-                                            bbox = c(-60, 63, 0, 90)) %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_chemistry_west$doi)))
-pg_EU_cruise_chemistry_west_dl <- plyr::ldply(pg_EU_cruise_chemistry_west$doi, pg_dl_proc)
-
-
-## EU Arctic cruise Chemistry data on PANGAEA east - 7989
-pg_EU_cruise_chemistry_east <- pg_EU_search(query = "cruise", topic = "Chemistry",
-                                            bbox = c(0, 63, 60, 90)) %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_chemistry_east$doi)))
-pg_EU_cruise_chemistry_east_dl <- plyr::ldply(pg_EU_cruise_chemistry_east$doi, pg_dl_proc)
-
-
-## EU Arctic CTD data on PANGAEA - 931
-pg_EU_CTD <- pg_EU_search(query = "CTD") %>% filter(!doi %in% pg_doi_list$doi)
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_CTD$doi)))
-pg_EU_CTD_dl <- plyr::ldply(pg_EU_CTD$doi, pg_dl_proc)
-# pg_EU_ctd_dl[grep("Absorbance", pg_EU_ctd_dl$citation),]
-pg_EU_ctd_clean <- pg_EU_ctd_dl %>%
-  select(-contains(c("ac std", "OD ", "Abund v", "Biovol v", "Absorbance ", "URL ",
-                     "ac1", "ac2", "ac3", "ac4", "ac5", "ac6", "ac7", "ac8", "ac9")))
-colnames(pg_EU_ctd_all_clean)
-## Addtional filtering - not run/doesn't work
-# num_cols <- colnames(pg_EU_ctd_all_clean)[unlist(lapply(pg_EU_ctd_all_clean, is.numeric))][c(-1, -2)]
-# pg_EU_ctd_all_clean <- pg_EU_ctd_all_clean %>% 
-  # mutate(row_sum = rowSums(across(all_of(num_cols)), na.rm = T)) %>% 
-  # filter(!is.na(row_sum))
-
-# Save as .csv
-write_csv(pg_EU_ctd_all_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv")
-# pg_EU_ctd_all_clean <- data.table::fread("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv", nThread = 15)
+# NB: There was quite a lot of code here when there was an idea to collect EU PANGAEA data
+# See the older versions of this script if there is a renewed interest in these products
+# The shift was made on 2021-05-20
 
 
 # Kongsfjorden ------------------------------------------------------------
@@ -226,8 +149,11 @@ write_csv(pg_EU_ctd_all_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_a
 # https://github.com/MikkoVihtakari/MarineDatabase
 
 ## All Kongsfjorden data files - 209
-pg_kong_all_short <- pangaear::pg_search(query = "kongsfjord", count = 500) %>% 
-  filter(!doi %in% pg_doi_list$doi)
+pg_kong_name_1 <- pangaear::pg_search(query = "kongsfjord", count = 500) #%>% 
+pg_kong_name_2 <- pangaear::pg_search(query = "kongsfjorden", count = 500) %>% 
+  filter(!doi %in% pg_kong_name_1$doi)
+pg_kong_bbox <- pangaear::pg_search(query = "", bbox = c(11, 78.86, 12.69, 79.1), count = 500) %>% 
+  filter(!doi %in% pg_kong_name_1$doi, !doi %in% pg_kong_name_2$doi)
 pg_kong_all <- pangaear::pg_search(query = "kongsfjorden", count = 500) %>% 
   filter(!doi %in% pg_doi_list$doi) %>%
   filter(!doi %in% pg_kong_all_short$doi) %>%
