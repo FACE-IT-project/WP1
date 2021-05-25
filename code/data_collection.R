@@ -110,7 +110,7 @@ pg_full_search <- function(bbox, ...){
 # Dissolved organic carbon
 # Dissolved organic nitrogen
 # Dissolved O2
-# Nutrients: nitrate, nitrite, ammonium, phosphate, silicate
+# Nutrients: nitrate (NO3), nitrite (NO2), ammonium (NH3), phosphate (PO4), silicate (Si04)
 # Partial pressure of CO2
 # pH
 # Total alkalinity
