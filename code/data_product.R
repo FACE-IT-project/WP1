@@ -6,43 +6,74 @@
 
 # Libraries
 library(tidyverse)
+library(doParallel); registerDoParallel(cores = 15)
+
+# PANGAEA files
+pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)
+pg_EU_files <- pg_files[grepl("_EU_", pg_files)]
+pg_kong_files <- pg_files[grepl("_kong_", pg_files)]
 
 # Bounding boxes
+bbox_EU <- c(-60, 60, 63, 90)
 bbox_kong <- c(11, 12.69, 78.86, 79.1)
 
 # Quick filtering function
+# Manual tweaks wills still be required after running this
+pg_quick_filter <- function(file_name, bbox){
+  pg_res <- data.table::fread(file_name) %>% 
+    dplyr::rename(lon = Longitude, lat = Latitude) %>% 
+    filter(lon >= bbox[1], lon <= bbox[2],
+           lat >= bbox[3], lat <= bbox[4]) %>% 
+    janitor::remove_empty("cols")
+  gc(); return(pg_res)
+}
+
+
+# European Arctic ---------------------------------------------------------
+
+# First load the large files together in one stack for use later on
+# NB: This is particularly slow because the files are not local
+system.time(
+pg_EU_sub <- plyr::ldply(pg_EU_files, pg_quick_filter, .parallel = T, bbox = bbox_EU)
+) # xxx seconds
 
 
 # Kongsfjorden ------------------------------------------------------------
 
-# TODO: Make a function out of the code used to create the Kong product
-# This can then be applied to the other large products for all sites
+# Trim down EU files to kong box and prep
 
-# Start with large EU files
-pg_EU_cruise_oceans_dat <- data.table::fread("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
-colnames(pg_EU_cruise_oceans_dat)
-pg_EU_cruise_oceans_sub <- pg_EU_cruise_oceans_dat %>% 
-  dplyr::rename(lon = Longitude, lat = Latitude) %>% 
-  # Get only data in bounding box
-  filter(lon >= bbox_kong[1], lon <= bbox_kong[2],
-         lat >= bbox_kong[3], lat <= bbox_kong[4]) %>% 
-  # Filter all columns with no values
-  janitor::remove_empty("cols") %>% 
-  # janitor::convert_to_date(contains(c("Date")))
-  # dplyr::select(where(~!all(is.na(.x))))# %>%
-  # select(where(~sum(!is.na(.x)) > 0)) %>% 
-  # Convert all columns after Date into numeric
-  # mutate_at(vars(-contains(c("URL", "citation", "Date"))), as.numeric) %>% 
-  # Roughly select columns containing the key drivers
-  dplyr::select("URL", "citation",
-                contains(c("Date", "Longitude", "Latitude", "Depth", "Bathy", "Press", "Density", "Elevation",  
-                           "Temp", "°C", "Sal", "O2", "DO", "Ice", "Snow", "Turb", "PAR", "Vel", "Direction",
-                           "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "TOC", "TA",
-                           "Chl a", "Chl b"))) #%>% 
+
+# Load pg kong files
+system.time(
+pg_kong_sub <- plyr::ldply(pg_kong_files, pg_quick_filter, bbox = bbox_kong)
+) # xxx seconds
+
+# Process kong kong and combine EU data
+
+# bind_rows()
+
+ #%>% 
 # Filter rows that are missing all values
   # dplyr::select(-contains(c("Sample ID", "Comment", "pen depth", "105°C", "std dev", "TiO2", "parent", 
                             # "feldspar", "Rock", "Pseudo", "DOY", "Cibici", "Device", "parva", "Amp", "sp.", "spp.", "Euphaus",
                             # "Roughness", "rhaphid", "Cluster", "Trans", "residues", "falcon", "clausi", "Site"))) %>% 
 
 
-                
+# Isfjorden ---------------------------------------------------------------
+
+
+# Inglefieldbukta ---------------------------------------------------------
+
+
+# Young Sound -------------------------------------------------------------
+
+
+# Disko Bay ---------------------------------------------------------------
+
+
+# Nuup Kangerlua ----------------------------------------------------------
+
+
+# Porsangerfjorden --------------------------------------------------------
+
+

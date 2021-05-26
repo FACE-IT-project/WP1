@@ -29,16 +29,31 @@ pg_dl_prep <- function(pg_dl){
     if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
       dl_single <- pg_dl$data %>% 
         mutate(URL = pg_dl$url,
-               parent_doi = pg_dl$parent_doi,
-               citation = pg_dl$citation)
+               # parent_doi = pg_dl$parent_doi,
+               citation = pg_dl$citation) %>% 
+        dplyr::select("URL", "citation",
+                      contains(c("Date", "Longitude", "Latitude", "Depth", "Bathy", "Press", "Density", "Elevation",  
+                                 "Temp", "°C", "Sal", "O2", "DO", "Ice", "Snow", "Turb", "PAR", "Vel", "Direction",
+                                 "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "TOC", "TA",
+                                 "Chl a", "Chl b"))) %>% 
+        dplyr::select(-contains(c("Rock", "feldspar", "Cluster", "File ", "URL ", "std dev", "Device", "Binary",
+                                  "phenotype", "spp.", "sp.", "#/m**2", "Part vol frac ", "Part conc frac ",
+                                  "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", "J. ", "K. ", "L. ", "M. ", 
+                                  "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. ",  
+                                  "Zn ", "Cu ", "Ni ", "Cd ", "As ", "Pb ", "Cr ", "Th ", "Mn ", "Co ", "Zr ", "Sr ", "Ba ",
+                                  "Comment", "residues", "Stage", "Sample", "Country", "Province")))
+      if(c("Longitude", "Latitude") %in% colnames(dl_single)){
+        dl_single <- dl_single %>% 
+          filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+      }
     } else {
       dl_single <- data.frame(URL = pg_dl$url,
-                              parent_doi = pg_dl$parent_doi,
+                              # parent_doi = pg_dl$parent_doi,
                               citation = pg_dl$citation)
     }
   } else {
     dl_single <- data.frame(URL = pg_dl$url,
-                            parent_doi = pg_dl$parent_doi,
+                            # parent_doi = pg_dl$parent_doi,
                             citation = pg_dl$citation)
   }
   return(dl_single)
@@ -51,8 +66,8 @@ pg_dl_proc <- function(pg_doi){
   
   # Extract data from multiple lists as necessary
   if(!is.na(dl_dat)){
-    dl_df <- plyr::ldply(dl_dat, pg_dl_prep) %>% 
-      dplyr::select(URL, parent_doi, citation, everything())
+    dl_df <- plyr::ldply(dl_dat, pg_dl_prep) #%>% 
+      # dplyr::select(URL, parent_doi, citation, everything())
   } else {
     dl_df <- NULL
   }
@@ -146,27 +161,28 @@ pg_full_search <- function(bbox, ...){
 # Bakker et al...
 
 
-## EU Arctic cruise Oceans data on PANGAEA - 272
+## EU Arctic cruise Oceans data on PANGAEA - 272 - Some issues
 pg_EU_cruise_oceans <- pg_full_search(query = "cruise", topic = "Oceans", bbox = c(-60, 63, 60, 90)) 
 pg_doi_list <- distinct(data.frame(doi = pg_EU_cruise_oceans$doi))
 pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)
 pg_EU_cruise_oceans_clean <- pg_EU_cruise_oceans_dl %>%
-  select(-contains(c("File format", "File name", "File size", "URL ", "URL_source", "Province", "Country",
-                     "206Pb", "207Pb", "208Pb", "210Po", "210Pb", "Sample method", "Rock")))
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_oceans_clean)
 data.table::fwrite(pg_EU_cruise_oceans_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
+data.table::fwrite(pg_EU_cruise_oceans_clean, "pg_EU_data/pg_EU_cruise_Oceans.csv")
 rm(pg_EU_cruise_oceans_dl, pg_EU_cruise_oceans_clean); gc()
 
 
-## EU Arctic cruise Atmosphere data on PANGAEA - 138
+## EU Arctic cruise Atmosphere data on PANGAEA - 138 - Some issues
 pg_EU_cruise_atmosphere <- pg_full_search(query = "cruise", topic = "Atmosphere", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_atmosphere$doi)))
 pg_EU_cruise_atmosphere_dl <- plyr::ldply(pg_EU_cruise_atmosphere$doi, pg_dl_proc)
 pg_EU_cruise_atmosphere_clean <- pg_EU_cruise_atmosphere_dl %>%
-  select(-contains(c("bb ", "FD ", "dd ", "ff ")))
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_atmosphere_clean)
 data.table::fwrite(pg_EU_cruise_atmosphere_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Atmosphere.csv")
+data.table::fwrite(pg_EU_cruise_atmosphere_clean, "pg_EU_data/pg_EU_cruise_Atmosphere.csv")
 rm(pg_EU_cruise_atmosphere_dl, pg_EU_cruise_atmosphere_clean); gc()
 
 
@@ -176,20 +192,25 @@ pg_EU_cruise_cryosphere <- pg_full_search(query = "cruise", topic = "Cryosphere"
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_cryosphere$doi)))
 pg_EU_cruise_cryosphere_dl <- plyr::ldply(pg_EU_cruise_cryosphere$doi, pg_dl_proc)
 pg_EU_cruise_cryosphere_clean <- pg_EU_cruise_cryosphere_dl %>%
-  select(-contains(c("Perc ", "Part conc ", "Particles ", "Polymer particles ", "Polymer particle conc ")))
+  select(-contains(c("Perc ", "Part conc ", "Particles ", "Polymer particles ", "Polymer particle conc ", "(Calculated)"))) %>% 
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_cryosphere_clean)
 data.table::fwrite(pg_EU_cruise_cryosphere_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Cryosphere.csv")
+data.table::fwrite(pg_EU_cruise_cryosphere_clean, "pg_EU_data/pg_EU_cruise_Cryosphere.csv")
 rm(pg_EU_cruise_cryosphere_dl, pg_EU_cruise_cryosphere_clean); gc()
 
 
-## EU Arctic cruise Biological Classification data on PANGAEA - 259
+## EU Arctic cruise Biological Classification data on PANGAEA - 259 - Some issues
 pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological Classification", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_bio_class$doi)))
 pg_EU_cruise_bio_class_dl <- plyr::ldply(pg_EU_cruise_bio_class$doi, pg_dl_proc)
-colnames(pg_EU_cruise_bio_class_dl)
-data.table::fwrite(pg_EU_cruise_bio_class_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Bio_class.csv")
-rm(pg_EU_cruise_bio_class_dl); gc()
+pg_EU_cruise_bio_class_clean <- pg_EU_cruise_bio_class_dl %>%
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+colnames(pg_EU_cruise_bio_class_clean)
+data.table::fwrite(pg_EU_cruise_bio_class_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Bio_class.csv")
+data.table::fwrite(pg_EU_cruise_bio_class_clean, "pg_EU_data/pg_EU_cruise_Bio_class.csv")
+rm(pg_EU_cruise_bio_class_dl, pg_EU_cruise_bio_class_clean); gc()
 
 
 ## EU Arctic cruise Biosphere data on PANGAEA - 3
@@ -197,29 +218,31 @@ pg_EU_cruise_biosphere <- pg_full_search(query = "cruise", topic = "Biosphere", 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_biosphere$doi)))
 pg_EU_cruise_biosphere_dl <- plyr::ldply(pg_EU_cruise_biosphere$doi, pg_dl_proc)
-data.table::fwrite(pg_EU_cruise_biosphere_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Biosphere.csv")
-rm(pg_EU_cruise_biosphere_dl); gc()
+pg_EU_cruise_biosphere_clean <- pg_EU_cruise_biosphere_dl %>%
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+colnames(pg_EU_cruise_biosphere_clean)
+data.table::fwrite(pg_EU_cruise_biosphere_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Biosphere.csv")
+data.table::fwrite(pg_EU_cruise_biosphere_clean, "pg_EU_data/pg_EU_cruise_Biosphere.csv")
+rm(pg_EU_cruise_biosphere_dl, pg_EU_cruise_biosphere_clean); gc()
 
 
-## EU Arctic cruise Ecology data on PANGAEA - 934
+## EU Arctic cruise Ecology data on PANGAEA - 934 - Some issues
+## NB: Takes ~19 minutes
 pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_ecology$doi)))
-pg_EU_cruise_ecology_dl_1 <- plyr::ldply(pg_EU_cruise_ecology$doi[1:300], pg_dl_proc)
-pg_EU_cruise_ecology_dl_2 <- plyr::ldply(pg_EU_cruise_ecology$doi[301:600], pg_dl_proc)
-pg_EU_cruise_ecology_dl_3 <- plyr::ldply(pg_EU_cruise_ecology$doi[601:934], pg_dl_proc)
-pg_EU_cruise_ecology_clean_1 <- pg_EU_cruise_ecology_dl_1 %>%
-  select(-contains(c("Part conc ", "URL ")))
-pg_EU_cruise_ecology_clean_2 <- pg_EU_cruise_ecology_dl_2 %>%
-  select(-contains(c("Ld_", "Ed_", "Alb ", "Tf_", "Ei_", "Es_", "Lu_", "URL ", "Tm_")))
-pg_EU_cruise_ecology_clean_3 <- pg_EU_cruise_ecology_dl_3 %>%
-  select(-contains(c("File ", "URL ", "Perc total ")))
-colnames(pg_EU_cruise_ecology_clean_3)
-data.table::fwrite(pg_EU_cruise_ecology_clean_1, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology_1.csv")
-data.table::fwrite(pg_EU_cruise_ecology_clean_2, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology_2.csv")
-data.table::fwrite(pg_EU_cruise_ecology_clean_3, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology_3.csv")
-rm(pg_EU_cruise_ecology_dl_1, pg_EU_cruise_ecology_dl_2, pg_EU_cruise_ecology_dl_3, 
-   pg_EU_cruise_ecology_clean_1, pg_EU_cruise_ecology_clean_2, pg_EU_cruise_ecology_clean_3); gc()
+pg_EU_cruise_ecology_dl <- plyr::ldply(pg_EU_cruise_ecology$doi, pg_dl_proc)
+pg_EU_cruise_ecology_clean <- pg_EU_cruise_ecology_dl %>%
+  dplyr::select(-contains(c("Perc total form", " indet", " cysts", "Reads ", "Alb ", "C upt ", 
+                            "Parameter ", "Part conc ", "Vol ", "Fatty acids ", "Grain size",
+                            "Phae", "Turbellaria", "Tanaidacea", "Signal", "Taxa", "Polymer ",
+                            "Persistent Identifier", "morphospecies", "Reference", "Station",
+                            "Flag", "δ30Si", "Station", "Certainty", "Sensor", "Acryloni"))) %>% 
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+colnames(pg_EU_cruise_ecology_clean)
+data.table::fwrite(pg_EU_cruise_ecology_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology.csv")
+data.table::fwrite(pg_EU_cruise_ecology_clean, "pg_EU_data/pg_EU_cruise_Ecology.csv")
+rm(pg_EU_cruise_ecology_dl, pg_EU_cruise_ecology_clean); gc()
 
 
 ## EU Arctic cruise Human Dimensions data on PANGAEA - 0
@@ -227,48 +250,67 @@ pg_EU_cruise_human <- pg_full_search(query = "cruise", topic = "Human Dimensions
   filter(!doi %in% pg_doi_list$doi)
 
 
-## EU Arctic cruise Chemistry data on PANGAEA west - 3800 - Some logins required
+## EU Arctic cruise Chemistry data on PANGAEA west - 3800 - Some issues
+## MB ~16 minutes
 pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(-60, 63, 0, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_chemistry_west$doi)))
 pg_EU_cruise_chemistry_west_dl <- plyr::ldply(pg_EU_cruise_chemistry_west$doi, pg_dl_proc)
 pg_EU_cruise_chemistry_west_clean <- pg_EU_cruise_chemistry_west_dl %>%
-  select(-contains(c("Lu_", "Ed_", "Es_", "QC ", "OD", "ac std dev ",
-                     "ac1", "ac2", "ac3", "ac4", "ac5", "ac6", "ac7", "ac8", "ac9")))
+  # select(-contains(c("Lu_", "Ed_", "Es_", "QC ", "OD", "ac std dev ",
+  #                    "ac1", "ac2", "ac3", "ac4", "ac5", "ac6", "ac7", "ac8", "ac9"))) %>% 
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_chemistry_west_clean)
 data.table::fwrite(pg_EU_cruise_chemistry_west_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_west.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_west_clean, "pg_EU_data/pg_EU_cruise_Chemistry_west.csv")
 rm(pg_EU_cruise_chemistry_west_dl, pg_EU_cruise_chemistry_west_clean); gc()
 
 
-## EU Arctic cruise Chemistry data on PANGAEA east - 7988 - Some issues
+## EU Arctic cruise Chemistry data on PANGAEA east - 7989 - Some issues
+## NB: ~58 minutes
 pg_EU_cruise_chemistry_east <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(0, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_chemistry_east$doi)))
 pg_EU_cruise_chemistry_east_dl <- plyr::ldply(pg_EU_cruise_chemistry_east$doi, pg_dl_proc)
 pg_EU_cruise_chemistry_east_clean <- pg_EU_cruise_chemistry_east_dl %>%
-  select(-contains(c("Flag ", "acCDOM ", "Absorbance ",
-                     "ac1", "ac2", "ac3", "ac4", "ac5", "ac6", "ac7", "ac8", "ac9")))
+  select(-contains(c("Flag ", "acCDOM "))) %>%
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_chemistry_east_clean)
 data.table::fwrite(pg_EU_cruise_chemistry_east_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_east.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_east_clean, "pg_EU_data/pg_EU_cruise_Chemistry_east.csv")
 rm(pg_EU_cruise_chemistry_east_dl, pg_EU_cruise_chemistry_east_clean); gc()
 
 
-## EU Arctic CTD data on PANGAEA - 931 - Some issues
+## EU Arctic CTD data on PANGAEA - 933 - Some issues
+## NB: ~20 minutes
 pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_CTD$doi)))
 pg_EU_CTD_dl <- plyr::ldply(pg_EU_CTD$doi, pg_dl_proc)
 pg_EU_CTD_clean <- pg_EU_CTD_dl %>%
-  select(-contains(c("delta T ", "239+240Pu ", "NOBS ", "File ", "URL ", "TOC", "Conf",
-                     "Biovol v", "Abund v", "diss", "T tech", "Sidesc", "Ampl ", "std dev")))
+  select(-contains(c("dpm/m", "Perc ", "Ratio ", "14C ", "Bact ", "heterotrophic",
+                     "DSI", "kappa", "Part vol frac ", "Part conc frac ", 
+                     "University", "Woods ", "Geological", "GSI", "HSI", "C15", "C17", "C19",
+                     "Dinosterol", "Brassicasterol", "Foram", "Calibration ", "Chronozone",
+                     "T tech ", "delta T ", "Species", "Spec code", "Chromatographic", "NOBS",
+                     "Method comm ", "Mortality", "Microscopy", "Bacteria", "Pore size", 
+                     "umbilical", "/TOC", "size fraction", "Bathy ", "pixel ", "Data record",
+                     "Prasinophytes", "Chrysophytes", "MATLAB", "Total counts", "Locality",
+                     "T-RF", "algae", "Picophytopl", "Cryptophytes", "δ13C", "Comm resp ", "Size ",
+                     "Phylum", "Kingdom", "alpha ", "Rotaliina", "bacp660 ", "Pyrophytin a ",
+                     "Phytin a ", "Phide a ", "Grain size ", "Status", "Sidesc", "Haptophytes ", 
+                     "/Chl a", "ASAL ", "Fe ", "Sensitivity", "POC", "GCP", "Aphanizo ", "Conf ",
+                     "Phytopl ", "CO3", "CSC", "Biogeograph", "E bur ", "DOF", "POC", "Seastate",
+                     "228Ra", "228Th", "Transmission ", "beta470", "bac660 ", "DOS ", "LSi ",
+                     "Mn2+ ", "Al ", "Ca ", "Phae ", "Acetate ", "C carb part ", "Sigma500",
+                     "Fragilariopsis", "CSP", " TEP", "ESD", "SA dome ", "Vol dome ", "Catalog",
+                     "Phaeodaria", "Dated material", "Age dated", "Basis", "Microzoopl", "δ18O",
+                     "Frac Factor"))) %>%
+  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_CTD_clean)
 write_csv(pg_EU_CTD_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_CTD.csv")
+write_csv(pg_EU_CTD_clean, "pg_EU_data/pg_EU_CTD.csv")
 rm(pg_EU_CTD_dl, pg_EU_CTD_clean); gc()
-## Addtional filtering - not run/doesn't work
-# num_cols <- colnames(pg_EU_ctd_all_clean)[unlist(lapply(pg_EU_ctd_all_clean, is.numeric))][c(-1, -2)]
-# pg_EU_ctd_all_clean <- pg_EU_ctd_all_clean %>% 
-# mutate(row_sum = rowSums(across(all_of(num_cols)), na.rm = T)) %>% 
-# filter(!is.na(row_sum))
 
 # Load file
 # pg_EU_ctd_all_clean <- data.table::fread("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_ctd_all.csv", nThread = 15)
@@ -459,6 +501,7 @@ write_csv(pg_kong_Woelfel, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Woel
 # NB: This is an EU file
 pg_EU_World_Glacier <- plyr::ldply(pg_kong_all$doi[grepl("World Glacier", pg_kong_all$citation)], pg_dl_proc)
 write_csv(pg_EU_World_Glacier, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_World_Glacier.csv")
+write_csv(pg_EU_World_Glacier, "pg_EU_data/pg_EU_World_Glacier.csv")
 
 # Update DOI list with Kongsfjorden
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_kong_all$doi)))
@@ -482,6 +525,7 @@ pg_is_all <- pangaear::pg_search(query = "isfjorden", count = 500) %>%
 # NB: This is an EU file
 # pg_EU_Holding <- plyr::ldply(pg_is_all$doi[grepl("Holding", pg_is_all$citation)], pg_dl_proc)
 # write_csv(pg_EU_Holding, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_Holding.csv")
+# write_csv(pg_EU_Holding, "pg_EU_data/pg_EU_Holding.csv")
 
 # Shipborne visual observations of Arctic sea ice - Column names issue
 # pg_is_King <- plyr::ldply(pg_is_all$doi[grepl("King", pg_is_all$citation)], pg_dl_proc)
@@ -527,11 +571,13 @@ pg_young_all <- pangaear::pg_search(query = "young sound", count = 500,
 # NB: This is an EU file
 pg_EU_Bartsch <- plyr::ldply(pg_young_all$doi[grepl("Bartsch", pg_young_all$citation)], pg_dl_proc)
 write_csv(pg_EU_Bartsch, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_Bartsch.csv")
+write_csv(pg_EU_Bartsch, "pg_EU_data/pg_EU_Bartsch.csv")
 
 # Permafrost borehole characteristics
 # NB: This is an EU file
 pg_EU_Christiansen <- plyr::ldply(pg_young_all$doi[grepl("Christiansen", substr(pg_young_all$citation, 1, 12))], pg_dl_proc)
 write_csv(pg_EU_Christiansen, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_Christiansen.csv")
+write_csv(pg_EU_Christiansen, "pg_EU_data/pg_EU_Christiansen.csv")
 
 # Freya Glacier
 pg_young_Hynek <- plyr::ldply(pg_young_all$doi[grepl("Hynek", pg_young_all$citation)], pg_dl_proc)
@@ -576,7 +622,8 @@ write_csv(pg_disko_Elferink, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_Elfe
 # Silicon isotopes in Arctic and sub-Arctic glacial meltwaters
 # NB: This is an EU file
 pg_EU_Hatton <- plyr::ldply(pg_disko_all$doi[grepl("Hatton", pg_disko_all$citation)], pg_dl_proc)
-write_csv(pg_EU_Hatton, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_EU_Hatton.csv")
+write_csv(pg_EU_Hatton, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_Hatton.csv")
+write_csv(pg_EU_Hatton, "pg_EU_data/pg_EU_Hatton.csv")
 
 # Light data -  Login required for data
 # NB: This is probably an EU file
