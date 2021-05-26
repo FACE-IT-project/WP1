@@ -151,8 +151,8 @@ pg_EU_cruise_oceans <- pg_full_search(query = "cruise", topic = "Oceans", bbox =
 pg_doi_list <- distinct(data.frame(doi = pg_EU_cruise_oceans$doi))
 pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)
 pg_EU_cruise_oceans_clean <- pg_EU_cruise_oceans_dl %>%
-  select(-contains(c("File format", "File name", "File size", "URL ", "URL_source",
-                     "206Pb", "207Pb", "208Pb", "210Po", "210Pb", "Sample method")))
+  select(-contains(c("File format", "File name", "File size", "URL ", "URL_source", "Province", "Country",
+                     "206Pb", "207Pb", "208Pb", "210Po", "210Pb", "Sample method", "Rock")))
 colnames(pg_EU_cruise_oceans_clean)
 data.table::fwrite(pg_EU_cruise_oceans_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
 rm(pg_EU_cruise_oceans_dl, pg_EU_cruise_oceans_clean); gc()
