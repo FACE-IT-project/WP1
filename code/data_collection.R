@@ -42,7 +42,7 @@ pg_dl_prep <- function(pg_dl){
                                   "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. ",  
                                   "Zn ", "Cu ", "Ni ", "Cd ", "As ", "Pb ", "Cr ", "Th ", "Mn ", "Co ", "Zr ", "Sr ", "Ba ",
                                   "Comment", "residues", "Stage", "Sample", "Country", "Province")))
-      if(c("Longitude", "Latitude") %in% colnames(dl_single)){
+      if("Longitude" %in% colnames(dl_single)){
         dl_single <- dl_single %>% 
           filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
       }
