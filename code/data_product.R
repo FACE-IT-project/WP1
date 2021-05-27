@@ -55,15 +55,19 @@ pg_kong_sub <- plyr::ldply(c(pg_EU_files, pg_kong_files[-c(1, 7, 8, 14, 15, 19, 
 # Load Bick file separately and get only abiotic columns
 pg_kong_Bick <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Bick.csv") %>% 
   dplyr::select(URL:citation, `Date/Time`:`Sal (at bottom, in psu)`) %>% 
-  dplyr::rename(lon = Longitude, lat = Latitude, date = `Date/Time`)
+  dplyr::rename(lon = Longitude, lat = Latitude)
 
 # Remove unneeded columns
 pg_kong_clean <- pg_kong_sub %>% 
+  bind_rows(pg_kong_Bick) %>% 
   filter(!parent_doi %in% c("10.1594/PANGAEA.847003", "10.1594/PANGAEA.808512", "10.1594/PANGAEA.786375")) %>% 
+  mutate_all(~na_if(., '')) %>% 
   janitor::remove_empty("cols") %>% 
+  # Manage lon/lat columns
+  mutate(lon = mean(c(lon, `Longitude 2`), na.rm = T),
+         lat = mean(c(lat, `Latitude 2`), na.rm = T)) %>% 
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
-  bind_rows(pg_kong_Bick) %>% 
   mutate(date = ifelse(date == "", NA, date),
          date = case_when(Coverage == "June-August 2006" ~ "2006-07-01",
                           is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`,
@@ -73,35 +77,57 @@ pg_kong_clean <- pg_kong_sub %>%
          date = gsub("T.*", "", date),
          date = as.Date(date)) %>%
   # Manage depth column
-  
+  mutate(depth = case_when(!is.na(`Press [dbar] (Pressure sensor, Digiquartz)`) ~ as.numeric(`Press [dbar] (Pressure sensor, Digiquartz)`),
+                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
+                           !is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`))) %>% 
   # Remove unwanted columns
-  dplyr::select(-"Site", -"ID", -"Station", -"Coverage",
-                -"Date/Time 2", -"Date/time start", -"Date/time end", -"Date/Time (start)", -"Date/Time (UTC)",
+  dplyr::select(-"ID", -"Station", - "parent_doi",
+                -"Longitude 2", -"Latitude 2",
+                -"Coverage", -"Date/time start", -"Date/time end",
+                -"Elevation [m]", -"Elevation [m a.s.l.]", -"Depth water [m]", -"Depth [m]", -"Depth top [m]",
+                -"Depth bot [m]", -"Press [dbar]", -"Press [dbar] (Pressure sensor, Digiquartz)",
+                -"Visib [m]", -"Distance [m]", -"Ratio", -"C/N", -"C/Chl a",
                 -contains(c("Lu_", "Ed_", "Es_", "File ", "Polygon", "Name", "Event", "URL ", "TZ ",
-                            "topography", "floe", "Cloud ", "Bacteria", "Station", "Reference",
-                            "Ophiopluteus", "Amphipoda", "Cyphonautes", "Tintinnopsis lata", 
-                            "Lamellibranchiata", "Polychaeta", "Coelenterata", "Collection",
-                            "Std dev", " biom ", "Replicate", "indet", "juveniles", "Length",
-                            "Locality", "Local time", "Type", "PFDoDA", "Domain", "Course",
-                            "Basis", "Position", "Chrysophyta", "Sampling date", "TDP",
+                            "topography", "floe", "Cloud ", "Bact", "Station", "Reference", "HNA", "LNA",
+                            "Ophiopluteus", "Amphipoda", "Cyphonautes", "Tintinnopsis lata", "Sigma-theta",
+                            "Lamellibranchiata", "Polychaeta", "Coelenterata", "Collection", "Fluores",
+                            "Std dev", " biom ", "Replicate", "indet", "juveniles", "Length", "Density",
+                            "Locality", "Local time", "Type", "PFDoDA", "Domain", "Course", "TDN",
+                            "Basis", "Position", "Chrysophyta", "Sampling date", "TDP", "instrument depth",
                             "Corallinales ", "Serpulidae ", "Sample label", "Taxa", "Harpacticoida",
                             "Meiofauna", " biom ", "photo ", "Area", "nation", "Ord ", "ID ", "NOBS",
+                            "[NO3]- + [NO2]", "AT [µmol/kg]", "CSC", "CO3", "fCO2",
                             "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", "J. ", "K. ", "L. ", "M. ",
-                            "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. ")))# %>%
-  # mutate_at(c(9:length(.)), as.numeric) %>%
- 
+                            "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. "))) %>%
+  dplyr::select(URL, citation, lon, lat, date, depth, everything()) %>% 
+  mutate_at(c(6:length(.)), as.numeric) %>% 
+  janitor::remove_empty("cols")
+
+# Create guide with no empty rows
+pg_kong_thin <- pg_kong_clean %>% 
+  select(-c(URL:depth)) %>% 
+  janitor::remove_empty("rows")
+
+# Filter out empty rows
+suppressMessages( # Don't want column name joining message
+pg_kong_clean <- pg_kong_clean %>% 
+  right_join(pg_kong_thin)
+)
+
 colnames(pg_kong_clean)
 
 colnames(select(pg_kong_clean, contains("lon")))
 colnames(select(pg_kong_clean, contains("lat")))
 colnames(select(pg_kong_clean, contains("date")))
-colnames(select(pg_kong_clean, contains("date")))
+colnames(select(pg_kong_clean, contains(c("elev", "depth", "bathy", "press"))))
 
 pg_kong_clean[pg_kong_clean$date == "", ]
 
 pg_kong_lon <- select(pg_kong_clean, "URL", "parent_doi", "citation", "lon", "Longitude 2", everything())
 pg_kong_lat <- select(pg_kong_clean, "URL", "parent_doi", "citation", "lat", "Latitude 2", everything())
 pg_kong_date <- select(pg_kong_clean, "URL", "parent_doi", "citation", contains("date"))
+pg_kong_depth <- select(pg_kong_clean, "URL", "parent_doi", "citation", contains(c("elev", "depth", "bathy", "press")), everything())
 
 # Melt common columns
 pg_kong_melt <- pg_kong_clean %>% 
