@@ -77,8 +77,8 @@ pg_kong_clean <- pg_kong_sub %>%
   mutate_all(~na_if(., '')) %>% 
   janitor::remove_empty("cols") %>% 
   # Manage lon/lat columns
-  mutate(lon = mean(c(lon, `Longitude 2`), na.rm = T),
-         lat = mean(c(lat, `Latitude 2`), na.rm = T)) %>% 
+  # mutate(lon = mean(c(lon, `Longitude 2`), na.rm = T),
+         # lat = mean(c(lat, `Latitude 2`), na.rm = T)) %>% 
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
   mutate(date = ifelse(date == "", NA, date),
@@ -145,14 +145,48 @@ pg_kong_Chl <- pg_var_melt(pg_kong_clean, c("Chl"), "Chl")
 unique(pg_kong_PAR[,8])
 
 # Stack them together
-pg_kong_final <- rbind(pg_kong_cryo, pg_kong_temp, pg_kong_sal, pg_kong_O2, pg_kong_current, pg_kong_turb,
-                       pg_kong_nutrient, pg_kong_dissolved, pg_kong_CaCO3, pg_kong_CO2, pg_kong_pH, 
-                       pg_kong_PAR, pg_kong_Chl)
+pg_kong_ALL <- rbind(pg_kong_cryo, pg_kong_temp, pg_kong_sal, pg_kong_O2, pg_kong_current, 
+                     pg_kong_turb, pg_kong_nutrient, pg_kong_dissolved, pg_kong_CaCO3, 
+                     pg_kong_CO2, pg_kong_pH, pg_kong_PAR, pg_kong_Chl)
+write_csv(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 
 # Check that all columns were used
 colnames(pg_kong_clean)[!colnames(pg_kong_clean) %in% unique(pg_kong_final$var_name)]
 
+# Count per grid cell
+pg_kong_ALL %>% 
+  select(-URL, -citation) %>% 
+  mutate(lon = round(lon, 2),
+         lat = round(lat, 2)) %>% 
+  group_by(lon, lat) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  ggplot(aes(x = lon, y = lat)) +
+  borders(fill = "grey30") +
+  geom_tile(aes(fill = count)) +
+  coord_quickmap(xlim = c(bbox_kong[1:2]), 
+                 ylim = c(bbox_kong[3:4])) +
+  labs(x = NULL, y = NULL)
 
+# Average temperature over depth
+pg_kong_ALL %>% 
+  select(-URL, -citation) %>% 
+  filter(!is.na(depth),
+         var_type == "temp") %>% 
+  mutate(depth = round(depth, -1),
+         year = lubridate::year(date)) %>%
+  group_by(depth, year) %>% 
+  dplyr::summarise(value = mean(value, na.rm = T),
+                   count = n(), .groups = "drop") %>% 
+  ggplot(aes(x = year, y = -depth)) +
+  geom_tile(aes(fill = value, colour = count), size = 2) +
+  scale_colour_distiller(palette = "Reds", direction = 1) +
+  scale_fill_viridis_c() +
+  coord_cartesian(expand = F) +
+  labs(x = NULL, y = "Depth (m)", fill = "Temp. (°C)")
+
+# Tables of value names
+table(pg_kong_ALL$var_type)
+table(pg_kong_ALL$var_name, pg_kong_ALL$var_type)
 
 # Bits of code used when untangling a site product
 colnames(pg_kong_clean)
