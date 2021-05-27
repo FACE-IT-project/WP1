@@ -55,38 +55,66 @@ pg_kong_sub <- plyr::ldply(c(pg_EU_files, pg_kong_files[-c(1, 7, 8, 14, 15, 19, 
 # Load Bick file separately and get only abiotic columns
 pg_kong_Bick <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_Bick.csv") %>% 
   dplyr::select(URL:citation, `Date/Time`:`Sal (at bottom, in psu)`) %>% 
-  dplyr::rename(lon = Longitude, lat = Latitude)
+  dplyr::rename(lon = Longitude, lat = Latitude, date = `Date/Time`)
 
 # Remove unneeded columns
 pg_kong_clean <- pg_kong_sub %>% 
-  filter(!parent_doi %in% c("10.1594/PANGAEA.847003", "10.1594/PANGAEA.808512")) %>% 
+  filter(!parent_doi %in% c("10.1594/PANGAEA.847003", "10.1594/PANGAEA.808512", "10.1594/PANGAEA.786375")) %>% 
   janitor::remove_empty("cols") %>% 
-  dplyr::select(-"Site", -"ID", -"Country", - "Date/Time 2", -"Station",
+  # Manage date column
+  dplyr::rename(date = `Date/Time`) %>% 
+  bind_rows(pg_kong_Bick) %>% 
+  mutate(date = ifelse(date == "", NA, date),
+         date = case_when(Coverage == "June-August 2006" ~ "2006-07-01",
+                          is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`,
+                          date == "2009-07" ~ "2009-07-01",
+                          date == "2003-06" ~ "2003-06-01",
+                          TRUE ~ date),
+         date = gsub("T.*", "", date),
+         date = as.Date(date)) %>%
+  # Manage depth column
+  
+  # Remove unwanted columns
+  dplyr::select(-"Site", -"ID", -"Station", -"Coverage",
+                -"Date/Time 2", -"Date/time start", -"Date/time end", -"Date/Time (start)", -"Date/Time (UTC)",
                 -contains(c("Lu_", "Ed_", "Es_", "File ", "Polygon", "Name", "Event", "URL ", "TZ ",
                             "topography", "floe", "Cloud ", "Bacteria", "Station", "Reference",
                             "Ophiopluteus", "Amphipoda", "Cyphonautes", "Tintinnopsis lata", 
                             "Lamellibranchiata", "Polychaeta", "Coelenterata", "Collection",
                             "Std dev", " biom ", "Replicate", "indet", "juveniles", "Length",
                             "Locality", "Local time", "Type", "PFDoDA", "Domain", "Course",
-                            "Basis", "Position", "Chrysophyta", "Sampling date",
+                            "Basis", "Position", "Chrysophyta", "Sampling date", "TDP",
                             "Corallinales ", "Serpulidae ", "Sample label", "Taxa", "Harpacticoida",
                             "Meiofauna", " biom ", "photo ", "Area", "nation", "Ord ", "ID ", "NOBS",
                             "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", "J. ", "K. ", "L. ", "M. ",
-                            "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. "))) %>%
-  bind_rows(pg_kong_Bick) %>% 
-  dplyr::rename(date = `Date/Time`) %>% 
-  # mutate(across(`Temp [°C]`:`Sal (at bottom, in psu)`), as.numeric)
-  mutate_at(c(9:137), as.numeric)
+                            "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. ")))# %>%
+  # mutate_at(c(9:length(.)), as.numeric) %>%
+ 
 colnames(pg_kong_clean)
+
+colnames(select(pg_kong_clean, contains("lon")))
+colnames(select(pg_kong_clean, contains("lat")))
+colnames(select(pg_kong_clean, contains("date")))
+colnames(select(pg_kong_clean, contains("date")))
+
+pg_kong_clean[pg_kong_clean$date == "", ]
+
+pg_kong_lon <- select(pg_kong_clean, "URL", "parent_doi", "citation", "lon", "Longitude 2", everything())
+pg_kong_lat <- select(pg_kong_clean, "URL", "parent_doi", "citation", "lat", "Latitude 2", everything())
+pg_kong_date <- select(pg_kong_clean, "URL", "parent_doi", "citation", contains("date"))
 
 # Melt common columns
 pg_kong_melt <- pg_kong_clean %>% 
+  # Depth values
+  pivot_longer(cols = colnames(dplyr::select(., contains(c("ice")))), 
+               names_to = "ice_name", values_to = "ice") %>% 
   # Ice values
   pivot_longer(cols = colnames(dplyr::select(., contains(c("ice")))), 
-               names_to = "ice_name", values_to = "ice_vals") %>% 
+               names_to = "ice_name", values_to = "ice") %>% 
+  # filter(!is.na(ice)) %>% 
   # °C values
   pivot_longer(cols = colnames(dplyr::select(., contains(c("°C")))), 
-               names_to = "temp_name", values_to = "temp_vals")
+               names_to = "temp_name", values_to = "temp")
   
 
  #%>% 
