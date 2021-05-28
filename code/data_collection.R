@@ -7,6 +7,8 @@
 
 # Setup -------------------------------------------------------------------
 
+# TODO: Add a date of collection column
+
 # Libraries used in this script
 library(tidyverse)
 library(pangaear)
@@ -34,7 +36,7 @@ pg_dl_prep <- function(pg_dl){
         dplyr::select("URL", "citation",
                       contains(c("Date", "Longitude", "Latitude", "Depth", "Bathy", "Press", "Density", "Elevation",  
                                  "Temp", "°C", "Sal", "O2", "DO", "Ice", "Snow", "Turb", "PAR", "Vel", "Direction",
-                                 "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "TOC", "TA",
+                                 "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Ara", "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "TOC", "TA",
                                  "Chl a", "Chl b"))) %>% 
         dplyr::select(-contains(c("Rock", "feldspar", "Cluster", "File ", "URL ", "std dev", "Device", "Binary",
                                   "phenotype", "spp.", "sp.", "#/m**2", "Part vol frac ", "Part conc frac ",
@@ -159,6 +161,13 @@ pg_full_search <- function(bbox, ...){
 ### Geochemistry
 ## SOCAT datasets on PANGAEA
 # Bakker et al...
+
+
+# Specific author queries
+pg_Riebesell <- pg_full_search(query = "Riebesell", bbox = c(-60, 63, 60, 90)) 
+pg_Fransson <- pg_full_search(query = "Fransson", bbox = c(-60, 63, 60, 90)) 
+pg_Chierici <- pg_full_search(query = "Chierici", bbox = c(-60, 63, 60, 90)) 
+pg_Fischer <- pg_full_search(query = "Chierici", bbox = c(-60, 63, 60, 90)) 
 
 
 ## EU Arctic cruise Oceans data on PANGAEA - 272 - Some issues
@@ -553,6 +562,8 @@ pg_ingle_all <- pangaear::pg_search(query = "inglefieldbukta", count = 500)
 pg_sval_all <- pangaear::pg_search(query = "svalbard", count = 500, bbox = c(9, 76, 30, 81)) %>% 
   filter(!grepl("core", citation), !grepl("video", citation), !grepl("photograph", citation)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>%  arrange(citation)
+
+# Svalbard team files - 10 datasets
 
 
 # Young Sound -------------------------------------------------------------

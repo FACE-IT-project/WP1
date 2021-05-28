@@ -4,6 +4,8 @@
 
 # Setup -------------------------------------------------------------------
 
+# TODO: Add a marine or terrestrial column for users to be able to select one as they prefer
+
 # Libraries
 library(tidyverse)
 library(doParallel); registerDoParallel(cores = 15)
@@ -121,7 +123,7 @@ pg_kong_O2 <- pg_var_melt(pg_kong_clean, c("O2", "DO"), "O2") %>%
 pg_kong_current <- pg_var_melt(pg_kong_clean, c("u ", "v "), "current")
 pg_kong_turb <- pg_var_melt(pg_kong_clean, c("turbidity"), "turbidity")
 ## Carbonate chemistry
-pg_kong_nutrient <- pg_var_melt(pg_kong_clean, c("NO3", "NO2", "NH3", "PO4", "Si"), "nutrient") %>% 
+pg_kong_nutrient <- pg_var_melt(pg_kong_clean, c("NO3", "NO2", "NH3", "NH4", "PO4", "Si"), "nutrient") %>% 
   filter(var_name %in% c("[NO3]- [µmol/l]", "[NO2]- [µmol/l]", "[PO4]3- [µmol/l]", "Si(OH)4 [µmol/l]"))
 pg_kong_dissolved <- pg_var_melt(pg_kong_clean, c("DIC", "DOC", "DON"), "dissolved") %>% 
   filter(!var_name %in% c("TDP [µmol/l] (Acidic molybdate solution)", "C. islandica [#]"))
