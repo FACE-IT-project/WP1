@@ -3,4 +3,7 @@
 .RData
 .Ruserdata
 data/GLODAP_Arctic_carb_chem.csv
-pg_EU_data/
+data/pg_EU_data/
+data/pg_kong_data/
+data/pg_is_data/
+data/pg_ingle_data/
