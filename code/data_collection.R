@@ -1,12 +1,10 @@
 # code/data_collection.R
 # The location of collected data and the code used when possible
-# Note that download lines that have been commented out have already been downloaded
-# They are left in this script as a record of what has been done
-# Uncommenting them will cause issues with how the script tracks the DOI's of downloads
 
 
 # Setup -------------------------------------------------------------------
 
+# TODO: More aggressively filter by citation keywords up front. Make this part of a single central query function.
 # TODO: Add a date of collection column
 # TODO: Add a marine or terrestrial column for users to be able to select one as they prefer
 
@@ -31,14 +29,14 @@ pg_dl_prep <- function(pg_dl){
   if(is.data.frame(pg_dl$data)){
     if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
       dl_single <- pg_dl$data %>% 
-        dplyr::select("URL", "citation",
-                      contains(c("date", "longitude", "latitude", "depth", "bathy", "press", "density", "elev",  
+        dplyr::select(contains(c("date", "longitude", "latitude", "depth", "bathy", "press", "density", "elev",  
                                  "temp", "°C", "sst", "sal", "O2", "DO", "ice", "snow", "turb", "PAR", "current", "vel", "u", "v", 
                                  "direction", "vol", "evap", "precip", "e-p", "p-e", "Q", "flux", "latent", "sensible", "longwave", 
                                  "shortwave", "radiation", "kd", "mixed", "MLD", "river", "discharge", "slp", "sedim", "som", "sim",
                                  "wind", "speed", "direction",  "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Ara", 
                                  "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "AT", "TA", "Chl a", "Chl b"))) %>% 
-        dplyr::select(-contains(c("Rock", "feldspar", "Cluster", "File ", "URL ", "std dev", "Device", "Binary", "taxa",
+        # Don't filter "[#]" or "[%]" as these may be used with ice data
+        dplyr::select(-contains(c("Rock", "feldspar", "Grain size", "Cluster", "File ", "URL ", "std dev", "Device", "Binary", "taxa",
                                   "phenotype", "Part conc ", "Part vol frac ", "Part conc frac ", "Lu_",
                                   "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", 
                                   "J. ", "K. ", "L. ", "M. ", "N. ", "O. ", "P. ", "Q. ", "R. ", 
@@ -48,15 +46,23 @@ pg_dl_prep <- function(pg_dl){
                                   # "S[.] ", "T[.] ", "U[.] ", "V[.] ", "W[.] ", "X[.] ", "Y[.] ", "Z[.] ",
                                   "Zn ", "Cu ", "Ni ", "Cd ", "As ", "Pb ", "Cr ", "Th ", "Mn ", "Co ", "Zr ", "Sr ", 
                                   "Ba ", "K ", "Na ", "Ti ", "Fe ", "Mg ", "No ", "Al ",
-                                  "Comment", "residue", "Stage", "Sample", "Country", "Province", "Station"))) %>% 
-        janitor::remove_empty(which = c("rows", "columns")) %>% 
+                                  "Comment", "residue", "Stage", "Sample", "Country", "Province", "Station", "Event",
+                                  "Persistent Identifier"))) %>% 
+        janitor::remove_empty(which = c("rows", "cols")) %>% 
         mutate(URL = pg_dl$url,
                # parent_doi = pg_dl$parent_doi,
                citation = pg_dl$citation) %>% 
-        dplyr::select(URL, citation, everything)
+        dplyr::select(URL, citation, everything())
+      # Filter out 
       if("Longitude" %in% colnames(dl_single)){
         dl_single <- dl_single %>% 
           filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+      }
+      # Check for any useful columns
+      if(all(colnames(dl_single) %in% c("URL", "citation", "Longitude", "Latitude", "Date/Time"))){
+        dl_single <- data.frame(URL = pg_dl$url,
+                                # parent_doi = pg_dl$parent_doi,
+                                citation = pg_dl$citation)
       }
     } else {
       dl_single <- data.frame(URL = pg_dl$url,
@@ -89,12 +95,12 @@ pg_dl_proc <- function(pg_doi){
 }
 
 # Function for performing a more thorough query of PANGAEA data by bbox
-pg_full_search <- function(bbox, ...){
+pg_full_search <- function(...){
   pg_res_all <- data.frame()
   # query_min_score <- 100
   query_offset <- 0
   while(query_offset < 10000){
-    pg_res_query <- pangaear::pg_search(bbox = bbox, count = 500, offset = query_offset, ...)
+    pg_res_query <- pangaear::pg_search(count = 500, offset = query_offset, ...)
     pg_res_all <- rbind(pg_res_all, pg_res_query)
     query_offset <- query_offset+500
     # query_min_score <- min(pg_EU_cruise_all$score)
@@ -103,7 +109,15 @@ pg_full_search <- function(bbox, ...){
     filter(!grepl("core", citation), !grepl("Core", citation), 
            !grepl("video", citation), !grepl("Video", citation), 
            !grepl("photograph", citation), !grepl("Photograph", citation), 
-           !grepl("image", citation), !grepl("Image", citation))
+           !grepl("image", citation), !grepl("Image", citation),
+           !grepl("station list", citation), !grepl("Station list", citation),
+           !grepl("master tracks", citation), !grepl("Master tracks", citation),
+           !grepl("aircraft", citation), !grepl("Aircraft", citation), 
+           !grepl("flight", citation), !grepl("Flight", citation), 
+           !grepl("airborne", citation), !grepl("Airborne", citation),
+           !grepl("soil ", citation), !grepl("Soil ", citation),
+           !grepl("metadata list", citation), !grepl("Metadata list", citation), 
+           !grepl("ACLOUD", citation), !grepl("land use", citation),)
   return(pg_res_all)
 }
 #
@@ -182,15 +196,15 @@ pg_full_search <- function(bbox, ...){
 # pg_Fischer <- pg_full_search(query = "Chierici", bbox = c(-60, 63, 60, 90))
 
 
-## EU Arctic cruise Oceans data on PANGAEA - 272 - Some issues
+## EU Arctic cruise Oceans data on PANGAEA - 270 - Some issues
 pg_EU_cruise_oceans <- pg_full_search(query = "cruise", topic = "Oceans", bbox = c(-60, 63, 60, 90)) 
 pg_doi_list <- distinct(data.frame(doi = pg_EU_cruise_oceans$doi))
 pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)
-pg_EU_cruise_oceans_clean <- pg_EU_cruise_oceans_dl %>%
-  filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+# pg_EU_cruise_oceans_clean <- pg_EU_cruise_oceans_dl %>%
+  # filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_oceans_clean)
 data.table::fwrite(pg_EU_cruise_oceans_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
-data.table::fwrite(pg_EU_cruise_oceans_clean, "pg_EU_data/pg_EU_cruise_Oceans.csv")
+data.table::fwrite(pg_EU_cruise_oceans_clean, "data/pg_data/pg_EU_cruise_Oceans.csv")
 rm(pg_EU_cruise_oceans_dl, pg_EU_cruise_oceans_clean); gc()
 
 
@@ -203,7 +217,7 @@ pg_EU_cruise_atmosphere_clean <- pg_EU_cruise_atmosphere_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_atmosphere_clean)
 data.table::fwrite(pg_EU_cruise_atmosphere_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Atmosphere.csv")
-data.table::fwrite(pg_EU_cruise_atmosphere_clean, "pg_EU_data/pg_EU_cruise_Atmosphere.csv")
+data.table::fwrite(pg_EU_cruise_atmosphere_clean, "data/pg_data/pg_EU_cruise_Atmosphere.csv")
 rm(pg_EU_cruise_atmosphere_dl, pg_EU_cruise_atmosphere_clean); gc()
 
 
@@ -217,11 +231,11 @@ pg_EU_cruise_cryosphere_clean <- pg_EU_cruise_cryosphere_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_cryosphere_clean)
 data.table::fwrite(pg_EU_cruise_cryosphere_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Cryosphere.csv")
-data.table::fwrite(pg_EU_cruise_cryosphere_clean, "pg_EU_data/pg_EU_cruise_Cryosphere.csv")
+data.table::fwrite(pg_EU_cruise_cryosphere_clean, "data/pg_data/pg_EU_cruise_Cryosphere.csv")
 rm(pg_EU_cruise_cryosphere_dl, pg_EU_cruise_cryosphere_clean); gc()
 
 
-## EU Arctic cruise Biological Classification data on PANGAEA - 259 - Some issues
+## EU Arctic cruise Biological Classification data on PANGAEA - 262 - Some issues
 pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological Classification", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_bio_class$doi)))
@@ -230,7 +244,7 @@ pg_EU_cruise_bio_class_clean <- pg_EU_cruise_bio_class_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_bio_class_clean)
 data.table::fwrite(pg_EU_cruise_bio_class_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Bio_class.csv")
-data.table::fwrite(pg_EU_cruise_bio_class_clean, "pg_EU_data/pg_EU_cruise_Bio_class.csv")
+data.table::fwrite(pg_EU_cruise_bio_class_clean, "data/pg_data/pg_EU_cruise_Bio_class.csv")
 rm(pg_EU_cruise_bio_class_dl, pg_EU_cruise_bio_class_clean); gc()
 
 
@@ -243,11 +257,11 @@ pg_EU_cruise_biosphere_clean <- pg_EU_cruise_biosphere_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_biosphere_clean)
 data.table::fwrite(pg_EU_cruise_biosphere_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Biosphere.csv")
-data.table::fwrite(pg_EU_cruise_biosphere_clean, "pg_EU_data/pg_EU_cruise_Biosphere.csv")
+data.table::fwrite(pg_EU_cruise_biosphere_clean, "data/pg_data/pg_EU_cruise_Biosphere.csv")
 rm(pg_EU_cruise_biosphere_dl, pg_EU_cruise_biosphere_clean); gc()
 
 
-## EU Arctic cruise Ecology data on PANGAEA - 934 - Some issues
+## EU Arctic cruise Ecology data on PANGAEA - 674 - Some issues
 ## NB: Takes ~19 minutes
 pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
@@ -262,7 +276,7 @@ pg_EU_cruise_ecology_clean <- pg_EU_cruise_ecology_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_ecology_clean)
 data.table::fwrite(pg_EU_cruise_ecology_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology.csv")
-data.table::fwrite(pg_EU_cruise_ecology_clean, "pg_EU_data/pg_EU_cruise_Ecology.csv")
+data.table::fwrite(pg_EU_cruise_ecology_clean, "data/pg_data/pg_EU_cruise_Ecology.csv")
 rm(pg_EU_cruise_ecology_dl, pg_EU_cruise_ecology_clean); gc()
 
 
@@ -271,7 +285,7 @@ pg_EU_cruise_human <- pg_full_search(query = "cruise", topic = "Human Dimensions
   filter(!doi %in% pg_doi_list$doi)
 
 
-## EU Arctic cruise Chemistry data on PANGAEA west - 3800 - Some issues
+## EU Arctic cruise Chemistry data on PANGAEA west - 3798 - Some issues
 ## MB ~16 minutes
 pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(-60, 63, 0, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
@@ -283,7 +297,7 @@ pg_EU_cruise_chemistry_west_clean <- pg_EU_cruise_chemistry_west_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_chemistry_west_clean)
 data.table::fwrite(pg_EU_cruise_chemistry_west_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_west.csv")
-data.table::fwrite(pg_EU_cruise_chemistry_west_clean, "pg_EU_data/pg_EU_cruise_Chemistry_west.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_west_clean, "data/pg_data/pg_EU_cruise_Chemistry_west.csv")
 rm(pg_EU_cruise_chemistry_west_dl, pg_EU_cruise_chemistry_west_clean); gc()
 
 
@@ -298,11 +312,11 @@ pg_EU_cruise_chemistry_east_clean <- pg_EU_cruise_chemistry_east_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_cruise_chemistry_east_clean)
 data.table::fwrite(pg_EU_cruise_chemistry_east_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_east.csv")
-data.table::fwrite(pg_EU_cruise_chemistry_east_clean, "pg_EU_data/pg_EU_cruise_Chemistry_east.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_east_clean, "data/pg_data/pg_EU_cruise_Chemistry_east.csv")
 rm(pg_EU_cruise_chemistry_east_dl, pg_EU_cruise_chemistry_east_clean); gc()
 
 
-## EU Arctic CTD data on PANGAEA - 933 - Some issues
+## EU Arctic CTD data on PANGAEA - 923 - Some issues
 ## NB: ~20 minutes
 pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
@@ -329,7 +343,7 @@ pg_EU_CTD_clean <- pg_EU_CTD_dl %>%
   filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 colnames(pg_EU_CTD_clean)
 write_csv(pg_EU_CTD_clean, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_CTD.csv")
-write_csv(pg_EU_CTD_clean, "pg_EU_data/pg_EU_CTD.csv")
+write_csv(pg_EU_CTD_clean, "data/pg_data/pg_EU_CTD.csv")
 rm(pg_EU_CTD_dl, pg_EU_CTD_clean); gc()
 
 # Load file
@@ -359,15 +373,15 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 # https://github.com/MikkoVihtakari/MarineDatabase
 
 ## All Kongsfjorden bbox data files - 3227
-pg_kong_bbox <- pg_full_search(query = "", bbox = c(11, 78.86, 12.69, 79.1)) %>% # 3243 files
+pg_kong_bbox <- pg_full_search(query = "", bbox = c(11, 78.86, 12.69, 79.1)) %>% # 2852 files
   filter(!doi %in% pg_doi_list$doi)
-pg_kong_name_1 <- pangaear::pg_search(query = "kongsfjord", count = 500) %>% # 8 files
+pg_kong_name_1 <- pg_full_search(query = "kongsfjord") %>% # 7 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi)
-pg_kong_name_2 <- pangaear::pg_search(query = "kongsfjorden", count = 500) %>% # 20 files
+pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") %>% # 13 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi)
-pg_kong_name_3 <- pg_full_search(query = "ny alesund", bbox = c(11, 78.86, 12.69, 79.1)) %>% # 0 files
+pg_kong_name_3 <- pg_full_search(query = "ny alesund") %>% # 11 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi, !doi %in% pg_kong_name_2$doi)
-pg_kong_name_4 <- pg_full_search(query = "ny-alesund", bbox = c(11, 78.86, 12.69, 79.1)) %>% # 0 files
+pg_kong_name_4 <- pg_full_search(query = "ny-alesund") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi, 
          !doi %in% pg_kong_name_2$doi, !doi %in% pg_kong_name_3$doi)
 pg_kong_all <- rbind(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4) %>% 
@@ -381,31 +395,22 @@ rm(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4)
 
 # Download files
 pg_kong_dl <- plyr::ldply(pg_kong_all$doi, pg_dl_proc)
+# table(pg_kong_dl$citation) # Investigate which files contribute the most size
 pg_kong_clean <- pg_kong_dl %>%
-  select(-contains(c("Lu_", "dN/dlogDp", "MeSO2-PCB ", "3-MeSO2-pp-DDE ", "Bryozoa",
+  select(-contains(c("dN/dlogDp", "MeSO2-PCB ", "3-MeSO2-pp-DDE ", "Bryozoa",
                      " cov ", " biom wm ", "AND ", "16b-OHT ", "6b-OHT ", "δ18O", "δ13C",
                      "Fatty alc ", "NOBS ", "Method comm ", "Particles ", "Flag",
                      "juveniles", "Description", "Species", "#/m", "ID ", "clays",
-                     "g/m", "[#]", " indet ", "Size algal disc ")))
+                     "g/m", " indet ", "Size algal disc ")))
                      # , "Perc ", "Particles ",
                      # "Size algal disc ", "Pogonophora", "Polychaeta", "Tunicata", 
                      # "Sipunculida", "Crustacea", "Tablets ", "Taxa", "Flag",
                      # "/TOC", "Turbellaria", "Tachidiidae", "Oligochaeta", "Harpacticoida",
-                     # "Oedicerotidae", "Persistent Identifier", "Data ", "Fossils"))) #%>%
-  # filter(Longitude >= 11, Longitude <= 12.69, Latitude >= 78.86, Latitude <= 79.1)
+                     # "Oedicerotidae", "Persistent Identifier", "Data ", "Fossils")))
 colnames(pg_kong_clean)
 data.table::fwrite(pg_kong_clean, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong.csv")
-data.table::fwrite(pg_kong_clean, "data/pg_kong_data/pg_kong.csv")
+data.table::fwrite(pg_kong_clean, "data/pg_data/pg_kong.csv")
 rm(pg_kong_dl, pg_kong_clean); gc()
-
-# NB: Most bathymetry files are just links to other files so aren't downloaded here
-# They can be searched for directly with the query "bathymetry"
-
-# Glacier length change and mass balance data
-# NB: This is an EU file
-pg_EU_World_Glacier <- plyr::ldply(pg_kong_all$doi[grepl("World Glacier", pg_kong_all$citation)], pg_dl_proc)
-write_csv(pg_EU_World_Glacier, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_World_Glacier.csv")
-write_csv(pg_EU_World_Glacier, "data/pg_EU_data/pg_EU_World_Glacier.csv")
 
 # Append DOI list
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_kong_all$doi)))
@@ -415,13 +420,13 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 # Isfjorden ---------------------------------------------------------------
 
 ## All Isfjorden data files - 350
-pg_is_bbox <- pg_full_search(query = "", bbox = c(13.62, 78.03, 17.14, 78.71)) %>% # 298 files
+pg_is_bbox <- pg_full_search(query = "", bbox = c(13.62, 78.03, 17.14, 78.71)) %>% # 171 files
   filter(!doi %in% pg_doi_list$doi)
-pg_is_name_1 <- pangaear::pg_search(query = "isfjord", count = 500) %>% # 10 files
+pg_is_name_1 <- pg_full_search(query = "isfjord") %>% # 10 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi)
-pg_is_name_2 <- pangaear::pg_search(query = "isfjorden", count = 500) %>% # 2 files
+pg_is_name_2 <- pg_full_search(query = "isfjorden") %>% # 2 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi, !doi %in% pg_is_name_1$doi)
-pg_is_name_3 <- pangaear::pg_search(query = "longyearbyen", count = 500) %>% # 369 files
+pg_is_name_3 <- pg_full_search(query = "longyearbyen") %>% # 369 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi, !doi %in% pg_is_name_1$doi, !doi %in% pg_is_name_2$doi)
 pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3) %>% 
   filter(!grepl("core", citation), !grepl("Core", citation), 
@@ -441,7 +446,7 @@ pg_is_clean <- pg_is_dl %>%
                      "#/m", "#/10", "Sum [%]", "Method comm ")))
 colnames(pg_is_clean)
 data.table::fwrite(pg_is_clean, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is.csv")
-data.table::fwrite(pg_is_clean, "data/pg_is_data/pg_is.csv")
+data.table::fwrite(pg_is_clean, "data/pg_data/pg_is.csv")
 rm(pg_is_dl, pg_is_clean); gc()
 
 # Update DOI list with Isfjorden
@@ -454,8 +459,8 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 ## All Inglefieldbukta data files - 15
 pg_ingle_bbox <- pg_full_search(query = "", bbox = c(18.15, 77.87, 18.79, 78.05)) %>% # 15 files
   filter(!doi %in% pg_doi_list$doi)
-pg_ingle_name_1 <- pangaear::pg_search(query = "inglefieldbukta", count = 500) # 0 files
-pg_ingle_all <- rbind(pg_ingle_bbox, pg_ingle_name_1) %>% 
+# pg_ingle_name_1 <- pg_full_search(query = "inglefieldbukta") # 0 files
+pg_ingle_all <- rbind(pg_ingle_bbox) %>% 
   filter(!grepl("core", citation), !grepl("Core", citation), 
          !grepl("video", citation), !grepl("Video", citation), 
          !grepl("photograph", citation), !grepl("Photograph", citation), 
@@ -470,7 +475,7 @@ pg_ingle_clean <- pg_ingle_dl %>%
   select(-contains(c("N subset ", "OH-PCB ")))
 colnames(pg_ingle_clean)
 data.table::fwrite(pg_ingle_clean, "~/pCloudDrive/FACE-IT_data/inglefieldbukta/pg_ingle.csv")
-data.table::fwrite(pg_ingle_clean, "data/pg_ingle_data/pg_ingle.csv")
+data.table::fwrite(pg_ingle_clean, "data/pg_data/pg_ingle.csv")
 rm(pg_ingle_dl, pg_ingle_clean); gc()
 
 # Update DOI list with Inglefieldbukta
@@ -497,7 +502,7 @@ pg_sval_all <- pangaear::pg_search(query = "svalbard", count = 500, bbox = c(9, 
 ## All Young Sound data files - 209
 pg_young_bbox <- pg_full_search(query = "", bbox = c(-22.367917, 74.210137, -19.907644, 74.624304)) %>% # 206 files
   filter(!doi %in% pg_doi_list$doi)
-pg_young_name_1 <- pangaear::pg_search(query = "zackenberg", count = 500) %>% # 5 files
+pg_young_name_1 <- pg_full_search(query = "zackenberg") %>% # 5 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_young_bbox$doi)
 pg_young_all <- rbind(pg_young_bbox, pg_young_name_1) %>% 
   filter(!grepl("core", citation), !grepl("Core", citation), 
@@ -513,52 +518,47 @@ rm(pg_young_bbox, pg_young_name_1); gc()
 # Download files
 pg_young_dl <- plyr::ldply(pg_young_all$doi, pg_dl_proc)
 pg_young_clean <- pg_young_dl %>%
-  select(-contains(c("Cibicides sp", "Tephra/", "LCC ", "#/g", "Qual level", 
-                     "stomach cont", "/TOC", "monoceros", "Atomic ab", "residue",
-                     "leached", "ICP-MS", "Flameless", "Error a", "δ18O")))
+  select(-contains(c("Tephra/", "LCC ", "Coeff ","ICP-MS")))
 colnames(pg_young_clean)
 data.table::fwrite(pg_young_clean, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young.csv")
-data.table::fwrite(pg_young_clean, "data/pg_young_data/pg_young.csv")
+data.table::fwrite(pg_young_clean, "data/pg_data/pg_young.csv")
 rm(pg_young_dl, pg_young_clean); gc()
 
-# Update DOI list with Isfjorden
+# Update DOI list with Young Sound
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_young_all$doi)))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 
 # Disko Bay ---------------------------------------------------------------
 
-## All Disko Bay data files - 294
-pg_disko_bbox <- pg_full_search(query = "", bbox = c(-55.56, 68.22, -49.55, 70.5)) %>% # 282 files
+## All Disko Bay data files - 255
+pg_disko_bbox <- pg_full_search(query = "", bbox = c(-55.56, 68.22, -49.55, 70.5)) %>% # 243 files
   filter(!doi %in% pg_doi_list$doi)
-pg_disko_name_1 <- pangaear::pg_search(query = "Qeqertarsuup", count = 500) %>% # 0 files
+pg_disko_name_1 <- pg_full_search(query = "Qeqertarsuup") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi)
-pg_disko_name_2 <- pangaear::pg_search(query = "disko bay", count = 500) %>% # 27 files
+pg_disko_name_2 <- pg_full_search(query = "disko bay") %>% # 12 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi)
-pg_disko_name_3 <- pangaear::pg_search(query = "disko_bay", count = 500) %>% # 0 files
+pg_disko_name_3 <- pg_full_search(query = "disko_bay") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi, !doi %in% pg_disko_name_2$doi)
 pg_disko_all <- rbind(pg_disko_bbox, pg_disko_name_1, pg_disko_name_2, pg_disko_name_3) %>% 
-  filter(!grepl("core", citation), !grepl("Core", citation), 
-         !grepl("video", citation), !grepl("Video", citation), 
-         !grepl("photograph", citation), !grepl("Photograph", citation), 
-         !grepl("image", citation), !grepl("Image", citation)) %>% 
   arrange(citation) %>% 
+  filter(!grepl("sea level", citation),
+         !doi %in% c("10.1594/PANGAEA.770250", # These two files are too massive
+                     "10.1594/PANGAEA.770249")) %>% #,
+                     # "10.1594/PANGAEA.847501", # These two have broken date columns that can't be reconciled
+                     # "10.1594/PANGAEA.905012")) %>% 
   distinct()
 rm(pg_disko_bbox, pg_disko_name_1, pg_disko_name_2, pg_disko_name_3); gc()
 
 # Download files
 pg_disko_dl <- plyr::ldply(pg_disko_all$doi, pg_dl_proc)
+# table(pg_disko_dl$citation) # Investigate which files contribute the most size
 pg_disko_clean <- pg_disko_dl %>%
-  select(-contains(c("N subset ", "M. monoceros", "Instrumental neutron", 
-                     "phytopl biom", "Grazing imp", "iso GDGT ", "# of ions", "LCC ",
-                     "Bilirubin", "Liver m", "[#]", "[%]", "[‰ PDB]", "[mm]", "[mg/m**3]",
-                     "[#/m**3]", "CI (upper", "Coeff (")))
+  select(-contains(c("N subset ", "[#/m**3]", "Coeff (", "Grazing imp")))
 colnames(pg_disko_clean)
 data.table::fwrite(pg_disko_clean, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko.csv")
-data.table::fwrite(pg_disko_clean, "data/pg_disko_data/pg_disko.csv")
+data.table::fwrite(pg_disko_clean, "data/pg_data/pg_disko.csv")
 rm(pg_disko_dl, pg_disko_clean); gc()
-
-colnames(pg_disko_dl)[grep("N[.] ", colnames(pg_disko_dl))]
 
 # Update DOI list with Disko Bay
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_disko_all$doi)))
@@ -567,42 +567,32 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 # Nuup Kangerlua ----------------------------------------------------------
 
-## All Nuup Kangerlua data files - 38
-pg_nuup_all_short <- pangaear::pg_search(query = "kangerlua", count = 500,
-                                         bbox = c(-53.32, 64.01, -48.93, 64.8))# %>% 
-  # filter(!doi %in% pg_doi_list$doi)
-pg_nuup_all <- pangaear::pg_search(query = "nuuk", count = 500,
-                                   bbox = c(-53.32, 64.01, -48.93, 64.8)) %>% 
-  filter(!doi %in% pg_doi_list$doi) %>% arrange(citation)
-
-pg_disko_bbox <- pg_full_search(query = "", bbox = c(-55.56, 68.22, -49.55, 70.5)) %>% # 282 files
+## All Nuup Kangerlua data files - 232
+pg_nuup_bbox <- pg_full_search(query = "", bbox = c(-53.32, 64.01, -48.93, 64.8)) %>% # 158 files
   filter(!doi %in% pg_doi_list$doi)
-pg_disko_name_1 <- pangaear::pg_search(query = "Qeqertarsuup", count = 500) %>% # 0 files
-  filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi)
-pg_disko_name_2 <- pangaear::pg_search(query = "disko bay", count = 500) %>% # 27 files
-  filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi)
-pg_disko_name_3 <- pangaear::pg_search(query = "disko_bay", count = 500) %>% # 0 files
-  filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi, !doi %in% pg_disko_name_2$doi)
-pg_disko_all <- rbind(pg_disko_bbox, pg_disko_name_1, pg_disko_name_2, pg_disko_name_3) %>% 
+pg_nuup_name_1 <- pangaear::pg_search(query = "kangerlua", count = 500) # 0 files
+pg_nuup_name_2 <- pangaear::pg_search(query = "nuuk", count = 500) %>% # 149 files
+  filter(!doi %in% pg_doi_list$doi, !doi %in% pg_nuup_bbox$doi)
+pg_nuup_all <- rbind(pg_nuup_bbox, pg_nuup_name_1, pg_nuup_name_2) %>% 
   filter(!grepl("core", citation), !grepl("Core", citation), 
          !grepl("video", citation), !grepl("Video", citation), 
          !grepl("photograph", citation), !grepl("Photograph", citation), 
          !grepl("image", citation), !grepl("Image", citation)) %>% 
   arrange(citation) %>% 
   distinct()
-rm(pg_disko_bbox, pg_disko_name_1, pg_disko_name_2, pg_disko_name_3); gc()
+rm(pg_nuup_bbox, pg_nuup_name_1, pg_nuup_name_2); gc()
 
 # Download files
-pg_disko_dl <- plyr::ldply(pg_disko_all$doi, pg_dl_proc)
-pg_disko_clean <- pg_disko_dl %>%
-  select(-contains(c("Lu_", "fec pel", "EF ", "LCC ", "Biomass live", "‰ PDB",
-                     "Bq/kg", "X-ray fluor", "ng/m", "Isotope ratio", "/Al",
-                     "Instrumental neutron", "Flameless atomic")))
-colnames(pg_disko_clean)
-data.table::fwrite(pg_disko_clean, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko.csv")
-data.table::fwrite(pg_disko_clean, "data/pg_disko_data/pg_disko.csv")
-rm(pg_disko_dl, pg_disko_clean); gc()
-
+pg_nuup_dl <- plyr::ldply(pg_nuup_all$doi, pg_dl_proc)
+pg_nuup_clean <- pg_nuup_dl %>%
+  select(-contains(c("Grain size", "Atterberg", "Missing ", 
+                     "Diat spec", "Diatoms", "Isotope", "X-ray flu",
+                     "Age date", "Age unc", "Age max", "Age min",
+                     "Hiatus ", "umbilical", "spiral", "Persistent Identifier")))
+colnames(pg_nuup_clean)
+data.table::fwrite(pg_nuup_clean, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup.csv")
+data.table::fwrite(pg_nuup_clean, "data/pg_data/pg_nuup.csv")
+rm(pg_nuup_dl, pg_nuup_clean); gc()
 
 # Update DOI list with Nuup Kangerlua
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_nuup_all$doi)))
@@ -611,8 +601,8 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 # Porsangerfjorden --------------------------------------------------------
 
-## All Porsangerfjorden data files - 169
-pg_por_bbox <- pg_full_search(query = "", bbox = c(24.5, 70, 27, 71.2)) %>% # 169 files
+## All Porsangerfjorden data files - 104
+pg_por_bbox <- pg_full_search(query = "", bbox = c(24.5, 70, 27, 71.2)) %>% # 104 files
   filter(!doi %in% pg_doi_list$doi)
 pg_por_name_1 <- pangaear::pg_search(query = "Porsangerfjord", count = 500) %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_por_bbox$doi)
@@ -625,10 +615,6 @@ pg_por_all <- rbind(pg_por_bbox, pg_por_name_1) %>%
   distinct()
 rm(pg_por_bbox, pg_por_name_1); gc()
 
-# Update DOI list with Isfjorden
-pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_por_all$doi)))
-write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
-
 # Download files
 pg_por_dl <- plyr::ldply(pg_por_all$doi, pg_dl_proc)
 pg_por_clean <- pg_por_dl %>%
@@ -637,6 +623,10 @@ pg_por_clean <- pg_por_dl %>%
                      "Instrumental neutron", "Flameless atomic")))
 colnames(pg_por_clean)
 data.table::fwrite(pg_por_clean, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por.csv")
-data.table::fwrite(pg_por_clean, "data/pg_por_data/pg_por.csv")
+data.table::fwrite(pg_por_clean, "data/pg_data/pg_por.csv")
 rm(pg_por_dl, pg_por_clean); gc()
+
+# Update DOI list with Porsangerfjord
+pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_por_all$doi)))
+write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
