@@ -4,7 +4,6 @@
 
 # Setup -------------------------------------------------------------------
 
-# TODO: More aggressively filter by citation keywords up front. Make this part of a single central query function.
 # TODO: Add a date of collection column
 # TODO: Add a marine or terrestrial column for users to be able to select one as they prefer
 
@@ -36,23 +35,18 @@ pg_dl_prep <- function(pg_dl){
                                  "wind", "speed", "direction",  "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Ara", 
                                  "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "AT", "TA", "Chl a", "Chl b"))) %>% 
         # Don't filter "[#]" or "[%]" as these may be used with ice data
-        dplyr::select(-contains(c("Rock", "feldspar", "Grain size", "Cluster", "File ", "URL ", "std dev", "Device", "Binary", "taxa",
-                                  "phenotype", "Part conc ", "Part vol frac ", "Part conc frac ", "Lu_",
-                                  "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", 
-                                  "J. ", "K. ", "L. ", "M. ", "N. ", "O. ", "P. ", "Q. ", "R. ", 
-                                  "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. ",
-                                  # "A[.] ", "B[.] ", "C[.] ", "D[.] ", "E[.] ", "F[.] ", "G[.] ", "H[.] ", "I[.] ", 
-                                  # "J[.] ", "K[.] ", "L[.] ", "M[.] ", "N[.] ", "O[.] ", "P[.] ", "Q[.] ", "R[.] ", 
-                                  # "S[.] ", "T[.] ", "U[.] ", "V[.] ", "W[.] ", "X[.] ", "Y[.] ", "Z[.] ",
-                                  "Zn ", "Cu ", "Ni ", "Cd ", "As ", "Pb ", "Cr ", "Th ", "Mn ", "Co ", "Zr ", "Sr ", 
-                                  "Ba ", "K ", "Na ", "Ti ", "Fe ", "Mg ", "No ", "Al ",
+        dplyr::select(-contains(c("Rock", "feldspar", "Grain size", "Cluster", "File ", "URL ", "std dev", "Device", 
+                                  "Binary", "taxa", "phenotype", "Part conc ", "Part vol frac ", "Part conc frac ",
                                   "Comment", "residue", "Stage", "Sample", "Country", "Province", "Station", "Event",
                                   "Persistent Identifier"))) %>% 
+        dplyr::select(-starts_with(c("Lu_", "Zn ", "Cu ", "Ni ", "Cd ", "As ", "Pb ", "Cr ", "Th ", "Mn ", 
+                                     "Co ", "Zr ", "Sr ", "Ba ", "K ", "Na ", "Ti ", "Fe ", "Mg ", "No ", "Al ",
+                                     "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", "J. ", "K. ", "L. ", "M. ",
+                                     "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. "))) %>% 
         janitor::remove_empty(which = c("rows", "cols")) %>% 
         mutate(URL = pg_dl$url,
                # parent_doi = pg_dl$parent_doi,
-               citation = pg_dl$citation) %>% 
-        dplyr::select(URL, citation, everything())
+               citation = pg_dl$citation)
       # Filter out 
       if("Longitude" %in% colnames(dl_single)){
         dl_single <- dl_single %>% 
@@ -74,6 +68,9 @@ pg_dl_prep <- function(pg_dl){
                             # parent_doi = pg_dl$parent_doi,
                             citation = pg_dl$citation)
   }
+  dl_single <- dl_single %>% 
+    mutate(date_accessed  = Sys.Date()) %>% 
+    dplyr::select(date_accessed, URL, citation, everything())
   return(dl_single)
 }
 
@@ -123,6 +120,9 @@ pg_full_search <- function(...){
 #
 
 # Key drivers -------------------------------------------------------------
+
+# Load PANGAEA driver metadata sheet
+pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
 
 ## Cryosphere
 # Coastal ice (ice)
@@ -194,6 +194,11 @@ pg_full_search <- function(...){
 # pg_Fransson <- pg_full_search(query = "Fransson", bbox = c(-60, 63, 60, 90))
 # pg_Chierici <- pg_full_search(query = "Chierici", bbox = c(-60, 63, 60, 90))
 # pg_Fischer <- pg_full_search(query = "Chierici", bbox = c(-60, 63, 60, 90))
+
+
+# Test specific files
+pg_test_1 <- pg_data(doi = "10.1594/PANGAEA.868371")[[1]]$data
+pg_test_2 <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.868371")
 
 
 ## EU Arctic cruise Oceans data on PANGAEA - 270 - Some issues
