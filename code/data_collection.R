@@ -4,8 +4,8 @@
 
 # Setup -------------------------------------------------------------------
 
-# TODO: Add a date of collection column
 # TODO: Add a marine or terrestrial column for users to be able to select one as they prefer
+# This may be problematic when dealing with very high-res coastal data
 
 # Libraries used in this script
 library(tidyverse)
@@ -17,120 +17,48 @@ pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, fu
 pg_files <- pg_files[grepl(".csv", pg_files)]
 pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
-# Function for printing PANGAEA meta-data
-pg_meta_print <- function(pg_doi){
-  pg_test <- pangaear::pg_data(pg_doi)
-}
-
-# Function for extracting info from PANGAEA data
-pg_dl_prep <- function(pg_dl){
-  # Extract data.frame and attach URL + citation
-  if(is.data.frame(pg_dl$data)){
-    if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
-      dl_single <- pg_dl$data %>% 
-        dplyr::select(contains(c("date", "longitude", "latitude", "depth", "bathy", "press", "density", "elev",  
-                                 "temp", "°C", "sst", "sal", "O2", "DO", "ice", "snow", "turb", "PAR", "current", "vel", "u", "v", 
-                                 "direction", "vol", "evap", "precip", "e-p", "p-e", "Q", "flux", "latent", "sensible", "longwave", 
-                                 "shortwave", "radiation", "kd", "mixed", "MLD", "river", "discharge", "slp", "sedim", "som", "sim",
-                                 "wind", "speed", "direction",  "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Ara", 
-                                 "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "AT", "TA", "Chl a", "Chl b"))) %>% 
-        # Don't filter "[#]" or "[%]" as these may be used with ice data
-        dplyr::select(-contains(c("Rock", "feldspar", "Grain size", "Cluster", "File ", "URL ", "std dev", "Device", 
-                                  "Binary", "taxa", "phenotype", "Part conc ", "Part vol frac ", "Part conc frac ",
-                                  "Comment", "residue", "Stage", "Sample", "Country", "Province", "Station", "Event",
-                                  "Persistent Identifier"))) %>% 
-        dplyr::select(-starts_with(c("Lu_", "Zn ", "Cu ", "Ni ", "Cd ", "As ", "Pb ", "Cr ", "Th ", "Mn ", 
-                                     "Co ", "Zr ", "Sr ", "Ba ", "K ", "Na ", "Ti ", "Fe ", "Mg ", "No ", "Al ",
-                                     "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", "J. ", "K. ", "L. ", "M. ",
-                                     "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. "))) %>% 
-        janitor::remove_empty(which = c("rows", "cols")) %>% 
-        mutate(URL = pg_dl$url,
-               # parent_doi = pg_dl$parent_doi,
-               citation = pg_dl$citation)
-      # Filter out 
-      if("Longitude" %in% colnames(dl_single)){
-        dl_single <- dl_single %>% 
-          filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-      }
-      # Check for any useful columns
-      if(all(colnames(dl_single) %in% c("URL", "citation", "Longitude", "Latitude", "Date/Time"))){
-        dl_single <- data.frame(URL = pg_dl$url,
-                                # parent_doi = pg_dl$parent_doi,
-                                citation = pg_dl$citation)
-      }
-    } else {
-      dl_single <- data.frame(URL = pg_dl$url,
-                              # parent_doi = pg_dl$parent_doi,
-                              citation = pg_dl$citation)
-    }
-  } else {
-    dl_single <- data.frame(URL = pg_dl$url,
-                            # parent_doi = pg_dl$parent_doi,
-                            citation = pg_dl$citation)
-  }
-  dl_single <- dl_single %>% 
-    mutate(date_accessed  = Sys.Date()) %>% 
-    dplyr::select(date_accessed, URL, citation, everything())
-  return(dl_single)
-}
-
-# Function for downloading and processing PANGAEA data for merging
-pg_dl_proc <- function(pg_doi){
-  # Get data
-  dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) NA)
-  
-  # Extract data from multiple lists as necessary
-  if(!is.na(dl_dat)){
-    dl_df <- plyr::ldply(dl_dat, pg_dl_prep) #%>% 
-      # dplyr::select(URL, parent_doi, citation, everything())
-  } else {
-    dl_df <- NULL
-  }
-  
-  # Exit
-  return(dl_df)
-}
-
-# Function for performing a more thorough query of PANGAEA data by bbox
-pg_full_search <- function(...){
-  pg_res_all <- data.frame()
-  # query_min_score <- 100
-  query_offset <- 0
-  while(query_offset < 10000){
-    pg_res_query <- pangaear::pg_search(count = 500, offset = query_offset, ...)
-    pg_res_all <- rbind(pg_res_all, pg_res_query)
-    query_offset <- query_offset+500
-    # query_min_score <- min(pg_EU_cruise_all$score)
-  }
-  pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
-    filter(!grepl("core", citation), !grepl("Core", citation), 
-           !grepl("video", citation), !grepl("Video", citation), 
-           !grepl("photograph", citation), !grepl("Photograph", citation), 
-           !grepl("image", citation), !grepl("Image", citation),
-           !grepl("station list", citation), !grepl("Station list", citation),
-           !grepl("master tracks", citation), !grepl("Master tracks", citation),
-           !grepl("aircraft", citation), !grepl("Aircraft", citation), 
-           !grepl("flight", citation), !grepl("Flight", citation), 
-           !grepl("airborne", citation), !grepl("Airborne", citation),
-           !grepl("soil ", citation), !grepl("Soil ", citation),
-           !grepl("metadata list", citation), !grepl("Metadata list", citation), 
-           !grepl("ACLOUD", citation), !grepl("land use", citation),)
-  return(pg_res_all)
-}
-#
 
 # Key drivers -------------------------------------------------------------
 
 # Load PANGAEA driver metadata sheet
 pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
 
+# Aids for better filtering
+sp_abb_one <- paste0(c(paste0(LETTERS,"[.] "), "sp[.]", "spp[.]"), collapse = "|")
+sp_abb_sep <- paste0(LETTERS,". ")
+
+## Longitude
+
+## Latitude
+
+## Date/Time
+
+## Depth
+
 ## Cryosphere
-# Coastal ice (ice)
-# Fast ice (ice)
-# Glacier (glacier)
-# Permafrost (permafrost)
-# Sea ice (ice)
-# Snow cover (snow)
+# Coastal ice
+# Fast ice
+# Glacier
+# Permafrost
+# Sea ice
+# Snow cover
+query_ice <- pg_parameters %>% 
+  filter(grepl("ice", Parameter, ignore.case = T),
+         !grepl(sp_abb_one, Abbreviation),
+         !grepl("abies|aegiceras|aminicenantes|avicenni|biosiliceous|bryozoa|calcite|cf[.]|Chvaleticeite|
+                |cicendia|cicer|cichoriceae|cribricellina|Cricetidae|Cunoniceae|Cymatiosphaera|Daphne|Dehydroi|
+                |device|Diatoms|Digalac|foraminifera|Galact|Griceite|Hepaticeae|lattice|laonice|leontice|
+                |Lonicera|Macellice|methyl|Monticellite|Oedicerotidae|Ovicell|Paniceae|Picea|Pluricell|
+                |Pseudotrice|Pumice|price|quartz|Radicel|Sabicea|Scolecith|Siliceous|Stauroneis|statice|
+                |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova", 
+                Parameter, ignore.case = T))
+query_glacier <- pg_parameters %>% 
+  filter(grepl("glacier", Parameter, ignore.case = T))
+query_snow <- pg_parameters %>% 
+  filter(grepl("snow", Parameter, ignore.case = T))
+query_permafrost <- pg_parameters %>% 
+  filter(grepl("perm", Parameter, ignore.case = T))
+query_Cryosphere <- rbind(query_ice, query_glacier, query_snow, query_permafrost)
 
 ## Physical
 # Bathymetry (bathy)
@@ -173,6 +101,107 @@ pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
 # National statistics: demography, income, unemployment
 # Tourist arrivals: per month, nationality
 # Tourist vessels: count, mileage
+
+
+# Functions ---------------------------------------------------------------
+
+# Function for printing PANGAEA meta-data
+pg_meta_print <- function(pg_doi){
+  pg_test <- pangaear::pg_data(pg_doi)
+}
+
+# Function for extracting info from PANGAEA data
+pg_dl_prep <- function(pg_dl){
+  # Extract data.frame and attach URL + citation
+  if(is.data.frame(pg_dl$data)){
+    if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
+      dl_single <- pg_dl$data %>% 
+        dplyr::select(contains(c("date", "longitude", "latitude", "depth", "bathy", "press", "density", "elev",  
+                                 "temp", "°C", "sst", "sal", "O2", "DO", "ice", "snow", "turb", "PAR", "current", "vel", "u", "v", 
+                                 "direction", "vol", "evap", "precip", "e-p", "p-e", "Q", "flux", "latent", "sensible", "longwave", 
+                                 "shortwave", "radiation", "kd", "mixed", "MLD", "river", "discharge", "slp", "sedim", "som", "sim",
+                                 "wind", "speed", "direction",  "DIC", "DOC", "DON", "pH", "pCO2", "CaCO3", "Arg", "Ara", 
+                                 "Cal", "NO3", "NO2", "NH3", "PO4", "Si", "AT", "TA", "Chl a", "Chl b"))) %>% 
+        # Don't filter "[#]" or "[%]" as these may be used with ice data
+        dplyr::select(-contains(c("Rock", "feldspar", "Grain size", "Cluster", "File ", "URL ", "std dev", "Device", 
+                                  "Binary", "taxa", "phenotype", "Part conc ", "Part vol frac ", "Part conc frac ",
+                                  "Comment", "residue", "Stage", "Sample", "Country", "Province", "Station", "Event",
+                                  "Persistent Identifier"))) %>% 
+        dplyr::select(-starts_with(c("Lu_", "Zn ", "Cu ", "Ni ", "Cd ", "As ", "Pb ", "Cr ", "Th ", "Mn ", 
+                                     "Co ", "Zr ", "Sr ", "Ba ", "K ", "Na ", "Ti ", "Fe ", "Mg ", "No ", "Al ",
+                                     "A. ", "B. ", "C. ", "D. ", "E. ", "F. ", "G. ", "H. ", "I. ", "J. ", "K. ", "L. ", "M. ",
+                                     "N. ", "O. ", "P. ", "Q. ", "R. ", "S. ", "T. ", "U. ", "V. ", "W. ", "X. ", "Y. ", "Z. "))) %>% 
+        janitor::remove_empty(which = c("rows", "cols")) %>% 
+        mutate(URL = pg_dl$url,
+               citation = pg_dl$citation)
+      # Filter out 
+      if("Longitude" %in% colnames(dl_single)){
+        dl_single <- dl_single %>% 
+          filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+      }
+      # Check for any useful columns
+      if(all(colnames(dl_single) %in% c("URL", "citation", "Longitude", "Latitude", "Date/Time"))){
+        dl_single <- data.frame(URL = pg_dl$url,
+                                citation = pg_dl$citation)
+      }
+    } else {
+      dl_single <- data.frame(URL = pg_dl$url,
+                              citation = pg_dl$citation)
+    }
+  } else {
+    dl_single <- data.frame(URL = pg_dl$url,
+                            citation = pg_dl$citation)
+  }
+  # Finish up and exit
+  dl_single <- dl_single %>% 
+    mutate(date_accessed  = Sys.Date()) %>% 
+    dplyr::select(date_accessed, URL, citation, everything())
+  return(dl_single)
+}
+
+# Function for downloading and processing PANGAEA data for merging
+pg_dl_proc <- function(pg_doi){
+  # Get data
+  dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) NA)
+  
+  # Extract data from multiple lists as necessary
+  if(!is.na(dl_dat)){
+    dl_df <- plyr::ldply(dl_dat, pg_dl_prep) #%>% 
+      # dplyr::select(URL, parent_doi, citation, everything())
+  } else {
+    dl_df <- NULL
+  }
+  
+  # Exit
+  return(dl_df)
+}
+
+# Function for performing a more thorough query of PANGAEA data by bbox
+pg_full_search <- function(...){
+  pg_res_all <- data.frame()
+  # query_min_score <- 100
+  query_offset <- 0
+  while(query_offset < 10000){
+    pg_res_query <- pangaear::pg_search(count = 500, offset = query_offset, ...)
+    pg_res_all <- rbind(pg_res_all, pg_res_query)
+    query_offset <- query_offset+500
+    # query_min_score <- min(pg_EU_cruise_all$score)
+  }
+  pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
+    filter(!grepl("video", citation, ignore.case = T),
+           !grepl("photograph", citation, ignore.case = T),
+           !grepl("image", citation, ignore.case = T),
+           !grepl("station list", citation, ignore.case = T),
+           !grepl("master tracks", citation, ignore.case = T),
+           !grepl("aircraft", citation, ignore.case = T),
+           !grepl("flight", citation, ignore.case = T),
+           !grepl("airborne", citation, ignore.case = T),
+           !grepl("soil ", citation, ignore.case = T),
+           !grepl("metadata list", citation, ignore.case = T),
+           !grepl("ACLOUD", citation), 
+           !grepl("land use", citation, ignore.case = T),)
+  return(pg_res_all)
+}
 
 
 # European Arctic ---------------------------------------------------------

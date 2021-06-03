@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+metadata/pangaea_parameters.tab
 data/GLODAP_Arctic_carb_chem.csv
 data/pg_data/
