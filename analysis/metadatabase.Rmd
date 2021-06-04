@@ -82,6 +82,8 @@ This section contains meta-data for pan-Arctic data files. These are almost excl
 <!-- ##### Meta-data {-} -->
 
 ```{r EU-arctic-meta-data}
+# GLODAP data
+
 # Bathymetry data
 EU_GEBCO <- data.frame(type = "",
                        data_name = "Bathymetry",
@@ -748,15 +750,15 @@ DT::datatable(metadata_disko_bay, rownames = FALSE, escape = FALSE, colnames = D
 ```{r nuup-meta-data}
 # Air pCO2 data
 nuup_air_pCO2 <- data.frame(type = "CTD",
-                             data_name = "pCO2 (air)",
-                             date_range = "2006 to 2016",
-                             lon_range = "-20.57",
-                             lat_range = "74.47",
-                             depth_range = NA,
-                             file_name = '<a onclick="alert(\'Zackenberg_Data_Water_column_CTD_measurements.csv\');"1 file</a>',
-                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
-                             reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75.\');">GEM</a>',
-                              note = NA)
+                            data_name = "pCO2 (air)",
+                            date_range = "2006 to 2016",
+                            lon_range = "-20.57",
+                            lat_range = "74.47",
+                            depth_range = NA,
+                            file_name = '<a onclick="alert(\'Zackenberg_Data_Water_column_CTD_measurements.csv\');"1 file</a>',
+                            URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
+                            reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75.\');">GEM</a>',
+                            note = NA)
 
 
 # Bind them together
