@@ -1,4 +1,4 @@
-# functions.R
+# code/functions.R
 # This script houses functions and other preparatory things used throughout the project
 
 
