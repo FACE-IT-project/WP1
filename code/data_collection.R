@@ -53,7 +53,9 @@ query_ice <- pg_parameters %>%
                 |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova", 
                 Parameter, ignore.case = T))
 query_glacier <- pg_parameters %>% 
-  filter(grepl("glacier", Parameter, ignore.case = T))
+  filter(grepl("glacier|glacial", Parameter, ignore.case = T),
+         !grepl(sp_abb_one, Abbreviation),
+         !grepl("Foraminifera|glacialis", Parameter, ignore.case = T))
 query_snow <- pg_parameters %>% 
   filter(grepl("snow", Parameter, ignore.case = T))
 query_permafrost <- pg_parameters %>% 
