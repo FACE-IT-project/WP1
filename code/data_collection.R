@@ -43,16 +43,15 @@ query_params <- function(yes_words, no_words = NA, no_units = NA, yes_case = T){
   return(res)
 }
 
-## Longitude
+
+## Metadata variables
+# Longitude
 query_longitude <- query_params("longitude")
-
-## Latitude
+# Latitude
 query_latitude <- query_params("latitude")
-
-## Date/Time
+# Date/Time
 query_date <- query_params("date", "age|consolidated|birth|death|germination|iodate|cordate|MATLAB")
-
-## Depth
+# Depth
 query_depth <- query_params("depth|bathymetry|pressure|density|elevation",
                             "Acarina|active layer|algae|Aerosol|Amphipoda|Appendicularia|areal|
                             |Argon|living|Balanidae|Bankful|Bivalvia|body|bone|Bosmina|Bryozoa|
@@ -72,6 +71,10 @@ query_depth <- query_params("depth|bathymetry|pressure|density|elevation",
                             |mixed layer|mixing|crack|Curie|absorption|Rotatoria|Rotifera|Sclerite|composite|
                             |Stomatal|Symbiodinium|Synchaeta|Thaliacea|Thecosomata|Thorium|Time at|Tissue|Trochophora",
                             "hPa|kPa|MPa|arbitrary|#|µm|g/cm|±|A/m|dB|1/mm")
+# Combined
+query_Meta <- rbind(query_longitude, query_latitude, query_date, query_depth)
+rm(query_longitude, query_latitude, query_date, query_depth); gc()
+
 
 ## Cryosphere
 # Coastal ice
@@ -92,6 +95,8 @@ query_snow <- query_params("snow")
 query_permafrost <- query_params("permafrost")
 # Combined
 query_Cryosphere <- rbind(query_ice, query_glacier, query_snow, query_permafrost)
+rm(query_ice, query_glacier, query_snow, query_permafrost); gc()
+
 
 ## Physical
 # Bathymetry (bathy) - see depth query
@@ -122,27 +127,27 @@ query_river <- query_params("river|discharge", "Diatoms|smoke|glacier|Dust|pixel
 # Salinity (sal, psu)
 query_salinity <- query_params("salinity", "Diatoms|Dinoflagellate|Radium|Snow|Treatment", "±")
 # Sea level pressure (slp)
-query_slp <- query_params("pressure", 
-                          "Argon|Blood|Cell|partial pressure|Fouling|laboratory|experiment|Vapour|velocity|Sound", 
-                          "±|dbar")
+query_slp <- query_params("pressure", no_units = "±|dbar",
+                          "Argon|Blood|Cell|partial pressure|Fouling|laboratory|experiment|Vapour|velocity|Sound")
 # Sedimentation rate (sedim)
 query_sedimentation <- query_params("sedimentation") 
 # Suspended matter: organic, mineral (pom, pim, som, spm)
 # NB: This one is questionable. I decided to keep most parameters but maybe shouldn't have.
-query_suspended <- query_params("suspended|particulate", "Backscattering", "±")
+query_suspended <- query_params("suspended", "Backscattering", "±")
 # (Seawater+air) temperature: surface, mid, bottom (°C, temp, sst)
-query_temperature <- query_params("temperature", 
-                                  "Acid|Body|Fugacity|processes|Number|partial pressure|atoms|treatment|xCO2|δ", 
-                                  "±|K/100m")
+query_temperature <- query_params("temperature", no_units = "±|K/100m",
+                                  "Acid|Body|Fugacity|processes|Number|partial pressure|atoms|treatment|xCO2|δ")
 # Wind: direction, speed (wind, speed, direction, u, v)
 query_wind <- query_params("wind|speed|direction", 
                            "Sigma|window|Aurelia|bed dip|Brightness|cloud|Coiling|Current|deform|Gamete|
                            |Growing|ice |ice-|sperm|pixel|Plastic|polen|Predator|prey|Ship|snow|swim|swell|
-                           |temperature|Tidal|Towing|wave", 
-                           "±")
+                           |temperature|Tidal|Towing|wave", "±")
 # combined
 query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
                         query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind)
+rm(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
+   query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind); gc()
+
 
 ## Chemistry
 # CaCO3 saturation state (CaCO3, Arg, Ara, Cal, omega)
@@ -178,22 +183,45 @@ query_pH <- query_params("pH",
 query_alkalinity <- query_params("alkalinity", "borate|chlorine|Coelomic", "±")
 # Combined
 query_Chemistry <- rbind(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity)
+rm(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity); gc()
 
 ## Biology
 # Calcification
+query_calcification <- query_params("calcification", no_units = "±")
 # Nitrogen fixation
+query_nitro_fix <- query_params("Nitrogen fixation", no_units = "±")
 # Photosynthesis
+query_photosynthesis <- query_params("Photosynthesis", "Carbon-14", "±")
 # Primary production
+query_prim_prod <- query_params("Primary production", no_units = "±")
 # Respiration
+# Nb: Not sure about the need for this one...
+query_respiration <- query_params("Respiration", no_units = "±")
 # Species: presence/absence, abundance/biomass
+# NB: Not doing this at the moment due to how wide these data are...
+# Combined
+query_Biology <- rbind(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration)
+rm(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration); gc()
 
 ## Social
 # Fish landings: commercial, recreational, quotas, seasonality
 # Game landings: quotas, seasonality
+query_landings <- query_params("landings")
 # Local and national resource management
+query_management <- query_params("management")
 # National statistics: demography, income, unemployment
+query_nat_stat <- query_params("demography|income|unemployment")
 # Tourist arrivals: per month, nationality
+query_tourism <- query_params("touris|nationality")
 # Tourist vessels: count, mileage
+query_vessels <- query_params("vessel|mileage")
+# Combine
+query_Social <- rbind(query_landings, query_management, query_nat_stat, query_tourism, query_vessels)
+rm(query_landings, query_management, query_nat_stat, query_tourism, query_vessels); gc()
+
+## All variables together
+query_ALL <- rbind(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social)
+rm(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social); gc()
 
 
 # Functions ---------------------------------------------------------------
@@ -247,7 +275,7 @@ pg_dl_prep <- function(pg_dl){
   }
   # Finish up and exit
   dl_single <- dl_single %>% 
-    mutate(date_accessed  = Sys.Date()) %>% 
+    mutate(date_accessed = Sys.Date()) %>% 
     dplyr::select(date_accessed, URL, citation, everything())
   return(dl_single)
 }
