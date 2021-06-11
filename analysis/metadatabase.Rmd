@@ -82,6 +82,8 @@ This section contains meta-data for pan-Arctic data files. These are almost excl
 <!-- ##### Meta-data {-} -->
 
 ```{r EU-arctic-meta-data}
+# GLODAP data
+
 # Bathymetry data
 EU_GEBCO <- data.frame(type = "",
                        data_name = "Bathymetry",
