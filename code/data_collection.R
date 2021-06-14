@@ -91,7 +91,7 @@ pg_full_search <- function(lookup_table = F, ...){
   } else {
     pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
       filter(!grepl("video|photograph|image|station list|master tracks|aircraft|flight|
-                    |airborne|metadata list|core|links to file", citation, ignore.case = T)) %>% 
+                    |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
       filter(!grepl("ACLOUD|SOCAT", citation)) %>% 
       filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
   }
