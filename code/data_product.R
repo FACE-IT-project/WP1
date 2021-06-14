@@ -88,7 +88,7 @@ test1 <- pg_kong_sub %>%
   dplyr::select(URL, `T air (1) [°C]`) %>% 
   na.omit()
   
-# Remove unneeded columns
+# Process Kongsfjorden bbox PANGAEA data
 pg_kong_clean <- pg_kong_sub %>% 
   # dplyr::select(contains(c("Qz")), everything()) %>%  # Look at specific problem columns
   dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
@@ -100,9 +100,9 @@ pg_kong_clean <- pg_kong_sub %>%
   #                    "https://doi.org/10.1594/PANGAEA.786375", "https://doi.org/10.1594/PANGAEA.847003", 
   #                    "https://doi.org/10.1594/PANGAEA.867207")) %>% 
   # Manually remove problematic columns
-  dplyr::select(-"File start date/time", -"File stop date/time") %>%
-  # mutate_all(~na_if(., '')) %>% 
-  # janitor::remove_empty("cols") %>% 
+  # dplyr::select(-"File start date/time", -"File stop date/time") %>%
+  mutate_all(~na_if(., '')) %>%
+  janitor::remove_empty("cols") %>%
   # Manage lon/lat columns
   # mutate(lon = mean(c(lon, `Longitude 2`), na.rm = T),
          # lat = mean(c(lat, `Latitude 2`), na.rm = T)) %>% 
@@ -110,7 +110,6 @@ pg_kong_clean <- pg_kong_sub %>%
   dplyr::rename(date = `Date/Time`) %>% 
   mutate(date = ifelse(date == "", NA, date),
          date = case_when(is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`,
-                          # Coverage == "June-August 2006" ~ "2006-07-01", # Removed World Glacier Atlas
                           date == "2009-07" ~ "2009-07-01",
                           date == "2003-06" ~ "2003-06-01",
                           TRUE ~ date),
@@ -125,79 +124,28 @@ pg_kong_clean <- pg_kong_sub %>%
   # Remove unwanted columns
   dplyr::select(-"Longitude 2", -"Latitude 2",
                 -"Date/time start", -"Date/time end",
-                # -"Elevation [m]", -"Elevation [m a.s.l.]", 
-                # -"Depth water [m]", -"Depth [m]", -"Depth top [m]", -"Depth bot [m]",
-                # -"Depth ref [m] (of ground temperature (MAGT))",
-                # -"Depth [m] (depth of MAGT measurement)",                      
-                # -"Depth [m] (depth of zero annual amplitude)",  
                 -"Press [dbar]",
-                -contains(c("Depth ", "Elevation ", " biom wm ", "Station"))) %>%
+                -contains(c("Depth ", "Elevation "))) %>%
   # Finish up
   dplyr::select(URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(6:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
 colnames(pg_kong_clean)
 
-# Individual variable data.frames
-## Cryosphere
-pg_kong_cryo <- pg_var_melt(pg_kong_clean, c("ice", "snow", "glacier", "permafrost", "floe"), "cryo") %>% 
-  filter(!var_name %in% c("E. melaniceps [%]", "H. gothiceps [%]"))
-
-## Physical
-# pg_kong_bathy <- pg_var_melt(pg_kong_clean, c("bathy"), "bathy") # No files
-# pg_kong_current <- pg_var_melt(pg_kong_clean, c("u ", "v ", "vel", "speed", "direction", "current"), "current") %>% # Nothing
-  # filter(!var_name %in% c("TOU [mmol/m**2/day]", "Echinod larv [%]"))
-pg_kong_ep <- pg_var_melt(pg_kong_clean, c("evap", "precip"), "ep")
-# pg_kong_flux <- pg_var_melt(pg_kong_clean, c("Q", "flux", "latent", "sensible", "longwave", "shortwave", "radiation"), "flux") # Nothing
-pg_kong_light <- pg_var_melt(pg_kong_clean, c("kd", "PAR", "light"), "light") %>% 
-  filter(!var_name %in% c("Ice conc [tenths] (primary ice partial concentra...)",
-                          "O2 [µmol/l] (Winkler titration (Parsons et...)",
-                          "O2 sat [%] (Winkler titration (Parsons et...)"))
-# pg_kong_mld <- pg_var_melt(pg_kong_clean, c("mld", "mixed"), "MLD") # Nothing
-# pg_kong_river <- pg_var_melt(pg_kong_clean, c("river", "discharge"), "river") # Nothing
-pg_kong_sal <- pg_var_melt(pg_kong_clean, c("sal", "psu"), "sal")
-# pg_kong_sediment <- pg_var_melt(pg_kong_clean, c("sedim"), "sediment") # Nothing
-# pg_kong_slp <- pg_var_melt(pg_kong_clean, c("slp"), "SLP") # Nothing
-# pg_kong_suspend <- pg_var_melt(pg_kong_clean, c("pom", "pim", "som", "spm"), "suspend") # Nothing
-pg_kong_temp <- pg_var_melt(pg_kong_clean, c("°C", "temp", "sst"), "temp") %>% 
-  filter(!var_name %in% c("DOC [µmol/l] (High temperature catalytic ox...)", 
-                          "TDN [µmol/l] (High temperature catalytic ox...)",
-                          "Accuracy (Temperature measurement accur...)",
-                          "fCO2water_SST_wet [µatm]", "pCO2water_SST_wet [µatm]"))
-pg_kong_turb <- pg_var_melt(pg_kong_clean, c("turbidity"), "turbidity")
-# pg_kong_wind <- pg_var_melt(pg_kong_clean, c("wind", "speed", "direction", "u ", "v ")) # nothing
-
-## Carbonate chemistry
-pg_kong_CaCO3 <- pg_var_melt(pg_kong_clean, c("CaCO3", "omega", "arg", "ara", "cal"), "CaCO3") %>% 
-  filter(var_name %in% c("Omega Arg", "Omega Cal", "Arg [%] (High Performance Liquid Chrom...)", "Arg [%]", "Cal [%]"))
-pg_kong_dissolved <- pg_var_melt(pg_kong_clean, c("DIC", "DOC", "DON"), "dissolved") %>% 
-  filter(!var_name %in% c("TDP [µmol/l] (Acidic molybdate solution)", "Pseudocalanus spp. [%]", "Chalcedony fragm [%]"))
-pg_kong_O2 <- pg_var_melt(pg_kong_clean, c("O2", "DO"), "O2") %>% 
-  filter(!var_name %in% c("[NO2]- [µmol/l]", "[NO3]- + [NO2]- [µmol/l]", "bSiO2 [%]",
-                          "pCO2water_SST_wet [µatm]", "fCO2water_SST_wet [µatm]", "CO2 [µmol/kg]",
-                          "DOC [µmol/l] (High temperature catalytic ox...)", "DOC [µmol/l]",
-                          "Dol [%]", "Chalcedony fragm [%]", "Pseudocalanus spp. [%]"))
-pg_kong_nutrient <- pg_var_melt(pg_kong_clean, c("NO3", "NO2", "NH3", "NH4", "PO4", "Si"), "nutrient") %>% 
-  filter(var_name %in% c("[NO3]- [µmol/l]", "[NO2]- [µmol/l]", "[PO4]3- [µmol/l]", "PO4 biog [%]", 
-                         "Si(OH)4 [µmol/l]", "Phosph [%]", "Sil [%]"))
-pg_kong_CO2 <- pg_var_melt(pg_kong_clean, c("CO2"), "CO2") %>% 
-  filter(!var_name == "fCO2water_SST_wet [µatm]")
-pg_kong_pH <- pg_var_melt(pg_kong_clean, c("pH", "AT", "TA"), "pH") %>% 
-  filter(var_name %in% c("pH", "AT [µmol/kg] (Potentiometric titration)", "AT [µmol/kg]"))
-
-## Biology
-pg_kong_Chl <- pg_var_melt(pg_kong_clean, c("Chl"), "Chl") %>% 
-  filter(!var_name %in% c("Ep-chl aggr [%]", "C/Chl a"))
-## Social
-
-# Check a file to ensure only correct variables remain
-unique(pg_kong_O2$var_name)
+## Individual category data.frames
+# Cryosphere
+pg_kong_Cryosphere <- pg_var_melt(pg_kong_clean, query_Cryosphere$pg_col_name, "cryo")
+# Physical
+pg_kong_Physical <- pg_var_melt(pg_kong_clean, query_Physical$pg_col_name, "phys")
+# Carbonate chemistry
+pg_kong_Chemistry <- pg_var_melt(pg_kong_clean, query_Chemistry$pg_col_name, "chem")
+# Biology
+pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio")
+# Social
+pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc")
 
 # Stack them together
-pg_kong_ALL <- rbind(pg_kong_cryo, 
-                     pg_kong_ep, pg_kong_light, pg_kong_sal, pg_kong_temp, pg_kong_turb,
-                     pg_kong_CaCO3, pg_kong_dissolved, pg_kong_O2, pg_kong_nutrient, pg_kong_CO2, pg_kong_pH, 
-                     pg_kong_Chl)
+pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry, pg_kong_Biology)
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 
 # Check that all columns were used
@@ -296,7 +244,7 @@ pg_is_Chemistry <- pg_var_melt(pg_is_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
 pg_is_Biology <- pg_var_melt(pg_is_clean, query_Biology$pg_col_name, "bio")
 # Social
-# pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") - empty
+# pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
 pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, pg_is_Biology)
