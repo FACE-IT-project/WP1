@@ -48,6 +48,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   sub_cols <- colnames(pg_clean)[colnames(pg_clean) %in% unique(key_words)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "lon", "lat", "date", "depth")]
   print(sub_cols)
+  if(length(sub_cols) == 0) stop("No variables for this driver group") 
   
   # Subset and melt data.frame
   pg_melt <- pg_clean %>% 
@@ -71,7 +72,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
 # Load pg kong files
 system.time(
   pg_kong_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_kong)
-) # 230 seconds
+) # 57 seconds
 
 # Test problem files
 pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
@@ -94,7 +95,7 @@ pg_kong_clean <- pg_kong_sub %>%
   dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
   # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
   # Manually remove problematic files
-  filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.909130")) %>% 
+  # filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.909130")) %>% # One row very wide file
   # filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.847003", "https://doi.org/10.1594/PANGAEA.808512", 
   #                    "https://doi.org/10.1594/PANGAEA.786375", "https://doi.org/10.1594/PANGAEA.900501", 
   #                    "https://doi.org/10.1594/PANGAEA.786375", "https://doi.org/10.1594/PANGAEA.847003", 
@@ -110,25 +111,26 @@ pg_kong_clean <- pg_kong_sub %>%
   dplyr::rename(date = `Date/Time`) %>% 
   mutate(date = ifelse(date == "", NA, date),
          date = case_when(is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`,
-                          date == "2009-07" ~ "2009-07-01",
-                          date == "2003-06" ~ "2003-06-01",
+                          # date == "2009-07" ~ "2009-07-01",
+                          # date == "2003-06" ~ "2003-06-01",
                           TRUE ~ date),
          date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
-  mutate(depth = case_when(!is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
-                           !is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`))) %>%
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
+                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
                            TRUE ~ depth)) %>% 
+  # dplyr::select(depth, everything())
   # Remove unwanted columns
   dplyr::select(-"Longitude 2", -"Latitude 2",
-                -"Date/time start", -"Date/time end",
+                -"Date/time start", -"Date/time end", -"Date",
                 -"Press [dbar]",
-                -contains(c("Depth ", "Elevation "))) %>%
+                -contains(c("Depth ", "Elev ", "Elevation "))) %>%
   # Finish up
-  dplyr::select(URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(6:length(.)), as.numeric) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
+  mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
 colnames(pg_kong_clean)
 
@@ -140,12 +142,12 @@ pg_kong_Physical <- pg_var_melt(pg_kong_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_kong_Chemistry <- pg_var_melt(pg_kong_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio")
+pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio") # 0 values
 # Social
-pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc")
+pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc") # 0 values
 
 # Stack them together
-pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry, pg_kong_Biology)
+pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry)
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 
 # Check that all columns were used
@@ -169,19 +171,19 @@ pg_kong_ALL %>%
 pg_kong_ALL %>% 
   select(-URL, -citation) %>% 
   filter(!is.na(depth),
-         var_type == "temp") %>% 
+         var_type == "phys") %>% 
   mutate(depth = round(depth, -1),
          year = lubridate::year(date)) %>%
-  filter(value > -20, value < 10) %>% 
+  # filter(value > -20, value < 10) %>% 
   group_by(depth, year) %>% 
   dplyr::summarise(value = mean(value, na.rm = T),
                    count = n(), .groups = "drop") %>% 
   ggplot(aes(x = year, y = -depth)) +
-  geom_tile(aes(fill = value, colour = count), size = 2) +
+  geom_tile(aes(fill = value, colour = count), size = 1) +
   scale_colour_distiller(palette = "Reds", direction = 1) +
   scale_fill_viridis_c() +
   coord_cartesian(expand = F) +
-  labs(x = NULL, y = "Depth (m)", fill = "Temp. (°C)")
+  labs(x = NULL, y = "Depth (m)", fill = "Value")
 
 # Tables of value names
 table(pg_kong_ALL$var_type)
@@ -190,12 +192,13 @@ table(pg_kong_ALL$var_name, pg_kong_ALL$var_type)
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
 
+
 # Isfjorden ---------------------------------------------------------------
 
 # Load pg is files
 system.time(
   pg_is_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_is)
-) # 162 seconds
+) # 59 seconds
 
 # Test problem files
 pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -205,12 +208,12 @@ pg_test <- pg_test_dl("10.1594/PANGAEA.909130")
 # Remove unneeded columns
 pg_is_clean <- pg_is_sub %>% 
   # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
-  # dplyr::select(contains(c("press", "depth", "elev")), everything()) %>%  # Look at specific problem columns
+  dplyr::select(contains(c("press", "depth", "elev")), everything()) %>%  # Look at specific problem columns
   # Manually remove problematic files
   # filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.900501", "https://doi.org/10.1594/PANGAEA.786375",
                      # "https://doi.org/10.1594/PANGAEA.847003","https://doi.org/10.1594/PANGAEA.867207")) %>% 
   # Manually remove problematic columns
-  dplyr::select(-"File start date/time", -"File stop date/time") %>%
+  # dplyr::select(-"File start date/time", -"File stop date/time") %>%
   # mutate(date_accessed = as.Date(date_accessed)) %>% 
   mutate_all(~na_if(., '')) %>% 
   janitor::remove_empty("cols") %>% 
@@ -218,19 +221,22 @@ pg_is_clean <- pg_is_sub %>%
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
   mutate(date = ifelse(date == "", NA, date),
+         date = case_when(is.na(date) & !is.na(`Sampling date`) ~ `Sampling date`,
+                          date == 2008 ~ "2008-01-01", TRUE ~ date),
          date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
-  mutate(depth = case_when(!is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
-                           !is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`))) %>%
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
+                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
                            TRUE ~ depth)) %>% 
+  # dplyr::select(depth, everything())
   # Remove unused meta columns
   dplyr::select(-contains(c("Longitude", "Latitude", "Depth ", "Press"))) %>%
   # Finish up
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(6:length(.)), as.numeric) %>% 
+  mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
 colnames(pg_is_clean)
 
@@ -252,6 +258,9 @@ data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.cs
 
 # Check that all columns were used
 colnames(pg_is_clean)[!colnames(pg_is_clean) %in% unique(pg_is_ALL$var_name)]
+
+# Clean up
+rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Inglefieldbukta ---------------------------------------------------------
