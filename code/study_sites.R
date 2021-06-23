@@ -23,10 +23,9 @@
 
 # Start with common project code
 source("code/functions.R")
-library(png)
 
 # Load FACE-IT logo
-logo <- grid::rasterGrob(png::readPNG("FACE-IT_Logo_PNG_900.png"), interpolate = TRUE)
+logo <- grid::rasterGrob(png::readPNG("FACE-IT_Logo_900.png"), interpolate = TRUE)
 
 
 # Single points -----------------------------------------------------------
@@ -185,4 +184,18 @@ map_small <- ggpubr::ggarrange(map_kong, map_is, map_ingle, map_young, map_disko
 map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 2, widths = c(2, 1))
 ggsave("figures/map_all.png", map_all, height = 10, width = 24)
 ggsave("docs/assets/map_all.png", map_all, height = 10, width = 24)
+
+
+# Bathy test --------------------------------------------------------------
+
+# Test the large bathy NetCDF processed by Pedro
+
+bathy_kong <- tidync::tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/kartverket_5-50m_resolution_Kongsfjorden.nc") %>% 
+  tidync::hyper_tibble()
+
+bathy_kong_plot <- ggplot(data = bathy_kong, aes(x = LON, y = LAT)) +
+  geom_point(aes(colour = DEPTH), size = 0.001) +
+  scale_colour_viridis_c() +
+  labs(x = NULL, y = NULL)
+ggsave("figures/map_kong_hires_bathy.png", bathy_kong_plot, height = 10, width = 12)
 
