@@ -33,7 +33,7 @@ meta_data <- tidync(paste0(pCloud_path,"FACE-IT_data/kongsfjorden/kongsfjorden_r
 all_data <- left_join(depth_data, surface_data, by = c("X", "Y", "Z", "T")) %>% 
   left_join(meta_data, by = c("X", "Y")) %>% 
   rename(lon = Long, lat = Latt, t = T, depth = Z) %>% 
-  mutate(t = as.POSIXct(t*3600, origin = "1950-01-01 01:00")) %>%
+  mutate(t = as.Date(as.POSIXct(t*3600, origin = "1950-01-01 01:00"))) %>%
   dplyr::select(RMask, lon, lat, Topo, depth, t, everything(), -X, -Y)
 
 
@@ -57,7 +57,7 @@ all_data %>%
   mutate(lonlat = paste0(lon,"_",lat,"_",depth)) %>% 
   ggplot(aes(x = t, y = Temp)) +
   geom_line(aes(group = lonlat, colour = depth)) +
-  scale_x_datetime(expand = c(0,0)) +
+  scale_x_date(expand = c(0,0)) +
   labs(x = NULL, y = "Temperature (°C)", colour = "depth (m)")
 ggsave("figures/test_ts.png", height = 4, width = 8)
 
