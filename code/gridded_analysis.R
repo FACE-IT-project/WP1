@@ -40,7 +40,7 @@ all_data <- left_join(depth_data, surface_data, by = c("X", "Y", "Z", "T")) %>%
 # Visualise ---------------------------------------------------------------
 
 all_data %>%
-  mutate(lon = plyr::round_any(lon, 0.25),
+  mutate(lon = plyr::round_any(lon, 0.5),
          lat = plyr::round_any(lat, 0.1)) %>% 
   group_by(lon, lat) %>% 
   summarise(Temp = mean(Temp, na.rm = T), .groups = "drop") %>% 
@@ -48,7 +48,11 @@ all_data %>%
   # geom_point(aes(colour = Temp)) +
   # geom_tile(aes(fill = Temp)) +
   geom_raster(aes(fill = Temp)) +
+  borders(colour = "black", size = 2) +
+  geom_label(aes(x = 11.9009578, y = 78.9247329, label = "Ny-Ålesund")) +
   scale_fill_viridis_c() +
+  coord_cartesian(xlim = range(all_data$lon), ylim = range(all_data$lat)) +
+  # coord_cartesian(xlim = c(11, 12.69), ylim = c(78.86, 79.1)) +
   labs(y = "latitude (°N)", x = "longitude (°E)", fill = "temp. (°C)") +
   theme(legend.position = "bottom")
 ggsave("figures/test_map.png", height = 6, width = 6)
@@ -56,7 +60,7 @@ ggsave("figures/test_map.png", height = 6, width = 6)
 all_data %>% 
   mutate(lonlat = paste0(lon,"_",lat,"_",depth)) %>% 
   ggplot(aes(x = t, y = Temp)) +
-  geom_line(aes(group = lonlat, colour = depth)) +
+  geom_line(aes(group = lonlat, colour = as.factor(depth))) +
   scale_x_date(expand = c(0,0)) +
   labs(x = NULL, y = "Temperature (°C)", colour = "depth (m)")
 ggsave("figures/test_ts.png", height = 4, width = 8)
