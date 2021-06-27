@@ -49,6 +49,7 @@ all_data %>%
   # geom_tile(aes(fill = Temp)) +
   geom_raster(aes(fill = Temp)) +
   borders(colour = "black", size = 2) +
+  geom_rect(aes(xmin = 11, xmax = 12.69, ymin = 78.86, ymax = 79.1), colour = "red", fill = NA) +
   geom_label(aes(x = 11.9009578, y = 78.9247329, label = "Ny-Ålesund")) +
   scale_fill_viridis_c() +
   coord_cartesian(xlim = range(all_data$lon), ylim = range(all_data$lat)) +
