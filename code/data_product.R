@@ -6,6 +6,7 @@
 
 # Libraries
 source("code/functions.R")
+library(tidync)
 
 # Re-run full data collection pipeline
 # system.time(
@@ -60,6 +61,11 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
     dplyr::select(date_accessed:depth, var_type, var_name, value)
 }
 
+# Function for melting individual files from other data sources
+single_file_var_melt <- function(){
+  
+}
+
 
 # European Arctic ---------------------------------------------------------
 
@@ -68,6 +74,8 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
 
 
 # Kongsfjorden ------------------------------------------------------------
+
+## PG product --------------------------------------------------------------
 
 # Load pg kong files
 system.time(
@@ -185,6 +193,56 @@ table(pg_kong_ALL$var_name, pg_kong_ALL$var_type)
 
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
+
+
+## Full product ------------------------------------------------------------
+
+# Load PG file
+pg_kong_ALL <- data.table::fread("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv", 
+                                 colClasses = c(date_accessed = "Date", date = "Date"))
+
+# Process individual files
+## Sea ice cover
+kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv") %>% 
+  pivot_longer(February:June, names_to = "month", values_to = "value") %>% 
+  mutate(month = match(month, month.name),
+         date = as.Date(paste0(Year,"-",month,"-01")),
+         lon = NA, lat = NA, depth = NA,
+         var_name = "ice cover [%]",
+         var_type = "cryo",
+         date_accessed = as.Date("2021-11-02"),
+         URL = "https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7",
+         citation = "Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+## CTD sampling data
+# ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") # Error...
+kong_CTD_database <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") %>% 
+  activate("D0,D1") %>% 
+  hyper_tibble()
+kong_CTD_database_meta <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") %>% 
+  activate("D1") %>% 
+  hyper_tibble()
+
+## CO2 data
+kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_Marine_CO2_system_2012_to_2014.csv") %>% 
+  dplyr::rename(date = `yyyy-mm-dd`, lon = Longitude, lat = Latitude, depth = `Depth [m]`) %>% 
+  dplyr::select(date:`DIC [µmol/kg]`, -`Bot.Depth [m]`) %>% 
+  pivot_longer(Salinity:`DIC [µmol/kg]`, names_to = "var_name", values_to = "value") %>% 
+  mutate(date = as.Date(date),
+         var_type = case_when(var_name == "Salinity" ~ "phys",
+                              var_name == "Temperature [C]" ~ "phys",
+                              var_name == "AT [µmol/kg]" ~ "chem",
+                              var_name == "DIC [µmol/kg]" ~ "chem"),
+         date_accessed = as.Date("2021-02-11"),
+         URL = "https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4",
+         citation = "Fransson, A., & Chierici, M. (2019). Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Combine and save
+full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_CTD_CO2)
+data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
+rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Isfjorden ---------------------------------------------------------------
