@@ -84,7 +84,6 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 
 # EU shapefiles -----------------------------------------------------------
 
-
 # rb <- raster_bathymetry(bathy = paste0(pCloud_path,"FACE-IT_data/shape_files/GEBCO_2020.nc"),
 #                         depths = c(25, 50, 100, 200, 500, 1000, 2000, 10000), 
 #                         proj.out = "+init=epsg:3995", 
