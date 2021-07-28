@@ -203,22 +203,46 @@ pg_kong_ALL <- data.table::fread("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kon
 
 # Process individual files
 ## Sea ice cover
-kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv") %>% 
+kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv", na = "999") %>% 
   pivot_longer(February:June, names_to = "month", values_to = "value") %>% 
   mutate(month = match(month, month.name),
          date = as.Date(paste0(Year,"-",month,"-01")),
          lon = NA, lat = NA, depth = NA,
          var_name = "ice cover [%]",
          var_type = "cryo",
-         date_accessed = as.Date("2021-11-02"),
+         date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7",
          citation = "Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+## Zooplankton abundance and species
+kong_zoo_data_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv")
+kong_zoo_data_2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv")
+kong_zoo_data_3 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_abundance_data.csv")
+kong_zoo_data <- kong_zoo_data_3 %>% 
+  pivot_longer(CALfinM:SCYPZlar, names_to = "sps", values_to = "value") %>% 
+  left_join(kong_zoo_data_1, by = c("X1" = "id")) %>% 
+  left_join(kong_zoo_data_2, by = c("sps" = "id")) %>% 
+  dplyr::rename(lon = longitude, lat = latitude) %>% 
+  mutate(value = value*biomass_conv, # Need to check that this conversion is correct
+         var_name = case_when(!is.na(stage) ~ paste0(species," [",stage,"]"), TRUE ~ species),
+         var_type = "bio",
+         date_accessed = as.Date("2021-02-11"),
+         URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
+         citation = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, var_type, var_name, value) %>% 
+  summarise(depth = (from+to)/2, .groups = "drop") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  
+## Protist species and nutrients and Chla
+kong_protist_nutrient_chla_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv")
+kong_protist_nutrient_chla_2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv")
+kong_protist_nutrient_chla_3 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv")
+
 ## CTD sampling data
 # ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") # Error...
 kong_CTD_database <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") %>% 
-  activate("D0,D1") %>% 
+  activate("D0,D1") %>%
   hyper_tibble()
 kong_CTD_database_meta <- tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") %>% 
   activate("D1") %>% 
@@ -239,8 +263,14 @@ kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_M
          citation = "Fransson, A., & Chierici, M. (2019). Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+## Glacial topography + thickness
+kong_glacier_info
+
+## Kongsvegen weather station
+kong_weather_station
+
 # Combine and save
-full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_CTD_CO2)
+full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_CTD_CO2)
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
