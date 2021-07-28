@@ -450,35 +450,35 @@ kong_weather_station <- data.frame(type = "Met station",
                                    note = "See website for full list of variables.")
 
 # PANGAEA data product
-kong_PG <- data.frame(type = "See file",
-                      data_name = "See file",
+kong_PG <- data.frame(type = "PANGAEA",
+                      data_name = "Many",
                       date_range = "1871-08-09 to 2020-10-04",
                       lon_range = "11.0 to 12.58", 
                       lat_range = "78.86 to 79.10",
                       depth_range = "-60 to 371",
                       file_name = '<a onclick="alert(\'pg_kong_ALL.csv\');">1 file</a>',
                       URL = '<a onclick="alert(\'pg_kong_ALL.csv\');">See URL column</a>',
-                      reference = '<a onclick="alert(\'pg_kong_ALL.csv\');">See reference column</a>',
-                      note = "This is a combined data product.")
+                      reference = '<a onclick="alert(\'pg_kong_ALL.csv\');">See citation column</a>',
+                      note = "This is a combination of all PANGAEA data.")
 
 # Fully combined product
-full_product_kong <- data.frame(type = "See file",
-                                data_name = "See file",
+full_product_kong <- data.frame(type = "Full",
+                                data_name = "Many",
                                 date_range = "1871-08-09 to 2020-10-04",
                                 lon_range = "", 
                                 lat_range = "",
                                 depth_range = "",
                                 file_name = '<a onclick="alert(\'full_product_kong.csv\');">1 file</a>',
                                 URL = '<a onclick="alert(\'full_product_kong.csv\');">See URL column</a>',
-                                reference = '<a onclick="alert(\'full_product_kong.csv\');">See reference column</a>',
-                                note = "This is a combined data product.")
+                                reference = '<a onclick="alert(\'full_product_kong.csv\');">See citation column</a>',
+                                note = "This is the full combined data product.")
 
 # Unknown data
 # test <- read_tsv("~/pCloudDrive/FACE-IT_data/kongsfjorden/unentered/2009-2013-pigments-api-v1.tsv")
 
 # Bind them together
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
-                               kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_PG)
+                               kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
