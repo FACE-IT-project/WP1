@@ -496,3 +496,19 @@ make_meta_data <- function(dat, type, data_name, file_name, URL, reference, note
   return(res)
 }
 
+# Function for loading raster files with utm coords and converting to lon/lat
+load_utm <- function(file_name){
+  ras_1 <- raster(file_name)
+  crs_1 <- ras_1@crs
+  utm1 <- as.data.frame(ras_1, xy = T)
+  coordinates(utm1) <- ~x+y 
+  proj4string(utm1) <- crs_1
+  utm2 <- spTransform(utm1, CRS("+proj=longlat +datum=WGS84"))
+  utm3 <- as.data.frame(utm2) %>% 
+    dplyr::rename(lon = x, lat = y) %>% 
+    dplyr::select(lon, lat, everything())
+}
+ggplot(data = utm3, aes(x = lon, y = lat)) +
+  geom_point(aes(colour = TIGRIF_DEM_ice_surface_150m_v1)) +
+  scale_colour_viridis_c()
+colnames(utm3)
