@@ -7,6 +7,13 @@
 # Libraries
 source("code/functions.R")
 library(tidync)
+library(stringi)
+
+# Rmove scientific notation
+options(scipen = 9999)
+
+# Set Timezone to UTC
+Sys.setenv(TZ = "UTC")
 
 # Re-run full data collection pipeline
 # system.time(
@@ -235,9 +242,29 @@ kong_zoo_data <- kong_zoo_data_3 %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
   
 ## Protist species and nutrients and Chla
-kong_protist_nutrient_chla_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv")
-kong_protist_nutrient_chla_2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv")
+kong_protist_nutrient_chla_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv") %>% 
+  mutate(`Sampling date` = str_replace_all(`Sampling date`, "[.]", "/"))
+kong_protist_nutrient_chla_2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv") %>% 
+  dplyr::select(Cruise:Year, Taxon_full, `Abundance (Cells L-1)`) %>% 
+  pivot_wider(names_from = Taxon_full, values_from = `Abundance (Cells L-1)`, values_fn = mean)# %>% 
+  # mutate(Date = as.Date(Date, tryFormats = "%m/%d/%Y"))
 kong_protist_nutrient_chla_3 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv")
+# kong_protist_nutrient_chla <- left_join(kong_protist_nutrient_chla_1, kong_protist_nutrient_chla_2, 
+#                                         by = c("SampleID", "Station", "Year", "Depth")) #%>% 
+kong_protist_nutrient_chla <- kong_protist_nutrient_chla_1 %>% 
+  left_join(kong_protist_nutrient_chla_3, by = c("SampleID" = "CHLA_sampleID", "Station", "Year", "Depth")) %>% 
+  left_join(kong_protist_nutrient_chla_3, by = c("SampleID" = "NUTRIENT_sampleID", "Station", "Year", "Depth", "Cruise",
+                                                 "P", "NO2", "NO3", "Si", "NH4", "Chla")) %>% 
+  left_join(kong_protist_nutrient_chla_2, by = c("SampleID")) %>% 
+  dplyr::rename(lon = Longitude, lat = Latitude, depth = Depth.x) %>% #, date = `Sampling date`) %>% 
+  # dplyr::select(lon, lat, date, depth, P:Chla, `Dinobryon spp. cyst`:`Heterocapsa  sp.`) %>% 
+  mutate(date = as.Date(`Sampling date`, tryFormats = c("%m/%d/%Y", "%Y%m%d"))) %>% 
+  dplyr::select(date, `Sampling date`, everything()) %>% 
+  mutate(date = case_when(is.na(date) ~ as.Date(`Sampling date`, format = "%d%m%Y"), TRUE ~ date)) %>% 
+  mutate(date = case_when(is.na(date) ~ as.Date(`Sampling date`, format = "%d/%m/%Y"), TRUE ~ date)) %>% 
+  mutate(date = case_when(is.na(date) ~ as.Date(`Sampling date`, format = "%Y-%m-%d %H:%M"), TRUE ~ date))
+unique(kong_protist_nutrient_chla$date)
+unique(kong_protist_nutrient_chla$`Sampling date`)
 
 ## CTD sampling data
 # ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc") # Error...
