@@ -243,7 +243,12 @@ kong_zoo_data <- kong_zoo_data_3 %>%
   
 ## Protist species and nutrients and Chla
 kong_protist_nutrient_chla_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv") %>% 
-  mutate(`Sampling date` = str_replace_all(`Sampling date`, "[.]", "/"))
+  mutate(`Sampling date` = str_replace_all(`Sampling date`, "[.]", "/"),
+         Longitude = as.character(Longitude), Latitude = as.character(Latitude),
+         Latitude = as.numeric(gsub("^(.{2})(.*)$", "\\1.\\2", Latitude)),
+         Longitude = if_else(substring(Longitude, 1, 1) != "1", 
+                             as.numeric(gsub("^(.{2})(.*)$", "\\1.\\2", Longitude)),
+                             as.numeric(gsub("^(.{3})(.*)$", "\\1.\\2", Longitude))))
 kong_protist_nutrient_chla_2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv") %>% 
   dplyr::select(Cruise:Year, Taxon_full, `Abundance (Cells L-1)`) %>% 
   pivot_wider(names_from = Taxon_full, values_from = `Abundance (Cells L-1)`, values_fn = mean)# %>% 
