@@ -508,7 +508,4 @@ load_utm <- function(file_name){
     dplyr::rename(lon = x, lat = y) %>% 
     dplyr::select(lon, lat, everything())
 }
-ggplot(data = utm3, aes(x = lon, y = lat)) +
-  geom_point(aes(colour = TIGRIF_DEM_ice_surface_150m_v1)) +
-  scale_colour_viridis_c()
-colnames(utm3)
+
