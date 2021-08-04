@@ -353,29 +353,18 @@ rm(kong_protist_nutrient_chla_1, kong_protist_nutrient_chla_2, kong_protist_nutr
 tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
 ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
 nc_dat <- ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
-nc_var <- ncdf4::ncvar_get(nc_dat, varid = "LATITUDE")
-kong_CTD_database_D0 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D0"))
-kong_CTD_database_D1 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D0D1 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D0,D1")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D1D2 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1,D2")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D1D3 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1,D3")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D1D4 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1,D4")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D1D4 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1,D4")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D1D5 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1,D5")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D1D6 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1,D6")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-kong_CTD_database_D1D7 <- hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc"), "D1,D7")) %>% 
-  mutate(date = as.POSIXct((TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-
-
-
+nc_TIME <- ncdf4::ncvar_get(nc_dat, varid = "TIME")
+nc_PRES <- ncdf4::ncvar_get(nc_dat, varid = "PRES")
+nc_LONGITUDE <- ncdf4::ncvar_get(nc_dat, varid = "LONGITUDE")
+nc_LATITUDE <- ncdf4::ncvar_get(nc_dat, varid = "LATITUDE")
+nc_TEMP <- data.frame(t(ncdf4::ncvar_get(nc_dat, varid = "TEMP"))) %>% 
+  `colnames<-`(nc_PRES) %>% 
+  cbind(nc_TIME, nc_LONGITUDE, nc_LATITUDE) %>% 
+  pivot_longer(`1`:`5676`, values_to = "temp", names_to = "depth") %>% 
+  filter(!is.na(temp)) %>% 
+  mutate(date = as.POSIXct((nc_TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
+nc_PSAL
+nc_CNDC
 
 ## CO2 data
 kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_Marine_CO2_system_2012_to_2014.csv") %>% 
