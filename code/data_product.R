@@ -10,7 +10,7 @@ library(tidync)
 library(stringi)
 library(raster)
 
-# Rmove scientific notation
+# Remove scientific notation
 options(scipen = 9999)
 
 # Set Timezone to UTC
