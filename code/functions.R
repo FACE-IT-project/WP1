@@ -520,9 +520,11 @@ CTD_to_long <- function(nc_file, var_id){
   nc_val <- data.frame(t(ncdf4::ncvar_get(nc_file, varid = var_id))) %>% 
     `colnames<-`(nc_PRES) %>% 
     cbind(nc_TIME, nc_LONGITUDE, nc_LATITUDE) %>%
-    pivot_longer(`1`:`5676`, values_to = tolower(var_id), names_to = "depth") %>% 
+    pivot_longer(min(nc_PRES):max(nc_PRES), values_to = "value", names_to = "depth") %>% 
+    filter(!is.na(value)) %>% 
     mutate(date = as.POSIXct((nc_TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused") %>% 
     dplyr::rename(lon = nc_LONGITUDE, lat = nc_LATITUDE) %>% 
-    dplyr::select(lon, lat, date, depth, everything())
+    dplyr::select(lon, lat, date, depth, value) %>% 
+    `colnames<-`(c("lon", "lat", "date", "depth", tolower(var_id))); gc()
   return(nc_val)
 }

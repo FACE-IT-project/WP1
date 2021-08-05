@@ -77,7 +77,6 @@ single_file_var_melt <- function(){
 
 # European Arctic ---------------------------------------------------------
 
-
 ## PG product --------------------------------------------------------------
 
 # There is no EU PANGAEA product because the bits and pieces were given to the individual PG site files 
@@ -89,23 +88,41 @@ single_file_var_melt <- function(){
 # Though now thinking about it perhaps it would be better to create a combined product
 # from which the site specific products may draw data
 
+# Bathymetry data
+# EU_GEBCO # Not on pCloud
+
 # Zooplankton biodiversity
+# 1995-2008-zooplankton-biodiversity.tsv
 EU_zooplankton
 
+# Ice modelling output
+# EU_ice # Not on pCloud
+
 # CTD data from YMER cruise in 1980
+# 77YM19800811.exc.csv
 EU_YMER
 
 # CTD data for Arctic
+# Codispoti_Arctic_Nutrients_Submission_11-11-2010.csv
 EU_Codispoti
 
 # Ice core samples for protist presence
+# protists\
 EU_protists
 
 # CTD data from NCEI Accession 9700302
+# 9700302.2.2.tar.gz # This appears to be some sort of proprietary data format...
 EU_NCEI_1989
 
 # GRDC river discharge data
+# grdc_arctichycos_stations.xlsx
 EU_GRDC
+
+# Combine and save
+full_product_EU <- rbind()
+data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
+save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
+rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Svalbard ----------------------------------------------------------------
@@ -120,37 +137,90 @@ EU_GRDC
 
 # The intention here is to create a product from which data for other sites may be accessed
 ## Glacial topography + thickness
+# cumulative-mass-balance-for-glaciers-in-svalbard.csv; 
+# austre-broggerbreen-mass-balance.csv; 
+# etonbreen-austfonna-mass-balance.csv; 
+# kongsvegen-mass-balance.csv; 
+# kronebreenholtedahlfonna-mass-balance.csv; 
+# midtre-lovenbreen-mass-balance.csv
 sval_glacier_mass
 
 # Glacier area outlines
-sval_glacier_area
+# glacier_area/
+# sval_glacier_area # Not working with shape files of geomorphology
 
 # Tidal glacier fronts
-sval_tidal_glacier_front
+# tidewater/
+# sval_tidal_glacier_front # Not working with shape files of geomorphology
 
 # Marine terminating glacier fronts
-sval_marine_glacier_front
+# glacier_fronts/
+# sval_marine_glacier_front # Not working with shape files of geomorphology
 
 # Surface meteorology
+# N-ICE_metData_v2.nc; 
+# N-ICE_metData_QC.py;
+# README_N-ICE_metData_v2.txt
 sval_surface_met
 
 # UNIS database
-sval_UNIS_database
+## NB: This is really slow due to file size
+# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/CTD_all_1876-2019.nc")
+sval_UNIS_nc_dat <- ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/CTD_all_1876-2019.nc")
+sval_UNIS_TEMP <- CTD_to_long(sval_UNIS_nc_dat, "TEMP"); gc()
+sval_UNIS_PSAL <- CTD_to_long(sval_UNIS_nc_dat, "PSAL"); gc()
+sval_UNIS_CNDC <- CTD_to_long(sval_UNIS_nc_dat, "CNDC"); gc()
+sval_UNIS_database <- full_join(sval_UNIS_TEMP, sval_UNIS_PSAL, by = c("lon", "lat", "date", "depth")) %>% 
+  full_join(sval_UNIS_CNDC, by = c("lon", "lat", "date", "depth")) %>% 
+  pivot_longer(temp:cndc, names_to = "var_name", values_to = "value") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(URL = "https://data.npolar.no/dataset/39d9f0f9-af12-420c-a879-10990df2e22d",
+         citation = "Skogseth, R., Ellingsen, P., Berge, J., Cottier, F., Falk-Petersen, S., Ivanov, B., … Vader, A. (2019). UNIS hydrographic database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/unis-hydrography",
+         units = case_when(var_name == "temp" ~ "°C",
+                           var_name == "psal" ~ "1e-3",
+                           var_name == "cndc" ~ "S m-1"),
+         var_name = paste0(var_name," [", units,"]"),
+         var_type = "phys",
+         date_accessed = as.Date("2021-03-12")) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value); gc()
+rm(sval_UNIS_nc_dat, sval_UNIS_TEMP, sval_UNIS_PSAL, sval_UNIS_CNDC); gc()
 
 # Seabird database
-sval_seabird_database
+# sval_seabird_database # Not on pCloud
 
 # Protection of sites
-sval_protection
+# sval_protection # Not on pCloud
 
 # N-ICE21015 many data products
-sval_NICE
+# sval_NICE # Not on pCloud
 
 # Fast ice persistence
-sval_fast
+# svalbard_fastice_persistency_2014.tif; svalbard_fastice_persistency_2015.tif; svalbard_fastice_persistency_2016.tif
+# sval_fast # Not working with shape files of geomorphology
 
 # Biogeochemistry
-sval_biogeochemistry
+# 2009-2013-pigments-api-v1.tsv; 2010-2013-nutrients-api-v1.tsv
+sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbard/2009-2013-pigments-api-v1.tsv", delim = "\t"),
+                                  read_delim("~/pCloudDrive/FACE-IT_data/svalbard/2010-2013-nutrients-api-v1.tsv", delim = "\t")) %>% 
+  dplyr::rename(date = eventDate, lon = decimalLongitude, lat = decimalLatitude) %>% 
+  mutate(depth = case_when(!is.na(minimumDepthInMeters) ~ (minimumDepthInMeters+maximumDepthInMeters)/2,
+                           TRUE ~ maximumDepthInMeters),
+         date = as.Date(date)) %>% 
+  dplyr::select(lon, lat, date, depth, chlorophyll_a, phaeopigment, nox:nitrate_stddev) %>% 
+  pivot_longer(chlorophyll_a:nitrate_stddev, names_to = "var_name", values_to = "value") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(var_type = case_when(var_name %in% c("chlorophyll_a", "phaeopigment") ~ "bio",
+                              TRUE ~ "chem"),
+         date_accessed = as.Date("2021-02-11"),
+         URL = "https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5",
+         citation = "Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Combine and save
+full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry)
+data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
+save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
+rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Kongsfjorden ------------------------------------------------------------
@@ -501,8 +571,8 @@ rm(kong_mooring_GFI_units, kong_mooring_GFI_1, kong_mooring_GFI_2, kong_mooring_
    kong_mooring_GFI_12, kong_mooring_GFI_13, kong_mooring_GFI_14); gc()
 
 # Combine and save
-full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database,
-                           kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI)
+full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
+                           kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI)
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
@@ -905,6 +975,34 @@ full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, 
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
+
+
+## Test visuals ------------------------------------------------------------
+
+is_phys <- full_product_is %>% 
+  filter(var_type == "phys")
+
+is_pH <- full_product_is %>% 
+  filter(grepl("pH",var_name))
+
+is_temp <- is_phys %>% 
+  filter(grepl("°C",var_name))
+is_temp %>% 
+  filter(depth >= 0) %>% 
+  group_by(date, depth) %>% 
+  summarise(value = mean(value, na.rm = T)) %>% 
+  ggplot(aes(x = date, y = depth)) +
+  geom_point(aes(colour = value)) +
+  scale_y_reverse()
+
+is_temp_ph <- left_join(is_temp, is_pH, by = c("date_accessed", "URL", "citation", "lon", "lat", "date", "depth"))
+is_temp_ph <- rbind(is_temp, is_pH)
+is_temp_ph %>% 
+  filter(!is.na(value.y)) %>% 
+  ggplot(aes(x = value.x, y = value.y)) +
+  geom_point() +
+  scale_y_reverse()
+
 
 # Inglefieldbukta ---------------------------------------------------------
 
