@@ -465,9 +465,9 @@ kong_PG <- data.frame(type = "PANGAEA",
                       lon_range = "11.0 to 12.58", 
                       lat_range = "78.86 to 79.10",
                       depth_range = "-60 to 371",
-                      file_name = '<a onclick="alert(\'pg_kong_ALL.csv\');">1 file</a>',
-                      URL = '<a onclick="alert(\'pg_kong_ALL.csv\');">See URL column</a>',
-                      reference = '<a onclick="alert(\'pg_kong_ALL.csv\');">See citation column</a>',
+                      file_name = '<a onclick="alert(\'pg_kong_ALL.csv; pg_kong_ALL.RData\');">2 files</a>',
+                      URL = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">See URL column</a>',
+                      reference = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">See citation column</a>',
                       note = "This is a combination of all PANGAEA data.")
 
 # Fully combined product
@@ -477,9 +477,9 @@ full_product_kong <- data.frame(type = "Full",
                                 lon_range = "4.18 to 13.92201", 
                                 lat_range = "78.71051 to 79.19823",
                                 depth_range = "-60 to 2380",
-                                file_name = '<a onclick="alert(\'full_product_kong.csv\');">1 file</a>',
-                                URL = '<a onclick="alert(\'full_product_kong.csv\');">See URL column</a>',
-                                reference = '<a onclick="alert(\'full_product_kong.csv\');">See citation column</a>',
+                                file_name = '<a onclick="alert(\'full_product_kong.csv; full_product_kong.RData\');">2 files</a>',
+                                URL = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See URL column</a>',
+                                reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
                                 note = "This is the full combined data product.")
 
 # Bind them together
@@ -637,9 +637,9 @@ is_PG <- data.frame(type = "PANGAEA",
                     lon_range = "13.6204 to 17.1090", 
                     lat_range = "78.0300 to 78.7022",
                     depth_range = "-754 to 415.8",
-                    file_name = '<a onclick="alert(\'pg_is_ALL.csv\');">1 file</a>',
-                    URL = '<a onclick="alert(\'pg_is_ALL.csv\');">See URL column</a>',
-                    reference = '<a onclick="alert(\'pg_is_ALL.csv\');">See citation column</a>',
+                    file_name = '<a onclick="alert(\'pg_is_ALL.csv\');">2 files</a>',
+                    URL = '<a onclick="alert(\'pg_is_ALL.csv/.RData\');">See URL column</a>',
+                    reference = '<a onclick="alert(\'pg_is_ALL.csv/.RData\');">See citation column</a>',
                     note = "This is a combination of all PANGAEA data.")
 
 # Fully combined product
@@ -649,14 +649,14 @@ full_product_is <- data.frame(type = "Full",
                               lon_range = "13.37895 to 17.35300", 
                               lat_range = "78.0300 to 78.7022",
                               depth_range = "-754 to 415.8",
-                              file_name = '<a onclick="alert(\'full_product_kong.csv\');">1 file</a>',
-                              URL = '<a onclick="alert(\'full_product_kong.csv\');">See URL column</a>',
-                              reference = '<a onclick="alert(\'full_product_kong.csv\');">See citation column</a>',
+                              file_name = '<a onclick="alert(\'full_product_kong.csv; full_product_kong.RData\');">2 files</a>',
+                              URL = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See URL column</a>',
+                              reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
                               note = "This is the full combined data product.")
 
 # Bind them together
 metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, is_CO2_tempelfjorden, 
-                            is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden)
+                            is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, is_PG, full_product_is)
 ```
 
 ```{r isfjorden-meta-data-table}
@@ -670,7 +670,41 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 ![](assets/map_inglefieldbukta.png){ width=50% }
 </center>
 
-No data were found for Inglefieldbukta on any of the data portals identified in D1.1.
+Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce.
+
+```{r inglefieldbukta-meta-data}
+# PANGAEA data product
+ingle_PG <- data.frame(type = "PANGAEA",
+                       data_name = "Sea temperature",
+                       date_range = "1890 to 1992",
+                       lon_range = "18.6 to 18.666", 
+                       lat_range = "77.9 to 78.0",
+                       depth_range = NA,
+                       file_name = '<a onclick="alert(\'pg_ingle_ALL.csv; pg_ingle_ALL.RData\');">2 files</a>',
+                       URL = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">See URL column</a>',
+                       reference = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">See citation column</a>',
+                       note = "This is a combination of all PANGAEA data.")
+
+# Fully combined product
+full_product_ingle <- data.frame(type = "Full",
+                                 data_name = "Sea temperature",
+                                 date_range = "1890 to 1992",
+                                 lon_range = "18.6 to 18.666", 
+                                 lat_range = "77.9 to 78.0",
+                                 depth_range = NA,
+                                 file_name = '<a onclick="alert(\'full_product_ingle.csv; full_product_ingle.RData\');">2 files</a>',
+                                 URL = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">See URL column</a>',
+                                 reference = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">See citation column</a>',
+                                 note = "This is the full combined data product.")
+# Bind them together
+metadata_ingle <- rbind(ingle_PG, full_product_ingle)
+```
+
+```{r inglefieldbukta-meta-data-table}
+DT::datatable(metadata_ingle, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/inglefieldbukta/'.")
+```
+
 
 # Greenland
 
@@ -892,11 +926,36 @@ young_snow_thickness <- data.frame(type = "Survey",
                                    reference = '<a onclick="alert(\'Snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16.\');">GEM</a>',
                                    note = NA)
 
+# PANGAEA data product
+young_PG <- data.frame(type = "PANGAEA",
+                       data_name = "Many",
+                       date_range = "1994 to 2015",
+                       lon_range = "-22.086 to -19.927", 
+                       lat_range = "74.2137 to 74.6025",
+                       depth_range = "-1044 to 344",
+                       file_name = '<a onclick="alert(\'pg_young_ALL.csv; pg_young_ALL.RData\');">2 files</a>',
+                       URL = '<a onclick="alert(\'pg_young_ALL.csv/.RData\');">See URL column</a>',
+                       reference = '<a onclick="alert(\'pg_young_ALL.csv/.RData\');">See citation column</a>',
+                       note = "This is a combination of all PANGAEA data.")
+
+# Fully combined product
+full_product_young <- data.frame(type = "Full",
+                                 data_name = "Many",
+                                 date_range = "1994 to 2015",
+                                 lon_range = "-22.086 to -19.927", 
+                                 lat_range = "74.2137 to 74.6025",
+                                 depth_range = "-1044 to 344",
+                                 file_name = '<a onclick="alert(\'full_product_young.csv; full_product_young.RData\');">2 files</a>',
+                                 URL = '<a onclick="alert(\'full_product_young.csv/.RData\');">See URL column</a>',
+                                 reference = '<a onclick="alert(\'full_product_young.csv/.RData\');">See citation column</a>',
+                                 note = "This is the full combined data product.")
+
 # Bind them together
 metadata_young_sound <- rbind(young_air_pCO2, young_water_pCO2, young_CTD_bottom, young_CTD_water, 
                               young_CTD_mooring, young_CTD_sill, young_phyto_species, young_zoo_species,
                               young_phosphate, young_silicate, young_DIC, young_TA, young_sea_ice_formation,
-                              young_sea_ice_breakup, young_sea_ice_thickness, young_sea_ice_open, young_snow_thickness)
+                              young_sea_ice_breakup, young_sea_ice_thickness, young_sea_ice_open, young_snow_thickness,
+                              young_PG, full_product_young)
 ```
 
 ```{r young-sound-meta-data-table}
@@ -923,9 +982,32 @@ disko_CTD_water <- data.frame(type = "CTD",
                               reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61.\');">GEM</a>',
                               note = NA)
 
+# PANGAEA data product
+disko_PG <- data.frame(type = "PANGAEA",
+                       data_name = "Many",
+                       date_range = "1867 to 2017",
+                       lon_range = "-55.54800 to -49.59857", 
+                       lat_range = "68.22 to 70.50",
+                       depth_range = "0 to 899.1",
+                       file_name = '<a onclick="alert(\'pg_disko_ALL.csv; pg_disko_ALL.RData\');">2 files</a>',
+                       URL = '<a onclick="alert(\'pg_disko_ALL.csv/.RData\');">See URL column</a>',
+                       reference = '<a onclick="alert(\'pg_disko_ALL.csv/.RData\');">See citation column</a>',
+                       note = "This is a combination of all PANGAEA data.")
+
+# Fully combined product
+full_product_disko <- data.frame(type = "Full",
+                                 data_name = "Many",
+                                 date_range = "1867 to 2017",
+                                 lon_range = "-55.54800 to -49.59857", 
+                                 lat_range = "68.22 to 70.50",
+                                 depth_range = "0 to 899.1",
+                                 file_name = '<a onclick="alert(\'full_product_disko.csv; full_product_disko.RData\');">2 files</a>',
+                                 URL = '<a onclick="alert(\'full_product_disko.csv/.RData\');">See URL column</a>',
+                                 reference = '<a onclick="alert(\'full_product_disko.csv/.RData\');">See citation column</a>',
+                                 note = "This is the full combined data product.")
 
 # Bind them together
-metadata_disko_bay <- rbind(disko_CTD_water)
+metadata_disko_bay <- rbind(disko_CTD_water, disko_PG, full_product_disko)
 ```
 
 ```{r disko-bay-meta-data-table}
@@ -1015,8 +1097,33 @@ nuup_silicate <- data.frame(type = "Bottle",
                             reference = '<a onclick="alert(\'Water Silicate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/VVQP-F862.\');">GEM</a>',
                             note = NA)
 
+# PANGAEA data product
+nuup_PG <- data.frame(type = "PANGAEA",
+                      data_name = "Many",
+                      date_range = "1963 to 2017",
+                      lon_range = "-53.3147 to -49.6142", 
+                      lat_range = "64.01 to 64.80",
+                      depth_range = "-39 to 599.1",
+                      file_name = '<a onclick="alert(\'pg_nuup_ALL.csv; pg_nuup_ALL.RData\');">2 files</a>',
+                      URL = '<a onclick="alert(\'pg_nuup_ALL.csv/.RData\');">See URL column</a>',
+                      reference = '<a onclick="alert(\'pg_nuup_ALL.csv/.RData\');">See citation column</a>',
+                      note = "This is a combination of all PANGAEA data.")
+
+# Fully combined product
+full_product_nuup <- data.frame(type = "Full",
+                                data_name = "Many",
+                                date_range = "1963 to 2017",
+                                lon_range = "-53.3147 to -49.6142", 
+                                lat_range = "64.01 to 64.80",
+                                depth_range = "-39 to 599.1",
+                                file_name = '<a onclick="alert(\'full_product_nuup.csv; full_product_nuup.RData\');">2 files</a>',
+                                URL = '<a onclick="alert(\'full_product_nuup.csv/.RData\');">See URL column</a>',
+                                reference = '<a onclick="alert(\'full_product_nuup.csv/.RData\');">See citation column</a>',
+                                note = "This is the full combined data product.")
+
 # Bind them together
-metadata_nuup <- rbind(nuup_phyto_abundance, nuup_CTD, nuup_Chla, nuup_prim_prod, nuup_phosphate, nuup_silicate)
+metadata_nuup <- rbind(nuup_phyto_abundance, nuup_CTD, nuup_Chla, nuup_prim_prod, nuup_phosphate, nuup_silicate,
+                       nuup_PG, full_product_nuup)
 ```
 
 ```{r nuup-meta-data-table}
@@ -1037,7 +1144,8 @@ DT::datatable(metadata_nuup, rownames = FALSE, escape = FALSE, colnames = DT_col
 por_fish_bio <- data.frame(type = "Survey",
                            data_name = "Fish species biomass",
                            date_range = "2007 to 2016",
-                           lon_range = "?", lat_range = "?",
+                           lon_range = "?", 
+                           lat_range = "?",
                            depth_range = "?",
                            file_name = '<a onclick="alert(\'Not hosted on pCloud\');">0 files</a>',
                            URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
@@ -1048,7 +1156,8 @@ por_fish_bio <- data.frame(type = "Survey",
 por_benthos_bio <- data.frame(type = "Survey",
                               data_name = "Benthos species biomass",
                               date_range = "2007 to 2016",
-                              lon_range = "?", lat_range = "?",
+                              lon_range = "?", 
+                              lat_range = "?",
                               depth_range = "?",
                               file_name = '<a onclick="alert(\'Not hosted on pCloud\');">0 files</a>',
                               URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
@@ -1059,15 +1168,40 @@ por_benthos_bio <- data.frame(type = "Survey",
 por_NorKyst <- data.frame(type = "Model",
                           data_name = "Sea temperature (surface, mid, bottom); sea ice: thickness",
                           date_range = "2012 to 2020",
-                          lon_range = "? to ?", lat_range = "? to ?",
+                          lon_range = "? to ?", 
+                          lat_range = "? to ?",
                           depth_range = "? to ?",
                           file_name = '<a onclick="alert(\'Not hosted on pCloud\');"0 files</a>',
                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/fou-hi/fou-hi.html">NMI</a>',
                           reference = '<a onclick="alert(\'Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.\');">Albretsen et al. (2011)</a>',
                           note = NA)
 
+# PANGAEA data product
+por_PG <- data.frame(type = "PANGAEA",
+                     data_name = "Many",
+                     date_range = "1870 to 2019",
+                     lon_range = "24.5 to 27.0", 
+                     lat_range = "70.0 to 71.2",
+                     depth_range = "-285 to 310",
+                     file_name = '<a onclick="alert(\'pg_por_ALL.csv; pg_por_ALL.RData\');">2 files</a>',
+                     URL = '<a onclick="alert(\'pg_por_ALL.csv/.RData\');">See URL column</a>',
+                     reference = '<a onclick="alert(\'pg_por_ALL.csv/.RData\');">See citation column</a>',
+                     note = "This is a combination of all PANGAEA data.")
+
+# Fully combined product
+full_product_por <- data.frame(type = "Full",
+                               data_name = "Many",
+                               date_range = "1870 to 2019",
+                               lon_range = "24.5 to 27.0", 
+                               lat_range = "70.0 to 71.2",
+                               depth_range = "-285 to 310",
+                               file_name = '<a onclick="alert(\'full_product_por.csv; full_product_por.RData\');">2 files</a>',
+                               URL = '<a onclick="alert(\'full_product_por.csv/.RData\');">See URL column</a>',
+                               reference = '<a onclick="alert(\'full_product_por.csv/.RData\');">See citation column</a>',
+                               note = "This is the full combined data product.")
+
 # Bind them together
-metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio, por_NorKyst)
+metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio, por_NorKyst, por_PG, full_product_por)
 ```
 
 ```{r porsangerfjorden-meta-data-table}

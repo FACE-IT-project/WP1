@@ -509,3 +509,20 @@ load_utm <- function(file_name){
     dplyr::select(lon, lat, everything())
 }
 
+# Function for loading individual variables from a difficult NetCDF CTD file
+CTD_to_long <- function(nc_file, var_id){
+  # Get attributes
+  nc_TIME <- ncdf4::ncvar_get(nc_file, varid = "TIME")
+  nc_PRES <- ncdf4::ncvar_get(nc_file, varid = "PRES")
+  nc_LONGITUDE <- ncdf4::ncvar_get(nc_file, varid = "LONGITUDE")
+  nc_LATITUDE <- ncdf4::ncvar_get(nc_file, varid = "LATITUDE")
+  # Extract one variable and melt that it
+  nc_val <- data.frame(t(ncdf4::ncvar_get(nc_file, varid = var_id))) %>% 
+    `colnames<-`(nc_PRES) %>% 
+    cbind(nc_TIME, nc_LONGITUDE, nc_LATITUDE) %>%
+    pivot_longer(`1`:`5676`, values_to = tolower(var_id), names_to = "depth") %>% 
+    mutate(date = as.POSIXct((nc_TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused") %>% 
+    dplyr::rename(lon = nc_LONGITUDE, lat = nc_LATITUDE) %>% 
+    dplyr::select(lon, lat, date, depth, everything())
+  return(nc_val)
+}

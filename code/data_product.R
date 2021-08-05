@@ -350,21 +350,25 @@ kong_protist_nutrient_chla <- kong_protist_nutrient_chla_1 %>%
 rm(kong_protist_nutrient_chla_1, kong_protist_nutrient_chla_2, kong_protist_nutrient_chla_3); gc()
 
 ## CTD sampling data
-tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
-ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
-nc_dat <- ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
-nc_TIME <- ncdf4::ncvar_get(nc_dat, varid = "TIME")
-nc_PRES <- ncdf4::ncvar_get(nc_dat, varid = "PRES")
-nc_LONGITUDE <- ncdf4::ncvar_get(nc_dat, varid = "LONGITUDE")
-nc_LATITUDE <- ncdf4::ncvar_get(nc_dat, varid = "LATITUDE")
-nc_TEMP <- data.frame(t(ncdf4::ncvar_get(nc_dat, varid = "TEMP"))) %>% 
-  `colnames<-`(nc_PRES) %>% 
-  cbind(nc_TIME, nc_LONGITUDE, nc_LATITUDE) %>% 
-  pivot_longer(`1`:`5676`, values_to = "temp", names_to = "depth") %>% 
-  filter(!is.na(temp)) %>% 
-  mutate(date = as.POSIXct((nc_TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused")
-nc_PSAL
-nc_CNDC
+# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
+kong_CTD_nc_dat <- ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_ctd_1906_2017.nc")
+kong_CTD_TEMP <- CTD_to_long(kong_CTD_nc_dat, "TEMP")
+kong_CTD_PSAL <- CTD_to_long(kong_CTD_nc_dat, "PSAL")
+kong_CTD_CNDC <- CTD_to_long(kong_CTD_nc_dat, "CNDC")
+kong_CTD_database <- left_join(kong_CTD_TEMP, kong_CTD_PSAL, by = c("lon", "lat", "date", "depth")) %>% 
+  left_join(kong_CTD_CNDC, by = c("lon", "lat", "date", "depth")) %>% 
+  pivot_longer(temp:cndc, names_to = "var_name", values_to = "value") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(URL = "https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6",
+         citation = "Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c",
+         units = case_when(var_name == "temp" ~ "°C",
+                           var_name == "psal" ~ "1e-3",
+                           var_name == "cndc" ~ "S m-1"),
+         var_name = paste0(var_name," [", units,"]"),
+         var_type = "phys",
+         date_accessed = as.Date("2021-02-11")) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+rm(kong_CTD_nc_dat, kong_CTD_TEMP, kong_CTD_PSAL, kong_CTD_CNDC); gc()
 
 ## CO2 data
 kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_Marine_CO2_system_2012_to_2014.csv") %>% 
@@ -497,7 +501,7 @@ rm(kong_mooring_GFI_units, kong_mooring_GFI_1, kong_mooring_GFI_2, kong_mooring_
    kong_mooring_GFI_12, kong_mooring_GFI_13, kong_mooring_GFI_14); gc()
 
 # Combine and save
-full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, 
+full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database,
                            kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI)
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
@@ -904,6 +908,8 @@ rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Inglefieldbukta ---------------------------------------------------------
 
+## PG product --------------------------------------------------------------
+
 # Load pg ingle files
 system.time(
   pg_ingle_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_ingle)
@@ -948,6 +954,7 @@ pg_ingle_Social <- pg_var_melt(pg_ingle_clean, query_Social$pg_col_name, "soc") 
 # Stack them together
 pg_ingle_ALL <- rbind(pg_ingle_Physical)
 data.table::fwrite(pg_ingle_ALL, "~/pCloudDrive/FACE-IT_data/inglefieldbukta/pg_ingle_ALL.csv")
+save(pg_ingle_ALL, file = "~/pCloudDrive/FACE-IT_data/inglefieldbukta/pg_ingle_ALL.RData")
 
 # Check that all columns were used
 colnames(pg_ingle_clean)[!colnames(pg_ingle_clean) %in% unique(pg_ingle_ALL$var_name)]
@@ -956,7 +963,21 @@ colnames(pg_ingle_clean)[!colnames(pg_ingle_clean) %in% unique(pg_ingle_ALL$var_
 rm(list = grep("pg_ingle",names(.GlobalEnv),value = TRUE)); gc()
 
 
+## Full product ------------------------------------------------------------
+
+# Load PG data
+load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/pg_ingle_ALL.RData")
+
+# Combine and save
+full_product_ingle <- rbind(pg_ingle_ALL)
+data.table::fwrite(full_product_ingle, "~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.csv")
+save(full_product_ingle, file = "~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
+rm(list = grep("ingle_",names(.GlobalEnv),value = TRUE)); gc()
+
+
 # Young Sound -------------------------------------------------------------
+
+## PG product --------------------------------------------------------------
 
 # Load pg young files
 system.time(
@@ -964,8 +985,8 @@ system.time(
 ) # 57 seconds
 
 # Test problem files
-pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
-pg_test <- pg_dl_proc(pg_doi = pg_young_all$doi[32])
+# pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
+# pg_test <- pg_dl_proc(pg_doi = pg_young_all$doi[32])
 
 # Remove unneeded columns
 pg_young_clean <- pg_young_sub %>% 
@@ -1014,6 +1035,7 @@ pg_young_Social <- pg_var_melt(pg_young_clean, query_Social$pg_col_name, "soc") 
 # Stack them together
 pg_young_ALL <- rbind(pg_young_Cryosphere, pg_young_Physical, pg_young_Chemistry, pg_young_Biology)
 data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.csv")
+save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
 # Check that all columns were used
 colnames(pg_young_clean)[!colnames(pg_young_clean) %in% unique(pg_young_ALL$var_name)]
@@ -1022,7 +1044,21 @@ colnames(pg_young_clean)[!colnames(pg_young_clean) %in% unique(pg_young_ALL$var_
 rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
 
 
+## Full product ------------------------------------------------------------
+
+# Load PG product
+load("~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
+
+# Combine and save
+full_product_young <- rbind(pg_young_ALL)
+data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
+save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
+
+
 # Disko Bay ---------------------------------------------------------------
+
+## PG product --------------------------------------------------------------
 
 # Load pg disko files
 system.time(
@@ -1085,6 +1121,7 @@ pg_disko_Social <- pg_var_melt(pg_disko_clean, query_Social$pg_col_name, "soc") 
 # Stack them together
 pg_disko_ALL <- rbind(pg_disko_Cryosphere, pg_disko_Physical, pg_disko_Chemistry, pg_disko_Biology)
 data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.csv")
+save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
 # Check that all columns were used
 colnames(pg_disko_clean)[!colnames(pg_disko_clean) %in% unique(pg_disko_ALL$var_name)]
@@ -1093,7 +1130,20 @@ colnames(pg_disko_clean)[!colnames(pg_disko_clean) %in% unique(pg_disko_ALL$var_
 rm(list = grep("pg_disko",names(.GlobalEnv),value = TRUE)); gc()
 
 
+## Full product ------------------------------------------------------------
+
+# Load PG product
+load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
+
+# Combine and save
+full_product_disko <- rbind(pg_disko_ALL)
+data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
+save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
+
 # Nuup Kangerlua ----------------------------------------------------------
+
+## PG product --------------------------------------------------------------
 
 # Load pg young files
 system.time(
@@ -1152,6 +1202,7 @@ pg_nuup_Social <- pg_var_melt(pg_nuup_clean, query_Social$pg_col_name, "soc") # 
 # Stack them together
 pg_nuup_ALL <- rbind(pg_nuup_Cryosphere, pg_nuup_Physical, pg_nuup_Chemistry, pg_nuup_Biology)
 data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.csv")
+save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
 # Check that all columns were used
 colnames(pg_nuup_clean)[!colnames(pg_nuup_clean) %in% unique(pg_nuup_ALL$var_name)]
@@ -1160,7 +1211,21 @@ colnames(pg_nuup_clean)[!colnames(pg_nuup_clean) %in% unique(pg_nuup_ALL$var_nam
 rm(list = grep("pg_nuup",names(.GlobalEnv),value = TRUE)); gc()
 
 
+## Full product ------------------------------------------------------------
+
+# Load PG product
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
+
+# Combine and save
+full_product_nuup <- rbind(pg_nuup_ALL)
+data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
+save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
+
+
 # Porsangerfjorden --------------------------------------------------------
+
+## PG product --------------------------------------------------------------
 
 # Load pg is files
 system.time(
@@ -1221,10 +1286,22 @@ pg_por_Social <- pg_var_melt(pg_por_clean, query_Social$pg_col_name, "soc") # em
 # Stack them together
 pg_por_ALL <- rbind(pg_por_Cryosphere, pg_por_Physical, pg_por_Chemistry)
 data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.csv")
+save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
 # Check that all columns were used
 colnames(pg_por_clean)[!colnames(pg_por_clean) %in% unique(pg_por_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
+
+## Full product ------------------------------------------------------------
+
+# Load PG product
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
+
+# Combine and save
+full_product_por <- rbind(pg_por_ALL)
+data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
+save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 
