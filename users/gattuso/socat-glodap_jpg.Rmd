@@ -3,24 +3,24 @@ title: "SOCAT-GLODAP"
 author: "Jean-Pierre Gattuso"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 site: workflowr::wflow_site
-output:
-  workflowr::wflow_html:
-    toc: false
 # output:
-#   rmarkdown::html_document:
-#     theme: paper
-#     number_sections: false
-editor_options:
-  chunk_output_type: console
-csl: frontiers.csl
-bibliography: FACE-IT.bib
+#   workflowr::wflow_html:
+#     toc: false
+output:
+  rmarkdown::html_document:
+    theme: paper
+    number_sections: false
+# editor_options:
+#   chunk_output_type: console
+# csl: frontiers.csl
+# bibliography: FACE-IT.bib
 ---
 
 ```{r setup, message = FALSE, warning = FALSE, echo = FALSE}
 # Start with common project code
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ = 'UTC') # on utilise UTC
-#rm(list = ls())
+rm(list = ls())
 
 # Remove scientific notation
 options(scipen = 9999)
@@ -155,12 +155,12 @@ With the Arctic region investigated for both products we now want to compare the
 # case_when to apply names to ocean regions
 # Group by these to get counts
 # Bar plot of comparisons with fill showing product
-socat_all <- socat_all %>% 
+socat_all <- socat %>% 
   mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon),
          ocean = case_when(lon >= -70 & lon <= 20 ~ "Atlantic",
                            lon >= 20 & lon <= 120 ~ "Indian",
                            TRUE ~ "Pacific")) %>% 
-  mutate(ocean = case_when(lat >= 60 ~ "Arctic",
+  mutate(ocean = case_when(lat >= 75 ~ "Arctic",
                            lat <= -60 ~ "Southern",
                            TRUE ~ ocean))
 # unique(both_all$ocean)
@@ -177,7 +177,7 @@ socat_all %>%
   labs(x = NULL, y = NULL)
 
 # Calculate annual counts
-annual_count_deep <- both_all %>% 
+annual_count_deep <- socat_all %>% 
   group_by(product, ocean, year) %>% 
   summarise(n = n(), .groups = "drop") %>% 
   mutate(depth_group = "deep")
@@ -228,12 +228,12 @@ monthly_count %>%
 # case_when to apply names to ocean regions
 # Group by these to get counts
 # Bar plot of comparisons with fill showing product
-glodap_all <- glodap_all %>% 
+glodap_all <- glodap %>% 
   mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon),
          ocean = case_when(lon >= -70 & lon <= 20 ~ "Atlantic",
                            lon >= 20 & lon <= 120 ~ "Indian",
                            TRUE ~ "Pacific")) %>% 
-  mutate(ocean = case_when(lat >= 60 ~ "Arctic",
+  mutate(ocean = case_when(lat >= 75 ~ "Arctic",
                            lat <= -60 ~ "Southern",
                            TRUE ~ ocean))
 # unique(both_all$ocean)
@@ -250,7 +250,7 @@ glodap_all %>%
   labs(x = NULL, y = NULL)
 
 # Calculate annual counts
-annual_count_deep <- both_all %>% 
+annual_count_deep <- glodap_all %>% 
   group_by(product, ocean, year) %>% 
   summarise(n = n(), .groups = "drop") %>% 
   mutate(depth_group = "deep")
