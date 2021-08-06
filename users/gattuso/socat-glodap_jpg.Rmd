@@ -155,7 +155,7 @@ With the Arctic region investigated for both products we now want to compare the
 # case_when to apply names to ocean regions
 # Group by these to get counts
 # Bar plot of comparisons with fill showing product
-socat_all <- socat %>% 
+socat_all <- socat_all %>% 
   mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon),
          ocean = case_when(lon >= -70 & lon <= 20 ~ "Atlantic",
                            lon >= 20 & lon <= 120 ~ "Indian",
@@ -175,6 +175,18 @@ socat_all %>%
   geom_point(aes(colour = ocean)) +
   coord_cartesian(expand = F) +
   labs(x = NULL, y = NULL)
+
+# global counts
+global_count_deep <- socat_all %>% 
+  group_by(ocean) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "deep")
+global_count_shallow <- socat_all %>% 
+  filter(bottomdepth <= 200) %>% 
+  group_by(ocean) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "shallow")
+global_count <- rbind(global_count_deep, global_count_shallow)
 
 # Calculate annual counts
 annual_count_deep <- socat_all %>% 
@@ -223,6 +235,8 @@ monthly_count %>%
   facet_wrap(~depth_group) +
   theme(legend.position = "bottom")
 ```
+Among the `r sum(global_count$n)` SOCAT v2021 comprises `r ``
+
 
 ```{r glodap, message=FALSE, warning=FALSE, echo = FALSE}
 # case_when to apply names to ocean regions
