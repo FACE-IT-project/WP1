@@ -1,0 +1,299 @@
+---
+title: "SOCAT-GLODAP"
+author: "Jean-Pierre Gattuso"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+# output:
+#   rmarkdown::html_document:
+#     theme: paper
+#     number_sections: false
+editor_options:
+  chunk_output_type: console
+csl: frontiers.csl
+bibliography: FACE-IT.bib
+---
+
+```{r setup, message = FALSE, warning = FALSE, echo = FALSE}
+# Start with common project code
+Sys.setlocale("LC_ALL", "en_US.UTF-8")
+Sys.setenv(TZ = 'UTC') # on utilise UTC
+#rm(list = ls())
+
+# Remove scientific notation
+options(scipen = 9999)
+
+# Find who is the user and define the pCloud path
+if (Sys.getenv("LOGNAME") == "gattuso") {
+  pCloud_path = "~/pCloud\ Drive/"
+} else {
+  pCloud_path = "~/pCloudDrive/" 
+}
+library(tidyverse)
+library(data.table) # For 'fread'
+library(doParallel) # For using multiple cores
+library(tidync)
+```
+
+# Overview
+
+The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical_properties). According to Wikipedia the Arctic Ocean is about 14,056,000 km2. Calculation of the surface area of the Arctic Ocean using GMT (script below):
+
+- north of 60°N: 1.6751e+07 km2, or `r round(100  * 1.6751e+07 / 361132000, digits = 1)`% of the global ocean.
+- north of 75°N: 7.11213e+06 km2, or `r round(100  * 7.11213e+06 / 361132000, digits = 1)`% of the global ocean.
+
+# SOCAT Product
+
+```{r read socat, message = FALSE, warning = FALSE, echo = FALSE}
+# Read from pCloudDrive (veryyy slow!)
+# socat <- data.table::fread(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.tsv"), 
+#                            select = c("yr", "mon", "day", "longitude [dec.deg.E]", "latitude [dec.deg.N]", 
+#                                       "sample_depth [m]", "ETOPO2_depth [m]", "pCO2water_SST_wet [uatm]"), 
+#                            skip = 6626, nrows = Inf, nThread = 10, fill = TRUE)
+socat <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.rds"))
+socat_all <- socat %>% # whole ocean
+  dplyr::filter(!is.na(`pCO2water_SST_wet [uatm]`)) %>% # remove NAs
+  dplyr::rename(year = yr, month = mon, lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`, 
+                bottomdepth = `ETOPO2_depth [m]`, depth = `sample_depth [m]`, tco2 = `pCO2water_SST_wet [uatm]`) %>% 
+  mutate(product = "SOCAT",
+         depth = replace_na(depth, 0)) %>% 
+  filter(depth >= 0)
+socat_arctic_60 <- socat_all %>% 
+  dplyr::filter(lat > 60, bottomdepth <= 200)
+socat_arctic_75 <- socat_all %>% 
+  dplyr::filter(lat > 75, bottomdepth <= 200)
+
+# timeline
+dat_yr <- socat_arctic_75 %>% count(year)
+timel_socat_a75_plt <- dat_yr %>% 
+  ggplot(aes(x = year, y = n)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "SOCAT: number of data per year at > 75°N and <= 200m", x = "Year", y = "pCO2water_SST_wet")
+print(timel_socat_a75_plt)
+
+# monthly distribution
+dat_mon <- socat_arctic_75 %>% count(month) %>% 
+  right_join(data.frame(month = 1:12), by = "month") %>% 
+  mutate(n = replace_na(n, 0))
+month_socat_a75_plt <- dat_mon %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = month), show.legend = F) +
+  scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
+  labs(title = "SOCAT: number of data per month at > 75°N and <= 200m", x = "Month", y = "pCO2water_SST_wet")
+print(month_socat_a75_plt)
+socat_summer <- dat_mon %>% 
+  dplyr::filter(month >= 6 & month <=9) %>%
+  sum()
+socat_summer_pc <- round(100 * socat_summer / sum(dat_mon$n), digits = 1)
+```
+
+SOCAT v2021 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
+
+* `r nrow(socat_arctic_60)` in the Arctic Ocean shelf waters (North of 60°N and shallower than 200 m), or `r round(100*nrow(socat_arctic_60)/nrow(socat_all), digits = 1)`% of the total number of records
+* `r nrow(socat_arctic_75)` in the Arctic Ocean shelf waters (North of 75°N and shallower than 200 m), or `r round(100*nrow(socat_arctic_75)/nrow(socat_all), digits = 1)`% of the total number of records
+* `r socat_summer_pc`% of the data have been collected over 4 months (June to September) and almost no data were collected from November (`r dat_mon$n[8]`) to April (0).
+
+# GLODAP product
+
+```{r read-glodap, message=FALSE, warning=FALSE, echo = FALSE}
+# The bottle data
+# This is slow
+# GLODAP_bottle <- data.table::fread(paste0(pCloud_path,"FACE-IT_data/glodap/GLODAPv2.2021_Merged_Master_File.csv"), na.strings = "-9999") 
+GLODAP_bottle <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/GLODAP_bottle.rds")) %>%
+  rename_with(~gsub("G2", "", .x, fixed = TRUE)) %>% 
+  dplyr::select(year, month, day, longitude, latitude, bottomdepth, depth, tco2)
+
+glodap_all <- GLODAP_bottle %>% # whole ocean
+  dplyr::filter(!is.na(tco2)) %>%  # remove NAs
+  dplyr::rename(lon = longitude, lat = latitude) %>% 
+  mutate(product = "GLODAP") %>% 
+  filter(depth >= 0)
+glodap_arctic_60 <- GLODAP_bottle %>% 
+  dplyr::filter(latitude > 60, bottomdepth <= 200)
+glodap_arctic_75 <- GLODAP_bottle %>% 
+  dplyr::filter(latitude > 75, bottomdepth <= 200)
+
+# timeline
+dat_yr <- glodap_arctic_75 %>% count(year)
+timel_glodap_a75_plt <- dat_yr %>% 
+  ggplot(aes(x = year, y = n)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "GLODAP: number of data per year at > 75°N and <= 200m", x = "Year", y = "tco2")
+print(timel_glodap_a75_plt)
+
+# monthly distribution
+dat_mon <- glodap_arctic_75 %>% count(month) %>% 
+  right_join(data.frame(month = 1:12), by = "month") %>% 
+  mutate(n = replace_na(n, 0))
+month_glodap_a75_plt <- dat_mon %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = month), show.legend = F) +
+  scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
+  labs(title = "GLODAP: number of data per month at > 75°N", x = "Month", y = "pCO2water_SST_wet")
+print(month_glodap_a75_plt)
+glodap_summer <- dat_mon %>% 
+  dplyr::filter(month >= 6 & month <= 9) %>%
+  sum()
+glodap_summer_pc <- round(100 * glodap_summer / sum(dat_mon$n), digits = 1)
+```
+
+GLODAP v2.2021 has `r nrow(glodap_all)` records of TCO2, including:
+
+* `r nrow(glodap_arctic_60)` in the Arctic Ocean shelf waters (North of 60°N and shallower than 200 m), or `r round(100*nrow(glodap_arctic_60)/nrow(glodap_all), digits = 1)`% of the total number of records
+* `r nrow(glodap_arctic_75)` in the Arctic Ocean shelf waters (North of 75°N  and shallower than 200 m) or `r round(100*nrow(glodap_arctic_75)/nrow(glodap_all), digits = 1)`% of the total number of records
+* `r glodap_summer_pc`% of the data have been collected over 4 months (June to September) and no data have been collected from November to March.
+
+# Comparison
+
+With the Arctic region investigated for both products we now want to compare them for the Arctic, Atlantic, Indian, Pacific, and Southern oceans. For both the full oceans as well as coastal (<= 200 m bottom depth) values. To do so we will use the bottom depths accompanied by the products, and will define very rough bounding boxes for the oceans.
+
+```{r socat, message=FALSE, warning=FALSE, echo = FALSE}
+# case_when to apply names to ocean regions
+# Group by these to get counts
+# Bar plot of comparisons with fill showing product
+socat_all <- socat_all %>% 
+  mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon),
+         ocean = case_when(lon >= -70 & lon <= 20 ~ "Atlantic",
+                           lon >= 20 & lon <= 120 ~ "Indian",
+                           TRUE ~ "Pacific")) %>% 
+  mutate(ocean = case_when(lat >= 60 ~ "Arctic",
+                           lat <= -60 ~ "Southern",
+                           TRUE ~ ocean))
+# unique(both_all$ocean)
+
+# Rough visual of the pixels by ocean
+socat_all %>% 
+  mutate(lon = round(lon), lat = round(lat)) %>% 
+  group_by(lon, lat, ocean) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  ggplot(aes(x = lon, y = lat)) +
+  borders() +
+  geom_point(aes(colour = ocean)) +
+  coord_cartesian(expand = F) +
+  labs(x = NULL, y = NULL)
+
+# Calculate annual counts
+annual_count_deep <- both_all %>% 
+  group_by(product, ocean, year) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "deep")
+annual_count_shallow <- socat_all %>% 
+  filter(bottomdepth <= 200) %>% 
+  group_by(product, ocean, year) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "shallow")
+annual_count <- rbind(annual_count_deep, annual_count_shallow)
+
+# Dot and line plot of count of data per year per ocean etc.
+annual_count %>% 
+  ggplot(aes(x = year, y = n, colour = ocean)) +
+  geom_point(aes(shape = product)) +
+  geom_line(aes(linetype = product)) +
+  labs(title = "Number of SOCAT data per year for different oceans", 
+       #subtitle = "Note there is so much more SOCAT data it is hard to see GLODAP", 
+       x = "Year", y = "count") +
+  facet_wrap(~depth_group) +
+  theme(legend.position = "bottom")
+
+# Calculate monthly counts
+monthly_count_deep <- socat_all %>% 
+  group_by(product, ocean, month) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "deep")
+monthly_count_shallow <- socat_all %>% 
+  filter(bottomdepth <= 200) %>% 
+  group_by(product, ocean, month) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "shallow")
+monthly_count <- rbind(monthly_count_deep, monthly_count_shallow)
+
+# Bar plot showing monthly count comparisons
+monthly_count %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = ocean, colour = product)) +
+  scale_colour_brewer(palette = "Set1") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
+  labs(title = "Count of SOCAT data per month for different oceans",
+       #subtitle = "Note that there is so little GLODAP data by comparison it is difficult to see",
+       x = "Month", y = "count") +
+  facet_wrap(~depth_group) +
+  theme(legend.position = "bottom")
+```
+
+```{r glodap, message=FALSE, warning=FALSE, echo = FALSE}
+# case_when to apply names to ocean regions
+# Group by these to get counts
+# Bar plot of comparisons with fill showing product
+glodap_all <- glodap_all %>% 
+  mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon),
+         ocean = case_when(lon >= -70 & lon <= 20 ~ "Atlantic",
+                           lon >= 20 & lon <= 120 ~ "Indian",
+                           TRUE ~ "Pacific")) %>% 
+  mutate(ocean = case_when(lat >= 60 ~ "Arctic",
+                           lat <= -60 ~ "Southern",
+                           TRUE ~ ocean))
+# unique(both_all$ocean)
+
+# Rough visual of the pixels by ocean
+glodap_all %>% 
+  mutate(lon = round(lon), lat = round(lat)) %>% 
+  group_by(lon, lat, ocean) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  ggplot(aes(x = lon, y = lat)) +
+  borders() +
+  geom_point(aes(colour = ocean)) +
+  coord_cartesian(expand = F) +
+  labs(x = NULL, y = NULL)
+
+# Calculate annual counts
+annual_count_deep <- both_all %>% 
+  group_by(product, ocean, year) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "deep")
+annual_count_shallow <- glodap_all %>% 
+  filter(bottomdepth <= 200) %>% 
+  group_by(product, ocean, year) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "shallow")
+annual_count <- rbind(annual_count_deep, annual_count_shallow)
+
+# Dot and line plot of count of data per year per ocean etc.
+annual_count %>% 
+  ggplot(aes(x = year, y = n, colour = ocean)) +
+  geom_point(aes(shape = product)) +
+  geom_line(aes(linetype = product)) +
+  labs(title = "Number of glodap data per year for different oceans", 
+       #subtitle = "Note there is so much more glodap data it is hard to see GLODAP", 
+       x = "Year", y = "count") +
+  facet_wrap(~depth_group) +
+  theme(legend.position = "bottom")
+
+# Calculate monthly counts
+monthly_count_deep <- glodap_all %>% 
+  group_by(product, ocean, month) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "deep")
+monthly_count_shallow <- glodap_all %>% 
+  filter(bottomdepth <= 200) %>% 
+  group_by(product, ocean, month) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "shallow")
+monthly_count <- rbind(monthly_count_deep, monthly_count_shallow)
+
+# Bar plot showing monthly count comparisons
+monthly_count %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = ocean, colour = product)) +
+  scale_colour_brewer(palette = "Set1") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
+  labs(title = "Count of glodap data per month for different oceans",
+       #subtitle = "Note that there is so little GLODAP data by comparison it is difficult to see",
+       x = "Month", y = "count") +
+  facet_wrap(~depth_group) +
+  theme(legend.position = "bottom")
+```
+
