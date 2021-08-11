@@ -180,6 +180,9 @@ EU_GRDC <- data.frame(type = "Flow meter",
                       reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                       note = NA)
 
+# Carb chem Arctic model output
+EU_Popova <- "Arctic_model_output_acid.dat"
+
 # EU PANGAEA data products
 EU_PG <- data.frame(type = "PANGAEA",
                     data_name = "Most drivers",

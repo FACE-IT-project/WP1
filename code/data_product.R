@@ -118,6 +118,9 @@ EU_NCEI_1989
 # grdc_arctichycos_stations.xlsx
 EU_GRDC
 
+# Carb chem Arctic model output
+EU_Popova
+
 # Combine and save
 full_product_EU <- rbind()
 data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
