@@ -581,7 +581,10 @@ save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_pro
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Search product for specific authors
-# load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+
+# Simple checks
+unique(full_product_kong$citation[grepl("Jentzsch", full_product_kong$citation)])
 
 # Philipp Fischer ferry box data - There are a couple of months of data for 2014
 # kong_fischer <- full_product_kong %>% 
@@ -1414,8 +1417,26 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 # Load PG product
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
+## Series of GFI moorings
+tidync("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1249_RCM_3148_QC.nc")
+ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1256_RCM_3160_QC.nc")
+por_mooring_GFI_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1255_RCM_6197_QC.nc")$variable))
+por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
+  mutate(date = as.Date(as.POSIXct(time*86400, origin = "1990-06-11 11:00:00")), .keep = "unused") %>% 
+  dplyr::select(URL, lon, lat, date, depth, everything()) %>% 
+  pivot_longer(temp:pres, names_to = "var_name", values_to = "value") %>% 
+  filter(!is.na(value)) %>% 
+  left_join(por_mooring_GFI_units, by = c("var_name" = "name")) %>% 
+  mutate(units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
+         citation = "These data were made freely available by the NMDC project.",
+         var_type = "phys",
+         var_name = paste0(var_name, " [", units,"]"),
+         date_accessed = as.Date("2021-08-11")) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+rm(por_mooring_GFI_units); gc()
+
 # Combine and save
-full_product_por <- rbind(pg_por_ALL)
+full_product_por <- rbind(pg_por_ALL, por_mooring_GFI)
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
