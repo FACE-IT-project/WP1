@@ -261,17 +261,11 @@ rm(list = ls()[grep("pg_EU", ls())]); gc()
 
 # Kongsfjorden ------------------------------------------------------------
 
-## Salinity: Mooring. Scottish Association of Marine Sciences (SAMS): 
-# Haakon Hop (NP) Finlo Cottier (SAMS) Jørgen Berge (UiT, Tromsø)
-
-## Temperature: Mooring. Scottish Association of Marine Sciences (SAMS): 
+## Temperature and salinity: Mooring. Scottish Association of Marine Sciences (SAMS): 
 # Haakon Hop (NP) Finlo Cottier (SAMS) Jørgen Berge (UiT, Tromsø)
 
 ## Carbonate chemistry: pH, DIC, TA, pCO2. Available upon request:
 # http://www.obs-vlfr.fr/~gattuso/data/awipev-CO2_web.html
-
-## Nutrients: Vertical profiles. NPI
-# https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5
 
 ## Seabirds: Abundance, vital rates, diet. NPI, S Descamps.
 

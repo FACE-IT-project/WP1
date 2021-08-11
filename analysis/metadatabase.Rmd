@@ -390,7 +390,7 @@ kong_zoo_data <- data.frame(type = "Net",
 # Protist species and nutrients and Chla
 kong_protist_nutrient_chla <- data.frame(type = "Bottle",
                                          data_name = "Protist: species; nutrients; ChlA",
-                                         date_range = "2009 to 2010",
+                                         date_range = "2009 to 2014",
                                          lon_range = "4.2 to 12.0",
                                          lat_range = "78.9 to 79.1",
                                          depth_range = "0 to 1129",
@@ -584,13 +584,13 @@ is_CO2_IsA <- data.frame(type = "CTD",
                          note = NA)
 
 # Chlorophyl station at IsA
-is_Chla_IsA <- data.frame(type = "CTD",
+is_Chla_IsA <- data.frame(type = "Niskin",
                           data_name = "ChlA",
                           date_range = "2011 to 2019",
                           lon_range = "15.52992", lat_range = "78.26105",
                           depth_range = "0 to 980",
                           file_name = '<a onclick="alert(\'chl_a: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc; IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">1 folder, 2 files</a>',
-                          URL = '<a onclick="alert(\'https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All\');">SIOS</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All">SIOS</a>',
                           reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                           note = NA)
 
@@ -1152,7 +1152,7 @@ por_fish_bio <- data.frame(type = "Survey",
                            reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                            note = NA)
 
-# Fish species biomass
+# Benthic invertebrate species biomass
 por_benthos_bio <- data.frame(type = "Survey",
                               data_name = "Benthos species biomass",
                               date_range = "2007 to 2016",

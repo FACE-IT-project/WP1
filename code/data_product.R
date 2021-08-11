@@ -577,6 +577,20 @@ data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/f
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
+# Search product for specific authors
+# load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+
+# Philipp Fischer ferry box data - There are a couple of months of data for 2014
+# kong_fischer <- full_product_kong %>% 
+  # filter(grepl("Fischer", citation))
+
+# Popova carbonate chemistry model data - No data present
+# kong_popova <- full_product_kong %>% 
+  # filter(grepl("Popova", citation))
+
+# Clean up
+# rm(kong_fischer, kong_popova)
+
 
 # Isfjorden ---------------------------------------------------------------
 
