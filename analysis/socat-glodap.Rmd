@@ -20,7 +20,7 @@ bibliography: FACE-IT.bib
 # Start with common project code
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ = 'UTC') # on utilise UTC
-rm(list = ls())
+#rm(list = ls())
 
 # Remove scientific notation
 options(scipen = 9999)
@@ -77,12 +77,8 @@ The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical
 # SOCAT Product
 
 ```{r read socat, message = FALSE, warning = FALSE, echo = FALSE}
-# The full SOCAT product
-# NB: This takes a few minutes due to the size of the file
-socat <- data.table::fread(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.tsv"), 
-                           select = c("yr", "mon", "day", "longitude [dec.deg.E]", "latitude [dec.deg.N]", 
-                                      "sample_depth [m]", "ETOPO2_depth [m]", "pCO2water_SST_wet [uatm]"), 
-                           skip = 6626, nrows = Inf, nThread = 10, fill = TRUE) %>% 
+# Read from pCloudDrive (veryyy slow!)
+socat <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.rds")) %>% 
   dplyr::rename(year = yr, month = mon, lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`, 
                   bottomdepth = `ETOPO2_depth [m]`, depth = `sample_depth [m]`, tco2 = `pCO2water_SST_wet [uatm]`) %>% 
   mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon))
@@ -142,7 +138,7 @@ SOCAT v2021 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], includi
 
 ```{r read-glodap, message=FALSE, warning=FALSE, echo = FALSE}
 # The bottle data
-glodap_bottle <- data.table::fread(paste0(pCloud_path,"FACE-IT_data/glodap/GLODAPv2.2021_Merged_Master_File.csv"), na.strings = "-9999", nThread = 10) %>%
+glodap_bottle <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/GLODAP_bottle.rds")) %>%
   rename_with(~gsub("G2", "", .x, fixed = TRUE)) %>% 
   dplyr::select(year, month, day, longitude, latitude, bottomdepth, depth, tco2) %>% 
   dplyr::rename(lon = longitude, lat = latitude)
