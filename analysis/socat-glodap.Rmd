@@ -52,6 +52,7 @@ ocean_borders <- marine_borders %>%
                          TRUE ~ lon))
 
 # Make a few specific tweaks to tighten up the polygons
+# This pulls up the corners of the Arctic polygons so that they capture the full ~60 - 90 degree range
 ocean_borders$lat[305] <- 90
 ocean_borders$lat[268] <- 90
 ocean_borders$lon[266] <- 0

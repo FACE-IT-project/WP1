@@ -1219,7 +1219,7 @@ full_product_por <- data.frame(type = "Full",
                                note = "This is the full combined data product.")
 
 # Bind them together
-metadata_porsangerfjorden <- rbind(por_fish_bio, por_benthos_bio, por_NorKyst, por_PG, full_product_por)
+metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_PG, full_product_por)
 ```
 
 ```{r porsangerfjorden-meta-data-table}
