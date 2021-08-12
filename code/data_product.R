@@ -309,42 +309,6 @@ save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RD
 # Check that all columns were used
 colnames(pg_kong_clean)[!colnames(pg_kong_clean) %in% unique(pg_kong_ALL$var_name)]
 
-# Count per grid cell
-pg_kong_ALL %>% 
-  select(-URL, -citation) %>% 
-  mutate(lon = round(lon, 2),
-         lat = round(lat, 2)) %>% 
-  group_by(lon, lat) %>% 
-  summarise(count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = lon, y = lat)) +
-  borders(fill = "grey30") +
-  geom_tile(aes(fill = count)) +
-  coord_quickmap(xlim = c(bbox_kong[1:2]), 
-                 ylim = c(bbox_kong[3:4])) +
-  labs(x = NULL, y = NULL)
-
-# Average temperature over depth
-pg_kong_ALL %>% 
-  select(-URL, -citation) %>% 
-  filter(!is.na(depth),
-         var_type == "phys") %>% 
-  mutate(depth = round(depth, -1),
-         year = lubridate::year(date)) %>%
-  # filter(value > -20, value < 10) %>% 
-  group_by(depth, year) %>% 
-  dplyr::summarise(value = mean(value, na.rm = T),
-                   count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = -depth)) +
-  geom_tile(aes(fill = value, colour = count), size = 1) +
-  scale_colour_distiller(palette = "Reds", direction = 1) +
-  scale_fill_viridis_c() +
-  coord_cartesian(expand = F) +
-  labs(x = NULL, y = "Depth (m)", fill = "Value")
-
-# Tables of value names
-table(pg_kong_ALL$var_type)
-table(pg_kong_ALL$var_name, pg_kong_ALL$var_type)
-
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
 
