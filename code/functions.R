@@ -528,3 +528,37 @@ CTD_to_long <- function(nc_file, var_id){
     `colnames<-`(c("lon", "lat", "date", "depth", tolower(var_id))); gc()
   return(nc_val)
 }
+
+# Simple wrapper for loading GFI mooring NetCDF files
+load_GFI <- function(file_name){
+  # Get correct FTP link to add to data
+  if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1249_RCM_3148_QC.nc",
+                      "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1250_RCM_4040_QC.nc",
+                      "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1251_RCM_6798_QC.nc")){
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_A/"
+  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1252_RCM_9708_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1253_RCM_9993_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1254_RCM_235_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1255_RCM_6197_QC.nc")){
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_B/"
+  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1256_RCM_3160_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1257_RCM_9707_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1258_RCM_2761_QC.nc")){
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_C/"
+  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1259_RCM_8006_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1260_RCM_10007_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1261_RCM_9994_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1262_RCM_2016_QC.nc")){
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_D/"
+  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1263_RCM_9706_QC.nc",
+                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1264_RCM_9130_QC.nc")){
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_E/"
+  } else {
+    FTP_URL <- as.character(NA)
+  }
+  res <- is_mooring_GFI_N_1 <- hyper_tibble(tidync(file_name)) %>% 
+    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>% 
+    mutate(URL = FTP_URL)
+  return(res)
+}
+

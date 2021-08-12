@@ -118,6 +118,9 @@ EU_NCEI_1989
 # grdc_arctichycos_stations.xlsx
 EU_GRDC
 
+# Carb chem Arctic model output
+EU_Popova
+
 # Combine and save
 full_product_EU <- rbind()
 data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
@@ -305,42 +308,6 @@ save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RD
 
 # Check that all columns were used
 colnames(pg_kong_clean)[!colnames(pg_kong_clean) %in% unique(pg_kong_ALL$var_name)]
-
-# Count per grid cell
-pg_kong_ALL %>% 
-  select(-URL, -citation) %>% 
-  mutate(lon = round(lon, 2),
-         lat = round(lat, 2)) %>% 
-  group_by(lon, lat) %>% 
-  summarise(count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = lon, y = lat)) +
-  borders(fill = "grey30") +
-  geom_tile(aes(fill = count)) +
-  coord_quickmap(xlim = c(bbox_kong[1:2]), 
-                 ylim = c(bbox_kong[3:4])) +
-  labs(x = NULL, y = NULL)
-
-# Average temperature over depth
-pg_kong_ALL %>% 
-  select(-URL, -citation) %>% 
-  filter(!is.na(depth),
-         var_type == "phys") %>% 
-  mutate(depth = round(depth, -1),
-         year = lubridate::year(date)) %>%
-  # filter(value > -20, value < 10) %>% 
-  group_by(depth, year) %>% 
-  dplyr::summarise(value = mean(value, na.rm = T),
-                   count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = -depth)) +
-  geom_tile(aes(fill = value, colour = count), size = 1) +
-  scale_colour_distiller(palette = "Reds", direction = 1) +
-  scale_fill_viridis_c() +
-  coord_cartesian(expand = F) +
-  labs(x = NULL, y = "Depth (m)", fill = "Value")
-
-# Tables of value names
-table(pg_kong_ALL$var_type)
-table(pg_kong_ALL$var_name, pg_kong_ALL$var_type)
 
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
@@ -578,7 +545,10 @@ save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_pro
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Search product for specific authors
-# load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+
+# Simple checks
+unique(full_product_kong$citation[grepl("Jentzsch", full_product_kong$citation)])
 
 # Philipp Fischer ferry box data - There are a couple of months of data for 2014
 # kong_fischer <- full_product_kong %>% 
@@ -1411,8 +1381,26 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 # Load PG product
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
+## Series of GFI moorings
+tidync("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1249_RCM_3148_QC.nc")
+ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1256_RCM_3160_QC.nc")
+por_mooring_GFI_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1255_RCM_6197_QC.nc")$variable))
+por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
+  mutate(date = as.Date(as.POSIXct(time*86400, origin = "1990-06-11 11:00:00")), .keep = "unused") %>% 
+  dplyr::select(URL, lon, lat, date, depth, everything()) %>% 
+  pivot_longer(temp:pres, names_to = "var_name", values_to = "value") %>% 
+  filter(!is.na(value)) %>% 
+  left_join(por_mooring_GFI_units, by = c("var_name" = "name")) %>% 
+  mutate(units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
+         citation = "These data were made freely available by the NMDC project.",
+         var_type = "phys",
+         var_name = paste0(var_name, " [", units,"]"),
+         date_accessed = as.Date("2021-08-11")) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+rm(por_mooring_GFI_units); gc()
+
 # Combine and save
-full_product_por <- rbind(pg_por_ALL)
+full_product_por <- rbind(pg_por_ALL, por_mooring_GFI)
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()

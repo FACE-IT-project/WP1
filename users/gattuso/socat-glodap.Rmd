@@ -46,12 +46,23 @@ marine_borders <- read_delim("metadata/Limits_of_oceans_and_seas.tab", delim = "
 ocean_borders <- marine_borders %>% 
   filter(grepl("ocean", name, ignore.case = T)) %>% 
   filter(!grepl("north", name, ignore.case = T)) %>% 
-  filter(!grepl("south", name, ignore.case = T))
+  filter(!grepl("south", name, ignore.case = T)) %>% 
+  mutate(lon = case_when(lon >= 179.98 ~ 180.0,
+                         lon <= -179.98 ~ -180.0,
+                         TRUE ~ lon))
+
+# Make a few specific tweaks to tighten up the polygons
+# This pulls up the corners of the Arctic polygons so that they capture the full ~60 - 90 degree range
+ocean_borders$lat[305] <- 90
+ocean_borders$lat[268] <- 90
+ocean_borders$lon[266] <- 0
+ocean_borders$lon[269] <- 0
+ocean_borders$lon[307] <- 0
 
 # Test visuals
 ggplot(data = ocean_borders) +
-  borders() +
-  geom_polygon(aes(x = lon, y = lat, fill = name))
+  geom_polygon(aes(x = lon, y = lat, fill = name)) +
+  borders(fill = "grey30")
 
 # Function for finding and cleaning up points within a given region polygon
 points_in_region <- function(region_name, data_product, border_product){
@@ -94,8 +105,7 @@ socat_all <- socat %>% # whole ocean
   mutate(product = "SOCAT",
          depth = replace_na(depth, 0)) %>% 
   filter(depth >= 0) %>% 
-  left_join(socat_regions, by = c("lon", "lat")) %>% 
-  mutate(name = case_when(lat <= -60 ~ "Southern Ocean", TRUE ~ name))
+  left_join(socat_regions, by = c("lon", "lat"))
 
 # Male some simple cuts to data
 socat_arctic_60 <- socat_all %>% 
@@ -153,8 +163,7 @@ glodap_all <- glodap_bottle %>% # whole ocean
   dplyr::filter(!is.na(tco2)) %>%  # remove NAs
   mutate(product = "GLODAP") %>% 
   filter(depth >= 0) %>% 
-  left_join(glodap_regions, by = c("lon", "lat")) %>% 
-  mutate(name = case_when(lat <= -60 ~ "Southern Ocean", TRUE ~ name))
+  left_join(glodap_regions, by = c("lon", "lat"))
 
 # Make some quick cuts
 glodap_arctic_60 <- glodap_bottle %>% 
@@ -199,7 +208,12 @@ With the Arctic region investigated for both products we now want to compare the
 
 ```{r comparison, message=FALSE, warning=FALSE, echo = FALSE}
 # Combine products for ease of plotting
-both_all <- rbind(glodap_all, socat_all)
+both_all <- rbind(glodap_all, socat_all) %>% 
+  mutate(name = gsub(", western part", "", name),
+         name = gsub(", eastern part", "", name),
+         name = case_when(lat <= -60 ~ "Southern Ocean",
+                          is.na(name) ~ "Not Ocean",
+                          TRUE ~ name))
 
 # Rough visual of the pixels by ocean
 both_all %>% 
@@ -214,7 +228,6 @@ both_all %>%
   coord_cartesian(expand = F) +
   labs(x = NULL, y = NULL) +
   facet_wrap(~product)
-# NB: Note the large missing portions of the Arctic Ocean
 
 # Calculate annual counts
 annual_count_deep <- both_all %>% 
