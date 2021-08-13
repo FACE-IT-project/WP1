@@ -1,8 +1,8 @@
 ---
 title: "SOCAT-GLODAP"
-author: "Jean-Pierre Gattuso"
+author: "Jean-Pierre Gattuso & Robert Schlegel"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
-site: workflowr::wflow_site
+# site: workflowr::wflow_site
 # output:
 #   workflowr::wflow_html:
 #     toc: false
@@ -31,10 +31,52 @@ if (Sys.getenv("LOGNAME") == "gattuso") {
 } else {
   pCloud_path = "~/pCloudDrive/" 
 }
+
 library(tidyverse)
 library(data.table) # For 'fread'
 library(doParallel) # For using multiple cores
 library(tidync)
+
+# Load global marine borders
+marine_borders <- read_delim("metadata/Limits_of_oceans_and_seas.tab", delim = "\t", skip = 16, 
+                             col_names = c("name", "lat", "lon", "index_name", "index_point"))
+
+# Get only the borders for the oceans
+# NB: Keeping the eastern and western partitions of oceans to avoid issues with longitude wrapping
+# NB: There is no Southern Ocean
+ocean_borders <- marine_borders %>% 
+  filter(grepl("ocean", name, ignore.case = T)) %>% 
+  filter(!grepl("north", name, ignore.case = T)) %>% 
+  filter(!grepl("south", name, ignore.case = T)) %>% 
+  mutate(lon = case_when(lon >= 179.98 ~ 180.0,
+                         lon <= -179.98 ~ -180.0,
+                         TRUE ~ lon))
+
+# Make a few specific tweaks to tighten up the polygons
+# This pulls up the corners of the Arctic polygons so that they capture the full ~60 - 90 degree range
+ocean_borders$lat[305] <- 90
+ocean_borders$lat[268] <- 90
+ocean_borders$lon[266] <- 0
+ocean_borders$lon[269] <- 0
+ocean_borders$lon[307] <- 0
+
+# Test visuals
+ggplot(data = ocean_borders) +
+  geom_polygon(aes(x = lon, y = lat, fill = name)) +
+  borders(fill = "grey30")
+
+# Function for finding and cleaning up points within a given region polygon
+points_in_region <- function(region_name, data_product, border_product){
+  region_sub <- border_product %>% 
+    filter(name == region_name)
+  coords_in <- data_product %>% 
+    mutate(in_grid = sp::point.in.polygon(point.x = data_product[["lon"]], point.y = data_product[["lat"]], 
+                                          pol.x = region_sub[["lon"]], pol.y = region_sub[["lat"]])) %>% 
+    filter(in_grid >= 1) %>% 
+    mutate(name = region_name) %>% 
+    dplyr::select(lon, lat, name)
+  return(coords_in)
+}
 ```
 
 # Overview
@@ -46,7 +88,7 @@ The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical
 
 # SOCAT Product
 
-```{r read socat, message = FALSE, warning = FALSE, echo = FALSE}
+```{r read-socat, message = FALSE, warning = FALSE, echo = FALSE}
 # Read from pCloudDrive (veryyy slow!)
 # socat <- data.table::fread(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.tsv"), 
 #                            select = c("yr", "mon", "day", "longitude [dec.deg.E]", "latitude [dec.deg.N]", 
@@ -60,6 +102,14 @@ socat_all <- socat %>% # whole ocean
   mutate(product = "SOCAT",
          depth = replace_na(depth, 0)) %>% 
   filter(depth >= 0)
+
+# Find marine borders for the SOCAT product and merge
+registerDoParallel(cores = 15)
+socat_regions <- plyr::ldply(unique(ocean_borders$name), points_in_region, .parallel = T, 
+                             data_product = distinct(socat_all[,c("lon", "lat")]), border_product = ocean_borders)
+socat_all <- socat_all %>% # whole ocean
+  left_join(socat_regions, by = c("lon", "lat"))
+
 socat_arctic_60 <- socat_all %>% 
   dplyr::filter(lat > 60, bottomdepth <= 200)
 socat_arctic_75 <- socat_all %>% 
@@ -104,17 +154,26 @@ SOCAT v2021 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], includi
 # GLODAP_bottle <- data.table::fread(paste0(pCloud_path,"FACE-IT_data/glodap/GLODAPv2.2021_Merged_Master_File.csv"), na.strings = "-9999") 
 GLODAP_bottle <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/GLODAP_bottle.rds")) %>%
   rename_with(~gsub("G2", "", .x, fixed = TRUE)) %>% 
-  dplyr::select(year, month, day, longitude, latitude, bottomdepth, depth, tco2)
+  dplyr::select(year, month, day, longitude, latitude, bottomdepth, depth, tco2) %>% 
+  dplyr::rename(lon = longitude, lat = latitude) 
+
+
+# Find marine borders for GLODAP product
+registerDoParallel(cores = 15)
+glodap_regions <- plyr::ldply(unique(ocean_borders$name), points_in_region, .parallel = T, 
+                             data_product = distinct(GLODAP_bottle[,c("lon", "lat")]), border_product = ocean_borders)
 
 glodap_all <- GLODAP_bottle %>% # whole ocean
   dplyr::filter(!is.na(tco2)) %>%  # remove NAs
-  dplyr::rename(lon = longitude, lat = latitude) %>% 
   mutate(product = "GLODAP") %>% 
-  filter(depth >= 0)
+  filter(depth >= 0) %>%
+  left_join(glodap_regions, by = c("lon", "lat"))
+
+# Make some quick cuts
 glodap_arctic_60 <- GLODAP_bottle %>% 
-  dplyr::filter(latitude > 60, bottomdepth <= 200)
+  dplyr::filter(lat > 60, bottomdepth <= 200)
 glodap_arctic_75 <- GLODAP_bottle %>% 
-  dplyr::filter(latitude > 75, bottomdepth <= 200)
+  dplyr::filter(lat > 75, bottomdepth <= 200)
 
 # timeline
 dat_yr <- glodap_arctic_75 %>% count(year)
@@ -151,18 +210,97 @@ GLODAP v2.2021 has `r nrow(glodap_all)` records of TCO2, including:
 
 With the Arctic region investigated for both products we now want to compare them for the Arctic, Atlantic, Indian, Pacific, and Southern oceans. For both the full oceans as well as coastal (<= 200 m bottom depth) values. To do so we will use the bottom depths accompanied by the products, and will define very rough bounding boxes for the oceans.
 
+```{r comparison, message=FALSE, warning=FALSE, echo = FALSE}
+# Combine products for ease of plotting
+both_all <- rbind(glodap_all, socat_all) %>% 
+  mutate(name = gsub(", western part", "", name),
+         name = gsub(", eastern part", "", name),
+         name = case_when(lat <= -60 ~ "Southern Ocean",
+                          is.na(name) ~ "Not Ocean",
+                          TRUE ~ name))
+
+# Rough visual of the pixels by ocean
+both_all %>% 
+  # These lines reduce the count of points for plotting
+  mutate(lon = round(lon), lat = round(lat)) %>% 
+  group_by(lon, lat, name, product) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  # NB: Without the above lines R may hang
+  ggplot(aes(x = lon, y = lat)) +
+  borders() +
+  geom_point(aes(colour = name)) +
+  coord_cartesian(expand = F) +
+  labs(x = NULL, y = NULL) +
+  facet_wrap(~product)
+
+# Calculate annual counts
+annual_count_deep <- both_all %>% 
+  group_by(product, name, year) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "all")
+annual_count_shallow <- both_all %>% 
+  filter(bottomdepth <= 200) %>% 
+  group_by(product, name, year) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "shallow")
+annual_count <- rbind(annual_count_deep, annual_count_shallow)
+
+# Dot and line plot of count of data per year per ocean etc.
+annual_count %>% 
+  ggplot(aes(x = year, y = n, colour = name)) +
+  geom_point(aes(shape = product)) +
+  geom_line(aes(linetype = product)) +
+  labs(title = "Number of data per year for different oceans", 
+       subtitle = "Note there is so much more SOCAT data it is hard to see GLODAP", 
+       x = "Year", y = "count") +
+  facet_wrap(~depth_group) +
+  theme(legend.position = "bottom")
+
+# Calculate monthly counts
+monthly_count_deep <- both_all %>% 
+  group_by(product, name, month) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "all")
+monthly_count_shallow <- both_all %>% 
+  filter(bottomdepth <= 200) %>% 
+  group_by(product, name, month) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  mutate(depth_group = "shallow")
+monthly_count <- rbind(monthly_count_deep, monthly_count_shallow)
+
+# Bar plot showing monthly count comparisons
+monthly_count %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = name, colour = product)) +
+  scale_colour_brewer(palette = "Set1") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
+  labs(title = "Count of data per month for different oceans",
+       subtitle = "Note that there is so little GLODAP data by comparison it is difficult to see",
+       x = "Month", y = "count") +
+  facet_wrap(~depth_group) +
+  theme(legend.position = "bottom")
+```
+
+
 ```{r socat, message=FALSE, warning=FALSE, echo = FALSE}
 # case_when to apply names to ocean regions
 # Group by these to get counts
 # Bar plot of comparisons with fill showing product
 socat_all <- socat_all %>% 
-  mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon),
-         ocean = case_when(lon >= -70 & lon <= 20 ~ "Atlantic",
-                           lon >= 20 & lon <= 120 ~ "Indian",
-                           TRUE ~ "Pacific")) %>% 
-  mutate(ocean = case_when(lat >= 75 ~ "Arctic",
-                           lat <= -60 ~ "Southern",
-                           TRUE ~ ocean))
+  mutate(name = gsub(", western part", "", name),
+         name = gsub(", eastern part", "", name),
+         name = case_when(lat <= -60 ~ "Southern Ocean",
+                          is.na(name) ~ "Not Ocean",
+                          TRUE ~ name))
+
+# socat_all <- socat_all %>% 
+#   mutate(lon = case_when(lon > 180 ~ lon-360, TRUE ~ lon),
+#          ocean = case_when(lon >= -70 & lon <= 20 ~ "Atlantic",
+#                            lon >= 20 & lon <= 120 ~ "Indian",
+#                            TRUE ~ "Pacific")) %>% 
+#   mutate(ocean = case_when(lat >= 75 ~ "Arctic",
+#                            lat <= -60 ~ "Southern",
+#                            TRUE ~ ocean))
 # unique(both_all$ocean)
 
 # Rough visual of the pixels by ocean
