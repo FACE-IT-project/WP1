@@ -532,34 +532,106 @@ CTD_to_long <- function(nc_file, var_id){
 
 # Simple wrapper for loading GFI mooring NetCDF files
 load_GFI <- function(file_name){
+  
+  # Get NetCDF metadata
+  GFI_dump <- ncdump::NetCDF(file_name)
+  GFI_units <- GFI_dump$variable %>% 
+    filter(!name %in% c("depth", "lon", "lat")) %>% 
+    dplyr::select(name, units)
+  GFI_start <- GFI_dump$attribute$global$instrument_start_time
+  GFI_citation <- GFI_dump$attribute$global$citation
+  file_short <- sapply(strsplit(file_name, "/"), "[[", 8)
+  
   # Get correct FTP link to add to data
-  if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1249_RCM_3148_QC.nc",
-                      "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1250_RCM_4040_QC.nc",
-                      "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1251_RCM_6798_QC.nc")){
+  FTP_URL <- as.character(NA)
+  if(file_short %in% c("1249_RCM_3148_QC.nc", "1250_RCM_4040_QC.nc", "1251_RCM_6798_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_A/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1252_RCM_9708_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1253_RCM_9993_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1254_RCM_235_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1255_RCM_6197_QC.nc")){
+  if(file_short %in% c("1252_RCM_9708_QC.nc", "1253_RCM_9993_QC.nc", "1254_RCM_235_QC.nc", "1255_RCM_6197_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_B/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1256_RCM_3160_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1257_RCM_9707_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1258_RCM_2761_QC.nc")){
+  if(file_short %in% c("1256_RCM_3160_QC.nc", "1257_RCM_9707_QC.nc", "1258_RCM_2761_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_C/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1259_RCM_8006_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1260_RCM_10007_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1261_RCM_9994_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1262_RCM_2016_QC.nc")){
+  if(file_short %in% c("1259_RCM_8006_QC.nc", "1260_RCM_10007_QC.nc", "1261_RCM_9994_QC.nc", "1262_RCM_2016_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_D/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1263_RCM_9706_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1264_RCM_9130_QC.nc")){
+  if(file_short %in% c("1263_RCM_9706_QC.nc", "1264_RCM_9130_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_E/"
-  } else {
-    FTP_URL <- as.character(NA)
-  }
-  res <- is_mooring_GFI_N_1 <- hyper_tibble(tidync(file_name)) %>% 
-    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>% 
-    mutate(URL = FTP_URL)
+  if(file_short %in% c("1883_RCM_645_QC.nc", "1884_RCM_8003_QC.nc", "1885_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/"
+  if(file_short %in% c("1766_RCM_10907_QC.nc", "1856_RCM_645_QC.nc", "1857_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/"
+  if(file_short %in% c("0712_RCM_12347_QC.nc", "1848_RCM_645_QC.nc", "1849_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/"
+  if(file_short %in% c("0706_RCM_10907_QC.nc", "1844_RCM_645_QC.nc", "1845_RCM_646_QC.nc", "0686_RCM_8003_QC.nc", "0687_RCM_2761_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/"
+  if(file_short %in% c("1954_RCM_1318_QC.nc", "1955_RCM_645_QC.nc", "1956_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201508_Isfjorden/"
+  if(file_short %in% c("0688_RCM_784_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_B/"
+  if(file_short %in% c("0710_RCM_783_QC.nc", "0711_RCM_784_QC.nc", "1841_RCM_464_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_A/"
+  
+  # Process data
+  suppressWarnings(
+  res <- hyper_tibble(tidync(file_name)) %>% 
+    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
+    mutate(date = as.Date(as.POSIXct(time*86400, origin = GFI_start)), .keep = "unused") %>% 
+    pivot_longer(c(GFI_units$name), names_to = "var_name", values_to = "value") %>% 
+    filter(!is.na(value)) %>% 
+    group_by(lon, lat, date, depth, var_name) %>% 
+    summarise(value = case_when(var_name == "dir" ~ as.numeric(round(mean.circular(circular(value, units = "degrees")))),
+                                TRUE ~ round(mean(value, na.rm = T), 3)), .groups = "drop") %>% 
+    distinct() %>% 
+    mutate(value = case_when(var_name == "dir" & value < 0 ~ value + 360, TRUE ~ value)) %>% 
+    replace(is.na(.), NA) %>% 
+    left_join(GFI_units, by = c("var_name" = "name")) %>% 
+    mutate(URL = FTP_URL,
+           citation = GFI_citation,
+           units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
+           var_type = "phys",
+           var_name = paste0(var_name, " [", units,"]")) %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  )
   return(res)
 }
 
+# Simple wrapper for loading met station NetCDF data
+# TODO: Add code to this that creates a reference from global info in the NetCDF file
+load_met_NetCDF <- function(file_name){
+  
+  # Get NetCDF metadata
+  file_short <- sapply(strsplit(file_name, "/"), "[[", 5)
+  
+  # Determine URL
+  met_URL <- paste0("https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/",file_short)
+  
+  # Process data
+  suppressWarnings(
+  res <- hyper_tibble(tidync(file_name)) %>% 
+    mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
+           date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
+    group_by(date) %>% 
+    summarise(air_temperature_2m = mean(air_temperature_2m, na.rm = T),
+              air_pressure_at_sea_level = mean(air_pressure_at_sea_level, na.rm = T),
+              surface_air_pressure_2m = mean(surface_air_pressure_2m, na.rm = T),
+              wind_speed_10m = mean(wind_speed_10m, na.rm = T),
+              relative_humidity = mean(relative_humidity, na.rm = T),
+              air_pressure_at_sea_level_qnh = mean(air_pressure_at_sea_level_qnh, na.rm = T),
+              wind_from_direction_10m = as.numeric(round(mean.circular(circular(wind_from_direction_10m, units = "degrees"), na.rm = T)))) %>% 
+    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
+    dplyr::rename(lon = longitude, lat = latitude) %>% 
+    pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
+    filter(!is.na(value)) %>% 
+    mutate(URL = met_URL,
+           citation = NA, depth = NA,
+           units = case_when(var_name == "relative_humidity" ~ "1",
+                             var_name == "surface_air_pressure_2m" ~ "Pa",
+                             var_name == "air_temperature_2m" ~ "K",
+                             var_name == "wind_from_direction_10m" ~ "°",
+                             var_name == "wind_speed_10m" ~ "m s-1",
+                             var_name == "air_pressure_at_sea_level" ~ "Pa",
+                             var_name == "air_pressure_at_sea_level_qnh" ~ "hPa"),
+           var_name = paste0(var_name," [", units,"]"),
+           var_type = "phys") %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  )
+  return(res)
+}

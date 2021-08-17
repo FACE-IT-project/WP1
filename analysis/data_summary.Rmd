@@ -58,3 +58,39 @@ library(kableExtra) # For formatting static tables
 # Overview
 
 This document contains a summary of the data products produced for WP1 of the FACE-IT project. These data are available to all FACE-IT members via password protected pCloud access. These data are also used in the [meta-analysis review](https://face-it-project.github.io/WP1/review.html) of the key drivers of change to arctic fjord ecosystems.
+
+# European Arctic
+
+
+# Svalbard
+
+
+## Kongsfjorden
+
+
+## Isfjorden
+
+
+## Inglefieldbukta
+
+
+# Greenland
+
+
+## Young Sound
+
+
+## Disko Bay
+
+
+## Nuup Kangerlua
+
+
+# Norway
+
+
+## Porsangerfjorden
+
+
+# References
+
