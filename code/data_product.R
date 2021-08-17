@@ -879,7 +879,7 @@ is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>%
   pivot_longer(`Chlorophyll A`:Phaeophytin, names_to = "var_name", values_to = "value") %>% 
   left_join(is_Chla_IsA_units, by = c("var_name" = "name")) %>% 
   mutate(URL = "https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All",
-         citation = NA,
+         citation = "University Centre in Svalbard (2020).ISA_Svalbard_Chlorophyll_A_2011_2019 [Data set]. Norstore. https://doi.org/10.11582/2020.00063",
          lon = 15.52992, lat = 78.26105,
          var_name = paste0(var_name," - ",data," [", units,"]"),
          var_type = "bio",
