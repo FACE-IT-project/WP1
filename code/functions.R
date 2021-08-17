@@ -31,10 +31,11 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
 #                                      # "analysis/socat-glodap.Rmd", # Don't knit this unless necessary, it takes a long time
 #                                      "analysis/key_drivers.Rmd",
 #                                      "analysis/metadatabase.Rmd",
+#                                      "analysis/data_summary.Rmd",
 #                                      "analysis/review.Rmd"
 #   ),
 #   message = "Re-built site.")
-# ) # 311 seconds with the SOCAT analysis, 6 seconds without
+# ) # 311 seconds with the SOCAT analysis, 8 seconds without
 
 
 # Meta-data ---------------------------------------------------------------
