@@ -1,0 +1,60 @@
+---
+title: "Summary of WP1 data products"
+author: "Robert Schlegel"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+# css: acid.css
+# csl: frontiers.csl
+# bibliography: FACE-IT.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+```
+
+<center>
+<!-- ![](assets/FACE-IT_Logo_900.png){ width=70% } -->
+</center>
+
+# Overview
+
+```{r setup}
+# Necessary libraries
+library(tidyverse) # The tidy dialect of R
+library(tidync) # For reading NetCDF
+library(DT) # For interactive tables
+library(kableExtra) # For formatting static tables
+# library(htmltools) # For additional HTML options
+# library(bsplus) # For additional buttons
+# library(ijtiff) # For reading the glacier tif files
+
+# Table column names
+# DT_cols <- c("Type", "Driver", "Date", "Longitude", "Latitude", "Depth", "Files", "Link", "Reference", "Notes")
+
+# Datatable options for all tables
+# options(DT.options = list(pageLength = 5,
+#                           # autoWidth = TRUE,
+#                           # This chunk of code only allows six characters to be shown in a column
+#                           # But it interferes with the HTML code for popups and links
+#                           # columnDefs = list(list(
+#                           #   targets = list(9),
+#                           #   render = JS(
+#                           #     "function(data, type, row, meta) {",
+#                           #     "return type === 'display' && data.length > 6 ?",
+#                           #     "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+#                           #     "}"))),
+#                           # columnDefs = list(list(width = '20%', targets = c(2))),
+#                           deferRender = TRUE,
+#                           # scrollX = TRUE,
+#                           scrollY = 400,
+#                           scrollCollapse = TRUE,
+#                           lengthMenu = c(5, 10, 25, 50, 100)))
+```
+
+# Overview
+
+This document contains a summary of the data products produced for WP1 of the FACE-IT project. These data are available to all FACE-IT members via password protected pCloud access. These data are also used in the [meta-analysis review](https://face-it-project.github.io/WP1/review.html) of the key drivers of change to arctic fjord ecosystems.
