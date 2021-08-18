@@ -50,7 +50,7 @@ bbox_por <- c(24.5, 27, 70, 71.2)
 #                                      # "analysis/socat-glodap.Rmd", # Don't knit this unless necessary, it takes a long time
 #                                      "analysis/key_drivers.Rmd",
 #                                      "analysis/metadatabase.Rmd",
-#                                      "analysis/data_summary.Rmd",
+#                                      "analysis/data_summary.Rmd", # NB: This takes a couple minutes
 #                                      "analysis/review.Rmd"
 #   ),
 #   message = "Re-built site.")
@@ -491,10 +491,11 @@ data_summary_plot <- function(full_product, site_name){
     # geom_tile(aes(fill = count)) +
     geom_tile(aes(fill = log10(count))) + # Can look better after log scaling
     scale_fill_viridis_c() +
-    coord_quickmap(xlim = c(bbox_plot[1:2]), 
+    coord_quickmap(expand = F,
+                   xlim = c(bbox_plot[1:2]), 
                    ylim = c(bbox_plot[3:4])) +
     labs(x = NULL, y = NULL, fill = "Count\n(log10)",
-         title = "Count of data binned at 0.01° (~10 km) resolution") +
+         title = "Count of data binned at 0.01° (~1 km) resolution") +
     theme(panel.border = element_rect(fill = NA, colour = "black"))
   # plot_spatial
   
@@ -538,3 +539,130 @@ data_summary_plot <- function(full_product, site_name){
   return(plot_summary)
 }
 
+# Data climatology plotting function
+data_clim_plot <- function(full_product, site_name){
+  
+  # Create factors for more consistent plotting
+  full_product$var_type <- as.factor(full_product$var_type)
+  
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
+  if(site_name == "Isfjorden") bbox_plot <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Young Sound") bbox_plot <- bbox_young
+  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  
+  # Calculate monthly depth climatologies per pixel
+  depth_monthly_clims_pixel <- full_product %>% 
+    filter(depth >= 0) %>% 
+    mutate(lon = round(lon, 2),
+           lat = round(lat, 2),
+           month = lubridate::month(date),
+           depth = round(depth, -1),
+           depth_cat = case_when(depth > 0 & depth <= 10 ~ "0 - 10 m",
+                                 depth > 10 & depth <= 50 ~ "10 - 50 m",
+                                 depth > 50 & depth <= 200 ~ "50 - 200 m",
+                                 depth > 200 & depth <= 1000 ~ "200 - 1000 m",
+                                 depth > 1000 ~ "1000+ m",
+                                 TRUE ~ as.character(NA)),
+           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", 
+                                                    "50 - 200 m", "200 - 1000 m", "1000+ m")),
+           var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
+                               grepl("sal", var_name, ignore.case = F) ~ "sal",
+                               grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
+    filter(!is.na(depth_cat), !is.na(var_cat), !is.na(month)) %>% 
+    group_by(lon, lat, month, depth_cat, var_cat) %>% 
+    summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+    right_join(expand.grid(month = 1:12, depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m"), var_cat = c("temp", "sal")),
+               by = c("month", "depth_cat", "var_cat"))
+  
+  # Calculate monthly depth climatologies
+  depth_monthly_clims <- depth_monthly_clims_pixel %>%
+    group_by(month, depth_cat, var_cat) %>%
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
+  
+  # Plot temperature clims per pixel
+  plot_spatial_temp_clim <- depth_monthly_clims_pixel %>% 
+    filter(var_cat == "temp", depth_cat == "0 - 10 m") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    borders(fill = "grey30") +
+    geom_tile(aes(fill = value)) +
+    scale_fill_viridis_c() +
+    coord_quickmap(xlim = c(bbox_plot[1:2]), 
+                   ylim = c(bbox_plot[3:4])) +
+    facet_wrap(~month) +
+    labs(x = NULL, y = NULL, fill = "Temp. (°C)",
+         title = "Surface (0 - 10 m) temperature clims at 0.01° (~10 km) resolution") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_spatial_temp_clim
+  
+  # Plot salinity clims per pixel
+  plot_spatial_sal_clim <- depth_monthly_clims_pixel %>% 
+    filter(var_cat == "sal", depth_cat == "0 - 10 m") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    borders(fill = "grey30") +
+    geom_tile(aes(fill = value)) +
+    scale_fill_viridis_c() +
+    coord_quickmap(xlim = c(bbox_plot[1:2]), 
+                   ylim = c(bbox_plot[3:4])) +
+    facet_wrap(~month) +
+    labs(x = NULL, y = NULL, fill = "Salinity",
+         title = "Surface (0 - 10 m) salinity clims at 0.01° (~10 km) resolution") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_spatial_sal_clim
+  
+  # Plot overall monthly depth temperature clims
+  plot_depth_temp_clims <- depth_monthly_clims %>% 
+    filter(var_cat == "temp") %>%
+    ggplot() +
+    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value)) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_viridis_c() +
+    labs(x = "Month", y = "Depth", fill = "Temp. (°C)", title = "Temperature climatologies at depth") +
+    coord_cartesian(expand = F) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth_temp_clims
+  
+  # Plot overall monthly depth salinity clims
+  plot_depth_sal_clims <- depth_monthly_clims %>% 
+    filter(var_cat == "sal") %>%
+    ggplot() +
+    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value)) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_viridis_c() +
+    labs(x = "Month", y = "Depth", fill = "Salinity", title = "Salinity climatologies at depth") +
+    coord_cartesian(expand = F) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth_sal_clims
+  
+  # Put them together
+  plot_clim <- ggpubr::ggarrange(plot_depth_temp_clims, plot_spatial_temp_clim, plot_depth_sal_clims, plot_spatial_sal_clim,
+                                 heights = c(0.25, 1, 0.25, 1), ncol = 1, nrow = 4)
+  return(plot_clim)
+}
+
+# Function for calculating and plotting the trends in the data from full products
+data_trend_plot <- function(full_product, site_name){
+  
+  
+  # Create factors for more consistent plotting
+  full_product$var_type <- as.factor(full_product$var_type)
+  
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
+  if(site_name == "Isfjorden") bbox_plot <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Young Sound") bbox_plot <- bbox_young
+  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  
+  # Calculate trends 
+  
+  # Plot temperature trends
+  
+  # Plot salinity trends
+  
+}

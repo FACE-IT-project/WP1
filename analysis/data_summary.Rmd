@@ -67,6 +67,9 @@ load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 
 # Summary plot
 data_summary_plot(full_product_kong, "Kongsfjorden")
+
+# Climatology plot
+data_clim_plot(full_product_kong, "Kongsfjorden")
 ```
 
 
@@ -78,6 +81,9 @@ load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 
 # Summary plot
 data_summary_plot(full_product_is, "Isfjorden")
+
+# Climatology plot
+data_clim_plot(full_product_is, "Isfjorden")
 ```
 
 
@@ -89,11 +95,13 @@ load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
 
 # Summary plot
 data_summary_plot(full_product_ingle, "Inglefieldbukta")
+
+# Climatology plot
+data_clim_plot(full_product_ingle, "Inglefieldbukta")
 ```
 
 
 # Greenland
-
 
 ## Young Sound
 
@@ -103,6 +111,9 @@ load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 
 # Summary plot
 data_summary_plot(full_product_young, "Young Sound")
+
+# Summary plot
+data_clim_plot(full_product_young, "Young Sound")
 ```
 
 
@@ -114,6 +125,9 @@ load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
 # Summary plot
 data_summary_plot(full_product_disko, "Disko Bay")
+
+# Climatology plot
+data_clim_plot(full_product_disko, "Disko Bay")
 ```
 
 
@@ -125,11 +139,13 @@ load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 
 # Summary plot
 data_summary_plot(full_product_nuup, "Nuup Kangerlua")
+
+# Climatology plot
+data_clim_plot(full_product_nuup, "Nuup Kangerlua")
 ```
 
 
 # Norway
-
 
 ## Porsangerfjorden
 
@@ -139,6 +155,9 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
 # Summary plot
 data_summary_plot(full_product_por, "Porsangerfjorden")
+
+# Climatology plot
+data_clim_plot(full_product_por, "Porsangerfjorden")
 ```
 
 

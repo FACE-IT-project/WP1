@@ -174,11 +174,32 @@ full_product_kong %>%
 
 # Climatology -------------------------------------------------------------
 
-# Function that produces 12 facet panel of monthly climatologies
+# Function that produces a 12 facet panel of monthly climatologies
 # Temperature
 # Salinity
 # Oxygen
 # Ice cover
+
+# Temperature clim per grid cell
+full_product_kong %>% 
+  filter(depth >= 0, depth <= 50,
+         grepl("°C", var_name)) %>% 
+  mutate(lon = round(lon, 2),
+         lat = round(lat, 2),
+         month = lubridate::month(date)) %>% 
+  filter(!is.na(month)) %>% 
+  group_by(lon, lat, month) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  ggplot(aes(x = lon, y = lat)) +
+  borders(fill = "grey30") +
+  geom_tile(aes(fill = value)) +
+  scale_fill_viridis_c() +
+  coord_quickmap(xlim = c(bbox_kong[1:2]), 
+                 ylim = c(bbox_kong[3:4])) +
+  facet_wrap(~month) +
+  labs(x = NULL, y = NULL, fill = "Temp. (°C)",
+       title = "Surface (0 - 50 m) temperature clims at 0.01° (~10 km) resolution") +
+  theme(panel.border = element_rect(fill = NA, colour = "black"))
 
 # Consider spatial interpolation
 
@@ -195,4 +216,7 @@ full_product_kong %>%
 # Trend summary -----------------------------------------------------------
 
 # Function for creating per pixel trends in primary variables
+
+# Scatterplot + lm with x = date, y = value, colour = depth
+# Bin all depths below 1000 together. 200 - 1000 also one bin
 
