@@ -70,6 +70,9 @@ data_summary_plot(full_product_kong, "Kongsfjorden")
 
 # Climatology plot
 data_clim_plot(full_product_kong, "Kongsfjorden")
+
+# Trend plot
+data_trend_plot(full_product_kong, "Kongsfjorden")
 ```
 
 
@@ -84,6 +87,9 @@ data_summary_plot(full_product_is, "Isfjorden")
 
 # Climatology plot
 data_clim_plot(full_product_is, "Isfjorden")
+
+# Trend plot
+data_trend_plot(full_product_is, "Isfjorden")
 ```
 
 
@@ -98,6 +104,9 @@ data_summary_plot(full_product_ingle, "Inglefieldbukta")
 
 # Climatology plot
 data_clim_plot(full_product_ingle, "Inglefieldbukta")
+
+# Trend plot
+# data_trend_plot(full_product_ingle, "Inglefieldbukta")
 ```
 
 
@@ -114,6 +123,9 @@ data_summary_plot(full_product_young, "Young Sound")
 
 # Summary plot
 data_clim_plot(full_product_young, "Young Sound")
+
+# Trend plot
+data_trend_plot(full_product_young, "Young Sound")
 ```
 
 
@@ -128,6 +140,9 @@ data_summary_plot(full_product_disko, "Disko Bay")
 
 # Climatology plot
 data_clim_plot(full_product_disko, "Disko Bay")
+
+# Trend plot
+data_trend_plot(full_product_disko, "Disko Bay")
 ```
 
 
@@ -142,6 +157,9 @@ data_summary_plot(full_product_nuup, "Nuup Kangerlua")
 
 # Climatology plot
 data_clim_plot(full_product_nuup, "Nuup Kangerlua")
+
+# Trend plot
+data_trend_plot(full_product_nuup, "Nuup Kangerlua")
 ```
 
 
@@ -158,6 +176,9 @@ data_summary_plot(full_product_por, "Porsangerfjorden")
 
 # Climatology plot
 data_clim_plot(full_product_por, "Porsangerfjorden")
+
+# Trend plot
+data_trend_plot(full_product_por, "Porsangerfjorden")
 ```
 
 

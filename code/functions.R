@@ -660,9 +660,49 @@ data_trend_plot <- function(full_product, site_name){
   if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
   
   # Calculate trends 
+  depth_trend_pixel <- full_product %>% 
+    filter(depth >= 0) %>% 
+    mutate(lon = round(lon, 2),
+           lat = round(lat, 2),
+           year = lubridate::year(date),
+           depth = round(depth, -1),
+           depth_cat = case_when(depth > 0 & depth <= 10 ~ "0 - 10 m",
+                                 depth > 10 & depth <= 50 ~ "10 - 50 m",
+                                 depth > 50 & depth <= 200 ~ "50 - 200 m",
+                                 depth > 200 & depth <= 1000 ~ "200 - 1000 m",
+                                 depth > 1000 ~ "1000+ m",
+                                 TRUE ~ as.character(NA)),
+           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", 
+                                                    "50 - 200 m", "200 - 1000 m", "1000+ m")),
+           var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
+                               grepl("sal", var_name, ignore.case = F) ~ "sal",
+                               grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
+    filter(!is.na(depth_cat), !is.na(var_cat), !is.na(year)) %>% 
+    group_by(lon, lat, year, depth_cat, var_cat) %>% 
+    summarise(value = mean(value, na.rm = T), .groups = "drop") %>%
+    # mutate(plot_group = as.numeric(as.factor(paste0(lon, lat)))) %>% 
+    right_join(expand.grid(year = seq(min(lubridate::year(full_product$date), na.rm = T), max(lubridate::year(full_product$date), na.rm = T)),
+                           depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m"), var_cat = c("temp", "sal")),
+               by = c("year", "depth_cat", "var_cat")) #%>%
+    # group_by(lon, lat, year, depth_cat, var_cat) %>%
+    # do(broom::tidy(lm(value ~ year, .)))
+  
+  # Calculate depth trends
+  depth_trend <- depth_trend_pixel %>%
+    group_by(year, depth_cat, var_cat) %>%
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
   
   # Plot temperature trends
-  
-  # Plot salinity trends
-  
+  plot_trend_temp_sal <- ggplot(data = depth_trend_pixel, aes(x = year, y = value)) +
+    geom_smooth(aes(colour = depth_cat, group = lon), colour = "grey30", method = "lm", se = F) +
+    geom_point(aes(colour = depth_cat)) +
+    geom_smooth(data = depth_trend, aes(colour = depth_cat), method = "lm", se = F, size = 3) +
+    geom_point(data = depth_trend, aes(colour = depth_cat), size = 5, shape = 18) +
+    facet_wrap(~var_cat, nrow = 2, scales = "free_y") +
+    coord_cartesian(expand = F) +
+    labs(x = NULL, y = "Value", colour = "Depth") +
+    theme(panel.border = element_rect(fill = NA, colour = "black")) 
+  plot_trend_temp_sal
+  return(plot_trend_temp_sal)
 }
+

@@ -205,7 +205,7 @@ full_product_kong %>%
 
 # Consider depth interpolation
 
-# Could combine spatial and depth interpolations into a #D accessible dataset via a shiny interface
+# Could combine spatial and depth interpolations into an accessible dataset via a shiny interface
 
 
 # Range summary -----------------------------------------------------------
@@ -218,5 +218,4 @@ full_product_kong %>%
 # Function for creating per pixel trends in primary variables
 
 # Scatterplot + lm with x = date, y = value, colour = depth
-# Bin all depths below 1000 together. 200 - 1000 also one bin
 
