@@ -19,6 +19,22 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
   pCloud_path = "~/pCloudDrive/" 
 }
 
+# Remove scientific notation
+options(scipen = 9999)
+
+# Set Timezone to UTC
+Sys.setenv(TZ = "UTC")
+
+# Bounding boxes
+bbox_EU <- c(-60, 60, 63, 90)
+bbox_kong <- c(11, 12.69, 78.86, 79.1)
+bbox_is <- c(13.62, 17.14, 78.03, 78.71)
+bbox_ingle <- c(18.15, 18.79, 77.87, 78.05)
+bbox_young <- c(-22.367917, -19.907644, 74.210137, 74.624304)
+bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
+bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
+bbox_por <- c(24.5, 27, 70, 71.2)
+
 
 # Workflowr code ----------------------------------------------------------
 
@@ -634,4 +650,18 @@ load_met_NetCDF <- function(file_name){
     dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
   )
   return(res)
+}
+
+# Data summary plotting function
+data_summary_plot <- function(full_product, site_name){
+  
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
+  if(site_name == "Isfjorden") bbox_plot <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Young Sound") bbox_plot <- bbox_young
+  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  
 }

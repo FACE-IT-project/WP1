@@ -11,12 +11,6 @@ library(stringi)
 library(raster)
 library(circular) # For calculating mean daily wind direction from degree values
 
-# Remove scientific notation
-options(scipen = 9999)
-
-# Set Timezone to UTC
-Sys.setenv(TZ = "UTC")
-
 # Re-run full data collection pipeline
 # system.time(
 # source("code/data_collection.R")
@@ -24,16 +18,6 @@ Sys.setenv(TZ = "UTC")
 
 # PANGAEA files
 pg_files <- dir("data/pg_data/", pattern = "pg_", full.names = T)
-
-# Bounding boxes
-bbox_EU <- c(-60, 60, 63, 90)
-bbox_kong <- c(11, 12.69, 78.86, 79.1)
-bbox_is <- c(13.62, 17.14, 78.03, 78.71)
-bbox_ingle <- c(18.15, 18.79, 77.87, 78.05)
-bbox_young <- c(-22.367917, -19.907644, 74.210137, 74.624304)
-bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
-bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
-bbox_por <- c(24.5, 27, 70, 71.2)
 
 # Quick filtering function
 # Manual tweaks will still be required after running this
@@ -399,6 +383,7 @@ kong_CTD_database <- left_join(kong_CTD_TEMP, kong_CTD_PSAL, by = c("lon", "lat"
   mutate(URL = "https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6",
          citation = "Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c",
          date = as.Date(date),
+         depth = as.numeric(depth),
          units = case_when(var_name == "temp" ~ "°C",
                            var_name == "psal" ~ "1e-3",
                            var_name == "cndc" ~ "S m-1"),
