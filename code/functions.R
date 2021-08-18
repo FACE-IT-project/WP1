@@ -6,6 +6,9 @@
 
 # Libraries used in all other scripts
 library(tidyverse)
+library(grid)
+library(gridExtra)
+library(gtable)
 library(ggOceanMaps)
 library(sp)
 library(sf)
@@ -58,214 +61,6 @@ bbox_por <- c(24.5, 27, 70, 71.2)
 
 # The base global map
 map_base <- readRDS("metadata/map_base.Rda")
-
-
-# Key drivers -------------------------------------------------------------
-
-# Load PANGAEA driver metadata sheet
-pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
-
-# Aids for better filtering
-sp_abb_one <- paste0(c(paste0(LETTERS,"[.] "), "sp[.]", "spp[.]"), collapse = "|")
-sp_abb_sep <- paste0(LETTERS,". ")
-
-# Function for consistent search word processing
-query_params <- function(yes_words, no_words = NA, no_units = NA, yes_case = T){
-  res <- pg_parameters %>% 
-    filter(grepl(yes_words, Parameter, ignore.case = yes_case),
-           !grepl(sp_abb_one, Abbreviation))
-  if(!is.na(no_words)){
-    res <- res %>% 
-      filter(!grepl(no_words, Parameter, ignore.case = T))
-  }
-  if(!is.na(no_units)){
-    res <- res %>% 
-      filter(!grepl(no_units, Unit))
-  }
-  res <- res %>% 
-    mutate(pg_col_name = case_when(!is.na(Unit) ~ paste0(Abbreviation," [",Unit,"]"),
-                                   TRUE ~ Abbreviation))
-  return(res)
-}
-
-
-## Metadata variables
-# Longitude
-query_longitude <- query_params("longitude", "file ")
-# Latitude
-query_latitude <- query_params("latitude", "file ")
-# Date/Time
-query_date <- query_params("date", "age|consolidated|birth|death|germination|iodate|cordate|MATLAB|file ")
-# Depth
-query_depth <- query_params("depth|bathymetry|pressure|density|elevation",
-                            "Acarina|active layer|algae|Aerosol|Amphipoda|Appendicularia|areal|
-                            |Argon|living|Balanidae|Bankful|Bivalvia|body|bone|Bosmina|Bryozoa|
-                            |Calanoides|Calcification|Capitulum|Cell pressure|Chaetognatha|soil|
-                            |Cladocera|Coelenterata|Crossaster|Cryoconite|Ctenophora|Cyclopoida|
-                            |vapour|partial pressure|Bromine monoxide|bulk|Cell density|cell-specific|
-                            |photosynthesis|Map Type|abundance|depth of|photosyn|desert|digging|
-                            |Domicile|Earlywood|overburden|electric|larvae|Excitation|fission|forest|
-                            |Fascicle|Foraminifera|Formaldehyde|fouling|fracture|Gammaridae|Gastropoda|
-                            |Glyoxal|Habitat|Harpacticoida|HLDS|HRDD|Hydrogen|Hydromedusae|Hydroxyapatite|
-                            |Hyperiidae|Hypocentre|Incubation|Indentation|Invertebrata|Iodine|Larval|
-                            |Latewood|leaf|Lithosphere|magnet|litter|modern|Mohorovicic|Morphospecies|
-                            |Mysidacea|nautical|Nematoda|Nitrate|Nitrogen|Nodule|Notch|number of|Ostracoda|
-                            |Oxic|Oxid|Oxyd|Oxyg|Paleo|Particle|Pisces|plant|platform|pockmark|podon|file|
-                            |Polychaeta|Polychlorinated|Population|pore|Pteropoda|Radiodensity|Radiolarians|
-                            |Copepoda|optical|organic|shell|shoots|sigma|skeletal|snow|ice|velocity|irradiance|
-                            |mixed layer|mixing|crack|Curie|absorption|Rotatoria|Rotifera|Sclerite|composite|
-                            |Stomatal|Symbiodinium|Synchaeta|Thaliacea|Thecosomata|Thorium|Time at|Tissue|Trochophora",
-                            "hPa|kPa|MPa|arbitrary|#|µm|g/cm|±|A/m|dB|1/mm")
-# Combined
-query_Meta <- rbind(query_longitude, query_latitude, query_date, query_depth)
-rm(query_longitude, query_latitude, query_date, query_depth); gc()
-
-
-## Cryosphere
-# Coastal ice
-# Fast ice
-# Sea ice
-query_ice <- query_params("ice", 
-                          "abies|aegiceras|aminicenantes|avicenni|biosiliceous|bryozoa|calcite|cf[.]|Chvaleticeite|
-                          |cicendia|cicer|cichoriceae|cribricellina|Cricetidae|Cunoniceae|Cymatiosphaera|Daphne|Dehydroi|
-                          |device|Diatoms|Digalac|foraminifera|Galact|Griceite|Hepaticeae|lattice|laonice|leontice|
-                          |Lonicera|Macellice|methyl|Monticellite|Oedicerotidae|Ovicell|Paniceae|Picea|Pluricell|distance|
-                          |Pseudotrice|Pumice|price|quartz|Radicel|Sabicea|Scolecith|Siliceous|Stauroneis|statice|
-                          |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova") 
-# Glacier
-query_glacier <- query_params("glacier|glacial", "Foraminifera|glacialis")
-# Snow cover
-query_snow <- query_params("snow")
-# Permafrost
-query_permafrost <- query_params("permafrost")
-# Combined
-query_Cryosphere <- rbind(query_ice, query_glacier, query_snow, query_permafrost)
-rm(query_ice, query_glacier, query_snow, query_permafrost); gc()
-
-
-## Physical
-# Bathymetry (bathy) - see depth query
-# Current: direction, location, volume (current, vel, direction, vol, u , v )
-query_current <- query_params("current|velocity|direction|volume", 
-                              "Air |Aircraft|Angle|Aggregates|Anhysteretic|Biomass|fecal|isotop|ARM, |
-                              |pipe|Back-IRM|bed dip|Biovolume|Blue light|brightness|Calcite|Calcium|Carbon|
-                              |Cardiac|Cell|Chloro|Cloud|electrical|occupational|Deformation|ribonucleic|
-                              |frequency|wind|dry|dust|egg|flux|hydrate|glacier|glacial|Hard-IRM|heat|Heterotrophic|
-                              |Hysteresis|ice |ice-|Incubation|iodine|Gonad|Diatoms|Settling|ship|Green light|
-                              |description|iron|journal|corpuscular|Methane|molar|Nectar|Nodule|Organic|roll|
-                              |Oxic|Oxid|Oxyd|Oxyg|Ozone|Particle|Phytoplankton|Piston|biphenyl|Porosity|Pteropoda|
-                              |reservoir|Root|sample|Sinking|Soil|sonic|sound|Stroke|backscattering|Susceptibility|
-                              |bladder|chamber|Tintinnid|tissue|tree|Ventilatory|lava|percentage|wave|zooplankton",
-                              "#|pg/ml|µl/l|ml/l|nmol/l|ng/ml|µm|±|mg/cm|µg/m|db|pA/m|arbitrary|nmol|µl")
-# Evaporation/Precipitation: (evap, precip, e-p, p-e)
-query_evap_precip <- query_params("evaporation|precipitation", "δ")
-# Heatflux: net, latent/sensible, long/shortwave radiation (Q, flux, latent, sensible, longwave, shortwave, radiation)
-query_heatflux <- query_params("heatflux|heat-flux|heat flux|latent|sensible|
-                               |longwave|long-wave|long wave|shortwave|short-wave|short wave")
-# Light extinction coefficient (kd, absorption)
-# NB: "absorption" not used because of how wide those data are
-query_light_extinction <- query_params("extinction", "aerosol|foraminifera|Delta")
-# Mixed layer depth (mixed, MLD)
-query_MLD <- query_params("mixed layer|mixed-layer|mixedlayer", "Foraminifera|Illite|clay|smectite")
-# River discharge (river, discharge)
-query_river <- query_params("river|discharge", "Diatoms|smoke|glacier|Dust|pixel|Riversideite", "#|±")
-# Salinity (sal, psu)
-query_salinity <- query_params("salinity", "Diatoms|Dinoflagellate|Radium|Snow|Treatment", "±")
-# Sea level pressure (slp)
-query_slp <- query_params("pressure", no_units = "±|dbar",
-                          "Argon|Blood|Cell|partial pressure|Fouling|laboratory|experiment|Vapour|velocity|Sound")
-# Sedimentation rate (sedim)
-query_sedimentation <- query_params("sedimentation") 
-# Suspended matter: organic, mineral (pom, pim, som, spm)
-# NB: This one is questionable. I decided to keep most parameters but maybe shouldn't have.
-query_suspended <- query_params("suspended", "Backscattering", "±")
-# (Seawater+air) temperature: surface, mid, bottom (°C, temp, sst)
-query_temperature <- query_params("temperature", no_units = "±|K/100m",
-                                  "Acid|Body|Fugacity|processes|Number|partial pressure|atoms|treatment|xCO2|δ")
-# Wind: direction, speed (wind, speed, direction, u, v)
-query_wind <- query_params("wind|speed|direction", 
-                           "Sigma|window|Aurelia|bed dip|Brightness|cloud|Coiling|Current|deform|Gamete|
-                           |Growing|ice |ice-|sperm|pixel|Plastic|polen|Predator|prey|Ship|snow|swim|swell|
-                           |temperature|Tidal|Towing|wave", "±")
-# combined
-query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
-                        query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind)
-rm(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
-   query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind); gc()
-
-
-## Chemistry
-# CaCO3 saturation state (CaCO3, Arg, Ara, Cal, omega)
-# NB: Decided to keep almost everything
-query_calc_carb <- query_params("calcium carbonate", "δ", "±")
-# Dissolved inorganic carbon (DIC)
-# Dissolved organic carbon (DOC)
-# Dissolved organic nitrogen (DON)
-query_dissolved <- query_params("dissolved inorganic carbon|dissolved organic carbon|dissolved organic nitrogen")
-# Dissolved O2 (DO, O2)
-query_oxygen <- query_params("oxygen", 
-                             "Aerobic|demand|oxygenase|respiration|Foraminifer|Biological|carbon|chamber|Community|
-                             |Electron|exercise|fecal|Fluorescence|chlorophyll|photosynthesis|primary production|
-                             |Haemolymph|hydrod|leaf|Mesozooplankton|Metabolic|Mitochondria|Mollusca|consumption|
-                             |Nitrogen|utilization|Argon|uptake|Photosynthetic|species|Seston|swim|isotope",
-                             "#|±")
-# Nutrients: nitrate (NO3), nitrite (NO2), ammonium (NH3), phosphate (PO4), silicate (Si04)
-query_nutrients <- query_params("nitrate|nitrite|ammonium|phosphate|silicate", 
-                                "Adenosine|Affinity|Alkalin|Aluminosilicate|soil|Bacteria|Calcium|Mannose|Cytidine|
-                                |Ethyl|hydrosilicate|Guanosine|Haemolymph|Inverse|Isopropyl|Lithiophosphate|Lithium|
-                                |Mesozooplankton|Natrophosphate|Nicotinamide|non-silicates|propyl|Ortho|oxide|
-                                |carboxylase|Phosphorus|Phyllosilicate|Ribulose|butyl|Thymidine|oxyradical|Tributyl|
-                                |Tricresyl|Triisobutyl|Triphenyl|Triphosphates|Uridine|δ15|Δ17|δ18", 
-                                "±")
-# Partial pressure of CO2 (pCO2)
-query_pCO2 <- query_params("partial pressure", 
-                           "Blood|Coelomic|Extrapallial|Haemolymph|oxygen|Methane|nitro|Ozone|Treatment|vapour", "±")
-# pH (ph)
-query_pH <- query_params("pH", 
-                         "Calcifying|Coelomic|Extrapallial|Haemolymph|Metabolic|cellular|periv|seminal|soil|treatment|voltage", 
-                         "±|#", yes_case = F)
-# Total alkalinity (TA, AT)
-query_alkalinity <- query_params("alkalinity", "borate|chlorine|Coelomic", "±")
-# Combined
-query_Chemistry <- rbind(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity)
-rm(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity); gc()
-
-## Biology
-# Calcification
-query_calcification <- query_params("calcification", no_units = "±")
-# Nitrogen fixation
-query_nitro_fix <- query_params("Nitrogen fixation", no_units = "±")
-# Photosynthesis
-query_photosynthesis <- query_params("Photosynthesis", "Carbon-14", "±")
-# Primary production
-query_prim_prod <- query_params("Primary production", no_units = "±")
-# Respiration
-# Nb: Not sure about the need for this one...
-query_respiration <- query_params("Community respiration", no_units = "±")
-# Species: presence/absence, abundance/biomass
-# NB: Not doing this at the moment due to how wide these data are...
-# Combined
-query_Biology <- rbind(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration)
-rm(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration); gc()
-
-## Social
-# Fish landings: commercial, recreational, quotas, seasonality
-# Game landings: quotas, seasonality
-query_landings <- query_params("landings")
-# Local and national resource management
-query_management <- query_params("management")
-# National statistics: demography, income, unemployment
-query_nat_stat <- query_params("demography|income|unemployment")
-# Tourist arrivals: per month, nationality
-query_tourism <- query_params("touris|nationality")
-# Tourist vessels: count, mileage
-query_vessels <- query_params("vessel|mileage")
-# Combine
-query_Social <- rbind(query_landings, query_management, query_nat_stat, query_tourism, query_vessels)
-rm(query_landings, query_management, query_nat_stat, query_tourism, query_vessels); gc()
-
-## All variables together
-query_ALL <- rbind(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social)
 
 
 # Functions ---------------------------------------------------------------
@@ -655,6 +450,9 @@ load_met_NetCDF <- function(file_name){
 # Data summary plotting function
 data_summary_plot <- function(full_product, site_name){
   
+  # Create factors for more consistent plotting
+  full_product$var_type <- as.factor(full_product$var_type)
+  
   # get correct bounding box
   if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
   if(site_name == "Isfjorden") bbox_plot <- bbox_is
@@ -664,4 +462,79 @@ data_summary_plot <- function(full_product, site_name){
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
   if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
   
+  # Table of meta-stats
+  meta_table <- data.frame(table(full_product$var_type)) %>% 
+    pivot_wider(names_from = Var1, values_from = Freq) %>% 
+    mutate(lon = paste0(round(min(full_product$lon, na.rm = T), 2), " to ", round(max(full_product$lon, na.rm = T), 2)), 
+           lat = paste0(round(min(full_product$lat, na.rm = T), 2), " to ", round(max(full_product$lat, na.rm = T), 2)),
+           date = paste0(min(full_product$date, na.rm = T), " to ", max(full_product$date, na.rm = T)),
+           depth = paste0(min(full_product$depth, na.rm = T), " to ", max(full_product$depth, na.rm = T))) %>% #,
+           # site = site_name) %>%
+    # dplyr::select(site, lon, lat, date, depth, everything())
+    dplyr::select(lon, lat, date, depth, everything())
+  
+  # Graphic version
+  # meta_table_g <- gtable_add_grob(tableGrob(meta_table, rows = NULL),
+  #                                 grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
+  #                                 t = 2, b = nrow(meta_table), l = 1, r = ncol(meta_table))
+  meta_table_g <- tableGrob(meta_table, rows = NULL)
+  
+  # Count per grid cell
+  plot_spatial <- full_product %>% 
+    dplyr::select(-URL, -citation) %>% 
+    mutate(lon = round(lon, 2),
+           lat = round(lat, 2)) %>% 
+    group_by(lon, lat) %>% 
+    summarise(count = n(), .groups = "drop") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    borders(fill = "grey30") +
+    # geom_tile(aes(fill = count)) +
+    geom_tile(aes(fill = log10(count))) + # Can look better after log scaling
+    scale_fill_viridis_c() +
+    coord_quickmap(xlim = c(bbox_plot[1:2]), 
+                   ylim = c(bbox_plot[3:4])) +
+    labs(x = NULL, y = NULL, fill = "Count\n(log10)",
+         title = "Count of data binned at 0.01° (~10 km) resolution") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_spatial
+  
+  # Count of data over time
+  plot_time <- full_product %>% 
+    dplyr::select(-URL, -citation) %>% 
+    mutate(year = lubridate::year(date)) %>%
+    group_by(year, var_type) %>% 
+    dplyr::summarise(count = n(), .groups = "drop") %>% 
+    ggplot() +
+    # geom_col(aes(x = year, y = count, fill = var_type)) +
+    geom_col(aes(x = year, y = log10(count), fill = var_type), width = 1) +
+    coord_cartesian(expand = F) +
+    labs(x = NULL, fill = "Variable", y = "Count (log10)",
+         title = "Count of data per year",
+         subtitle = "Note that log10 is calculated on each group individually") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_time
+  
+  # Count of data at depth by var type
+  plot_depth <- full_product %>% 
+    # filter(depth >= 0) %>%
+    filter(!is.na(depth)) %>% 
+    mutate(depth = round(depth, -1)) %>%
+    group_by(depth, var_type) %>% 
+    dplyr::summarise(count = n(), .groups = "drop") %>% 
+    ggplot() +
+    geom_col(aes(x = depth, y = log10(count), fill = var_type)) +
+    scale_y_reverse() +
+    coord_cartesian(expand = F) +
+    labs(x = NULL, fill = "Variable", y = "Count (log10)",
+         title = "Count of data at depth",
+         subtitle = "Note that log10 is calculated on each group individually") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth
+  
+  # Full summary plot
+  # plot_summary_bottom <- ggpubr::ggarrange(plot_spatial, plot_time, plot_depth, nrow = 1, align = "hv")
+  # plot_summary <- ggpubr::ggarrange(meta_table_g, plot_summary_bottom, ncol = 1, heights = c(0.1, 1))
+  plot_summary <- ggpubr::ggarrange(meta_table_g, plot_spatial, plot_time, plot_depth, heights = c(0.2, 1, 1, 1), ncol = 1)
+  return(plot_summary)
 }
+

@@ -53,6 +53,12 @@ meta_table <- data.frame(table(full_product_kong$var_type)) %>%
          site = "Kongsfjorden") %>% 
   dplyr::select(site, lon, lat, date, depth, everything())
 
+# Create graphic table
+meta_table_g <- gtable_add_grob(tableGrob(meta_table, rows = NULL),
+                                grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
+                                t = 2, b = nrow(meta_table_g), l = 1, r = ncol(meta_table_g))
+ggpubr::ggarrange(meta_table_g)
+
 
 # Spatial summary ---------------------------------------------------------
 
@@ -111,6 +117,22 @@ full_product_kong %>%
 
 # Depth summary -----------------------------------------------------------
 
+# Count of data at depth by var type
+full_product_kong %>% 
+  # filter(depth >= 0) %>%
+  filter(!is.na(depth)) %>% 
+  mutate(depth = round(depth, -1)) %>%
+  group_by(depth, var_type) %>% 
+  dplyr::summarise(count = n(), .groups = "drop") %>% 
+  ggplot() +
+  geom_col(aes(x = depth, y = log10(count), fill = var_type)) +
+  scale_y_reverse() +
+  coord_cartesian(expand = F) +
+  labs(x = NULL, fill = "Variable", y = "Count (log10)",
+       title = "Count of data at depth",
+       subtitle = "Note that these values are a bit distorted because the log10 is calculated on each group individually") +
+  theme(panel.border = element_rect(fill = NA, colour = "black"))
+
 # Count of data at depth over time
 full_product_kong %>% 
   filter(depth >= 0) %>% 
@@ -158,9 +180,16 @@ full_product_kong %>%
 # Oxygen
 # Ice cover
 
+# Consider spatial interpolation
+
+# Consider depth interpolation
+
+# Could combine spatial and depth interpolations into a #D accessible dataset via a shiny interface
+
 
 # Range summary -----------------------------------------------------------
 
+# Somehow summarise the ranges in primary drivers...
 
 
 # Trend summary -----------------------------------------------------------

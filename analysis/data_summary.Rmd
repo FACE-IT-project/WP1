@@ -24,13 +24,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 ```{r setup}
 # Necessary libraries
-library(tidyverse) # The tidy dialect of R
-library(tidync) # For reading NetCDF
-library(DT) # For interactive tables
-library(kableExtra) # For formatting static tables
-# library(htmltools) # For additional HTML options
-# library(bsplus) # For additional buttons
-# library(ijtiff) # For reading the glacier tif files
+source("code/functions.R")
 
 # Table column names
 # DT_cols <- c("Type", "Driver", "Date", "Longitude", "Latitude", "Depth", "Files", "Link", "Reference", "Notes")
@@ -67,11 +61,35 @@ This document contains a summary of the data products produced for WP1 of the FA
 
 ## Kongsfjorden
 
+```{r kong-summary, fig.height=15, width = 10}
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+
+# Summary plot
+data_summary_plot(full_product_kong, "Kongsfjorden")
+```
+
 
 ## Isfjorden
 
+```{r is-summary, fig.height=15, width = 10}
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+
+# Summary plot
+data_summary_plot(full_product_is, "Isfjorden")
+```
+
 
 ## Inglefieldbukta
+
+```{r ingle-summary, fig.height=15, width = 10}
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
+
+# Summary plot
+data_summary_plot(full_product_ingle, "Inglefieldbukta")
+```
 
 
 # Greenland
@@ -79,17 +97,49 @@ This document contains a summary of the data products produced for WP1 of the FA
 
 ## Young Sound
 
+```{r young-summary, fig.height=15, width = 10}
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+
+# Summary plot
+data_summary_plot(full_product_young, "Young Sound")
+```
+
 
 ## Disko Bay
 
+```{r disko-summary, fig.height=15, width = 10}
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+
+# Summary plot
+data_summary_plot(full_product_disko, "Disko Bay")
+```
+
 
 ## Nuup Kangerlua
+
+```{r nuup-summary, fig.height=15, width = 10}
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+
+# Summary plot
+data_summary_plot(full_product_nuup, "Nuup Kangerlua")
+```
 
 
 # Norway
 
 
 ## Porsangerfjorden
+
+```{r por-summary, fig.height=15, width = 10}
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+
+# Summary plot
+data_summary_plot(full_product_por, "Porsangerfjorden")
+```
 
 
 # References
