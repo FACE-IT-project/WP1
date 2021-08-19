@@ -6,6 +6,9 @@
 
 # Libraries used in all other scripts
 library(tidyverse)
+library(grid)
+library(gridExtra)
+library(gtable)
 library(ggOceanMaps)
 library(sp)
 library(sf)
@@ -19,6 +22,22 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
   pCloud_path = "~/pCloudDrive/" 
 }
 
+# Remove scientific notation
+options(scipen = 9999)
+
+# Set Timezone to UTC
+Sys.setenv(TZ = "UTC")
+
+# Bounding boxes
+bbox_EU <- c(-60, 60, 63, 90)
+bbox_kong <- c(11, 12.69, 78.86, 79.1)
+bbox_is <- c(13.62, 17.14, 78.03, 78.71)
+bbox_ingle <- c(18.15, 18.79, 77.87, 78.05)
+bbox_young <- c(-22.367917, -19.907644, 74.210137, 74.624304)
+bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
+bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
+bbox_por <- c(24.5, 27, 70, 71.2)
+
 
 # Workflowr code ----------------------------------------------------------
 
@@ -31,224 +50,17 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
 #                                      # "analysis/socat-glodap.Rmd", # Don't knit this unless necessary, it takes a long time
 #                                      "analysis/key_drivers.Rmd",
 #                                      "analysis/metadatabase.Rmd",
+#                                      "analysis/data_summary.Rmd", # NB: This takes a couple minutes
 #                                      "analysis/review.Rmd"
 #   ),
 #   message = "Re-built site.")
-# ) # 311 seconds with the SOCAT analysis, 6 seconds without
+# ) # 311 seconds with the SOCAT analysis, 8 seconds without
 
 
 # Meta-data ---------------------------------------------------------------
 
 # The base global map
 map_base <- readRDS("metadata/map_base.Rda")
-
-
-# Key drivers -------------------------------------------------------------
-
-# Load PANGAEA driver metadata sheet
-pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
-
-# Aids for better filtering
-sp_abb_one <- paste0(c(paste0(LETTERS,"[.] "), "sp[.]", "spp[.]"), collapse = "|")
-sp_abb_sep <- paste0(LETTERS,". ")
-
-# Function for consistent search word processing
-query_params <- function(yes_words, no_words = NA, no_units = NA, yes_case = T){
-  res <- pg_parameters %>% 
-    filter(grepl(yes_words, Parameter, ignore.case = yes_case),
-           !grepl(sp_abb_one, Abbreviation))
-  if(!is.na(no_words)){
-    res <- res %>% 
-      filter(!grepl(no_words, Parameter, ignore.case = T))
-  }
-  if(!is.na(no_units)){
-    res <- res %>% 
-      filter(!grepl(no_units, Unit))
-  }
-  res <- res %>% 
-    mutate(pg_col_name = case_when(!is.na(Unit) ~ paste0(Abbreviation," [",Unit,"]"),
-                                   TRUE ~ Abbreviation))
-  return(res)
-}
-
-
-## Metadata variables
-# Longitude
-query_longitude <- query_params("longitude", "file ")
-# Latitude
-query_latitude <- query_params("latitude", "file ")
-# Date/Time
-query_date <- query_params("date", "age|consolidated|birth|death|germination|iodate|cordate|MATLAB|file ")
-# Depth
-query_depth <- query_params("depth|bathymetry|pressure|density|elevation",
-                            "Acarina|active layer|algae|Aerosol|Amphipoda|Appendicularia|areal|
-                            |Argon|living|Balanidae|Bankful|Bivalvia|body|bone|Bosmina|Bryozoa|
-                            |Calanoides|Calcification|Capitulum|Cell pressure|Chaetognatha|soil|
-                            |Cladocera|Coelenterata|Crossaster|Cryoconite|Ctenophora|Cyclopoida|
-                            |vapour|partial pressure|Bromine monoxide|bulk|Cell density|cell-specific|
-                            |photosynthesis|Map Type|abundance|depth of|photosyn|desert|digging|
-                            |Domicile|Earlywood|overburden|electric|larvae|Excitation|fission|forest|
-                            |Fascicle|Foraminifera|Formaldehyde|fouling|fracture|Gammaridae|Gastropoda|
-                            |Glyoxal|Habitat|Harpacticoida|HLDS|HRDD|Hydrogen|Hydromedusae|Hydroxyapatite|
-                            |Hyperiidae|Hypocentre|Incubation|Indentation|Invertebrata|Iodine|Larval|
-                            |Latewood|leaf|Lithosphere|magnet|litter|modern|Mohorovicic|Morphospecies|
-                            |Mysidacea|nautical|Nematoda|Nitrate|Nitrogen|Nodule|Notch|number of|Ostracoda|
-                            |Oxic|Oxid|Oxyd|Oxyg|Paleo|Particle|Pisces|plant|platform|pockmark|podon|file|
-                            |Polychaeta|Polychlorinated|Population|pore|Pteropoda|Radiodensity|Radiolarians|
-                            |Copepoda|optical|organic|shell|shoots|sigma|skeletal|snow|ice|velocity|irradiance|
-                            |mixed layer|mixing|crack|Curie|absorption|Rotatoria|Rotifera|Sclerite|composite|
-                            |Stomatal|Symbiodinium|Synchaeta|Thaliacea|Thecosomata|Thorium|Time at|Tissue|Trochophora",
-                            "hPa|kPa|MPa|arbitrary|#|µm|g/cm|±|A/m|dB|1/mm")
-# Combined
-query_Meta <- rbind(query_longitude, query_latitude, query_date, query_depth)
-rm(query_longitude, query_latitude, query_date, query_depth); gc()
-
-
-## Cryosphere
-# Coastal ice
-# Fast ice
-# Sea ice
-query_ice <- query_params("ice", 
-                          "abies|aegiceras|aminicenantes|avicenni|biosiliceous|bryozoa|calcite|cf[.]|Chvaleticeite|
-                          |cicendia|cicer|cichoriceae|cribricellina|Cricetidae|Cunoniceae|Cymatiosphaera|Daphne|Dehydroi|
-                          |device|Diatoms|Digalac|foraminifera|Galact|Griceite|Hepaticeae|lattice|laonice|leontice|
-                          |Lonicera|Macellice|methyl|Monticellite|Oedicerotidae|Ovicell|Paniceae|Picea|Pluricell|distance|
-                          |Pseudotrice|Pumice|price|quartz|Radicel|Sabicea|Scolecith|Siliceous|Stauroneis|statice|
-                          |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova") 
-# Glacier
-query_glacier <- query_params("glacier|glacial", "Foraminifera|glacialis")
-# Snow cover
-query_snow <- query_params("snow")
-# Permafrost
-query_permafrost <- query_params("permafrost")
-# Combined
-query_Cryosphere <- rbind(query_ice, query_glacier, query_snow, query_permafrost)
-rm(query_ice, query_glacier, query_snow, query_permafrost); gc()
-
-
-## Physical
-# Bathymetry (bathy) - see depth query
-# Current: direction, location, volume (current, vel, direction, vol, u , v )
-query_current <- query_params("current|velocity|direction|volume", 
-                              "Air |Aircraft|Angle|Aggregates|Anhysteretic|Biomass|fecal|isotop|ARM, |
-                              |pipe|Back-IRM|bed dip|Biovolume|Blue light|brightness|Calcite|Calcium|Carbon|
-                              |Cardiac|Cell|Chloro|Cloud|electrical|occupational|Deformation|ribonucleic|
-                              |frequency|wind|dry|dust|egg|flux|hydrate|glacier|glacial|Hard-IRM|heat|Heterotrophic|
-                              |Hysteresis|ice |ice-|Incubation|iodine|Gonad|Diatoms|Settling|ship|Green light|
-                              |description|iron|journal|corpuscular|Methane|molar|Nectar|Nodule|Organic|roll|
-                              |Oxic|Oxid|Oxyd|Oxyg|Ozone|Particle|Phytoplankton|Piston|biphenyl|Porosity|Pteropoda|
-                              |reservoir|Root|sample|Sinking|Soil|sonic|sound|Stroke|backscattering|Susceptibility|
-                              |bladder|chamber|Tintinnid|tissue|tree|Ventilatory|lava|percentage|wave|zooplankton",
-                              "#|pg/ml|µl/l|ml/l|nmol/l|ng/ml|µm|±|mg/cm|µg/m|db|pA/m|arbitrary|nmol|µl")
-# Evaporation/Precipitation: (evap, precip, e-p, p-e)
-query_evap_precip <- query_params("evaporation|precipitation", "δ")
-# Heatflux: net, latent/sensible, long/shortwave radiation (Q, flux, latent, sensible, longwave, shortwave, radiation)
-query_heatflux <- query_params("heatflux|heat-flux|heat flux|latent|sensible|
-                               |longwave|long-wave|long wave|shortwave|short-wave|short wave")
-# Light extinction coefficient (kd, absorption)
-# NB: "absorption" not used because of how wide those data are
-query_light_extinction <- query_params("extinction", "aerosol|foraminifera|Delta")
-# Mixed layer depth (mixed, MLD)
-query_MLD <- query_params("mixed layer|mixed-layer|mixedlayer", "Foraminifera|Illite|clay|smectite")
-# River discharge (river, discharge)
-query_river <- query_params("river|discharge", "Diatoms|smoke|glacier|Dust|pixel|Riversideite", "#|±")
-# Salinity (sal, psu)
-query_salinity <- query_params("salinity", "Diatoms|Dinoflagellate|Radium|Snow|Treatment", "±")
-# Sea level pressure (slp)
-query_slp <- query_params("pressure", no_units = "±|dbar",
-                          "Argon|Blood|Cell|partial pressure|Fouling|laboratory|experiment|Vapour|velocity|Sound")
-# Sedimentation rate (sedim)
-query_sedimentation <- query_params("sedimentation") 
-# Suspended matter: organic, mineral (pom, pim, som, spm)
-# NB: This one is questionable. I decided to keep most parameters but maybe shouldn't have.
-query_suspended <- query_params("suspended", "Backscattering", "±")
-# (Seawater+air) temperature: surface, mid, bottom (°C, temp, sst)
-query_temperature <- query_params("temperature", no_units = "±|K/100m",
-                                  "Acid|Body|Fugacity|processes|Number|partial pressure|atoms|treatment|xCO2|δ")
-# Wind: direction, speed (wind, speed, direction, u, v)
-query_wind <- query_params("wind|speed|direction", 
-                           "Sigma|window|Aurelia|bed dip|Brightness|cloud|Coiling|Current|deform|Gamete|
-                           |Growing|ice |ice-|sperm|pixel|Plastic|polen|Predator|prey|Ship|snow|swim|swell|
-                           |temperature|Tidal|Towing|wave", "±")
-# combined
-query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
-                        query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind)
-rm(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
-   query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind); gc()
-
-
-## Chemistry
-# CaCO3 saturation state (CaCO3, Arg, Ara, Cal, omega)
-# NB: Decided to keep almost everything
-query_calc_carb <- query_params("calcium carbonate", "δ", "±")
-# Dissolved inorganic carbon (DIC)
-# Dissolved organic carbon (DOC)
-# Dissolved organic nitrogen (DON)
-query_dissolved <- query_params("dissolved inorganic carbon|dissolved organic carbon|dissolved organic nitrogen")
-# Dissolved O2 (DO, O2)
-query_oxygen <- query_params("oxygen", 
-                             "Aerobic|demand|oxygenase|respiration|Foraminifer|Biological|carbon|chamber|Community|
-                             |Electron|exercise|fecal|Fluorescence|chlorophyll|photosynthesis|primary production|
-                             |Haemolymph|hydrod|leaf|Mesozooplankton|Metabolic|Mitochondria|Mollusca|consumption|
-                             |Nitrogen|utilization|Argon|uptake|Photosynthetic|species|Seston|swim|isotope",
-                             "#|±")
-# Nutrients: nitrate (NO3), nitrite (NO2), ammonium (NH3), phosphate (PO4), silicate (Si04)
-query_nutrients <- query_params("nitrate|nitrite|ammonium|phosphate|silicate", 
-                                "Adenosine|Affinity|Alkalin|Aluminosilicate|soil|Bacteria|Calcium|Mannose|Cytidine|
-                                |Ethyl|hydrosilicate|Guanosine|Haemolymph|Inverse|Isopropyl|Lithiophosphate|Lithium|
-                                |Mesozooplankton|Natrophosphate|Nicotinamide|non-silicates|propyl|Ortho|oxide|
-                                |carboxylase|Phosphorus|Phyllosilicate|Ribulose|butyl|Thymidine|oxyradical|Tributyl|
-                                |Tricresyl|Triisobutyl|Triphenyl|Triphosphates|Uridine|δ15|Δ17|δ18", 
-                                "±")
-# Partial pressure of CO2 (pCO2)
-query_pCO2 <- query_params("partial pressure", 
-                           "Blood|Coelomic|Extrapallial|Haemolymph|oxygen|Methane|nitro|Ozone|Treatment|vapour", "±")
-# pH (ph)
-query_pH <- query_params("pH", 
-                         "Calcifying|Coelomic|Extrapallial|Haemolymph|Metabolic|cellular|periv|seminal|soil|treatment|voltage", 
-                         "±|#", yes_case = F)
-# Total alkalinity (TA, AT)
-query_alkalinity <- query_params("alkalinity", "borate|chlorine|Coelomic", "±")
-# Combined
-query_Chemistry <- rbind(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity)
-rm(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity); gc()
-
-## Biology
-# Calcification
-query_calcification <- query_params("calcification", no_units = "±")
-# Nitrogen fixation
-query_nitro_fix <- query_params("Nitrogen fixation", no_units = "±")
-# Photosynthesis
-query_photosynthesis <- query_params("Photosynthesis", "Carbon-14", "±")
-# Primary production
-query_prim_prod <- query_params("Primary production", no_units = "±")
-# Respiration
-# Nb: Not sure about the need for this one...
-query_respiration <- query_params("Community respiration", no_units = "±")
-# Species: presence/absence, abundance/biomass
-# NB: Not doing this at the moment due to how wide these data are...
-# Combined
-query_Biology <- rbind(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration)
-rm(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration); gc()
-
-## Social
-# Fish landings: commercial, recreational, quotas, seasonality
-# Game landings: quotas, seasonality
-query_landings <- query_params("landings")
-# Local and national resource management
-query_management <- query_params("management")
-# National statistics: demography, income, unemployment
-query_nat_stat <- query_params("demography|income|unemployment")
-# Tourist arrivals: per month, nationality
-query_tourism <- query_params("touris|nationality")
-# Tourist vessels: count, mileage
-query_vessels <- query_params("vessel|mileage")
-# Combine
-query_Social <- rbind(query_landings, query_management, query_nat_stat, query_tourism, query_vessels)
-rm(query_landings, query_management, query_nat_stat, query_tourism, query_vessels); gc()
-
-## All variables together
-query_ALL <- rbind(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social)
 
 
 # Functions ---------------------------------------------------------------
@@ -531,34 +343,366 @@ CTD_to_long <- function(nc_file, var_id){
 
 # Simple wrapper for loading GFI mooring NetCDF files
 load_GFI <- function(file_name){
+  
+  # Get NetCDF metadata
+  GFI_dump <- ncdump::NetCDF(file_name)
+  GFI_units <- GFI_dump$variable %>% 
+    filter(!name %in% c("depth", "lon", "lat")) %>% 
+    dplyr::select(name, units)
+  GFI_start <- GFI_dump$attribute$global$instrument_start_time
+  GFI_citation <- GFI_dump$attribute$global$citation
+  file_short <- sapply(strsplit(file_name, "/"), "[[", 8)
+  
   # Get correct FTP link to add to data
-  if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1249_RCM_3148_QC.nc",
-                      "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1250_RCM_4040_QC.nc",
-                      "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1251_RCM_6798_QC.nc")){
+  FTP_URL <- as.character(NA)
+  if(file_short %in% c("1249_RCM_3148_QC.nc", "1250_RCM_4040_QC.nc", "1251_RCM_6798_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_A/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1252_RCM_9708_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1253_RCM_9993_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1254_RCM_235_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1255_RCM_6197_QC.nc")){
+  if(file_short %in% c("1252_RCM_9708_QC.nc", "1253_RCM_9993_QC.nc", "1254_RCM_235_QC.nc", "1255_RCM_6197_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_B/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1256_RCM_3160_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1257_RCM_9707_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1258_RCM_2761_QC.nc")){
+  if(file_short %in% c("1256_RCM_3160_QC.nc", "1257_RCM_9707_QC.nc", "1258_RCM_2761_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_C/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1259_RCM_8006_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1260_RCM_10007_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1261_RCM_9994_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1262_RCM_2016_QC.nc")){
+  if(file_short %in% c("1259_RCM_8006_QC.nc", "1260_RCM_10007_QC.nc", "1261_RCM_9994_QC.nc", "1262_RCM_2016_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_D/"
-  } else if(file_name %in% c("/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1263_RCM_9706_QC.nc",
-                             "/home/robert/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1264_RCM_9130_QC.nc")){
+  if(file_short %in% c("1263_RCM_9706_QC.nc", "1264_RCM_9130_QC.nc")) 
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_E/"
-  } else {
-    FTP_URL <- as.character(NA)
-  }
-  res <- is_mooring_GFI_N_1 <- hyper_tibble(tidync(file_name)) %>% 
-    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>% 
-    mutate(URL = FTP_URL)
+  if(file_short %in% c("1883_RCM_645_QC.nc", "1884_RCM_8003_QC.nc", "1885_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/"
+  if(file_short %in% c("1766_RCM_10907_QC.nc", "1856_RCM_645_QC.nc", "1857_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/"
+  if(file_short %in% c("0712_RCM_12347_QC.nc", "1848_RCM_645_QC.nc", "1849_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/"
+  if(file_short %in% c("0706_RCM_10907_QC.nc", "1844_RCM_645_QC.nc", "1845_RCM_646_QC.nc", "0686_RCM_8003_QC.nc", "0687_RCM_2761_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/"
+  if(file_short %in% c("1954_RCM_1318_QC.nc", "1955_RCM_645_QC.nc", "1956_RCM_646_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201508_Isfjorden/"
+  if(file_short %in% c("0688_RCM_784_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_B/"
+  if(file_short %in% c("0710_RCM_783_QC.nc", "0711_RCM_784_QC.nc", "1841_RCM_464_QC.nc"))
+    FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_A/"
+  
+  # Process data
+  suppressWarnings(
+  res <- hyper_tibble(tidync(file_name)) %>% 
+    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
+    mutate(date = as.Date(as.POSIXct(time*86400, origin = GFI_start)), .keep = "unused") %>% 
+    pivot_longer(c(GFI_units$name), names_to = "var_name", values_to = "value") %>% 
+    filter(!is.na(value)) %>% 
+    group_by(lon, lat, date, depth, var_name) %>% 
+    summarise(value = case_when(var_name == "dir" ~ as.numeric(round(mean.circular(circular(value, units = "degrees")))),
+                                TRUE ~ round(mean(value, na.rm = T), 3)), .groups = "drop") %>% 
+    distinct() %>% 
+    mutate(value = case_when(var_name == "dir" & value < 0 ~ value + 360, TRUE ~ value)) %>% 
+    replace(is.na(.), NA) %>% 
+    left_join(GFI_units, by = c("var_name" = "name")) %>% 
+    mutate(URL = FTP_URL,
+           citation = GFI_citation,
+           units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
+           var_type = "phys",
+           var_name = paste0(var_name, " [", units,"]")) %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  )
   return(res)
+}
+
+# Simple wrapper for loading met station NetCDF data
+# TODO: Add code to this that creates a reference from global info in the NetCDF file
+load_met_NetCDF <- function(file_name){
+  
+  # Get NetCDF metadata
+  file_short <- sapply(strsplit(file_name, "/"), "[[", 5)
+  
+  # Determine URL
+  met_URL <- paste0("https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/",file_short)
+  
+  # Process data
+  suppressWarnings(
+  res <- hyper_tibble(tidync(file_name)) %>% 
+    mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
+           date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
+    group_by(date) %>% 
+    summarise(air_temperature_2m = mean(air_temperature_2m, na.rm = T),
+              air_pressure_at_sea_level = mean(air_pressure_at_sea_level, na.rm = T),
+              surface_air_pressure_2m = mean(surface_air_pressure_2m, na.rm = T),
+              wind_speed_10m = mean(wind_speed_10m, na.rm = T),
+              relative_humidity = mean(relative_humidity, na.rm = T),
+              air_pressure_at_sea_level_qnh = mean(air_pressure_at_sea_level_qnh, na.rm = T),
+              wind_from_direction_10m = as.numeric(round(mean.circular(circular(wind_from_direction_10m, units = "degrees"), na.rm = T)))) %>% 
+    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
+    dplyr::rename(lon = longitude, lat = latitude) %>% 
+    pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
+    filter(!is.na(value)) %>% 
+    mutate(URL = met_URL,
+           citation = NA, depth = NA,
+           units = case_when(var_name == "relative_humidity" ~ "1",
+                             var_name == "surface_air_pressure_2m" ~ "Pa",
+                             var_name == "air_temperature_2m" ~ "K",
+                             var_name == "wind_from_direction_10m" ~ "°",
+                             var_name == "wind_speed_10m" ~ "m s-1",
+                             var_name == "air_pressure_at_sea_level" ~ "Pa",
+                             var_name == "air_pressure_at_sea_level_qnh" ~ "hPa"),
+           var_name = paste0(var_name," [", units,"]"),
+           var_type = "phys") %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  )
+  return(res)
+}
+
+# Data summary plotting function
+data_summary_plot <- function(full_product, site_name){
+  
+  # Create factors for more consistent plotting
+  full_product$var_type <- as.factor(full_product$var_type)
+  
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
+  if(site_name == "Isfjorden") bbox_plot <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Young Sound") bbox_plot <- bbox_young
+  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  
+  # Table of meta-stats
+  meta_table <- data.frame(table(full_product$var_type)) %>% 
+    pivot_wider(names_from = Var1, values_from = Freq) %>% 
+    mutate(lon = paste0(round(min(full_product$lon, na.rm = T), 2), " to ", round(max(full_product$lon, na.rm = T), 2)), 
+           lat = paste0(round(min(full_product$lat, na.rm = T), 2), " to ", round(max(full_product$lat, na.rm = T), 2)),
+           date = paste0(min(full_product$date, na.rm = T), " to ", max(full_product$date, na.rm = T)),
+           depth = paste0(min(full_product$depth, na.rm = T), " to ", max(full_product$depth, na.rm = T))) %>% #,
+           # site = site_name) %>%
+    # dplyr::select(site, lon, lat, date, depth, everything())
+    dplyr::select(lon, lat, date, depth, everything())
+  
+  # Graphic version
+  # meta_table_g <- gtable_add_grob(tableGrob(meta_table, rows = NULL),
+  #                                 grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
+  #                                 t = 2, b = nrow(meta_table), l = 1, r = ncol(meta_table))
+  meta_table_g <- tableGrob(meta_table, rows = NULL)
+  
+  # Count per grid cell
+  plot_spatial <- full_product %>% 
+    dplyr::select(-URL, -citation) %>% 
+    mutate(lon = round(lon, 2),
+           lat = round(lat, 2)) %>% 
+    group_by(lon, lat) %>% 
+    summarise(count = n(), .groups = "drop") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    borders(fill = "grey30") +
+    # geom_tile(aes(fill = count)) +
+    geom_tile(aes(fill = log10(count))) + # Can look better after log scaling
+    scale_fill_viridis_c() +
+    coord_quickmap(expand = F,
+                   xlim = c(bbox_plot[1:2]), 
+                   ylim = c(bbox_plot[3:4])) +
+    labs(x = NULL, y = NULL, fill = "Count\n(log10)",
+         title = "Count of data binned at 0.01° (~1 km) resolution") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_spatial
+  
+  # Count of data over time
+  plot_time <- full_product %>% 
+    dplyr::select(-URL, -citation) %>% 
+    mutate(year = lubridate::year(date)) %>%
+    group_by(year, var_type) %>% 
+    dplyr::summarise(count = n(), .groups = "drop") %>% 
+    ggplot() +
+    # geom_col(aes(x = year, y = count, fill = var_type)) +
+    geom_col(aes(x = year, y = log10(count), fill = var_type), width = 1) +
+    coord_cartesian(expand = F) +
+    labs(x = NULL, fill = "Variable", y = "Count (log10)",
+         title = "Count of data per year",
+         subtitle = "Note that log10 is calculated on each group individually") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_time
+  
+  # Count of data at depth by var type
+  plot_depth <- full_product %>% 
+    # filter(depth >= 0) %>%
+    filter(!is.na(depth)) %>% 
+    mutate(depth = round(depth, -1)) %>%
+    group_by(depth, var_type) %>% 
+    dplyr::summarise(count = n(), .groups = "drop") %>% 
+    ggplot() +
+    geom_col(aes(x = depth, y = log10(count), fill = var_type)) +
+    scale_y_reverse() +
+    coord_cartesian(expand = F) +
+    labs(x = NULL, fill = "Variable", y = "Count (log10)",
+         title = "Count of data at depth",
+         subtitle = "Note that log10 is calculated on each group individually") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth
+  
+  # Full summary plot
+  # plot_summary_bottom <- ggpubr::ggarrange(plot_spatial, plot_time, plot_depth, nrow = 1, align = "hv")
+  # plot_summary <- ggpubr::ggarrange(meta_table_g, plot_summary_bottom, ncol = 1, heights = c(0.1, 1))
+  plot_summary <- ggpubr::ggarrange(meta_table_g, plot_spatial, plot_time, plot_depth, heights = c(0.2, 1, 1, 1), ncol = 1)
+  return(plot_summary)
+}
+
+# Data climatology plotting function
+data_clim_plot <- function(full_product, site_name){
+  
+  # Create factors for more consistent plotting
+  full_product$var_type <- as.factor(full_product$var_type)
+  
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
+  if(site_name == "Isfjorden") bbox_plot <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Young Sound") bbox_plot <- bbox_young
+  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  
+  # Calculate monthly depth climatologies per pixel
+  depth_monthly_clims_pixel <- full_product %>% 
+    filter(depth >= 0) %>% 
+    mutate(lon = round(lon, 2),
+           lat = round(lat, 2),
+           month = lubridate::month(date),
+           depth = round(depth, -1),
+           depth_cat = case_when(depth > 0 & depth <= 10 ~ "0 - 10 m",
+                                 depth > 10 & depth <= 50 ~ "10 - 50 m",
+                                 depth > 50 & depth <= 200 ~ "50 - 200 m",
+                                 depth > 200 & depth <= 1000 ~ "200 - 1000 m",
+                                 depth > 1000 ~ "1000+ m",
+                                 TRUE ~ as.character(NA)),
+           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", 
+                                                    "50 - 200 m", "200 - 1000 m", "1000+ m")),
+           var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
+                               grepl("sal", var_name, ignore.case = F) ~ "sal",
+                               grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
+    filter(!is.na(depth_cat), !is.na(var_cat), !is.na(month)) %>% 
+    group_by(lon, lat, month, depth_cat, var_cat) %>% 
+    summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+    right_join(expand.grid(month = 1:12, depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m"), var_cat = c("temp", "sal")),
+               by = c("month", "depth_cat", "var_cat"))
+  
+  # Calculate monthly depth climatologies
+  depth_monthly_clims <- depth_monthly_clims_pixel %>%
+    group_by(month, depth_cat, var_cat) %>%
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
+  
+  # Plot temperature clims per pixel
+  plot_spatial_temp_clim <- depth_monthly_clims_pixel %>% 
+    filter(var_cat == "temp", depth_cat == "0 - 10 m") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    borders(fill = "grey30") +
+    geom_tile(aes(fill = value)) +
+    scale_fill_viridis_c() +
+    coord_quickmap(xlim = c(bbox_plot[1:2]), 
+                   ylim = c(bbox_plot[3:4])) +
+    facet_wrap(~month) +
+    labs(x = NULL, y = NULL, fill = "Temp. (°C)",
+         title = "Surface (0 - 10 m) temperature clims at 0.01° (~10 km) resolution") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_spatial_temp_clim
+  
+  # Plot salinity clims per pixel
+  plot_spatial_sal_clim <- depth_monthly_clims_pixel %>% 
+    filter(var_cat == "sal", depth_cat == "0 - 10 m") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    borders(fill = "grey30") +
+    geom_tile(aes(fill = value)) +
+    scale_fill_viridis_c() +
+    coord_quickmap(xlim = c(bbox_plot[1:2]), 
+                   ylim = c(bbox_plot[3:4])) +
+    facet_wrap(~month) +
+    labs(x = NULL, y = NULL, fill = "Salinity",
+         title = "Surface (0 - 10 m) salinity clims at 0.01° (~10 km) resolution") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_spatial_sal_clim
+  
+  # Plot overall monthly depth temperature clims
+  plot_depth_temp_clims <- depth_monthly_clims %>% 
+    filter(var_cat == "temp") %>%
+    ggplot() +
+    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value)) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_viridis_c() +
+    labs(x = "Month", y = "Depth", fill = "Temp. (°C)", title = "Temperature climatologies at depth") +
+    coord_cartesian(expand = F) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth_temp_clims
+  
+  # Plot overall monthly depth salinity clims
+  plot_depth_sal_clims <- depth_monthly_clims %>% 
+    filter(var_cat == "sal") %>%
+    ggplot() +
+    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value)) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_viridis_c() +
+    labs(x = "Month", y = "Depth", fill = "Salinity", title = "Salinity climatologies at depth") +
+    coord_cartesian(expand = F) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth_sal_clims
+  
+  # Put them together
+  plot_clim <- ggpubr::ggarrange(plot_depth_temp_clims, plot_spatial_temp_clim, plot_depth_sal_clims, plot_spatial_sal_clim,
+                                 heights = c(0.25, 1, 0.25, 1), ncol = 1, nrow = 4)
+  return(plot_clim)
+}
+
+# Function for calculating and plotting the trends in the data from full products
+data_trend_plot <- function(full_product, site_name){
+  
+  
+  # Create factors for more consistent plotting
+  full_product$var_type <- as.factor(full_product$var_type)
+  
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
+  if(site_name == "Isfjorden") bbox_plot <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Young Sound") bbox_plot <- bbox_young
+  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  
+  # Calculate trends 
+  depth_trend_pixel <- full_product %>% 
+    filter(depth >= 0) %>% 
+    mutate(lon = round(lon, 2),
+           lat = round(lat, 2),
+           year = lubridate::year(date),
+           depth = round(depth, -1),
+           depth_cat = case_when(depth > 0 & depth <= 10 ~ "0 - 10 m",
+                                 depth > 10 & depth <= 50 ~ "10 - 50 m",
+                                 depth > 50 & depth <= 200 ~ "50 - 200 m",
+                                 depth > 200 & depth <= 1000 ~ "200 - 1000 m",
+                                 depth > 1000 ~ "1000+ m",
+                                 TRUE ~ as.character(NA)),
+           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", 
+                                                    "50 - 200 m", "200 - 1000 m", "1000+ m")),
+           var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
+                               grepl("sal", var_name, ignore.case = F) ~ "sal",
+                               grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
+    filter(!is.na(depth_cat), !is.na(var_cat), !is.na(year)) %>% 
+    group_by(lon, lat, year, depth_cat, var_cat) %>% 
+    summarise(value = mean(value, na.rm = T), .groups = "drop") %>%
+    # mutate(plot_group = as.numeric(as.factor(paste0(lon, lat)))) %>% 
+    right_join(expand.grid(year = seq(min(lubridate::year(full_product$date), na.rm = T), max(lubridate::year(full_product$date), na.rm = T)),
+                           depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m"), var_cat = c("temp", "sal")),
+               by = c("year", "depth_cat", "var_cat")) #%>%
+    # group_by(lon, lat, year, depth_cat, var_cat) %>%
+    # do(broom::tidy(lm(value ~ year, .)))
+  
+  # Calculate depth trends
+  depth_trend <- depth_trend_pixel %>%
+    group_by(year, depth_cat, var_cat) %>%
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
+  
+  # Plot temperature trends
+  plot_trend_temp_sal <- ggplot(data = depth_trend_pixel, aes(x = year, y = value)) +
+    geom_smooth(aes(colour = depth_cat, group = lon), colour = "grey30", method = "lm", se = F) +
+    geom_point(aes(colour = depth_cat)) +
+    geom_smooth(data = depth_trend, aes(colour = depth_cat), method = "lm", se = F, size = 3) +
+    geom_point(data = depth_trend, aes(colour = depth_cat), size = 5, shape = 18) +
+    facet_wrap(~var_cat, nrow = 2, scales = "free_y") +
+    coord_cartesian(expand = F) +
+    labs(x = NULL, y = "Value", colour = "Depth") +
+    theme(panel.border = element_rect(fill = NA, colour = "black")) 
+  plot_trend_temp_sal
+  return(plot_trend_temp_sal)
 }
 

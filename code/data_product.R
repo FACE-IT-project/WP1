@@ -9,12 +9,7 @@ source("code/functions.R")
 library(tidync)
 library(stringi)
 library(raster)
-
-# Remove scientific notation
-options(scipen = 9999)
-
-# Set Timezone to UTC
-Sys.setenv(TZ = "UTC")
+library(circular) # For calculating mean daily wind direction from degree values
 
 # Re-run full data collection pipeline
 # system.time(
@@ -23,16 +18,6 @@ Sys.setenv(TZ = "UTC")
 
 # PANGAEA files
 pg_files <- dir("data/pg_data/", pattern = "pg_", full.names = T)
-
-# Bounding boxes
-bbox_EU <- c(-60, 60, 63, 90)
-bbox_kong <- c(11, 12.69, 78.86, 79.1)
-bbox_is <- c(13.62, 17.14, 78.03, 78.71)
-bbox_ingle <- c(18.15, 18.79, 77.87, 78.05)
-bbox_young <- c(-22.367917, -19.907644, 74.210137, 74.624304)
-bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
-bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
-bbox_por <- c(24.5, 27, 70, 71.2)
 
 # Quick filtering function
 # Manual tweaks will still be required after running this
@@ -333,13 +318,10 @@ kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjo
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 ## Zooplankton abundance and species
-kong_zoo_data_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv")
-kong_zoo_data_2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv")
-kong_zoo_data_3 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_abundance_data.csv")
-kong_zoo_data <- kong_zoo_data_3 %>% 
+kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_abundance_data.csv") %>% 
   pivot_longer(CALfinM:SCYPZlar, names_to = "sps", values_to = "value") %>% 
-  left_join(kong_zoo_data_1, by = c("X1" = "id")) %>% 
-  left_join(kong_zoo_data_2, by = c("sps" = "id")) %>% 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv"), by = c("X1" = "id")) %>% 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv"), by = c("sps" = "id")) %>% 
   dplyr::rename(lon = longitude, lat = latitude) %>% 
   mutate(value = value*biomass_conv, # Need to check that this conversion is correct
          var_name = case_when(!is.na(stage) ~ paste0(species," [",stage,"]"), TRUE ~ species),
@@ -347,10 +329,11 @@ kong_zoo_data <- kong_zoo_data_3 %>%
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
          citation = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.") %>% 
+  filter(!is.na(value)) %>%
   group_by(date_accessed, URL, citation, lon, lat, date, var_type, var_name, value) %>% 
   summarise(depth = (from+to)/2, .groups = "drop") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-rm(kong_zoo_data_1, kong_zoo_data_2, kong_zoo_data_3); gc()
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 ## Protist species and nutrients and Chla
 kong_protist_nutrient_chla_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Metadata_Kongsfjorden2009-2014_Hegseth et al.csv") %>% 
@@ -383,6 +366,7 @@ kong_protist_nutrient_chla <- kong_protist_nutrient_chla_1 %>%
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
          citation = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.") %>% 
+  distinct() %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 rm(kong_protist_nutrient_chla_1, kong_protist_nutrient_chla_2, kong_protist_nutrient_chla_3); gc()
 
@@ -398,13 +382,16 @@ kong_CTD_database <- left_join(kong_CTD_TEMP, kong_CTD_PSAL, by = c("lon", "lat"
   filter(!is.na(value)) %>% 
   mutate(URL = "https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6",
          citation = "Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c",
+         date = as.Date(date),
+         depth = as.numeric(depth),
          units = case_when(var_name == "temp" ~ "°C",
                            var_name == "psal" ~ "1e-3",
                            var_name == "cndc" ~ "S m-1"),
          var_name = paste0(var_name," [", units,"]"),
          var_type = "phys",
          date_accessed = as.Date("2021-02-11")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(kong_CTD_nc_dat, kong_CTD_TEMP, kong_CTD_PSAL, kong_CTD_CNDC); gc()
 
 ## CO2 data
@@ -424,34 +411,45 @@ kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_M
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 ## Glacial topography + thickness
-kong_glacier_info_1 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_ice_surface_150m_v1.tif")
-kong_glacier_info_2 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_ice_thickness_150m_1.tif")
-kong_glacier_info_3 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_subglacial_elevation_150m_v1.tif")
-kong_glacier_info_4 <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_radarprofiles_2004_2016_v1.txt", delim = "\t")[,1:5]
-coordinates(kong_glacier_info_4) <- ~x+y 
-proj4string(kong_glacier_info_4) <- "+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs" # Matches other similar files
-kong_glacier_info_4 <- spTransform(kong_glacier_info_4, CRS("+proj=longlat +datum=WGS84"))
-kong_glacier_info_4 <- as.data.frame(kong_glacier_info_4) %>% 
-  dplyr::rename(lon = x, lat = y, thick = thick., bed = bed.) %>% 
-  dplyr::select(lon, lat, everything())
-kong_glacier_info <- full_join(kong_glacier_info_4, kong_glacier_info_1, by = c("lon", "lat")) %>% 
-  full_join(kong_glacier_info_2, by = c("lon", "lat")) %>% 
-  full_join(kong_glacier_info_3, by = c("lon", "lat")) %>% 
-  pivot_longer(surf:TIGRIF_DEM_subglacial_elevation_150m_v1, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  mutate(date = as.Date(NA), depth = as.numeric(NA),
-         var_type = "cryo",
-         date_accessed = as.Date("2021-02-11"),
-         URL = "https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1",
-         citation = "Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-rm(kong_glacier_info_1, kong_glacier_info_2, kong_glacier_info_3, kong_glacier_info_4); gc()
+## NB: Not included in final project as we aren't including grided(ish) data
+# kong_glacier_info_1 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_ice_surface_150m_v1.tif")
+# kong_glacier_info_2 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_ice_thickness_150m_1.tif")
+# kong_glacier_info_3 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_subglacial_elevation_150m_v1.tif")
+# kong_glacier_info_4 <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_radarprofiles_2004_2016_v1.txt", delim = "\t")[,1:5]
+# coordinates(kong_glacier_info_4) <- ~x+y 
+# proj4string(kong_glacier_info_4) <- "+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs" # Matches other similar files
+# kong_glacier_info_4 <- spTransform(kong_glacier_info_4, CRS("+proj=longlat +datum=WGS84"))
+# kong_glacier_info_4 <- as.data.frame(kong_glacier_info_4) %>% 
+#   dplyr::rename(lon = x, lat = y, thick = thick., bed = bed.) %>% 
+#   dplyr::select(lon, lat, everything())
+# kong_glacier_info <- full_join(kong_glacier_info_4, kong_glacier_info_1, by = c("lon", "lat")) %>% 
+#   full_join(kong_glacier_info_2, by = c("lon", "lat")) %>% 
+#   full_join(kong_glacier_info_3, by = c("lon", "lat")) %>% 
+#   pivot_longer(surf:TIGRIF_DEM_subglacial_elevation_150m_v1, names_to = "var_name", values_to = "value") %>% 
+#   filter(!is.na(value)) %>% 
+#   mutate(date = as.Date(NA), depth = as.numeric(NA),
+#          var_type = "cryo",
+#          date_accessed = as.Date("2021-02-11"),
+#          URL = "https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1",
+#          citation = "Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7") %>% 
+#   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+# rm(kong_glacier_info_1, kong_glacier_info_2, kong_glacier_info_3, kong_glacier_info_4); gc()
 
 ## Kongsvegen weather station
 kong_weather_station <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsvegen-weather.tsv", delim = "\t", na = "null") %>% 
   mutate(date = as.Date(timestamp), .keep = "unused") %>% 
+  group_by(date) %>% 
+  summarise(sw_out_wpm2_avg = mean(sw_out_wpm2_avg, na.rm = T),
+            at_2_avg = mean(at_2_avg, na.rm = T),
+            sw_in_wpm2_avg = mean(sw_in_wpm2_avg, na.rm = T),
+            lw_in_corr_wpm2_avg = mean(lw_in_corr_wpm2_avg, na.rm = T),
+            rh_2_avg = mean(rh_2_avg, na.rm = T),
+            lw_out_corr_wpm2_avg = mean(lw_out_corr_wpm2_avg, na.rm = T),
+            ws_2_wvc1 = mean(ws_2_wvc1, na.rm = T),
+            ws_2_wvc2 = as.numeric(round(mean.circular(circular(ws_2_wvc2, units = "degrees"), na.rm = T)))) %>% 
+  mutate(ws_2_wvc2 = case_when(ws_2_wvc2 < 0 ~ ws_2_wvc2 + 360, TRUE ~ ws_2_wvc2)) %>% 
   pivot_longer(sw_out_wpm2_avg:ws_2_wvc1, names_to = "var_name", values_to = "value") %>% 
-  mutate(lon = NA, lat = NA, depth = NA, 
+  mutate(lon = 13.15, lat = 78.78, depth = NA, 
          var_type =  "phys",
          date_accessed = as.Date("2021-03-02"),
          URL = "https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b",
@@ -459,83 +457,8 @@ kong_weather_station <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kong
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 ## GFI mooring
-# tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1883_RCM_645_QC.nc")
-# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0687_RCM_2761_QC.nc")
-kong_mooring_GFI_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1883_RCM_645_QC.nc")$variable,
-                                         ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1766_RCM_10907_QC.nc")$variable,
-                                         ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0712_RCM_12347_QC.nc")$variable))
-kong_mooring_GFI_1 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1883_RCM_645_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1883_RCM_645_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2014-08-30 12:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/", .keep = "unused")
-kong_mooring_GFI_2 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1884_RCM_8003_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1884_RCM_8003_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2014-08-29 23:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/", .keep = "unused")
-kong_mooring_GFI_3 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1885_RCM_646_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1885_RCM_646_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2014-08-30 12:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/", .keep = "unused")
-kong_mooring_GFI_4 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1766_RCM_10907_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1766_RCM_10907_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2013-08-31 04:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/", .keep = "unused")
-kong_mooring_GFI_5 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1856_RCM_645_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1856_RCM_645_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2013-08-31 13:00:01", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/", .keep = "unused")
-kong_mooring_GFI_6 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1857_RCM_646_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1857_RCM_646_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2013-08-31 13:00:01", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/", .keep = "unused")
-kong_mooring_GFI_7 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0712_RCM_12347_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0712_RCM_12347_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2012-09-08 20:30:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/", .keep = "unused")
-kong_mooring_GFI_8 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1848_RCM_645_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1848_RCM_645_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2012-09-09 13:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/", .keep = "unused")
-kong_mooring_GFI_9 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1849_RCM_646_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1849_RCM_646_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2012-09-09 13:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/", .keep = "unused")
-kong_mooring_GFI_10 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0706_RCM_10907_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0706_RCM_10907_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2011-09-10 09:30:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/", .keep = "unused")
-kong_mooring_GFI_11 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1844_RCM_645_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1844_RCM_645_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2011-09-11 07:37:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/", .keep = "unused")
-kong_mooring_GFI_12 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1845_RCM_646_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/1845_RCM_646_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2011-09-11 07:30:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/", .keep = "unused")
-kong_mooring_GFI_13 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0686_RCM_8003_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0686_RCM_8003_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2010-09-12 15:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_A/", .keep = "unused")
-kong_mooring_GFI_14 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0687_RCM_2761_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI/0687_RCM_2761_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "2010-09-12 15:00:00", tz = "UTC")), 
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_A/", .keep = "unused")
-kong_mooring_GFI <- bind_rows(kong_mooring_GFI_1, kong_mooring_GFI_2, kong_mooring_GFI_3, kong_mooring_GFI_4, kong_mooring_GFI_5,
-                              kong_mooring_GFI_6, kong_mooring_GFI_7, kong_mooring_GFI_8, kong_mooring_GFI_9, kong_mooring_GFI_10,
-                              kong_mooring_GFI_11, kong_mooring_GFI_12, kong_mooring_GFI_13, kong_mooring_GFI_14) %>% 
-  dplyr::select(URL, lon, lat, date, depth, everything()) %>% 
-  pivot_longer(temp:speed, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  left_join(kong_mooring_GFI_units, by = c("var_name" = "name")) %>% 
-  mutate(units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
-         citation = NA,
-         var_type = "phys",
-         var_name = paste0(var_name, " [", units,"]"),
-         date_accessed = as.Date("2021-08-04")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-rm(kong_mooring_GFI_units, kong_mooring_GFI_1, kong_mooring_GFI_2, kong_mooring_GFI_3, kong_mooring_GFI_4, kong_mooring_GFI_5,
-   kong_mooring_GFI_6, kong_mooring_GFI_7, kong_mooring_GFI_8, kong_mooring_GFI_9, kong_mooring_GFI_10, kong_mooring_GFI_11,
-   kong_mooring_GFI_12, kong_mooring_GFI_13, kong_mooring_GFI_14); gc()
+kong_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
+  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 # Combine and save
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
@@ -667,7 +590,8 @@ is_mooring_N <- rbind(is_mooring_N_1, is_mooring_N_2, is_mooring_N_3) %>%
          var_name = paste0(var_name, " [", units,"]"),
          var_type = "phys",
          date_accessed = as.Date("2021-04-15")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 5), .groups = "drop")
 rm(is_mooring_N_units, is_mooring_N_1, is_mooring_N_2, is_mooring_N_3); gc()
 
 ## Mouth mooring South
@@ -742,14 +666,15 @@ is_mooring_S <- bind_rows(is_mooring_S_1, is_mooring_S_2, is_mooring_S_3, is_moo
          var_name = paste0(var_name, " [", units,"]"),
          var_type = "phys",
          date_accessed = as.Date("2021-04-15")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 5), .groups = "drop")
 rm(is_mooring_S_units, is_mooring_S_1, is_mooring_S_2, is_mooring_S_3, is_mooring_S_4, is_mooring_S_5, is_mooring_S_6, is_mooring_S_7,
    is_mooring_S_8, is_mooring_S_9_ADCP, is_mooring_S_9, is_mooring_S_10_ADCP, is_mooring_S_10, is_mooring_S_11,
    is_mooring_S_URL, is_mooring_S_citation); gc()
 
 ## Mooring IFO
-is_mooring_IFO_units <- rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc")$variable,
-                              ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617_ADCP.nc")$variable) %>% distinct()
+is_mooring_IFO_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc")$variable,
+                                       ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617_ADCP.nc")$variable))
 is_mooring_IFO <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc") %>% hyper_tibble() %>% 
   bind_rows(hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617_ADCP.nc"))) %>% 
   cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc"), "D2"))) %>% 
@@ -765,72 +690,17 @@ is_mooring_IFO <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO16
          var_name = paste0(var_name, " [", units,"]"),
          var_type = "phys",
          date_accessed = as.Date("2021-04-15")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 rm(is_mooring_IFO_units); gc()
 
 ## North mouth mooring GFI
-# tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1954_RCM_1318_QC.nc")
-# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1954_RCM_1318_QC.nc")
-is_mooring_GFI_N_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1954_RCM_1318_QC.nc")$variable,
-                                         ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1955_RCM_645_QC.nc")$variable,
-                                         ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1955_RCM_645_QC.nc")$variable))
-is_mooring_GFI_N_1 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1954_RCM_1318_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1954_RCM_1318_QC.nc"), "S")))
-is_mooring_GFI_N_2 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1955_RCM_645_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1955_RCM_645_QC.nc"), "S")))
-is_mooring_GFI_N_3 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1956_RCM_646_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N/1956_RCM_646_QC.nc"), "S")))
-is_mooring_GFI_N <- bind_rows(is_mooring_GFI_N_1, is_mooring_GFI_N_2, is_mooring_GFI_N_3) %>% 
-  mutate(date = as.Date(time, origin = "2015-08-31"), .keep = "unused") %>% 
-  pivot_longer(temp:oxy, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  left_join(is_mooring_GFI_N_units, by = c("var_name" = "name")) %>% 
-  mutate(units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201508_Isfjorden/",
-         citation = "Skogseth R., Olivier L.L.A., Nilsen F., Falck E., Fraser N., Tverberg V., Ledang A.B., Vader A., Jonassen M.O., Søreide J., Cottier F., Berge J., Ivanov B.V., and Falk-Petersen S. (2019). Variability and decadal trends in the Isfjorden (Svalbard) ocean climate and circulation - a thermometer for climate change in the Arctic Ocean, Submitted to Progress in Oceanography",
-         var_type = case_when(var_name == "oxy" ~ "chem",
-                              TRUE ~ "phys"),
-         var_name = paste0(var_name, " [", units,"]"),
-         date_accessed = as.Date("2021-04-15")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-rm(is_mooring_GFI_N_units, is_mooring_GFI_N_1, is_mooring_GFI_N_2, is_mooring_GFI_N_3); gc()
+is_mooring_GFI_N <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N", full.names = T), load_GFI, .parallel = T) %>% 
+  mutate(date_accessed = as.Date("2021-04-15"), .before = 1)
 
 ## North mouth mooring GFI
-# tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/1841_RCM_464_QC.nc")
-# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/1841_RCM_464_QC.nc")
-is_mooring_GFI_S_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0688_RCM_784_QC.nc")$variable,
-                                         ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0710_RCM_783_QC.nc")$variable,
-                                         ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0711_RCM_784_QC.nc")$variable,
-                                         ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/1841_RCM_464_QC.nc")$variable))
-is_mooring_GFI_S_1 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0688_RCM_784_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0688_RCM_784_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(time, origin = "2010-09-09"),
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_B/", .keep = "unused")
-is_mooring_GFI_S_2 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0710_RCM_783_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0710_RCM_783_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(time, origin = "2012-09-06"),
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_A/", .keep = "unused")
-is_mooring_GFI_S_3 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0711_RCM_784_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/0711_RCM_784_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(time, origin = "2012-09-06"),
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_A/", .keep = "unused")
-is_mooring_GFI_S_4 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/1841_RCM_464_QC.nc")) %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/1841_RCM_464_QC.nc"), "S"))) %>% 
-  mutate(date = as.Date(time, origin = "2012-09-06"),
-         URL = "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_A/", .keep = "unused")
-is_mooring_GFI_S <- bind_rows(is_mooring_GFI_S_1, is_mooring_GFI_S_2, is_mooring_GFI_S_3, is_mooring_GFI_S_4) %>% 
-  dplyr::select(URL, lon, lat, date, depth, everything()) %>% 
-  pivot_longer(temp:oxy, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  left_join(is_mooring_GFI_S_units, by = c("var_name" = "name")) %>% 
-  mutate(units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
-         citation = NA,
-         var_type = case_when(var_name == "oxy" ~ "chem",
-                              TRUE ~ "phys"),
-         var_name = paste0(var_name, " [", units,"]"),
-         date_accessed = as.Date("2021-08-04")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-rm(is_mooring_GFI_S_units, is_mooring_GFI_S_1, is_mooring_GFI_S_2, is_mooring_GFI_S_3, is_mooring_GFI_S_4); gc()
+is_mooring_GFI_S <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S", full.names = T), load_GFI, .parallel = T) %>% 
+  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## CO2 station at Tempelfjorden
 is_CO2_tempelfjorden <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO2_system_data_from_Tempelfjorden_2015_to_2017.csv") %>% 
@@ -847,7 +717,8 @@ is_CO2_tempelfjorden <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO
                               var_name == "EP TA [µmol/kg]" ~ "chem",
                               var_name == "pHT in situ (temperature correction using EP TA)" ~ "chem"),
          date_accessed = as.Date("2021-04-14")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 ## CO2 station at IsA
 is_CO2_IsA <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.csv") %>% 
@@ -864,7 +735,8 @@ is_CO2_IsA <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO2_system_d
                               var_name == "EP TA [µmol/kg]" ~ "chem",
                               var_name == "pHT in situ (temperature correction using EP TA)" ~ "chem"),
          date_accessed = as.Date("2021-04-14")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 ## Chlorophyl station at IsA
 # tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")
@@ -879,83 +751,30 @@ is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>%
   pivot_longer(`Chlorophyll A`:Phaeophytin, names_to = "var_name", values_to = "value") %>% 
   left_join(is_Chla_IsA_units, by = c("var_name" = "name")) %>% 
   mutate(URL = "https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All",
-         citation = NA,
+         citation = "University Centre in Svalbard (2020).ISA_Svalbard_Chlorophyll_A_2011_2019 [Data set]. Norstore. https://doi.org/10.11582/2020.00063",
          lon = 15.52992, lat = 78.26105,
          var_name = paste0(var_name," - ",data," [", units,"]"),
          var_type = "bio",
          date_accessed = as.Date("2021-04-16")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 rm(is_Chla_IsA_units, is_Chla_IsA_1, is_Chla_IsA_2); gc()
 
 ## Isfjord radio meteorological station
-# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc")
-is_met_radio <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc")) %>% 
-  mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
-         date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
-  pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  mutate(URL = "https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99790.nc",
-         citation = NA, depth = NA,
-         lon = 13.619200, lat = 78.062500,
-         units = case_when(var_name == "relative_humidity" ~ "1",
-                           var_name == "surface_air_pressure_2m" ~ "Pa",
-                           var_name == "air_temperature_2m" ~ "K",
-                           var_name == "wind_from_direction_10m" ~ "°",
-                           var_name == "wind_speed_10m" ~ "m s-1",
-                           var_name == "air_pressure_at_sea_level" ~ "Pa",
-                           var_name == "air_pressure_at_sea_level_qnh" ~ "hPa"),
-         var_name = paste0(var_name," [", units,"]"),
-         var_type = "phys",
-         date_accessed = as.Date("2021-04-14")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+is_met_radio <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc") %>% 
+  mutate(date_accessed = as.Date("2021-04-14"), .before = 1)
 
 ## Airport meteorological station
-# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.nc")
-is_met_airport <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.nc")) %>% 
-  mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
-         date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
-  pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  mutate(URL = "https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99840.nc",
-         citation = NA, depth = NA,
-         lon = 15.501500, lat = 78.245300,
-         units = case_when(var_name == "relative_humidity" ~ "1",
-                           var_name == "surface_air_pressure_2m" ~ "Pa",
-                           var_name == "air_temperature_2m" ~ "K",
-                           var_name == "wind_from_direction_10m" ~ "°",
-                           var_name == "wind_speed_10m" ~ "m s-1",
-                           var_name == "air_pressure_at_sea_level" ~ "Pa",
-                           var_name == "air_pressure_at_sea_level_qnh" ~ "hPa"),
-         var_name = paste0(var_name," [", units,"]"),
-         var_type = "phys",
-         date_accessed = as.Date("2021-08-04")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.nc") %>% 
+  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Pyramiden radio meteorological station
-# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc")
-is_met_pyramiden <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc")) %>% 
-  mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
-         date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
-  pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  mutate(URL = "https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99880.nc",
-         citation = NA, depth = NA,
-         lon = 16.360300, lat = 78.655700,
-         units = case_when(var_name == "relative_humidity" ~ "1",
-                           var_name == "surface_air_pressure_2m" ~ "Pa",
-                           var_name == "air_temperature_2m" ~ "K",
-                           var_name == "wind_from_direction_10m" ~ "°",
-                           var_name == "wind_speed_10m" ~ "m s-1",
-                           var_name == "air_pressure_at_sea_level" ~ "Pa",
-                           var_name == "air_pressure_at_sea_level_qnh" ~ "hPa"),
-         var_name = paste0(var_name," [", units,"]"),
-         var_type = "phys",
-         date_accessed = as.Date("2021-08-04")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% 
+  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 # Combine and save
 full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
-                         is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_airport, is_met_pyramiden)
+                         is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden)
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
@@ -1382,22 +1201,8 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
 ## Series of GFI moorings
-tidync("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1249_RCM_3148_QC.nc")
-ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1256_RCM_3160_QC.nc")
-por_mooring_GFI_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI/1255_RCM_6197_QC.nc")$variable))
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
-  mutate(date = as.Date(as.POSIXct(time*86400, origin = "1990-06-11 11:00:00")), .keep = "unused") %>% 
-  dplyr::select(URL, lon, lat, date, depth, everything()) %>% 
-  pivot_longer(temp:pres, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  left_join(por_mooring_GFI_units, by = c("var_name" = "name")) %>% 
-  mutate(units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
-         citation = "These data were made freely available by the NMDC project.",
-         var_type = "phys",
-         var_name = paste0(var_name, " [", units,"]"),
-         date_accessed = as.Date("2021-08-11")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-rm(por_mooring_GFI_units); gc()
+  mutate(date_accessed = as.Date("2021-08-11"), .before = 1)
 
 # Combine and save
 full_product_por <- rbind(pg_por_ALL, por_mooring_GFI)

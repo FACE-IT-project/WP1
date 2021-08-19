@@ -7,8 +7,12 @@ navbar:
   #   href: index.html
   - text: "Key drivers"
     href: key_drivers.html
-  - text: "Meta-database"
-    href: metadatabase.html
+  - text: "Data"
+    menu:
+    - text: "Meta-database"
+      href: metadatabase.html
+    - text: "Data summary"
+      href: data_summary.html
   - text: "Review of drivers"
     href: review.html
   # - text: "Analyses"

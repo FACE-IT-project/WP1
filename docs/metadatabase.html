@@ -364,8 +364,20 @@ div.tocify {
         <li>
   <a href="key_drivers.html">Key drivers</a>
 </li>
-<li>
-  <a href="metadatabase.html">Meta-database</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Data
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="metadatabase.html">Meta-database</a>
+    </li>
+    <li>
+      <a href="data_summary.html">Data summary</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="review.html">Review of drivers</a>
@@ -390,14 +402,14 @@ div.tocify {
 
 <h1 class="title toc-ignore">Meta-database: environmental and societal drivers of change in Arctic fjord ecosystems</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">12 août 2021</h4>
+<h4 class="date">17 août 2021</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -406,7 +418,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -415,10 +427,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-08-12
+<strong>Last updated:</strong> 2021-08-17
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -434,12 +446,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
@@ -506,16 +518,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree0feaf3a3d0c0f2d4d6cc7bf59e61760154f32102targetblank0feaf3aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/0feaf3a3d0c0f2d4d6cc7bf59e61760154f32102" target="_blank">0feaf3a</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree438add76ec49ed9ecc3a33deef9cee45c0f6c523targetblank438add7a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/438add76ec49ed9ecc3a33deef9cee45c0f6c523" target="_blank">438add7</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree0feaf3a3d0c0f2d4d6cc7bf59e61760154f32102targetblank0feaf3aa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree438add76ec49ed9ecc3a33deef9cee45c0f6c523targetblank438add7a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/0feaf3a3d0c0f2d4d6cc7bf59e61760154f32102" target="_blank">0feaf3a</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/438add76ec49ed9ecc3a33deef9cee45c0f6c523" target="_blank">438add7</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -524,14 +536,14 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    code/ny-alesund_cc_pf_rws.R
     Ignored:    data/pg_data/
     Ignored:    metadata/pangaea_parameters.tab
 
-Untracked files:
-    Untracked:  code/ny-alesund_cc_pf_rws.R
-
 Unstaged changes:
-    Modified:   analysis/metadatabase.Rmd
+    Modified:   analysis/_site.yml
+    Modified:   code/data_product.R
+    Modified:   code/functions.R
 
 </code></pre>
 <p>
@@ -570,6 +582,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/52f64367ea2d561f5f15a25965eae79d10b67361/analysis/metadatabase.Rmd" target="_blank">52f6436</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-12
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/52f64367ea2d561f5f15a25965eae79d10b67361/docs/metadatabase.html" target="_blank">52f6436</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-12
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -2892,6 +2938,7 @@ other attached packages:
  [1] kableExtra_1.3.4 DT_0.18          tidync_0.2.4     forcats_0.5.1   
  [5] stringr_1.4.0    dplyr_1.0.6      purrr_0.3.4      readr_1.4.0     
  [9] tidyr_1.1.3      tibble_3.1.2     ggplot2_3.3.3    tidyverse_1.3.1 
+[13] workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.6        svglite_2.0.0     lubridate_1.7.10  assertthat_0.2.1 
@@ -2902,16 +2949,15 @@ loaded via a namespace (and not attached):
 [21] rmarkdown_2.8     webshot_0.5.2     htmlwidgets_1.5.3 munsell_0.5.0    
 [25] broom_0.7.7       compiler_4.1.0    httpuv_1.6.1      modelr_0.1.8     
 [29] xfun_0.23         systemfonts_1.0.2 pkgconfig_2.0.3   htmltools_0.5.1.1
-[33] tidyselect_1.1.1  workflowr_1.6.2   viridisLite_0.4.0 fansi_0.5.0      
-[37] crayon_1.4.1      dbplyr_2.1.1      withr_2.4.2       later_1.2.0      
-[41] grid_4.1.0        jsonlite_1.7.2    gtable_0.3.0      lifecycle_1.0.0  
-[45] DBI_1.1.1         git2r_0.28.0      magrittr_2.0.1    scales_1.1.1     
-[49] ncdf4_1.17        cli_2.5.0         stringi_1.6.2     fs_1.5.0         
-[53] promises_1.2.0.1  xml2_1.3.2        bslib_0.2.5.1     ellipsis_0.3.2   
-[57] generics_0.1.0    vctrs_0.3.8       tools_4.1.0       glue_1.4.2       
-[61] RNetCDF_2.4-2     crosstalk_1.1.1   hms_1.1.0         yaml_2.2.1       
-[65] colorspace_2.0-1  rvest_1.0.0       knitr_1.33        haven_2.4.1      
-[69] sass_0.4.0       </code></pre>
+[33] tidyselect_1.1.1  viridisLite_0.4.0 fansi_0.5.0       crayon_1.4.1     
+[37] dbplyr_2.1.1      withr_2.4.2       later_1.2.0       grid_4.1.0       
+[41] jsonlite_1.7.2    gtable_0.3.0      lifecycle_1.0.0   DBI_1.1.1        
+[45] git2r_0.28.0      magrittr_2.0.1    scales_1.1.1      ncdf4_1.17       
+[49] cli_2.5.0         stringi_1.6.2     fs_1.5.0          promises_1.2.0.1 
+[53] xml2_1.3.2        bslib_0.2.5.1     ellipsis_0.3.2    generics_0.1.0   
+[57] vctrs_0.3.8       tools_4.1.0       glue_1.4.2        RNetCDF_2.4-2    
+[61] crosstalk_1.1.1   hms_1.1.0         yaml_2.2.1        colorspace_2.0-1 
+[65] rvest_1.0.0       knitr_1.33        haven_2.4.1       sass_0.4.0       </code></pre>
 </div>
 </div>
 
