@@ -81,7 +81,9 @@ points_in_region <- function(region_name, data_product, border_product){
 
 # Overview
 
-The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical_properties). According to Wikipedia the Arctic Ocean is about 14,056,000 km2. The definition of the International Hydrographic Organization (1953) was used according to:
+The world ocean is 362,033,000 km2 (Menard & Smith, 1966 in Jakobsson et al., 2002). According to Jakobsson et al. (2002) the Arctic Ocean, as defined by the International Hydrographic Organization (1953), is 15,551,000 km2 or about 4.3% of the global ocean. 
+
+In the present analysis, the Arctic Ocean is as defined by the International Hydrographic Organization (1953) using the following dataset:
 
 International Hydrographic Organization, IHO; Sieger, Rainer (2012): Limits of oceans and seas in digitized, machine readable form. Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research, Bremerhaven, PANGAEA, https://doi.org/10.1594/PANGAEA.777975
 
@@ -160,7 +162,7 @@ socat_summer_pc <- round(100 * socat_summer / sum(dat_mon$n), digits = 1)
 
 SOCAT v2021 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
 
-* `r nrow(socat_arctic)` in the Arctic Ocean shelf waters (shallower than 200 m), or `r round(100*nrow(socat_arctic)/nrow(socat_all), digits = 1)`% of the total number of records
+* `r nrow(socat_arctic)` in the Arctic Ocean shelf waters (shallower than 200 m), or `r round(100*nrow(socat_arctic)/nrow(socat_all), digits = 1)`% of the global number of records
 * `r socat_summer_pc`% of the data have been collected over 4 months (June to September) and almost no data were collected from November (`r dat_mon$n[8]`) to April (0).
 
 # GLODAP product
