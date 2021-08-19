@@ -81,7 +81,11 @@ points_in_region <- function(region_name, data_product, border_product){
 
 # Overview
 
-The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical_properties). According to Wikipedia the Arctic Ocean is about 14,056,000 km2. Calculation of the surface area of the Arctic Ocean using GMT (script below):
+The world ocean is 361,132,000 km2 (https://en.wikipedia.org/wiki/Ocean#Physical_properties). According to Wikipedia the Arctic Ocean is about 14,056,000 km2. The definition of the International Hydrographic Organization (1953) was used according to:
+
+International Hydrographic Organization, IHO; Sieger, Rainer (2012): Limits of oceans and seas in digitized, machine readable form. Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research, Bremerhaven, PANGAEA, https://doi.org/10.1594/PANGAEA.777975
+
+Calculation of the surface area of the Arctic Ocean using GMT (script below) was finally not used:
 
 - north of 60°N: 1.6751e+07 km2, or `r round(100  * 1.6751e+07 / 361132000, digits = 1)`% of the global ocean.
 - north of 75°N: 7.11213e+06 km2, or `r round(100  * 7.11213e+06 / 361132000, digits = 1)`% of the global ocean.
@@ -301,3 +305,44 @@ monthly_count %>%
   theme(legend.position = "bottom")
 ```
 
+# Appendix: GMT script
+
+Works but results not used in the manuscript in the end.
+
+```
+——
+bash
+cd
+cd "pCloud Drive/FACE-IT_data/maps/GEBCO/"
+
+# masque terre
+gmt grdlandmask -Gnewmask.nc -RGEBCO_2020.nc -Df -N1/NaN/NaN/NaN/NaN
+
+# selection de l ocean a partir du masques
+gmt grdmath GEBCO_2020.nc newmask.nc OR = wet0.nc
+# il reste des valeurs positives que j'élimine
+gmt grdclip wet0.nc -Gwet.nc -Sa0/NaN
+
+# calcul de la surface de l ocean, latitude > 75 degrés
+#  la valeur -10000 que j'ai donnée à l'option -C de grdvolume
+#  est une profondeur (en valeur absolue supérieure à la profondeur maximale
+#  de l'océan), ce qui permet, si j'ai bien compris le fonctionnement
+#  de grdvolume) de prendre en compte toute la surface de l'océan
+gmt grdvolume wet.nc -R-180/180/75/90 -C-10000 -Sk > grdv_wet_75
+
+# calcul de la surface de l ocean, latitude > 60 degrés
+gmt grdvolume wet.nc -R-180/180/60/90 -C-10000 -Sk > grdv_wet_60.txt
+
+# la surface est la somme des surfaces des 2 demi-hémisphères
+#   (la surface est la 2ième valeur sortie par grdvolume)
+#   (l unité de surface est le km2)
+cat grdv_wet_75_dh? | awk 'BEGIN{s=0};{s=s+$2};END{print s}'
+# 7.11213e+06
+# Moi je trouve 7112242
+cat grdv_wet_60_dh? | awk 'BEGIN{s=0};{s=s+$2};END{print s}'
+# 1.6751e+07
+# Moi je trouve 16768436
+
+# j ai calculé pour latitude > 60 afin de comparer avec la surface
+#  de l océan arctique donnée par wikipédia : 1.4e+7 km2
+```
