@@ -41,30 +41,21 @@ library(tidync)
 # See https://doi.pangaea.de/10.1594/PANGAEA.777975?format=html#download
 marine_borders <- read_delim("metadata/Limits_of_oceans_and_seas.tab", delim = "\t", skip = 16, 
                              col_names = c("name", "lat", "lon", "index_name", "index_point"))
-marine_borders %>% filter(lon >= 80, lon<=150, lat >= -30, lat<= 30) %>% 
-    ggplot()+
-  geom_polygon(aes(x = lon, y = lat, fill = name)) +
-  borders(fill = "grey30")
 
-  
 # Get only the borders for the oceans
 # NB: Keeping the eastern and western partitions of oceans to avoid issues with longitude wrapping
 # NB: There is no Southern Ocean
 ocean_borders <- marine_borders %>% 
-  filter(grepl("ocean|Mediterranean|Baltic", name, ignore.case = T)) %>% 
+  filter(grepl("ocean|Mediterranean|Baltic", name, ignore.case = T)) %>%
   filter(!grepl("north|south|region", name, ignore.case = T)) %>% 
-#  filter(!grepl("south", name, ignore.case = T)) %>% 
   mutate(lon = case_when(lon >= 179.98 ~ 180.0,
                          lon <= -179.98 ~ -180.0,
-                         TRUE ~ lon))
-
-# Make a few specific tweaks to tighten up the polygons
-# This pulls up the corners of the Arctic polygons so that they capture the full ~60 - 90 degree range
-# ocean_borders$lat[305] <- 90
-# ocean_borders$lat[268] <- 90
-# ocean_borders$lon[266] <- 0
-# ocean_borders$lon[269] <- 0
-# ocean_borders$lon[307] <- 0
+                         name == "Arctic Ocean, eastern part" & index_point == 21 ~ 0,
+                         name == "Arctic Ocean, western part" & index_point == 39 ~ 0,
+                         TRUE ~ lon),
+         lat = case_when(name == "Arctic Ocean, eastern part" & index_point == 23 ~ 90,
+                         name == "Arctic Ocean, western part" & index_point == 37 ~ 90,
+                         TRUE ~ lat))
 
 # Test visuals
 ggplot(data = ocean_borders) +
@@ -133,15 +124,14 @@ socat_all <- socat %>% # whole ocean
     ocean = gsub(", eastern part", "", ocean),
     ocean = case_when(
       lat <= -60 ~ "Southern Ocean",
-      is.na(ocean) ~ "Not Ocean",
+      is.na(ocean) ~ "Other",
       TRUE ~ ocean)) %>% 
-  dplyr::mutate(ocean = case_when(ocean == "Not Ocean" & lon <= 160 & lon >= 90 & lat >= -30 & lat <= 30~ "East Indian Archipelago", TRUE ~ ocean))
+  dplyr::mutate(ocean = case_when(ocean == "Other" & lon <= 160 & lon >= 90 & lat >= -30 & lat <= 30 ~ "East Indian Archipelago", TRUE ~ ocean))
 socat_all$ocean <- as.factor(socat_all$ocean)
-summary(socat_all$ocean) #problem: there are 9596678 "Not ocean" data (more than 60% of the data)! 
-# The issue was that SOCAT has longitude from 0 to 360, but the ocean boundaries are -180 to 180
+summary(socat_all$ocean)
 
 # test plot
-socat_all %>% 
+socat_map <- socat_all %>% 
   mutate(lon = round(lon), lat = round(lat)) %>% 
   group_by(lon, lat, ocean) %>% 
   summarise(count = n(), .groups = "drop") %>% 
@@ -149,6 +139,7 @@ socat_all %>%
   borders(fill = "grey30") +
   geom_point() +
   coord_cartesian(expand = F)
+print(socat_map)
 
 # Make Arctic cuts
 socat_arctic <- socat_all %>% 
@@ -233,15 +224,15 @@ glodap_all <- GLODAP_bottle %>% # whole ocean
     ocean = gsub(", eastern part", "", ocean),
     ocean = case_when(
       lat <= -60 ~ "Southern Ocean",
-      is.na(ocean) ~ "Not Ocean",
-      TRUE ~ ocean)) %>%
-  dplyr::mutate(ocean = case_when(ocean == "Not Ocean" & lat <= 48.5 & lat >= 29 ~ "Mediterranean", TRUE ~ ocean))
+      is.na(ocean) ~ "Other",
+      TRUE ~ ocean)) %>% 
+  dplyr::mutate(ocean = case_when(ocean == "Other" & lon <= 160 & lon >= 90 & lat >= -30 & lat <= 30 ~ "East Indian Archipelago", TRUE ~ ocean))
 glodap_all$ocean <- as.factor(glodap_all$ocean)
 summary(glodap_all$ocean) #there are 1374 "Not ocean" data (0.2% of all data)
 # These are data points in seas, mostly the Mediterranean
 
 # test plot
-glodap_all %>% 
+glodap_map <- glodap_all %>% 
   mutate(lon = round(lon), lat = round(lat)) %>% 
   group_by(lon, lat, ocean) %>% 
   summarise(count = n(), .groups = "drop") %>% 
@@ -249,6 +240,7 @@ glodap_all %>%
   borders(fill = "grey30") +
   geom_point() +
   coord_cartesian(expand = F)
+print(glodap_map)
 
 # Make Arctic cut
 glodap_arctic <- glodap_all %>% 
@@ -315,7 +307,7 @@ With the Arctic region investigated for both products we now want to compare the
 both_all <- bind_rows(glodap_all, socat_all)
 
 # Rough visual of the pixels by ocean
-both_all %>% 
+both_map <- both_all %>% 
   # These lines reduce the count of points for plotting
   mutate(lon = round(lon), lat = round(lat)) %>% 
   group_by(lon, lat, ocean, product) %>% 
@@ -327,6 +319,7 @@ both_all %>%
   coord_cartesian(expand = F) +
   labs(x = NULL, y = NULL) +
   facet_wrap(~product)
+print(both_map)
 
 # Calculate annual counts
 annual_count_deep <- both_all %>% 
@@ -373,7 +366,7 @@ monthly_count %>%
        subtitle = "Note that there is so little GLODAP data by comparison it is difficult to see",
        x = "Month", y = "count") +
   facet_wrap(~depth_group) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", legend.box = "vertical")
 ```
 
 # Appendix: GMT script
