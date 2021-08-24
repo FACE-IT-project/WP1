@@ -37,28 +37,34 @@ library(data.table) # For 'fread'
 library(doParallel) # For using multiple cores
 library(tidync)
 
-# Load global marine borders
+# Load global marine borders according to International Hydrographic Organization (1953)
+# See https://doi.pangaea.de/10.1594/PANGAEA.777975?format=html#download
 marine_borders <- read_delim("metadata/Limits_of_oceans_and_seas.tab", delim = "\t", skip = 16, 
                              col_names = c("name", "lat", "lon", "index_name", "index_point"))
+marine_borders %>% filter(lon >= 80, lon<=150, lat >= -30, lat<= 30) %>% 
+    ggplot()+
+  geom_polygon(aes(x = lon, y = lat, fill = name)) +
+  borders(fill = "grey30")
 
+  
 # Get only the borders for the oceans
 # NB: Keeping the eastern and western partitions of oceans to avoid issues with longitude wrapping
 # NB: There is no Southern Ocean
 ocean_borders <- marine_borders %>% 
-  filter(grepl("ocean", name, ignore.case = T)) %>% 
-  filter(!grepl("north", name, ignore.case = T)) %>% 
-  filter(!grepl("south", name, ignore.case = T)) %>% 
+  filter(grepl("ocean|Mediterranean|Baltic", name, ignore.case = T)) %>% 
+  filter(!grepl("north|south|region", name, ignore.case = T)) %>% 
+#  filter(!grepl("south", name, ignore.case = T)) %>% 
   mutate(lon = case_when(lon >= 179.98 ~ 180.0,
                          lon <= -179.98 ~ -180.0,
                          TRUE ~ lon))
 
 # Make a few specific tweaks to tighten up the polygons
 # This pulls up the corners of the Arctic polygons so that they capture the full ~60 - 90 degree range
-ocean_borders$lat[305] <- 90
-ocean_borders$lat[268] <- 90
-ocean_borders$lon[266] <- 0
-ocean_borders$lon[269] <- 0
-ocean_borders$lon[307] <- 0
+# ocean_borders$lat[305] <- 90
+# ocean_borders$lat[268] <- 90
+# ocean_borders$lon[266] <- 0
+# ocean_borders$lon[269] <- 0
+# ocean_borders$lon[307] <- 0
 
 # Test visuals
 ggplot(data = ocean_borders) +
@@ -129,7 +135,7 @@ socat_all <- socat %>% # whole ocean
       lat <= -60 ~ "Southern Ocean",
       is.na(ocean) ~ "Not Ocean",
       TRUE ~ ocean)) %>% 
-  dplyr::mutate(ocean = case_when(ocean == "Not Ocean" & lat <= 48.5 & lat >= 29 ~ "Mediterranean", TRUE ~ ocean))
+  dplyr::mutate(ocean = case_when(ocean == "Not Ocean" & lon <= 160 & lon >= 90 & lat >= -30 & lat <= 30~ "East Indian Archipelago", TRUE ~ ocean))
 socat_all$ocean <- as.factor(socat_all$ocean)
 summary(socat_all$ocean) #problem: there are 9596678 "Not ocean" data (more than 60% of the data)! 
 # The issue was that SOCAT has longitude from 0 to 360, but the ocean boundaries are -180 to 180
