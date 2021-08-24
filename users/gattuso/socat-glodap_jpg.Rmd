@@ -145,9 +145,12 @@ socat_all %>%
   geom_point() +
   coord_cartesian(expand = F)
 
-# Make Arctic cut
+# Make Arctic cuts
 socat_arctic <- socat_all %>% 
   dplyr::filter(ocean == "Arctic Ocean")
+socat_arctic_coastal <- socat_all %>% 
+  dplyr::filter(ocean == "Arctic Ocean",
+                bottomdepth < 200)
 
 # timeline
 dat_yr <- socat_arctic %>% count(year)
@@ -158,26 +161,44 @@ timel_socat_arctic_plt <- dat_yr %>%
   labs(title = "socat: number of Arctic data per year and <= 200m", x = "Year", y = "tco2")
 print(timel_socat_arctic_plt)
 
-# monthly distribution
-dat_mon <- socat_arctic %>% count(month) %>% 
+# monthly distribution Arctic
+dat_mon_arctic <- socat_arctic %>% count(month) %>% 
   right_join(data.frame(month = 1:12), by = "month") %>% 
   mutate(n = replace_na(n, 0))
-month_socat_arctic_plt <- dat_mon %>% 
+month_socat_arctic_plt <- dat_mon_arctic %>% 
   ggplot() +
   geom_col(aes(x = month, y = n, fill = month), show.legend = F) +
   scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
   labs(title = "socat: number of Arctic data per month", x = "Month", y = "pCO2water_SST_wet")
 print(month_socat_arctic_plt)
-socat_summer <- dat_mon %>% 
+socat_arctic_summer <- dat_mon_arctic %>% 
   dplyr::filter(month >= 6 & month <= 9) %>%
   sum()
-socat_summer_pc <- round(100 * socat_summer / sum(dat_mon$n), digits = 1)
+socat_arctic_summer_pc <- round(100 * socat_arctic_summer / sum(dat_mon_arctic$n), digits = 1)
+
+# monthly distribution coastal (< 200 m) Arctic
+dat_mon_arctic_coastal <- socat_arctic_coastal %>% count(month) %>% 
+  right_join(data.frame(month = 1:12), by = "month") %>% 
+  mutate(n = replace_na(n, 0))
+month_socat_arctic_coastal_plt <- dat_mon_arctic_coastal %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = month), show.legend = F) +
+  scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
+  labs(title = "socat: number of coastal (< 200 m) Arctic data per month", x = "Month", y = "pCO2water_SST_wet")
+print(month_socat_arctic_coastal_plt)
+socat_arctic_coastal_summer <- dat_mon_arctic_coastal %>% 
+  dplyr::filter(month >= 6 & month <= 9) %>%
+  sum()
+socat_arctic_coastal_summer_pc <- round(100 * socat_arctic_coastal_summer / sum(dat_mon_arctic_coastal$n), digits = 1)
 ```
 
 SOCAT v2021 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
 
-* `r nrow(socat_arctic)` in the Arctic Ocean shelf waters (shallower than 200 m), or `r round(100*nrow(socat_arctic)/nrow(socat_all), digits = 1)`% of the global number of records
-* `r socat_summer_pc`% of the data have been collected over 4 months (June to September) and almost no data were collected from November (`r dat_mon$n[8]`) to April (0).
+* `r nrow(socat_arctic)` in the Arctic Ocean, or `r round(100*nrow(socat_arctic)/nrow(socat_all), digits = 1)`% of the global number of records
+* `r nrow(socat_arctic_coastal)` in the Arctic Ocean shelf waters (shallower than 200 m), or `r round(100*nrow(socat_arctic_coastal)/nrow(socat_arctic), digits = 1)`% of the number of records in the Arctic.
+* `r socat_arctic_summer_pc`% of all Arctic data have been collected over 4 months (June to September).
+* `r socat_arctic_coastal_summer_pc`% of the shelf (< 200m) data have been collected over 4 months (June to September).
+
 
 # GLODAP product
 
@@ -228,6 +249,9 @@ glodap_all %>%
 # Make Arctic cut
 glodap_arctic <- glodap_all %>% 
   dplyr::filter(ocean == "Arctic Ocean")
+glodap_arctic_coastal <- glodap_all %>% 
+  dplyr::filter(ocean == "Arctic Ocean",
+                bottomdepth < 200)
 
 # timeline
 dat_yr <- glodap_arctic %>% count(year)
@@ -238,30 +262,49 @@ timel_glodap_arctic_plt <- dat_yr %>%
   labs(title = "GLODAP: number of Arctic data per year", x = "Year", y = "tco2")
 print(timel_glodap_arctic_plt)
 
-# monthly distribution
-dat_mon <- glodap_arctic %>% count(month) %>% 
+
+# monthly distribution Arctic
+dat_mon_arctic <- glodap_arctic %>% count(month) %>% 
   right_join(data.frame(month = 1:12), by = "month") %>% 
   mutate(n = replace_na(n, 0))
-month_glodap_arctic_plt <- dat_mon %>% 
+month_glodap_arctic_plt <- dat_mon_arctic %>% 
   ggplot() +
   geom_col(aes(x = month, y = n, fill = month), show.legend = F) +
   scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
-  labs(title = "GLODAP: number of Arctic data per month", x = "Month", y = "pCO2water_SST_wet")
+  labs(title = "glodap: number of Arctic data per month", x = "Month", y = "pCO2water_SST_wet")
 print(month_glodap_arctic_plt)
-glodap_summer <- dat_mon %>% 
+glodap_arctic_summer <- dat_mon_arctic %>% 
   dplyr::filter(month >= 6 & month <= 9) %>%
   sum()
-glodap_summer_pc <- round(100 * glodap_summer / sum(dat_mon$n), digits = 1)
+glodap_arctic_summer_pc <- round(100 * glodap_arctic_summer / sum(dat_mon_arctic$n), digits = 1)
+
+# monthly distribution coastal (< 200 m) Arctic
+dat_mon_arctic_coastal <- glodap_arctic_coastal %>% count(month) %>% 
+  right_join(data.frame(month = 1:12), by = "month") %>% 
+  mutate(n = replace_na(n, 0))
+month_glodap_arctic_coastal_plt <- dat_mon_arctic_coastal %>% 
+  ggplot() +
+  geom_col(aes(x = month, y = n, fill = month), show.legend = F) +
+  scale_x_continuous(breaks = 1:12, labels = month.abb, expand = c(0, 0)) +
+  labs(title = "glodap: number of coastal (< 200 m) Arctic data per month", x = "Month", y = "pCO2water_SST_wet")
+print(month_glodap_arctic_coastal_plt)
+glodap_arctic_coastal_summer <- dat_mon_arctic_coastal %>% 
+  dplyr::filter(month >= 6 & month <= 9) %>%
+  sum()
+glodap_arctic_coastal_summer_pc <- round(100 * glodap_arctic_coastal_summer / sum(dat_mon_arctic_coastal$n), digits = 1)
 ```
 
 GLODAP v2.2021 has `r nrow(glodap_all)` records of TCO2, including:
 
-* `r nrow(glodap_arctic)` in the Arctic Ocean shelf waters (shallower than 200 m) or `r round(100*nrow(glodap_arctic)/nrow(glodap_all), digits = 1)`% of the total number of records
-* `r glodap_summer_pc`% of the data have been collected over 4 months (June to September) and no data have been collected from November to March.
+* `r nrow(glodap_arctic)` in the Arctic Ocean, or `r round(100*nrow(glodap_arctic)/nrow(glodap_all), digits = 1)`% of the total number of records
+* `r nrow(glodap_arctic_coastal)` in the Arctic Ocean shelf waters (shallower than 200 m) or `r round(100*nrow(glodap_arctic_coastal)/nrow(glodap_arctic), digits = 1)`% of the total number of records in the Arctic
+* `r glodap_arctic_summer_pc`% of all Arctic data have been collected over 4 months (June to September).
+* `r glodap_arctic_coastal_summer_pc`% of the shelf (< 200m) data have been collected over 4 months (June to September).
+
 
 # Comparison
 
-With the Arctic region investigated for both products we now want to compare them for the Arctic, Atlantic, Indian, Pacific, and Southern oceans. For both the full oceans as well as coastal (<= 200 m bottom depth) values. To do so we will use the bottom depths accompanied by the products, and will define very rough bounding boxes for the oceans.
+With the Arctic region investigated for both products we now want to compare them for the Arctic, Atlantic, Indian, Pacific, and Southern oceans. For both the full oceans as well as coastal (<= 200 m bottom depth) values. To do so we will use the bottom depths accompanied by the products.
 
 ```{r comparison, message=FALSE, warning=FALSE, echo = FALSE}
 # Combine products for ease of plotting
