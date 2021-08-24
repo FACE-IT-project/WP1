@@ -128,9 +128,8 @@ socat_all <- socat %>% # whole ocean
     ocean = case_when(
       lat <= -60 ~ "Southern Ocean",
       is.na(ocean) ~ "Not Ocean",
-      TRUE ~ ocean
-    )
-  )
+      TRUE ~ ocean)) %>% 
+  dplyr::mutate(ocean = case_when(ocean == "Not Ocean" & lat <= 48.5 & lat >= 29 ~ "Mediterranean", TRUE ~ ocean))
 socat_all$ocean <- as.factor(socat_all$ocean)
 summary(socat_all$ocean) #problem: there are 9596678 "Not ocean" data (more than 60% of the data)! 
 # The issue was that SOCAT has longitude from 0 to 360, but the ocean boundaries are -180 to 180
@@ -208,9 +207,8 @@ glodap_all <- GLODAP_bottle %>% # whole ocean
     ocean = case_when(
       lat <= -60 ~ "Southern Ocean",
       is.na(ocean) ~ "Not Ocean",
-      TRUE ~ ocean
-    )
-  )
+      TRUE ~ ocean)) %>%
+  dplyr::mutate(ocean = case_when(ocean == "Not Ocean" & lat <= 48.5 & lat >= 29 ~ "Mediterranean", TRUE ~ ocean))
 glodap_all$ocean <- as.factor(glodap_all$ocean)
 summary(glodap_all$ocean) #there are 1374 "Not ocean" data (0.2% of all data)
 # These are data points in seas, mostly the Mediterranean
