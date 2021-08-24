@@ -516,6 +516,7 @@ data_summary_plot <- function(full_product, site_name){
   # plot_time
   
   # Count of data at depth by var type
+  # TODO: Rotate this so depth is on the Y axis
   plot_depth <- full_product %>% 
     # filter(depth >= 0) %>%
     filter(!is.na(depth)) %>% 
@@ -594,7 +595,7 @@ data_clim_plot <- function(full_product, site_name){
                    ylim = c(bbox_plot[3:4])) +
     facet_wrap(~month) +
     labs(x = NULL, y = NULL, fill = "Temp. (°C)",
-         title = "Surface (0 - 10 m) temperature clims at 0.01° (~10 km) resolution") +
+         title = "Surface (0 - 10 m) temperature clims at 0.01° (~1 km) resolution") +
     theme(panel.border = element_rect(fill = NA, colour = "black"))
   # plot_spatial_temp_clim
   
@@ -609,7 +610,7 @@ data_clim_plot <- function(full_product, site_name){
                    ylim = c(bbox_plot[3:4])) +
     facet_wrap(~month) +
     labs(x = NULL, y = NULL, fill = "Salinity",
-         title = "Surface (0 - 10 m) salinity clims at 0.01° (~10 km) resolution") +
+         title = "Surface (0 - 10 m) salinity clims at 0.01° (~1 km) resolution") +
     theme(panel.border = element_rect(fill = NA, colour = "black"))
   # plot_spatial_sal_clim
   
