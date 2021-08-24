@@ -100,21 +100,22 @@ Calculation of the surface area of the Arctic Ocean using GMT (script below) was
 #                            select = c("yr", "mon", "day", "longitude [dec.deg.E]", "latitude [dec.deg.N]", 
 #                                       "sample_depth [m]", "ETOPO2_depth [m]", "pCO2water_SST_wet [uatm]"), 
 #                            skip = 6626, nrows = Inf, nThread = 10, fill = TRUE)
-socat <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.rds"))
-socat_all <- socat %>% # whole ocean
+socat <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.rds")) %>% # whole ocean
   dplyr::filter(!is.na(`pCO2water_SST_wet [uatm]`)) %>% # remove NAs
   dplyr::rename(year = yr, month = mon, lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`, 
                 bottomdepth = `ETOPO2_depth [m]`, depth = `sample_depth [m]`, pco2 = `pCO2water_SST_wet [uatm]`) %>% 
   mutate(product = "SOCAT",
-         depth = replace_na(depth, 0)) %>% 
+         depth = replace_na(depth, 0),
+         lon = case_when(lon > 180 ~ lon -360, TRUE ~ lon)) %>% # Correct longitude range to match ocean border polygons
   filter(depth >= 0)
 
 # Find marine borders for the SOCAT product and merge
 registerDoParallel(cores = 15)
 socat_regions <- plyr::ldply(unique(ocean_borders$name), points_in_region, .parallel = T, 
-                             data_product = distinct(socat_all[,c("lon", "lat")]), border_product = ocean_borders)
+                             data_product = distinct(socat[,c("lon", "lat")]), border_product = ocean_borders)
 
-socat_all <- socat_all %>% # whole ocean
+# Process data
+socat_all <- socat %>% # whole ocean
   dplyr::left_join(socat_regions, by = c("lon", "lat")) %>%
   dplyr::filter(!is.na(pco2)) %>%  # remove NAs
   dplyr::mutate(depth = replace_na(depth, 0)) %>% 
@@ -131,7 +132,18 @@ socat_all <- socat_all %>% # whole ocean
     )
   )
 socat_all$ocean <- as.factor(socat_all$ocean)
-summary(socat_all$ocean) #problem: there are 9596678 "Not ocean" data (more than 60% of the data)!
+summary(socat_all$ocean) #problem: there are 9596678 "Not ocean" data (more than 60% of the data)! 
+# The issue was that SOCAT has longitude from 0 to 360, but the ocean boundaries are -180 to 180
+
+# test plot
+socat_all %>% 
+  mutate(lon = round(lon), lat = round(lat)) %>% 
+  group_by(lon, lat, ocean) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  ggplot(aes(x = lon, y = lat, colour = ocean)) +
+  borders(fill = "grey30") +
+  geom_point() +
+  coord_cartesian(expand = F)
 
 # Make Arctic cut
 socat_arctic <- socat_all %>% 
@@ -178,12 +190,12 @@ GLODAP_bottle <- tibble(readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/G
   dplyr::select(year, month, day, longitude, latitude, bottomdepth, depth, tco2) %>% 
   dplyr::rename(lon = longitude, lat = latitude) 
 
-
 # Find marine borders for GLODAP product
 registerDoParallel(cores = 15)
 glodap_regions <- plyr::ldply(unique(ocean_borders$name), points_in_region, .parallel = T, 
                              data_product = distinct(GLODAP_bottle[,c("lon", "lat")]), border_product = ocean_borders)
 
+# Process data
 glodap_all <- GLODAP_bottle %>% # whole ocean
   dplyr::left_join(glodap_regions, by = c("lon", "lat")) %>%
   dplyr::filter(!is.na(tco2)) %>%  # remove NAs
@@ -201,6 +213,17 @@ glodap_all <- GLODAP_bottle %>% # whole ocean
   )
 glodap_all$ocean <- as.factor(glodap_all$ocean)
 summary(glodap_all$ocean) #there are 1374 "Not ocean" data (0.2% of all data)
+# These are data points in seas, mostly the Mediterranean
+
+# test plot
+glodap_all %>% 
+  mutate(lon = round(lon), lat = round(lat)) %>% 
+  group_by(lon, lat, ocean) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  ggplot(aes(x = lon, y = lat, colour = ocean)) +
+  borders(fill = "grey30") +
+  geom_point() +
+  coord_cartesian(expand = F)
 
 # Make Arctic cut
 glodap_arctic <- glodap_all %>% 
@@ -242,7 +265,7 @@ With the Arctic region investigated for both products we now want to compare the
 
 ```{r comparison, message=FALSE, warning=FALSE, echo = FALSE}
 # Combine products for ease of plotting
-both_all <- rbind(glodap_all, socat_all)
+both_all <- bind_rows(glodap_all, socat_all)
 
 # Rough visual of the pixels by ocean
 both_all %>% 
