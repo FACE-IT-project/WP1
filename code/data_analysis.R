@@ -97,6 +97,25 @@ full_product_kong %>%
   labs(x = NULL, y = NULL, title = "Temperature data at 0.01° (~10 km) resolution")
 
 
+## Proposed changes to bbox ------------------------------------------------
+
+# Kongsfjorden
+
+# Isfjorden
+
+# Inglefieldbukta
+## This one appears to be OK. There are just no data.
+
+# Young Sound
+## Also appears to be fine. Also just a lack of data.
+
+# Disko Bay
+
+# Nuup Kangerlua
+
+# Porsangerfjorden
+
+
 # Temporal summary --------------------------------------------------------
 
 # Count of data

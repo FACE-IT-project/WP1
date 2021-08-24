@@ -38,6 +38,24 @@ bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
 bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
 bbox_por <- c(24.5, 27, 70, 71.2)
 
+# Project wide category colours
+CatCol <- c(
+  "Cryosphere" = "mintcream",
+  "Physical" = "skyblue",
+  "Chemistry" = "#F6EA7C",
+  "Biology" = "#A2ED84",
+  "Social" = "F48080"
+)
+
+# Same but with abbreviations for the categories
+CatColAbr <- c(
+  "cryo" = "mintcream",
+  "phys" = "skyblue",
+  "chem" = "#F6EA7C",
+  "bio" = "#A2ED84",
+  "soc" = "F48080"
+)
+
 
 # Workflowr code ----------------------------------------------------------
 
@@ -462,6 +480,15 @@ data_summary_plot <- function(full_product, site_name){
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
   if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
   
+  # Pixel size
+  if(range(full_product$lat, na.rm = T)[2]-range(full_product$lat, na.rm = T)[1] > 1){
+    res_round <- 1
+    res_text <- "0.1° (~10 km) resolution"
+  } else{
+    res_round <- 2
+    res_text <- "0.01° (~1 km) resolution"
+  }
+  
   # Table of meta-stats
   meta_table <- data.frame(table(full_product$var_type)) %>% 
     pivot_wider(names_from = Var1, values_from = Freq) %>% 
@@ -482,8 +509,8 @@ data_summary_plot <- function(full_product, site_name){
   # Count per grid cell
   plot_spatial <- full_product %>% 
     dplyr::select(-URL, -citation) %>% 
-    mutate(lon = round(lon, 2),
-           lat = round(lat, 2)) %>% 
+    mutate(lon = round(lon, res_round),
+           lat = round(lat, res_round)) %>% 
     group_by(lon, lat) %>% 
     summarise(count = n(), .groups = "drop") %>% 
     ggplot(aes(x = lon, y = lat)) +
@@ -495,28 +522,27 @@ data_summary_plot <- function(full_product, site_name){
                    xlim = c(bbox_plot[1:2]), 
                    ylim = c(bbox_plot[3:4])) +
     labs(x = NULL, y = NULL, fill = "Count\n(log10)",
-         title = "Count of data binned at 0.01° (~1 km) resolution") +
-    theme(panel.border = element_rect(fill = NA, colour = "black"))
+         title = paste0("Count of data binned at ", res_text)) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"),
+          legend.position = "bottom")
   # plot_spatial
   
   # Count of data over time
   plot_time <- full_product %>% 
-    dplyr::select(-URL, -citation) %>% 
     mutate(year = lubridate::year(date)) %>%
     group_by(year, var_type) %>% 
     dplyr::summarise(count = n(), .groups = "drop") %>% 
     ggplot() +
     # geom_col(aes(x = year, y = count, fill = var_type)) +
-    geom_col(aes(x = year, y = log10(count), fill = var_type), width = 1) +
+    geom_col(aes(x = year, y = log10(count), fill = var_type), width = 1, show.legend = F) +
     coord_cartesian(expand = F) +
-    labs(x = NULL, fill = "Variable", y = "Count (log10)",
-         title = "Count of data per year",
-         subtitle = "Note that log10 is calculated on each group individually") +
-    theme(panel.border = element_rect(fill = NA, colour = "black"))
+    scale_fill_manual(values = CatColAbr) +
+    labs(x = NULL, fill = "Variable", y = "Count\n(log10)",
+         title = "Count of data per year") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "bottom")
   # plot_time
   
   # Count of data at depth by var type
-  # TODO: Rotate this so depth is on the Y axis
   plot_depth <- full_product %>% 
     # filter(depth >= 0) %>%
     filter(!is.na(depth)) %>% 
@@ -524,19 +550,38 @@ data_summary_plot <- function(full_product, site_name){
     group_by(depth, var_type) %>% 
     dplyr::summarise(count = n(), .groups = "drop") %>% 
     ggplot() +
-    geom_col(aes(x = depth, y = log10(count), fill = var_type)) +
-    scale_y_reverse() +
-    coord_cartesian(expand = F) +
+    geom_col(aes(x = depth, y = log10(count), fill = var_type), show.legend = F) +
+    scale_x_reverse() +
+    coord_flip(expand = F) +
+    scale_fill_manual(values = CatColAbr) +
+    # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
     labs(x = NULL, fill = "Variable", y = "Count (log10)",
-         title = "Count of data at depth",
-         subtitle = "Note that log10 is calculated on each group individually") +
-    theme(panel.border = element_rect(fill = NA, colour = "black"))
+         title = "Count of data at\ndepth (10 m bins)") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "bottom")
   # plot_depth
   
+  # Plot legend for categories
+  plot_blank <- full_product %>% 
+    mutate(year = lubridate::year(date)) %>%
+    group_by(year, var_type) %>% 
+    dplyr::summarise(count = n(), .groups = "drop") %>% 
+    ggplot() +
+    # geom_col(aes(x = year, y = count, fill = var_type)) +
+    geom_col(aes(x = year, y = log10(count), fill = var_type), width = 1) +
+    coord_cartesian(expand = F) +
+    scale_fill_manual(values = CatColAbr) +
+    guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
+    labs(x = NULL, fill = "Variable", y = "Count\n(log10)",
+         title = "Count of data per year") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "bottom")
+  plot_legend <- ggpubr::get_legend(plot_blank)
+  
   # Full summary plot
-  # plot_summary_bottom <- ggpubr::ggarrange(plot_spatial, plot_time, plot_depth, nrow = 1, align = "hv")
+  plot_summary_left <- ggpubr::ggarrange(plot_spatial, plot_time, labels = c("B)", "C)"), nrow = 2, heights = c(1, 0.4))
+  plot_summary_right <- ggpubr::ggarrange(plot_depth, plot_legend, labels = c("D)", ""), nrow = 2, heights = c(1, 0.4))
+  plot_summary_bottom <- ggpubr::ggarrange(plot_summary_left, plot_summary_right, nrow = 1, labels = c("", "D)"), widths = c(1, 0.3))
   # plot_summary <- ggpubr::ggarrange(meta_table_g, plot_summary_bottom, ncol = 1, heights = c(0.1, 1))
-  plot_summary <- ggpubr::ggarrange(meta_table_g, plot_spatial, plot_time, plot_depth, heights = c(0.2, 1, 1, 1), ncol = 1)
+  plot_summary <- ggpubr::ggarrange(meta_table_g, plot_summary_bottom, heights = c(0.2, 1), labels = c("A)", ""), ncol = 1)
   return(plot_summary)
 }
 

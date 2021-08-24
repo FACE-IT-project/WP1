@@ -61,35 +61,38 @@ This document contains a summary of the data products produced for WP1 of the FA
 
 ## Kongsfjorden
 
-```{r kong-summary, fig.height=15, width = 10}
+```{r kong-summary1, fig.height=7, width=10, fig.cap="Test. Note that log10 is calculated\non each group individually"}
 # Load full product
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 
 # Summary plot
 data_summary_plot(full_product_kong, "Kongsfjorden")
-
-# Climatology plot
-data_clim_plot(full_product_kong, "Kongsfjorden")
-
-# Trend plot
-data_trend_plot(full_product_kong, "Kongsfjorden")
 ```
 
+```{r kong-summary2, fig.height=15, width = 10}
+# Climatology plot
+# data_clim_plot(full_product_kong, "Kongsfjorden")
+```
+
+```{r kong-summary3, fig.height=5, width = 10}
+# Trend plot
+# data_trend_plot(full_product_kong, "Kongsfjorden")
+```
 
 ## Isfjorden
 
 ```{r is-summary, fig.height=15, width = 10}
 # Load full product
-load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+# load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 
 # Summary plot
-data_summary_plot(full_product_is, "Isfjorden")
+# data_summary_plot(full_product_is, "Isfjorden")
 
 # Climatology plot
-data_clim_plot(full_product_is, "Isfjorden")
+# data_clim_plot(full_product_is, "Isfjorden")
 
 # Trend plot
-data_trend_plot(full_product_is, "Isfjorden")
+# data_trend_plot(full_product_is, "Isfjorden")
 ```
 
 
@@ -97,13 +100,13 @@ data_trend_plot(full_product_is, "Isfjorden")
 
 ```{r ingle-summary, fig.height=15, width = 10}
 # Load full product
-load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
+# load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
 
 # Summary plot
-data_summary_plot(full_product_ingle, "Inglefieldbukta")
+# data_summary_plot(full_product_ingle, "Inglefieldbukta")
 
 # Climatology plot
-data_clim_plot(full_product_ingle, "Inglefieldbukta")
+# data_clim_plot(full_product_ingle, "Inglefieldbukta")
 
 # Trend plot
 # data_trend_plot(full_product_ingle, "Inglefieldbukta")
@@ -116,16 +119,16 @@ data_clim_plot(full_product_ingle, "Inglefieldbukta")
 
 ```{r young-summary, fig.height=15, width = 10}
 # Load full product
-load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+# load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 
 # Summary plot
-data_summary_plot(full_product_young, "Young Sound")
+# data_summary_plot(full_product_young, "Young Sound")
 
 # Summary plot
-data_clim_plot(full_product_young, "Young Sound")
+# data_clim_plot(full_product_young, "Young Sound")
 
 # Trend plot
-data_trend_plot(full_product_young, "Young Sound")
+# data_trend_plot(full_product_young, "Young Sound")
 ```
 
 
@@ -133,16 +136,16 @@ data_trend_plot(full_product_young, "Young Sound")
 
 ```{r disko-summary, fig.height=15, width = 10}
 # Load full product
-load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+# load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
 # Summary plot
-data_summary_plot(full_product_disko, "Disko Bay")
+# data_summary_plot(full_product_disko, "Disko Bay")
 
 # Climatology plot
-data_clim_plot(full_product_disko, "Disko Bay")
+# data_clim_plot(full_product_disko, "Disko Bay")
 
 # Trend plot
-data_trend_plot(full_product_disko, "Disko Bay")
+# data_trend_plot(full_product_disko, "Disko Bay")
 ```
 
 
@@ -150,16 +153,16 @@ data_trend_plot(full_product_disko, "Disko Bay")
 
 ```{r nuup-summary, fig.height=15, width = 10}
 # Load full product
-load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+# load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 
 # Summary plot
-data_summary_plot(full_product_nuup, "Nuup Kangerlua")
+# data_summary_plot(full_product_nuup, "Nuup Kangerlua")
 
 # Climatology plot
-data_clim_plot(full_product_nuup, "Nuup Kangerlua")
+# data_clim_plot(full_product_nuup, "Nuup Kangerlua")
 
 # Trend plot
-data_trend_plot(full_product_nuup, "Nuup Kangerlua")
+# data_trend_plot(full_product_nuup, "Nuup Kangerlua")
 ```
 
 
@@ -169,16 +172,16 @@ data_trend_plot(full_product_nuup, "Nuup Kangerlua")
 
 ```{r por-summary, fig.height=15, width = 10}
 # Load full product
-load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+# load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
 # Summary plot
-data_summary_plot(full_product_por, "Porsangerfjorden")
+# data_summary_plot(full_product_por, "Porsangerfjorden")
 
 # Climatology plot
-data_clim_plot(full_product_por, "Porsangerfjorden")
+# data_clim_plot(full_product_por, "Porsangerfjorden")
 
 # Trend plot
-data_trend_plot(full_product_por, "Porsangerfjorden")
+# data_trend_plot(full_product_por, "Porsangerfjorden")
 ```
 
 
