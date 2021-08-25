@@ -20,33 +20,9 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 <!-- ![](assets/FACE-IT_Logo_900.png){ width=70% } -->
 </center>
 
-# Overview
-
 ```{r setup}
 # Necessary libraries
 source("code/functions.R")
-
-# Table column names
-# DT_cols <- c("Type", "Driver", "Date", "Longitude", "Latitude", "Depth", "Files", "Link", "Reference", "Notes")
-
-# Datatable options for all tables
-# options(DT.options = list(pageLength = 5,
-#                           # autoWidth = TRUE,
-#                           # This chunk of code only allows six characters to be shown in a column
-#                           # But it interferes with the HTML code for popups and links
-#                           # columnDefs = list(list(
-#                           #   targets = list(9),
-#                           #   render = JS(
-#                           #     "function(data, type, row, meta) {",
-#                           #     "return type === 'display' && data.length > 6 ?",
-#                           #     "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
-#                           #     "}"))),
-#                           # columnDefs = list(list(width = '20%', targets = c(2))),
-#                           deferRender = TRUE,
-#                           # scrollX = TRUE,
-#                           scrollY = 400,
-#                           scrollCollapse = TRUE,
-#                           lengthMenu = c(5, 10, 25, 50, 100)))
 ```
 
 # Overview
@@ -58,10 +34,12 @@ This document contains a summary of the data products produced for WP1 of the FA
 
 # Svalbard
 
-
 ## Kongsfjorden
 
-```{r kong-summary1, fig.height=7, width=10, fig.cap="Test. Note that log10 is calculated\non each group individually"}
+High level summary of data available for Kongsfjorden.
+
+```{r kong-summary1, fig.height=7, width=10, fig.cap="__Figure 1:__ High level overview of the data available for Kongsfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no social data for Kongsfjorden). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
+
 # Load full product
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 
@@ -69,47 +47,80 @@ load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 data_summary_plot(full_product_kong, "Kongsfjorden")
 ```
 
-```{r kong-summary2, fig.height=15, width = 10}
+Monthly average values for temperature and salinity data. These are taken as illustrative figures for the data that are likely available per month as they are generally the two most highly sampled variables in marine science.
+
+```{r kong-summary2, fig.height=15, width = 10, fig.cap="__Figure 2:__ Monthly climatologies for data at Kongsfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Kongsfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Kongsfjorden. Note the much higher salinity for February and how most of the values are much lower than would be assumed. Probably due to a different sort of salinity calculation being used. D) Spatial surface (0 to 10 m) salinity climatologies."}
+
 # Climatology plot
-# data_clim_plot(full_product_kong, "Kongsfjorden")
+data_clim_plot(full_product_kong, "Kongsfjorden")
 ```
 
-```{r kong-summary3, fig.height=5, width = 10}
+Trends in temperature and salinity data.
+
+```{r kong-summary3, fig.height=5, width = 10, fig.cap="__Figure 3:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Kongsfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water."}
+
 # Trend plot
-# data_trend_plot(full_product_kong, "Kongsfjorden")
+data_trend_plot(full_product_kong, "Kongsfjorden")
 ```
 
 ## Isfjorden
 
-```{r is-summary, fig.height=15, width = 10}
+High level summary of data available for Isfjorden.
+
+```{r is-summary1, fig.height=7, width = 10, fig.cap="__Figure 4:__ High level overview of the data available for Isfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no social data for Isfjorden). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are some important moorings outside of this bounding box that _are_ included in the data counts. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
+
 # Load full product
-# load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 
 # Summary plot
-# data_summary_plot(full_product_is, "Isfjorden")
-
-# Climatology plot
-# data_clim_plot(full_product_is, "Isfjorden")
-
-# Trend plot
-# data_trend_plot(full_product_is, "Isfjorden")
+data_summary_plot(full_product_is, "Isfjorden")
 ```
 
+Monthly average values for temperature and salinity data.
+
+```{r is-summary2, fig.height=15, width = 10, fig.cap="__Figure 5:__ Monthly climatologies for data at Isfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Isfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Isfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Isfjorden within the bounding box."}
+
+# Climatology plot
+data_clim_plot(full_product_is, "Isfjorden")
+```
+
+Trends in temperature and salinity data.
+
+```{r is-summary3, fig.height=5, width = 10, fig.cap="__Figure 6:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Isfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic and there is almost no salinity data."}
+
+# Trend plot
+data_trend_plot(full_product_is, "Isfjorden")
+```
 
 ## Inglefieldbukta
 
-```{r ingle-summary, fig.height=15, width = 10}
+High level summary of data available for Inglefieldbukta.
+
+```{r ingle-summary1, fig.height=7, width = 10, fig.cap="__Figure 7:__ High level overview of the data available for Inglefieldbukta. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are only physical data for Inglefieldbukta). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are only two pixels because there are almost no data. C) Temporal summary of available data. D) Summmary of data available by depth (blank because there are no depth data). Note that all of the data summaries are log10 transformed."}
+
 # Load full product
-# load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
+load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
 
 # Summary plot
-# data_summary_plot(full_product_ingle, "Inglefieldbukta")
+data_summary_plot(full_product_ingle, "Inglefieldbukta")
+```
+
+Monthly average values for temperature and salinity data.
+
+```{r ingle-summary2, fig.height=1, width = 10, fig.cap="__Figure 8:__ Not enough data exist to calculate climatologies."}
 
 # Climatology plot
 # data_clim_plot(full_product_ingle, "Inglefieldbukta")
+ggplot() + geom_blank() + annotate(geom = "text", x = 1, y = 1, label = ":(") + theme_void()
+```
+
+Trends in temperature and salinity data.
+
+```{r ingle-summary3, fig.height=1, width = 10, fig.cap="__Figure 9:__ Not enough data exist to calculate trends."}
 
 # Trend plot
-# data_trend_plot(full_product_ingle, "Inglefieldbukta")
+# data_trend_plot(full_product_is, "Isfjorden")
+ggplot() + geom_blank() + annotate(geom = "text", x = 1, y = 1, label = ":(") + theme_void()
 ```
 
 
@@ -117,52 +128,93 @@ data_summary_plot(full_product_kong, "Kongsfjorden")
 
 ## Young Sound
 
-```{r young-summary, fig.height=15, width = 10}
+High level summary of data available for Young Sound.
+
+```{r young-summary1, fig.height=7, width = 10, fig.cap="__Figure 10:__ High level overview of the data available for Young Sound. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are only cryo and phys data for Young Sound). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
+
 # Load full product
-# load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 
 # Summary plot
-# data_summary_plot(full_product_young, "Young Sound")
+data_summary_plot(full_product_young, "Young Sound")
+```
 
-# Summary plot
+Monthly average values for temperature and salinity data.
+
+```{r young-summary2, fig.height=1, width = 10, fig.cap="__Figure 11:__ Not enough data exist to calculate trends."}
+
+# Climatology plot
 # data_clim_plot(full_product_young, "Young Sound")
+# "__Figure 11:__ Monthly climatologies for data at Young Sound. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Young Sound. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Young Sound. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no salinity values for Young Sound and almost no temperature values."
+ggplot() + geom_blank() + annotate(geom = "text", x = 1, y = 1, label = ":(") + theme_void()
+```
+
+Trends in temperature and salinity data.
+
+```{r young-summary3, fig.height=1, width = 10, fig.cap="__Figure 12:__ Not enough data exist to calculate trends."}
 
 # Trend plot
 # data_trend_plot(full_product_young, "Young Sound")
+ggplot() + geom_blank() + annotate(geom = "text", x = 1, y = 1, label = ":(") + theme_void()
 ```
-
 
 ## Disko Bay
 
-```{r disko-summary, fig.height=15, width = 10}
+High level summary of data available for Disko Bay.
+
+```{r disko-summary1, fig.height=7, width = 10, fig.cap="__Figure 13:__ High level overview of the data available for Disko Bay. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no bio or soc data for Disko Bay). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~10 km grouping. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
+
 # Load full product
-# load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
 # Summary plot
-# data_summary_plot(full_product_disko, "Disko Bay")
+data_summary_plot(full_product_disko, "Disko Bay")
+```
+
+Monthly average values for temperature and salinity data.
+
+```{r disko-summary2, fig.height=15, width = 10, fig.cap="__Figure 14:__ Monthly climatologies for data at Disko Bay. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Disko Bay. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Disko Bay. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no salinity values for Disko Bay and almost no temperature values."}
 
 # Climatology plot
-# data_clim_plot(full_product_disko, "Disko Bay")
+data_clim_plot(full_product_disko, "Disko Bay")
+```
+
+Trends in temperature and salinity data.
+
+```{r disko-summary3, fig.height=1, width = 10, fig.cap="__Figure 15:__ Not enough data exist to calculate trends."}
 
 # Trend plot
 # data_trend_plot(full_product_disko, "Disko Bay")
+ggplot() + geom_blank() + annotate(geom = "text", x = 1, y = 1, label = ":(") + theme_void()
 ```
-
 
 ## Nuup Kangerlua
 
-```{r nuup-summary, fig.height=15, width = 10}
+High level summary of data available for Nuup Kangerlua.
+
+```{r nuup-summary1, fig.height=7, width = 10, fig.cap="__Figure 16:__ High level overview of the data available for Nuup Kangerlua. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently only chem and phys data are available). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note how almost all of the data are from outside of the fjord. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
+
 # Load full product
-# load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 
 # Summary plot
-# data_summary_plot(full_product_nuup, "Nuup Kangerlua")
+data_summary_plot(full_product_nuup, "Nuup Kangerlua")
+```
+
+Monthly average values for temperature and salinity data.
+
+```{r nuup-summary2, fig.height=15, width = 10, fig.cap="__Figure 17:__ Monthly climatologies for data at Nuup Kangerlua. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Nuup Kangerlua. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Nuup Kangerlua. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no salinity values for Nuup Kangerlua and sparse temperature values."}
 
 # Climatology plot
-# data_clim_plot(full_product_nuup, "Nuup Kangerlua")
+data_clim_plot(full_product_nuup, "Nuup Kangerlua")
+```
+
+Trends in temperature and salinity data.
+
+```{r nuup-summary3, fig.height=5, fig.cap="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Nuup Kangerlua are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are no salinity data."}
 
 # Trend plot
-# data_trend_plot(full_product_nuup, "Nuup Kangerlua")
+data_trend_plot(full_product_nuup, "Nuup Kangerlua")
 ```
 
 
@@ -170,20 +222,32 @@ data_summary_plot(full_product_kong, "Kongsfjorden")
 
 ## Porsangerfjorden
 
-```{r por-summary, fig.height=15, width = 10}
+High level summary of data available for Porsangerfjorden.
+
+```{r por-summary1, fig.height=7, width=10, fig.cap="__Figure 19:__ High level overview of the data available for Porsangerfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently only chem and phys data are available). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~10 km grouping. Note how a lot of data are from outside of the fjord. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
+
 # Load full product
-# load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
 # Summary plot
-# data_summary_plot(full_product_por, "Porsangerfjorden")
-
-# Climatology plot
-# data_clim_plot(full_product_por, "Porsangerfjorden")
-
-# Trend plot
-# data_trend_plot(full_product_por, "Porsangerfjorden")
+data_summary_plot(full_product_por, "Porsangerfjorden")
 ```
 
+Monthly average values for temperature and salinity data.
+
+```{r por-summary2, fig.height=15, width = 10, fig.cap="__Figure 17:__ Monthly climatologies for data at Porsangerfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Porsangerfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Porsangerfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Porsangerfjorden and the salinity values are questionable."}
+
+# Climatology plot
+data_clim_plot(full_product_por, "Porsangerfjorden")
+```
+
+Trends in temperature and salinity data.
+
+```{r por-summary3, fig.height=5, fig.cap="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~10 km grouping of data are shown as dashed black lines. The average annual values for all of Porsangerfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are not enough salinity data to calculate trends."}
+
+# Trend plot
+data_trend_plot(full_product_por, "Porsangerfjorden")
+```
 
 # References
 

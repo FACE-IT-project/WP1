@@ -10,6 +10,7 @@ library(grid)
 library(gridExtra)
 library(gtable)
 library(ggOceanMaps)
+library(RColorBrewer)
 library(sp)
 library(sf)
 library(pangaear)
@@ -54,6 +55,17 @@ CatColAbr <- c(
   "chem" = "#F6EA7C",
   "bio" = "#A2ED84",
   "soc" = "F48080"
+)
+
+# Project wide colours for depth categories
+
+DepthCol <- c(
+  "0 - 10 m" = brewer.pal(9, "Blues")[4],
+  "10 - 50 m" = brewer.pal(9, "Blues")[5], 
+  "50 - 200 m" = brewer.pal(9, "Blues")[6], 
+  "200 - 1000 m" = brewer.pal(9, "Blues")[7], 
+  "1000 - 2000 m" = brewer.pal(9, "Blues")[8], 
+  "2000+ m" = brewer.pal(9, "Blues")[9]
 )
 
 
@@ -517,7 +529,7 @@ data_summary_plot <- function(full_product, site_name){
     borders(fill = "grey30") +
     # geom_tile(aes(fill = count)) +
     geom_tile(aes(fill = log10(count))) + # Can look better after log scaling
-    scale_fill_viridis_c() +
+    scale_fill_viridis_c(option = "E") +
     coord_quickmap(expand = F,
                    xlim = c(bbox_plot[1:2]), 
                    ylim = c(bbox_plot[3:4])) +
@@ -566,14 +578,10 @@ data_summary_plot <- function(full_product, site_name){
     group_by(year, var_type) %>% 
     dplyr::summarise(count = n(), .groups = "drop") %>% 
     ggplot() +
-    # geom_col(aes(x = year, y = count, fill = var_type)) +
-    geom_col(aes(x = year, y = log10(count), fill = var_type), width = 1) +
-    coord_cartesian(expand = F) +
+    geom_col(aes(x = year, y = count, fill = var_type), width = 1) +
     scale_fill_manual(values = CatColAbr) +
     guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
-    labs(x = NULL, fill = "Variable", y = "Count\n(log10)",
-         title = "Count of data per year") +
-    theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "bottom")
+    labs(fill = "Variable Type")
   plot_legend <- ggpubr::get_legend(plot_blank)
   
   # Full summary plot
@@ -600,28 +608,39 @@ data_clim_plot <- function(full_product, site_name){
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
   if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
   
+  # Pixel size
+  if(range(full_product$lat, na.rm = T)[2]-range(full_product$lat, na.rm = T)[1] > 1){
+    res_round <- 1
+    res_text <- "0.1° (~10 km) resolution"
+  } else{
+    res_round <- 2
+    res_text <- "0.01° (~1 km) resolution"
+  }
+  
   # Calculate monthly depth climatologies per pixel
   depth_monthly_clims_pixel <- full_product %>% 
     filter(depth >= 0) %>% 
-    mutate(lon = round(lon, 2),
-           lat = round(lat, 2),
+    mutate(lon = round(lon, res_round),
+           lat = round(lat, res_round),
            month = lubridate::month(date),
            depth = round(depth, -1),
            depth_cat = case_when(depth > 0 & depth <= 10 ~ "0 - 10 m",
                                  depth > 10 & depth <= 50 ~ "10 - 50 m",
                                  depth > 50 & depth <= 200 ~ "50 - 200 m",
                                  depth > 200 & depth <= 1000 ~ "200 - 1000 m",
-                                 depth > 1000 ~ "1000+ m",
+                                 depth > 1000 & depth <= 2000 ~ "1000 - 2000 m",
+                                 depth > 2000 ~ "2000+ m",
                                  TRUE ~ as.character(NA)),
-           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", 
-                                                    "50 - 200 m", "200 - 1000 m", "1000+ m")),
+           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", "50 - 200 m", 
+                                                    "200 - 1000 m", "1000 - 2000 m", "2000+ m")),
            var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
                                grepl("sal", var_name, ignore.case = F) ~ "sal",
                                grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
     filter(!is.na(depth_cat), !is.na(var_cat), !is.na(month)) %>% 
     group_by(lon, lat, month, depth_cat, var_cat) %>% 
     summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-    right_join(expand.grid(month = 1:12, depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m"), var_cat = c("temp", "sal")),
+    right_join(expand.grid(month = 1:12, depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m", 
+                                                       "1000 - 2000 m", "2000+ m"), var_cat = c("temp", "sal")),
                by = c("month", "depth_cat", "var_cat"))
   
   # Calculate monthly depth climatologies
@@ -629,20 +648,49 @@ data_clim_plot <- function(full_product, site_name){
     group_by(month, depth_cat, var_cat) %>%
     summarise(value = mean(value, na.rm = T), .groups = "drop")
   
+  # Get limits for consistent legends
+  lims_temp <- filter(depth_monthly_clims_pixel, var_cat == "temp")
+  lims_sal <- filter(depth_monthly_clims_pixel, var_cat == "sal")
+  
+  # Plot overall monthly depth temperature clims
+  plot_depth_temp_clims <- depth_monthly_clims %>% 
+    filter(var_cat == "temp") %>%
+    ggplot() +
+    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value), show.legend = F) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_viridis_c(limits = range(lims_temp$value, na.rm = T)) +
+    labs(x = "Month", y = "Depth", fill = "Temp. (°C)", title = "Temperature climatologies at depth") +
+    coord_cartesian(expand = F) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth_temp_clims
+  
   # Plot temperature clims per pixel
   plot_spatial_temp_clim <- depth_monthly_clims_pixel %>% 
     filter(var_cat == "temp", depth_cat == "0 - 10 m") %>% 
     ggplot(aes(x = lon, y = lat)) +
     borders(fill = "grey30") +
     geom_tile(aes(fill = value)) +
-    scale_fill_viridis_c() +
+    scale_fill_viridis_c(limits = range(lims_temp$value, na.rm = T)) +
     coord_quickmap(xlim = c(bbox_plot[1:2]), 
                    ylim = c(bbox_plot[3:4])) +
     facet_wrap(~month) +
     labs(x = NULL, y = NULL, fill = "Temp. (°C)",
-         title = "Surface (0 - 10 m) temperature clims at 0.01° (~1 km) resolution") +
-    theme(panel.border = element_rect(fill = NA, colour = "black"))
+         title = paste0("Surface (0 to 10 m) temperature clims at ", res_text)) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"), 
+          legend.direction = "horizontal")
   # plot_spatial_temp_clim
+  
+  # Plot overall monthly depth salinity clims
+  plot_depth_sal_clims <- depth_monthly_clims %>% 
+    filter(var_cat == "sal") %>%
+    ggplot() +
+    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value), show.legend = F) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_viridis_c(option = "A", limits = range(lims_sal$value, na.rm = T)) +
+    labs(x = "Month", y = "Depth", fill = "Salinity", title = "Salinity climatologies at depth") +
+    coord_cartesian(expand = F) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_depth_sal_clims
   
   # Plot salinity clims per pixel
   plot_spatial_sal_clim <- depth_monthly_clims_pixel %>% 
@@ -650,42 +698,20 @@ data_clim_plot <- function(full_product, site_name){
     ggplot(aes(x = lon, y = lat)) +
     borders(fill = "grey30") +
     geom_tile(aes(fill = value)) +
-    scale_fill_viridis_c() +
+    scale_fill_viridis_c(option = "A") +
     coord_quickmap(xlim = c(bbox_plot[1:2]), 
                    ylim = c(bbox_plot[3:4])) +
     facet_wrap(~month) +
     labs(x = NULL, y = NULL, fill = "Salinity",
-         title = "Surface (0 - 10 m) salinity clims at 0.01° (~1 km) resolution") +
-    theme(panel.border = element_rect(fill = NA, colour = "black"))
+         title = paste0("Surface (0 to 10 m) salinity clims at ", res_text)) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"),
+          legend.direction = "horizontal")
   # plot_spatial_sal_clim
   
-  # Plot overall monthly depth temperature clims
-  plot_depth_temp_clims <- depth_monthly_clims %>% 
-    filter(var_cat == "temp") %>%
-    ggplot() +
-    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value)) +
-    scale_y_discrete(limits = rev) +
-    scale_fill_viridis_c() +
-    labs(x = "Month", y = "Depth", fill = "Temp. (°C)", title = "Temperature climatologies at depth") +
-    coord_cartesian(expand = F) +
-    theme(panel.border = element_rect(fill = NA, colour = "black"))
-  # plot_depth_temp_clims
-  
-  # Plot overall monthly depth salinity clims
-  plot_depth_sal_clims <- depth_monthly_clims %>% 
-    filter(var_cat == "sal") %>%
-    ggplot() +
-    geom_tile(aes(x = as.factor(month), y = depth_cat, fill = value)) +
-    scale_y_discrete(limits = rev) +
-    scale_fill_viridis_c() +
-    labs(x = "Month", y = "Depth", fill = "Salinity", title = "Salinity climatologies at depth") +
-    coord_cartesian(expand = F) +
-    theme(panel.border = element_rect(fill = NA, colour = "black"))
-  # plot_depth_sal_clims
-  
   # Put them together
-  plot_clim <- ggpubr::ggarrange(plot_depth_temp_clims, plot_spatial_temp_clim, plot_depth_sal_clims, plot_spatial_sal_clim,
-                                 heights = c(0.25, 1, 0.25, 1), ncol = 1, nrow = 4)
+  plot_clim <- ggpubr::ggarrange(plot_depth_temp_clims, ggpubr::get_legend(plot_spatial_temp_clim), plot_spatial_temp_clim + theme(legend.position = "none"), 
+                                 plot_depth_sal_clims, ggpubr::get_legend(plot_spatial_sal_clim), plot_spatial_sal_clim + theme(legend.position = "none"),
+                                 heights = c(0.3, 0.1, 1, 0.3, 0.1, 1), labels = c("A)", "", "B)", "C)", "", "D)"), ncol = 1, nrow = 6)
   return(plot_clim)
 }
 
@@ -705,21 +731,31 @@ data_trend_plot <- function(full_product, site_name){
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
   if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
   
+  # Pixel size
+  if(range(full_product$lat, na.rm = T)[2]-range(full_product$lat, na.rm = T)[1] > 1){
+    res_round <- 1
+    res_text <- "0.1° (~10 km) resolution"
+  } else{
+    res_round <- 2
+    res_text <- "0.01° (~1 km) resolution"
+  }
+  
   # Calculate trends 
   depth_trend_pixel <- full_product %>% 
     filter(depth >= 0) %>% 
-    mutate(lon = round(lon, 2),
-           lat = round(lat, 2),
+    mutate(lon = round(lon, res_round),
+           lat = round(lat, res_round),
            year = lubridate::year(date),
            depth = round(depth, -1),
            depth_cat = case_when(depth > 0 & depth <= 10 ~ "0 - 10 m",
                                  depth > 10 & depth <= 50 ~ "10 - 50 m",
                                  depth > 50 & depth <= 200 ~ "50 - 200 m",
                                  depth > 200 & depth <= 1000 ~ "200 - 1000 m",
-                                 depth > 1000 ~ "1000+ m",
+                                 depth > 1000 & depth <= 2000 ~ "1000 - 2000 m",
+                                 depth > 2000 ~ "2000+ m",
                                  TRUE ~ as.character(NA)),
-           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", 
-                                                    "50 - 200 m", "200 - 1000 m", "1000+ m")),
+           depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", "50 - 200 m", 
+                                                    "200 - 1000 m", "1000 - 2000 m", "2000+ m")),
            var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
                                grepl("sal", var_name, ignore.case = F) ~ "sal",
                                grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
@@ -727,9 +763,13 @@ data_trend_plot <- function(full_product, site_name){
     group_by(lon, lat, year, depth_cat, var_cat) %>% 
     summarise(value = mean(value, na.rm = T), .groups = "drop") %>%
     # mutate(plot_group = as.numeric(as.factor(paste0(lon, lat)))) %>% 
-    right_join(expand.grid(year = seq(min(lubridate::year(full_product$date), na.rm = T), max(lubridate::year(full_product$date), na.rm = T)),
-                           depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m"), var_cat = c("temp", "sal")),
-               by = c("year", "depth_cat", "var_cat")) #%>%
+    right_join(expand.grid(year = seq(min(lubridate::year(full_product$date), na.rm = T), 
+                                      max(lubridate::year(full_product$date), na.rm = T)),
+                           depth_cat = c("0 - 10 m", "10 - 50 m", "50 - 200 m", "200 - 1000 m", 
+                                         "1000 - 2000 m", "2000+ m"), var_cat = c("temp", "sal")),
+               by = c("year", "depth_cat", "var_cat")) %>%
+    filter(!is.na(lon)) %>% 
+    mutate(lonlat = paste0(lon, lat))
     # group_by(lon, lat, year, depth_cat, var_cat) %>%
     # do(broom::tidy(lm(value ~ year, .)))
   
@@ -738,17 +778,48 @@ data_trend_plot <- function(full_product, site_name){
     group_by(year, depth_cat, var_cat) %>%
     summarise(value = mean(value, na.rm = T), .groups = "drop")
   
+  # Get limits for consistent plotting
+  lims_temp <- filter(depth_trend_pixel, var_cat == "temp")
+  lims_sal <- filter(depth_trend_pixel, var_cat == "sal")
+  
   # Plot temperature trends
-  plot_trend_temp_sal <- ggplot(data = depth_trend_pixel, aes(x = year, y = value)) +
-    geom_smooth(aes(colour = depth_cat, group = lon), colour = "grey30", method = "lm", se = F) +
-    geom_point(aes(colour = depth_cat)) +
-    geom_smooth(data = depth_trend, aes(colour = depth_cat), method = "lm", se = F, size = 3) +
-    geom_point(data = depth_trend, aes(colour = depth_cat), size = 5, shape = 18) +
-    facet_wrap(~var_cat, nrow = 2, scales = "free_y") +
-    coord_cartesian(expand = F) +
-    labs(x = NULL, y = "Value", colour = "Depth") +
-    theme(panel.border = element_rect(fill = NA, colour = "black")) 
-  plot_trend_temp_sal
-  return(plot_trend_temp_sal)
+  # TODO: Remove the raw data points once you figure out what is funny with them
+  # TODO: Make all symbols and lines smaller
+  plot_trend_temp <- depth_trend_pixel %>% 
+    filter(var_cat == "temp") %>%
+    ggplot(aes(x = year, y = value)) +
+    geom_point(aes(colour = depth_cat), alpha = 0.5) +
+    geom_line(aes(group = lonlat), stat = "smooth", method = "lm", formula = y ~ x, linetype = "dashed", alpha = 0.5) +
+    geom_point(data = filter(depth_trend, var_cat == "temp"), aes(group = depth_cat), colour = "black", size = 6, shape = 18, alpha = 0.7) +
+    geom_point(data = filter(depth_trend, var_cat == "temp"), aes(colour = depth_cat), size = 5, shape = 18, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "temp"), aes(group = depth_cat), colour = "black", method = "lm", se = F, size = 4, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "temp"), aes(colour = depth_cat), method = "lm", se = F, size = 3, alpha = 0.7) +
+    coord_cartesian(expand = F, ylim = range(lims_temp$value)) +
+    scale_colour_manual(values = DepthCol) +
+    labs(x = NULL, y = "Temp. (°C)", colour = "Depth", title = "Temperature trends at depth") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"), 
+          legend.direction = "horizontal", legend.position = "bottom")
+  # plot_trend_temp
+  
+  # Plot salinity trends
+  plot_trend_sal <- depth_trend_pixel %>% 
+    filter(var_cat == "sal") %>%
+    ggplot(aes(x = year, y = value)) +
+    geom_point(aes(colour = depth_cat), alpha = 0.5) +
+    geom_line(aes(group = lonlat), stat = "smooth", method = "lm", formula = y ~ x, linetype = "dashed", alpha = 0.5) +
+    geom_point(data = filter(depth_trend, var_cat == "sal"), aes(group = depth_cat), colour = "black", size = 6, shape = 18, alpha = 0.7) +
+    geom_point(data = filter(depth_trend, var_cat == "sal"), aes(colour = depth_cat), size = 5, shape = 18, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "sal"), aes(group = depth_cat), colour = "black", method = "lm", se = F, size = 4, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "sal"), aes(colour = depth_cat), method = "lm", se = F, size = 3, alpha = 0.7) +
+    coord_cartesian(expand = F, ylim = range(lims_sal$value)) +
+    scale_colour_manual(values = DepthCol) +
+    labs(x = NULL, y = "Salinity", colour = "Depth", title = "Salinity trends at depth") +
+    theme(panel.border = element_rect(fill = NA, colour = "black"))
+  # plot_trend_sal
+  
+  # Put them together
+  plot_trend <- ggpubr::ggarrange(plot_trend_temp + theme(legend.position = "none"), ggpubr::get_legend(plot_trend_temp),  plot_trend_sal + theme(legend.position = "none"), 
+                                  ncol = 1, labels = c("A)", "", "B)"), heights = c(1, 0.2, 1))
+  return(plot_trend)
 }
 
