@@ -344,12 +344,12 @@ plot_problems_nuup <- full_product_nuup %>%
   geom_polygon(data = coastline_nuup, fill = "grey70", colour = "black",
                aes(x = x, y = y, group = polygon_id)) +
   geom_tile(aes(x = lon, y = lat, fill = log10(count))) +
-  annotate("rect", colour = "black", fill = NA,
-           xmin = bbox_nuup[1], xmax = bbox_nuup[2], ymin = bbox_nuup[3], ymax = bbox_nuup[4]) +
   annotate("rect",  colour = "red", fill = "red", alpha = 0.1,
            xmin = bbox_nuup[1], xmax = -52.2, ymin = bbox_nuup[3], ymax = bbox_nuup[4]) +
   annotate("rect",  colour = "red", fill = "red", alpha = 0.1,
            xmin = -52.2, xmax = -51.8, ymin = 64.65, ymax = bbox_nuup[4]) +
+  annotate("rect", colour = "black", fill = NA,
+           xmin = bbox_nuup[1], xmax = bbox_nuup[2], ymin = bbox_nuup[3], ymax = bbox_nuup[4]) +
   scale_fill_viridis_c(option = "E") +
   coord_quickmap(expand = F,
                  xlim = c(bbox_nuup[1]-0.5, bbox_nuup[2]+0.5), 
