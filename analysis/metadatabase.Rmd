@@ -203,7 +203,7 @@ metadata_EU_arctic <- rbind(EU_GEBCO, EU_zooplankton, EU_ice, EU_YMER, EU_Codisp
 ```{r EU-arctic-meta-data-table}
 DT::datatable(metadata_EU_arctic, rownames = FALSE, escape = FALSE, colnames = DT_cols,
               # filter = "top", 
-              caption = "All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.")
+              caption = "All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.") 
 ```
 
 # Svalbard
