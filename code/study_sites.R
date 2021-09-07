@@ -36,25 +36,23 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
                           lat = c(78.98, 78.235, 77.87, 74.517, 69.36, 64.405, 70.6))
 
 
-# Bounding boxes ----------------------------------------------------------
+# Bounding box polygons ---------------------------------------------------
 
 # European Arctic
-bbox_EU <- bbox_to_poly(c(-60, 60, 63, 90), "EU")
+bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 
 # Svalbard
-bbox_kong <- bbox_to_poly(c(11, 12.69, 78.86, 79.1), "Kongsfjorden")
-bbox_is <- bbox_to_poly(c(13.62, 17.14, 78.03, 78.71), "Isfjorden")
-bbox_ingle <- bbox_to_poly(c(18.15, 18.79, 77.87, 78.05), "Inglefieldbukta")
+bbox_kong_poly <- bbox_to_poly(bbox_kong, "Kongsfjorden")
+bbox_is_poly <- bbox_to_poly(bbox_is, "Isfjorden")
+bbox_ingle_poly <- bbox_to_poly(bbox_ingle, "Inglefieldbukta")
 
-# Eastern Greenland
-bbox_young <- bbox_to_poly(c(-22.367917, -19.907644, 74.210137, 74.624304), "Young Sound")
-
-# Western Greenland
-bbox_disko <- bbox_to_poly(c(-55.56, -49.55, 68.22, 70.5), "Disko Bay")
-bbox_nuup <- bbox_to_poly(c(-53.32, -48.93, 64.01, 64.8), "Nuup Kangerlua")
+# Greenland
+bbox_young_poly <- bbox_to_poly(bbox_young, "Young Sound")
+bbox_disko_poly <- bbox_to_poly(bbox_disko, "Disko Bay")
+bbox_nuup_poly <- bbox_to_poly(bbox_nuup, "Nuup Kangerlua")
 
 # Norway
-bbox_por <- bbox_to_poly(c(24.5, 27, 70, 71.2), "Porsangerfjorden")
+bbox_por_poly <- bbox_to_poly(bbox_por, "Porsangerfjorden")
 
 
 # Transects ---------------------------------------------------------------
@@ -78,8 +76,6 @@ trnsct_east <- data.frame(site = c("Young Sound"),
 trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
                           lat1 = c(69.15, 64.736), lat2 = c(68.89, 64.074),
                           lon1 = c(-51.49, -50.584), lon2 = c(-54.15, -51.979))
-
-
 
 
 # EU shapefiles -----------------------------------------------------------
@@ -197,4 +193,98 @@ bathy_kong_plot <- ggplot(data = bathy_kong, aes(x = LON, y = LAT)) +
   scale_colour_viridis_c() +
   labs(x = NULL, y = NULL)
 ggsave("figures/map_kong_hires_bathy.png", bathy_kong_plot, height = 10, width = 12)
+
+
+# Data problems -----------------------------------------------------------
+
+# Figures that highlight where we need to change the bbox for the study site
+
+# Kongsfjorden
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+coastline_kong <- coastline_full_df %>% 
+  filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1)
+plot_problems_kong <- full_product_kong %>%
+  mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
+  group_by(lon, lat) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  ggplot() +
+  geom_polygon(data = coastline_kong, fill = "grey70", colour = "black",
+               aes(x = x, y = y, group = polygon_id)) +
+  geom_tile(aes(x = lon, y = lat, fill = log10(count))) +
+  annotate("rect", colour = "black", fill = NA,
+           xmin = bbox_kong[1], xmax = bbox_kong[2], ymin = bbox_kong[3], ymax = bbox_kong[4]) +
+  annotate("rect",  colour = "red", fill = "red", alpha = 0.1,
+           xmin = bbox_kong[1], xmax = 11.5, ymin = bbox_kong[3], ymax = 78.95) +
+  annotate("rect", colour = "red", fill = "red", alpha = 0.1,
+           xmin = bbox_kong[1], xmax = 11.34, ymin = 78.95, ymax = bbox_kong[4]) +
+  scale_fill_viridis_c(option = "E") +
+  coord_quickmap(expand = F,
+                 xlim = c(bbox_kong[1]-0.3, bbox_kong[2]+0.3), 
+                 ylim = c(bbox_kong[3]-0.05, bbox_kong[4]+0.05)) +
+  labs(x = NULL, y = NULL, fill = "Count\n(log10)",
+       title = paste0("Count of data binned at 0.01° (~1 km) resolution")) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_problems_kong
+ggsave("figures/bbox_kong.png", plot_problems_kong)
+
+# Isfjorden
+load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+coastline_is <- coastline_full_df %>% 
+  filter(x >= bbox_is[1]-1, x <= bbox_is[2]+1, y >= bbox_is[3]-1, y <= bbox_is[4]+1)
+plot_problems_is <- full_product_is %>%
+  mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
+  group_by(lon, lat) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  ggplot() +
+  geom_polygon(data = coastline_is, fill = "grey70", colour = "black",
+               aes(x = x, y = y, group = polygon_id)) +
+  geom_tile(aes(x = lon, y = lat, fill = log10(count))) +
+  annotate("rect", colour = "black", fill = NA,
+           xmin = bbox_is[1], xmax = bbox_is[2], ymin = bbox_is[3], ymax = bbox_is[4]) +
+  scale_fill_viridis_c(option = "E") +
+  coord_quickmap(expand = F,
+                 xlim = c(bbox_is[1]-0.5, bbox_is[2]+0.4), 
+                 ylim = c(bbox_is[3]-0.1, bbox_is[4]+0.2)) +
+  labs(x = NULL, y = NULL, fill = "Count\n(log10)",
+       title = paste0("Count of data binned at 0.01° (~1 km) resolution")) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_problems_is
+ggsave("figures/bbox_is.png", plot_problems_is, height = 6)
+
+# Inglefieldbukta
+load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
+coastline_ingle <- coastline_full_df %>% 
+  filter(x >= bbox_ingle[1]-1, x <= bbox_ingle[2]+1, y >= bbox_ingle[3]-1, y <= bbox_ingle[4]+1)
+plot_problems_ingle <- full_product_ingle %>%
+  mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
+  group_by(lon, lat) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  ggplot() +
+  geom_polygon(data = coastline_ingle, fill = "grey70", colour = "black",
+               aes(x = x, y = y, group = polygon_id)) +
+  geom_tile(aes(x = lon, y = lat, fill = log10(count))) +
+  annotate("rect",  colour = "green", fill = NA, alpha = 0.1,
+           xmin = bbox_ingle[1], xmax = bbox_ingle[2], ymin = bbox_ingle[3], ymax = bbox_ingle[4]+0.03) +
+  annotate("rect", colour = "black", fill = NA,
+           xmin = bbox_ingle[1], xmax = bbox_ingle[2], ymin = bbox_ingle[3], ymax = bbox_ingle[4]) +
+  scale_fill_viridis_c(option = "E") +
+  coord_quickmap(expand = F,
+                 xlim = c(bbox_ingle[1]-0.5, bbox_ingle[2]+0.4), 
+                 ylim = c(bbox_ingle[3]-0.1, bbox_ingle[4]+0.2)) +
+  labs(x = NULL, y = NULL, fill = "Count\n(log10)",
+       title = paste0("Count of data binned at 0.01° (~1 km) resolution")) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_problems_ingle
+ggsave("figures/bbox_ingle.png", plot_problems_ingle, height = 6)
+
+# Young Sound
+
+# Disko Bay
+
+# Nuup Kangerlua
+
+# Porsangerfjorden
 

@@ -92,6 +92,17 @@ DepthCol <- c(
 # The base global map
 map_base <- readRDS("metadata/map_base.Rda")
 
+## Hi-res coastlines
+# Load shapefile
+coastline_full <- read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
+
+# Convert to data.frame
+coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
+
+# Full map
+# ggplot(data = coastline_full) +
+#   geom_sf()
+
 
 # Functions ---------------------------------------------------------------
 
@@ -152,7 +163,7 @@ bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
   # Use the default hi-res Arctic bathy unless the user specifies something else
   # if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/IBCAO_v4_200m.nc") # Super hi-res, but doesn't work...
   # if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/ETOPO1_Ice_g_gmt4.grd")
-  if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/shape_files/GEBCO_2020.nc")
+  if(is.na(bathy_file)) bathy_file <- paste0(pCloud_path,"FACE-IT_data/maps/GEBCO/GEBCO_2020.nc")
     
   # Set limits for bathy projection
   xlon <- c(lon1-lon_pad, lon2+lon_pad)
@@ -504,13 +515,13 @@ data_summary_plot <- function(full_product, site_name){
   # Table of meta-stats
   meta_table <- data.frame(table(full_product$var_type)) %>% 
     pivot_wider(names_from = Var1, values_from = Freq) %>% 
-    mutate(lon = paste0(round(min(full_product$lon, na.rm = T), 2), " to ", round(max(full_product$lon, na.rm = T), 2)), 
+    mutate(files = length(unique(full_product$citation)),
+           lon = paste0(round(min(full_product$lon, na.rm = T), 2), " to ", round(max(full_product$lon, na.rm = T), 2)), 
            lat = paste0(round(min(full_product$lat, na.rm = T), 2), " to ", round(max(full_product$lat, na.rm = T), 2)),
            date = paste0(min(full_product$date, na.rm = T), " to ", max(full_product$date, na.rm = T)),
            depth = paste0(min(full_product$depth, na.rm = T), " to ", max(full_product$depth, na.rm = T))) %>% #,
            # site = site_name) %>%
-    # dplyr::select(site, lon, lat, date, depth, everything())
-    dplyr::select(lon, lat, date, depth, everything())
+    dplyr::select(files, lon, lat, date, depth, everything())
   
   # Graphic version
   # meta_table_g <- gtable_add_grob(tableGrob(meta_table, rows = NULL),
@@ -518,17 +529,23 @@ data_summary_plot <- function(full_product, site_name){
   #                                 t = 2, b = nrow(meta_table), l = 1, r = ncol(meta_table))
   meta_table_g <- tableGrob(meta_table, rows = NULL)
   
+  # Clip coastline polygons for faster plotting
+  coastline_full_df_sub <- coastline_full_df %>% 
+    filter(x >= min(full_product$lon, na.rm = T)-10,
+           x <= max(full_product$lon, na.rm = T)+10,
+           y >= min(full_product$lat, na.rm = T)-10,
+           y <= max(full_product$lat, na.rm = T)+10)
+  
   # Count per grid cell
   plot_spatial <- full_product %>% 
-    dplyr::select(-URL, -citation) %>% 
     mutate(lon = round(lon, res_round),
            lat = round(lat, res_round)) %>% 
     group_by(lon, lat) %>% 
     summarise(count = n(), .groups = "drop") %>% 
     ggplot(aes(x = lon, y = lat)) +
-    borders(fill = "grey30") +
-    # geom_tile(aes(fill = count)) +
-    geom_tile(aes(fill = log10(count))) + # Can look better after log scaling
+    geom_polygon(data = coastline_full_df_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
+    geom_tile(aes(fill = log10(count))) +
     scale_fill_viridis_c(option = "E") +
     coord_quickmap(expand = F,
                    xlim = c(bbox_plot[1:2]), 
@@ -652,6 +669,13 @@ data_clim_plot <- function(full_product, site_name){
   lims_temp <- filter(depth_monthly_clims_pixel, var_cat == "temp")
   lims_sal <- filter(depth_monthly_clims_pixel, var_cat == "sal")
   
+  # Clip coastline polygons for faster plotting
+  coastline_full_df_sub <- coastline_full_df %>% 
+    filter(x >= min(full_product$lon, na.rm = T)-10,
+           x <= max(full_product$lon, na.rm = T)+10,
+           y >= min(full_product$lat, na.rm = T)-10,
+           y <= max(full_product$lat, na.rm = T)+10)
+  
   # Plot overall monthly depth temperature clims
   plot_depth_temp_clims <- depth_monthly_clims %>% 
     filter(var_cat == "temp") %>%
@@ -668,7 +692,8 @@ data_clim_plot <- function(full_product, site_name){
   plot_spatial_temp_clim <- depth_monthly_clims_pixel %>% 
     filter(var_cat == "temp", depth_cat == "0 - 10 m") %>% 
     ggplot(aes(x = lon, y = lat)) +
-    borders(fill = "grey30") +
+    geom_polygon(data = coastline_full_df_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
     geom_tile(aes(fill = value)) +
     scale_fill_viridis_c(limits = range(lims_temp$value, na.rm = T)) +
     coord_quickmap(xlim = c(bbox_plot[1:2]), 
@@ -696,7 +721,8 @@ data_clim_plot <- function(full_product, site_name){
   plot_spatial_sal_clim <- depth_monthly_clims_pixel %>% 
     filter(var_cat == "sal", depth_cat == "0 - 10 m") %>% 
     ggplot(aes(x = lon, y = lat)) +
-    borders(fill = "grey30") +
+    geom_polygon(data = coastline_full_df_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
     geom_tile(aes(fill = value)) +
     scale_fill_viridis_c(option = "A") +
     coord_quickmap(xlim = c(bbox_plot[1:2]), 
