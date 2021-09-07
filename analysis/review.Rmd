@@ -22,7 +22,19 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 # Overview
 
-This document begins with a review of known drivers of change in the European Arctic before focussing in on each individual FACE-IT study site to discuss any differences from the broader Arctic. The following section (European Arctic) has a large table (Table 1) that lists all of the key drivers of change identified as important by the expert members of FACE-IT from the relevant fields of study. Each of the following sections for each region/study site contain a table  of the meta-data for the files containing data related to the key drivers identified in the aforementioned table. Note that if a file contains data for more than one site, it will be listed in the meta-data tables for each relevant site. One may click on the links within the meta-data tables to go to the website where the data are hosted. There are also pop-ups that show what the file-names are as well as what the correct references for the use of the data.
+This document begins with a review of known drivers of change in the European Arctic before focusing in on each individual FACE-IT study site to discuss any differences from the broader Arctic. The following section (European Arctic) has a large table (Table 1) that lists all of the key drivers of change identified as important by the expert members of FACE-IT from the relevant fields of study. Each of the following sections for each region/study site contain a table  of the meta-data for the files containing data related to the key drivers identified in the aforementioned table. Note that if a file contains data for more than one site, it will be listed in the meta-data tables for each relevant site. One may click on the links within the meta-data tables to go to the website where the data are hosted. There are also pop-ups that show what the file-names are as well as what the correct references for the use of the data.
+
+Areas of focus for the review:
+* Model data
+* In situ data
+* Validating important findings from other papers
+* Providing broad climatologies from model data and focussed climatologies from in situ data
+  * A question is to what extent these different climatology strategies can be mixed
+* Broad summaries of in situ data are likely not to be useful
+* Most in situ analyses will likely need to be highly focussed
+  * They will need to be driven by specific questions or relationships
+* The usefulness of the physical in situ data is not abundantly clear given the more complete models
+* The chemical and biological in situ data may be a more important area of focus
 
 # European Arctic
 
