@@ -1210,9 +1210,24 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-08-11"), .before = 1)
 
+## Sea ice extent for Norwegian fjords
+por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-extent.txt", delim = "\t") %>% 
+  filter(X2 == "Porsangerfjord") %>% 
+  pivot_longer(`2001-02-02`:`2019-06-26`, names_to = "date", values_to = "value") %>%
+  mutate(date = as.Date(date),
+         date_accessed = as.Date("2021-09-08"),
+         URL = "https://zenodo.org/record/4133926#.YTikO1uxU5l",
+         citation = "Megan O'Sadnick, Chris Petrich, Camilla Brekke, & Jofrid Skardhamar. (2020). Ice extent in Norwegian fjords, 2001-2019 [Data set]. In Annals of Glaciology (1.0.1, Number Sea Ice at the Interface). Zenodo. https://doi.org/10.5281/zenodo.4133926",
+         lon = NA, lat = NA, depth = NA,
+         var_type = "cryo", var_name = "ice area [km2]") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Combine and save
-full_product_por <- rbind(pg_por_ALL, por_mooring_GFI)
+full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice)
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
+
+# Quick peak
+# Air and water temperature in fjord vs sea ice extent
 

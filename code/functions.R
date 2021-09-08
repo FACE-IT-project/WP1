@@ -574,7 +574,8 @@ data_summary_plot <- function(full_product, site_name){
   # Count of data at depth by var type
   plot_depth <- full_product %>% 
     # filter(depth >= 0) %>%
-    filter(!is.na(depth)) %>% 
+    # filter(!is.na(depth)) %>% 
+    mutate(depth = ifelse(is.na(depth), 0, depth)) %>%
     mutate(depth = round(depth, -1)) %>%
     group_by(depth, var_type) %>% 
     dplyr::summarise(count = n(), .groups = "drop") %>% 

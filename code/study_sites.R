@@ -308,6 +308,7 @@ plot_problems_young
 ggsave("figures/bbox_young.png", plot_problems_young, width = 6)
 
 # Disko Bay
+## Thomas is happy with the bbox as is
 load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 coastline_disko <- coastline_full_df %>% 
   filter(x >= bbox_disko[1]-10, x <= bbox_disko[2]+10, y >= bbox_disko[3]-10, y <= bbox_disko[4]+10)
@@ -333,6 +334,8 @@ plot_problems_disko
 ggsave("figures/bbox_disko.png", plot_problems_disko, height = 7)
 
 # Nuup Kangerlua
+## Thomas is happy with the bbox as is
+## The extra areas can be used to inform mouth water characteristics
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 coastline_nuup <- coastline_full_df %>% 
   filter(x >= bbox_nuup[1]-10, x <= bbox_nuup[2]+10, y >= bbox_nuup[3]-10, y <= bbox_nuup[4]+10)
@@ -362,6 +365,7 @@ plot_problems_nuup
 ggsave("figures/bbox_nuup.png", plot_problems_nuup, width = 7)
 
 # Porsangerfjorden
+## See e-mail from Lis for figure with more refined bbox
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 coastline_por <- coastline_full_df %>% 
   filter(x >= bbox_por[1]-10, x <= bbox_por[2]+10, y >= bbox_por[3]-10, y <= bbox_por[4]+10)

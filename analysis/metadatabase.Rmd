@@ -1194,6 +1194,18 @@ por_NorKyst <- data.frame(type = "Model",
                           reference = '<a onclick="alert(\'Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.\');">Albretsen et al. (2011)</a>',
                           note = NA)
 
+# Sea ice extent data for Norwegian fjords
+por_sea_ice <- data.frame(type = "Satellite",
+                          data_name = "Sea ice: extent",
+                          date_range = "2012 to 2020",
+                          lon_range = NA, 
+                          lat_range = NA,
+                          depth_range = NA,
+                          file_name = '<a onclick="alert(\'12d_ice-extent.txt\');"1 file</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://zenodo.org/record/4133926#.YTikO1uxU5l">zenodo</a>',
+                          reference = '<a onclick="alert(\'Megan O\'Sadnick, Chris Petrich, Camilla Brekke, & Jofrid Skardhamar. (2020). Ice extent in Norwegian fjords, 2001-2019 [Data set]. In Annals of Glaciology (1.0.1, Number Sea Ice at the Interface). Zenodo. https://doi.org/10.5281/zenodo.4133926\');">O\'Sadnick et al. (2020)</a>',
+                          note = NA)
+
 # PANGAEA data product
 por_PG <- data.frame(type = "PANGAEA",
                      data_name = "Many",
@@ -1219,7 +1231,7 @@ full_product_por <- data.frame(type = "Full",
                                note = "This is the full combined data product.")
 
 # Bind them together
-metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_PG, full_product_por)
+metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, por_PG, full_product_por)
 ```
 
 ```{r porsangerfjorden-meta-data-table}
