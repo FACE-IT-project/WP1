@@ -1222,8 +1222,11 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
          var_type = "cryo", var_name = "ice area [km2]") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+## Hydrographic data
+por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08"))
+
 # Combine and save
-full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice)
+full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice, por_hydro)
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()

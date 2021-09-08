@@ -1197,13 +1197,25 @@ por_NorKyst <- data.frame(type = "Model",
 # Sea ice extent data for Norwegian fjords
 por_sea_ice <- data.frame(type = "Satellite",
                           data_name = "Sea ice: extent",
-                          date_range = "2012 to 2020",
+                          date_range = "2001 to 2019",
                           lon_range = NA, 
                           lat_range = NA,
                           depth_range = NA,
                           file_name = '<a onclick="alert(\'12d_ice-extent.txt\');"1 file</a>',
                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://zenodo.org/record/4133926#.YTikO1uxU5l">zenodo</a>',
-                          reference = '<a onclick="alert(\'Megan O\'Sadnick, Chris Petrich, Camilla Brekke, & Jofrid Skardhamar. (2020). Ice extent in Norwegian fjords, 2001-2019 [Data set]. In Annals of Glaciology (1.0.1, Number Sea Ice at the Interface). Zenodo. https://doi.org/10.5281/zenodo.4133926\');">O\'Sadnick et al. (2020)</a>',
+                          reference = '<a onclick="alert(\'Megan O\'Sadnick, Chris Petrich, Camilla Brekke, & Jofrid Skardhamar. (2020). Ice extent in Norwegian fjords, 2001-2019 [Data set]. In Annals of Glaciology (1.0.1, Number Sea Ice at the Interface). Zenodo. https://doi.org/10.5281/zenodo.4133926\');">Sadnick et al. (2020)</a>',
+                          note = NA)
+
+# Historic hydrographic data from Northern Norwegian fjords and coasts
+por_hydro <- data.frame(type = "CTD",
+                          data_name = "Seawater temperature: surface, mid, bottom; salinity",
+                          date_range = "1923 to 2013",
+                          lon_range = "24.6 to 26.9", 
+                          lat_range = "70.0 to 71.2",
+                          depth_range = "0 to 95",
+                          file_name = '<a onclick="alert(\'UiT\');"1 folder, 42 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://dataverse.no/dataverse/uit?q=Mankettikkara&types=datasets&sort=score&order=desc&page=1">UiT</a>',
+                          reference = '<a onclick="alert(\'Follow URLs for specific references or see full product: full_product_por.RData\');">Rahman et al. (2019)</a>',
                           note = NA)
 
 # PANGAEA data product
@@ -1231,7 +1243,7 @@ full_product_por <- data.frame(type = "Full",
                                note = "This is the full combined data product.")
 
 # Bind them together
-metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, por_PG, full_product_por)
+metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, por_hydro, por_PG, full_product_por)
 ```
 
 ```{r porsangerfjorden-meta-data-table}
