@@ -230,6 +230,7 @@ plot_problems_kong
 ggsave("figures/bbox_kong.png", plot_problems_kong)
 
 # Isfjorden
+## See e-mail from Janne
 load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 coastline_is <- coastline_full_df %>% 
   filter(x >= bbox_is[1]-1, x <= bbox_is[2]+1, y >= bbox_is[3]-1, y <= bbox_is[4]+1)
@@ -255,6 +256,7 @@ plot_problems_is
 ggsave("figures/bbox_is.png", plot_problems_is, height = 6)
 
 # Inglefieldbukta
+## See e-mail from Janne
 load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
 coastline_ingle <- coastline_full_df %>% 
   filter(x >= bbox_ingle[1]-1, x <= bbox_ingle[2]+1, y >= bbox_ingle[3]-1, y <= bbox_ingle[4]+1)
