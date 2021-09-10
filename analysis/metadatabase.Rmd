@@ -468,10 +468,10 @@ kong_PG <- data.frame(type = "PANGAEA",
                       lon_range = "11.0 to 12.58", 
                       lat_range = "78.86 to 79.10",
                       depth_range = "-60 to 371",
-                      file_name = '<a onclick="alert(\'pg_kong_ALL.csv; pg_kong_ALL.RData\');">2 files</a>',
+                      file_name = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">2 files</a>',
                       URL = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">See URL column</a>',
                       reference = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">See citation column</a>',
-                      note = "This is a combination of all PANGAEA data.")
+                      note = "This is a combination of 130 PANGAEA data files.")
 
 # Fully combined product
 full_product_kong <- data.frame(type = "Full",
@@ -480,7 +480,7 @@ full_product_kong <- data.frame(type = "Full",
                                 lon_range = "4.18 to 13.92201", 
                                 lat_range = "78.71051 to 79.19823",
                                 depth_range = "-60 to 2380",
-                                file_name = '<a onclick="alert(\'full_product_kong.csv; full_product_kong.RData\');">2 files</a>',
+                                file_name = '<a onclick="alert(\'full_product_kong.csv/.RData\');">2 files</a>',
                                 URL = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
                                 note = "This is the full combined data product.")
@@ -643,10 +643,10 @@ is_PG <- data.frame(type = "PANGAEA",
                     lon_range = "13.6204 to 17.1090", 
                     lat_range = "78.0300 to 78.7022",
                     depth_range = "-754 to 415.8",
-                    file_name = '<a onclick="alert(\'pg_is_ALL.csv\');">2 files</a>',
+                    file_name = '<a onclick="alert(\'pg_is_ALL.csv/.RData\');">2 files</a>',
                     URL = '<a onclick="alert(\'pg_is_ALL.csv/.RData\');">See URL column</a>',
                     reference = '<a onclick="alert(\'pg_is_ALL.csv/.RData\');">See citation column</a>',
-                    note = "This is a combination of all PANGAEA data.")
+                    note = "This is a combination of 215 PANGAEA data files.")
 
 # Fully combined product
 full_product_is <- data.frame(type = "Full",
@@ -655,9 +655,9 @@ full_product_is <- data.frame(type = "Full",
                               lon_range = "13.37895 to 17.35300", 
                               lat_range = "78.0300 to 78.7022",
                               depth_range = "-754 to 415.8",
-                              file_name = '<a onclick="alert(\'full_product_kong.csv; full_product_kong.RData\');">1 file, 2 formats</a>',
-                              URL = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See URL column</a>',
-                              reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
+                              file_name = '<a onclick="alert(\'full_product_is.csv/.RData\');">1 file, 2 formats</a>',
+                              URL = '<a onclick="alert(\'full_product_is.csv/.RData\');">See URL column</a>',
+                              reference = '<a onclick="alert(\'full_product_is.csv/.RData\');">See citation column</a>',
                               note = "This is the full combined data product.")
 
 # Bind them together
@@ -686,10 +686,10 @@ ingle_PG <- data.frame(type = "PANGAEA",
                        lon_range = "18.6 to 18.666", 
                        lat_range = "77.9 to 78.0",
                        depth_range = NA,
-                       file_name = '<a onclick="alert(\'pg_ingle_ALL.csv; pg_ingle_ALL.RData\');">2 files</a>',
+                       file_name = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">2 files</a>',
                        URL = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">See URL column</a>',
                        reference = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">See citation column</a>',
-                       note = "This is a combination of all PANGAEA data.")
+                       note = "This is a combination of 4 PANGAEA data files.")
 
 # Fully combined product
 full_product_ingle <- data.frame(type = "Full",
@@ -698,7 +698,7 @@ full_product_ingle <- data.frame(type = "Full",
                                  lon_range = "18.6 to 18.666", 
                                  lat_range = "77.9 to 78.0",
                                  depth_range = NA,
-                                 file_name = '<a onclick="alert(\'full_product_ingle.csv; full_product_ingle.RData\');">2 files</a>',
+                                 file_name = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">2 files</a>',
                                  URL = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">See URL column</a>',
                                  reference = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">See citation column</a>',
                                  note = "This is the full combined data product.")
@@ -939,10 +939,10 @@ young_PG <- data.frame(type = "PANGAEA",
                        lon_range = "-22.086 to -19.927", 
                        lat_range = "74.2137 to 74.6025",
                        depth_range = "-1044 to 344",
-                       file_name = '<a onclick="alert(\'pg_young_ALL.csv; pg_young_ALL.RData\');">2 files</a>',
+                       file_name = '<a onclick="alert(\'pg_young_ALL.csv/.RData\');">2 files</a>',
                        URL = '<a onclick="alert(\'pg_young_ALL.csv/.RData\');">See URL column</a>',
                        reference = '<a onclick="alert(\'pg_young_ALL.csv/.RData\');">See citation column</a>',
-                       note = "This is a combination of all PANGAEA data.")
+                       note = "This is a combination of 14 PANGAEA data files.")
 
 # Fully combined product
 full_product_young <- data.frame(type = "Full",
@@ -951,7 +951,7 @@ full_product_young <- data.frame(type = "Full",
                                  lon_range = "-22.086 to -19.927", 
                                  lat_range = "74.2137 to 74.6025",
                                  depth_range = "-1044 to 344",
-                                 file_name = '<a onclick="alert(\'full_product_young.csv; full_product_young.RData\');">2 files</a>',
+                                 file_name = '<a onclick="alert(\'full_product_young.csv/.RData\');">2 files</a>',
                                  URL = '<a onclick="alert(\'full_product_young.csv/.RData\');">See URL column</a>',
                                  reference = '<a onclick="alert(\'full_product_young.csv/.RData\');">See citation column</a>',
                                  note = "This is the full combined data product.")
@@ -995,10 +995,10 @@ disko_PG <- data.frame(type = "PANGAEA",
                        lon_range = "-55.54800 to -49.59857", 
                        lat_range = "68.22 to 70.50",
                        depth_range = "0 to 899.1",
-                       file_name = '<a onclick="alert(\'pg_disko_ALL.csv; pg_disko_ALL.RData\');">2 files</a>',
+                       file_name = '<a onclick="alert(\'pg_disko_ALL.csv/.RData\');">2 files</a>',
                        URL = '<a onclick="alert(\'pg_disko_ALL.csv/.RData\');">See URL column</a>',
                        reference = '<a onclick="alert(\'pg_disko_ALL.csv/.RData\');">See citation column</a>',
-                       note = "This is a combination of all PANGAEA data.")
+                       note = "This is a combination of 303 PANGAEA data files.")
 
 # Fully combined product
 full_product_disko <- data.frame(type = "Full",
@@ -1007,7 +1007,7 @@ full_product_disko <- data.frame(type = "Full",
                                  lon_range = "-55.54800 to -49.59857", 
                                  lat_range = "68.22 to 70.50",
                                  depth_range = "0 to 899.1",
-                                 file_name = '<a onclick="alert(\'full_product_disko.csv; full_product_disko.RData\');">2 files</a>',
+                                 file_name = '<a onclick="alert(\'full_product_disko.csv/.RData\');">2 files</a>',
                                  URL = '<a onclick="alert(\'full_product_disko.csv/.RData\');">See URL column</a>',
                                  reference = '<a onclick="alert(\'full_product_disko.csv/.RData\');">See citation column</a>',
                                  note = "This is the full combined data product.")
@@ -1110,10 +1110,10 @@ nuup_PG <- data.frame(type = "PANGAEA",
                       lon_range = "-53.3147 to -49.6142", 
                       lat_range = "64.01 to 64.80",
                       depth_range = "-39 to 599.1",
-                      file_name = '<a onclick="alert(\'pg_nuup_ALL.csv; pg_nuup_ALL.RData\');">2 files</a>',
+                      file_name = '<a onclick="alert(\'pg_nuup_ALL.csv/.RData\');">2 files</a>',
                       URL = '<a onclick="alert(\'pg_nuup_ALL.csv/.RData\');">See URL column</a>',
                       reference = '<a onclick="alert(\'pg_nuup_ALL.csv/.RData\');">See citation column</a>',
-                      note = "This is a combination of all PANGAEA data.")
+                      note = "This is a combination of 457 PANGAEA data files.")
 
 # Fully combined product
 full_product_nuup <- data.frame(type = "Full",
@@ -1122,7 +1122,7 @@ full_product_nuup <- data.frame(type = "Full",
                                 lon_range = "-53.3147 to -49.6142", 
                                 lat_range = "64.01 to 64.80",
                                 depth_range = "-39 to 599.1",
-                                file_name = '<a onclick="alert(\'full_product_nuup.csv; full_product_nuup.RData\');">2 files</a>',
+                                file_name = '<a onclick="alert(\'full_product_nuup.csv/.RData\');">2 files</a>',
                                 URL = '<a onclick="alert(\'full_product_nuup.csv/.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_nuup.csv/.RData\');">See citation column</a>',
                                 note = "This is the full combined data product.")
@@ -1225,10 +1225,10 @@ por_PG <- data.frame(type = "PANGAEA",
                      lon_range = "24.5 to 27.0", 
                      lat_range = "70.0 to 71.2",
                      depth_range = "-285 to 310",
-                     file_name = '<a onclick="alert(\'pg_por_ALL.csv; pg_por_ALL.RData\');">2 files</a>',
+                     file_name = '<a onclick="alert(\'pg_por_ALL.csv/.RData\');">2 files</a>',
                      URL = '<a onclick="alert(\'pg_por_ALL.csv/.RData\');">See URL column</a>',
                      reference = '<a onclick="alert(\'pg_por_ALL.csv/.RData\');">See citation column</a>',
-                     note = "This is a combination of all PANGAEA data.")
+                     note = "This is a combination of 230 PANGAEA data files.")
 
 # Fully combined product
 full_product_por <- data.frame(type = "Full",
@@ -1237,7 +1237,7 @@ full_product_por <- data.frame(type = "Full",
                                lon_range = "24.5 to 27.0", 
                                lat_range = "70.0 to 71.2",
                                depth_range = "-285 to 310",
-                               file_name = '<a onclick="alert(\'full_product_por.csv; full_product_por.RData\');">2 files</a>',
+                               file_name = '<a onclick="alert(\'full_product_por.csv/.RData\');">2 files</a>',
                                URL = '<a onclick="alert(\'full_product_por.csv/.RData\');">See URL column</a>',
                                reference = '<a onclick="alert(\'full_product_por.csv/.RData\');">See citation column</a>',
                                note = "This is the full combined data product.")
