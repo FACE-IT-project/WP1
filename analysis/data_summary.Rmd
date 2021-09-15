@@ -63,6 +63,18 @@ Trends in temperature and salinity data.
 data_trend_plot(full_product_kong, "Kongsfjorden")
 ```
 
+Model temperatures. There are many more variables available within the models.
+
+```{r kong-summary-4, fig.height=10, width = 10, fig.cap="__Figure 4:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
+
+# Load model
+model_kong <- load_model("kongsfjorden_rcp")
+
+# Model visuals
+model_summary(model_kong, "Kongsfjorden")
+```
+
+
 ## Isfjorden
 
 High level summary of data available for Isfjorden.

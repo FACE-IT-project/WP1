@@ -6,6 +6,8 @@
 
 # Libraries used in all other scripts
 library(tidyverse)
+library(tidync)
+library(PCICt) # For 'noleap' date conversions
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -671,6 +673,35 @@ load_nor_hydro <- function(year_choice, date_accessed){
   return(res)
 }
 
+# Function for loading multiple similar model files
+load_model <- function(file_stub, pCloud = F){
+  
+  # Set file pathway
+  if(pCloud){
+    file_path <- "~/pCloudDrive/FACE-IT_data/model/"
+  } else{
+    file_path <- "~/WP1/data/model/"
+  }
+  
+  # Basic model info
+  # ncdump::NetCDF(paste0(file_path, file_stub, "2.6.nc"))
+  model_vars <- ncdump::NetCDF(paste0(file_path, file_stub, "2.6.nc"))$variable
+  model_coords <- tidync::tidync(paste0(file_path, file_stub, "2.6.nc")) %>% activate("D0,D1") %>% hyper_tibble()
+  
+  # Load individual RCPs
+  model_2.6 <- tidync::tidync(paste0(file_path, file_stub, "2.6.nc")) %>% hyper_tibble() %>% mutate(proj = "RCP 2.6")
+  model_4.5 <- tidync::tidync(paste0(file_path, file_stub, "4.5.nc")) %>% hyper_tibble() %>% mutate(proj = "RCP 4.5")
+  model_8.5 <- tidync::tidync(paste0(file_path, file_stub, "8.5.nc")) %>% hyper_tibble() %>% mutate(proj = "RCP 8.5")
+  
+  # Combine all RCPs and exit
+  model_all <- rbind(model_2.6, model_4.5, model_8.5) %>% 
+    left_join(model_coords, by = c("X", "Y")) %>% 
+    mutate(date = as.Date(as.character(as.PCICt(T*3600, cal = "noleap", origin = "1950-01-01 01:00:00", tz = "UTC")))) %>% 
+    dplyr::rename(lon = Long, lat = Latt, topo = Topo, land = RMask, depth = Z) %>% 
+    dplyr::select(proj, land, lon, lat, topo, date, depth, Salt:pco2w)
+  return(model_all)
+}
+
 # Data summary plotting function
 data_summary_plot <- function(full_product, site_name){
   
@@ -1035,3 +1066,54 @@ data_trend_plot <- function(full_product, site_name){
   return(plot_trend)
 }
 
+# Function for plotting a quick summary of a model product
+model_summary <- function(model_product, site_name){
+  
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
+  if(site_name == "Isfjorden") bbox_plot <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Young Sound") bbox_plot <- bbox_young
+  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  
+  # Clip coastline polygons for faster plotting
+  coastline_full_df_sub <- coastline_full_df %>% 
+    filter(x >= min(model_product$lon, na.rm = T)-10,
+           x <= max(model_product$lon, na.rm = T)+10,
+           y >= min(model_product$lat, na.rm = T)-10,
+           y <= max(model_product$lat, na.rm = T)+10)
+  
+  # Spatial temperature
+  plot_map <- model_product %>% 
+    filter(land == 1) %>% 
+    group_by(proj, lon, lat, depth) %>% 
+    summarise_all(mean) %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    geom_polygon(data = coastline_full_df_sub, fill = "grey70", colour = "black",
+                 aes(x = x, y = y, group = polygon_id)) +  
+    geom_point(aes(colour = Temp), size = 3) +
+    scale_colour_viridis_c() +
+    coord_quickmap(xlim = range(model_product$lon),
+                   ylim = range(model_product$lat)) +
+    facet_grid(proj ~ depth) +
+    labs(x = NULL, y = NULL, colour = "Temp. (°C)")
+  
+  # Spatial temperature time series
+  plot_trend <- model_product %>% 
+    filter(land == 1) %>% 
+    mutate(year = lubridate::year(date)) %>% 
+    group_by(topo, depth, proj, year) %>% 
+    summarise_all(mean) %>% 
+    ggplot(aes(x = year, y = Temp)) +
+    geom_point(aes(colour = proj), alpha = 0.25, show.legend = F) +
+    geom_smooth(method = "lm", se = F, aes(group = topo, colour = proj), show.legend = F) +
+    scale_x_continuous(expand = c(0, 0)) +
+    facet_grid(proj~depth) +
+    labs(x = NULL, y  = "Temperature (°C)")
+  
+  # Combine and exit
+  plot_all <- ggpubr::ggarrange(plot_map, plot_trend, ncol = 1, labels = c("A)", "B)"), heights = c(2, 1))
+  return(plot_all)
+}

@@ -491,6 +491,16 @@ unique(full_product_kong$citation[grepl("Jentzsch", full_product_kong$citation)]
 # rm(kong_fischer, kong_popova)
 
 
+## Model product -----------------------------------------------------------
+
+## NB: These files are available on pCloud at: pCloudDrive/FACE-IT_data/model/
+## I load them from a local folder here for speed and convenience
+model_kong <- load_model("kongsfjorden_rcp")
+
+## Test visuals
+model_summary(model_kong, "Kongsfjorden")
+
+
 # Isfjorden ---------------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
