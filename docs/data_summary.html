@@ -371,14 +371,14 @@ div.tocify {
 
 <h1 class="title toc-ignore">Summary of WP1 data products</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">06 septembre 2021</h4>
+<h4 class="date">15 septembre 2021</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -387,7 +387,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -396,10 +396,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-09-06
+<strong>Last updated:</strong> 2021-09-15
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -415,12 +415,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -487,16 +487,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb4d9162ca059cdfc567e08286717a49833f6484ftargetblankb4d9162a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/b4d9162ca059cdfc567e08286717a49833f6484f" target="_blank">b4d9162</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree74f5692707d23aafd1e90a7f0726645dde187742targetblank74f5692a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/74f5692707d23aafd1e90a7f0726645dde187742" target="_blank">74f5692</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb4d9162ca059cdfc567e08286717a49833f6484ftargetblankb4d9162a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree74f5692707d23aafd1e90a7f0726645dde187742targetblank74f5692a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/b4d9162ca059cdfc567e08286717a49833f6484f" target="_blank">b4d9162</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/74f5692707d23aafd1e90a7f0726645dde187742" target="_blank">74f5692</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -509,10 +509,22 @@ Ignored files:
     Ignored:    data/pg_data/
     Ignored:    metadata/pangaea_parameters.tab
 
+Untracked files:
+    Untracked:  analysis/figure/
+
 Unstaged changes:
-    Modified:   analysis/metadatabase.Rmd
+    Modified:   analysis/data_summary.Rmd
     Modified:   code/functions.R
     Modified:   code/study_sites.R
+    Modified:   figures/map_all.png
+    Modified:   figures/map_disko_bay.png
+    Modified:   figures/map_full.png
+    Modified:   figures/map_inglefieldbukta.png
+    Modified:   figures/map_isfjorden.png
+    Modified:   figures/map_kongsfjorden.png
+    Modified:   figures/map_nuup_kangerlua.png
+    Modified:   figures/map_porsangerfjorden.png
+    Modified:   figures/map_young_sound.png
 
 </code></pre>
 <p>
@@ -551,6 +563,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/data_summary.html" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+<td>
+Update to summary figures. Now using hi-res coastlines.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -784,10 +813,8 @@ Re-built site.
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This document contains a summary of the data products produced for WP1 of the FACE-IT project. These data are available to all FACE-IT members via password protected pCloud access. These data are also used in the <a href="https://face-it-project.github.io/WP1/review.html">meta-analysis review</a> of the key drivers of change to arctic fjord ecosystems.</p>
-</div>
-<div id="european-arctic" class="section level1">
-<h1>European Arctic</h1>
+<p>This document contains a summary of the data products produced for WP1 of the FACE-IT project. These data are available to all FACE-IT members via password protected pCloud access. These data are also used in the <a href="https://face-it-project.github.io/WP1/review.html">meta-analysis review</a> of the key drivers of change to arctic fjord ecosystems, which is a 24 month (October, 2022) deliverable.</p>
+<!-- # European Arctic -->
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
@@ -822,6 +849,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/kong-summary1-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/kong-summary1-1.png" target="_blank">b4d9162</a>
@@ -879,6 +917,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/kong-summary2-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/kong-summary2-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -905,9 +954,9 @@ Robert
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure" style="text-align: center">
-<img src="figure/data_summary.Rmd/kong-summary3-1.png" alt="__Figure 3:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Kongsfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water." width="768" />
+<img src="figure/data_summary.Rmd/kong-summary3-1.png" alt="__Figure 3:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water." width="768" />
 <p class="caption">
-<strong>Figure 3:</strong> Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Kongsfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water.
+<strong>Figure 3:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water.
 </p>
 </div>
 <p>
@@ -992,6 +1041,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/is-summary1-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/is-summary1-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1036,6 +1096,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/is-summary2-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/is-summary2-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1051,9 +1122,9 @@ Robert
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure" style="text-align: center">
-<img src="figure/data_summary.Rmd/is-summary3-1.png" alt="__Figure 6:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Isfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic and there is almost no salinity data." width="768" />
+<img src="figure/data_summary.Rmd/is-summary3-1.png" alt="__Figure 6:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently many salinity data points for Isfjorden." width="768" />
 <p class="caption">
-<strong>Figure 6:</strong> Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Isfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic and there is almost no salinity data.
+<strong>Figure 6:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently many salinity data points for Isfjorden.
 </p>
 </div>
 <p>
@@ -1125,6 +1196,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/ingle-summary1-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/ingle-summary1-1.png" target="_blank">b4d9162</a>
@@ -1265,6 +1347,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/young-summary1-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/young-summary1-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1400,6 +1493,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/disko-summary1-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/disko-summary1-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1442,6 +1546,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/disko-summary2-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/disko-summary2-1.png" target="_blank">b4d9162</a>
@@ -1535,6 +1650,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/nuup-summary1-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/nuup-summary1-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1579,6 +1705,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/nuup-summary2-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/nuup-summary2-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1594,9 +1731,9 @@ Robert
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure" style="text-align: center">
-<img src="figure/data_summary.Rmd/nuup-summary3-1.png" alt="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Nuup Kangerlua are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are no salinity data." width="768" />
+<img src="figure/data_summary.Rmd/nuup-summary3-1.png" alt="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are no salinity data." width="768" />
 <p class="caption">
-<strong>Figure 18:</strong> Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Nuup Kangerlua are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are no salinity data.
+<strong>Figure 18:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are no salinity data.
 </p>
 </div>
 <p>
@@ -1673,6 +1810,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/por-summary1-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/por-summary1-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1717,6 +1865,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/figure/data_summary.Rmd/por-summary2-1.png" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/FACE-IT-project/WP1/blob/b4d9162ca059cdfc567e08286717a49833f6484f/docs/figure/data_summary.Rmd/por-summary2-1.png" target="_blank">b4d9162</a>
 </td>
 <td>
@@ -1732,9 +1891,9 @@ Robert
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure" style="text-align: center">
-<img src="figure/data_summary.Rmd/por-summary3-1.png" alt="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~10 km grouping of data are shown as dashed black lines. The average annual values for all of Porsangerfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are not enough salinity data to calculate trends." width="768" />
+<img src="figure/data_summary.Rmd/por-summary3-1.png" alt="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not enough salinity data to calculate trends." width="768" />
 <p class="caption">
-<strong>Figure 18:</strong> Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~10 km grouping of data are shown as dashed black lines. The average annual values for all of Porsangerfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are not enough salinity data to calculate trends.
+<strong>Figure 18:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not enough salinity data to calculate trends.
 </p>
 </div>
 <p>

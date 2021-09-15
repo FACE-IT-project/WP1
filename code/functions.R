@@ -229,7 +229,7 @@ bbox_to_bathy <- function(coords, lon_pad = 0, lat_pad = 0,
 }
 
 # Convenience function that allows a user to directly produce a ggOceanMaps from a bounding box
-# lon1=9; lon2=30; lat1=76; lat2=81
+## Note that a release of ggOceanMaps broke the backward compatibility of this function
 bbox_to_ggOcean <- function(coords, bathy_file = NA, lon_pad = 0, lat_pad = 0, add_bbox = F,
                             depths = c(25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
   
@@ -255,6 +255,51 @@ bbox_to_ggOcean <- function(coords, bathy_file = NA, lon_pad = 0, lat_pad = 0, a
     }
     map_res <- map_res + annotation_spatial(bbox_spatial, fill = "cadetblue1", alpha = 0.2)
   }
+  return(map_res)
+}
+
+# Function for making a site map out of a bounding box
+bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_bbox = F,
+                        depths = c(25, 50, 100, 200, 300, 500, 1000, 2000, 10000)){
+  
+  # Prepare bathymetry data
+  if(is.na(bathy_data)){
+    bathy_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
+      tidync::hyper_filter(lon = dplyr::between(lon, coords[1], coords[2]), 
+                           lat = dplyr::between(lat, coords[3], coords[4])) %>% 
+      tidync::hyper_tibble() %>% 
+      mutate(depth = -elevation) %>% 
+      filter(depth > 0)
+  }
+  
+  # Clip coastline polygons for faster plotting
+  coastline_full_df_sub <- coastline_full_df %>% 
+    filter(x >= coords[1]-10, x <= coords[2]+10,
+           y >= coords[3]-10, y <= coords[4]+10)
+  
+  # Get list of contour depths used in figure
+  depths_sub <- depths[depths < max(bathy_data$depth)] 
+  
+  # Map with coast shapefile and bathy contours
+  map_res <- ggplot(bathy_data, aes(x = lon, y = lat)) +
+    geom_tile(aes(fill = depth)) +
+    geom_contour(aes(z = depth, colour = after_stat(level)), breaks = depths_sub, show.legend = F) +
+    geom_polygon(data = coastline_full_df_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
+    scale_fill_distiller(palette = "Blues", direction = 1) +
+    scale_colour_distiller(palette = "Greys", direction = -1) +
+    # scale_fill_viridis_c(option = "E") +
+    coord_quickmap(expand = F,
+                   xlim = c(coords[1:2]), 
+                   ylim = c(coords[3:4])) +
+    labs(x = NULL, y = NULL, fill = "depth (m)",
+         subtitle = paste0("Contours at: ",paste(c(depths_sub), collapse = ", "), " m")) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"),
+          panel.background = element_rect(fill = "white"),
+          legend.position = "bottom")
+  # map_res
+  
+  # Exit
   return(map_res)
 }
 
@@ -618,7 +663,8 @@ load_nor_hydro <- function(year_choice, date_accessed){
     mutate(date_accessed = date_accessed, var_type = "phys",
            var_name = case_when(var_name == "temp" ~ "temp [°C]", 
                                 var_name == "sal" ~ "sal [PSU]",
-                                var_name == "dens" ~ "dens [kg/m3]")) %>% 
+                                var_name == "dens" ~ "dens [kg/m3]"),
+           depth = as.numeric(depth)) %>% 
     dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value) %>% 
     distinct()
   print(paste0("Loaded ",lubridate::year(min(res_raw$date)),": ", nrow(res)," rows"))
@@ -628,8 +674,10 @@ load_nor_hydro <- function(year_choice, date_accessed){
 # Data summary plotting function
 data_summary_plot <- function(full_product, site_name){
   
-  # Create factors for more consistent plotting
-  full_product$var_type <- as.factor(full_product$var_type)
+  # Tweaks consistent plotting
+  full_product <-  full_product %>% 
+    mutate(var_type = as.factor(var_type),
+           year = lubridate::year(date))
   
   # get correct bounding box
   if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
@@ -655,7 +703,7 @@ data_summary_plot <- function(full_product, site_name){
     mutate(files = length(unique(full_product$citation)),
            lon = paste0(round(min(full_product$lon, na.rm = T), 2), " to ", round(max(full_product$lon, na.rm = T), 2)), 
            lat = paste0(round(min(full_product$lat, na.rm = T), 2), " to ", round(max(full_product$lat, na.rm = T), 2)),
-           date = paste0(min(full_product$date, na.rm = T), " to ", max(full_product$date, na.rm = T)),
+           date = paste0(min(full_product$year, na.rm = T), " to ", max(full_product$year, na.rm = T)),
            depth = paste0(min(full_product$depth, na.rm = T), " to ", max(full_product$depth, na.rm = T))) %>% #,
            # site = site_name) %>%
     dplyr::select(files, lon, lat, date, depth, everything())
@@ -952,12 +1000,12 @@ data_trend_plot <- function(full_product, site_name){
   plot_trend_temp <- depth_trend_pixel %>% 
     filter(var_cat == "temp") %>%
     ggplot(aes(x = year, y = value)) +
-    geom_point(aes(colour = depth_cat), alpha = 0.5) +
-    geom_line(aes(group = lonlat), stat = "smooth", method = "lm", formula = y ~ x, linetype = "dashed", alpha = 0.5) +
-    geom_point(data = filter(depth_trend, var_cat == "temp"), aes(group = depth_cat), colour = "black", size = 6, shape = 18, alpha = 0.7) +
-    geom_point(data = filter(depth_trend, var_cat == "temp"), aes(colour = depth_cat), size = 5, shape = 18, alpha = 0.7) +
-    geom_smooth(data = filter(depth_trend, var_cat == "temp"), aes(group = depth_cat), colour = "black", method = "lm", se = F, size = 4, alpha = 0.7) +
-    geom_smooth(data = filter(depth_trend, var_cat == "temp"), aes(colour = depth_cat), method = "lm", se = F, size = 3, alpha = 0.7) +
+    # geom_point(aes(colour = depth_cat), alpha = 0.5) +
+    # geom_line(aes(group = lonlat), stat = "smooth", method = "lm", formula = y ~ x, linetype = "dashed", alpha = 0.5) +
+    geom_point(data = filter(depth_trend, var_cat == "temp"), aes(group = depth_cat), colour = "black", size = 3, shape = 18, alpha = 0.7) +
+    geom_point(data = filter(depth_trend, var_cat == "temp"), aes(colour = depth_cat), size = 2, shape = 18, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "temp"), aes(group = depth_cat), colour = "black", method = "lm", se = F, size = 2, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "temp"), aes(colour = depth_cat), method = "lm", se = F, size = 1, alpha = 0.7) +
     coord_cartesian(expand = F, ylim = range(lims_temp$value)) +
     scale_colour_manual(values = DepthCol) +
     labs(x = NULL, y = "Temp. (°C)", colour = "Depth", title = "Temperature trends at depth") +
@@ -969,12 +1017,12 @@ data_trend_plot <- function(full_product, site_name){
   plot_trend_sal <- depth_trend_pixel %>% 
     filter(var_cat == "sal") %>%
     ggplot(aes(x = year, y = value)) +
-    geom_point(aes(colour = depth_cat), alpha = 0.5) +
-    geom_line(aes(group = lonlat), stat = "smooth", method = "lm", formula = y ~ x, linetype = "dashed", alpha = 0.5) +
-    geom_point(data = filter(depth_trend, var_cat == "sal"), aes(group = depth_cat), colour = "black", size = 6, shape = 18, alpha = 0.7) +
-    geom_point(data = filter(depth_trend, var_cat == "sal"), aes(colour = depth_cat), size = 5, shape = 18, alpha = 0.7) +
-    geom_smooth(data = filter(depth_trend, var_cat == "sal"), aes(group = depth_cat), colour = "black", method = "lm", se = F, size = 4, alpha = 0.7) +
-    geom_smooth(data = filter(depth_trend, var_cat == "sal"), aes(colour = depth_cat), method = "lm", se = F, size = 3, alpha = 0.7) +
+    # geom_point(aes(colour = depth_cat), alpha = 0.5) +
+    # geom_line(aes(group = lonlat), stat = "smooth", method = "lm", formula = y ~ x, linetype = "dashed", alpha = 0.5) +
+    geom_point(data = filter(depth_trend, var_cat == "sal"), aes(group = depth_cat), colour = "black", size = 3, shape = 18, alpha = 0.7) +
+    geom_point(data = filter(depth_trend, var_cat == "sal"), aes(colour = depth_cat), size = 2, shape = 18, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "sal"), aes(group = depth_cat), colour = "black", method = "lm", se = F, size = 2, alpha = 0.7) +
+    geom_smooth(data = filter(depth_trend, var_cat == "sal"), aes(colour = depth_cat), method = "lm", se = F, size = 1, alpha = 0.7) +
     coord_cartesian(expand = F, ylim = range(lims_sal$value)) +
     scale_colour_manual(values = DepthCol) +
     labs(x = NULL, y = "Salinity", colour = "Depth", title = "Salinity trends at depth") +

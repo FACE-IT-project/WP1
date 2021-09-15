@@ -27,9 +27,9 @@ source("code/functions.R")
 
 # Overview
 
-This document contains a summary of the data products produced for WP1 of the FACE-IT project. These data are available to all FACE-IT members via password protected pCloud access. These data are also used in the [meta-analysis review](https://face-it-project.github.io/WP1/review.html) of the key drivers of change to arctic fjord ecosystems.
+This document contains a summary of the data products produced for WP1 of the FACE-IT project. These data are available to all FACE-IT members via password protected pCloud access. These data are also used in the [meta-analysis review](https://face-it-project.github.io/WP1/review.html) of the key drivers of change to arctic fjord ecosystems, which is a 24 month (October, 2022) deliverable.
 
-# European Arctic
+<!-- # European Arctic -->
 
 
 # Svalbard
@@ -57,7 +57,7 @@ data_clim_plot(full_product_kong, "Kongsfjorden")
 
 Trends in temperature and salinity data.
 
-```{r kong-summary3, fig.height=5, width = 10, fig.cap="__Figure 3:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Kongsfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water."}
+```{r kong-summary3, fig.height=5, width = 10, fig.cap="__Figure 3:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water."}
 
 # Trend plot
 data_trend_plot(full_product_kong, "Kongsfjorden")
@@ -86,7 +86,7 @@ data_clim_plot(full_product_is, "Isfjorden")
 
 Trends in temperature and salinity data.
 
-```{r is-summary3, fig.height=5, width = 10, fig.cap="__Figure 6:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Isfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that the trends for indiviudal pixels are very chaotic and there is almost no salinity data."}
+```{r is-summary3, fig.height=5, width = 10, fig.cap="__Figure 6:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently many salinity data points for Isfjorden."}
 
 # Trend plot
 data_trend_plot(full_product_is, "Isfjorden")
@@ -211,7 +211,7 @@ data_clim_plot(full_product_nuup, "Nuup Kangerlua")
 
 Trends in temperature and salinity data.
 
-```{r nuup-summary3, fig.height=5, fig.cap="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~1 km grouping of data are shown as dashed black lines. The average annual values for all of Nuup Kangerlua are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are no salinity data."}
+```{r nuup-summary3, fig.height=5, fig.cap="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are no salinity data."}
 
 # Trend plot
 data_trend_plot(full_product_nuup, "Nuup Kangerlua")
@@ -243,7 +243,7 @@ data_clim_plot(full_product_por, "Porsangerfjorden")
 
 Trends in temperature and salinity data.
 
-```{r por-summary3, fig.height=5, fig.cap="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. Raw data shown as small round dots. The annual trends per ~10 km grouping of data are shown as dashed black lines. The average annual values for all of Porsangerfjorden are shown as large diamonds, and the annual trends for these average values are shown as large coloured lines. Note that there are not enough salinity data to calculate trends."}
+```{r por-summary3, fig.height=5, fig.cap="__Figure 18:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not enough salinity data to calculate trends."}
 
 # Trend plot
 data_trend_plot(full_product_por, "Porsangerfjorden")
