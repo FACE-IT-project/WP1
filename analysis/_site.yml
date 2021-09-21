@@ -13,6 +13,8 @@ navbar:
       href: metadatabase.html
     - text: "Data summary"
       href: data_summary.html
+    - text: "Model summary"
+      href: model_summary.html
   - text: "Review of drivers"
     href: review.html
   # - text: "Analyses"

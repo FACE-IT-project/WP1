@@ -1098,20 +1098,23 @@ model_summary <- function(model_product, site_name){
     coord_quickmap(xlim = range(model_product$lon),
                    ylim = range(model_product$lat)) +
     facet_grid(proj ~ depth) +
-    labs(x = NULL, y = NULL, colour = "Temp. (°C)")
+    labs(x = NULL, y = NULL, colour = "Temp. (°C)",
+         title = "Average temperature per pixel")
   
   # Spatial temperature time series
   plot_trend <- model_product %>% 
     filter(land == 1) %>% 
     mutate(year = lubridate::year(date)) %>% 
-    group_by(topo, depth, proj, year) %>% 
+    group_by(depth, proj, year) %>% 
     summarise_all(mean) %>% 
     ggplot(aes(x = year, y = Temp)) +
     geom_point(aes(colour = proj), alpha = 0.25, show.legend = F) +
-    geom_smooth(method = "lm", se = F, aes(group = topo, colour = proj), show.legend = F) +
+    geom_smooth(method = "lm", se = F, colour = "black", size = 2, show.legend = F) +
+    geom_smooth(method = "lm", se = F, aes(colour = proj), show.legend = F) +
     scale_x_continuous(expand = c(0, 0)) +
     facet_grid(proj~depth) +
-    labs(x = NULL, y  = "Temperature (°C)")
+    labs(x = NULL, y  = "Temperature (°C)", 
+         title = "Average temperature across all pixels")
   
   # Combine and exit
   plot_all <- ggpubr::ggarrange(plot_map, plot_trend, ncol = 1, labels = c("A)", "B)"), heights = c(2, 1))

@@ -1,0 +1,106 @@
+---
+title: "Summary of model data for FACE-IT study sites"
+author: "Robert Schlegel"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+# css: acid.css
+# csl: frontiers.csl
+# bibliography: FACE-IT.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+```
+
+<center>
+![](assets/FACE-IT_Logo_900.png){ width=70% }
+</center>
+
+```{r setup}
+# Necessary libraries
+source("code/functions.R")
+```
+
+# Overview
+
+This document contains a summary of the model data made available by Morten Skogen of the FACE-IT project.
+
+
+<!-- # European Arctic -->
+
+
+# Svalbard
+
+## Kongsfjorden
+
+Model temperatures. There are many more variables available within the models.
+
+```{r kong-summary-1, fig.height=10, width=10, fig.cap="__Figure 1:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
+
+# Load model
+model_kong <- load_model("kongsfjorden_rcp")
+
+# Model visuals
+model_summary(model_kong, "Kongsfjorden")
+```
+
+## Isfjorden
+
+```{r is-summary-1, fig.height=10, width=10, fig.cap="__Figure 2:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
+
+# Load model
+model_is <- load_model("isfjorden_rcp")
+
+# Model visuals
+model_summary(model_is, "Isfjorden")
+```
+
+## Inglefieldbukta
+
+```{r ingle-summary-1, fig.height=10, width=10, fig.cap="__Figure 3:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
+
+# Load model
+model_ingle <- load_model("inglefieldbukta_rcp")
+
+# Model visuals
+model_summary(model_ingle, "Inglefieldbukta")
+```
+
+# Greenland
+
+## Young Sound
+
+```{r young-summary-1, fig.height=10, width=10, fig.cap="__Figure 4:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
+
+# Load model
+model_young <- load_model("young_sound_rcp")
+
+# Model visuals
+model_summary(model_young, "Young Sound")
+```
+
+## Disko Bay
+
+There are no model data for the western side of Greenland.
+
+## Nuup Kangerlua
+
+There are no model data for the western side of Greenland.
+
+# Norway
+
+## Porsangerfjorden
+
+```{r por-summary-1, fig.height=10, width=10, fig.cap="__Figure 5:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
+
+# Load model
+model_por <- load_model("porsangerfjorden_rcp")
+
+# Model visuals
+model_summary(model_por, "Porsangerfjorden")
+```
+
