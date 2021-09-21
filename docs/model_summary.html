@@ -381,7 +381,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -390,7 +390,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -402,7 +402,7 @@ div.tocify {
 <strong>Last updated:</strong> 2021-09-21
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -418,12 +418,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
@@ -490,16 +490,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeed8e079c719bebb43531c8bba748c1c2b86c21f3targetblanked8e079a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/ed8e079c719bebb43531c8bba748c1c2b86c21f3" target="_blank">ed8e079</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb966f856a4be0251b7435158d583be882372787atargetblankb966f85a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/b966f856a4be0251b7435158d583be882372787a" target="_blank">b966f85</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeed8e079c719bebb43531c8bba748c1c2b86c21f3targetblanked8e079a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb966f856a4be0251b7435158d583be882372787atargetblankb966f85a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/ed8e079c719bebb43531c8bba748c1c2b86c21f3" target="_blank">ed8e079</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/b966f856a4be0251b7435158d583be882372787a" target="_blank">b966f85</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -513,11 +513,7 @@ Ignored files:
     Ignored:    data/pg_data/
     Ignored:    metadata/pangaea_parameters.tab
 
-Untracked files:
-    Untracked:  analysis/model_summary.Rmd
-
 Unstaged changes:
-    Modified:   analysis/_site.yml
     Modified:   code/functions.R
 
 </code></pre>
@@ -531,9 +527,69 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/model_summary.Rmd</code>) and HTML (<code>docs/model_summary.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b966f856a4be0251b7435158d583be882372787a/analysis/model_summary.Rmd" target="_blank">b966f85</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+<td>
+First pass at model summary page
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/b966f856a4be0251b7435158d583be882372787a/docs/model_summary.html" target="_blank">b966f85</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+<td>
+First pass at model summary page
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -557,6 +613,43 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
 <strong>Figure 1:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-kong-summary-1-1">
+Past versions of kong-summary-1-1.png
+</button>
+</p>
+<div id="fig-kong-summary-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b966f856a4be0251b7435158d583be882372787a/docs/figure/model_summary.Rmd/kong-summary-1-1.png" target="_blank">b966f85</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="isfjorden" class="section level2">
 <h2>Isfjorden</h2>
@@ -565,6 +658,43 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
 <p class="caption">
 <strong>Figure 2:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
 </p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-is-summary-1-1">
+Past versions of is-summary-1-1.png
+</button>
+</p>
+<div id="fig-is-summary-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b966f856a4be0251b7435158d583be882372787a/docs/figure/model_summary.Rmd/is-summary-1-1.png" target="_blank">b966f85</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div id="inglefieldbukta" class="section level2">
@@ -575,24 +705,75 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
 <strong>Figure 3:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-ingle-summary-1-1">
+Past versions of ingle-summary-1-1.png
+</button>
+</p>
+<div id="fig-ingle-summary-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b966f856a4be0251b7435158d583be882372787a/docs/figure/model_summary.Rmd/ingle-summary-1-1.png" target="_blank">b966f85</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="greenland" class="section level1">
 <h1>Greenland</h1>
 <div id="young-sound" class="section level2">
 <h2>Young Sound</h2>
+<div class="figure" style="text-align: center">
+<img src="figure/model_summary.Rmd/young-summary-1-1.png" alt="__Figure 4:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A." width="768" />
+<p class="caption">
+<strong>Figure 4:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
+</p>
+</div>
 </div>
 <div id="disko-bay" class="section level2">
 <h2>Disko Bay</h2>
+<p>There are no model data for the western side of Greenland.</p>
 </div>
 <div id="nuup-kangerlua" class="section level2">
 <h2>Nuup Kangerlua</h2>
+<p>There are no model data for the western side of Greenland.</p>
 </div>
 </div>
 <div id="norway" class="section level1">
 <h1>Norway</h1>
 <div id="porsangerfjorden" class="section level2">
 <h2>Porsangerfjorden</h2>
+<div class="figure" style="text-align: center">
+<img src="figure/model_summary.Rmd/por-summary-1-1.png" alt="__Figure 5:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A." width="768" />
+<p class="caption">
+<strong>Figure 5:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
+</p>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -626,7 +807,7 @@ other attached packages:
  [9] ggspatial_1.1.5    gtable_0.3.0       gridExtra_2.3      PCICt_0.5-4.1     
 [13] tidync_0.2.4       forcats_0.5.1      stringr_1.4.0      dplyr_1.0.6       
 [17] purrr_0.3.4        readr_1.4.0        tidyr_1.1.3        tibble_3.1.2      
-[21] ggplot2_3.3.3      tidyverse_1.3.1   
+[21] ggplot2_3.3.3      tidyverse_1.3.1    workflowr_1.6.2   
 
 loaded via a namespace (and not attached):
  [1] colorspace_2.0-1   ggsignif_0.6.2     ellipsis_0.3.2     class_7.3-19      
@@ -634,21 +815,21 @@ loaded via a namespace (and not attached):
  [9] httpcode_0.3.0     proxy_0.4-26       ggpubr_0.4.0       farver_2.1.0      
 [13] fansi_0.5.0        lubridate_1.7.10   xml2_1.3.2         splines_4.1.1     
 [17] codetools_0.2-18   ncdf4_1.17         ncdump_0.0.3       knitr_1.33        
-[21] jsonlite_1.7.2     workflowr_1.6.2    broom_0.7.7        dbplyr_2.1.1      
-[25] rgeos_0.5-5        oai_0.3.2          hoardr_0.5.2       compiler_4.1.1    
-[29] httr_1.4.2         backports_1.2.1    Matrix_1.3-4       assertthat_0.2.1  
-[33] cli_2.5.0          later_1.2.0        htmltools_0.5.1.1  tools_4.1.1       
-[37] glue_1.4.2         rappdirs_0.3.3     Rcpp_1.0.6         carData_3.0-4     
-[41] cellranger_1.1.0   jquerylib_0.1.4    RNetCDF_2.4-2      raster_3.4-10     
-[45] vctrs_0.3.8        crul_1.1.0         nlme_3.1-152       xfun_0.23         
-[49] openxlsx_4.2.3     rvest_1.0.0        lifecycle_1.0.0    ncmeta_0.3.0      
-[53] rstatix_0.7.0      scales_1.1.1       hms_1.1.0          promises_1.2.0.1  
-[57] yaml_2.2.1         curl_4.3.1         sass_0.4.0         stringi_1.6.2     
-[61] highr_0.9          e1071_1.7-7        zip_2.2.0          rlang_0.4.11      
-[65] pkgconfig_2.0.3    evaluate_0.14      lattice_0.20-44    labeling_0.4.2    
-[69] cowplot_1.1.1      tidyselect_1.1.1   plyr_1.8.6         magrittr_2.0.1    
-[73] R6_2.5.0           generics_0.1.0     DBI_1.1.1          mgcv_1.8-36       
-[77] pillar_1.6.1       haven_2.4.1        foreign_0.8-81     withr_2.4.2       
+[21] jsonlite_1.7.2     broom_0.7.7        dbplyr_2.1.1       rgeos_0.5-5       
+[25] oai_0.3.2          hoardr_0.5.2       compiler_4.1.1     httr_1.4.2        
+[29] backports_1.2.1    Matrix_1.3-4       assertthat_0.2.1   cli_2.5.0         
+[33] later_1.2.0        htmltools_0.5.1.1  tools_4.1.1        glue_1.4.2        
+[37] rappdirs_0.3.3     Rcpp_1.0.6         carData_3.0-4      cellranger_1.1.0  
+[41] jquerylib_0.1.4    RNetCDF_2.4-2      raster_3.4-10      vctrs_0.3.8       
+[45] crul_1.1.0         nlme_3.1-152       xfun_0.23          openxlsx_4.2.3    
+[49] rvest_1.0.0        lifecycle_1.0.0    ncmeta_0.3.0       rstatix_0.7.0     
+[53] scales_1.1.1       hms_1.1.0          promises_1.2.0.1   yaml_2.2.1        
+[57] curl_4.3.1         sass_0.4.0         stringi_1.6.2      highr_0.9         
+[61] e1071_1.7-7        zip_2.2.0          rlang_0.4.11       pkgconfig_2.0.3   
+[65] evaluate_0.14      lattice_0.20-44    labeling_0.4.2     cowplot_1.1.1     
+[69] tidyselect_1.1.1   plyr_1.8.6         magrittr_2.0.1     R6_2.5.0          
+[73] generics_0.1.0     DBI_1.1.1          mgcv_1.8-36        pillar_1.6.1      
+[77] haven_2.4.1        whisker_0.4        foreign_0.8-81     withr_2.4.2       
 [81] units_0.7-2        abind_1.4-5        modelr_0.1.8       crayon_1.4.1      
 [85] car_3.0-10         KernSmooth_2.23-20 utf8_1.2.1         rmarkdown_2.8     
 [89] sfheaders_0.4.0    readxl_1.3.1       data.table_1.14.0  git2r_0.28.0      
