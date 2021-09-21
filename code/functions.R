@@ -83,10 +83,11 @@ DepthCol <- c(
 #                                      "analysis/key_drivers.Rmd",
 #                                      "analysis/metadatabase.Rmd",
 #                                      "analysis/data_summary.Rmd", # NB: This takes a couple minutes
+#                                      "analysis/model_summary.Rmd", # NB: This takes a couple minutes
 #                                      "analysis/review.Rmd"
 #   ),
 #   message = "Re-built site.")
-# ) # 311 seconds with the SOCAT analysis, 8 seconds without
+# ) # 311 seconds with both summary pages
 
 
 # Meta-data ---------------------------------------------------------------
