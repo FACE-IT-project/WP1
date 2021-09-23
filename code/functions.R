@@ -1087,6 +1087,7 @@ model_summary <- function(model_product, site_name){
            y <= max(model_product$lat, na.rm = T)+10)
   
   # Spatial temperature
+  ## TODO: Only show one map, no facets
   plot_map <- model_product %>% 
     filter(land == 1) %>% 
     group_by(proj, lon, lat, depth) %>% 

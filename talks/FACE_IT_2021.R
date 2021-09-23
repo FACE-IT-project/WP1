@@ -2,6 +2,20 @@
 # This script contains the code used for the analyses shown in 
 # the talk given for the FACE-IT 2021 annual meeting
 
+# TODO: Two talks
+# One as a WP1 update for just the work package
+  # Answer the questions in the meeting agenda update
+  # Talk about issue with Inglefieldbukta bounding box
+  # What is the scientific justification of choosing a semi-open fjord and one that is so large
+  # Give Janne a heads up first
+# The other as the talk that has an abstract submitted
+# Ask Janne about cruise ship arrival/presence data for Isfjorden
+# Ask someone in Kings Bay (Geir as a first point of contact) for cruise ships in Kongsfjorden
+  # Ship size and number of tourists where possible
+  # This could be tracked down by getting the ship names then doing a bit of digging
+# Question for Grete: Is the disappearance of sea ice promoting tourism in the two Svalbard fjords
+# What may the triad relationship be between sea ice, cruise ships, and plankton biomass
+
 
 # Setup -------------------------------------------------------------------
 
@@ -19,3 +33,18 @@ source("code/functions.R")
 # Then show what the different model RCP projections are and what the future may hold
 # Also use these relationship projections for any sort of biomass
 
+# TODO:
+# Create statistics about how many data files there are. 
+# Who has been contacted. 
+# How many we have and what has been added
+# Solicit audience for new datasets that have not been identified and that are available
+# Read the Kongsfjorden ecosystem book chapter about mooring data
+# Have a slide at the end of the science talk about co-authorship for the review article
+  # It requires contribution of data, text, figures, ideas etc.
+  # The obvious contributors are the site coordinators and who they think are specialists in certain aspects at there site
+# Think of a timeline for the review article
+
+# The data from Google sheet 99 is kongsfjorden/d_all.rds
+# Contact JP about any questions regarding the data
+# Also contact JP for the reference for the data
+  # There is a draft data paper at the moment but not ready yet

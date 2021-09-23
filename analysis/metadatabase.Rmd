@@ -180,8 +180,16 @@ EU_GRDC <- data.frame(type = "Flow meter",
                       reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                       note = NA)
 
-# Carb chem Arctic model output
-# EU_Popova <- "Arctic_model_output_acid.dat"
+# Carbonate chemistry Arctic model output
+EU_Popova <- data.frame(type = "Model",
+                        data_name = "Sea ice: extent; mixed layer depth; seawater temperature: surface; partial pressure of CO2, dissolved inorganic carbon; pH",
+                        date_range = "1950 to 2099",
+                        lon_range = NA, lat_range = NA, depth_range = NA,
+                        file_name = '<a onclick="alert(\'Arctic_model_output_acid.dat\');">1 file</a>',
+                        URL = '<a onclick="alert(\'File provided by Jean-Pierre Gattuso\');">NA</a>',
+                        reference = '<a onclick="alert(\'Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.\');">Popova et al. (2014)</a>',
+                        note = "Not currently in the database.")
+# "Arctic_model_output_acid.dat"
 
 # EU PANGAEA data products
 EU_PG <- data.frame(type = "PANGAEA",
@@ -197,7 +205,7 @@ EU_PG <- data.frame(type = "PANGAEA",
 
 # Combine
 metadata_EU_arctic <- rbind(EU_GEBCO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, 
-                            EU_NCEI_1989, EU_GRDC, EU_PG)
+                            EU_NCEI_1989, EU_GRDC, EU_Popova, EU_PG)
 ```
 
 ```{r EU-arctic-meta-data-table}
@@ -454,12 +462,91 @@ kong_weather_station <- data.frame(type = "Met station",
 kong_mooring_GFI <- data.frame(type = "Mooring",
                                data_name = "Sea temperature; salinity; turbidity; current: direction, speed; oxygen",
                                date_range = "2010 to 2013",
-                               lon_range = "13.52211 to 13.59348", lat_range = "78.05833 to 78.06071",
+                               lon_range = "13.52 to 13.59", 
+                               lat_range = "78.058 to 78.060",
                                depth_range = "50 to 182",
                                file_name = '<a onclick="alert(\'mooring_GFI: \');">1 folder, 14 files</a>',
                                URL = '<a onclick="alert(\'href="ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_A/\');">NMDC</a>',
                                reference = '<a onclick="alert(\'No reference provided.\');">NMDC</a>',
                                note = NA)
+
+# Ferry box data
+kong_ferry <- data.frame(type = "Mooring",
+                         data_name = "PAR; many chem drivers",
+                         date_range = "2015 to 2021",
+                         lon_range = "11.92", 
+                         lat_range = "78.93",
+                         depth_range = "0 to 12",
+                         file_name = '<a onclick="alert(\'d_all.rds\');">1 file</a>',
+                         URL = '<a onclick="alert(\'File provided by Jean-Pierre Gattuso\');">NA</a>',
+                         reference = '<a onclick="alert(\'Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)\');">Gattuso et al. (In prep.)</a>',
+                         note = "Not currently in the database.")
+
+# MOSJ crusie data
+kong_MOSJ <- data.frame(type = "Cruise",
+                        data_name = "PAR",
+                        date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
+                        file_name = '<a onclick="alert(\'\');">0 files</a>',
+                        URL = '<a onclick="alert(\'\');">NA</a>',
+                        reference = '<a onclick="alert(\'\');">NA</a>',
+                        note = "MOSJ cruise data were not able to be found.")
+
+# Collection of PAR data published in Pavlov et al. 2019
+kong_pavlov <- data.frame(type = "In situ",
+                          data_name = "PAR",
+                          date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
+                          file_name = '<a onclick="alert(\'\');">0 files</a>',
+                          URL = '<a onclick="alert(\'\');">NA</a>',
+                          reference = '<a onclick="alert(\'\');">NA</a>',
+                          note = "Pavlov et al. 2019 data are not publicly available.")
+
+# PAR data collected as part of Kai's work in Kongsfjorden
+kong_bischoff <- data.frame(type = "In situ",
+                            data_name = "PAR",
+                            date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
+                            file_name = '<a onclick="alert(\'\');">0 files</a>',
+                            URL = '<a onclick="alert(\'\');">NA</a>',
+                            reference = '<a onclick="alert(\'\');">NA</a>',
+                            note = "Field data collected by Kai's team will not be available until 2022.")
+
+# Cruise data sampling water along the marine terminating edge of glaciers
+kong_TWICE <- data.frame(type = "Cruise",
+                         data_name = "Salinity, glacier: terminating edge",
+                         date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
+                         file_name = '<a onclick="alert(\'\');">0 files</a>',
+                         URL = '<a onclick="alert(\'\');">NA</a>',
+                         reference = '<a onclick="alert(\'\');">NA</a>',
+                         note = "TWICE cruise data not able to be sourced.")
+
+# Cruise data sampling water along the marine terminating edge of glaciers
+kong_SAMS <- data.frame(type = "Mooring",
+                        data_name = "Seawater temperature",
+                         date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
+                         file_name = '<a onclick="alert(\'\');">0 files</a>',
+                         URL = '<a onclick="alert(\'\');">NA</a>',
+                         reference = '<a onclick="alert(\'\');">NA</a>',
+                         note = "The data have been located but not yet sourced.")
+
+# Macroalgae data from multiple surveys/studies
+kong_macroalgae <- data.frame(type = "Survey",
+                              data_name = "Macroalgae: presence, abundance; primary production",
+                              date_range = "1996/98 and 2012-14", 
+                              lon_range = "?", lat_range = "?", depth_range = "?",
+                              file_name = '<a onclick="alert(\'\');">0 files</a>',
+                              URL = '<a onclick="alert(\'\');">NA</a>',
+                              reference = '<a onclick="alert(\'\');">NA</a>',
+                              note = "The authors have been contacted.")
+
+# Macroalgae data from multiple surveys/studies
+kong_benthic <- data.frame(type = "Survey",
+                           data_name = "Benthic invertebrates: presence, abundance, biomass",
+                           date_range = "1996/98 and 2012-14", 
+                           lon_range = "?", lat_range = "?", depth_range = "?",
+                           file_name = '<a onclick="alert(\'\');">0 files</a>',
+                           URL = '<a onclick="alert(\'\');">NA</a>',
+                           reference = '<a onclick="alert(\'\');">NA</a>',
+                           note = "The authors have been contacted.")
+
 
 # PANGAEA data product
 kong_PG <- data.frame(type = "PANGAEA",
@@ -490,7 +577,9 @@ full_product_kong <- data.frame(type = "Full",
 
 # Bind them together
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
-                               kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_PG, full_product_kong)
+                               kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
+                               kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_SAMS,
+                               kong_macroalgae, kong_benthic, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
@@ -578,7 +667,7 @@ is_CO2_tempelfjorden <- data.frame(type = "CTD",
                                    note = NA)
 
 # CO2 station at IsA
-is_CO2_IsA <- data.frame(type = "CTD",
+is_IsA_CO2 <- data.frame(type = "CTD",
                          data_name = "Sea temperature; salinity; TA; pH; EP TA",
                          date_range = "2015 to 2017",
                          lon_range = "15.5 to 15.533", 
@@ -590,15 +679,60 @@ is_CO2_IsA <- data.frame(type = "CTD",
                          note = NA)
 
 # Chlorophyl station at IsA
-is_Chla_IsA <- data.frame(type = "Niskin",
+is_IsA_Chla <- data.frame(type = "Niskin",
                           data_name = "ChlA",
                           date_range = "2011 to 2019",
-                          lon_range = "15.52992", lat_range = "78.26105",
+                          lon_range = "15.53", lat_range = "78.26",
                           depth_range = "0 to 980",
                           file_name = '<a onclick="alert(\'chl_a: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc; IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">1 folder, 2 files</a>',
                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All">SIOS</a>',
                           reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                           note = NA)
+
+# Light related data at the IsA station
+is_IsA_light <- data.frame(type = "",
+                           data_name = "PAR; suspended matter: organic, mineral",
+                           date_range = "2012 to ?",
+                           lon_range = "15.53", lat_range = "78.26",
+                           depth_range = "0 to 15",
+                           file_name = '<a onclick="alert(\' \');">0 files</a>',
+                           URL = NA, 
+                           reference = '<a onclick="alert(\'No reference available yet.\');">Vader et al. (In prep.)</a>',
+                           note = "Data are not yet publicly available.")
+
+# Biology related data at the IsA station
+is_IsA_bio <- data.frame(type = "Niskin bottle",
+                         data_name = "Nutrients: nitrate, nitrite, phosphate, silicate; DNA; phytoplankton: species, abundance; ChlA concentration; protists; bacteria",
+                         date_range = "2011 to ?",
+                         lon_range = "15.53", lat_range = "78.26",
+                         depth_range = "0, 15, and 75",
+                         file_name = '<a onclick="alert(\' \');">0 files</a>',
+                         URL = NA,
+                         reference = '<a onclick="alert(\'No reference available yet.\');">Vader et al. (In prep.)</a>',
+                         note = "Data are not yet publicly available.")
+
+# Biology related data at the BAB station
+is_BAB_bio <- data.frame(type = "Niskin bottle",
+                         data_name = "Nutrients: nitrate, nitrite, phosphate, silicate; DNA; phytoplankton: species, abundance; ChlA concentration; protists",
+                         date_range = "2020 to ?",
+                         lon_range = "16.68", lat_range = "78.66",
+                         depth_range = "0, 15, and 150",
+                         file_name = '<a onclick="alert(\' \');">0 files</a>',
+                         URL = NA,
+                         reference = '<a onclick="alert(\'No reference available yet.\');">Vader et al. (In prep.)</a>',
+                         note = "Data are not yet publicly available.")
+
+# Zooplankton data
+is_zoo <- data.frame(type = "Multinet",
+                     data_name = "Zooplankton: species, abundance, biomass",
+                     date_range = "2001 to ?",
+                     lon_range = "14.00 to 16.68", 
+                     lat_range = "78.13 to 78.66",
+                     depth_range = "?",
+                     file_name = '<a onclick="alert(\' \');">0 files</a>',
+                     URL = NA,
+                     reference = '<a onclick="alert(\'No reference available yet.\');">Søreide et al. (In prep.)</a>',
+                     note = "Data are not yet publicly available.")
 
 # Isfjord radio meteorological station
 is_met_radio <- data.frame(type = "Met station",
@@ -636,6 +770,14 @@ is_met_pyramiden <- data.frame(type = "Met station",
                                reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                                note = NA)
 
+# Social data for Isfjorden
+is_social <- data.frame(type = "",
+                        data_name = "Game landings; local management; national statistics; tourist vessels: mileage; tourist arrivals",
+                        date_range = NA, lon_range = NA, lat_range = NA, depth_range = NA,
+                        file_name = '<a onclick="alert(\'\');">0 files</a>',
+                        URL = NA, reference = NA,
+                        note = "Data are still being pursued.")
+
 # PANGAEA data product
 is_PG <- data.frame(type = "PANGAEA",
                     data_name = "Many",
@@ -661,8 +803,9 @@ full_product_is <- data.frame(type = "Full",
                               note = "This is the full combined data product.")
 
 # Bind them together
-metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, is_CO2_tempelfjorden, 
-                            is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, is_PG, full_product_is)
+metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, 
+                            is_CO2_tempelfjorden, is_IsA_CO2, is_IsA_Chla, is_IsA_light, is_IsA_bio, is_BAB_bio, is_zoo,
+                            is_met_radio, is_met_airport, is_met_pyramiden, is_social, is_PG, full_product_is)
 ```
 
 ```{r isfjorden-meta-data-table}
@@ -679,6 +822,36 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce.
 
 ```{r inglefieldbukta-meta-data}
+# Cryosphere survey data
+ingle_cryo <- data.frame(type = "Survey",
+                         data_name = "Coastal ice: cover, formation/break up; sea ice: thickness, snow cover: thickness, air temperature; wind: speed",
+                         date_range = "2020 to 2024",
+                         lon_range = "?", lat_range = "?", depth_range = "?",
+                         file_name = '<a onclick="alert(\'\');">0 files</a>',
+                         URL = '<a onclick="alert(\'\');">NA</a>',
+                         reference = '<a onclick="alert(\'No citation yet.\');">Gerland et al. (In prep.)</a>',
+                         note = "The first year of data should be available in 2022.")
+
+# CTD cruise data
+ingle_CTD <- data.frame(type = "CTD",
+                        data_name = "Sea ice: thickness; snow cover: thicknes; PAR; mixed layer depth; salinity; suspended matter: mineral; bathymetry; oxygen",
+                        date_range = "2017 to ?",
+                        lon_range = "?", lat_range = "?", depth_range = "?",
+                        file_name = '<a onclick="alert(\'\');">0 files</a>',
+                        URL = '<a onclick="alert(\'\');">NA</a>',
+                        reference = '<a onclick="alert(\'No citation yet.\');">Søreide et al. (In prep.)</a>',
+                        note = "These data have not yet been sourced.")
+
+# Plankton survey data
+ingle_plankton <- data.frame(type = "Survey",
+                             data_name = "DNA; phytoplankton: species, abundance; zooplankton: species, abundance; ChlA concentration",
+                             date_range = "2018 to ?",
+                             lon_range = "?", lat_range = "?", depth_range = "?",
+                             file_name = '<a onclick="alert(\'\');">0 files</a>',
+                             URL = '<a onclick="alert(\'\');">NA</a>',
+                             reference = '<a onclick="alert(\'No citation yet.\');">Søreide et al. (In prep.)</a>',
+                             note = "These data have not yet been sourced.")
+
 # PANGAEA data product
 ingle_PG <- data.frame(type = "PANGAEA",
                        data_name = "Sea temperature",
@@ -703,7 +876,7 @@ full_product_ingle <- data.frame(type = "Full",
                                  reference = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">See citation column</a>',
                                  note = "This is the full combined data product.")
 # Bind them together
-metadata_ingle <- rbind(ingle_PG, full_product_ingle)
+metadata_ingle <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, ingle_PG, full_product_ingle)
 ```
 
 ```{r inglefieldbukta-meta-data-table}
@@ -976,6 +1149,8 @@ DT::datatable(metadata_young_sound, rownames = FALSE, escape = FALSE, colnames =
 </center>
 
 ```{r disko-bay-meta-data}
+## There are many atmospheric data from land for Disko Bay, but I've decided not to add them here for now.
+
 # Air pCO2 data
 disko_CTD_water <- data.frame(type = "CTD",
                               data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
@@ -1160,7 +1335,7 @@ por_mooring_GFI <- data.frame(type = "Mooring",
 
 # Fish species biomass
 por_fish_bio <- data.frame(type = "Survey",
-                           data_name = "Fish species biomass",
+                           data_name = "Fish: species, biomass",
                            date_range = "2007 to 2016",
                            lon_range = "?", 
                            lat_range = "?",
@@ -1172,7 +1347,7 @@ por_fish_bio <- data.frame(type = "Survey",
 
 # Benthic invertebrate species biomass
 por_benthos_bio <- data.frame(type = "Survey",
-                              data_name = "Benthos species biomass",
+                              data_name = "Benthic invertebrates: species, biomass",
                               date_range = "2007 to 2016",
                               lon_range = "?", 
                               lat_range = "?",
@@ -1208,15 +1383,39 @@ por_sea_ice <- data.frame(type = "Satellite",
 
 # Historic hydrographic data from Northern Norwegian fjords and coasts
 por_hydro <- data.frame(type = "CTD",
-                          data_name = "Seawater temperature: surface, mid, bottom; salinity",
-                          date_range = "1923 to 2013",
-                          lon_range = "24.6 to 26.9", 
-                          lat_range = "70.0 to 71.2",
-                          depth_range = "0 to 95",
-                          file_name = '<a onclick="alert(\'UiT\');"1 folder, 42 files</a>',
-                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://dataverse.no/dataverse/uit?q=Mankettikkara&types=datasets&sort=score&order=desc&page=1">UiT</a>',
-                          reference = '<a onclick="alert(\'Follow URLs for specific references or see full product: full_product_por.RData\');">Rahman et al. (2019)</a>',
-                          note = NA)
+                        data_name = "Seawater temperature: surface, mid, bottom; salinity",
+                        date_range = "1923 to 2013",
+                        lon_range = "24.6 to 26.9", 
+                        lat_range = "70.0 to 71.2",
+                        depth_range = "0 to 95",
+                        file_name = '<a onclick="alert(\'UiT\');"1 folder, 42 files</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://dataverse.no/dataverse/uit?q=Mankettikkara&types=datasets&sort=score&order=desc&page=1">UiT</a>',
+                        reference = '<a onclick="alert(\'Follow URLs for specific references or see full product: full_product_por.RData\');">Rahman et al. (2019)</a>',
+                        note = NA)
+
+# IMR CTD data
+por_IMR_CTD <- data.frame(type = "CTD",
+                          data_name = "Seawater temperature: surface, mid, bottom; salinity; PAR; oxygen; nutrients: nitrate, nitrite, ammonium, phosphate, silicate",
+                          date_range = "2018 to ?",
+                          lon_range = "25.59",
+                          lat_range = "70.53",
+                          depth_range = "0 to 200",
+                          file_name = '<a onclick="alert(\'\');"0 files</a>',
+                          URL = NA,
+                          reference = '<a onclick="alert(\'No reference available yet.\');">Falkenhaug et al. (In prep.)</a>',
+                          note = "Data are still being prepared. No firm release date set.")
+
+# Zoo/phytoplankton from IMR
+por_IMR_plankton <- data.frame(type = "Multinet",
+                               data_name = "Phytoplankton: species, abundance, chlA concentration; Zooplankton: species, abundance, biomass",
+                               date_range = "2018 to ?",
+                               lon_range = "25.59",
+                               lat_range = "70.53",
+                               depth_range = "0 to 200",
+                               file_name = '<a onclick="alert(\'\');"0 files</a>',
+                               URL = NA,
+                               reference = '<a onclick="alert(\'No reference available yet.\');">Falkenhaug et al. (In prep.)</a>',
+                               note = "Data are still being prepared. No firm release date set.")
 
 # PANGAEA data product
 por_PG <- data.frame(type = "PANGAEA",
@@ -1243,7 +1442,8 @@ full_product_por <- data.frame(type = "Full",
                                note = "This is the full combined data product.")
 
 # Bind them together
-metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, por_hydro, por_PG, full_product_por)
+metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, 
+                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_PG, full_product_por)
 ```
 
 ```{r porsangerfjorden-meta-data-table}

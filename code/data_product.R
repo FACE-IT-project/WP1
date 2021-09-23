@@ -104,7 +104,9 @@ EU_NCEI_1989
 EU_GRDC
 
 # Carb chem Arctic model output
-EU_Popova
+EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_output_acid.dat", 
+                        delim = " ", col_names = c("Year", "SST", "ice_extent_March", 
+                                                   "ice_extent_September", "MLD", "DIC", "pH"))
 
 # SOCAT data
 
@@ -464,9 +466,15 @@ kong_weather_station <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kong
 kong_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
+## Ferry box data
+# TODO: This still needs to be added to 'full_product_kong'
+kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>% 
+  mutate(lon = 11.920027777777777,
+         lat = 78.93065833333334)
+
 # Combine and save
-# TODO: Add all products with lon/lat then perform the more agressive spatial filter
-# Then add the products without lon/lat so they aren't reomved in the spatial filter
+# TODO: Add all products with lon/lat then perform the more aggressive spatial filter
+# Then add the products without lon/lat so they aren't removed in the spatial filter
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI)
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
