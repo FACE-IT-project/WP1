@@ -82,8 +82,8 @@ DepthCol <- c(
 #                                      # "analysis/socat-glodap.Rmd", # Don't knit this unless necessary, it takes a long time
 #                                      "analysis/key_drivers.Rmd",
 #                                      "analysis/metadatabase.Rmd",
-#                                      "analysis/data_summary.Rmd", # NB: This takes a couple minutes
-#                                      "analysis/model_summary.Rmd", # NB: This takes a couple minutes
+#                                      # "analysis/data_summary.Rmd", # NB: This takes a couple minutes
+#                                      # "analysis/model_summary.Rmd", # NB: This takes a couple minutes
 #                                      "analysis/review.Rmd"
 #   ),
 #   message = "Re-built site.")
