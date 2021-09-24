@@ -561,14 +561,14 @@ kong_PG <- data.frame(type = "PANGAEA",
                       note = "This is a combination of 130 PANGAEA data files.")
 
 # Fully combined product
-full_product_kong <- data.frame(type = "Full",
+full_product_kong <- data.frame(type = "Combined",
                                 data_name = "Many",
                                 date_range = "1871-08-09 to 2020-10-04",
                                 lon_range = "4.18 to 13.92201", 
                                 lat_range = "78.71051 to 79.19823",
                                 depth_range = "-60 to 2380",
                                 file_name = '<a onclick="alert(\'full_product_kong.csv/.RData\');">2 files</a>',
-                                URL = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See URL column</a>',
+                                URL = '<a onclick="alert(\'full_product_kong.csv OR full_product_kong.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
                                 note = "This is the full combined data product.")
 

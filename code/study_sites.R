@@ -11,9 +11,6 @@
 # Search the literature for the necessary bounding boxes and transects
 # Isfjorden needs to be extended to the east
 # Add the bathymetry data from JP to the young sound bounding box
-# IBCAO for bathy data
-# Add bathymetry for all of the sites
-# Use ggOceanMaps to do this
 
 # Maps per study site that are more zoomed out and show the coordinates labelled per corner of
 # the bounding boxes so it is more clear within what lon/lat confines the data are desired for
@@ -405,4 +402,60 @@ plot_problems_por <- full_product_por %>%
         legend.position = "bottom")
 plot_problems_por
 ggsave("figures/bbox_por.png", plot_problems_por, height = 7)
+
+
+# Site regions ------------------------------------------------------------
+
+# Cut up the bounding boxes to smaller fjord relevant regions
+
+# Kongsfjorden
+## Load data
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+coastline_kong <- coastline_full_df %>% 
+  filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1)
+
+## Manually create regions
+bbox_kong <- c(11, 12.69, 78.86, 79.1)
+### TODO: Probably more effective to carve out these shapes from the hi-res coastline polygons
+bbox_regions_kong <- data.frame(region = factor(c("Inner", "Mid", "Outer", "Mouth", "Discard"),
+                                                levels = c("Inner", "Mid", "Outer", "Mouth", "Discard")),
+                                lon1 = c(12.2, 11.7, 11.34, 11, 11),
+                                lon2 = c(12.69, 12.2, 11.7, 11.34, 11.5),
+                                lat1 = c(78.86, 78.86, 78.86, 78.95, 78.86),
+                                lat2 = c(79.1, 79.1, 79.1, 79.1, 78.95))
+
+## Find data in regions
+full_region_kong <- plyr::ldply(unique(bbox_regions_kong$region), points_in_region, .parallel = T, 
+                                bbox_df = bbox_regions_kong, data_df = full_product_kong)
+region_labels_kong <- full_region_kong %>% 
+  group_by(region) %>% 
+  summarise(lon = mean(range(lon)),
+            lat = mean(range(lat)),
+            count = n(), .groups = "drop")
+
+## Plot
+plot_regions_kong <- ggplot() +
+  geom_polygon(data = coastline_kong, fill = "grey70", colour = "black",
+               aes(x = x, y = y, group = polygon_id)) +
+  # geom_tile(aes(x = lon, y = lat)) +
+  geom_rect(data = bbox_regions_kong, aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2, fill = region), alpha = 0.3) +
+  geom_point(data = distinct(full_region_kong), aes(x = lon, y = lat, colour = region), show.legend = F) +
+  geom_label(data = region_labels_kong, aes(x = lon, y = lat, label = paste0("n = ",count)), alpha = 0.8) +
+  # geom_point(data = distinct(dplyr::select(coords_in, lon, lat, in_grid)), aes(x = lon, y = lat, colour = as.factor(in_grid))) +
+  # annotate("rect", colour = "black", fill = NA,
+  #          xmin = bbox_kong[1], xmax = bbox_kong[2], ymin = bbox_kong[3], ymax = bbox_kong[4]) +
+  # annotate("rect",  colour = "red", fill = "red", alpha = 0.1,
+  #          xmin = bbox_kong[1], xmax = 11.5, ymin = bbox_kong[3], ymax = 78.95) +
+  # annotate("rect", colour = "red", fill = "red", alpha = 0.1,
+  #          xmin = bbox_kong[1], xmax = 11.34, ymin = 78.95, ymax = bbox_kong[4]) +
+  # scale_fill_viridis_c(option = "E") +
+  coord_quickmap(expand = F,
+                 xlim = c(bbox_kong[1]-0.3, bbox_kong[2]+0.3), 
+                 ylim = c(bbox_kong[3]-0.05, bbox_kong[4]+0.05)) +
+  labs(x = NULL, y = NULL, fill = "Region",
+       title = paste0("")) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_regions_kong
+ggsave("figures/regions_kong.png", plot_problems_kong)
 

@@ -17,6 +17,30 @@
 # What may the triad relationship be between sea ice, cruise ships, and plankton biomass
 
 
+# Talk 1:
+# Discuss the data issues
+# Add a talking point to the WP1 talk about effectively coordinating between other data managers
+## Who is responsible for what?
+## Who has other people working with data collection
+## What should be done about more complex data types like 
+## Explain that WP1 is of service to everybody, but we can't provide this service without replies
+# Discuss complex data types like the seabird database and the geospatial glacier fronts
+# Potentially finish with the region analysis of Kongsfjorden and show people the link to where all the site analyses are
+## Boxplots could be useful as well as dot/line plots
+## Ask about what to do with cryosphere/atmospheric land data
+
+
+# Talk 2:
+# Have a specific focus on social science data
+## This is important because little effort has been done for social science so fart
+## List the social science data that have been identified
+## Solicit new input from people in the crowd about other social data, including Greenland
+## What sort of non-social data do social scientists want
+## Get the number of inhabitants of Longyearbyen over time and relate that to nutrient concentration
+# Keep in mind that this analysis is just an example to stimulate the audience to think about real analyses
+# These then are to be used for the review paper
+
+
 # Setup -------------------------------------------------------------------
 
 source("code/functions.R")

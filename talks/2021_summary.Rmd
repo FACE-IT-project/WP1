@@ -1,0 +1,46 @@
+---
+title: "FACE-IT WP1 summary"
+author: "Robert Schlegel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    # code_folding: hide
+    fig_crop: no
+# description: 
+# bibliography: Presentations.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
+                      warning = FALSE, message = FALSE, 
+                      tidy = FALSE)
+```
+
+<br>
+
+# Discuss the data issues
+***
+
+- Discuss complex data types
+  - e.g. Seabird database and the geospatial glacier fronts
+
+<br>
+
+# Effectively coordinating between other data managers
+***
+
+- Who is responsible for what?
+- Who has other people working with data collection
+- What should be done about more complex data types like 
+- Explain that WP1 is of service to everybody, but we can't provide this service without replies
+
+<br>
+
+# Regional analysis of Kongsfjorden 
+***
+
+- Show people the link to where all the site analyses are
+- Boxplots could be useful as well as dot/line plots
+- Ask about what to do with cryosphere/atmospheric land data
+
+
