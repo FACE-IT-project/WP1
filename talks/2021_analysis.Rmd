@@ -21,6 +21,8 @@ knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
 # 
 ***
 
+# Follow the outline in the submitted abstract
+
 # Have a specific focus on social science data
 ## This is important because little effort has been done for social science so fart
 ## List the social science data that have been identified

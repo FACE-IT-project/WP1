@@ -23,6 +23,10 @@ knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
 
 - Discuss complex data types
   - e.g. Seabird database and the geospatial glacier fronts
+- Answer the questions in the meeting agenda update
+- Talk about issue with Inglefieldbukta bounding box
+- What is the scientific justification of choosing a semi-open fjord and one that is so large
+- Give Janne a heads up first
 
 <br>
 
