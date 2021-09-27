@@ -18,33 +18,81 @@ knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
 
 <br>
 
-# Discuss the data issues
+<!-- WP reports: What has the WP as a whole done in the last year? How is the workflow going? How is interaction with other working? What were the issues? Next steps?  -->
+
+# Structure
 ***
 
-- Discuss complex data types
-  - e.g. Seabird database and the geospatial glacier fronts
-- Answer the questions in the meeting agenda update
+- WP Lead: Jean-Pierre Gattuso (photo)
+
+- Data Scientist: Robert Schlegel (photo)
+
+<br>
+
+
+# Deliverables delivered
+***
+
+- D1.1: [Report on key drivers](https://face-it-project.github.io/WP1/key_drivers.html) (6 months)
+- D8.1: Data management plan (6 months)
+- D1.2: [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (12 months)
+
+<br>
+
+
+# Cross-package interactions
+***
+
+- Ny-Ålesund, Kongsfjorden, Svalbard
+  - Participated in fieldwork for WP3
+  - Worked adjacent to WP2
+- Data collections efforts
+
+## Effectively coordinating between other data managers
+
+- Who is responsible for what?
+- Who has other people working with data collection?
+- What should be done about more complex data types? 
+- WP1 is of service to everybody, but we can't provide this service without replies to our inquiries
+
+<br>
+
+
+# Data issues
+***
+
+- What to do with complex data types
+  - e.g. Seabird database and geospatial glacier fronts
+
+## Inglefieldbukta
+
 - Talk about issue with Inglefieldbukta bounding box
 - What is the scientific justification of choosing a semi-open fjord and one that is so large
 - Give Janne a heads up first
+- Current area (photo)
+- Potential expanded area
 
 <br>
 
-# Effectively coordinating between other data managers
+
+# What's next?
 ***
 
-- Who is responsible for what?
-- Who has other people working with data collection
-- What should be done about more complex data types like 
-- Explain that WP1 is of service to everybody, but we can't provide this service without replies
+- D1.3: [Review article](https://face-it-project.github.io/WP1/review.html) (24 months)
+  - This is intended to be a broad overview of the drivers of change in all the FACE-IT study sites
+  - It will require the expertise of many FACE-IT researchers
+  - WP1 will be reaching out to the site coordinators as the fist step in this collaborative process
 
 <br>
+
 
 # Regional analysis of Kongsfjorden 
 ***
 
-- Show people the link to where all the site analyses are
+- Analysis of all sites available [here](https://face-it-project.github.io/WP1/data_summary.html)
+  - https://face-it-project.github.io/WP1/data_summary.html
+  
 - Boxplots could be useful as well as dot/line plots
-- Ask about what to do with cryosphere/atmospheric land data
+- Show one or to figures from the analysis (figures)
 
 
