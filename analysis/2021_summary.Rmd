@@ -1,0 +1,153 @@
+---
+title: "FACE-IT WP1 summary"
+author: "Robert Schlegel & Jean-Pierre Gattuso"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    # code_folding: hide
+    fig_crop: no
+# description: 
+# bibliography: Presentations.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+
+# Libraries
+library(tidyverse)
+library(kableExtra) # For formatting static tables
+library(DT) # For interactive tables
+
+# Table column names
+DT_cols <- c("Type", "Driver", "Date", "Longitude", "Latitude", "Depth", "Files", "Link", "Reference", "Notes")
+
+# Datatable options for all tables
+options(DT.options = list(pageLength = 5,
+                          deferRender = TRUE,
+                          scrollY = 400,
+                          scrollCollapse = TRUE,
+                          lengthMenu = c(5, 10, 25, 50, 100)))
+```
+
+<center>
+![](assets/FACE-IT_Logo_900.png){ width=70% }
+</center>
+
+<br>
+
+[Guiding structure not to be included in final presentation]  
+"WP reports: What has the WP as a whole done in the last year? How is the workflow going? How is interaction with other working? What were the issues? Next steps?"
+
+
+# Structure
+***
+
+![](assets/profile_gattuso.jpg){ width=30% }  
+  
+- WP Lead: Jean-Pierre Gattuso
+
+<br>
+
+![](assets/profile.jpeg){ width=30% }  
+  
+- Data Scientist: Robert Schlegel
+
+<br>
+
+
+# Key drivers (D1.1; 6 months)
+***
+
+```{r key-drivers-table, eval=TRUE}
+## Cryosphere
+cryo_vars <- data.frame(Category = "Cryosphere", Drivers = "Coastal ice, fast ice, glacier, permafrost, sea ice, snow cover")
+
+## Physical
+phys_vars <- data.frame(Category = "Physical", Drivers = "Bathymetry, current, evaporation, heatflux, Kd, MLD, precipitation, river discharge, salinity, SLP, air/sea temperature, sedimentation rate, suspended matter, wind")
+
+## Chemistry
+chem_vars <- data.frame(Category = "Physical", Drivers = "Calcium carbonate (CaCO3), DIC, DOC, DON, O2, nutrients, pCO2, pH, total alkalinity")
+
+## Biology
+bio_vars <- data.frame(Category = "Biology", Drivers = "Calcification, nitrogen fixation, photosynthesis, primary production, respiration, species presence/abundance")
+
+## Social
+soc_vars <- data.frame(Category = "Social", Drivers = "Fish/game landings, local and national resource management, national statistics, tourist arrivals/vessels")
+
+# Combine and print
+knitr::kable(rbind(cryo_vars, phys_vars, chem_vars, bio_vars, soc_vars), 
+             caption = "Table 1: The key drivers of changes on Arctic fjord and adjacent coastal systems as identified by the experts in FACE-IT for the relevant fields. The drivers have been separated into the following categories for convenience: Cryosphere, Physical, Chemistry, Biology, Social. Full list available via 'Key drivers' tab above.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1, background = "mintcream") %>% # Cryosphere
+  row_spec(2, color = "black", background = "skyblue") %>% # Physical
+  row_spec(3, background = "#F6EA7C") %>% # Chemistry
+  row_spec(4, background = "#A2ED84") %>% # Biology
+  row_spec(5, background = "#F48080") # Social
+```
+
+<br>
+
+# Deliverables delivered
+***
+
+- D1.1: [Report on key drivers](https://face-it-project.github.io/WP1/key_drivers.html) (6 months)
+- D8.1: Data management plan (6 months)
+- D1.2: [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (12 months)
+- Created [GitHub repository](https://github.com/FACE-IT-project) for FACE-IT
+- All WP1 progress available on [public website](https://face-it-project.github.io/WP1/index.html)
+
+<br>
+
+
+# Cross-package interactions
+***
+
+- Ny-Ålesund, Kongsfjorden, Svalbard (July - August, 2021)
+  - Participated in fieldwork for WP3
+  - Worked adjacent to WP2
+- Data collections efforts
+
+## Effective coordination of data collection 
+
+- Who is responsible for what?
+- Who has other people working with data collection?
+- WP1 is of service to everybody, but we can't provide this service without replies to our inquiries
+
+<br>
+
+
+# Data issues
+***
+
+- What to do with complex data types
+  - e.g. Seabird database and geospatial glacier fronts
+
+## Inglefieldbukta
+
+- Is the current Inglefieldbukta bounding box to small?
+- What is the scientific justification of choosing a much larger semi-open fjord?
+- Current area (figure)
+- Potential expanded area (figure)
+
+<br>
+
+
+# What's next?
+***
+
+- D1.3: [Review article](https://face-it-project.github.io/WP1/review.html) (24 months)
+  - Intended as broad overview of drivers of change in FACE-IT study sites
+  - Will require expertise from many FACE-IT researchers
+  - WP1 will reach out to site coordinators as fist step in collaborative process
+
+<br>
+
+
+# Summary
+***
+
+- 3 key grabbing points
+- Need to focus on the importance 
+
