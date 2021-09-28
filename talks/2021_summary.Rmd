@@ -48,6 +48,8 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 - D1.1: [Report on key drivers](https://face-it-project.github.io/WP1/key_drivers.html) (6 months)
 - D8.1: Data management plan (6 months)
 - D1.2: [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (12 months)
+- Created [GitHub repository](https://github.com/FACE-IT-project) for FACE-IT
+- All WP1 progress available on [public website](https://face-it-project.github.io/WP1/index.html)
 
 <br>
 

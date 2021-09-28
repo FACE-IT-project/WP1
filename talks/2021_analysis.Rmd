@@ -1,6 +1,6 @@
 ---
 title: "FACE-IT WP1 analysis"
-author: "Robert Schlegel"
+author: "Robert Schlegel & Jean-Pierre Gattuso"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -16,9 +16,41 @@ knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
                       tidy = FALSE)
 ```
 
+<center>
+![](../FACE-IT_Logo_900.png){ width=70% }
+</center>
+
+<!-- Multiple  key  drivers  of  change  for  Arctic  socio-ecological  fjord  and  adjacent  coastal  systems  were identified at the outset of the FACE-IT project. The available data products that contain these key drivers were indexed in a meta-database as part of WP1. In addition to documenting where the relevant data are, how to access them, and which drivers they contain, the available data have also been downloaded and aggregated into data products that are currently available to FACE-IT members. A quick overview of the key drivers is provided before introducing the meta-database and an overview of the data of interest. The talk is concluded with a demonstration of how the data aggregated for Isfjorden may be used for a range of investigations from physical, to biological, to social. The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites. -->
+
 <br>
 
-# 
+# Key drivers
+***
+
+__Key Cryosphere Drivers__   
+
+> __Coastal ice__: formation/break up date, thickness; __Fast ice__: extent, thickness; __Glacier__: land mass balance, terminating edge; __Permafrost__: temperature, thickness;  __Sea ice__: concentration, extent, freeboard, thickness; __Snow cover__: thickness
+
+__Key Physical Drivers__  
+  
+> __Bathymetry__; __Current__: direction, location, volume; __Evaporation__; __Heatflux__: net, latent/sensible, long/shortwave radiation; __Light extinction coefficient__; __Mixed layer depth__; __Precipitation__; __River discharge__; __Salinity__; __Sea level pressure__; __Seawater temperature__: surface, mid, bottom; __Sedimentation rate__; __Suspended matter__: organic, mineral; __Wind__: direction, speed
+
+__Key Chemistry Drivers__  
+  
+> __CaCO~3~ saturation state__; __Dissolved inorganic carbon__; __Dissolved organic carbon__; __Dissolved organic nitrogen__; __Dissolved O~2~__; __Nutrients__: nitrate, nitrite, ammonium, phosphate, silicate; __Partial pressure of CO~2~__; __pH__; __Total alkalinity__
+
+__Key Biology Drivers__  
+
+> __Calcification__; __Nitrogen fixation__; __Photosynthesis__; __Primary production__; __Respiration__; __Species__: presence/absence, abundance/biomass
+
+__Key Social Drivers__  
+
+> __Fish landings__: commercial, recreational, quotas, seasonality; __Game landings__: quotas, seasonality; __Local and national resource management__; __National statistics__: demography, income, unemployment; __Tourist arrivals__: per month, nationality; __Tourist vessels__: count, mileage
+
+<br>
+
+
+# Meta-database
 ***
 
 # Follow the outline in the submitted abstract
