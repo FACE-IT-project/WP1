@@ -407,7 +407,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -416,7 +416,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -428,7 +428,7 @@ div.tocify {
 <strong>Last updated:</strong> 2021-09-28
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -444,12 +444,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -516,16 +516,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree9615efe0b045ca06dfa242a93405de4d386d9719targetblank9615efea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/9615efe0b045ca06dfa242a93405de4d386d9719" target="_blank">9615efe</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree0f93d06a2578106db2d0f405a65e0c32d4a9b31ftargetblank0f93d06a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/0f93d06a2578106db2d0f405a65e0c32d4a9b31f" target="_blank">0f93d06</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree9615efe0b045ca06dfa242a93405de4d386d9719targetblank9615efea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree0f93d06a2578106db2d0f405a65e0c32d4a9b31ftargetblank0f93d06a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/9615efe0b045ca06dfa242a93405de4d386d9719" target="_blank">9615efe</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/0f93d06a2578106db2d0f405a65e0c32d4a9b31f" target="_blank">0f93d06</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -540,10 +540,21 @@ Ignored files:
     Ignored:    metadata/pangaea_parameters.tab
 
 Untracked files:
-    Untracked:  analysis/docs/
+    Untracked:  analysis/2021_analysis.Rmd
+    Untracked:  code/FACE_IT_2021.R
 
 Unstaged changes:
-    Modified:   analysis/2021_analysis.Rmd
+    Modified:   analysis/2021_summary.Rmd
+    Modified:   analysis/_site.yml
+    Modified:   code/functions.R
+    Deleted:    talks/2021_analysis.Rmd
+    Deleted:    talks/2021_analysis.html
+    Deleted:    talks/2021_summary.Rmd
+    Deleted:    talks/2021_summary.html
+    Deleted:    talks/FACE_IT_2021.R
+    Deleted:    talks/figures/is_fig_1.png
+    Deleted:    talks/figures/kong_fig_1.png
+    Deleted:    talks/figures/map_isfjorden.png
 
 </code></pre>
 <p>
@@ -582,40 +593,6 @@ Message
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/FACE-IT-project/WP1/blob/31b16a463101504a517e017b14d61f7a415967d6/analysis/2021_summary.Rmd" target="_blank">31b16a4</a>
-</td>
-<td>
-Robert
-</td>
-<td>
-2021-09-28
-</td>
-<td>
-Rearrange talks to now be part of the WP1 website. Full version of summary talk complete.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/31b16a463101504a517e017b14d61f7a415967d6/docs/2021_summary.html" target="_blank">31b16a4</a>
-</td>
-<td>
-Robert
-</td>
-<td>
-2021-09-28
-</td>
-<td>
-Rearrange talks to now be part of the WP1 website. Full version of summary talk complete.
-</td>
-</tr>
 <tr>
 <td>
 html
