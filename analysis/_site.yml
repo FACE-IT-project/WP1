@@ -17,6 +17,12 @@ navbar:
       href: model_summary.html
   - text: "Review of drivers"
     href: review.html
+  - text: "Talks"
+    menu:
+    - text: "2021 summary"
+      href: 2021_summary.html
+    - text: "2021 analysis"
+      href: 2021_analysis.html
   # - text: "Analyses"
     # menu:
     # - text: "SOCAT/GLODAP data in the Arctic"

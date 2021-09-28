@@ -49,7 +49,7 @@ source("code/functions.R")
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 # Summary plot
 kong_anal_fig <- data_summary_plot(full_product_kong, "Kongsfjorden")
-ggsave("talks/figures/kong_fig_1.png", kong_anal_fig, width = 8, height = 8)
+# ggsave("docs/assets/kong_fig_1.png", kong_anal_fig, width = 8, height = 8) # Not needed
 
 
 ## Kongsfjorden data summary figure
@@ -57,5 +57,5 @@ ggsave("talks/figures/kong_fig_1.png", kong_anal_fig, width = 8, height = 8)
 load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 # Summary plot
 is_anal_fig <- data_summary_plot(full_product_is, "Isfjorden")
-ggsave("talks/figures/is_fig_1.png", is_anal_fig, width = 8, height = 8)
+ggsave("docs/assets/is_fig_1.png", is_anal_fig, width = 8, height = 8)
 

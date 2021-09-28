@@ -1,7 +1,7 @@
 ---
-title: "FACE-IT WP1 summary"
+title: "FACE-IT WP1 Summary: 2021"
 author: "Robert Schlegel & Jean-Pierre Gattuso"
-date: "`r Sys.Date()`"
+date: "2021-10-04"
 output:
   html_document:
     # code_folding: hide
@@ -37,22 +37,28 @@ options(DT.options = list(pageLength = 5,
 
 <br>
 
-[Guiding structure not to be included in final presentation]  
-"WP reports: What has the WP as a whole done in the last year? How is the workflow going? How is interaction with other working? What were the issues? Next steps?"
-
 
 # Structure
 ***
 
-![](assets/profile_gattuso.jpg){ width=30% }  
+:::: {style="display: flex;"}
+
+::: {}
+![](assets/profile_gattuso.jpg){ width=90% }  
   
-- WP Lead: Jean-Pierre Gattuso
+- WP1 Lead: Jean-Pierre Gattuso
 
-<br>
+:::
 
-![](assets/profile.jpeg){ width=30% }  
+::: {}
+
+![](assets/profile.jpeg){ width=90% }  
   
 - Data Scientist: Robert Schlegel
+
+:::
+
+::::
 
 <br>
 
@@ -305,7 +311,7 @@ metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_moori
 
 ```{r isfjorden-meta-data-table}
 DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/isfjorden/'.")
+              caption = "Table 2: Data that have been accumulated for Isfjorden. Full meta-database available via 'Data' -> 'Meta-database' tab above.")
 ```
 
 <br>
@@ -329,7 +335,7 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
   - Worked adjacent to WP2
 - Data collections efforts
 
-## Effective coordination of data collection 
+### Effective coordination of data collection 
 
 - Who is responsible for what?
 - Who has other people working with data collection?
@@ -344,14 +350,14 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 - What to do with complex data types
   - e.g. Seabird database and geospatial glacier fronts
 
-## Inglefieldbukta
+### Inglefieldbukta
 
 - Is the current Inglefieldbukta bounding box to small?
 - What is the scientific justification of choosing a much larger semi-open fjord?
 - Current area (figure)
 - Potential expanded area (figure)
 
-## Social data
+### Social data
 - [List the social science data that have been identified]
 - What other sources may there be for FACE-IT sites?
   - Including Greenland

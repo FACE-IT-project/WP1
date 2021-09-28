@@ -1,0 +1,63 @@
+---
+title: "Aggregated Data Products for FACE-IT"
+author: "Robert Schlegel & Jean-Pierre Gattuso"
+date: "2021-10-04"
+output:
+  html_document:
+    # code_folding: hide
+    fig_crop: no
+# description:
+# bibliography: Presentations.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+
+# Necessary libraries
+source("code/functions.R")
+```
+
+<center>
+![](assets/FACE-IT_Logo_900.png){ width=70% }
+</center>
+
+<br>
+
+[Abstract. Not for inclusion in final talk]  
+Multiple  key  drivers  of  change  for  Arctic  socio-ecological  fjord  and  adjacent  coastal  systems  were identified at the outset of the FACE-IT project. The available data products that contain these key drivers were indexed in a meta-database as part of WP1. In addition to documenting where the relevant data are, how to access them, and which drivers they contain, the available data have also been downloaded and aggregated into data products that are currently available to FACE-IT members. A quick overview of the key drivers is provided before introducing the meta-database and an overview of the data of interest. The talk is concluded with a demonstration of how the data aggregated for Isfjorden may be used for a range of investigations from physical, to biological, to social. The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites.
+
+<br>
+
+
+# Isfjorden data
+***
+
+```{r is-summary1, fig.height=7, width=10, fig.cap="__Figure 1:__ High level overview of the data available for Isfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no social data for Isfjorden). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are some important moorings outside of this bounding box that _are_ included in the data counts. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
+
+# Load full product
+load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+
+# Summary plot
+data_summary_plot(full_product_is, "Isfjorden")
+```
+
+<br>
+
+
+# Anthropogenic impacts in Isfjorden
+***
+
+- Keep in mind that this analysis is just an example to stimulate thought about real analyses
+  - These then are to be used for the review paper
+  - Have a specific focus on social science data because little effort has been done for social science so far
+- For the analysis:  
+  - Get the number of inhabitants of Longyearbyen over time and relate that to nutrient concentration
+  - Also want to look at relationships with ice cover and any sort of physical phenology
+  
+
+<br>
+<br>
+<br>
+
