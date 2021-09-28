@@ -679,7 +679,7 @@ is_IsA_CO2 <- data.frame(type = "CTD",
                          note = NA)
 
 # Chlorophyl station at IsA
-is_IsA_Chla <- data.frame(type = "Niskin",
+is_IsA_Chla <- data.frame(type = "Niskin bottle",
                           data_name = "ChlA",
                           date_range = "2011 to 2019",
                           lon_range = "15.53", lat_range = "78.26",

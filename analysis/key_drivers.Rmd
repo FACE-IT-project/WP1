@@ -179,3 +179,4 @@ knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL),
   row_spec(30:36, background = "#A2ED84") %>% # Biology
   row_spec(37:42, background = "#F48080") # Social
 ```
+
