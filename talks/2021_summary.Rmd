@@ -1,6 +1,6 @@
 ---
 title: "FACE-IT WP1 summary"
-author: "Robert Schlegel"
+author: "Robert Schlegel & Jean-Pierre Gattuso"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -11,21 +11,33 @@ output:
 ---
 
 ```{r global_options, include = FALSE}
-knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
-                      warning = FALSE, message = FALSE, 
-                      tidy = FALSE)
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
 ```
+
+<center>
+![](../FACE-IT_Logo_900.png){ width=70% }
+</center>
 
 <br>
 
-<!-- WP reports: What has the WP as a whole done in the last year? How is the workflow going? How is interaction with other working? What were the issues? Next steps?  -->
+[Guiding structure not to be included in final presentation]  
+"WP reports: What has the WP as a whole done in the last year? How is the workflow going? How is interaction with other working? What were the issues? Next steps?"
+
 
 # Structure
 ***
 
-- WP Lead: Jean-Pierre Gattuso (photo)
+![](../../Pictures/profile_gattuso.jpg){ width=30% }  
+  
+- WP Lead: Jean-Pierre Gattuso
 
-- Data Scientist: Robert Schlegel (photo)
+<br>
+
+![](../../Pictures/profile.jpeg){ width=30% }  
+  
+- Data Scientist: Robert Schlegel
 
 <br>
 
@@ -43,16 +55,15 @@ knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
 # Cross-package interactions
 ***
 
-- Ny-Ålesund, Kongsfjorden, Svalbard
+- Ny-Ålesund, Kongsfjorden, Svalbard (July - August, 2021)
   - Participated in fieldwork for WP3
   - Worked adjacent to WP2
 - Data collections efforts
 
-## Effectively coordinating between other data managers
+## Effective coordination of data collection 
 
 - Who is responsible for what?
 - Who has other people working with data collection?
-- What should be done about more complex data types? 
 - WP1 is of service to everybody, but we can't provide this service without replies to our inquiries
 
 <br>
@@ -66,11 +77,10 @@ knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
 
 ## Inglefieldbukta
 
-- Talk about issue with Inglefieldbukta bounding box
-- What is the scientific justification of choosing a semi-open fjord and one that is so large
-- Give Janne a heads up first
-- Current area (photo)
-- Potential expanded area
+- Is the current Inglefieldbukta bounding box to small?
+- What is the scientific justification of choosing a much larger semi-open fjord?
+- Current area (figure)
+- Potential expanded area (figure)
 
 <br>
 
@@ -79,20 +89,24 @@ knitr::opts_chunk$set(fig.width = 6, fig.align = 'center',
 ***
 
 - D1.3: [Review article](https://face-it-project.github.io/WP1/review.html) (24 months)
-  - This is intended to be a broad overview of the drivers of change in all the FACE-IT study sites
-  - It will require the expertise of many FACE-IT researchers
-  - WP1 will be reaching out to the site coordinators as the fist step in this collaborative process
+  - Intended as broad overview of drivers of change in FACE-IT study sites
+  - Will require expertise from many FACE-IT researchers
+  - WP1 will reach out to site coordinators as fist step in collaborative process
 
 <br>
 
 
-# Regional analysis of Kongsfjorden 
-***
+## Regional data analyses
 
-- Analysis of all sites available [here](https://face-it-project.github.io/WP1/data_summary.html)
+- Summary analysis of all sites available [here](https://face-it-project.github.io/WP1/data_summary.html)
   - https://face-it-project.github.io/WP1/data_summary.html
   
-- Boxplots could be useful as well as dot/line plots
-- Show one or to figures from the analysis (figures)
+```{r fig.cap="__Figure 1__: Summary of data collected for Kongsfjorden. A) Table of meta-data. B) Count (log10) of data points available per 1 km square. C) Count (log10) of data points per year. D) Count of data points per 10 m depth. Colours in C and D show the category of the data: bio = biological, chem = chemical, cryo = cryosphere, phys = physical."}
+knitr::include_graphics("figures/kong_fig_1.png")
+```
 
+
+<br>
+<br>
+<br>
 
