@@ -354,6 +354,9 @@ sval_biogeochemistry <- data.frame(type = "Bottle",
                         reference = '<a onclick="alert(\'Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f\');">NPDC (2020)</a>',
                         note = NA)
 
+# Svalbard population stats
+# svalbard/svalbard_population_stats.csv
+
 # Combine
 metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_marine_glacier_front,
                            sval_surface_met, sval_UNIS_database, sval_seabird_database, sval_protection, sval_NICE, 

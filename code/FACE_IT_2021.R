@@ -16,9 +16,15 @@
 source("code/functions.R")
 
 
-
 # Data --------------------------------------------------------------------
 
+# Population counts
+sval_pop <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats.csv", delim = "\t") %>% 
+  dplyr::select(-contents) %>% 
+  rename_at(.vars = vars(ends_with("H1")), .funs = list(~gsub("H1", "", .))) %>% 
+  # filter(settlement != "Hornsund")
+  pivot_longer(`1990`:`2021`, names_to = "year", values_to = "pop") %>% 
+  mutate(year = as.numeric(year))
 
 
 # Analyses ----------------------------------------------------------------

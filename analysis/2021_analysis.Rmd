@@ -16,7 +16,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
                       eval = TRUE, tidy = FALSE)
 
 # Necessary libraries
-source("code/functions.R")
+# source("code/functions.R")
 ```
 
 <center>
@@ -29,15 +29,7 @@ source("code/functions.R")
 # Isfjorden data
 ***
 
-```{r is-summary1, fig.height=7, width=10, fig.cap="__Figure 1:__ High level overview of the data available for Isfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no social data for Isfjorden). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are some important moorings outside of this bounding box that _are_ included in the data counts. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."}
-
-# Load full product
-# load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
-
-# Summary plot
-# data_summary_plot(full_product_is, "Isfjorden")
-# knitr::include_graphics("docs/assets/is_fig_1.png")
-```
+![__Figure 1:__ High level overview of the data available for Isfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no social data for Isfjorden). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are some important moorings outside of this bounding box that _are_ included in the data counts. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are."](assets/is_fig_1.png){ width=100% }
 
 <br>
 
@@ -48,6 +40,22 @@ source("code/functions.R")
 - Keep in mind that this analysis is just an example to stimulate thought about real analyses
   - These then are to be used for the review paper
   - Have a specific focus on social science data because little effort has been done for social science so far
+
+### Population of Longyearbyen
+
+
+### Nutrients in Isfjorden
+
+
+### Sea ice concentration
+
+
+### Shifts in phenology
+
+
+### Population vs. nutrients
+
+
 - For the analysis:  
   - Get the number of inhabitants of Longyearbyen over time and relate that to nutrient concentration
   - Also want to look at relationships with ice cover and any sort of physical phenology
@@ -57,5 +65,11 @@ source("code/functions.R")
 
 # Summary
 ***
-The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites.
+
+- Have a slide at the end of the science talk about co-authorship for the review article
+  - It requires contribution of data, text, figures, ideas etc.
+  - The obvious contributors are the site coordinators and who they think are specialists in certain aspects at there site
+- Think of a timeline for the review article
+- The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites.
+
 
