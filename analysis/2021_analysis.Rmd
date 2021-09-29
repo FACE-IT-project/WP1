@@ -25,6 +25,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 <br>
 
+<!-- Perhaps try telling a story about investigating the data and not being able to tell the story we wanted to. This could serve to be illuminative about the necessity for people to contribute their site specific data. Could talk about how the scraping of the PANGAEA data has had mixed results. -->
 
 # Isfjorden data
 ***
@@ -37,9 +38,13 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 # Anthropogenic impacts in Isfjorden
 ***
 
+<!-- Could rather give a talk about the series of failed investigations into quick questions. Show the progression of the figures and how/why they aren't useful. Remember that the purpose is to communicate the necessity to cultivate good data sources that can be used for meaningful investigations. This then could serve as a segue into -->
+
 - Keep in mind that this analysis is just an example to stimulate thought about real analyses
   - These then are to be used for the review paper
   - Have a specific focus on social science data because little effort has been done for social science so far
+
+<!-- What may the triad relationship be between sea ice, cruise ships, and plankton biomass -->
 
 ### Population of Longyearbyen
 

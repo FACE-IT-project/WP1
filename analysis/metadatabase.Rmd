@@ -357,6 +357,9 @@ sval_biogeochemistry <- data.frame(type = "Bottle",
 # Svalbard population stats
 # svalbard/svalbard_population_stats.csv
 
+# Svalbard hotel arrivals
+# svalbard_tourist_arrivals.csv
+
 # Combine
 metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_marine_glacier_front,
                            sval_surface_met, sval_UNIS_database, sval_seabird_database, sval_protection, sval_NICE, 

@@ -358,9 +358,9 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 - Potential expanded area (figure)
 
 ### Social data
-- [List the social science data that have been identified]
+- Many sources located for Isfjorden
 - What other sources may there be for FACE-IT sites?
-  - Including Greenland
+  - With a focus on Greenland
 - What sort of non-social data do social scientists want?
 
 <br>
