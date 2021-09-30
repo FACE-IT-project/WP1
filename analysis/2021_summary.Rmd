@@ -380,10 +380,19 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 # Summary
 ***
 
+- A task of WP1 is to archive the FACE-IT data on PANGAEA
+  - This applies to all data in FACE-IT publications
+  - [get list of publications from Bremen website]
 - Who has use for the collected data?
   - How would they like to access them?
   - What format(s) is most useful?
   - Who has there own data collection efforts?
 - What shall be done about Inglefieldbukta site?
-- How shall we begin to merge the data needs of scoial science?
+- How shall we begin to merge the data needs of social science?
 
+- Data collected under Pedro and Sebastian
+  - For modelling and for seabirds
+  - These cleaned data will go to the NP database
+  - This includes data from remote sources
+  - The goal is monthly averages over broad areas
+  

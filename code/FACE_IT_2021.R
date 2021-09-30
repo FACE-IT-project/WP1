@@ -15,8 +15,11 @@ pg_parameters <- read_tsv("metadata/pangaea_parameters.tab") %>%
 
 # Data --------------------------------------------------------------------
 
+# Svalbard data
+load("data/full_data/full_product_sval.RData")
+
 # Isfjorden data
-load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+load("data/full_data/full_product_is.RData")
 
 # Isfjorden nutrient data
 # unique(is_nutrient$var_name)
@@ -45,38 +48,62 @@ is_cryo <- full_product_is %>%
 # Isfjorden model data
 model_is <- load_model("isfjorden_rcp")
 
-# Population counts
-sval_pop <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats.csv", delim = "\t") %>% 
-  dplyr::select(-contents) %>% 
-  rename_at(.vars = vars(ends_with("H1")), .funs = list(~gsub("H1", "", .))) %>% 
-  # filter(settlement != "Hornsund")
-  pivot_longer(`1990`:`2021`, names_to = "year", values_to = "pop") %>% 
-  mutate(year = as.numeric(year),
-         settlement = case_when(grepl("Resident", settlement) ~ "Longyearbyen & Ny-Alesund mainland",
-                                grepl("abroad", settlement) ~ "Longyearbyen & Ny-Alesund abroad",
-                                TRUE ~ settlement))
-
-
-# Svalbard tourist arrivals
-sval_tour <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals.csv", delim = "\t")
+# Svalbard tourist info
+sval_soc <- full_product_sval %>% 
+  filter(var_type == "soc")
 
 
 # Analyses ----------------------------------------------------------------
 
 # Population change over time
-ggplot(data = sval_pop, aes(x = year, y = pop)) +
-  geom_bar(aes(fill = settlement), stat = "identity",
-           position = position_stack(reverse = TRUE), width = 1)
+plot_pop <- sval_soc %>% 
+  filter(grepl("pop", var_name)) %>%
+  ggplot(aes(x = date, y = value)) +
+  geom_bar(aes(fill = var_name), stat = "identity",
+           position = position_stack(reverse = TRUE)) +
+  theme(legend.position = "bottom")
+plot_pop
+ggsave("docs/assets/plot_pop.png", plot_pop)
+
+# Tourist arrival change over time
+plot_arrival <- sval_soc %>% 
+  filter(grepl("arrival", var_name)) %>%
+  ggplot(aes(x = date, y = value)) +
+  geom_bar(aes(fill = var_name), stat = "identity",
+           position = position_stack(reverse = TRUE)) +
+  theme(legend.position = "bottom")
+plot_arrival
+ggsave("docs/assets/plot_arrival.png", plot_arrival)
+
+# Guest night change over time
+plot_guest <- sval_soc %>% 
+  filter(grepl("guest", var_name)) %>%
+  ggplot(aes(x = date, y = value)) +
+  geom_bar(aes(fill = var_name), stat = "identity",
+           position = position_stack(reverse = TRUE)) +
+  theme(legend.position = "bottom")
+plot_guest
+ggsave("docs/assets/plot_guest.png", plot_guest)
+
+# Plot population and tourist arrivals side-by-side
+
+
+# Plot population nights and guest nights side-by-side
+
 
 # Nutrient change over time
-ggplot(data = is_nutrient, aes(x = year, y = value)) +
+plot_nutrient <- ggplot(data = is_nutrient, aes(x = year, y = value)) +
   geom_point(aes(colour = depth)) +
-  facet_wrap(~var_name, scales = "free_y")
+  facet_wrap(~var_name, scales = "free_y") +
+  theme(legend.position = "bottom")
+ggsave("docs/assets/plot_nutrient.png", plot_nutrient)
 
 # Cryosphere change over time
-ggplot(data = is_cryo, aes(x = year, y = value)) +
+plot_cryo <- ggplot(data = is_cryo, aes(x = year, y = value)) +
   geom_point(aes(colour = depth)) +
-  facet_wrap(~Parameter, scales = "free_y")
+  facet_wrap(~Parameter, scales = "free_y") +
+  theme(legend.position = "bottom")
+ggsave("docs/assets/plot_cryo.png", plot_cryo)
 
 # Show what the relationship has been between ship mileage and temperature or ice change
 # Then show what the different model RCP projections are and what the future may hold

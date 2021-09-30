@@ -48,11 +48,26 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 ### Population of Longyearbyen
 
+<!-- https://www.ssb.no/en/forskning/ansatte -->
+
+![](assets/plot_pop.png){ width=100% }
+
+### Tourist arrivals
+
+![](assets/plot_arrival.png){ width=100% }
+
+### Guest stays
+
+![](assets/plot_guest.png){ width=100% }
 
 ### Nutrients in Isfjorden
 
+![](assets/plot_nutrient.png){ width=100% }
 
-### Sea ice concentration
+
+### Cryosphere data
+
+![](assets/plot_cryo.png){ width=100% }
 
 
 ### Shifts in phenology

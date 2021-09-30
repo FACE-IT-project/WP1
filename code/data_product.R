@@ -210,8 +210,85 @@ sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbar
          citation = "Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+# Svalbard population counts
+sval_pop <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats.csv", delim = "\t") %>% 
+  dplyr::select(-contents) %>% 
+  rename_at(.vars = vars(ends_with("H1")), .funs = list(~gsub("H1", "", .))) %>% 
+  pivot_longer(`1990`:`2021`, names_to = "year", values_to = "value") %>% 
+  mutate(settlement = case_when(grepl("Resident", settlement) ~ "Longyearbyen & Ny-Alesund mainland",
+                                grepl("abroad", settlement) ~ "Longyearbyen & Ny-Alesund abroad",
+                                TRUE ~ settlement)) %>% 
+  mutate(date = as.Date(paste0(year,"-01-01")),
+         date_accessed = as.Date("2021-09-29"),
+         URL = "https://www.ssb.no/en/befolkning/folketall/statistikk/befolkningen-pa-svalbard",
+         citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-29",
+         var_type = "soc", var_name = paste0("pop [",settlement,"]"),
+         depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+write_csv(sval_pop, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats_full.csv")
+
+# Svalbard tourist arrivals
+# NB: The historic camping data are only available per year
+# So the monthly data are averaged to years to be the same
+sval_tour_arrival_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals_historic.csv") %>% 
+  dplyr::rename(value = Total, year = Year) %>% 
+  mutate(type = "Hotels and similar establishments",
+         residence = "Total") %>% 
+  dplyr::select(type, residence, year, value) %>% 
+  # manually copied from: https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf
+  rbind(data.frame(type = "Camping sites",
+                   residence = "Total",
+                   year = 2016:2018,
+                   value = c(862, 779, 612))) %>% 
+  mutate(URL = "https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf")
+sval_tour_arrival <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals.csv", delim = "\t") %>% 
+  dplyr::rename(type = `type of accommodation`, residence = `country of residence`) %>% 
+  pivot_longer(`2020M01`:`2021M07`) %>% # NB: This will expand as the months go by
+  separate(name, into = c("year", "month"), sep = "M") %>% 
+  mutate(year = as.numeric(year),
+         URL = "https://www.ssb.no/en/statbank/table/12896") %>% 
+  group_by(URL, type, residence, year) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
+  bind_rows(sval_tour_arrival_hist) %>% 
+  mutate(date = as.Date(paste0(year,"-01-01")),
+         date_accessed = as.Date("2021-09-30"),
+         citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-30",
+         var_type = "soc", var_name = paste0("arrival [",type," - ",residence,"]"),
+         depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+write_csv(sval_tour_arrival, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals_full.csv")
+
+# Svalbard guest nights
+sval_guest_night_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_historic.csv") %>% 
+  dplyr::rename(value = Periode, year = Year) %>% 
+  mutate(type = "Hotels and similar establishments",
+         residence = "Total") %>% 
+  dplyr::select(type, residence, year, value) %>% 
+  # manually copied from: https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf
+  rbind(data.frame(type = "Camping sites",
+                   residence = "Total",
+                   year = 2016:2018,
+                   value = c(2778, 2323, 2007))) %>% 
+  mutate(URL = "https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf")
+sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights.csv", delim = "\t", na = ".") %>% 
+  dplyr::rename(type = `type of accommodation`, residence = `country of residence`) %>% 
+  pivot_longer(`2019M01`:`2021M08`) %>% # NB: This will expand as the months go by
+  separate(name, into = c("year", "month"), sep = "M") %>% 
+  mutate(year = as.numeric(year),
+         URL = "https://www.ssb.no/en/statbank/table/12892") %>% 
+  group_by(URL, type, residence, year) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
+  bind_rows(sval_guest_night_hist) %>% 
+  mutate(date = as.Date(paste0(year,"-01-01")),
+         date_accessed = as.Date("2021-09-30"),
+         citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-30",
+         var_type = "soc", var_name = paste0("guest night [",type," - ",residence,"]"),
+         depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
+
 # Combine and save
-full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry)
+full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night)
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
 rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()

@@ -415,7 +415,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-09-28
+<strong>Last updated:</strong> 2021-09-30
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -506,16 +506,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treea010b465e01e7d248e0c140cf25a97d8d8d0c24ftargetblanka010b46a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/a010b465e01e7d248e0c140cf25a97d8d8d0c24f" target="_blank">a010b46</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree657b15d9e7b4454017b78e042eec126d2ecdf016targetblank657b15da"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/657b15d9e7b4454017b78e042eec126d2ecdf016" target="_blank">657b15d</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treea010b465e01e7d248e0c140cf25a97d8d8d0c24ftargetblanka010b46a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree657b15d9e7b4454017b78e042eec126d2ecdf016targetblank657b15da" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/a010b465e01e7d248e0c140cf25a97d8d8d0c24f" target="_blank">a010b46</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/657b15d9e7b4454017b78e042eec126d2ecdf016" target="_blank">657b15d</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -525,13 +525,18 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    code/ny-alesund_cc_pf_rws.R
+    Ignored:    data/full_data/
     Ignored:    data/model/
     Ignored:    data/pg_data/
     Ignored:    metadata/pangaea_parameters.tab
 
 Unstaged changes:
+    Modified:   .gitignore
     Modified:   analysis/2021_analysis.Rmd
-    Modified:   code/functions.R
+    Modified:   analysis/2021_summary.Rmd
+    Modified:   analysis/metadatabase.Rmd
+    Modified:   code/FACE_IT_2021.R
+    Modified:   code/data_product.R
 
 </code></pre>
 <p>
@@ -570,6 +575,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/657b15d9e7b4454017b78e042eec126d2ecdf016/analysis/2021_analysis.Rmd" target="_blank">657b15d</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-29
+</td>
+<td>
+More work towards the analysis talk
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/c03fcc9256da4e0e6b0971cf364aec42d22dc1bd/analysis/2021_analysis.Rmd" target="_blank">c03fcc9</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+More work on analysis talk and sourced the Svalbard population data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/c03fcc9256da4e0e6b0971cf364aec42d22dc1bd/docs/2021_analysis.html" target="_blank">c03fcc9</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+More work on analysis talk and sourced the Svalbard population data
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -649,6 +705,7 @@ Rearrange talks to now be part of the WP1 website. Full version of summary talk 
 <img src="assets/FACE-IT_Logo_900.png" style="width:70.0%" />
 </center>
 <p><br></p>
+<!-- Perhaps try telling a story about investigating the data and not being able to tell the story we wanted to. This could serve to be illuminative about the necessity for people to contribute their site specific data. Could talk about how the scraping of the PANGAEA data has had mixed results. -->
 <div id="isfjorden-data" class="section level1">
 <h1>Isfjorden data</h1>
 <hr />
@@ -661,12 +718,42 @@ Rearrange talks to now be part of the WP1 website. Full version of summary talk 
 <div id="anthropogenic-impacts-in-isfjorden" class="section level1">
 <h1>Anthropogenic impacts in Isfjorden</h1>
 <hr />
+<!-- Could rather give a talk about the series of failed investigations into quick questions. Show the progression of the figures and how/why they aren't useful. Remember that the purpose is to communicate the necessity to cultivate good data sources that can be used for meaningful investigations. This then could serve as a segue into -->
 <ul>
 <li>Keep in mind that this analysis is just an example to stimulate thought about real analyses
 <ul>
 <li>These then are to be used for the review paper</li>
 <li>Have a specific focus on social science data because little effort has been done for social science so far</li>
 </ul></li>
+</ul>
+<!-- What may the triad relationship be between sea ice, cruise ships, and plankton biomass -->
+<div id="population-of-longyearbyen" class="section level3">
+<h3>Population of Longyearbyen</h3>
+<!-- https://www.ssb.no/en/forskning/ansatte -->
+<p><img src="assets/plot_pop.png" style="width:100.0%" /></p>
+</div>
+<div id="tourist-arrivals" class="section level3">
+<h3>Tourist arrivals</h3>
+<p><img src="assets/plot_arrival.png" style="width:100.0%" /></p>
+</div>
+<div id="guest-stays" class="section level3">
+<h3>Guest stays</h3>
+<p><img src="assets/plot_guest.png" style="width:100.0%" /></p>
+</div>
+<div id="nutrients-in-isfjorden" class="section level3">
+<h3>Nutrients in Isfjorden</h3>
+<p><img src="assets/plot_nutrient.png" style="width:100.0%" /></p>
+</div>
+<div id="cryosphere-data" class="section level3">
+<h3>Cryosphere data</h3>
+<p><img src="assets/plot_cryo.png" style="width:100.0%" /></p>
+</div>
+<div id="shifts-in-phenology" class="section level3">
+<h3>Shifts in phenology</h3>
+</div>
+<div id="population-vs.-nutrients" class="section level3">
+<h3>Population vs. nutrients</h3>
+<ul>
 <li>For the analysis:
 <ul>
 <li>Get the number of inhabitants of Longyearbyen over time and relate that to nutrient concentration</li>
@@ -675,10 +762,19 @@ Rearrange talks to now be part of the WP1 website. Full version of summary talk 
 </ul>
 <p><br></p>
 </div>
+</div>
 <div id="summary" class="section level1">
 <h1>Summary</h1>
 <hr />
-<p>The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites.</p>
+<ul>
+<li>Have a slide at the end of the science talk about co-authorship for the review article
+<ul>
+<li>It requires contribution of data, text, figures, ideas etc.</li>
+<li>The obvious contributors are the site coordinators and who they think are specialists in certain aspects at there site</li>
+</ul></li>
+<li>Think of a timeline for the review article</li>
+<li>The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites.</li>
+</ul>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
