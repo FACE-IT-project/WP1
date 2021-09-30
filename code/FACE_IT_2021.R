@@ -121,33 +121,35 @@ ggsave("docs/assets/plot_cryo.png", plot_cryo)
 # Think of a timeline for the review article
 
 
-# Figures -----------------------------------------------------------------
+# Inglefieldbukta bbox figure ---------------------------------------------
+
+# Expanded bbox
+bbox_ingle_plus <- c(17.35, 21.60, 77.43, 78.13)
 
 ## Inglefieldbukta expanded bbox figures
-coastline_ingle <- coastline_full_df %>% 
-  filter(x >= bbox_ingle[1]-1, x <= bbox_ingle[2]+1, y >= bbox_ingle[3]-1, y <= bbox_ingle[4]+1)
-plot_problems_ingle <- full_product_ingle %>%
-  mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
-  group_by(lon, lat) %>% 
-  summarise(count = n(), .groups = "drop") %>% 
-  ggplot() +
-  geom_polygon(data = coastline_ingle, fill = "grey70", colour = "black",
+coastline_ingle_plus <- coastline_full_df %>% 
+  filter(x >= bbox_ingle_plus[1]-10, x <= bbox_ingle_plus[2]+10, 
+         y >= bbox_ingle_plus[3]-10, y <= bbox_ingle_plus[4]+10)
+plot_ingle_plus <- ggplot() +
+  geom_polygon(data = coastline_ingle_plus, fill = "grey70", colour = "black",
                aes(x = x, y = y, group = polygon_id)) +
-  geom_tile(aes(x = lon, y = lat, fill = log10(count))) +
-  annotate("rect",  colour = "green", fill = NA, alpha = 0.1,
-           xmin = bbox_ingle[1], xmax = bbox_ingle[2], ymin = bbox_ingle[3], ymax = bbox_ingle[4]+0.03) +
-  annotate("rect", colour = "black", fill = NA,
+  annotate("rect", colour = "orange", fill = "orange", alpha = 0.1,
+           xmin = bbox_ingle_plus[1], xmax = bbox_ingle_plus[2], ymin = bbox_ingle_plus[3], ymax = bbox_ingle_plus[4]) +
+  annotate("rect",  colour = "darkgreen", fill = "darkgreen", alpha = 0.1,
            xmin = bbox_ingle[1], xmax = bbox_ingle[2], ymin = bbox_ingle[3], ymax = bbox_ingle[4]) +
   scale_fill_viridis_c(option = "E") +
   coord_quickmap(expand = F,
-                 xlim = c(bbox_ingle[1]-0.5, bbox_ingle[2]+0.4), 
-                 ylim = c(bbox_ingle[3]-0.1, bbox_ingle[4]+0.2)) +
+                 xlim = c(bbox_ingle_plus[1]-3, bbox_ingle_plus[2]+3), 
+                 ylim = c(bbox_ingle_plus[3]-0.5, bbox_ingle_plus[4]+0.5)) +
   labs(x = NULL, y = NULL, fill = "Count\n(log10)",
-       title = paste0("Count of data binned at 0.01° (~1 km) resolution")) +
+       title = paste0("Proposed expansion of Inglefieldbukta study site")) +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom")
-plot_problems_ingle
-ggsave("figures/bbox_ingle.png", plot_problems_ingle, height = 6)
+plot_ingle_plus
+ggsave("docs/assets/plot_ingle_plus.png", plot_ingle_plus, height = 4)
+
+
+# Figures -----------------------------------------------------------------
 
 ## Kongsfjorden data summary figure
 # Load full product
