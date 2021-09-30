@@ -46,7 +46,7 @@ options(DT.options = list(pageLength = 5,
 ::: {}
 ![](assets/profile_gattuso.jpg){ width=90% }  
   
-- WP1 Lead: Jean-Pierre Gattuso
+- Lead: Jean-Pierre Gattuso
 
 :::
 
@@ -60,11 +60,17 @@ options(DT.options = list(pageLength = 5,
 
 ::::
 
+- Identify and analyse major drivers of change for fjord and adjacent socioecological systems
+- Coolect, manage, and disseminate data and analyses both within and outside the consortium
+- Key drivers identified in WP1 form the operative base for all WPs
+
 <br>
 
 
-# Key drivers (D1.1: 6 months)
+# Deliverables
 ***
+
+### Key drivers (D1.1: 6 months)
 
 ```{r key-drivers-table, eval=TRUE}
 ## Cryosphere
@@ -96,8 +102,7 @@ knitr::kable(rbind(cryo_vars, phys_vars, chem_vars, bio_vars, soc_vars),
 <br>
 
 
-# Meta-database (D1.2: 12 months)
-***
+### Meta-database (D1.2: 12 months)
 
 ```{r isfjorden-meta-data}
 # Mouth mooring North
@@ -179,7 +184,7 @@ is_IsA_CO2 <- data.frame(type = "CTD",
                          reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
                          note = NA)
 
-# Chlorophyl station at IsA
+# Chlorophyll station at IsA
 is_IsA_Chla <- data.frame(type = "Niskin bottle",
                           data_name = "ChlA",
                           date_range = "2011 to 2019",
@@ -317,10 +322,9 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 <br>
 
 
-# Other deliverables
-***
+### Other deliverables
 
-- Data management plan (D8.1: 6 months)
+- [Data management plan](https://face-it.marum.de/apps/files/?dir=/FACE-IT_all/Milestones%2C%20Deliverables%20and%20Publications/WP8&openfile=14866) (D8.1: 6 months)
 - Created FACE-IT [GitHub repository](https://github.com/FACE-IT-project)
 - All WP1 progress available on [public website](https://face-it-project.github.io/WP1/index.html)
 
@@ -333,13 +337,6 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 - Ny-Ålesund, Kongsfjorden, Svalbard (July - August, 2021)
   - Participated in fieldwork for WP3
   - Worked adjacent to WP2
-- Data collections efforts
-
-### Effective coordination of data collection 
-
-- Who is responsible for what?
-- Who has other people working with data collection?
-- WP1 is of service to everybody, but we can't provide this service without replies to our inquiries
 
 <br>
 
@@ -347,21 +344,26 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 # Data issues
 ***
 
-- What to do with complex data types
-  - e.g. Seabird database and geospatial glacier fronts
+### Complex data
+
+- What to do with complex data types?
+  - e.g. Seabird (animal) database and geospatial data like glacier fronts
+- Who are the contacts in each WP with an opinion on this issue?
+
+### Effective data collection and dissemination
+
+- Who has other people working with data collection/production?
+- WP1 is tasked with archiving the FACE-IT data on PANGAEA
+  - This applies to all data in [FACE-IT publications](https://face-it.marum.de/apps/files/?dir=/FACE-IT_all/Milestones%2C%20Deliverables%20and%20Publications/Scientific%20Publications&fileid=7957)
+- WP1 is of service to all of FACE-IT but we need to be informed
+- Ensure that Milestones are being reached
 
 ### Inglefieldbukta
 
-- Is the current Inglefieldbukta bounding box to small?
-- What is the scientific justification of choosing a much larger semi-open fjord?
-- Current area (figure)
-- Potential expanded area (figure)
-
-### Social data
-- Many sources located for Isfjorden
-- What other sources may there be for FACE-IT sites?
-  - With a focus on Greenland
-- What sort of non-social data do social scientists want?
+![](assets/plot_ingle_plus.png){ width=100% }
+  
+- Expand the small study area of Inglefieldbukta to the much larger semi-open fjord of Storfjorden  
+- WP1 has no issues with this, are there any objections?  
 
 <br>
 
@@ -369,30 +371,18 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 # What's next?
 ***
 
-- Review article (D1.3: 24 months)
-  - Intended as broad overview of drivers of change in FACE-IT study sites
-  - Will require expertise from many FACE-IT researchers
-  - WP1 will reach out to site coordinators as fist step in collaborative process
+- Review article: Drivers of change in FACE-IT study sites (D1.3: 24 months)
+- Follow up meeting with site and social science coordinators
 
 <br>
 
 
 # Summary
 ***
-
-- A task of WP1 is to archive the FACE-IT data on PANGAEA
-  - This applies to all data in FACE-IT publications
-  - [get list of publications from Bremen website]
-- Who has use for the collected data?
+   
+- Who has use for the data collected and processed by WP1?
   - How would they like to access them?
-  - What format(s) is most useful?
-  - Who has there own data collection efforts?
-- What shall be done about Inglefieldbukta site?
-- How shall we begin to merge the data needs of social science?
-
-- Data collected under Pedro and Sebastian
-  - For modelling and for seabirds
-  - These cleaned data will go to the NP database
-  - This includes data from remote sources
-  - The goal is monthly averages over broad areas
+  - What format(s) is most useful? (e.g. .csv, .Rdata, .nc)
+  - Who has their own data collection efforts?
+<!-- - How shall we begin to merge the data needs of social science? -->
   

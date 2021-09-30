@@ -86,10 +86,14 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 # Summary
 ***
 
-- Have a slide at the end of the science talk about co-authorship for the review article
-  - It requires contribution of data, text, figures, ideas etc.
-  - The obvious contributors are the site coordinators and who they think are specialists in certain aspects at there site
-- Think of a timeline for the review article
-- The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites.
+- The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites
+- The review paper is designed to be a collaborative process for many members of FACE-IT
+  - Co-authorship requires contribution of data, text, figures, ideas etc.
+  - Site coordinators will be contacted first
+- Timeline:
+  - Data collection (underway)
+  - Analyses (April, 2022)
+  - Writing up (September, 2022)
+  - Manuscript submitted for review (October, 2022)
 
 
