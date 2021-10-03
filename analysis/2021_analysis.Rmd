@@ -27,7 +27,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 <!-- Perhaps try telling a story about investigating the data and not being able to tell the story we wanted to. This could serve to be illuminative about the necessity for people to contribute their site specific data. Could talk about how the scraping of the PANGAEA data has had mixed results. -->
 
-# Anthropogenic impacts in Isfjorden
+# Anthropogenic impacts on Isfjorden
 ***
 
 <!-- Could rather give a talk about the series of failed investigations into quick questions. Show the progression of the figures and how/why they aren't useful. Remember that the purpose is to communicate the necessity to cultivate good data sources that can be used for meaningful investigations. This then could serve as a segue into -->
@@ -46,7 +46,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 <br>
 
 
-# Human presence in Svalbard{.tabset}
+# Human presence on Svalbard{.tabset}
 ***
 
 ## Pop
@@ -61,6 +61,10 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 ![](assets/plot_guest.png){ width=100% }
 
+
+# Nutrient data{.tabset}
+***
+
 ## Nutrients
 
 ![](assets/plot_nutrient.png){ width=100% }
@@ -74,35 +78,18 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 ![](assets/plot_ChlA_pop.png){ width=100% }
 
 
-### Cryosphere data
-
-![](assets/plot_cryo.png){ width=100% }
-
-
-### Shifts in phenology
-
-
-### Population vs. nutrients
-
-
-- For the analysis:  
-  - Get the number of inhabitants of Longyearbyen over time and relate that to nutrient concentration
-  - Also want to look at relationships with ice cover and any sort of physical phenology
-
-<br>
-
-
 # Summary
 ***
 
-- The aggregated data products showcased in this talk are intended to be used by other FACE-IT members for their research as well as to be used for a review of change in the FACE-IT study sites
+- The aggregated data products showcased in this talk are intended to be used by other FACE-IT members 
+  - For their research as well as the review paper of change in the FACE-IT study sites
 - The review paper is designed to be a collaborative process for many members of FACE-IT
   - Co-authorship requires contribution of data, text, figures, ideas etc.
   - Site coordinators will be contacted first
 - Timeline:
   - Data collection (underway)
-  - Analyses (April, 2022)
-  - Writing up (September, 2022)
-  - Manuscript submitted for review (October, 2022)
+  - Analyses (October 2021 - April 2022)
+  - Writing up (May - September 2022)
+  - Manuscript submitted for review (October 2022)
 
 

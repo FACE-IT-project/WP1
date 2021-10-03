@@ -769,7 +769,7 @@ data_summary_plot <- function(full_product, site_name){
   # meta_table_g <- gtable_add_grob(tableGrob(meta_table, rows = NULL),
   #                                 grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
   #                                 t = 2, b = nrow(meta_table), l = 1, r = ncol(meta_table))
-  meta_table_g <- tableGrob(meta_table, rows = NULL)
+  meta_table_g <- tableGrob(meta_table, rows = NULL)# + labs(title = "Meta-data")
   
   # Clip coastline polygons for faster plotting
   coastline_full_df_sub <- coastline_full_df %>% 

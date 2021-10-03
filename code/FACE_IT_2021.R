@@ -142,6 +142,7 @@ plot_guest <- sval_pop %>%
            position = "dodge") +
   scale_fill_manual(values = pop_palette[2:3]) +
   labs(y = "Annual nights of stay", x = NULL, fill = "Longyearbyen") +
+  coord_cartesian(expand = F) +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom")
 plot_guest
@@ -167,7 +168,7 @@ plot_ChlA <- is_ChlA %>%
   geom_point(aes(colour = log10(value))) +
   scale_y_reverse() +
   scale_colour_distiller(palette = "Greens", direction = 1) +
-  labs(x = NULL, y = "Depth (m)", colour = "log10[ChlA] (ug/l))") +
+  labs(x = NULL, y = "Depth (m)", colour = "log10[ChlA] (ug/l)") +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom")
 plot_ChlA
@@ -182,7 +183,8 @@ plot_ChlA_pop <- left_join(is_ChlA_annual, sval_nights_annual, by = "year") %>%
   annotate(geom = "label", x = 890000, y = 0, 
            label = paste0("r = ",round(cor_ChlA_pop$estimate, 2),"; p = ",round(cor_ChlA_pop$p.value,2),"; df = ",cor_ChlA_pop$parameter)) +
   scale_x_continuous(expand = c(0, 0)) +
-  labs(colour = "Year", y = "Annual ChlA (ug/l)", x = "Nights of human stay") +
+  labs(colour = "Year", y = "ChlA (ug/l)", x = "Nights of stay",
+       subtitle = "Average ChlA in the top 30 m vs. sum of nights of human habitation") +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom")
 plot_ChlA_pop
