@@ -346,7 +346,7 @@ sval_fast <- data.frame(type = "",
 sval_biogeochemistry <- data.frame(type = "Bottle",
                                    data_name = "Nutrients; dissolved 02; DOC; POC; PON",
                                    date_range = "2009 to 2013",
-                                   lon_range = " 4 to 31",
+                                   lon_range = "4 to 31",
                                    lat_range = "78 to  83",
                                    depth_range = "0 to 100",
                                    file_name = '<a onclick="alert(\'2009-2013-pigments-api-v1.tsv; 2010-2013-nutrients-api-v1.tsv\');">2 files</a>',
@@ -355,18 +355,41 @@ sval_biogeochemistry <- data.frame(type = "Bottle",
                         note = NA)
 
 # Svalbard population stats
-# svalbard/svalbard_population_stats_full.csv
+sval_pop <- data.frame(type = "Survey",
+                       data_name = "National statistics: population",
+                       date_range = "1990 to 2021",
+                       lon_range = NA, lat_range = NA, depth_range = NA,
+                       file_name = '<a onclick="alert(\'svalbard_population_stats.csv\');">1 file</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.ssb.no/en/befolkning/folketall/statistikk/befolkningen-pa-svalbard">SSB</a>',
+                       reference = '<a onclick="alert(\'Statistics Norway. www.ssb.no. Accessed 2021-09-29\');">SSB (2021)</a>',
+                       note = NA)
 
 # Svalbard tourist arrivals
 # svalbard_tourist_arrivals_full.csv
+sval_tour_arrival <- data.frame(type = "Survey",
+                                data_name = "National statistics: tourist arrivals",
+                                date_range = "2008 to 2021",
+                                lon_range = NA, lat_range = NA, depth_range = NA,
+                                file_name = '<a onclick="alert(\'svalbard_tourist_arrivals.csv; svalbard_tourist_arrivals_historic.csv; svalbard_tourist_arrivals_full.csv\');">3 files</a>',
+                                URL = '<a onclick="alert(\'https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf; https://www.ssb.no/en/statbank/table/12896\');">Multiple</a>',
+                                reference = '<a onclick="alert(\'Statistics Norway. www.ssb.no. Accessed 2021-09-29\');">SSB (2021)</a>',
+                                note = NA)
 
 # Svalbard guest nights
 # svalbard_guest_nights_full.csv
+sval_guest_night <- data.frame(type = "Survey",
+                               data_name = "National statistics: guest nights",
+                               date_range = "2008 to 2021",
+                               lon_range = NA, lat_range = NA, depth_range = NA,
+                               file_name = '<a onclick="alert(\'svalbard_guest_nights.csv; svalbard_guest_nights_historic.csv; svalbard_guest_nights_full.csv\');">3 files</a>',
+                                URL = '<a onclick="alert(\'https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf; https://www.ssb.no/en/statbank/table/12892\');">Multiple</a>',
+                                reference = '<a onclick="alert(\'Statistics Norway. www.ssb.no. Accessed 2021-09-29\');">SSB (2021)</a>',
+                                note = NA)
 
 # Combine
 metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_marine_glacier_front,
                            sval_surface_met, sval_UNIS_database, sval_seabird_database, sval_protection, sval_NICE, 
-                           sval_fast, sval_biogeochemistry)
+                           sval_fast, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->
