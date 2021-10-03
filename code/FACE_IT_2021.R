@@ -16,10 +16,23 @@ pg_parameters <- read_tsv("metadata/pangaea_parameters.tab") %>%
 # Data --------------------------------------------------------------------
 
 # Svalbard data
-load("data/full_data/full_product_sval.RData")
+load("~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
+# load("data/full_data/full_product_sval.RData")
 
 # Isfjorden data
-load("data/full_data/full_product_is.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+# load("data/full_data/full_product_is.RData")
+
+# Isfjorden ChlA data
+is_ChlA <- full_product_is %>% 
+  filter(grepl("Chl", var_name))
+is_ChlA_annual <- is_ChlA %>% 
+  filter(!grepl("GFF", var_name),
+         depth <= 30) %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  group_by(year) %>% 
+  summarise(value = mean(value, na.rm = T)) %>% 
+  dplyr::rename(ChlA = value)
 
 # Isfjorden nutrient data
 # unique(is_nutrient$var_name)
@@ -28,7 +41,7 @@ is_nutrient <- full_product_is %>%
          !is.na(date),
          var_name %in% c("[NO3]- [µmol/l]", "[PO4]3- [µmol/l]", "Si(OH)4 [µmol/l]",
                          "PO4 [µg-at/l]", "[NO2]- [µg-at/l]", "NO3 [µg-at/l]", 
-                         "PO4 biog [%]", "CaCO3 [%]")) %>% 
+                         "PO4 biog [%]")) %>% 
   mutate(year = lubridate::year(date), .keep = "unused") %>% 
   dplyr::select(lon:year, -var_type) %>% 
   group_by(lon, lat, year, depth, var_name) %>% 
@@ -52,73 +65,141 @@ model_is <- load_model("isfjorden_rcp")
 sval_soc <- full_product_sval %>% 
   filter(var_type == "soc")
 
+# Svalbard population
+sval_pop <- sval_soc %>% 
+  filter(grepl("pop", var_name),
+         !grepl("Hornsund", var_name)) %>%
+  mutate(var_name = gsub("pop ", "", var_name)) %>% 
+  mutate(var_name = sub("\\[", "", var_name)) %>% 
+  mutate(var_name = sub("\\]", "", var_name)) %>% 
+  mutate(var_name = case_when(grepl("Longyear", var_name) ~ "Longyearbyen and Ny-Alesund", 
+                              TRUE ~ var_name))
+
+
+# Svalbard tourist arrivals
+sval_arrival <- sval_soc %>% 
+  filter(grepl("arrival", var_name)) %>%
+  mutate(var_name = "Tourists")
+
+# Svalbard guest nights
+sval_guest <- sval_soc %>% 
+  filter(grepl("guest", var_name)) %>% 
+  mutate(var_name = "Tourists")
+sval_nights_annual <- sval_pop %>%
+  filter(!grepl("Pyr", var_name)) %>% 
+  mutate(var_name = "Residents",
+         value = value*365) %>% 
+  rbind(sval_guest) %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  filter(year >= 2011) %>% 
+  group_by(year) %>% 
+  summarise(nights = sum(value))
+
 
 # Analyses ----------------------------------------------------------------
 
+# Set colour palette for consistent colours between figures
+pop_palette <- RColorBrewer::brewer.pal(6, "Set1")
+
 # Population change over time
-plot_pop <- sval_soc %>% 
-  filter(grepl("pop", var_name)) %>%
-  ggplot(aes(x = date, y = value)) +
+plot_pop <- ggplot(data = sval_pop, aes(x = date, y = value)) +
   geom_bar(aes(fill = var_name), stat = "identity",
            position = position_stack(reverse = TRUE)) +
-  theme(legend.position = "bottom")
+  labs(y = "Population", x = NULL, fill = "Location") +
+  scale_fill_manual(values = pop_palette[1:2]) +
+  coord_cartesian(expand = F) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
 plot_pop
-ggsave("docs/assets/plot_pop.png", plot_pop)
+ggsave("docs/assets/plot_pop.png", plot_pop, width = 6)
 
 # Tourist arrival change over time
-plot_arrival <- sval_soc %>% 
-  filter(grepl("arrival", var_name)) %>%
+plot_arrival <- sval_pop %>% 
+  filter(!grepl("Pyr", var_name),
+         date >= as.Date("2008-01-01")) %>% 
+  mutate(var_name = "Residents") %>%
+  rbind(sval_arrival) %>% 
   ggplot(aes(x = date, y = value)) +
   geom_bar(aes(fill = var_name), stat = "identity",
-           position = position_stack(reverse = TRUE)) +
-  theme(legend.position = "bottom")
+           position = "dodge") +
+  scale_fill_manual(values = pop_palette[2:3]) +
+  labs(y = "Annual population", x = NULL, fill = "Longyearbyen") +
+  coord_cartesian(expand = F) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
 plot_arrival
-ggsave("docs/assets/plot_arrival.png", plot_arrival)
+ggsave("docs/assets/plot_arrival.png", plot_arrival, width = 6)
 
 # Guest night change over time
-plot_guest <- sval_soc %>% 
-  filter(grepl("guest", var_name)) %>%
+plot_guest <- sval_pop %>%
+  filter(!grepl("Pyr", var_name),
+         date >= as.Date("2008-01-01")) %>% 
+  mutate(var_name = "Residents",
+         value = value*365) %>% 
+  rbind(sval_guest) %>% 
   ggplot(aes(x = date, y = value)) +
   geom_bar(aes(fill = var_name), stat = "identity",
-           position = position_stack(reverse = TRUE)) +
-  theme(legend.position = "bottom")
+           position = "dodge") +
+  scale_fill_manual(values = pop_palette[2:3]) +
+  labs(y = "Annual nights of stay", x = NULL, fill = "Longyearbyen") +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
 plot_guest
-ggsave("docs/assets/plot_guest.png", plot_guest)
-
-# Plot population and tourist arrivals side-by-side
-
-
-# Plot population nights and guest nights side-by-side
-
+ggsave("docs/assets/plot_guest.png", plot_guest, width = 6)
 
 # Nutrient change over time
-plot_nutrient <- ggplot(data = is_nutrient, aes(x = year, y = value)) +
-  geom_point(aes(colour = depth)) +
-  facet_wrap(~var_name, scales = "free_y") +
-  theme(legend.position = "bottom")
-ggsave("docs/assets/plot_nutrient.png", plot_nutrient)
+plot_nutrient <- is_nutrient %>% 
+  group_by(var_name, year) %>%
+  summarise(count = n(), .groups = "drop") %>% 
+  ggplot(aes(x = year, y = count)) +
+  geom_point(aes(colour = var_name), position = position_dodge(width = 3), size = 3) +
+  # facet_wrap(~var_name, scales = "free_y") +
+  labs(y = "Data points", x = NULL, colour = "Nutrients") +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_nutrient
+ggsave("docs/assets/plot_nutrient.png", plot_nutrient, width = 6)
+
+# Plot ChlA change over time
+plot_ChlA <- is_ChlA %>% 
+  filter(!grepl("GFF", var_name)) %>% 
+  ggplot(aes(x = date, y = depth)) +
+  geom_point(aes(colour = log10(value))) +
+  scale_y_reverse() +
+  scale_colour_distiller(palette = "Greens", direction = 1) +
+  labs(x = NULL, y = "Depth (m)", colour = "log10[ChlA] (ug/l))") +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_ChlA
+ggsave("docs/assets/plot_ChlA.png", plot_ChlA, width = 6)
+
+# ChlA with human stays
+cor_ChlA_pop <- cor.test(x = is_ChlA_annual$ChlA, y = sval_nights_annual$nights[1:9])
+plot_ChlA_pop <- left_join(is_ChlA_annual, sval_nights_annual, by = "year") %>% 
+  ggplot(aes(x = nights, y = ChlA)) +
+  geom_point(aes(colour = as.factor(year))) +
+  geom_smooth(method = "lm", colour = "black") +
+  annotate(geom = "label", x = 890000, y = 0, 
+           label = paste0("r = ",round(cor_ChlA_pop$estimate, 2),"; p = ",round(cor_ChlA_pop$p.value,2),"; df = ",cor_ChlA_pop$parameter)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(colour = "Year", y = "Annual ChlA (ug/l)", x = "Nights of human stay") +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_ChlA_pop
+ggsave("docs/assets/plot_ChlA_pop.png", plot_ChlA_pop, width = 6)
 
 # Cryosphere change over time
 plot_cryo <- ggplot(data = is_cryo, aes(x = year, y = value)) +
   geom_point(aes(colour = depth)) +
   facet_wrap(~Parameter, scales = "free_y") +
-  theme(legend.position = "bottom")
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+plot_cryo
 ggsave("docs/assets/plot_cryo.png", plot_cryo)
 
 # Show what the relationship has been between ship mileage and temperature or ice change
 # Then show what the different model RCP projections are and what the future may hold
 # Also use these relationship projections for any sort of biomass
-
-# TODO:
-# Create statistics about how many data files there are. 
-# Who has been contacted. 
-# How many we have and what has been added
-# Solicit audience for new datasets that have not been identified and that are available
-# Read the Kongsfjorden ecosystem book chapter about mooring data
-# Have a slide at the end of the science talk about co-authorship for the review article
-  # It requires contribution of data, text, figures, ideas etc.
-  # The obvious contributors are the site coordinators and who they think are specialists in certain aspects at there site
-# Think of a timeline for the review article
 
 
 # Inglefieldbukta bbox figure ---------------------------------------------

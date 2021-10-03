@@ -841,7 +841,7 @@ is_CO2_IsA <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO2_system_d
 
 ## Chlorophyl station at IsA
 # tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")
-# as.data.frame(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$attribute$global)
+as.data.frame(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$attribute$global)
 is_Chla_IsA_units <- rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc")$variable,
                            ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$variable) %>% distinct()
 is_Chla_IsA_1 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc")) %>% mutate(data = "10um")
@@ -849,6 +849,7 @@ is_Chla_IsA_2 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a
 is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>% 
   dplyr::rename(depth = Depth) %>% 
   mutate(date = as.Date(`Days since 1st jan 2011`, origin = "2011-01-01"), .keep = "unused") %>% 
+  # mutate(date = as.Date(as.character(as.PCICt(T*3600, cal = "noleap", origin = "1950-01-01 01:00:00", tz = "UTC")))) %>% 
   pivot_longer(`Chlorophyll A`:Phaeophytin, names_to = "var_name", values_to = "value") %>% 
   left_join(is_Chla_IsA_units, by = c("var_name" = "name")) %>% 
   mutate(URL = "https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All",
