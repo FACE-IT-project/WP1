@@ -14,8 +14,8 @@ system.time(
                                      "analysis/metadatabase.Rmd",
                                      "analysis/2021_summary.Rmd",
                                      "analysis/2021_analysis.Rmd",
-                                     "analysis/data_summary.Rmd", # NB: This takes a couple minutes
-                                     "analysis/model_summary.Rmd", # NB: This takes a couple minutes
+                                     # "analysis/data_summary.Rmd", # NB: This takes a couple minutes
+                                     # "analysis/model_summary.Rmd", # NB: This takes a couple minutes
                                      "analysis/review.Rmd"
   ),
   message = "Re-built site.")
