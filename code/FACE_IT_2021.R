@@ -15,10 +15,6 @@ pg_parameters <- read_tsv("metadata/pangaea_parameters.tab") %>%
 
 # Data --------------------------------------------------------------------
 
-# Svalbard data
-load("~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
-# load("data/full_data/full_product_sval.RData")
-
 # Isfjorden data
 load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 # load("data/full_data/full_product_is.RData")
@@ -26,12 +22,20 @@ load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 # Isfjorden ChlA data
 is_ChlA <- full_product_is %>% 
   filter(grepl("Chl", var_name))
+is_ChlA_monthly <- is_ChlA %>% 
+  filter(!grepl("GFF", var_name),
+         depth <= 30) %>% 
+  mutate(year = lubridate::year(date),
+         month = lubridate::month(date)) %>% 
+  group_by(year, month) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  dplyr::rename(ChlA = value)
 is_ChlA_annual <- is_ChlA %>% 
   filter(!grepl("GFF", var_name),
          depth <= 30) %>% 
   mutate(year = lubridate::year(date)) %>% 
   group_by(year) %>% 
-  summarise(value = mean(value, na.rm = T)) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
   dplyr::rename(ChlA = value)
 
 # Isfjorden nutrient data
@@ -61,9 +65,14 @@ is_cryo <- full_product_is %>%
 # Isfjorden model data
 model_is <- load_model("isfjorden_rcp")
 
+# Svalbard data
+load("~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
+# load("data/full_data/full_product_sval.RData")
+
 # Svalbard tourist info
 sval_soc <- full_product_sval %>% 
   filter(var_type == "soc")
+rm(full_product_sval); gc()
 
 # Svalbard population
 sval_pop <- sval_soc %>% 
@@ -75,7 +84,6 @@ sval_pop <- sval_soc %>%
   mutate(var_name = case_when(grepl("Longyear", var_name) ~ "Longyearbyen and Ny-Alesund", 
                               TRUE ~ var_name))
 
-
 # Svalbard tourist arrivals
 sval_arrival <- sval_soc %>% 
   filter(grepl("arrival", var_name)) %>%
@@ -85,6 +93,7 @@ sval_arrival <- sval_soc %>%
 sval_guest <- sval_soc %>% 
   filter(grepl("guest", var_name)) %>% 
   mutate(var_name = "Tourists")
+sval_nights_monthly
 sval_nights_annual <- sval_pop %>%
   filter(!grepl("Pyr", var_name)) %>% 
   mutate(var_name = "Residents",
