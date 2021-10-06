@@ -823,7 +823,7 @@ is_PG <- data.frame(type = "PANGAEA",
                     note = "This is a combination of 215 PANGAEA data files.")
 
 # Fully combined product
-full_product_is <- data.frame(type = "Full",
+full_product_is <- data.frame(type = "FACE-IT",
                               data_name = "Many",
                               date_range = "1871-07-19 to 2020-10-02",
                               lon_range = "13.37895 to 17.35300", 
@@ -845,15 +845,15 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/isfjorden/'.")
 ```
 
-## Inglefieldbukta
+## Storfjorden
 
 <center>
-![](assets/map_inglefieldbukta.png){ width=50% }
+![](assets/map_storfjorden.png){ width=50% }
 </center>
 
-Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce.
+Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce. There are however several time series for the larger Storfjorden complex and so after the 2021 annual meeting it was decided to expand the Inglefieldbukta site to Storfjorden.
 
-```{r inglefieldbukta-meta-data}
+```{r storfjorden-meta-data}
 # Cryosphere survey data
 ingle_cryo <- data.frame(type = "Survey",
                          data_name = "Coastal ice: cover, formation/break up; sea ice: thickness, snow cover: thickness, air temperature; wind: speed",
@@ -885,35 +885,35 @@ ingle_plankton <- data.frame(type = "Survey",
                              note = "These data have not yet been sourced.")
 
 # PANGAEA data product
-ingle_PG <- data.frame(type = "PANGAEA",
-                       data_name = "Sea temperature",
-                       date_range = "1890 to 1992",
-                       lon_range = "18.6 to 18.666", 
-                       lat_range = "77.9 to 78.0",
-                       depth_range = NA,
-                       file_name = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">2 files</a>',
-                       URL = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">See URL column</a>',
-                       reference = '<a onclick="alert(\'pg_ingle_ALL.csv/.RData\');">See citation column</a>',
-                       note = "This is a combination of 4 PANGAEA data files.")
+stor_PG <- data.frame(type = "PANGAEA",
+                      data_name = "Many",
+                      date_range = "1871 to 2016",
+                      lon_range = "17.3 to 21.6", 
+                      lat_range = "77.4 to 78.1",
+                      depth_range = "-614 to 185",
+                      file_name = '<a onclick="alert(\'pg_stor_ALL.csv/.RData\');">2 files</a>',
+                      URL = '<a onclick="alert(\'pg_stor_ALL.csv/.RData\');">See URL column</a>',
+                      reference = '<a onclick="alert(\'pg_stor_ALL.csv/.RData\');">See citation column</a>',
+                      note = "This is a combination of 84 PANGAEA data files.")
 
 # Fully combined product
-full_product_ingle <- data.frame(type = "Full",
-                                 data_name = "Sea temperature",
-                                 date_range = "1890 to 1992",
-                                 lon_range = "18.6 to 18.666", 
-                                 lat_range = "77.9 to 78.0",
-                                 depth_range = NA,
-                                 file_name = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">2 files</a>',
-                                 URL = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">See URL column</a>',
-                                 reference = '<a onclick="alert(\'full_product_ingle.csv/.RData\');">See citation column</a>',
-                                 note = "This is the full combined data product.")
+full_product_stor <- data.frame(type = "FACE-IT",
+                                data_name = "Many",
+                                date_range = "1871 to 2016",
+                                lon_range = "17.3 to 21.6", 
+                                lat_range = "77.4 to 78.1",
+                                depth_range = "-614 to 185",
+                                file_name = '<a onclick="alert(\'full_product_stor.csv/.RData\');">2 files</a>',
+                                URL = '<a onclick="alert(\'full_product_stor.csv/.RData\');">See URL column</a>',
+                                reference = '<a onclick="alert(\'full_product_stor.csv/.RData\');">See citation column</a>',
+                                note = "This is the full combined data product.")
 # Bind them together
-metadata_ingle <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, ingle_PG, full_product_ingle)
+metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PG, full_product_stor)
 ```
 
-```{r inglefieldbukta-meta-data-table}
-DT::datatable(metadata_ingle, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/inglefieldbukta/'.")
+```{r storfjorden-meta-data-table}
+DT::datatable(metadata_stor, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/storfjorden/'.")
 ```
 
 
@@ -1150,7 +1150,7 @@ young_PG <- data.frame(type = "PANGAEA",
                        note = "This is a combination of 14 PANGAEA data files.")
 
 # Fully combined product
-full_product_young <- data.frame(type = "Full",
+full_product_young <- data.frame(type = "FACE-IT",
                                  data_name = "Many",
                                  date_range = "1994 to 2015",
                                  lon_range = "-22.086 to -19.927", 
@@ -1208,7 +1208,7 @@ disko_PG <- data.frame(type = "PANGAEA",
                        note = "This is a combination of 303 PANGAEA data files.")
 
 # Fully combined product
-full_product_disko <- data.frame(type = "Full",
+full_product_disko <- data.frame(type = "FACE-IT",
                                  data_name = "Many",
                                  date_range = "1867 to 2017",
                                  lon_range = "-55.54800 to -49.59857", 
@@ -1323,7 +1323,7 @@ nuup_PG <- data.frame(type = "PANGAEA",
                       note = "This is a combination of 457 PANGAEA data files.")
 
 # Fully combined product
-full_product_nuup <- data.frame(type = "Full",
+full_product_nuup <- data.frame(type = "FACE-IT",
                                 data_name = "Many",
                                 date_range = "1963 to 2017",
                                 lon_range = "-53.3147 to -49.6142", 
@@ -1462,7 +1462,7 @@ por_PG <- data.frame(type = "PANGAEA",
                      note = "This is a combination of 230 PANGAEA data files.")
 
 # Fully combined product
-full_product_por <- data.frame(type = "Full",
+full_product_por <- data.frame(type = "FACE-IT",
                                data_name = "Many",
                                date_range = "1870 to 2019",
                                lon_range = "24.5 to 27.0", 
