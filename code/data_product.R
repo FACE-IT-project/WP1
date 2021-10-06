@@ -18,7 +18,7 @@ library(circular) # For calculating mean daily wind direction from degree values
 # )
 
 # PANGAEA files
-pg_files <- dir("data/pg_data/", pattern = "pg_", full.names = T)
+pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 
 # Quick filtering function
 # Manual tweaks will still be required after running this
@@ -232,27 +232,29 @@ write_csv(sval_pop, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_sta
 # NB: The historic camping data are only available per year
 # So the monthly data are averaged to years to be the same
 sval_tour_arrival_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals_historic.csv") %>% 
-  dplyr::rename(value = Total, year = Year) %>% 
-  mutate(type = "Hotels and similar establishments",
+  dplyr::rename(May = Mai, Oct = Okt, Dec = Des) %>%
+  pivot_longer(Jan:Dec) %>% 
+  mutate(month = match(name, month.abb),
+         type = "Hotels and similar establishments",
          residence = "Total") %>% 
-  dplyr::select(type, residence, year, value) %>% 
+  mutate(date = as.Date(paste0(Year,"-",month,"-01")), .keep = "unused") %>% 
+  dplyr::select(type, residence, date, value) %>% 
   # manually copied from: https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf
-  rbind(data.frame(type = "Camping sites",
+  rbind(data.frame(type = "Camping sites (annual)",
                    residence = "Total",
-                   year = 2016:2018,
+                   date = as.Date(c("2016-12-31", "2017-12-31", "2018-12-31")),
                    value = c(862, 779, 612))) %>% 
   mutate(URL = "https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf")
 sval_tour_arrival <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals.csv", delim = "\t") %>% 
   dplyr::rename(type = `type of accommodation`, residence = `country of residence`) %>% 
   pivot_longer(`2020M01`:`2021M07`) %>% # NB: This will expand as the months go by
   separate(name, into = c("year", "month"), sep = "M") %>% 
-  mutate(year = as.numeric(year),
-         URL = "https://www.ssb.no/en/statbank/table/12896") %>% 
-  group_by(URL, type, residence, year) %>% 
-  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-01")),
+         URL = "https://www.ssb.no/en/statbank/table/12896", .keep = "unused") %>% 
+  # group_by(URL, type, residence, year) %>% 
+  # summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
   bind_rows(sval_tour_arrival_hist) %>% 
-  mutate(date = as.Date(paste0(year,"-01-01")),
-         date_accessed = as.Date("2021-09-30"),
+  mutate(date_accessed = as.Date("2021-09-30"),
          citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-30",
          var_type = "soc", var_name = paste0("arrival [",type," - ",residence,"]"),
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
@@ -261,27 +263,29 @@ write_csv(sval_tour_arrival, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_touri
 
 # Svalbard guest nights
 sval_guest_night_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_historic.csv") %>% 
-  dplyr::rename(value = Periode, year = Year) %>% 
-  mutate(type = "Hotels and similar establishments",
+  dplyr::rename(May = Mai, Oct = Okt, Dec = Des) %>%
+  pivot_longer(Jan:Dec) %>% 
+  mutate(month = match(name, month.abb),
+         type = "Hotels and similar establishments",
          residence = "Total") %>% 
-  dplyr::select(type, residence, year, value) %>% 
+  mutate(date = as.Date(paste0(Year,"-",month,"-01")), .keep = "unused") %>% 
+  dplyr::select(type, residence, date, value) %>% 
   # manually copied from: https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf
-  rbind(data.frame(type = "Camping sites",
+  rbind(data.frame(type = "Camping sites (annual)",
                    residence = "Total",
-                   year = 2016:2018,
+                   date = as.Date(c("2016-12-31", "2017-12-31", "2018-12-31")),
                    value = c(2778, 2323, 2007))) %>% 
   mutate(URL = "https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf")
 sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights.csv", delim = "\t", na = ".") %>% 
   dplyr::rename(type = `type of accommodation`, residence = `country of residence`) %>% 
   pivot_longer(`2019M01`:`2021M08`) %>% # NB: This will expand as the months go by
   separate(name, into = c("year", "month"), sep = "M") %>% 
-  mutate(year = as.numeric(year),
-         URL = "https://www.ssb.no/en/statbank/table/12892") %>% 
-  group_by(URL, type, residence, year) %>% 
-  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-01")),
+         URL = "https://www.ssb.no/en/statbank/table/12892", .keep = "unused") %>% 
+  # group_by(URL, type, residence, date) %>% 
+  # summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
   bind_rows(sval_guest_night_hist) %>% 
-  mutate(date = as.Date(paste0(year,"-01-01")),
-         date_accessed = as.Date("2021-09-30"),
+  mutate(date_accessed = as.Date("2021-09-30"),
          citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-30",
          var_type = "soc", var_name = paste0("guest night [",type," - ",residence,"]"),
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
@@ -842,7 +846,7 @@ is_CO2_IsA <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO2_system_d
 
 ## Chlorophyl station at IsA
 # tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")
-as.data.frame(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$attribute$global)
+# as.data.frame(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$attribute$global)
 is_Chla_IsA_units <- rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc")$variable,
                            ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$variable) %>% distinct()
 is_Chla_IsA_1 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc")) %>% mutate(data = "10um")
@@ -936,14 +940,13 @@ pg_stor_clean <- pg_stor_sub %>%
   dplyr::rename(date = `Date/Time`) %>% 
   mutate(date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
-  # mutate(depth = NA) %>% 
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
                            !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
                            TRUE ~ depth)) %>% 
-  # Remove unwanted columns - not needed
+  # Remove unwanted columns
   dplyr::select(-"Date", -"Press [dbar]",- "Depth water [m]",- "Depth bot [m]",
                 -"Bathy depth interp/grid [m]",
                 -contains(c("Elev ", "Elevation ", "Latitude", "Longitude"))) %>%

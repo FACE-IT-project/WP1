@@ -15,27 +15,23 @@ pg_parameters <- read_tsv("metadata/pangaea_parameters.tab") %>%
 
 # Data --------------------------------------------------------------------
 
+# Svalbard data
+# load("~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
+load("data/full_data/full_product_sval.RData")
+
 # Isfjorden data
-load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
-# load("data/full_data/full_product_is.RData")
+# load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+load("data/full_data/full_product_is.RData")
 
 # Isfjorden ChlA data
 is_ChlA <- full_product_is %>% 
   filter(grepl("Chl", var_name))
-is_ChlA_monthly <- is_ChlA %>% 
-  filter(!grepl("GFF", var_name),
-         depth <= 30) %>% 
-  mutate(year = lubridate::year(date),
-         month = lubridate::month(date)) %>% 
-  group_by(year, month) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  dplyr::rename(ChlA = value)
 is_ChlA_annual <- is_ChlA %>% 
   filter(!grepl("GFF", var_name),
          depth <= 30) %>% 
   mutate(year = lubridate::year(date)) %>% 
   group_by(year) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  summarise(value = mean(value, na.rm = T)) %>% 
   dplyr::rename(ChlA = value)
 
 # Isfjorden nutrient data
@@ -45,11 +41,11 @@ is_nutrient <- full_product_is %>%
          !is.na(date),
          var_name %in% c("[NO3]- [µmol/l]", "[PO4]3- [µmol/l]", "Si(OH)4 [µmol/l]",
                          "PO4 [µg-at/l]", "[NO2]- [µg-at/l]", "NO3 [µg-at/l]", 
-                         "PO4 biog [%]")) %>% 
-  mutate(year = lubridate::year(date), .keep = "unused") %>% 
-  dplyr::select(lon:year, -var_type) %>% 
-  group_by(lon, lat, year, depth, var_name) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop")
+                         "PO4 biog [%]")) #%>% 
+  # mutate(year = lubridate::year(date), .keep = "unused") %>% 
+  # dplyr::select(lon:date, -var_type) #%>% 
+  # group_by(lon, lat, year, depth, var_name) %>% 
+  # summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Isfjorden ice data
 # unique(is_cryo$var_name)
@@ -65,14 +61,9 @@ is_cryo <- full_product_is %>%
 # Isfjorden model data
 model_is <- load_model("isfjorden_rcp")
 
-# Svalbard data
-load("~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
-# load("data/full_data/full_product_sval.RData")
-
 # Svalbard tourist info
 sval_soc <- full_product_sval %>% 
   filter(var_type == "soc")
-rm(full_product_sval); gc()
 
 # Svalbard population
 sval_pop <- sval_soc %>% 
@@ -82,27 +73,51 @@ sval_pop <- sval_soc %>%
   mutate(var_name = sub("\\[", "", var_name)) %>% 
   mutate(var_name = sub("\\]", "", var_name)) %>% 
   mutate(var_name = case_when(grepl("Longyear", var_name) ~ "Longyearbyen and Ny-Alesund", 
-                              TRUE ~ var_name))
+                              TRUE ~ var_name)) %>% 
+  group_by(date, var_name) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop")
 
 # Svalbard tourist arrivals
 sval_arrival <- sval_soc %>% 
-  filter(grepl("arrival", var_name)) %>%
-  mutate(var_name = "Tourists")
+  filter(grepl("arrival", var_name),
+         var_name != "arrival [Camping sites (annual) - Total]") %>% # Remove annual values
+  mutate(var_name = "Tourists",
+         date = lubridate::round_date(date, "month")) %>% 
+  group_by(date, var_name) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop")
 
 # Svalbard guest nights
+pop_month_grid <- expand.grid(year = c(1990:2021), month = 1:12) %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-01"))) %>% 
+  dplyr::select(-month)
 sval_guest <- sval_soc %>% 
-  filter(grepl("guest", var_name)) %>% 
-  mutate(var_name = "Tourists")
-sval_nights_monthly
-sval_nights_annual <- sval_pop %>%
-  filter(!grepl("Pyr", var_name)) %>% 
-  mutate(var_name = "Residents",
-         value = value*365) %>% 
-  rbind(sval_guest) %>% 
+  filter(grepl("guest", var_name),
+         var_name != "arrival [Camping sites (annual) - Total]") %>% # Remove annual values
+  mutate(var_name = "Tourists") %>% 
+  group_by(date, var_name) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop")
+sval_guest_annual <- sval_guest %>% 
   mutate(year = lubridate::year(date)) %>% 
+  group_by(year, var_name) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop")
+
+# Svalbard total nights of human habitation
+sval_nights_base <- sval_pop %>%
+  filter(!grepl("Pyr", var_name)) %>% 
+  mutate(year = lubridate::year(date),
+         var_name = "Residents",
+         value = value*365) %>% 
+  dplyr::select(year, var_name, value)
+sval_nights_monthly <- sval_nights_base %>% 
+  mutate(value = round(value*30)) %>% 
+  left_join(pop_month_grid, by = "year") %>% 
+  dplyr::select(-year) %>% 
+  bind_rows(sval_guest)
+sval_nights_annual <- sval_nights_base %>% 
+  rbind(sval_guest_annual) %>% 
   filter(year >= 2011) %>% 
   group_by(year) %>% 
-  summarise(nights = sum(value))
+  summarise(nights = sum(value, na.rm = T))
 
 
 # Analyses ----------------------------------------------------------------
@@ -132,7 +147,8 @@ plot_arrival <- sval_pop %>%
   geom_bar(aes(fill = var_name), stat = "identity",
            position = "dodge") +
   scale_fill_manual(values = pop_palette[2:3]) +
-  labs(y = "Annual population", x = NULL, fill = "Longyearbyen") +
+  labs(y = "Monthly tourist arrivals", x = NULL, fill = "Longyearbyen",
+       subtitle = "Blue bars show annual population of residents for comparison.") +
   coord_cartesian(expand = F) +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom")
@@ -140,12 +156,7 @@ plot_arrival
 ggsave("docs/assets/plot_arrival.png", plot_arrival, width = 6)
 
 # Guest night change over time
-plot_guest <- sval_pop %>%
-  filter(!grepl("Pyr", var_name),
-         date >= as.Date("2008-01-01")) %>% 
-  mutate(var_name = "Residents",
-         value = value*365) %>% 
-  rbind(sval_guest) %>% 
+plot_guest <- sval_nights_monthly %>% 
   ggplot(aes(x = date, y = value)) +
   geom_bar(aes(fill = var_name), stat = "identity",
            position = "dodge") +
