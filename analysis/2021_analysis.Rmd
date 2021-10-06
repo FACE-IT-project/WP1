@@ -51,15 +51,15 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 ## Pop
 
-![](assets/plot_pop.png){ width=100% }
+![Statistics Norway (2021)](assets/plot_pop.png){ width=100% }
 
 ## Tourists
 
-![](assets/plot_arrival.png){ width=100% }
+![Statistics Norway (2021)](assets/plot_arrival.png){ width=100% }
 
 ## Nights
 
-![](assets/plot_guest.png){ width=100% }
+![Statistics Norway (2021)](assets/plot_guest.png){ width=100% }
 
 
 # Nutrient data{.tabset}
@@ -71,7 +71,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 ## ChlA
 
-![Vader et al. (In prep)](assets/plot_ChlA.png){ width=100% }
+![Vader et al. (2020)](assets/plot_ChlA.png){ width=100% }
 
 ## ChlA vs. Pop
 
@@ -92,4 +92,9 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
   - Writing up (May - September 2022)
   - Manuscript submitted for review (October 2022)
 
+# References
+***
+
+- Statistics Norway. www.ssb.no. Accessed 2021-09-30  
+- University Centre in Svalbard (2020). ISA_Svalbard_Chlorophyll_A_2011_2019 [Data set]. Norstore. https://doi.org/10.11582/2020.00063
 
