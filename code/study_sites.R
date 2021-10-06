@@ -41,6 +41,7 @@ bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 # Svalbard
 bbox_kong_poly <- bbox_to_poly(bbox_kong, "Kongsfjorden")
 bbox_is_poly <- bbox_to_poly(bbox_is, "Isfjorden")
+bbox_stor_poly <- bbox_to_poly(bbox_stor, "Storfjorden")
 bbox_ingle_poly <- bbox_to_poly(bbox_ingle, "Inglefieldbukta")
 
 # Greenland
@@ -130,6 +131,11 @@ ggsave("docs/assets/map_isfjorden.png", map_is, width = 8, height = 6)
 map_ingle <- bbox_to_map(bbox_ingle) + ggtitle("Inglefieldbukta")
 ggsave("figures/map_inglefieldbukta.png", map_ingle, width = 8, height = 6)
 ggsave("docs/assets/map_inglefieldbukta.png", map_ingle, width = 8, height = 6)
+
+# Inglefieldbukta
+map_stor <- bbox_to_map(bbox_stor) + ggtitle("Storfjorden")
+ggsave("figures/map_storfjorden.png", map_stor, width = 8, height = 6)
+ggsave("docs/assets/map_storfjorden.png", map_stor, width = 8, height = 6)
 
 # Porsangerfjorden
 map_por <- bbox_to_map(bbox_por) + ggtitle("Porsangerfjorden")

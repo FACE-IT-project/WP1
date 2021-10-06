@@ -6,6 +6,7 @@
 
 # Libraries
 source("code/functions.R")
+source("code/key_drivers.R")
 library(tidync)
 library(stringi)
 library(raster)
@@ -909,22 +910,23 @@ is_temp_ph %>%
   scale_y_reverse()
 
 
-# Inglefieldbukta ---------------------------------------------------------
+
+# Storfjorden -------------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
 
 # Load pg ingle files
 system.time(
-  pg_ingle_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_ingle)
-) # 57 seconds
-
+  pg_stor_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_stor)
+) # 64 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
 # pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.778258")
 
 # Remove unneeded columns
-pg_ingle_clean <- pg_ingle_sub %>% 
+pg_stor_clean <- pg_stor_sub %>% 
+  # dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
   # Manually remove problematic files - No issues
   # Manually remove problematic columns - No issues
   mutate_all(~na_if(., '')) %>% 
@@ -934,48 +936,57 @@ pg_ingle_clean <- pg_ingle_sub %>%
   dplyr::rename(date = `Date/Time`) %>% 
   mutate(date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
-  mutate(depth = NA) %>% 
+  # mutate(depth = NA) %>% 
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
+                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
+  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
+                           TRUE ~ depth)) %>% 
   # Remove unwanted columns - not needed
+  dplyr::select(-"Date", -"Press [dbar]",- "Depth water [m]",- "Depth bot [m]",
+                -"Bathy depth interp/grid [m]",
+                -contains(c("Elev ", "Elevation ", "Latitude", "Longitude"))) %>%
   # Finish up
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) #%>% 
-  # janitor::remove_empty("cols")
-colnames(pg_ingle_clean)
+  mutate_at(c(7:length(.)), as.numeric) %>% 
+  janitor::remove_empty("cols")
+colnames(pg_stor_clean)
 
 ## Individual category data.frames
 # Cryosphere
-pg_ingle_Cryosphere <- pg_var_melt(pg_ingle_clean, query_Cryosphere$pg_col_name, "cryo") # empty
+pg_stor_Cryosphere <- pg_var_melt(pg_stor_clean, query_Cryosphere$pg_col_name, "cryo")
 # Physical
-pg_ingle_Physical <- pg_var_melt(pg_ingle_clean, query_Physical$pg_col_name, "phys")
+pg_stor_Physical <- pg_var_melt(pg_stor_clean, query_Physical$pg_col_name, "phys")
 # Carbonate chemistry
-pg_ingle_Chemistry <- pg_var_melt(pg_ingle_clean, query_Chemistry$pg_col_name, "chem") # empty
+pg_stor_Chemistry <- pg_var_melt(pg_stor_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_ingle_Biology <- pg_var_melt(pg_ingle_clean, query_Biology$pg_col_name, "bio") # empty
+pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-pg_ingle_Social <- pg_var_melt(pg_ingle_clean, query_Social$pg_col_name, "soc") # empty
+pg_stor_Social <- pg_var_melt(pg_stor_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_ingle_ALL <- rbind(pg_ingle_Physical)
-data.table::fwrite(pg_ingle_ALL, "~/pCloudDrive/FACE-IT_data/inglefieldbukta/pg_ingle_ALL.csv")
-save(pg_ingle_ALL, file = "~/pCloudDrive/FACE-IT_data/inglefieldbukta/pg_ingle_ALL.RData")
+pg_stor_ALL <- rbind(pg_stor_Cryosphere, pg_stor_Physical, pg_stor_Chemistry)
+data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.csv")
+save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
 # Check that all columns were used
-colnames(pg_ingle_clean)[!colnames(pg_ingle_clean) %in% unique(pg_ingle_ALL$var_name)]
+colnames(pg_stor_clean)[!colnames(pg_stor_clean) %in% unique(pg_stor_ALL$var_name)]
 
 # Clean up
-rm(list = grep("pg_ingle",names(.GlobalEnv),value = TRUE)); gc()
+rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## Full product ------------------------------------------------------------
 
 # Load PG data
-load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/pg_ingle_ALL.RData")
+load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
 # Combine and save
-full_product_ingle <- rbind(pg_ingle_ALL)
-data.table::fwrite(full_product_ingle, "~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.csv")
-save(full_product_ingle, file = "~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
-rm(list = grep("ingle_",names(.GlobalEnv),value = TRUE)); gc()
+full_product_stor <- rbind(pg_stor_ALL)
+data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
+save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
+rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Young Sound -------------------------------------------------------------
