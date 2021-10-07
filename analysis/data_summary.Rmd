@@ -94,35 +94,33 @@ Trends in temperature and salinity data.
 data_trend_plot(full_product_is, "Isfjorden")
 ```
 
-## Inglefieldbukta
+## Storfjorden
 
-High level summary of data available for Inglefieldbukta.
+High level summary of data available for Storfjorden. This replaces the original site of Inglefieldbukta.
 
-```{r ingle-summary1, fig.height=7, width=10, fig.cap="__Figure 7:__ High level overview of the data available for Inglefieldbukta. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are only physical data for Inglefieldbukta). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are only two pixels because there are almost no data. C) Temporal summary of available data. D) Summmary of data available by depth (blank because there are no depth data). Note that all of the data summaries are log10 transformed."}
+```{r stor-summary1, fig.height=7, width=10, fig.cap="__Figure 7:__ High level overview of the data available for Storfjorden The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are only physical data for Inglefieldbukta). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are only two pixels because there are almost no data. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed."}
 
 # Load full product
-load("~/pCloudDrive/FACE-IT_data/inglefieldbukta/full_product_ingle.RData")
+load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 
 # Summary plot
-data_summary_plot(full_product_ingle, "Inglefieldbukta")
+data_summary_plot(full_product_stor, "Storfjorden")
 ```
 
 Monthly average values for temperature and salinity data.
 
-```{r ingle-summary2, fig.height=1, width=10, fig.cap="__Figure 8:__ Not enough data exist to calculate climatologies."}
+```{r stor-summary2, fig.height=1, width=10, fig.cap="__Figure 8:__ Monthly climatologies for data at Storfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Storfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Storfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Storfjorden within the bounding box."}
 
 # Climatology plot
-# data_clim_plot(full_product_ingle, "Inglefieldbukta")
-ggplot() + geom_blank() + annotate(geom = "text", x = 1, y = 1, label = ":(") + theme_void()
+data_clim_plot(full_product_stor, "Storfjorden")
 ```
 
 Trends in temperature and salinity data.
 
-```{r ingle-summary3, fig.height=1, width=10, fig.cap="__Figure 9:__ Not enough data exist to calculate trends."}
+```{r stor-summary3, fig.height=1, width=10, fig.cap="__Figure 9:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently any salinity data points for Storfjorden."}
 
 # Trend plot
-# data_trend_plot(full_product_is, "Isfjorden")
-ggplot() + geom_blank() + annotate(geom = "text", x = 1, y = 1, label = ":(") + theme_void()
+data_trend_plot(full_product_stor, "Storfjorden")
 ```
 
 
