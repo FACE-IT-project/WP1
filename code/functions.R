@@ -720,6 +720,7 @@ data_summary_plot <- function(full_product, site_name){
   if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
   if(site_name == "Isfjorden") bbox_plot <- bbox_is
   if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
   if(site_name == "Young Sound") bbox_plot <- bbox_young
   if(site_name == "Disko Bay") bbox_plot <- bbox_disko
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
@@ -843,6 +844,7 @@ data_clim_plot <- function(full_product, site_name){
   if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
   if(site_name == "Isfjorden") bbox_plot <- bbox_is
   if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
   if(site_name == "Young Sound") bbox_plot <- bbox_young
   if(site_name == "Disko Bay") bbox_plot <- bbox_disko
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
@@ -975,6 +977,7 @@ data_trend_plot <- function(full_product, site_name){
   if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
   if(site_name == "Isfjorden") bbox_plot <- bbox_is
   if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
   if(site_name == "Young Sound") bbox_plot <- bbox_young
   if(site_name == "Disko Bay") bbox_plot <- bbox_disko
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
@@ -1079,6 +1082,7 @@ model_summary <- function(model_product, site_name){
   if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
   if(site_name == "Isfjorden") bbox_plot <- bbox_is
   if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
+  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
   if(site_name == "Young Sound") bbox_plot <- bbox_young
   if(site_name == "Disko Bay") bbox_plot <- bbox_disko
   if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup

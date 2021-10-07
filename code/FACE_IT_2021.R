@@ -26,12 +26,19 @@ load("data/full_data/full_product_is.RData")
 # Isfjorden ChlA data
 is_ChlA <- full_product_is %>% 
   filter(grepl("Chl", var_name))
+is_ChlA_monthly <- is_ChlA %>% 
+  filter(!grepl("GFF", var_name),
+         depth <= 30) %>% 
+  mutate(date = lubridate::round_date(date, "month")) %>% 
+  group_by(date) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  dplyr::rename(ChlA = value)
 is_ChlA_annual <- is_ChlA %>% 
   filter(!grepl("GFF", var_name),
          depth <= 30) %>% 
   mutate(year = lubridate::year(date)) %>% 
   group_by(year) %>% 
-  summarise(value = mean(value, na.rm = T)) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
   dplyr::rename(ChlA = value)
 
 # Isfjorden nutrient data
@@ -41,11 +48,11 @@ is_nutrient <- full_product_is %>%
          !is.na(date),
          var_name %in% c("[NO3]- [µmol/l]", "[PO4]3- [µmol/l]", "Si(OH)4 [µmol/l]",
                          "PO4 [µg-at/l]", "[NO2]- [µg-at/l]", "NO3 [µg-at/l]", 
-                         "PO4 biog [%]")) #%>% 
-  # mutate(year = lubridate::year(date), .keep = "unused") %>% 
-  # dplyr::select(lon:date, -var_type) #%>% 
-  # group_by(lon, lat, year, depth, var_name) %>% 
-  # summarise(value = mean(value, na.rm = T), .groups = "drop")
+                         "PO4 biog [%]")) %>% 
+  mutate(year = lubridate::year(date), .keep = "unused") %>%
+  dplyr::select(lon:year, -var_type) %>%
+  group_by(lon, lat, year, depth, var_name) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Isfjorden ice data
 # unique(is_cryo$var_name)
@@ -87,12 +94,9 @@ sval_arrival <- sval_soc %>%
   summarise(value = sum(value, na.rm = T), .groups = "drop")
 
 # Svalbard guest nights
-pop_month_grid <- expand.grid(year = c(1990:2021), month = 1:12) %>% 
-  mutate(date = as.Date(paste0(year,"-",month,"-01"))) %>% 
-  dplyr::select(-month)
 sval_guest <- sval_soc %>% 
   filter(grepl("guest", var_name),
-         var_name != "arrival [Camping sites (annual) - Total]") %>% # Remove annual values
+         var_name != "guest night [Camping sites (annual) - Total]") %>% # Remove annual values
   mutate(var_name = "Tourists") %>% 
   group_by(date, var_name) %>% 
   summarise(value = sum(value, na.rm = T), .groups = "drop")
@@ -102,11 +106,13 @@ sval_guest_annual <- sval_guest %>%
   summarise(value = sum(value, na.rm = T), .groups = "drop")
 
 # Svalbard total nights of human habitation
+pop_month_grid <- expand.grid(year = c(1990:2021), month = 1:12) %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-01"))) %>% 
+  dplyr::select(-month)
 sval_nights_base <- sval_pop %>%
   filter(!grepl("Pyr", var_name)) %>% 
   mutate(year = lubridate::year(date),
-         var_name = "Residents",
-         value = value*365) %>% 
+         var_name = "Residents") %>% 
   dplyr::select(year, var_name, value)
 sval_nights_monthly <- sval_nights_base %>% 
   mutate(value = round(value*30)) %>% 
@@ -114,6 +120,7 @@ sval_nights_monthly <- sval_nights_base %>%
   dplyr::select(-year) %>% 
   bind_rows(sval_guest)
 sval_nights_annual <- sval_nights_base %>% 
+  mutate(value = value*365) %>% 
   rbind(sval_guest_annual) %>% 
   filter(year >= 2011) %>% 
   group_by(year) %>% 
@@ -157,11 +164,14 @@ ggsave("docs/assets/plot_arrival.png", plot_arrival, width = 6)
 
 # Guest night change over time
 plot_guest <- sval_nights_monthly %>% 
+  filter(date >= as.Date("2008-01-01"),
+         date <= as.Date("2021-08-01")) %>% 
   ggplot(aes(x = date, y = value)) +
   geom_bar(aes(fill = var_name), stat = "identity",
            position = "dodge") +
+           # position = position_stack(reverse = TRUE)) +
   scale_fill_manual(values = pop_palette[2:3]) +
-  labs(y = "Annual nights of stay", x = NULL, fill = "Longyearbyen") +
+  labs(y = "Monthly nights of stay", x = NULL, fill = "Longyearbyen") +
   coord_cartesian(expand = F) +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom")
@@ -195,18 +205,30 @@ plot_ChlA
 ggsave("docs/assets/plot_ChlA.png", plot_ChlA, width = 6)
 
 # ChlA with human stays
-cor_ChlA_pop <- cor.test(x = is_ChlA_annual$ChlA, y = sval_nights_annual$nights[1:9])
-plot_ChlA_pop <- left_join(is_ChlA_annual, sval_nights_annual, by = "year") %>% 
+sval_nights_ChlA_monthly <- sval_nights_monthly %>% 
+  filter(date >= min(is_ChlA_monthly$date),
+         date <= max(is_ChlA_monthly$date)) %>% 
+  group_by(date) %>% 
+  summarise(nights = sum(value), .groups = "drop") %>% 
+  right_join(is_ChlA_monthly, by = "date") %>% 
+  filter(ChlA <= 0.3) # Remove very large values
+cor_ChlA_pop <- cor.test(x = sval_nights_ChlA_monthly$ChlA, y = sval_nights_ChlA_monthly$nights)
+lab_dates <- pretty(sval_nights_ChlA_monthly$date)
+plot_ChlA_pop <- sval_nights_ChlA_monthly %>% 
   ggplot(aes(x = nights, y = ChlA)) +
-  geom_point(aes(colour = as.factor(year))) +
+  geom_point(aes(colour = as.numeric(date))) +
   geom_smooth(method = "lm", colour = "black") +
-  annotate(geom = "label", x = 890000, y = 0, 
-           label = paste0("r = ",round(cor_ChlA_pop$estimate, 2),"; p = ",round(cor_ChlA_pop$p.value,2),"; df = ",cor_ChlA_pop$parameter)) +
+  annotate(geom = "label", x = 72500, y = 0, 
+           label = paste0("r = ",round(cor_ChlA_pop$estimate, 2),"; p = ",
+                          round(cor_ChlA_pop$p.value,2),"; df = ",cor_ChlA_pop$parameter)) +
   scale_x_continuous(expand = c(0, 0)) +
-  labs(colour = "Year", y = "ChlA (ug/l)", x = "Nights of stay",
-       subtitle = "Average ChlA in the top 30 m vs. sum of nights of human habitation") +
+  scale_colour_viridis_c(breaks = as.numeric(lab_dates), 
+                         labels = lab_dates) +
+  labs(colour = "Date", y = "ChlA (ug/l)", x = "Nights of stay",
+       subtitle = "Average ChlA in the top 30 m vs. sum of nights of human habitation.") +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
-        legend.position = "bottom")
+        legend.position = c(0.9, 0.8), 
+        legend.background = element_blank())
 plot_ChlA_pop
 ggsave("docs/assets/plot_ChlA_pop.png", plot_ChlA_pop, width = 6)
 
