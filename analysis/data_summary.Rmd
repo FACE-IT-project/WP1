@@ -109,7 +109,7 @@ data_summary_plot(full_product_stor, "Storfjorden")
 
 Monthly average values for temperature and salinity data.
 
-```{r stor-summary2, fig.height=1, width=10, fig.cap="__Figure 8:__ Monthly climatologies for data at Storfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Storfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Storfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Storfjorden within the bounding box."}
+```{r stor-summary2, fig.height=15, width=10, fig.cap="__Figure 8:__ Monthly climatologies for data at Storfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Storfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Storfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Storfjorden within the bounding box."}
 
 # Climatology plot
 data_clim_plot(full_product_stor, "Storfjorden")
@@ -117,7 +117,7 @@ data_clim_plot(full_product_stor, "Storfjorden")
 
 Trends in temperature and salinity data.
 
-```{r stor-summary3, fig.height=1, width=10, fig.cap="__Figure 9:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently any salinity data points for Storfjorden."}
+```{r stor-summary3, fig.height=5, width=10, fig.cap="__Figure 9:__ Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently any salinity data points for Storfjorden."}
 
 # Trend plot
 data_trend_plot(full_product_stor, "Storfjorden")
