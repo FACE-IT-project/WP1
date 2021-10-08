@@ -105,6 +105,9 @@ EU_NCEI_1989
 EU_GRDC
 
 # Carb chem Arctic model output
+# Outputs are stored at the Centre for Environmental Data Analysis's (CEDA) JASMIN servers:/gws/nopw/j04/nemo_vol2/ROAM. 
+# JASMIN's web address is https://www.jasmin.ac.uk and its access point https://www.jasmin.ac.uk/users/access/. 
+# Note that non-UK users may need to demonstrate association with NERC, ESA, the EC or a non-profit.  
 EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_output_acid.dat", 
                         delim = " ", col_names = c("Year", "SST", "ice_extent_March", 
                                                    "ice_extent_September", "MLD", "DIC", "pH"))
@@ -554,6 +557,14 @@ kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>%
   mutate(lon = 11.920027777777777,
          lat = 78.93065833333334)
 
+## SAMS CTD data
+# Citation
+# Add unique DOI for each year
+# Finlo Cottier, Jørgen Berge, Estelle Dumont, Tomasz Piotr Kopec, Emily Joanne Venables, Daniel Ludwig Vogedes (2021). Temperature, salinity, light and fluorescence (CTD) measurements from the Kongsfjorden (Svalbard) marine observatory (mooring). UiT The Arctic University of Norway (UiT) and Scottish Association for Marine Science (SAMS)
+# URL
+# Search for "Kongsfjorden"
+# https://archive.sigma2.no/welcome.xhtml
+
 # Combine and save
 # TODO: Add all products with lon/lat then perform the more aggressive spatial filter
 # Then add the products without lon/lat so they aren't removed in the spatial filter
@@ -878,6 +889,9 @@ is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.
 ## Pyramiden radio meteorological station
 is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% 
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
+
+## Ship AIS data
+is_AIS <- read_csv()
 
 # Combine and save
 full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,

@@ -386,6 +386,9 @@ sval_guest_night <- data.frame(type = "Survey",
                                 reference = '<a onclick="alert(\'Statistics Norway. www.ssb.no. Accessed 2021-09-29\');">SSB (2021)</a>',
                                 note = NA)
 
+# Amalgamated AIS data for regions around Svalbard
+# sval_AIS
+
 # Combine
 metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_marine_glacier_front,
                            sval_surface_met, sval_UNIS_database, sval_seabird_database, sval_protection, sval_NICE, 
@@ -809,6 +812,9 @@ is_social <- data.frame(type = "",
                         file_name = '<a onclick="alert(\'\');">0 files</a>',
                         URL = NA, reference = NA,
                         note = "Data are still being pursued.")
+
+# AIS data
+# is_AIS
 
 # PANGAEA data product
 is_PG <- data.frame(type = "PANGAEA",
