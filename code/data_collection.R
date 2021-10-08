@@ -6,6 +6,7 @@
 
 # TODO: Figure out how to combine lookup tables in order to get lon/lat/date values for cruise data
 # Be more strict about the removal of empty columns when they are an unknown format
+# Create more useful diagnostic reports when a file fails to process
 
 # Libraries used in this script
 source("code/functions.R")
@@ -140,12 +141,12 @@ pg_test_dl <- function(pg_doi){
 # pg_Bouman <- pg_full_search(query = "Bouman", bbox = c(-60, 63, 60, 90))
 
 # Test specific files
-pg_test_1 <- pg_data(doi = "10.1594/PANGAEA.857405")[[2]]$data
-pg_test_2 <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.774421")
-pg_test_3 <- pg_test_dl("10.1594/PANGAEA.774421")
+# pg_test_1 <- pg_data(doi = "10.1594/PANGAEA.857405")[[2]]$data
+# pg_test_2 <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.774421")
+# pg_test_3 <- pg_test_dl("10.1594/PANGAEA.774421")
 
 
-## EU Arctic cruise Oceans data on PANGAEA - 289 - Some issues
+## EU Arctic cruise Oceans data on PANGAEA - 285 - Some issues
 # NB: The following PG downloads have rows with missing lon/lat values
 # This is a conscious choice for now because the spatial info may
 # be stored in a different column name and we don't want to lose data here
@@ -153,7 +154,7 @@ pg_EU_cruise_oceans <- pg_full_search(query = "cruise", topic = "Oceans", bbox =
 pg_doi_list <- distinct(data.frame(doi = pg_EU_cruise_oceans$doi))
 system.time(
   pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)
-) # 163 seconds
+) # 182 seconds
 # Get lookup table
 # Combine and filter by coords
 pg_EU_cruise_oceans_trim <- filter(pg_EU_cruise_oceans_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
@@ -162,7 +163,7 @@ data.table::fwrite(pg_EU_cruise_oceans_trim, "data/pg_data/pg_EU_cruise_Oceans.c
 rm(pg_EU_cruise_oceans_dl, pg_EU_cruise_oceans_trim); gc()
 
 
-## EU Arctic cruise Atmosphere data on PANGAEA - 141 - Some issues
+## EU Arctic cruise Atmosphere data on PANGAEA - 139 - Some issues
 # ~3 minutes
 # NB: More than 90% of these files do not have lon/lat values so they get removed...
 pg_EU_cruise_atmosphere <- pg_full_search(query = "cruise", topic = "Atmosphere", bbox = c(-60, 63, 60, 90)) %>% 
@@ -175,7 +176,7 @@ data.table::fwrite(pg_EU_cruise_atmosphere_trim, "data/pg_data/pg_EU_cruise_Atmo
 rm(pg_EU_cruise_atmosphere_dl, pg_EU_cruise_atmosphere_trim); gc()
 
 
-## EU Arctic cruise Cryosphere data on PANGAEA - 13
+## EU Arctic cruise Cryosphere data on PANGAEA - 8
 pg_EU_cruise_cryosphere <- pg_full_search(query = "cruise", topic = "Cryosphere", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_cryosphere$doi)))
@@ -186,7 +187,7 @@ data.table::fwrite(pg_EU_cruise_cryosphere_trim, "data/pg_data/pg_EU_cruise_Cryo
 rm(pg_EU_cruise_cryosphere_dl, pg_EU_cruise_cryosphere_trim); gc()
 
 
-## EU Arctic cruise Biological Classification data on PANGAEA - 295 - Some issues
+## EU Arctic cruise Biological Classification data on PANGAEA - 262 - Some issues
 # ~3 minutes
 pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological Classification", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
@@ -209,8 +210,8 @@ data.table::fwrite(pg_EU_cruise_biosphere_trim, "data/pg_data/pg_EU_cruise_Biosp
 rm(pg_EU_cruise_biosphere_dl, pg_EU_cruise_biosphere_trim); gc()
 
 
-## EU Arctic cruise Ecology data on PANGAEA - 768 - Some issues
-## NB: Takes ~19 minutes
+## EU Arctic cruise Ecology data on PANGAEA - 564 - Some issues
+## NB: Takes ~18 minutes
 pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_ecology$doi)))
@@ -226,8 +227,8 @@ pg_EU_cruise_human <- pg_full_search(query = "cruise", topic = "Human Dimensions
   filter(!doi %in% pg_doi_list$doi)
 
 
-## EU Arctic cruise Chemistry data on PANGAEA west - 3815 - Some issues
-## MB ~20 minutes
+## EU Arctic cruise Chemistry data on PANGAEA west - 1906 - Some issues
+## MB ~16 minutes
 pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(-60, 63, 0, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_chemistry_west$doi)))
@@ -238,8 +239,8 @@ data.table::fwrite(pg_EU_cruise_chemistry_west_trim, "data/pg_data/pg_EU_cruise_
 rm(pg_EU_cruise_chemistry_west_dl, pg_EU_cruise_chemistry_west_trim); gc()
 
 
-## EU Arctic cruise Chemistry data on PANGAEA east - 8005 - Some issues
-## NB: ~58 minutes
+## EU Arctic cruise Chemistry data on PANGAEA east - 5647 - Some issues
+## NB: ~68 minutes
 pg_EU_cruise_chemistry_east <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(0, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_cruise_chemistry_east$doi)))
@@ -251,15 +252,15 @@ data.table::fwrite(pg_EU_cruise_chemistry_east_trim, "data/pg_data/pg_EU_cruise_
 rm(pg_EU_cruise_chemistry_east_dl, pg_EU_cruise_chemistry_east_trim); gc()
 
 
-## EU Arctic CTD data on PANGAEA - 949 - Some issues
-## NB: ~20 minutes
+## EU Arctic CTD data on PANGAEA - 941 - Some issues
+## NB: ~14 minutes
 pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_EU_CTD$doi)))
 pg_EU_CTD_dl <- plyr::ldply(pg_EU_CTD$doi, pg_dl_proc)
 pg_EU_CTD_trim <- filter(pg_EU_CTD_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 data.table::fwrite(pg_EU_CTD_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_CTD.csv")
-data.table::fwrite(pg_EU_CTD_trim, "data/pg_data/pg_EU_CTD.csv") # 6.5 GB
+data.table::fwrite(pg_EU_CTD_trim, "data/pg_data/pg_EU_CTD.csv") # 5.3 GB
 rm(pg_EU_CTD_dl, pg_EU_CTD_trim); gc()
 
 
@@ -282,7 +283,6 @@ rm(list = ls()[grep("pg_EU", ls())]); gc()
 # https://github.com/MikkoVihtakari/MarineDatabase
 
 ## All Kongsfjorden bbox data files - 2854
-# NB: ~48 minutes
 pg_kong_bbox <- pg_full_search(query = "", bbox = c(11, 78.86, 12.69, 79.1)) %>% # 2854 files
   filter(!doi %in% pg_doi_list$doi)
 pg_kong_name_1 <- pg_full_search(query = "kongsfjord") %>% # 7 files

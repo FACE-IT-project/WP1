@@ -557,13 +557,9 @@ kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>%
   mutate(lon = 11.920027777777777,
          lat = 78.93065833333334)
 
-## SAMS CTD data
-# Citation
-# Add unique DOI for each year
-# Finlo Cottier, Jørgen Berge, Estelle Dumont, Tomasz Piotr Kopec, Emily Joanne Venables, Daniel Ludwig Vogedes (2021). Temperature, salinity, light and fluorescence (CTD) measurements from the Kongsfjorden (Svalbard) marine observatory (mooring). UiT The Arctic University of Norway (UiT) and Scottish Association for Marine Science (SAMS)
-# URL
-# Search for "Kongsfjorden"
-# https://archive.sigma2.no/welcome.xhtml
+## SAMS mooring data
+kong_mooring_SAMS <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS/", full.names = T), load_SAMS, .parallel = T) %>% 
+  mutate(date_accessed = as.Date("2021-10-21"), .before = 1)
 
 # Combine and save
 # TODO: Add all products with lon/lat then perform the more aggressive spatial filter

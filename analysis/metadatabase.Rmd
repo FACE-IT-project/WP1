@@ -553,14 +553,17 @@ kong_TWICE <- data.frame(type = "Cruise",
                          reference = '<a onclick="alert(\'\');">NA</a>',
                          note = "TWICE cruise data not able to be sourced.")
 
-# Cruise data sampling water along the marine terminating edge of glaciers
-kong_SAMS <- data.frame(type = "Mooring",
-                        data_name = "Seawater temperature",
-                         date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
-                         file_name = '<a onclick="alert(\'\');">0 files</a>',
-                         URL = '<a onclick="alert(\'\');">NA</a>',
-                         reference = '<a onclick="alert(\'\');">NA</a>',
-                         note = "The data have been located but not yet sourced.")
+# Mooring data from SAMS
+kong_mooring_SAMS <- data.frame(type = "Mooring",
+                                data_name = "Seawater temperature; salinity; PAR; fluorescence",
+                                date_range = "2015 - 2019", 
+                                lon_range = "11.81 to 11.82", 
+                                lat_range = "78.95 to 78.96", 
+                                depth_range = "20 to 220",
+                                file_name = '<a onclick="alert(\'mooring_SAMS\');">1 folder; 57 files</a>',
+                                URL = '<a onclick="alert(\'https://archive.sigma2.no/welcome.xhtml; Search for Kongsfjorden\');">NIRD</a>',
+                                reference = '<a onclick="alert(\'See citation column in the data.\');">Many</a>',
+                                note = NA)
 
 # Macroalgae data from multiple surveys/studies
 kong_macroalgae <- data.frame(type = "Survey",
@@ -581,7 +584,6 @@ kong_benthic <- data.frame(type = "Survey",
                            URL = '<a onclick="alert(\'\');">NA</a>',
                            reference = '<a onclick="alert(\'\');">NA</a>',
                            note = "The authors have been contacted.")
-
 
 # PANGAEA data product
 kong_PG <- data.frame(type = "PANGAEA",
@@ -613,7 +615,7 @@ full_product_kong <- data.frame(type = "Combined",
 # Bind them together
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
-                               kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_SAMS,
+                               kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_mooring_SAMS,
                                kong_macroalgae, kong_benthic, kong_PG, full_product_kong)
 ```
 

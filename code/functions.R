@@ -500,6 +500,100 @@ load_GFI <- function(file_name){
   return(res)
 }
 
+# Simple wrapper for loading SAMS mooring NetCDF files
+# dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS", full.names = T)
+# file_names <- dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS/", full.names = T)#13-25
+# test1 <- load_SAMS(file_names[17])
+# file_name <- file_names[1]
+load_SAMS <- function(file_name){
+  
+  # Get NetCDF metadata
+  SAMS_dump <- ncdump::NetCDF(file_name)
+  SAMS_units <- SAMS_dump$variable %>% 
+    filter(!name %in% c("depth", "ndepth", "bottom_depth", "nominal_depth",
+                        "longitude", "latitude", "mooring", "time")) %>% 
+    dplyr::select(name, units)
+  SAMS_start <- SAMS_dump$attribute$global$time_coverage_start
+  file_short <- sapply(strsplit(file_name, "/"), "[[", 9)
+  
+  # Get correct FTP link to add to data
+  SAMS_URL <- as.character(NA)
+  SAMS_ref <- as.character(NA)
+  if(file_short %in% c("KF_17_18_pro_sbe16p_6067_34m.nc", "KF_17_18_pro_sbe37_7248_33m.nc", "KF_17_18_pro_sbe37_9114_217m.nc",
+                       "KF_17_18_pro_sbe56_2444_38m.nc", "KF_17_18_pro_sbe56_2445_48m.nc", "KF_17_18_pro_sbe56_2447_59m.nc",
+                       "KF_17_18_pro_sbe56_2650_80m.nc", "KF_17_18_pro_sbe56_2656_103m.nc", "KF_17_18_pro_sbe56_2657_126m.nc",
+                       "KF_17_18_pro_sbe56_2658_156m.nc", "KF_17_18_pro_sbe56_2659_186m.nc", "KF_17_18_pro_sbe56_2660_217m.nc")){
+    SAMS_URL <- "https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2021.00065"
+    SAMS_ref <- "Cottier, F., Berge, J., Dumont, E., Kopec, T. P., Venables, E. J., Vogedes, D. L., UiT The Arctic University of Norway, Scottish Association for Marine Science (2021).Temperature, salinity, light and fluorescence (CTD) measurements from the Kongsfjorden (Svalbard) marine observatory (mooring) August 2017-August 2018 [Data set]. Norstore. https://doi.org/10.11582/2021.00065"
+  } else if(file_short %in% c("KF_16_17_pro_sbe16p_6066_26m.nc", "KF_16_17_pro_sbe37_5509_96m.nc", "KF_16_17_pro_sbe37_5510_208m.nc",
+                              "KF_16_17_pro_sbe37_8478_25m.nc", "KF_16_17_pro_sbe56_5207_31m.nc", "KF_16_17_pro_sbe56_5208_41m.nc",
+                              "KF_16_17_pro_sbe56_5209_51m.nc", "KF_16_17_pro_sbe56_5210_72m.nc", "KF_16_17_pro_sbe56_5211_95m.nc",
+                              "KF_16_17_pro_sbe56_5212_118m.nc", "KF_16_17_pro_sbe56_5213_148m.nc", "KF_16_17_pro_sbe56_5214_178m.nc",
+                              "KF_16_17_pro_sbe56_5215_208m.nc")){
+    SAMS_URL <- "https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2021.00062"
+    SAMS_ref <- "Cottier, F., Berge, J., Dumont, E., Griffith, C., Beaton, J., Vogedes, D. L., UiT The Arctic University of Norway, Scottish Association for Marine Science (2021).Temperature, salinity, light and fluorescence (CTD) measurements from the Kongsfjorden (Svalbard) marine observatory (mooring) August 2016-August 2017 [Data set]. Norstore. https://doi.org/10.11582/2021.00062"
+  } else if(file_short %in% c("KF_15_16_pro_sbe16p_6101_25m.nc", "KF_15_16_pro_sbe37_9112_27m.nc", "KF_15_16_pro_sbe37_9114_209m.nc",
+                              "KF_15_16_pro_sbe56_2444_37m.nc", "KF_15_16_pro_sbe56_2445_47m.nc", "KF_15_16_pro_sbe56_2447_57m.nc",
+                              "KF_15_16_pro_sbe56_2650_79m.nc", "KF_15_16_pro_sbe56_2656_102m.nc", "KF_15_16_pro_sbe56_2657_125m.nc",
+                              "KF_15_16_pro_sbe56_2658_155m.nc", "KF_15_16_pro_sbe56_2659_185m.nc", "KF_15_16_pro_sbe56_2669_215m.nc")){
+    SAMS_URL <- "https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2021.00061"
+    SAMS_ref <- "Cottier, F., Berge, J., Griffith, C., Dumont, E., Beaton, J., Vogedes, D. L., UiT The Arctic University of Norway, Scottish Association for Marine Science (2021).Temperature, salinity, light and fluorescence (CTD) measurements from the Kongsfjorden (Svalbard) marine observatory (mooring) September 2015-August 2016 [Data set]. Norstore. https://doi.org/10.11582/2021.00061"
+  } else if(file_short %in% c("KF_20_20_pro_avg24h_sbe16p_5181.nc", "KF_20_20_pro_avg24h_sbe56_10012.nc", "KF_20_20_pro_avg24h_sbe56_10040.nc",
+                              "KF_20_20_pro_avg24h_sbe56_10055.nc", "KF_20_20_pro_avg24h_sbe56_10059.nc", "KF_20_20_pro_avg24h_sbe56_10060.nc",
+                              "KF_20_20_pro_avg24h_sbe56_10061.nc", "KF_20_20_pro_avg24h_sbe56_10062.nc", "KF_20_20_pro_avg24h_sbe56_10066.nc",
+                              "KF_20_20_pro_avg24h_sbe56_10067.nc", "KF_20_20_pro_sbe16p_5181.nc", "KF_20_20_pro_sbe56_10012.nc",
+                              "KF_20_20_pro_sbe56_10040.nc", "KF_20_20_pro_sbe56_10055.nc", "KF_20_20_pro_sbe56_10059.nc",
+                              "KF_20_20_pro_sbe56_10060.nc", "KF_20_20_pro_sbe56_10061.nc", "KF_20_20_pro_sbe56_10062.nc",
+                              "KF_20_20_pro_sbe56_10066.nc", "KF_20_20_pro_sbe56_10067.nc")){
+    SAMS_URL <- "https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2021.00010"
+    SAMS_ref <- "Berge, J., Cottier, F., Kopec, T., Dumont, E., Venables, E., Vogedes, D. (2021).Temperature, salinity, light and chl a measurements from the Kongsfjorden SIOS marine observatory January-September 2020 [Data set]. Norstore. https://doi.org/10.11582/2021.00010"
+  }
+  
+  # Get base CTD data as there are two different formats
+  if(file_short %in% c("KF_20_20_pro_avg24h_sbe16p_5181.nc", "KF_20_20_pro_avg24h_sbe56_10012.nc", "KF_20_20_pro_avg24h_sbe56_10040.nc",
+                       "KF_20_20_pro_avg24h_sbe56_10055.nc", "KF_20_20_pro_avg24h_sbe56_10059.nc", "KF_20_20_pro_avg24h_sbe56_10060.nc",
+                       "KF_20_20_pro_avg24h_sbe56_10061.nc", "KF_20_20_pro_avg24h_sbe56_10062.nc", "KF_20_20_pro_avg24h_sbe56_10066.nc",
+                       "KF_20_20_pro_avg24h_sbe56_10067.nc", "KF_20_20_pro_sbe16p_5181.nc", "KF_20_20_pro_sbe56_10012.nc",
+                       "KF_20_20_pro_sbe56_10040.nc", "KF_20_20_pro_sbe56_10055.nc", "KF_20_20_pro_sbe56_10059.nc",
+                       "KF_20_20_pro_sbe56_10060.nc", "KF_20_20_pro_sbe56_10061.nc", "KF_20_20_pro_sbe56_10062.nc",
+                       "KF_20_20_pro_sbe56_10066.nc", "KF_20_20_pro_sbe56_10067.nc")) {
+    suppressWarnings(
+      res_base <- hyper_tibble(tidync(file_name)) %>% 
+        cbind(hyper_tibble(activate(tidync(file_name), "S")))  # This line throws an unneeded warning
+    )
+  } else {
+    res_base <- hyper_tibble(tidync(file_name))
+  }
+  
+  # Correct for some missing depth columns
+  if("nominal_depth" %in% colnames(res_base) & !"depth" %in% colnames(res_base)){
+    res_base <- dplyr::rename(res_base, depth = nominal_depth)
+  }
+  if("ndepth" %in% colnames(res_base) & !"depth" %in% colnames(res_base)){
+    res_base <- dplyr::rename(res_base, depth = ndepth)
+  }
+  
+  # Process data
+  res <- res_base %>% 
+    mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01")), .keep = "unused") %>% 
+    pivot_longer(c(SAMS_units$name), names_to = "var_name", values_to = "value") %>% 
+    filter(!is.na(value)) %>% 
+    dplyr::rename(lon = longitude, lat = latitude) %>% 
+    group_by(lon, lat, date, var_name) %>% 
+    summarise(depth = round(mean(depth, na.rm = T), 2), # The mooring moves very slightly up and down over a day
+              value = round(mean(value, na.rm = T), 4), .groups = "drop") %>% 
+    distinct() %>% 
+    replace(is.na(.), NA) %>% 
+    left_join(SAMS_units, by = c("var_name" = "name")) %>% 
+    mutate(URL = SAMS_URL,
+           citation = SAMS_ref,
+           units = case_when(units == "degrees_Celsius" ~ "°C", TRUE ~ units),
+           var_type = case_when(var_name %in% c("fluo_V", "fluo") ~ "bio", TRUE ~ "phys"),
+           var_name = paste0(var_name, " [", units,"]")) %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  return(res)
+}
+
 # Simple wrapper for loading met station NetCDF data
 # TODO: Add code to this that creates a reference from global info in the NetCDF file
 load_met_NetCDF <- function(file_name){
