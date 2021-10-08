@@ -34,9 +34,9 @@ Sys.setenv(TZ = "UTC")
 # Bounding boxes
 bbox_EU <- c(-60, 60, 63, 90)
 bbox_kong <- c(11, 12.69, 78.86, 79.1)
-bbox_is <- c(13.62, 17.14, 78.03, 78.71)
-bbox_ingle <- c(18.15, 18.79, 77.87, 78.05)
-bbox_stor <- c(17.35, 21.60, 77.43, 78.13)
+bbox_is <- c(12.97, 17.50, 77.95, 78.90)
+bbox_ingle <- c(18.15, 18.79, 77.87, 78.08)
+bbox_stor <- c(17.35, 21.60, 77.33, 78.13)
 bbox_young <- c(-22.367917, -19.907644, 74.210137, 74.624304)
 bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
 bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
@@ -273,8 +273,8 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
   # Prepare bathymetry data
   if(is.na(bathy_data)){
     bathy_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
-      tidync::hyper_filter(lon = dplyr::between(lon, coords[1], coords[2]), 
-                           lat = dplyr::between(lat, coords[3], coords[4])) %>% 
+      tidync::hyper_filter(lon = dplyr::between(lon, coords[1]-lon_pad, coords[2]+lon_pad), 
+                           lat = dplyr::between(lat, coords[3]-lat_pad, coords[4]+lat_pad)) %>% 
       tidync::hyper_tibble() %>% 
       mutate(depth = -elevation) %>% 
       filter(depth > 0)
@@ -282,8 +282,8 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
   
   # Clip coastline polygons for faster plotting
   coastline_full_df_sub <- coastline_full_df %>% 
-    filter(x >= coords[1]-10, x <= coords[2]+10,
-           y >= coords[3]-10, y <= coords[4]+10)
+    filter(x >= coords[1]-lon_pad-10, x <= coords[2]+lon_pad+10,
+           y >= coords[3]-lat_pad-10, y <= coords[4]+lat_pad+10)
   
   # Get list of contour depths used in figure
   depths_sub <- depths[depths < max(bathy_data$depth)] 
@@ -291,15 +291,17 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
   # Map with coast shapefile and bathy contours
   map_res <- ggplot(bathy_data, aes(x = lon, y = lat)) +
     geom_tile(aes(fill = depth)) +
-    geom_contour(aes(z = depth, colour = after_stat(level)), breaks = depths_sub, show.legend = F) +
+    geom_contour(aes(z = depth, colour = after_stat(level)), breaks = depths_sub, size = 0.3, show.legend = F) +
     geom_polygon(data = coastline_full_df_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
+    annotate("rect",  colour = "darkgreen", fill = "darkgreen", alpha = 0.1,
+             xmin = coords[1], xmax = coords[2], ymin = coords[3], ymax = coords[4]) +
     scale_fill_distiller(palette = "Blues", direction = 1) +
     scale_colour_distiller(palette = "Greys", direction = -1) +
     # scale_fill_viridis_c(option = "E") +
     coord_quickmap(expand = F,
-                   xlim = c(coords[1:2]), 
-                   ylim = c(coords[3:4])) +
+                   xlim = c(coords[1]-lon_pad, coords[2]+lon_pad), 
+                   ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
     labs(x = NULL, y = NULL, fill = "depth (m)",
          subtitle = paste0("Contours at: ",paste(c(depths_sub), collapse = ", "), " m")) +
     theme(panel.border = element_rect(fill = NA, colour = "black"),

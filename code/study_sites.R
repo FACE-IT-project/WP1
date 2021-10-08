@@ -27,10 +27,11 @@ logo <- grid::rasterGrob(png::readPNG("FACE-IT_Logo_900.png"), interpolate = TRU
 
 # Single points -----------------------------------------------------------
 
-site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta", "Young Sound", 
-                                   "Disko Bay", "Nuup Kangerlua", "Porsangerfjorden"),
-                          lon = c(11.845, 14.365, 18.31, -21.237, -52.555, -50.625, 25.75),
-                          lat = c(78.98, 78.235, 77.87, 74.517, 69.36, 64.405, 70.6))
+site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta", "Storfjorden", 
+                                   "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                   "Porsangerfjorden"),
+                          lon = c(11.845, 14.365, 18.31, 19.88, -21.237, -52.555, -50.625, 25.75),
+                          lat = c(78.98, 78.235, 77.87, 77.78, 74.517, 69.36, 64.405, 70.6))
 
 
 # Bounding box polygons ---------------------------------------------------
@@ -107,7 +108,7 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 
 # Svalbard study sites
 map_sval <- basemap(c(9, 30, 76, 81)) +
-  geom_spatial_point(data = site_points[1:3,], size = 9, crs = 4326,
+  geom_spatial_point(data = site_points[c(1,2,4),], size = 9, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) + ggtitle("Svalbard")
 ggsave("figures/map_svalbard.png", map_sval, width = 12, height = 6)
 ggsave("docs/assets/map_svalbard.png", map_sval, width = 12, height = 6)
@@ -118,57 +119,57 @@ ggsave("docs/assets/map_svalbard.png", map_sval, width = 12, height = 6)
 #   tidync::hyper_tibble() %>% 
 #   dplyr::rename(lon = LON, lat = LAT, depth = DEPTH) %>% 
 #   mutate(depth = -depth)
-map_kong <- bbox_to_map(bbox_kong, bathy_data = NA) + ggtitle("Kongsfjorden")
+map_kong <- bbox_to_map(bbox_kong, bathy_data = NA, lon_pad = 1, lat_pad = 0.2) + ggtitle("Kongsfjorden")
 ggsave("figures/map_kongsfjorden.png", map_kong, width = 8, height = 6)
 ggsave("docs/assets/map_kongsfjorden.png", map_kong, width = 8, height = 6)
 
 # Isfjorden
-map_is <- bbox_to_map(bbox_is) + ggtitle("Isfjorden")
+map_is <- bbox_to_map(bbox_is, lon_pad = 2, lat_pad = 0.5) + ggtitle("Isfjorden")
 ggsave("figures/map_isfjorden.png", map_is, width = 8, height = 6)
 ggsave("docs/assets/map_isfjorden.png", map_is, width = 8, height = 6)
 
 # Inglefieldbukta
-map_ingle <- bbox_to_map(bbox_ingle) + ggtitle("Inglefieldbukta")
+map_ingle <- bbox_to_map(bbox_ingle, lon_pad = 1, lat_pad = 0.2) + ggtitle("Inglefieldbukta")
 ggsave("figures/map_inglefieldbukta.png", map_ingle, width = 8, height = 6)
 ggsave("docs/assets/map_inglefieldbukta.png", map_ingle, width = 8, height = 6)
 
-# Inglefieldbukta
-map_stor <- bbox_to_map(bbox_stor) + ggtitle("Storfjorden")
+# Storfjorden
+map_stor <- bbox_to_map(bbox_stor, lon_pad = 2, lat_pad = 0.5) + ggtitle("Storfjorden")
 ggsave("figures/map_storfjorden.png", map_stor, width = 8, height = 6)
 ggsave("docs/assets/map_storfjorden.png", map_stor, width = 8, height = 6)
-
-# Porsangerfjorden
-map_por <- bbox_to_map(bbox_por) + ggtitle("Porsangerfjorden")
-ggsave("figures/map_porsangerfjorden.png", map_por, width = 6, height = 6)
-ggsave("docs/assets/map_porsangerfjorden.png", map_por, width = 6, height = 6)
 
 # Young Sound
 bathy_young <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/ys_bathy_v3.0_raw.nc") %>% 
   tidync::hyper_tibble() %>% 
   dplyr::rename(lon = Longitude, lat = Latitude) %>% 
   mutate(depth = -Bathymetry)
-map_young <- bbox_to_map(bbox_young,#lon_pad = 0.2, lat_pad = 0.1,
+map_young <- bbox_to_map(bbox_young, lon_pad = 1, lat_pad = 0.2,
                          bathy_data = bathy_young) + ggtitle("Young Sound")
 ggsave("figures/map_young_sound.png", map_young, width = 12, height = 6)
 ggsave("docs/assets/map_young_sound.png", map_young, width = 12, height = 6)
 
 ## Western Greenland study sites
 # Disko Bay
-map_disko <- bbox_to_map(bbox_disko) + ggtitle("Disko Bay")
+map_disko <- bbox_to_map(bbox_disko, lon_pad = 2, lat_pad = 0.5) + ggtitle("Disko Bay")
 ggsave("figures/map_disko_bay.png", map_disko, width = 6, height = 6)
 ggsave("docs/assets/map_disko_bay.png", map_disko, width = 6, height = 6)
 
 # Nuup Kangerlua
-map_nuup <- bbox_to_map(bbox_nuup) + ggtitle("Nuup Kangerlua")
+map_nuup <- bbox_to_map(bbox_nuup, lon_pad = 1.5, lat_pad = 0.35) + ggtitle("Nuup Kangerlua")
 ggsave("figures/map_nuup_kangerlua.png", map_nuup, width = 6, height = 6)
 ggsave("docs/assets/map_nuup_kangerlua.png", map_nuup, width = 6, height = 6)
+
+# Porsangerfjorden
+map_por <- bbox_to_map(bbox_por, lon_pad = 1, lat_pad = 0.3) + ggtitle("Porsangerfjorden")
+ggsave("figures/map_porsangerfjorden.png", map_por, width = 6, height = 6)
+ggsave("docs/assets/map_porsangerfjorden.png", map_por, width = 6, height = 6)
 
 # Full study area
 map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
   annotation_spatial(bbox_EU_poly, fill = "cadetblue1", colour = "black", alpha = 0.1) +
-  geom_spatial_point(data = site_points, size = 9, crs = 4326,
+  geom_spatial_point(data = site_points[-3,], size = 9, crs = 4326,
                      aes(x = lon, y = lat), colour = "black") +
-  geom_spatial_point(data = site_points, size = 8, crs = 4326,
+  geom_spatial_point(data = site_points[-3,], size = 8, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
   labs(title = "FACE-IT study area and focal sites",
        colour = "Site",
@@ -182,12 +183,12 @@ ggsave("figures/map_full.png", map_full, height = 10, width = 16)
 ggsave("docs/assets/map_full.png", map_full, height = 10, width = 16)
 
 # Assemble smaller figures
-map_small <- ggpubr::ggarrange(map_kong, map_is, map_ingle, map_young, map_disko, map_nuup, map_por, logo, ncol = 3, nrow = 3)
+map_small <- ggpubr::ggarrange(map_kong, map_is, map_stor, map_young, map_disko, map_nuup, map_por, logo, ncol = 3, nrow = 3)
 
 # Put them together
-map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 1, nrow = 2, heights = c(1, 1))
-ggsave("figures/map_all.png", map_all, height = 20, width = 16)
-ggsave("docs/assets/map_all.png", map_all, height = 20, width = 16)
+map_all <- ggpubr::ggarrange(map_full, map_small, ncol = 1, nrow = 2, heights = c(0.7, 1))
+ggsave("figures/map_all.png", map_all, height = 24, width = 16)
+ggsave("docs/assets/map_all.png", map_all, height = 24, width = 16)
 
 
 # Bathy test --------------------------------------------------------------
