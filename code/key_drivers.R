@@ -208,3 +208,4 @@ rm(query_landings, query_management, query_nat_stat, query_tourism, query_vessel
 
 ## All variables together
 query_ALL <- rbind(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social)
+

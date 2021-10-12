@@ -79,30 +79,30 @@ single_file_var_melt <- function(){
 
 # Zooplankton biodiversity
 # 1995-2008-zooplankton-biodiversity.tsv
-EU_zooplankton
+# EU_zooplankton
 
 # Ice modelling output
 # EU_ice # Not on pCloud
 
 # CTD data from YMER cruise in 1980
 # 77YM19800811.exc.csv
-EU_YMER
+# EU_YMER
 
 # CTD data for Arctic
 # Codispoti_Arctic_Nutrients_Submission_11-11-2010.csv
-EU_Codispoti
+# EU_Codispoti
 
 # Ice core samples for protist presence
 # protists\
-EU_protists
+# EU_protists
 
 # CTD data from NCEI Accession 9700302
 # 9700302.2.2.tar.gz # This appears to be some sort of proprietary data format...
-EU_NCEI_1989
+# EU_NCEI_1989
 
 # GRDC river discharge data
 # grdc_arctichycos_stations.xlsx
-EU_GRDC
+# EU_GRDC
 
 # Carb chem Arctic model output
 # Outputs are stored at the Centre for Environmental Data Analysis's (CEDA) JASMIN servers:/gws/nopw/j04/nemo_vol2/ROAM. 
@@ -117,9 +117,9 @@ EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_outpu
 # GLODAP data
 
 # Combine and save
-full_product_EU <- rbind()
-data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
-save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
+# full_product_EU <- rbind()
+# data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
+# save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
 rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -141,7 +141,7 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 # kongsvegen-mass-balance.csv; 
 # kronebreenholtedahlfonna-mass-balance.csv; 
 # midtre-lovenbreen-mass-balance.csv
-sval_glacier_mass
+# sval_glacier_mass
 
 # Glacier area outlines
 # glacier_area/
@@ -159,7 +159,7 @@ sval_glacier_mass
 # N-ICE_metData_v2.nc; 
 # N-ICE_metData_QC.py;
 # README_N-ICE_metData_v2.txt
-sval_surface_met
+# sval_surface_met
 
 # UNIS database
 ## NB: This is really slow due to file size
@@ -390,6 +390,8 @@ rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## Full product ------------------------------------------------------------
+
+# Load full Svalbard file
 
 # Load PG file
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
