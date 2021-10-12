@@ -1,6 +1,9 @@
 # code/data_product.R
 # This script houses the code used to create data products from the many disparate files
 
+# TODO: Investigate PG columns that should be numeric but aren't
+# e.g. `[NO3]- [µmol/l]` for pg_nuup_clean
+
 
 # Setup -------------------------------------------------------------------
 
@@ -295,10 +298,25 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
 
+# AIS data
+sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %>% 
+  pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "var", values_to = "value") %>% 
+  mutate(date = as.Date(paste0(Year,"-12-31")),
+         depth = 0, # It may be better to list this as NA 
+         lon = NA, lat = NA, 
+         date_accessed = as.Date("2020-09-30"),
+         var_name = paste0(Area," [",var,"]"),
+         var_type = case_when(grepl("co2|nox|sox", var_name, ignore.case = T) ~ "chem",
+                              grepl("PM", var_name, ignore.case = T) ~ "phys", TRUE ~ "soc"),
+         URL = "Received directly from Morten Skogen",
+         citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+  
 # Combine and save
-full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night)
+full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS)
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
+save(full_product_sval, file = "data/full_data/full_product_sval.RData")
 rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -309,7 +327,7 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg kong files
 system.time(
   pg_kong_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_kong)
-) # 57 seconds
+) # 70 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
@@ -353,14 +371,14 @@ pg_kong_clean <- pg_kong_sub %>%
   # dplyr::select(depth, everything())
   # Remove unwanted columns
   dplyr::select(-"Longitude 2", -"Latitude 2",
-                -"Date/time start", -"Date/time end", -"Date",
+                -"Date/time start", -"Date/time end",
                 -"Press [dbar]",
                 -contains(c("Depth ", "Elev ", "Elevation "))) %>%
   # Finish up
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
-colnames(pg_kong_clean)
+# colnames(pg_kong_clean)
 
 ## Individual category data.frames
 # Cryosphere
@@ -383,7 +401,7 @@ save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RD
 # pg_kong_ALL <- data.table::fread("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 
 # Check that all columns were used
-colnames(pg_kong_clean)[!colnames(pg_kong_clean) %in% unique(pg_kong_ALL$var_name)]
+# colnames(pg_kong_clean)[!colnames(pg_kong_clean) %in% unique(pg_kong_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
@@ -392,9 +410,10 @@ rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product ------------------------------------------------------------
 
 # Load full Svalbard file
+if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
 
 # Load PG file
-load("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
+if(!exists("pg_kong_ALL")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
 
 # Process individual files
 ## Sea ice cover
@@ -412,8 +431,9 @@ kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjo
 
 ## Zooplankton abundance and species
 kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_abundance_data.csv") %>% 
-  pivot_longer(CALfinM:SCYPZlar, names_to = "sps", values_to = "value") %>% 
-  left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv"), by = c("X1" = "id")) %>% 
+  pivot_longer(CALfinM:SCYPZlar, names_to = "sps", values_to = "value") %>%
+  dplyr::rename("id" = "...1") %>% 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv"), by = c("id")) %>% 
   left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv"), by = c("sps" = "id")) %>% 
   dplyr::rename(lon = longitude, lat = latitude) %>% 
   mutate(value = value*biomass_conv, # Need to check that this conversion is correct
@@ -505,28 +525,7 @@ kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_M
 
 ## Glacial topography + thickness
 ## NB: Not included in final project as we aren't including grided(ish) data
-# kong_glacier_info_1 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_ice_surface_150m_v1.tif")
-# kong_glacier_info_2 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_ice_thickness_150m_1.tif")
-# kong_glacier_info_3 <- load_utm("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_DEM_subglacial_elevation_150m_v1.tif")
-# kong_glacier_info_4 <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/TIGRIF_radarprofiles_2004_2016_v1.txt", delim = "\t")[,1:5]
-# coordinates(kong_glacier_info_4) <- ~x+y 
-# proj4string(kong_glacier_info_4) <- "+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs" # Matches other similar files
-# kong_glacier_info_4 <- spTransform(kong_glacier_info_4, CRS("+proj=longlat +datum=WGS84"))
-# kong_glacier_info_4 <- as.data.frame(kong_glacier_info_4) %>% 
-#   dplyr::rename(lon = x, lat = y, thick = thick., bed = bed.) %>% 
-#   dplyr::select(lon, lat, everything())
-# kong_glacier_info <- full_join(kong_glacier_info_4, kong_glacier_info_1, by = c("lon", "lat")) %>% 
-#   full_join(kong_glacier_info_2, by = c("lon", "lat")) %>% 
-#   full_join(kong_glacier_info_3, by = c("lon", "lat")) %>% 
-#   pivot_longer(surf:TIGRIF_DEM_subglacial_elevation_150m_v1, names_to = "var_name", values_to = "value") %>% 
-#   filter(!is.na(value)) %>% 
-#   mutate(date = as.Date(NA), depth = as.numeric(NA),
-#          var_type = "cryo",
-#          date_accessed = as.Date("2021-02-11"),
-#          URL = "https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1",
-#          citation = "Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7") %>% 
-#   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-# rm(kong_glacier_info_1, kong_glacier_info_2, kong_glacier_info_3, kong_glacier_info_4); gc()
+# Code deleted for tidiness on 2021-10-12
 
 ## Kongsvegen weather station
 kong_weather_station <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsvegen-weather.tsv", delim = "\t", na = "null") %>% 
@@ -554,37 +553,48 @@ kong_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/moo
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ferry box data
-# TODO: This still needs to be added to 'full_product_kong'
-kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>% 
-  mutate(lon = 11.920027777777777,
-         lat = 78.93065833333334)
+kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>%
+  dplyr::select(date, alp:at_calc, co2_air:depth, diff_sal_fb_insitu_9m:k600, nh4:ws) %>% 
+  pivot_longer(cols = c(-"date", -"depth"), names_to = "var_name", values_to = "value") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(lon = 11.920027777777777, lat = 78.93065833333334,
+         var_type = case_when(grepl("co2|ph_|phint|phEXT", var_name, ignore.case = T) ~ "chem",
+                              var_name %in% c("at", "at_calc", "nh4", "NH4", "NO2","no3", "NO3", 
+                                              "no3no2", "NO3NO2", "po4", "PO4", "si", "Si", "k",
+                                              "ta_inst") ~ "chem",
+                              TRUE ~ "phys"), 
+         URL = "File provided by Jean-Pierre Gattuso",
+         date_accessed = as.Date("2021-08-12"),
+         citation = "Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 ## SAMS mooring data
 kong_mooring_SAMS <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS/", full.names = T), load_SAMS, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-10-21"), .before = 1)
 
 # Combine and save
-# TODO: Add all products with lon/lat then perform the more aggressive spatial filter
-# Then add the products without lon/lat so they aren't removed in the spatial filter
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
-                           kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI)
+                           kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
+                           kong_ferry, kong_mooring_SAMS) %>% 
+  rbind(filter(full_product_sval, lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4]))
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+save(full_product_kong, file = "data/full_data/full_product_kong.RData")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Search product for specific authors
-load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+# if(!exists("full_product_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 
 # Simple checks
-unique(full_product_kong$citation[grepl("Jentzsch", full_product_kong$citation)])
+# full_product_kong %>% filter(grepl("Jentzsch", citation))
 
 # Philipp Fischer ferry box data - There are a couple of months of data for 2014
-# kong_fischer <- full_product_kong %>% 
-  # filter(grepl("Fischer", citation))
+# kong_fischer <- full_product_kong %>% filter(grepl("Fischer", citation))
 
 # Popova carbonate chemistry model data - No data present
-# kong_popova <- full_product_kong %>% 
-  # filter(grepl("Popova", citation))
+# kong_popova <- full_product_kong %>% filter(grepl("Popova", citation))
 
 # Clean up
 # rm(kong_fischer, kong_popova)
@@ -594,10 +604,10 @@ unique(full_product_kong$citation[grepl("Jentzsch", full_product_kong$citation)]
 
 ## NB: These files are available on pCloud at: pCloudDrive/FACE-IT_data/model/
 ## I load them from a local folder here for speed and convenience
-model_kong <- load_model("kongsfjorden_rcp")
+# model_kong <- load_model("kongsfjorden_rcp")
 
 ## Test visuals
-model_summary(model_kong, "Kongsfjorden")
+# model_summary(model_kong, "Kongsfjorden")
 
 
 # Isfjorden ---------------------------------------------------------------
@@ -607,7 +617,7 @@ model_summary(model_kong, "Kongsfjorden")
 # Load pg is files
 system.time(
   pg_is_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_is)
-) # 56 seconds
+) # 65 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -647,7 +657,7 @@ pg_is_clean <- pg_is_sub %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
-colnames(pg_is_clean)
+# colnames(pg_is_clean)
 
 ## Individual category data.frames
 # Cryosphere
@@ -665,9 +675,10 @@ pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") # empt
 pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, pg_is_Biology)
 data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.csv")
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
+save(pg_is_ALL, file = "data/pg_data/pg_is_ALL.RData")
 
 # Check that all columns were used
-colnames(pg_is_clean)[!colnames(pg_is_clean) %in% unique(pg_is_ALL$var_name)]
+# colnames(pg_is_clean)[!colnames(pg_is_clean) %in% unique(pg_is_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
@@ -675,117 +686,18 @@ rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
+# Load full Svalbard file
+if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
+
 # Load PG file
-load("~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
+if(!exists("pg_is_ALL")) load("~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
 
 # Process individual files
 ## Mouth mooring North
-# tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1516.nc")
-# as.data.frame(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1516.nc")$attribute$global)
-is_mooring_N_units <- ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1516.nc")$variable
-is_mooring_N_1 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1516.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1516.nc"), "D2"))) %>% 
-  mutate(URL = "https://data.npolar.no/dataset/111aca43-7f5c-4c15-9f31-dcd3214dbfcb",
-         citation = "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.111aca43")
-is_mooring_N_2 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1617.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1617.nc"), "D2"))) %>% 
-  mutate(URL = "https://data.npolar.no/dataset/3078f619-9955-4a7f-9316-fab598fec382",
-         citation = "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 15 Oct 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.3078f619")
-is_mooring_N_3 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1718.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N/IN1718.nc"), "D2"))) %>% 
-  mutate(URL = "https://data.npolar.no/dataset/e9106051-6c44-4849-9d62-04e4a82f1ca9",
-         citation = "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 5 Oct 2017 to 24 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e9106051")
-is_mooring_N <- rbind(is_mooring_N_1, is_mooring_N_2, is_mooring_N_3) %>% 
-  mutate(date = as.Date(as.POSIXct(TIME*86400, origin = "1950-01-01", tz = "UTC")), .keep = "unused") %>% 
-  dplyr::rename(lon = LONGITUDE, lat = LATITUDE, depth = MPRES) %>% 
-  pivot_longer(CDNC:VVEL, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  left_join(is_mooring_N_units, by = c("var_name" = "name")) %>% 
-  mutate(units = case_when(units == "degree_Celsius" ~ "°C", TRUE ~ units),
-         var_name = paste0(var_name, " [", units,"]"),
-         var_type = "phys",
-         date_accessed = as.Date("2021-04-15")) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
-  summarise(value = round(mean(value, na.rm = T), 5), .groups = "drop")
-rm(is_mooring_N_units, is_mooring_N_1, is_mooring_N_2, is_mooring_N_3); gc()
+is_mooring_N <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N", full.names = T), load_is_mooring, .parallel = T); gc()
 
 ## Mouth mooring South
-# tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0506.nc")
-# as.data.frame(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0506.nc")$attribute$global)
-is_mooring_S_URL <- c("https://data.npolar.no/dataset/176eea39-7d99-49d7-a082-b18acf42850c", "https://data.npolar.no/dataset/a1239ca3-79e6-4284-bba5-38028358994a", 
-                      "https://data.npolar.no/dataset/064a09b7-f590-4448-810e-3f287b182dd2", "https://data.npolar.no/dataset/b0e473c4-b5b9-4ebc-96eb-411d47f1d850", 
-                      "https://data.npolar.no/dataset/2be7bdee-c899-45b8-901b-9ec5baa9397a", "https://data.npolar.no/dataset/a247e9a9-4b62-4149-bbf4-83df3576a7c4", 
-                      "https://data.npolar.no/dataset/6813ce6d-bdc9-4375-a310-679e074bee6b", "https://data.npolar.no/dataset/11b7e849-e53d-40d8-909b-13e29c7971a0", 
-                      "https://data.npolar.no/dataset/21838303-c9a0-4fc4-aac3-f537b37356df", "https://data.npolar.no/dataset/cd7a2f7c-abed-4284-b7c5-a9ff43c89afc", 
-                      "https://data.npolar.no/dataset/54dcd0c9-b863-41b1-a72b-0827099ad2b0")
-is_mooring_S_citation <- c("Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2005 to September 2006 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.176eea39", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2006 to September 2007 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a1239ca3", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the outer Isfjorden - South (I-S) during September 2007 to January 2008 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.064a09b7", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 9 Sep 2010 to 3 Sep 2011 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.b0e473c4", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 8 Sep 2011 to 3 Sep 2012 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.2be7bdee", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 6 Sep 2012 to 28 Aug 2013 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a247e9a9", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 2 Sep 2013 to 26 Aug 2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.6813ce6d", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2014 to 24 Aug 2015 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.11b7e849", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.21838303", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 19 Aug 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.cd7a2f7c", 
-                           "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 5 Oct 2017 to 25 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.54dcd0c9")
-is_mooring_S_units <- ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1617_ADCP.nc")$variable
-is_mooring_S_1 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0506.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0506.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[1], citation = is_mooring_S_citation[1])
-is_mooring_S_2 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0607.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0607.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[2], citation = is_mooring_S_citation[2])
-is_mooring_S_3 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0708.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS0708.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[3], citation = is_mooring_S_citation[3])
-is_mooring_S_4 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1011.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1011.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[4], citation = is_mooring_S_citation[4])
-is_mooring_S_5 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1112.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1112.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[5], citation = is_mooring_S_citation[5])
-is_mooring_S_6 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1213.nc") %>% hyper_tibble() %>%
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1213.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[6], citation = is_mooring_S_citation[6])
-is_mooring_S_7 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1314.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1314.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[7], citation = is_mooring_S_citation[7])
-is_mooring_S_8 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1415.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1415.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[8], citation = is_mooring_S_citation[8])
-is_mooring_S_9_ADCP <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1516_ADCP.nc") %>% hyper_tibble() %>%
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1516_ADCP.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[9], citation = is_mooring_S_citation[9])
-is_mooring_S_9 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1516.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1516.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[9], citation = is_mooring_S_citation[9])
-is_mooring_S_10_ADCP <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1617_ADCP.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1617_ADCP.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[10], citation = is_mooring_S_citation[10])
-is_mooring_S_10 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1617.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1617.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[10], citation = is_mooring_S_citation[10])
-is_mooring_S_11 <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1718.nc") %>% hyper_tibble() %>% 
-  cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S/IS1718.nc"), "D2"))) %>% 
-  mutate(URL = is_mooring_S_URL[11], citation = is_mooring_S_citation[11])
-is_mooring_S <- bind_rows(is_mooring_S_1, is_mooring_S_2, is_mooring_S_3, is_mooring_S_4, is_mooring_S_5, is_mooring_S_6, is_mooring_S_7,
-                      is_mooring_S_8, is_mooring_S_9_ADCP, is_mooring_S_9, is_mooring_S_10_ADCP, is_mooring_S_10, is_mooring_S_11) %>% 
-  mutate(date = as.Date(as.POSIXct(TIME*86400, origin = "1950-01-01", tz = "UTC")), .keep = "unused") %>% 
-  dplyr::rename(lon = LONGITUDE, lat = LATITUDE, depth = MPRES) %>% 
-  dplyr::select(URL, citation, lon, lat, date, depth, everything(), -STATION, -FDEP) %>% 
-  pivot_longer(TEMP:WVEL, names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
-  left_join(is_mooring_S_units, by = c("var_name" = "name")) %>% 
-  mutate(units = case_when(units == "degree_Celsius" ~ "°C", TRUE ~ units),
-         var_name = paste0(var_name, " [", units,"]"),
-         var_type = "phys",
-         date_accessed = as.Date("2021-04-15")) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
-  summarise(value = round(mean(value, na.rm = T), 5), .groups = "drop")
-rm(is_mooring_S_units, is_mooring_S_1, is_mooring_S_2, is_mooring_S_3, is_mooring_S_4, is_mooring_S_5, is_mooring_S_6, is_mooring_S_7,
-   is_mooring_S_8, is_mooring_S_9_ADCP, is_mooring_S_9, is_mooring_S_10_ADCP, is_mooring_S_10, is_mooring_S_11,
-   is_mooring_S_URL, is_mooring_S_citation); gc()
+is_mooring_S <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S", full.names = T), load_is_mooring, .parallel = T); gc()
 
 ## Mooring IFO
 is_mooring_IFO_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc")$variable,
@@ -863,7 +775,6 @@ is_Chla_IsA_2 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a
 is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>% 
   dplyr::rename(depth = Depth) %>% 
   mutate(date = as.Date(`Days since 1st jan 2011`, origin = "2011-01-01"), .keep = "unused") %>% 
-  # mutate(date = as.Date(as.character(as.PCICt(T*3600, cal = "noleap", origin = "1950-01-01 01:00:00", tz = "UTC")))) %>% 
   pivot_longer(`Chlorophyll A`:Phaeophytin, names_to = "var_name", values_to = "value") %>% 
   left_join(is_Chla_IsA_units, by = c("var_name" = "name")) %>% 
   mutate(URL = "https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All",
@@ -877,54 +788,69 @@ is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>%
 rm(is_Chla_IsA_units, is_Chla_IsA_1, is_Chla_IsA_2); gc()
 
 ## Isfjord radio meteorological station
-is_met_radio <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc") %>% 
-  mutate(date_accessed = as.Date("2021-04-14"), .before = 1)
+is_met_radio <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc") %>% mutate(date_accessed = as.Date("2021-04-14"), .before = 1)
 
 ## Airport meteorological station
-is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.nc") %>% 
-  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
+is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.nc") %>% mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Pyramiden radio meteorological station
-is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% 
-  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
+is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ship AIS data
-is_AIS <- read_csv()
+is_AIS_2017 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS_2017.csv") %>% mutate(year = 2017)
+is_AIS_2019 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS_2019.csv") %>% mutate(year = 2019)
+is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>% 
+  dplyr::select(Name, ShipName, Month, everything()) %>% 
+  pivot_longer(`Number of trips`:`CO2 emissions in port (tonnes)`, names_to = "var", values_to = "value") %>% 
+  mutate(date = as.Date(paste0(year,"-",Month,"-01")),
+         depth = 0, # It may be better to list this as NA 
+         lon = NA, lat = NA, 
+         date_accessed = as.Date("2020-09-30"),
+         var_name = paste0(ShipName," [",var,"]"),
+         var_type = case_when(grepl("co2|nox|sox", var_name, ignore.case = T) ~ "chem",
+                              grepl("PM", var_name, ignore.case = T) ~ "phys", TRUE ~ "soc"),
+         URL = "Received directly from Morten Skogen",
+         citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+rm(is_AIS_2017, is_AIS_2019); gc()
 
 # Combine and save
 full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
-                         is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden)
+                         is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, is_AIS) %>% 
+  rbind(filter(full_product_sval, lon >= bbox_is[1], lon <= bbox_is[2], lat >= bbox_is[3], lat <= bbox_is[4])) %>% 
+  rbind(filter(full_product_sval, grepl("Isfjorden", var_name)))
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+save(full_product_is, file = "data/full_data/full_product_is.RData")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## Test visuals ------------------------------------------------------------
 
-is_phys <- full_product_is %>% 
-  filter(var_type == "phys")
+# is_phys <- full_product_is %>% 
+#   filter(var_type == "phys")
 
-is_pH <- full_product_is %>% 
-  filter(grepl("pH",var_name))
+# is_pH <- full_product_is %>% 
+#   filter(grepl("pH",var_name))
 
-is_temp <- is_phys %>% 
-  filter(grepl("°C",var_name))
-is_temp %>% 
-  filter(depth >= 0) %>% 
-  group_by(date, depth) %>% 
-  summarise(value = mean(value, na.rm = T)) %>% 
-  ggplot(aes(x = date, y = depth)) +
-  geom_point(aes(colour = value)) +
-  scale_y_reverse()
+# is_temp <- is_phys %>% 
+#   filter(grepl("°C",var_name))
 
-is_temp_ph <- left_join(is_temp, is_pH, by = c("date_accessed", "URL", "citation", "lon", "lat", "date", "depth"))
-is_temp_ph <- rbind(is_temp, is_pH)
-is_temp_ph %>% 
-  filter(!is.na(value.y)) %>% 
-  ggplot(aes(x = value.x, y = value.y)) +
-  geom_point() +
-  scale_y_reverse()
+# is_temp %>% 
+#   filter(depth >= 0) %>% 
+#   group_by(date, depth) %>% 
+#   summarise(value = mean(value, na.rm = T)) %>% 
+#   ggplot(aes(x = date, y = depth)) +
+#   geom_point(aes(colour = value)) +
+#   scale_y_reverse()
 
+# is_temp_ph <- left_join(is_temp, is_pH, by = c("date_accessed", "URL", "citation", "lon", "lat", "date", "depth"))
+# is_temp_ph <- rbind(is_temp, is_pH)
+# is_temp_ph %>% 
+#   filter(!is.na(value.y)) %>% 
+#   ggplot(aes(x = value.x, y = value.y)) +
+#   geom_point() +
+#   scale_y_reverse()
 
 
 # Storfjorden -------------------------------------------------------------
@@ -959,14 +885,14 @@ pg_stor_clean <- pg_stor_sub %>%
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
                            TRUE ~ depth)) %>% 
   # Remove unwanted columns
-  dplyr::select(-"Date", -"Press [dbar]",- "Depth water [m]",- "Depth bot [m]",
+  dplyr::select(-"Press [dbar]",- "Depth water [m]",- "Depth bot [m]",
                 -"Bathy depth interp/grid [m]",
                 -contains(c("Elev ", "Elevation ", "Latitude", "Longitude"))) %>%
   # Finish up
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
-colnames(pg_stor_clean)
+# colnames(pg_stor_clean)
 
 ## Individual category data.frames
 # Cryosphere
@@ -986,7 +912,7 @@ data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_
 save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
 # Check that all columns were used
-colnames(pg_stor_clean)[!colnames(pg_stor_clean) %in% unique(pg_stor_ALL$var_name)]
+# colnames(pg_stor_clean)[!colnames(pg_stor_clean) %in% unique(pg_stor_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
@@ -994,13 +920,19 @@ rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
-# Load PG data
-load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
+# Load full Svalbard file
+if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
+
+# Load PG file
+if(!exists("pg_stor_ALL")) load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
 # Combine and save
-full_product_stor <- rbind(pg_stor_ALL)
+full_product_stor <- rbind(pg_stor_ALL) %>% 
+  rbind(filter(full_product_sval, lon >= bbox_stor[1], lon <= bbox_stor[2], lat >= bbox_stor[3], lat <= bbox_stor[4])) %>% 
+  rbind(filter(full_product_sval, grepl("Storfjorden", var_name)))
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
+save(full_product_stor, file = "data/full_data/full_product_stor.RData")
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -1011,7 +943,7 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg young files
 system.time(
   pg_young_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_young)
-) # 57 seconds
+) # 65 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -1019,7 +951,7 @@ system.time(
 
 # Remove unneeded columns
 pg_young_clean <- pg_young_sub %>% 
-  # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
+  dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
   # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
   # Manually remove problematic files - no need
   # Manually remove problematic columns - no need
@@ -1030,7 +962,7 @@ pg_young_clean <- pg_young_sub %>%
   dplyr::rename(date = `Date/Time`) %>% 
   mutate(date = ifelse(date == "", NA, date),
          date = case_when(date == "2002-05" ~ "2002-05-01",
-                          is.na(date) & !is.na(Date) ~ as.character(Date),
+                          # is.na(date) & !is.na(Date) ~ as.character(Date),
                           TRUE ~ date),
          date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
@@ -1047,7 +979,7 @@ pg_young_clean <- pg_young_sub %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
-colnames(pg_young_clean)
+# colnames(pg_young_clean)
 
 ## Individual category data.frames
 # Cryosphere
@@ -1067,7 +999,7 @@ data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_youn
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
 # Check that all columns were used
-colnames(pg_young_clean)[!colnames(pg_young_clean) %in% unique(pg_young_ALL$var_name)]
+# colnames(pg_young_clean)[!colnames(pg_young_clean) %in% unique(pg_young_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
@@ -1076,12 +1008,13 @@ rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product ------------------------------------------------------------
 
 # Load PG product
-load("~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
+if(!exists("pg_young_ALL")) load("~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
 # Combine and save
 full_product_young <- rbind(pg_young_ALL)
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+save(full_product_young, file = "data/full_data/full_product_young.RData")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -1089,10 +1022,10 @@ rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## PG product --------------------------------------------------------------
 
-# Load pg disko files
+# Load pg files and subset to Disko Bay
 system.time(
   pg_disko_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_disko)
-) # 57 seconds
+) # 65 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -1133,7 +1066,7 @@ pg_disko_clean <- pg_disko_sub %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
-colnames(pg_disko_clean)
+# colnames(pg_disko_clean)
 
 ## Individual category data.frames
 # Cryosphere
@@ -1153,7 +1086,7 @@ data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
 # Check that all columns were used
-colnames(pg_disko_clean)[!colnames(pg_disko_clean) %in% unique(pg_disko_ALL$var_name)]
+# colnames(pg_disko_clean)[!colnames(pg_disko_clean) %in% unique(pg_disko_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_disko",names(.GlobalEnv),value = TRUE)); gc()
@@ -1162,22 +1095,24 @@ rm(list = grep("pg_disko",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product ------------------------------------------------------------
 
 # Load PG product
-load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
+if(!exists("pg_disko_ALL")) load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
 # Combine and save
 full_product_disko <- rbind(pg_disko_ALL)
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+save(full_product_disko, file = "data/full_data/full_product_disko.RData")
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
+
 
 # Nuup Kangerlua ----------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
 
-# Load pg young files
+# Load pg Nuup Kangerlua files
 system.time(
   pg_nuup_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_nuup)
-) # 57 seconds
+) # 65 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -1193,8 +1128,8 @@ pg_nuup_clean <- pg_nuup_sub %>%
   # Manage lon/lat columns - no issues
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
-  mutate(date = case_when(is.na(date) & !is.na(Date) ~ as.character(Date),
-                          date %in% seq(2000, 2009) ~ paste0(date,"-01-01"),
+  mutate(date = case_when(date %in% seq(2000, 2009) ~ paste0(date,"-01-01"),
+                          # is.na(date) & !is.na(Date) ~ as.character(Date),
                           # is.na(date) & !is.na(`Sampling date`) ~ `Sampling date`, # There is an issue with these values
                           TRUE ~ date),
          # date = as.character(date),
@@ -1214,7 +1149,7 @@ pg_nuup_clean <- pg_nuup_sub %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
-colnames(pg_nuup_clean)
+# colnames(pg_nuup_clean)
 
 ## Individual category data.frames
 # Cryosphere
@@ -1234,7 +1169,7 @@ data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nu
 save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
 # Check that all columns were used
-colnames(pg_nuup_clean)[!colnames(pg_nuup_clean) %in% unique(pg_nuup_ALL$var_name)]
+# colnames(pg_nuup_clean)[!colnames(pg_nuup_clean) %in% unique(pg_nuup_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_nuup",names(.GlobalEnv),value = TRUE)); gc()
@@ -1243,12 +1178,13 @@ rm(list = grep("pg_nuup",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product ------------------------------------------------------------
 
 # Load PG product
-load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
+if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
 # Combine and save
 full_product_nuup <- rbind(pg_nuup_ALL)
 data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
 save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -1259,7 +1195,7 @@ rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg is files
 system.time(
   pg_por_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_por)
-) # 57 seconds
+) # 65 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -1298,7 +1234,7 @@ pg_por_clean <- pg_por_sub %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
   mutate_at(c(7:length(.)), as.numeric) %>% 
   janitor::remove_empty("cols")
-colnames(pg_por_clean)
+# colnames(pg_por_clean)
 
 ## Individual category data.frames
 # Cryosphere
@@ -1318,15 +1254,16 @@ data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_p
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
 # Check that all columns were used
-colnames(pg_por_clean)[!colnames(pg_por_clean) %in% unique(pg_por_ALL$var_name)]
+# colnames(pg_por_clean)[!colnames(pg_por_clean) %in% unique(pg_por_ALL$var_name)]
 
 # Clean up
 rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 
+
 ## Full product ------------------------------------------------------------
 
 # Load PG product
-load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
+if(!exists("pg_por_ALL")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
 ## Series of GFI moorings
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
@@ -1334,7 +1271,7 @@ por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/
 
 ## Sea ice extent for Norwegian fjords
 por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-extent.txt", delim = "\t") %>% 
-  filter(X2 == "Porsangerfjord") %>% 
+  filter(`...2` == "Porsangerfjord") %>% 
   pivot_longer(`2001-02-02`:`2019-06-26`, names_to = "date", values_to = "value") %>%
   mutate(date = as.Date(date),
          date_accessed = as.Date("2021-09-08"),
@@ -1351,8 +1288,6 @@ por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("202
 full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice, por_hydro)
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+save(full_product_por, file = "data/full_data/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
-
-# Quick peak
-# Air and water temperature in fjord vs sea ice extent
 

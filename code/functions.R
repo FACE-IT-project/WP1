@@ -430,11 +430,78 @@ CTD_to_long <- function(nc_file, var_id){
     cbind(nc_TIME, nc_LONGITUDE, nc_LATITUDE) %>%
     pivot_longer(min(nc_PRES):max(nc_PRES), values_to = "value", names_to = "depth") %>% 
     filter(!is.na(value)) %>% 
-    mutate(date = as.POSIXct((nc_TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused") %>% 
+    mutate(date = as.Date(as.POSIXct((nc_TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused"),
+           depth = as.numeric(depth)) %>% 
     dplyr::rename(lon = nc_LONGITUDE, lat = nc_LATITUDE) %>% 
     dplyr::select(lon, lat, date, depth, value) %>% 
     `colnames<-`(c("lon", "lat", "date", "depth", tolower(var_id))); gc()
   return(nc_val)
+}
+
+# Simple wrapper for loading Isfjorden mooring NetCDF files
+load_is_mooring <- function(file_name){
+  
+  # Get NetCDF metadata
+  is_dump <- ncdump::NetCDF(file_name)
+  is_units <- is_dump$variable %>% 
+    filter(!name %in% c("depth", "lon", "lat")) %>% 
+    dplyr::select(name, units)
+  is_start <- is_dump$attribute$global$time_coverage_start
+  # is_citation <- is_dump$attribute$global$references
+  file_short <- sapply(strsplit(file_name, "/"), "[[", 8)
+  
+  # Get correct URL and citation to add to data
+  is_ref_info <- data.frame(short_name = c("IN1516.nc", "IN1617.nc", "IN1718.nc", # North moorings
+                                           "IS0506.nc", "IS0607.nc", "IS0708.nc", "IS1011.nc", "IS1112.nc", "IS1213.nc", "IS1314.nc", 
+                                           "IS1415.nc", "IS1516_ADCP.nc", "IS1516.nc", "IS1617_ADCP.nc", "IS1617.nc", "IS1718.nc"),
+                            URL = c("https://data.npolar.no/dataset/111aca43-7f5c-4c15-9f31-dcd3214dbfcb", "https://data.npolar.no/dataset/3078f619-9955-4a7f-9316-fab598fec382",
+                                    "https://data.npolar.no/dataset/e9106051-6c44-4849-9d62-04e4a82f1ca9", # North moorings
+                                    "https://data.npolar.no/dataset/176eea39-7d99-49d7-a082-b18acf42850c", "https://data.npolar.no/dataset/a1239ca3-79e6-4284-bba5-38028358994a", 
+                                    "https://data.npolar.no/dataset/064a09b7-f590-4448-810e-3f287b182dd2", "https://data.npolar.no/dataset/b0e473c4-b5b9-4ebc-96eb-411d47f1d850", 
+                                    "https://data.npolar.no/dataset/2be7bdee-c899-45b8-901b-9ec5baa9397a", "https://data.npolar.no/dataset/a247e9a9-4b62-4149-bbf4-83df3576a7c4", 
+                                    "https://data.npolar.no/dataset/6813ce6d-bdc9-4375-a310-679e074bee6b", "https://data.npolar.no/dataset/11b7e849-e53d-40d8-909b-13e29c7971a0", 
+                                    # Duplicated intentionally
+                                    "https://data.npolar.no/dataset/21838303-c9a0-4fc4-aac3-f537b37356df", "https://data.npolar.no/dataset/21838303-c9a0-4fc4-aac3-f537b37356df",
+                                    # Duplicated intentionally
+                                    "https://data.npolar.no/dataset/cd7a2f7c-abed-4284-b7c5-a9ff43c89afc", "https://data.npolar.no/dataset/cd7a2f7c-abed-4284-b7c5-a9ff43c89afc", 
+                                    "https://data.npolar.no/dataset/54dcd0c9-b863-41b1-a72b-0827099ad2b0"), # South moorings
+                            citation = c("Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.111aca43",
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 15 Oct 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.3078f619",
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 5 Oct 2017 to 24 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e9106051",
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2005 to September 2006 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.176eea39", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2006 to September 2007 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a1239ca3", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the outer Isfjorden - South (I-S) during September 2007 to January 2008 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.064a09b7", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 9 Sep 2010 to 3 Sep 2011 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.b0e473c4", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 8 Sep 2011 to 3 Sep 2012 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.2be7bdee", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 6 Sep 2012 to 28 Aug 2013 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a247e9a9", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 2 Sep 2013 to 26 Aug 2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.6813ce6d", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2014 to 24 Aug 2015 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.11b7e849", 
+                                         # Duplicated intentionally
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.21838303", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.21838303", 
+                                         # Duplicated intentionally
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 19 Aug 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.cd7a2f7c", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 19 Aug 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.cd7a2f7c", 
+                                         "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 5 Oct 2017 to 25 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.54dcd0c9"))
+
+  # Process data
+  res <- hyper_tibble(tidync(file_name)) %>% 
+    cbind(hyper_tibble(activate(tidync(file_name), "D2"))) %>%  
+    mutate(date = as.Date(as.POSIXct(TIME*86400, origin = "1950-01-01", tz = "UTC")), .keep = "unused") %>% 
+    dplyr::rename(lon = LONGITUDE, lat = LATITUDE, depth = MPRES) %>% 
+    pivot_longer(cols = c(-"depth", -"STATION", -"lat", -"lon", -"FDEP", -"date"), names_to = "var_name", values_to = "value") %>% 
+    filter(!is.na(value)) %>% 
+    left_join(is_units, by = c("var_name" = "name")) %>% 
+    mutate(units = case_when(units == "degree_Celsius" ~ "°C", TRUE ~ units),
+           var_name = paste0(var_name, " [", units,"]"),
+           var_type = "phys",
+           depth = round(depth, 2),
+           date_accessed = as.Date("2021-04-15"),
+           URL = is_ref_info$URL[is_ref_info$short_name == file_short], 
+           citation = is_ref_info$citation[is_ref_info$short_name == file_short]) %>% 
+    group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+    summarise(value = round(mean(value, na.rm = T), 5), .groups = "drop")
+  return(res)
 }
 
 # Simple wrapper for loading GFI mooring NetCDF files
@@ -771,7 +838,7 @@ load_nor_hydro <- function(year_choice, date_accessed){
            depth = as.numeric(depth)) %>% 
     dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value) %>% 
     distinct()
-  print(paste0("Loaded ",lubridate::year(min(res_raw$date)),": ", nrow(res)," rows"))
+  # print(paste0("Loaded ",lubridate::year(min(res_raw$date)),": ", nrow(res)," rows"))
   return(res)
 }
 

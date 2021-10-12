@@ -272,7 +272,7 @@ sval_marine_glacier_front <- data.frame(type = "",
 # Surface meteorology
 sval_surface_met <- data.frame(type = "Cruise",
                                data_name = "Air: temperature, pressure; relative humidity; wind: speed, direction",
-                               date_range = "2015-01-19 to 2015-06-01",
+                               date_range = "2015",
                                lon_range = "2.9 to 29.9",
                                lat_range = "78.1 to 83.3",
                                depth_range = NA,
@@ -320,7 +320,7 @@ sval_protection <- data.frame(type = "Database",
 # N-ICE21015 many data products
 sval_NICE <- data.frame(type = "Database",
                         data_name = "Most drivers",
-                        date_range = "2015-01-11 to 2017-06-24",
+                        date_range = "2015 to 2017",
                         lon_range = "-12.48 to 35.51", 
                         lat_range = "68.53 to 84.96",
                         depth_range = "? to ?",
@@ -387,12 +387,19 @@ sval_guest_night <- data.frame(type = "Survey",
                                 note = NA)
 
 # Amalgamated AIS data for regions around Svalbard
-# sval_AIS
+sval_AIS <- data.frame(type = "AIS",
+                       data_name = "Vessel mileage; pCO2",
+                       date_range = "2017 and 2019",
+                       lon_range = NA, lat_range = NA, depth_range = NA,
+                       file_name = '<a onclick="alert(\'AIS_aggregated.csv\');">1 file</a>',
+                       URL = '<a onclick="alert(\'Received directly from Morten Skogen\');">NA</a>',
+                       reference = '<a onclick="alert(\'Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.\');">Simonson (2021)</a>',
+                       note = NA)
 
 # Combine
 metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_marine_glacier_front,
                            sval_surface_met, sval_UNIS_database, sval_seabird_database, sval_protection, sval_NICE, 
-                           sval_fast, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night)
+                           sval_fast, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->
@@ -595,19 +602,19 @@ kong_PG <- data.frame(type = "PANGAEA",
                       file_name = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">2 files</a>',
                       URL = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">See URL column</a>',
                       reference = '<a onclick="alert(\'pg_kong_ALL.csv/.RData\');">See citation column</a>',
-                      note = "This is a combination of 130 PANGAEA data files.")
+                      note = "130 PANGAEA files.")
 
 # Fully combined product
 full_product_kong <- data.frame(type = "Combined",
                                 data_name = "Many",
-                                date_range = "1871-08-09 to 2020-10-04",
-                                lon_range = "4.18 to 13.92201", 
-                                lat_range = "78.71051 to 79.19823",
-                                depth_range = "-60 to 2380",
+                                date_range = "1871 to 2021",
+                                lon_range = "4.18 to 13.15", 
+                                lat_range = "78.78 to 79.15",
+                                depth_range = "-60 to 3052",
                                 file_name = '<a onclick="alert(\'full_product_kong.csv/.RData\');">2 files</a>',
                                 URL = '<a onclick="alert(\'full_product_kong.csv OR full_product_kong.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
-                                note = "This is the full combined data product.")
+                                note = "146 files from the EU, Svalbard, and Kongsfjorden.")
 
 # There are a lot of Kongsfjorden data on the NAADC (https://www.chinare.org.cn/en/data)
 # Bur they are limited by single use access like the GEM data
@@ -620,7 +627,6 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_n
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
-<!-- Combine the smaller metadata columns into text strings -->
 
 <!-- <div style="margin-right: -200px;"> -->
 ```{r kongsfjorden-meta-data-table}
@@ -816,7 +822,14 @@ is_social <- data.frame(type = "",
                         note = "Data are still being pursued.")
 
 # AIS data
-# is_AIS
+is_AIS <- data.frame(type = "AIS",
+                     data_name = "Vessel mileage; pCO2",
+                     date_range = "2017 and 2019",
+                     lon_range = NA, lat_range = NA, depth_range = NA,
+                     file_name = '<a onclick="alert(\'AIS_2017.csv; AIS_2019.csv\');">2 files</a>',
+                     URL = '<a onclick="alert(\'Received directly from Morten Skogen\');">NA</a>',
+                     reference = '<a onclick="alert(\'Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.\');">Simonson (2021)</a>',
+                     note = NA)
 
 # PANGAEA data product
 is_PG <- data.frame(type = "PANGAEA",
@@ -845,7 +858,7 @@ full_product_is <- data.frame(type = "FACE-IT",
 # Bind them together
 metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, 
                             is_CO2_tempelfjorden, is_IsA_CO2, is_IsA_Chla, is_IsA_light, is_IsA_bio, is_BAB_bio, is_zoo,
-                            is_met_radio, is_met_airport, is_met_pyramiden, is_social, is_PG, full_product_is)
+                            is_met_radio, is_met_airport, is_met_pyramiden, is_social, is_AIS, is_PG, full_product_is)
 ```
 
 ```{r isfjorden-meta-data-table}
