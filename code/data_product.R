@@ -308,7 +308,7 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
          var_name = paste0(Area," [",var,"]"),
          var_type = case_when(grepl("co2|nox|sox", var_name, ignore.case = T) ~ "chem",
                               grepl("PM", var_name, ignore.case = T) ~ "phys", TRUE ~ "soc"),
-         URL = "Received directly from Morten Skogen",
+         URL = "Received directly from Morten Simonsen",
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
   
@@ -809,7 +809,7 @@ is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>%
          var_name = paste0(ShipName," [",var,"]"),
          var_type = case_when(grepl("co2|nox|sox", var_name, ignore.case = T) ~ "chem",
                               grepl("PM", var_name, ignore.case = T) ~ "phys", TRUE ~ "soc"),
-         URL = "Received directly from Morten Skogen",
+         URL = "Received directly from Morten Simonsen",
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 rm(is_AIS_2017, is_AIS_2019); gc()
