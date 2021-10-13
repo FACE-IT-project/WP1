@@ -388,9 +388,9 @@ pg_kong_Physical <- pg_var_melt(pg_kong_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_kong_Chemistry <- pg_var_melt(pg_kong_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio") # 0 values
+# pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio") # 0 values
 # Social
-pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc") # 0 values
+# pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc") # 0 values
 
 # Stack them together
 pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry)
@@ -669,7 +669,7 @@ pg_is_Chemistry <- pg_var_melt(pg_is_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
 pg_is_Biology <- pg_var_melt(pg_is_clean, query_Biology$pg_col_name, "bio")
 # Social
-pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") # empty
+# pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
 pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, pg_is_Biology)
@@ -902,9 +902,9 @@ pg_stor_Physical <- pg_var_melt(pg_stor_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_stor_Chemistry <- pg_var_melt(pg_stor_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio") # empty
+# pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-pg_stor_Social <- pg_var_melt(pg_stor_clean, query_Social$pg_col_name, "soc") # empty
+# pg_stor_Social <- pg_var_melt(pg_stor_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
 pg_stor_ALL <- rbind(pg_stor_Cryosphere, pg_stor_Physical, pg_stor_Chemistry)
@@ -991,7 +991,7 @@ pg_young_Chemistry <- pg_var_melt(pg_young_clean, query_Chemistry$pg_col_name, "
 # Biology
 pg_young_Biology <- pg_var_melt(pg_young_clean, query_Biology$pg_col_name, "bio")
 # Social
-pg_young_Social <- pg_var_melt(pg_young_clean, query_Social$pg_col_name, "soc") # empty
+# pg_young_Social <- pg_var_melt(pg_young_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
 pg_young_ALL <- rbind(pg_young_Cryosphere, pg_young_Physical, pg_young_Chemistry, pg_young_Biology)
@@ -1078,7 +1078,7 @@ pg_disko_Chemistry <- pg_var_melt(pg_disko_clean, query_Chemistry$pg_col_name, "
 # Biology
 pg_disko_Biology <- pg_var_melt(pg_disko_clean, query_Biology$pg_col_name, "bio")
 # Social
-pg_disko_Social <- pg_var_melt(pg_disko_clean, query_Social$pg_col_name, "soc") # empty
+# pg_disko_Social <- pg_var_melt(pg_disko_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
 pg_disko_ALL <- rbind(pg_disko_Cryosphere, pg_disko_Physical, pg_disko_Chemistry, pg_disko_Biology)
@@ -1161,7 +1161,7 @@ pg_nuup_Chemistry <- pg_var_melt(pg_nuup_clean, query_Chemistry$pg_col_name, "ch
 # Biology
 pg_nuup_Biology <- pg_var_melt(pg_nuup_clean, query_Biology$pg_col_name, "bio")
 # Social
-pg_nuup_Social <- pg_var_melt(pg_nuup_clean, query_Social$pg_col_name, "soc") # empty
+# pg_nuup_Social <- pg_var_melt(pg_nuup_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
 pg_nuup_ALL <- rbind(pg_nuup_Cryosphere, pg_nuup_Physical, pg_nuup_Chemistry, pg_nuup_Biology)
@@ -1244,9 +1244,9 @@ pg_por_Physical <- pg_var_melt(pg_por_clean, query_Physical$pg_col_name, "phys")
 # Carbonate chemistry
 pg_por_Chemistry <- pg_var_melt(pg_por_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_por_Biology <- pg_var_melt(pg_por_clean, query_Biology$pg_col_name, "bio") # empty
+# pg_por_Biology <- pg_var_melt(pg_por_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-pg_por_Social <- pg_var_melt(pg_por_clean, query_Social$pg_col_name, "soc") # empty
+# pg_por_Social <- pg_var_melt(pg_por_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
 pg_por_ALL <- rbind(pg_por_Cryosphere, pg_por_Physical, pg_por_Chemistry)
