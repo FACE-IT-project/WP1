@@ -592,6 +592,18 @@ kong_benthic <- data.frame(type = "Survey",
                            reference = '<a onclick="alert(\'\');">NA</a>',
                            note = "The authors have been contacted.")
 
+## Ny-Alesund ship arrivals
+kong_ship_arrivals <- data.frame(type = "Statistics",
+                                 data_name = "Vessels: count, tourists arrivals: count",
+                                 date_range = "2015 to 2021",
+                                 lon_range = "11.92", 
+                                 lat_range = "78.93",
+                                 depth_range = NA,
+                                 file_name = '<a onclick="alert(\'kong_ship_arrivals.csv\');">1 file</a>',
+                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://port.kingsbay.no/statistics/">Kings Bay</a>',
+                                 reference = '<a onclick="alert(\'Havenstrøm, E. (2021). Port calls in Kings Bay. https://port.kingsbay.no/statistics\');">Havenstrøm (2021)</a>',
+                                 note = NA)
+
 # PANGAEA data product
 kong_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -614,7 +626,7 @@ full_product_kong <- data.frame(type = "Combined",
                                 file_name = '<a onclick="alert(\'full_product_kong.csv/.RData\');">2 files</a>',
                                 URL = '<a onclick="alert(\'full_product_kong.csv OR full_product_kong.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
-                                note = "146 files from the EU, Svalbard, and Kongsfjorden.")
+                                note = "147 files from the EU, Svalbard, and Kongsfjorden.")
 
 # There are a lot of Kongsfjorden data on the NAADC (https://www.chinare.org.cn/en/data)
 # Bur they are limited by single use access like the GEM data
@@ -623,7 +635,7 @@ full_product_kong <- data.frame(type = "Combined",
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
                                kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_mooring_SAMS,
-                               kong_macroalgae, kong_benthic, kong_PG, full_product_kong)
+                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->

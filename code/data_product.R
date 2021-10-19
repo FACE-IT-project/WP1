@@ -574,10 +574,27 @@ kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>%
 kong_mooring_SAMS <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS/", full.names = T), load_SAMS, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-10-21"), .before = 1)
 
+## Ny-Alesund ship arrivals
+kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_ship_arrivals.csv") %>% 
+  pivot_longer(January:December, names_to = "month", values_to = "value") %>% 
+  mutate(var_name = case_when(type == "PAX" ~ "Tourist arrivals [count]",
+                              type == "calls" ~ "Vessels [count]"),
+         var_type = "soc",
+         month = match(month, month.name),
+         date = as.Date(paste0(year,"-",month,"-01")),
+         depth = NA, lon = 11.92, lat = 78.93,
+         URL = "https://port.kingsbay.no/statistics/",
+         date_accessed = as.Date("2021-10-18"),
+         citation = "Havenstrøm, E. (2021). Port calls in Kings Bay. https://port.kingsbay.no/statistics") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+
 # Combine and save
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
-                           kong_ferry, kong_mooring_SAMS) %>% 
+                           kong_ferry, kong_mooring_SAMS, kong_ship_arrivals) %>% 
   rbind(filter(full_product_sval, lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4]))
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
