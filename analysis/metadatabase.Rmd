@@ -55,17 +55,7 @@ options(DT.options = list(pageLength = 5,
                           lengthMenu = c(5, 10, 25, 50, 100)))
 ```
 
-This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The interactive tables contain the meta-database for the data files/products identified as key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). The data files/products identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). The meta-database has been broken up into the different sites for convenience. The tables are organised in a hierarchical manner, meaning that their are tables for data across broad geographic regions if they would contain multiple sites. One may see below that the first section contains data that span the entire European Arctic as this is the broadest area of interest for FACE-IT. Within the EU Arctic there are also tables for data that span all of Svalbard and all of Greenland. Within these section are sub-sections for the individual sites. Note that because there is only one site in Norway (Porsangerfjorden), there can be no table for data spanning multiple Norwegian sites.
-
-<!-- The current thinking with this is to list all of the data of interest by site and provide a quick meta-data summary for each (e.g. start-end date, temporal/spatial resolution) as well as providing the correct citation for each data source. -->
-
-<!-- Thinking now, it may be better to create this as an RMarkdown document. This way the links and code used can be housed directly in with the text talking about the data availability, meta-data and citations. -->
-
-<!-- Start with a discussion of what the key drivers are across all study sites. A literature search of keywords can be used to generate info on the key drivers: Arctic, biodiversity, drivers, etc. Do this for titles, abstracts, and keywords. For each study site afterwards one can discuss why some drivers are more or less important. Like light pollution in Young Sound, because there are no humans there. Or like ice cover in Kongsfjorden being very important because of borealisation. -->
-
-<!-- One must list all available data, but this does not mean they all need to be downloaded. And it does not mean that they all need to be combined. Consider that trends are going to be one of the main benefits of combining multiple data sets. -->
-
-<!-- Start with combining temperature data so that we can get trends as much as possible. Allow for one to choose a box and to get a trend from the points in the area. -->
+This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The interactive tables contain the meta-database for the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). The meta-database has been broken up into the different sites for convenience. With the exception that the first table contains data that span the entire European Arctic, as this is the broadest area of interest for FACE-IT, and there is a table dedicated to data that span all of Svalbard.
 
 # European Arctic
 
@@ -192,7 +182,7 @@ EU_Popova <- data.frame(type = "Model",
 # "Arctic_model_output_acid.dat"
 
 # Greenland Sea icthyoplankton cruise
-EU_ichtyo <- data.frame(type = "CTD",
+EU_icthyo <- data.frame(type = "CTD",
                         data_name = "Sea temperature; salinity; fish: presence",
                         date_range = "2017",
                         lon_range = "-25 to 0",
@@ -229,7 +219,7 @@ EU_PG <- data.frame(type = "PANGAEA",
 
 # Combine
 metadata_EU_arctic <- rbind(EU_GEBCO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, 
-                            EU_NCEI_1989, EU_GRDC, EU_Popova, EU_ichtyo, EU_green_fjords, EU_PG)
+                            EU_NCEI_1989, EU_GRDC, EU_Popova, EU_icthyo, EU_green_fjords, EU_PG)
 ```
 
 ```{r EU-arctic-meta-data-table}
@@ -997,7 +987,7 @@ young_air_pCO2 <- data.frame(type = "CTD",
                              file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
                              reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75.\');">GEM</a>',
-                              note = NA)
+                             note = NA)
 
 # Water pCO2
 young_water_pCO2 <- data.frame(type = "CTD",
@@ -1008,8 +998,8 @@ young_water_pCO2 <- data.frame(type = "CTD",
                                depth_range = "1 to 50",
                                file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/A8J4-AF12">GEM</a>',
-                             reference = '<a onclick="alert(\'Partial pressure of CO2 water (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12.\');">GEM</a>',
-                              note = NA)
+                               reference = '<a onclick="alert(\'Partial pressure of CO2 water (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12.\');">GEM</a>',
+                               note = NA)
 
 # CTD water column bottom data
 young_CTD_bottom <- data.frame(type = "CTD",
@@ -1021,7 +1011,7 @@ young_CTD_bottom <- data.frame(type = "CTD",
                                file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12">GEM</a>',
                                reference = '<a onclick="alert(\'Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733. doi: 10.17897/J1J5-W960\');">Boone et al. (2018)</a>',
-                              note = NA)
+                               note = NA)
 
 # CTD water column data
 young_CTD_water <- data.frame(type = "CTD",
@@ -1044,8 +1034,8 @@ young_CTD_mooring <- data.frame(type = "CTD",
                                 depth_range = "56 to 75",
                                 file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/8GPS-CE70">GEM</a>',
-                              reference = '<a onclick="alert(\'CTD measurements mooring: Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70.\');">GEM</a>',
-                              note = NA)
+                                reference = '<a onclick="alert(\'CTD measurements mooring: Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70.\');">GEM</a>',
+                                note = NA)
 
 # CTD sill data
 young_CTD_sill <- data.frame(type = "CTD",
@@ -1106,7 +1096,7 @@ young_silicate <- data.frame(type = "Bottle",
                              lat_range = "74.47",
                              depth_range = "1 to 50",
                              file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                             URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/GFHW-ZT42">GEM</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/GFHW-ZT42">GEM</a>',
                              reference = '<a onclick="alert(\'Water Silicate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/GFHW-ZT42.\');">GEM</a>',
                              note = NA)
 
@@ -1118,7 +1108,7 @@ young_DIC <- data.frame(type = "Bottle",
                         lat_range = "74.47",
                         depth_range = "1 to 50",
                         file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                        URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/7FSW-D577">GEM</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/7FSW-D577">GEM</a>',
                         reference = '<a onclick="alert(\'Water DIC Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/7FSW-D577.\');">GEM</a>',
                         note = NA)
 
@@ -1130,7 +1120,7 @@ young_TA <- data.frame(type = "Bottle",
                        lat_range = "74.47",
                        depth_range = "1 to 50",
                        file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                       URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/6H8H-WM93">GEM</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/6H8H-WM93">GEM</a>',
                        reference = '<a onclick="alert(\'Water TA Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/6H8H-WM93.\');">GEM</a>',
                        note = NA)
 
@@ -1142,7 +1132,7 @@ young_sea_ice_formation <- data.frame(type = "Survey",
                                       lat_range = "74.47",
                                       depth_range = NA,
                                       file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                      URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/5MNP-KX83">GEM</a>',
+                                      URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/5MNP-KX83">GEM</a>',
                                       reference = '<a onclick="alert(\'Sea ice formation: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/5MNP-KX83.\');">GEM</a>',
                                       note = NA)
 
@@ -1154,7 +1144,7 @@ young_sea_ice_breakup <- data.frame(type = "Survey",
                                     lat_range = "74.47",
                                     depth_range = NA,
                                     file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                    URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/SM1Q-6A72">GEM</a>',
+                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/SM1Q-6A72">GEM</a>',
                                     reference = '<a onclick="alert(\'Sea ice breakup: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/SM1Q-6A72.\');">GEM</a>',
                                     note = NA)
 
@@ -1166,7 +1156,7 @@ young_sea_ice_thickness <- data.frame(type = "Core",
                                       lat_range = "74.47",
                                       depth_range = NA,
                                       file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                      URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/H5D5-TZ32">GEM</a>',
+                                      URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/H5D5-TZ32">GEM</a>',
                                       reference = '<a onclick="alert(\'Sea ice thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32.\');">GEM</a>',
                                       note = NA)
 
@@ -1178,7 +1168,7 @@ young_sea_ice_open <- data.frame(type = "Survey",
                                  lat_range = "74.47",
                                  depth_range = NA,
                                  file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                 URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/R3QB-7Q71">GEM</a>',
+                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/R3QB-7Q71">GEM</a>',
                                  reference = '<a onclick="alert(\'Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71.\');">GEM</a>',
                                  note = NA)
 
@@ -1190,7 +1180,7 @@ young_snow_thickness <- data.frame(type = "Survey",
                                    lat_range = "74.47",
                                    depth_range = NA,
                                    file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                   URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16">GEM</a>',
+                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16">GEM</a>',
                                    reference = '<a onclick="alert(\'Snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16.\');">GEM</a>',
                                    note = NA)
 
@@ -1202,9 +1192,9 @@ young_prim_prod <- data.frame(type = "CTD",
                               lat_range = NA,
                               depth_range = NA,
                               file_name = '<a onclick="alert(\'Not currently on pCloud\');">0 files</a>',
-                              URL = '<a target="_blank" rel="noopener noreferrer"                             href="https://zenodo.org/record/5572041#.YW_Lc5uxU5m">Zenodo</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://zenodo.org/record/5572041#.YW_Lc5uxU5m">Zenodo</a>',
                               reference = '<a onclick="alert(\'Holding, Johnna M, Markager, Stiig, Juul-Pedersen, Thomas, Paulsen, Maria L, Møller, Eva F, & Sejr, Mikael K. (2021). Dataset from Holding et al. (2019) Seasonal and spatial patterns of primary production in a high latitude fjord [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572041\');">Holding et al. (2019)</a>',
-                              note = '<a target="_blank" rel="noopener noreferrer"                             href="https://rpubs.com/JohnnaH/798295">Interactive map</a>')
+                              note = '<a target="_blank" rel="noopener noreferrer" href="https://rpubs.com/JohnnaH/798295">Interactive map</a>')
 
 # PANGAEA data product
 young_PG <- data.frame(type = "PANGAEA",

@@ -68,7 +68,15 @@ single_file_var_melt <- function(){
 
 ## PG product --------------------------------------------------------------
 
-# There is no EU PANGAEA product because the bits and pieces were given to the individual PG site files 
+# There is no EU PANGAEA product because the bits and pieces were given to the individual PG site files
+# This file is loaded to get a summary of the data
+pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
+system.time(
+  pg_EU <- plyr::ldply(pg_EU_files, pg_quick_filter, bbox = bbox_EU)
+) # 70 seconds
+length(unique(pg_EU$citation))
+rm(pg_EU); gc()
+
 
 ## Full product ------------------------------------------------------------
 
@@ -844,6 +852,7 @@ data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_p
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 save(full_product_is, file = "data/full_data/full_product_is.RData")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
+# if(!exists("full_product_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 
 
 ## Test visuals ------------------------------------------------------------
@@ -955,6 +964,7 @@ data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/fu
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 save(full_product_stor, file = "data/full_data/full_product_stor.RData")
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
+# if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 
 
 # Young Sound -------------------------------------------------------------
@@ -1037,6 +1047,7 @@ data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/f
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 save(full_product_young, file = "data/full_data/full_product_young.RData")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
+if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 
 
 # Disko Bay ---------------------------------------------------------------
@@ -1311,4 +1322,4 @@ data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorde
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
-
+if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
