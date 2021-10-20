@@ -205,7 +205,7 @@ EU_ichtyo <- data.frame(type = "CTD",
 
 # CTD casts in Greenland fjords
 EU_green_fjords <- data.frame(type = "CTD",
-                              data_name = "Sea temperature; salinity; ",
+                              data_name = "Sea temperature; salinity; ChlA; PAR; turbidity",
                               date_range = "2018",
                               lon_range = "-27.5 to -18.8",
                               lat_range = "68.5 to 73.8",
