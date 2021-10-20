@@ -119,6 +119,10 @@ EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_outpu
 
 # GLODAP data
 
+# Greenland fjord CTD casts
+EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE25_CTD_profiles.csv") %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-",day)))
+
 # Combine and save
 # full_product_EU <- rbind()
 # data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
