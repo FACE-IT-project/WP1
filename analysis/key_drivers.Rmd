@@ -62,7 +62,7 @@ The other primary area of interest for this category is the amount of inorganic 
 
 __Key Chemistry Drivers__  
   
-> __CaCO~3~ saturation state__; __Dissolved inorganic carbon__; __Dissolved organic carbon__; __Dissolved organic nitrogen__; __Dissolved O~2~__; __Nutrients__: nitrate, nitrite, ammonium, phosphate, silicate; __Partial pressure of CO~2~__; __pH__; __Total alkalinity__
+> __CaCO~3~ saturation state__; __Dissolved inorganic carbon (DIC)__; __Dissolved organic carbon (DOC)__; __Dissolved organic nitrogen (DON)__; __Dissolved O~2~__; __Nutrients__: nitrate (NO3), nitrite (NO2), ammonium (NH4), phosphate (PO4), silicate (SiO4); __Partial pressure of CO~2~__; __pH__; __Total alkalinity__
   
 # Biology
 

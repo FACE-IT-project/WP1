@@ -590,7 +590,7 @@ kong_mooring_SAMS <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mo
 kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_ship_arrivals.csv") %>% 
   pivot_longer(January:December, names_to = "month", values_to = "value") %>% 
   mutate(var_name = case_when(type == "PAX" ~ "Tourist arrivals [count]",
-                              type == "calls" ~ "Vessels [count]"),
+                              type != "PAX" ~ paste0("Vessels [",type,"]")),
          var_type = "soc",
          month = match(month, month.name),
          date = as.Date(paste0(year,"-",month,"-01")),
@@ -601,7 +601,6 @@ kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_shi
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-
 
 # Combine and save
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
@@ -1041,13 +1040,77 @@ rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
 # Load PG product
 if(!exists("pg_young_ALL")) load("~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
+# Primary production data
+holding_station_idx <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_CTD_biochem.csv") %>% 
+  dplyr::rename(lon = LONG_DD, lat = LAT_DD) %>% 
+  dplyr::select(lon, lat, station) %>% 
+  distinct()
+holding_CTD_biochem <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_CTD_biochem.csv") %>% 
+  mutate(date = as.Date(date, format = "%d/%m/%Y")) %>% 
+  dplyr::rename(lon = LONG_DD, lat = LAT_DD) %>% 
+  dplyr::select(lon, lat, date, depth, z_mix, z_photo, temp:SiO4, -real_depth) %>% 
+  pivot_longer(z_mix:SiO4, names_to = "var_name", values_to = "value")
+holding_CTD_profiles <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_SBE19plus_CTD_profiles_ALL.csv") %>% 
+  mutate(date = as.Date(date, format = "%d/%m/%Y")) %>% 
+  dplyr::rename(lon = LONG_DD, lat = LAT_DD) %>% 
+  dplyr::select(lon, lat, date, depth, temp:SoundVelocit_m_s, -real_depth) %>% 
+  pivot_longer(temp:SoundVelocit_m_s, names_to = "var_name", values_to = "value")
+holding_PI <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/PI_parameters/YS_2014_PI_parameters.csv") %>%
+  mutate(date = as.Date(paste0(year,"-",month,"-",day)), .keep = "unused") %>% 
+  pivot_longer(pm_chl:ik, names_to = "var_name", values_to = "value") %>% 
+  left_join(holding_station_idx, by = "station") %>% 
+  dplyr::select(lon, lat, date, depth, var_name, value)
+holding_ChlA <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/Chl_a/YS_2014_Chl_Fractions.csv") %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-",day)), .keep = "unused") %>% 
+  pivot_longer(chla_GFF_conc:TOTAL_chla_area, names_to = "var_name", values_to = "value") %>% 
+  left_join(holding_station_idx, by = "station") %>% 
+  dplyr::select(lon, lat, date, depth, var_name, value)
+holding_PP <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/Primary_production/YS_2014_PP_Fractions.csv") %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-",day)), .keep = "unused") %>% 
+  pivot_longer(PP_plus_10_frac:TOTAL_PP_area, names_to = "var_name", values_to = "value") %>% 
+  left_join(holding_station_idx, by = "station") %>% 
+  dplyr::select(lon, lat, date, depth, var_name, value)
+young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, holding_ChlA, holding_PP) %>% 
+  filter(!is.na(value)) %>% 
+  mutate(URL = "https://zenodo.org/record/5572041#.YW_Lc5uxU5m",
+         citation = "Holding, Johnna M, Markager, Stiig, Juul-Pedersen, Thomas, Paulsen, Maria L, Møller, Eva F, & Sejr, Mikael K. (2021). Dataset from Holding et al. (2019) Seasonal and spatial patterns of primary production in a high latitude fjord [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572041",
+         date_accessed = as.Date("2021-10-20"),
+         var_type = case_when(var_name %in% c("z_mix", "z_photo", "strat_index", "temp", "conductivity", 
+                                              "turbidity", "PAR", "salinity", "pot_temp", "sigmaT_kg_m3",
+                                              "density_kg_m3", "SoundVelocit_m_s") ~ "Phys",
+                              var_name %in% c("nitracline", "oxygen_umol_kg", "oxygen_corrected_umol_kg", 
+                                              "NH4", "NO2", "NO3", "NO2_NO3", "PO4", "SiO4") ~ "Chem",
+                              TRUE ~ "Bio"),
+         var_name = case_when(var_name == "pm_chl" ~ "pm_chl [g C g-1 Chl h-1]",
+                              var_name == "alpha_chl" ~ "alpha_chl [g C g-1 Chl mol-1 photons m2]",
+                              var_name == "ik" ~ "ik [μmol photons m-2 s-1]",
+                              var_name %in% c("PP_area_plus_10_frac", "PP_area_GFF_frac", 
+                                              "PP_area_disolv_frac") ~ paste0(var_name," [mg C m-2 day-1]"),
+                              var_name %in% c("z_mix", "z_photo", "fluor_max", "chl_max", "nitracline") ~ paste0(var_name," [m]"),
+                              var_name %in% c("temp", "pot_temp") ~ paste0(var_name," [°C]"),
+                              var_name == "conductivity" ~ "conductivity [S/m]",
+                              var_name == "salinity" ~ "salinity [PSU]",
+                              var_name == "turbidity" ~ "turbidity [FTU]",
+                              var_name == "PAR" ~ "PAR [µmol m-2 s-1]",
+                              var_name %in% c("oxygen_umol_kg", "oxygen_corrected_umol_kg") ~ paste0(var_name," [µmol kg-1]"),
+                              var_name %in% c("sigmaT_kg_m3", "density_kg_m3") ~ paste0(var_name," [kg m-3]"),
+                              var_name == "SoundVelocit_m_s" ~ "SoundVelocit_m_s [m/s]",
+                              var_name == "chl_flu" ~ "chl_flu [µg chl m-3]",
+                              var_name == "pp_vol" ~ "pp_vol [mg C m-3 day-1]",
+                              var_name == "pp_chla" ~ "pp_chla [mg C µg Chla-1 m–3 day-1]",
+                              var_name %in% c("NH4", "NO2", "NO3", "NO2_NO3", "PO4", "SiO4") ~ paste0(var_name," [µmol L-1]"),
+                              TRUE ~ var_name)) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+rm(list = grep("holding_",names(.GlobalEnv),value = TRUE)); gc()
+
 # Combine and save
-full_product_young <- rbind(pg_young_ALL)
+full_product_young <- rbind(pg_young_ALL, young_prim_prod)
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 save(full_product_young, file = "data/full_data/full_product_young.RData")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
-if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
+# if(!exists("full_product_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 
 
 # Disko Bay ---------------------------------------------------------------
@@ -1129,12 +1192,35 @@ rm(list = grep("pg_disko",names(.GlobalEnv),value = TRUE)); gc()
 # Load PG product
 if(!exists("pg_disko_ALL")) load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
+# Biochemistry CTD cruise
+# SANNA_2016_SBE19plus_CTD_profiles.nc
+disko_CTD_ChlA_var <- ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/disko_bay/SANNA_2016_SBE19plus_CTD_profiles.nc")$variable
+disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANNA_2016_SBE19plus_CTD_profiles.nc")) %>% 
+  left_join(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANNA_2016_SBE19plus_CTD_profiles.nc"), "D0,D1")), 
+            by = c("stations", "trajectory")) %>% 
+  dplyr::rename(lon = longitude, lat = latitude, depth = z_ctd) %>% 
+  pivot_longer(salinity:sound_velocity, names_to = "var_name", values_to = "value") %>% 
+  filter(!is.na(value), value != -9999) %>% 
+  left_join(disko_CTD_ChlA_var[,c("name", "units")], by = c("var_name" = "name")) %>% 
+  mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01")),
+         date_accessed = as.Date("2021-10-20"),
+         URL = "https://zenodo.org/record/4062024#.YW_TOJuxU5l",
+         citation = "Carlson, Daniel F., Holding, Johnna M., Bendtsen, Jørgen, Markager, Stiig, Møller, Eva F., Meire, Lorenz, Rysgaard, Søren, Dalsgaard, Tage, & Sejr, Mikael K. (2020). CTD Profiles from the R/V Sanna cruise to Northwest Greenland fjords, August 11-31, 2016 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4062024",
+         var_type = case_when(TRUE ~ "Phys"),
+         units = case_when(units == "practical_salinity_units" ~ "PSU",
+                           units == "degrees_Celsius" ~ "°C",
+                           TRUE ~ units),
+         var_name = paste0(var_name," [",units,"]"), .keep = "unused") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+rm(disko_CTD_ChlA_var); gc()
+
 # Combine and save
-full_product_disko <- rbind(pg_disko_ALL)
+full_product_disko <- rbind(pg_disko_ALL, disko_CTD_ChlA)
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
+if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
 
 # Nuup Kangerlua ----------------------------------------------------------
@@ -1218,6 +1304,7 @@ data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua
 save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
+if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 
 
 # Porsangerfjorden --------------------------------------------------------
@@ -1323,3 +1410,4 @@ save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_
 save(full_product_por, file = "data/full_data/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+
