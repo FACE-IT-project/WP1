@@ -842,9 +842,23 @@ is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 rm(is_AIS_2017, is_AIS_2019); gc()
 
+## Tourist ship arrival data
+is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arrivals.csv") %>% 
+  pivot_longer(`2007`:`2019`, names_to = "date", values_to = "value") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(var_name = paste0(type," [",name,"]"),
+         var_type = "soc",
+         date = as.Date(paste0(date,"-12-31")),
+         depth = NA, lon = 15.60, lat = 78.23,
+         URL = "https://portlongyear.no/statistics-of-port-longyear-2007-2012-2019/",
+         date_accessed = as.Date("2021-10-25"),
+         citation = "Port of Longyearbyen (2020). Statistics of Port Longyear 2007, 2012-2019. https://portlongyear.no/statistics-of-port-longyear-2007-2012-2019/") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Combine and save
 full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
-                         is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, is_AIS) %>% 
+                         is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
+                         is_AIS, is_ship_arrivals) %>% 
   rbind(filter(full_product_sval, lon >= bbox_is[1], lon <= bbox_is[2], lat >= bbox_is[3], lat <= bbox_is[4])) %>% 
   rbind(filter(full_product_sval, grepl("Isfjorden", var_name)))
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
