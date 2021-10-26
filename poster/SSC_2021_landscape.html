@@ -311,187 +311,120 @@ span > #tab:mytable {
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>It has been several years since the widespread adoption of FAIR data principals in science, which has led to the widespread Findability, Availability, Interoperability, and Reuseability of data. This is particularly evident in Svalbard thanks in part to the dedicated data portals at SIOS and the NPDC. With these, and other less geographically focused data portals like PANGAEA, researchers have a wealth of in situ collected data available to them for a very wide range of investigations. For research with a very narrow scope, the data portals as they exist now will suffice. However, should an investigation require the use of multiple different variables (e.g. temperature, oxygen, sea ice thickness) researchers very quickly find themselves inundated with many disparate data files and could potentially spend more time with data wrangling than with research. This is a stumbling block in the Reuseability of these data currently hosted online. As part of the Horizon2020 project FACE-IT, experts across many fields of social and natural sciences identified a list of important drivers of change in Arctic fjords and adjacent coastal socio-ecological systems. Here we report on the progress of the accumulation of these data from multiple sources into a central meta-database and as combined data products that allow for the investigation of drivers of change without the need to first spend months with data wrangling.</p>
-<p>Note that there is a heavy focus on time series data and no geo-spatial data (e.g. bathymetry or glacier topography) are included.</p>
-<p>A summary table fo the datasets compiled for each site, Table <a href="#tab:tab1">1</a>:</p>
+<p>Thanks to data portals like <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://sios-svalbard.org/metadata_search">SIOS</a>, <a href="https://pangaea.de/">PANGAEA</a>, and others, there is a lot of <strong>FAIR</strong> data (<strong>F</strong>indable, <strong>A</strong>vailable, <strong>I</strong>nteroperable, and <strong>R</strong>euseable) available for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with data files in different formats and could potentially spend more time with data wrangling than with research. This is a stumbling block in the <strong>R</strong>euseability of the data currently hosted on data portals. As part of the Horizon2020 project FACE-IT, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjords and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table <a href="#tab:tab1">1</a>, and are referenced in a central <a href="https://face-it-project.github.io/WP1/metadatabase.html">meta-database</a>. An example analysis is performed here to highlight the functionality of these combined data. Note that there is a heavy focus on time series data and no geo-spatial data are included (e.g. bathymetry, glacier topography).</p>
 <table>
 <caption>
-<span id="tab:tab1">Table 1: </span>Summary of the .
+<span id="tab:tab1">Table 1: </span>Sources for the datasets amalgamated for FACE-IT.
 </caption>
 <thead>
 <tr>
-<th style="text-align:center;">
-Sepal <br> Length
+<th style="text-align:left;">
+Site
 </th>
-<th style="text-align:center;">
-Sepal <br> Width
+<th style="text-align:right;">
+NPDC
 </th>
-<th style="text-align:center;">
-Petal <br> Length
+<th style="text-align:right;">
+SIOS
 </th>
-<th style="text-align:center;">
-Petal <br> Width
+<th style="text-align:right;">
+PANGAEA
 </th>
-<th style="text-align:center;">
-Species
+<th style="text-align:right;">
+other
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center;">
-5.1
+<td style="text-align:left;">
+Svalbard
 </td>
-<td style="text-align:center;">
-3.5
+<td style="text-align:right;">
+10
 </td>
-<td style="text-align:center;">
-1.4
+<td style="text-align:right;">
+0
 </td>
-<td style="text-align:center;">
-0.2
+<td style="text-align:right;">
+350
 </td>
-<td style="text-align:center;">
-setosa
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-4.9
-</td>
-<td style="text-align:center;">
-3.0
-</td>
-<td style="text-align:center;">
-1.4
-</td>
-<td style="text-align:center;">
-0.2
-</td>
-<td style="text-align:center;">
-setosa
+<td style="text-align:right;">
+5
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
-4.7
+<td style="text-align:left;">
+Kongsfjorden
 </td>
-<td style="text-align:center;">
-3.2
+<td style="text-align:right;">
+7
 </td>
-<td style="text-align:center;">
-1.3
+<td style="text-align:right;">
+0
 </td>
-<td style="text-align:center;">
-0.2
+<td style="text-align:right;">
+130
 </td>
-<td style="text-align:center;">
-setosa
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-4.6
-</td>
-<td style="text-align:center;">
-3.1
-</td>
-<td style="text-align:center;">
-1.5
-</td>
-<td style="text-align:center;">
-0.2
-</td>
-<td style="text-align:center;">
-setosa
+<td style="text-align:right;">
+10
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
-5.0
+<td style="text-align:left;">
+Isfjorden
 </td>
-<td style="text-align:center;">
-3.6
+<td style="text-align:right;">
+3
 </td>
-<td style="text-align:center;">
-1.4
+<td style="text-align:right;">
+3
 </td>
-<td style="text-align:center;">
-0.2
+<td style="text-align:right;">
+215
 </td>
-<td style="text-align:center;">
-setosa
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-5.4
-</td>
-<td style="text-align:center;">
-3.9
-</td>
-<td style="text-align:center;">
-1.7
-</td>
-<td style="text-align:center;">
-0.4
-</td>
-<td style="text-align:center;">
-setosa
+<td style="text-align:right;">
+7
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
-4.6
+<td style="text-align:left;">
+Storfjorden
 </td>
-<td style="text-align:center;">
-3.4
+<td style="text-align:right;">
+0
 </td>
-<td style="text-align:center;">
-1.4
+<td style="text-align:right;">
+0
 </td>
-<td style="text-align:center;">
-0.3
+<td style="text-align:right;">
+84
 </td>
-<td style="text-align:center;">
-setosa
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-5.0
-</td>
-<td style="text-align:center;">
-3.4
-</td>
-<td style="text-align:center;">
-1.5
-</td>
-<td style="text-align:center;">
-0.2
-</td>
-<td style="text-align:center;">
-setosa
+<td style="text-align:right;">
+0
 </td>
 </tr>
 </tbody>
 </table>
+<p><br>
+<br>
+<br>
+<br></p>
 </div>
 <div id="example-analysis" class="section level1">
 <h1>Example analysis</h1>
-<p>Some text here outlining how I went about performing the analyses shown in the results figures below.</p>
-<p><br></p>
+<p>My current plan is to create meaned time series for the daily/monthly data in the separate parts of the fjord (i.e. inner, middle, mouth, outer) for some of the core key drivers identified for the review paper. Temperature, PAR, and ice cover OR ChlA OR pCO2. The final variable choice will depend on availability of those drivers in the main dataset. I then would like to perform a marine heatwave analysis <span class="citation">(<a href="#ref-Hobday2016" role="doc-biblioref">Hobday et al. 2016</a>)</span>. The main objective is to show how dT from different datasets can be brought together to show more than any single dataset could.</p>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
-<p>Here is a placeholder figure from a different analysis, Figure <a href="#fig:fig1">1</a>.</p>
+<p>The results will be shown with a two panel figure (Figure <a href="#fig:fig1">1</a>). The first panel will be a map of Kongsfjorden that shows the data points used and which part of the fjord they are in (i.e. inner, middle, mouth, outer). The second panel will be a series of averaged time series for the variables mentioned above.</p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig1"></span>
-<img src="/home/robert/ArcticKelp/figures/fig_1.jpg" alt="This is a placeholder." width="80%" />
+<img src="/home/rws/WP1/figures/map_kongsfjorden.png" alt="This is a placeholder." width="80%" />
 <p class="caption">
 Figure 1: This is a placeholder.
 </p>
 </div>
-<p>Another placeholder, Figure <a href="#fig:fig2">2</a>!</p>
+<p>The objective for this figure (Figure <a href="#fig:fig2">2</a>) is to show a bubble plot that illustrates the relationship between the chosen variables.</p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig2"></span>
 <img src="SSC_2021_landscape_files/figure-html/fig2-1.png" alt="This is another placeholder." width="80%" />
 <p class="caption">
@@ -499,13 +432,18 @@ Figure 2: This is another placeholder.
 </p>
 </div>
 </div>
-<div id="references" class="section level1">
+<div id="references" class="section level1 unnumbered">
 <h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Hobday2016" class="csl-entry">
+Hobday, Alistair J, Lisa V Alexander, Sarah E Perkins, Dan A Smale, Sandra C Straub, Eric CJ Oliver, Jessica A Benthuysen, et al. 2016. <span>“A Hierarchical Approach to Defining Marine Heatwaves.”</span> <em>Progress in Oceanography</em> 141: 227–38. <a href="https://doi.org/10.1016/j.pocean.2015.12.014">https://doi.org/10.1016/j.pocean.2015.12.014</a>.
+</div>
+</div>
 </div>
 
 </div>
 <div class="main">
-<p>Dozens of varied datasets have been combined throughout Svalbard to allow for a range of ‘out-of-the-box’ analyses.</p>
+<p>Hundreds of fuly referenced datasets have been combined throughout Svalbard to allow for a range of analyses.</p>
 <img src="metadatabase_QR.png" class="main-img-left" />
 <img src="FACE-IT_h2020.png" class="main-img-right" />
 </div>
