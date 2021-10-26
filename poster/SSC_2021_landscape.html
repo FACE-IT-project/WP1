@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+<title>Aggregated Marine Data Products for Svalbard</title>
+
+<script src="SSC_2021_landscape_files/header-attrs-2.11/header-attrs.js"></script>
+
+
+
+
+
+
+<!--
+Font-awesome icons ie github or twitter
+-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
+
+<!--
+Google fonts api stuff
+-->
+<link href='https://fonts.googleapis.com/css?family=Special Elite' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Rasa' rel='stylesheet'>
+
+<!--
+Here are the required style attributes for css to make this poster work :)
+-->
+<style>
+@page {
+size: 46in 32in;
+margin: 0;
+padding: 0;
+background-color: #ffffff;
+}
+body {
+margin: 0px;
+padding: 0px;
+width: 46in;
+height: 32in;
+text-align: justify;
+font-size: 45px;
+background-color: #FFFFFF;
+color: #000000;
+}
+/* RMarkdown Class Styles */
+/* center align leaflet map,
+from https://stackoverflow.com/questions/52112119/center-leaflet-in-a-rmarkdown-document */
+.html-widget {
+margin: auto;
+position: sticky;
+margin-top: 2cm;
+margin-bottom: 2cm;
+}
+.leaflet.html-widget.html-widget-static-bound.leaflet-container.leaflet-touch.leaflet-fade-anim.leaflet-grab.leaflet-touch-drag.leaflet-touch-zoom {
+position: sticky;
+width: 100%;
+}
+pre.sourceCode.r {
+background-color: #dddddd40;
+border-radius: 4mm;
+padding: 4mm;
+width: 75%;
+margin: auto;
+margin-top: 1em;
+margin-bottom: 1em;
+/* align-items: center; */
+}
+code.sourceCode.r{
+background-color: transparent;
+font-size: 20pt;
+border-radius: 2mm;
+}
+code {
+font-size: 25pt;
+font-family: monospace;
+background-color: #00808024;
+color: #0b4545;
+padding: 1.2mm;
+line-height: 1;
+border-radius: 2mm;
+}
+caption {
+margin-bottom: 10px;
+font-size: 20pt;
+font-style: italic;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #0b454520;
+}
+.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td{
+  border-spacing: 0;
+  font-size: 40%;
+  border-style: none;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-right: 1em;
+  padding-left: 1em;
+  line-height: 1em;
+}
+table {
+  margin: auto;
+}
+th {
+  padding-left: 5mm;
+  padding-right: 5mm;
+}
+.caption {
+font-size: 20pt;
+font-style: italic;
+padding-top: 0;
+}
+.references {
+font-size: 20px;
+line-height: 90%;
+}
+/* Create three unequal columns that floats next to each other */
+.column {
+float: left;
+padding: 0px;
+}
+.outer {
+width: 46in;
+height: 32in;
+-webkit-column-count: 2; /* Chrome, Safari, Opera */
+-moz-column-count: 2; /* Firefox */
+column-count: 2;
+-webkit-column-fill: auto;
+-moz-column-fill: auto;
+column-fill: auto;
+-webkit-column-rule-width: 50%;
+-moz-column-rule-width: 50%;
+column-rule-width: 50%;
+-webkit-column-rule-style: solid;
+-moz-column-rule-style: solid;
+column-rule-style: solid;
+-webkit-column-rule-color: black;
+-moz-column-rule-color: black;
+column-rule-color: black;
+-webkit-column-gap: 50%;
+background-color: #ffffff;
+font-family: Rasa;
+color: #000000;
+}
+span.citation {
+  color: #008080;
+  font-weight: bold;
+}
+a {
+text-decoration: none;
+color: #008080;
+}
+#title {
+font-size: 125pt;
+text-align: left;
+margin: 0;
+line-height: 90%;
+border-bottom: 0;
+}
+#author {
+color: #0b4545;
+margin: 0;
+line-height: 90%;
+font-size: 1.17em;
+}
+#affiliation {
+padding-top: 1em;
+color: #00000060;
+font-style: italic;
+font-size: 25px;
+margin: 0;
+}
+sup {
+color: #cc0000;
+}
+.affiliation sup {
+font-size: 20px;
+}
+.author sup {
+font-size: 30px;
+}
+.author_extra {
+color: #008080;
+margin: 0;
+line-height: 85%;
+font-size: 35px;
+}
+.outer h1 {
+text-align: center;
+margin-top: 0.5in;
+margin-bottom: 0.5in;
+}
+.outer h2 {
+text-align: center;
+}
+.outer p {
+color: #000000;
+}
+.outer ol {
+text-align: left;
+}
+.main {
+width: calc(46in / 2);
+height: 32in;
+position: absolute;
+margin-left: calc(46in / 4);
+background-color: #0b4545;
+color: #FFFFFF90;
+font-family: Special Elite;
+background-image: linear-gradient(#0b4545 50%, #008080);
+}
+.main strong {
+color: #FFFFFF;
+}
+img.main-img-left {
+width: 20%;
+left: 0.5in;
+bottom: 0.2in;
+position: absolute;
+}
+img.main-img-right {
+width: 18%;
+right: 0.5in;
+bottom: 0.2in;
+position: absolute;
+}
+.main p {
+padding-top: 20%;
+font-size: 170px;
+text-align: left;
+}
+.fab {
+color: #00000060;
+font-size: 25px;
+}
+.twitter, i {
+color: #00000060;
+font-size: 35px;
+text-decoration: none;
+}
+a.email {
+text-decoration: none;
+color: #00000060;
+font-size: 35px;
+}
+.envelope {
+color: #00000060;
+font-size: 5px;
+text-decoration: none;
+}
+.poster_wrap {
+width: 46in;
+height: 32in;
+padding: 0cm;
+background-color: #ffffff;
+}
+span > #tab:mytable {
+  font-weight: bold;
+}
+.section {
+  padding-left: 10mm;
+  padding-right: 10mm;
+}
+.main p {
+  padding-left: 30mm;
+  padding-right: 30mm;
+}
+.main_pic {
+  width: 50%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.orcid img {
+  width: 3%;
+}
+</style>
+</head>
+<body>
+
+
+<div class="poster_wrap">
+<div class="column outer">
+<br>
+<div class="title section">
+<h1 id="title">Aggregated Marine Data Products for Svalbard</h1>
+<br>
+<h3 id="author" class="author">
+
+<strong>Robert Schlegel</strong><sup> 1, <a class="orcid" href="https://orcid.org/0000-0002-0705-1287"><img src="https://raw.githubusercontent.com/brentthorne/posterdown/master/images/orcid.jpg"></a></sup><br>
+<a class="twitter" href="https://mobile.twitter.com/robwschlegel"><i class="fab fa-twitter"></i>&nbsp;&nbsp;@robwschlegel</a><br>
+
+<a class='envelope'><i class="fas fa-envelope"></i></a> <a href="mailto:robert.schlegel@imev-mer.fr" class="email">robert.schlegel@imev-mer.fr</a> <br>
+ </h3>
+
+<h5 id="author_extra" class="author_extra">
+ Jean-Pierre Gattuso<sup>1</sup>
+</h5>
+
+<p id="affiliation" class="affiliation">
+<sup>1</sup> Institut de la mer de Villefranche, Sorbonne Université, Villfranche-sur-Mer, France
+</p>
+
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>It has been several years since the widespread adoption of FAIR data principals in science, which has led to the widespread Findability, Availability, Interoperability, and Reuseability of data. This is particularly evident in Svalbard thanks in part to the dedicated data portals at SIOS and the NPDC. With these, and other less geographically focused data portals like PANGAEA, researchers have a wealth of in situ collected data available to them for a very wide range of investigations. For research with a very narrow scope, the data portals as they exist now will suffice. However, should an investigation require the use of multiple different variables (e.g. temperature, oxygen, sea ice thickness) researchers very quickly find themselves inundated with many disparate data files and could potentially spend more time with data wrangling than with research. This is a stumbling block in the Reuseability of these data currently hosted online. As part of the Horizon2020 project FACE-IT, experts across many fields of social and natural sciences identified a list of important drivers of change in Arctic fjords and adjacent coastal socio-ecological systems. Here we report on the progress of the accumulation of these data from multiple sources into a central meta-database and as combined data products that allow for the investigation of drivers of change without the need to first spend months with data wrangling.</p>
+<p>Note that there is a heavy focus on time series data and no geo-spatial data (e.g. bathymetry or glacier topography) are included.</p>
+<p>A summary table fo the datasets compiled for each site, Table <a href="#tab:tab1">1</a>:</p>
+<table>
+<caption>
+<span id="tab:tab1">Table 1: </span>Summary of the .
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Sepal <br> Length
+</th>
+<th style="text-align:center;">
+Sepal <br> Width
+</th>
+<th style="text-align:center;">
+Petal <br> Length
+</th>
+<th style="text-align:center;">
+Petal <br> Width
+</th>
+<th style="text-align:center;">
+Species
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+5.1
+</td>
+<td style="text-align:center;">
+3.5
+</td>
+<td style="text-align:center;">
+1.4
+</td>
+<td style="text-align:center;">
+0.2
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+4.9
+</td>
+<td style="text-align:center;">
+3.0
+</td>
+<td style="text-align:center;">
+1.4
+</td>
+<td style="text-align:center;">
+0.2
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+4.7
+</td>
+<td style="text-align:center;">
+3.2
+</td>
+<td style="text-align:center;">
+1.3
+</td>
+<td style="text-align:center;">
+0.2
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+4.6
+</td>
+<td style="text-align:center;">
+3.1
+</td>
+<td style="text-align:center;">
+1.5
+</td>
+<td style="text-align:center;">
+0.2
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+5.0
+</td>
+<td style="text-align:center;">
+3.6
+</td>
+<td style="text-align:center;">
+1.4
+</td>
+<td style="text-align:center;">
+0.2
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+5.4
+</td>
+<td style="text-align:center;">
+3.9
+</td>
+<td style="text-align:center;">
+1.7
+</td>
+<td style="text-align:center;">
+0.4
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+4.6
+</td>
+<td style="text-align:center;">
+3.4
+</td>
+<td style="text-align:center;">
+1.4
+</td>
+<td style="text-align:center;">
+0.3
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+5.0
+</td>
+<td style="text-align:center;">
+3.4
+</td>
+<td style="text-align:center;">
+1.5
+</td>
+<td style="text-align:center;">
+0.2
+</td>
+<td style="text-align:center;">
+setosa
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="example-analysis" class="section level1">
+<h1>Example analysis</h1>
+<p>Some text here outlining how I went about performing the analyses shown in the results figures below.</p>
+<p><br></p>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<p>Here is a placeholder figure from a different analysis, Figure <a href="#fig:fig1">1</a>.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig1"></span>
+<img src="/home/robert/ArcticKelp/figures/fig_1.jpg" alt="This is a placeholder." width="80%" />
+<p class="caption">
+Figure 1: This is a placeholder.
+</p>
+</div>
+<p>Another placeholder, Figure <a href="#fig:fig2">2</a>!</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig2"></span>
+<img src="SSC_2021_landscape_files/figure-html/fig2-1.png" alt="This is another placeholder." width="80%" />
+<p class="caption">
+Figure 2: This is another placeholder.
+</p>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+</div>
+
+</div>
+<div class="main">
+<p>Dozens of varied datasets have been combined throughout Svalbard to allow for a range of ‘out-of-the-box’ analyses.</p>
+<img src="metadatabase_QR.png" class="main-img-left" />
+<img src="FACE-IT_h2020.png" class="main-img-right" />
+</div>
+</div>
+
+
+
+</body>
+</html>

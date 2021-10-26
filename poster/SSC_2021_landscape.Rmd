@@ -1,0 +1,99 @@
+---
+title: Aggregated Marine Data Products for Svalbard
+author:
+  - name: '**Robert Schlegel**'
+    affil: 1
+    twitter: robwschlegel
+    email: robert.schlegel@imev-mer.fr
+    orcid: 0000-0002-0705-1287
+    main: true
+  - name: Jean-Pierre Gattuso
+    affil: 1
+affiliation:
+  - num: 1
+    address: Institut de la mer de Villefranche, Sorbonne Université, Villfranche-sur-Mer, France
+main_findings:
+  - "Dozens of varied datasets have been combined throughout Svalbard to allow for a range of 'out-of-the-box' analyses."
+  # - '![](~/WP1/poster/metadatabase_QR.png){.main_pic}'
+logoleft_name: '![](~/WP1/poster/metadatabase_QR.png){.main-img-left}'
+logoright_name: '![](~/WP1/poster/FACE-IT_h2020.png){.main-img-right}'
+output: 
+  posterdown::posterdown_betterland:
+    self_contained: false
+    pandoc_args: --mathjax
+    highlight: haddock
+    number_sections: false
+link-citations: true
+bibliography: packages.bib
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(results = 'asis',
+                      echo = FALSE,
+                      warning = FALSE,
+                      tidy = FALSE,
+                      message = FALSE,
+                      fig.align = 'center',
+                      out.width = "100%")
+options(knitr.table.format = "html") 
+```
+
+```{r myplot, include=FALSE}
+svg('myplot.svg')
+plot(iris$Sepal.Length, iris$Sepal.Width)
+dev.off()
+```
+
+# Introduction
+
+It has been several years since the widespread adoption of FAIR data principals in science, which has led to the widespread Findability, Availability, Interoperability, and Reuseability of data. This is particularly evident in Svalbard thanks in part to the dedicated data portals at SIOS and the NPDC. With these, and other less geographically focused data portals like PANGAEA, researchers have a wealth of in situ collected data available to them for a very wide range of investigations. For research with a very narrow scope, the data portals as they exist now will suffice. However, should an investigation require the use of multiple different variables (e.g. temperature, oxygen, sea ice thickness) researchers very quickly find themselves inundated with many disparate data files and could potentially spend more time with data wrangling than with research. This is a stumbling block in the Reuseability of these data currently hosted online. As part of the Horizon2020 project FACE-IT, experts across many fields of social and natural sciences identified a list of important drivers of change in Arctic fjords and adjacent coastal socio-ecological systems. Here we report on the progress of the accumulation of these data from multiple sources into a central meta-database and as combined data products that allow for the investigation of drivers of change without the need to first spend months with data wrangling. 
+
+```{r, include=FALSE}
+knitr::write_bib(c('posterdown', 'rmarkdown','pagedown'), 'packages.bib')
+```
+
+Note that there is a heavy focus on time series data and no geo-spatial data (e.g. bathymetry or glacier topography) are included.
+
+A summary table fo the datasets compiled for each site, Table \@ref(tab:tab1):
+
+```{r, tab1}
+knitr::kable(
+  iris[1:8,1:5], format = "html",
+  caption = "Summary of the .",
+  align = "c", col.names = c("Sepal <br> Length",
+                             "Sepal <br> Width",
+                             "Petal <br> Length",
+                             "Petal <br> Width",
+                             "Species"),
+  escape = FALSE)
+```
+
+# Example analysis
+
+Some text here outlining how I went about performing the analyses shown in the results figures below.
+
+
+<br>
+
+# Results
+
+Here is a placeholder figure from a different analysis, Figure \@ref(fig:fig1).
+
+```{r, fig1, fig.cap='This is a placeholder.', out.width="80%"}
+knitr::include_graphics("~/ArcticKelp/figures/fig_1.jpg")
+```
+
+Another placeholder, Figure \@ref(fig:fig2)!
+
+```{r fig2, echo=FALSE, collapse=TRUE, fig.cap='This is another placeholder.', fig.height=3.5, out.width="80%"}
+#trim whitespace
+par(mar=c(2,2,0,0))
+#plot boxplots
+boxplot(iris$Sepal.Width~iris$Species,
+        col = "#008080", 
+        border = "#0b4545",
+        ylab = "Sepal Width (cm)",
+        xlab = "Species")
+```
+
+# References
