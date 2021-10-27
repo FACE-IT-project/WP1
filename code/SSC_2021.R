@@ -152,18 +152,56 @@ ggplot(choice_vars_kong_monthly) +
   geom_line(aes(x = yearmon, y = value, colour = depth_cat)) +
   facet_grid(var_cat ~ region, scales = "free")
 
+# MHW analysis
+# Make calculations
+MHW_res <- SST %>%
+  # filter(lat == -63.375, lon == 0.125) %>% # tester...
+  group_by(lon, lat) %>%
+  nest() %>% 
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1982-01-01", "2011-12-31"), pctile = 10),
+         event = purrr::map(clim, detect_event, coldSpells = T), 
+         cat = purrr::map(event, category, climatology = T, season = "peak")) %>%
+  select(-data, -clim)
+
+# Load and process
+res <- readRDS(MCS_files[lon_step]) %>% 
+  dplyr::select(lon, lat, event) %>% 
+  unnest(event) %>% 
+  filter(row_number() %% 2 == 1) %>% 
+  unnest(event) %>% 
+  dplyr::select(seas, thresh, lat, lon, doy) %>% 
+  distinct() %>% 
+  dplyr::rename(time = doy) %>% 
+  mutate(seas = round(seas, 2),
+         thresh = round(thresh, 2))
+
+# The original MCS methodology
+cat_sub <- readRDS(MCS_file) %>%
+  dplyr::select(-event, -cat_correct) %>% 
+  unnest(cols = cat) %>% 
+  filter(row_number() %% 2 == 1) %>% 
+  filter(nrow(cat$climatology) > 0) %>%
+  unnest(cols = cat) %>% 
+  ungroup()
+
 
 # Figures -----------------------------------------------------------------
 
 ## Figure 1: Map and time series of Kongsfjorden
 # a) map
-fig1a <- ggplot()
+fig1a <- ggplot(coastline_kong, aes(x = lon, y = lat)) + geom_point() +
+  geom_polygon(data = kong_regions, aes(group = region, fill = region))
+fig1a
 
 # b) time series
 fig1b <- ggplot(choice_vars_kong_monthly) +
   geom_line(aes(x = yearmon, y = value, colour = depth_cat)) +
   facet_grid(var_cat ~ region, scales = "free")
 fig1b
+
+# Combine and save
+fig1 <- ggpubr::ggarrange(fig1a, fig1b, ncol = 1)
+fig1
 
 ## Figure 2: Bubble plot showing relationships of variables
 

@@ -19,10 +19,14 @@ navbar:
     href: review.html
   - text: "Talks"
     menu:
-    - text: "2021 summary"
+    - text: "FACE-IT WP1 summary - 2021"
       href: 2021_summary.html
-    - text: "2021 analysis"
+    - text: "FACE-IT example analysis - 2021"
       href: 2021_analysis.html
+  - text: "Posters"
+    menu:
+    - text: "Svalbard Science Conference - 2021"
+      href: SSC_2021.pdf
   # - text: "Analyses"
     # menu:
     # - text: "SOCAT/GLODAP data in the Arctic"

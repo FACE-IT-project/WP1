@@ -15,10 +15,10 @@ affiliation:
   - num: 2
     address: Institute for Sustainable Development and International Relations (IDDRI-Sciences Po), Paris, France
 main_findings:
-  - "**Hundreds** of fully referenced **datasets** have been combined throughout **Svalbard** for the **FACE-IT** project"
+  - "**Hundreds** of fully referenced **datasets** have been combined throughout **Svalbard** via the **FACE-IT** project"
   # - '![](~/WP1/poster/metadatabase_QR.png){.main_pic}'
-logoleft_name: '![](~/WP1/poster/metadatabase_QR.png){.main-img-left}'
-logoright_name: '![](~/WP1/poster/FACE-IT_h2020.png){.main-img-right}'
+logoleft_name: '![](~/WP1/poster/metadatabase_QR.png){.main-img-left width=30%}'
+logoright_name: '![](~/WP1/poster/FACE-IT_h2020.jpg){.main-img-right width=30%}'
 output: 
   posterdown::posterdown_betterland:
     self_contained: false
@@ -40,15 +40,9 @@ knitr::opts_chunk$set(results = 'asis',
 options(knitr.table.format = "html") 
 ```
 
-```{r myplot, include=FALSE}
-svg('myplot.svg')
-plot(iris$Sepal.Length, iris$Sepal.Width)
-dev.off()
-```
+# Overview
 
-# Introduction
-
-Thanks to data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others, there is a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) available for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with data files in different formats and could may spend more time with data wrangling than with research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project FACE-IT, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table \@ref(tab:tab1), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html). An example analysis is performed here to highlight the functionality of these combined data. Note that there is a heavy focus on time series data and no geo-spatial data are included (e.g. bathymetry, glacier topography).
+Data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others provide a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project **FACE-IT**, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table \@ref(tab:tab1)), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (_follow QR code_). An example analysis is performed here to highlight the functionality of these combined data.
 
 ```{r, tab1}
 knitr::kable(
@@ -58,15 +52,14 @@ knitr::kable(
             PANGAEA = c(1740, 130, 215, 84),
             other = c(5, 10, 7, 0)), 
   format = "html",
-  caption = "Sources for the datasets amalgamated for FACE-IT.",
+  caption = "Sources for the datasets amalgamated for FACE-IT. Note that there is a heavy focus on time series and station datasets. No geo-spatial datasets are included (e.g. bathymetry, glacier topography).",
   # align = "c",
   escape = FALSE)
 ```
 
-<br>
-<br>
-<br>
-<br>
+# Acknowledgements
+
+This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 869154.
 
 # Example analysis
 
