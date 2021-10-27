@@ -8,12 +8,14 @@ author:
     orcid: 0000-0002-0705-1287
     main: true
   - name: Jean-Pierre Gattuso
-    affil: 1
+    affil: 1, 2
 affiliation:
   - num: 1
-    address: Institut de la mer de Villefranche, Sorbonne Université, Villfranche-sur-Mer, France
+    address: Laboratoire d’Océanographie de Villefranche, Sorbonne University, CNRS, Villefranche-sur-mer, France
+  - num: 2
+    address: Institute for Sustainable Development and International Relations (IDDRI-Sciences Po), Paris, France
 main_findings:
-  - "Hundreds of fuly referenced datasets have been combined throughout Svalbard to allow for a range of analyses."
+  - "**Hundreds** of fully referenced **datasets** have been combined throughout **Svalbard** for the **FACE-IT** project"
   # - '![](~/WP1/poster/metadatabase_QR.png){.main_pic}'
 logoleft_name: '![](~/WP1/poster/metadatabase_QR.png){.main-img-left}'
 logoright_name: '![](~/WP1/poster/FACE-IT_h2020.png){.main-img-right}'
