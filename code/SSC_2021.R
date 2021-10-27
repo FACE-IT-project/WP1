@@ -5,6 +5,7 @@
 
 # Libraries
 source("code/functions.R")
+library(lubridate)
 library(heatwaveR)
 
 # Quick filtering function
@@ -23,6 +24,31 @@ pg_quick_filter <- function(file_name, bbox){
   rm(pg_dat); gc()
   return(pg_res)
 }
+
+# Function that adapts the climatology period to the data
+ts2clm_adapt <- function(df){
+  # Get start/end dates
+  min_date <- min(df$t)
+  if(min_date < as.Date("1981-01-01")){
+    min_date <- as.Date("1981-01-01")
+  } else {
+    min_date <- as.Date(paste0(year(min_date)+1,"-01-01"))
+  }
+  max_date <- max(df$t)
+  if(year(max_date)-year(min_date) > 30){
+    max_date <- as.Date(paste0(year(min_date)+30,"-12-31"))
+  } else {
+    max_date <- as.Date(paste0(year(max_date)-1,"-12-31"))
+  }
+  if(year(max_date)-year(min_date) < 3) return(NULL)
+  res <- ts2clm(df, climatologyPeriod = c(min_date, max_date)) %>% 
+    mutate(clim_start = min_date, clim_end = max_date)
+  return(res)
+}
+
+df <- MHW_res %>% 
+  filter(region == "middle", depth_cat == "1000 - 2000 m")
+
 
 # Data --------------------------------------------------------------------
 
@@ -154,35 +180,32 @@ ggplot(choice_vars_kong_monthly) +
 
 # MHW analysis
 # Make calculations
-MHW_res <- SST %>%
-  # filter(lat == -63.375, lon == 0.125) %>% # tester...
-  group_by(lon, lat) %>%
+MHW_res <- choice_vars_kong %>%
+  filter(var_cat == "temp") %>% 
+  filter(depth_cat != "1000 - 2000 m") %>% 
+  dplyr::rename(t = date, temp = value) %>% 
+  group_by(region, depth_cat, var_cat, t) %>%
+  summarise(temp = mean(temp, na.rn = T), .groups = "drop") %>% 
+  group_by(region, depth_cat) %>%
   nest() %>% 
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1982-01-01", "2011-12-31"), pctile = 10),
-         event = purrr::map(clim, detect_event, coldSpells = T), 
+  mutate(clim = purrr::map(data, ts2clm_adapt),
+         event = purrr::map(clim, detect_event), 
          cat = purrr::map(event, category, climatology = T, season = "peak")) %>%
   select(-data, -clim)
 
-# Load and process
-res <- readRDS(MCS_files[lon_step]) %>% 
-  dplyr::select(lon, lat, event) %>% 
-  unnest(event) %>% 
+# Climatology results
+MHW_clim <- MHW_res %>% 
+  dplyr::select(region, depth_cat, event) %>% 
+  unnest(cols = event) %>% 
   filter(row_number() %% 2 == 1) %>% 
-  unnest(event) %>% 
-  dplyr::select(seas, thresh, lat, lon, doy) %>% 
-  distinct() %>% 
-  dplyr::rename(time = doy) %>% 
-  mutate(seas = round(seas, 2),
-         thresh = round(thresh, 2))
+  unnest(event)
 
-# The original MCS methodology
-cat_sub <- readRDS(MCS_file) %>%
-  dplyr::select(-event, -cat_correct) %>% 
-  unnest(cols = cat) %>% 
-  filter(row_number() %% 2 == 1) %>% 
-  filter(nrow(cat$climatology) > 0) %>%
-  unnest(cols = cat) %>% 
-  ungroup()
+# Event results
+MHW_event <- MHW_res %>% 
+  dplyr::select(region, depth_cat, event) %>% 
+  unnest(cols = event) %>% 
+  filter(row_number() %% 2 == 0) %>% 
+  unnest(event)
 
 
 # Figures -----------------------------------------------------------------

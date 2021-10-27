@@ -63,7 +63,7 @@ This project has received funding from the European Union's Horizon 2020 researc
 
 # Example analysis
 
-My current plan is to create meaned time series for the daily/monthly data in the separate parts of the fjord (i.e. inner, middle, mouth, outer) for some of the core key drivers identified for the review paper. Temperature, PAR, and ice cover OR ChlA OR pCO2. The final variable choice will depend on availability of those drivers in the main dataset. I then would like to perform a marine heatwave analysis [@Hobday2016; @Hobday2018]. The main objective is to show how dT from different datasets can be brought together to show more than any single dataset could.
+My current plan is to create meaned time series for the daily/monthly data in the separate parts of the fjord (i.e. inner, middle, mouth, outer) for some of the core key drivers identified for the review paper. Temperature, PAR, and ice cover OR ChlA OR pCO2. The final variable choice will depend on availability of those drivers in the main dataset. I then would like to perform a marine heatwave analysis [@Hobday2016; @Hobday2018]. The main objective is to show how different from different datasets can be brought together to show more than any single dataset could. WMO climate normals [@WMO2018]
 
 # Results
 
