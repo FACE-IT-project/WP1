@@ -42,7 +42,7 @@ options(knitr.table.format = "html")
 
 # Overview
 
-Data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others provide a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project **FACE-IT**, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table \@ref(tab:tab1)), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (_follow QR code_). An example analysis is performed here to highlight the functionality of these combined data.
+Data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others provide a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project **FACE-IT**, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table \@ref(tab:tab1)), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (_follow QR code_). An example analysis highlights the functionality of these combined data.
 
 ```{r, tab1}
 knitr::kable(
@@ -57,17 +57,17 @@ knitr::kable(
   escape = FALSE)
 ```
 
-# Acknowledgements
+## Acknowledgements
 
-This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 869154.
+This project has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 869154.
 
 # Example analysis
 
-My current plan is to create meaned time series for the daily/monthly data in the separate parts of the fjord (i.e. inner, middle, mouth, outer) for some of the core key drivers identified for the review paper. Temperature, PAR, and ice cover OR ChlA OR pCO2. The final variable choice will depend on availability of those drivers in the main dataset. I then would like to perform a marine heatwave analysis [@Hobday2016]. The main objective is to show how dT from different datasets can be brought together to show more than any single dataset could.
+My current plan is to create meaned time series for the daily/monthly data in the separate parts of the fjord (i.e. inner, middle, mouth, outer) for some of the core key drivers identified for the review paper. Temperature, PAR, and ice cover OR ChlA OR pCO2. The final variable choice will depend on availability of those drivers in the main dataset. I then would like to perform a marine heatwave analysis [@Hobday2016; @Hobday2018]. The main objective is to show how dT from different datasets can be brought together to show more than any single dataset could.
 
 # Results
 
-The results will be shown with a two panel figure (Figure \@ref(fig:fig1)). The first panel will be a map of Kongsfjorden that shows the data points used and which part of the fjord they are in (i.e. inner, middle, mouth, outer). The second panel will be a series of averaged time series for the variables mentioned above.
+The results will be shown with a two panel figure (Figure \@ref(fig:fig1)). Regions adapted from @Hop2002. The first panel will be a map of Kongsfjorden that shows the data points used and which part of the fjord they are in (i.e. inner, middle, mouth, outer). The second panel will be a series of averaged time series for the variables mentioned above.
 
 ```{r, fig1, fig.cap='This is a placeholder.', out.width="80%"}
 knitr::include_graphics("~/WP1/figures/map_kongsfjorden.png")
@@ -86,4 +86,4 @@ boxplot(iris$Sepal.Width~iris$Species,
         xlab = "Species")
 ```
 
-# References
+## References
