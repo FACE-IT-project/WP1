@@ -464,5 +464,5 @@ plot_regions_kong <- ggplot() +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom")
 plot_regions_kong
-ggsave("figures/regions_kong.png", plot_problems_kong)
+ggsave("figures/regions_kong.png", plot_regions_kong)
 

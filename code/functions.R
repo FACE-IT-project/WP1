@@ -33,6 +33,7 @@ Sys.setenv(TZ = "UTC")
 
 # Bounding boxes
 bbox_EU <- c(-60, 60, 63, 90)
+bbox_sval <- c(9, 30, 76, 81)
 bbox_kong <- c(11, 12.69, 78.86, 79.1)
 bbox_is <- c(12.97, 17.50, 77.95, 78.90)
 bbox_ingle <- c(18.15, 18.79, 77.87, 78.08)
@@ -94,21 +95,14 @@ coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 # Function for finding and cleaning up points within a given region polygon
 points_in_region <- function(region_in, bbox_df, data_df){
   region_sub <- bbox_df %>% 
-    filter(region == region_in) #%>% 
-    # pivot_longer(lon1:lon2, names_to = "lon_name", values_to = "lon") %>% 
-    # pivot_longer(lat1:lat2, names_to = "lat_name", values_to = "lat") %>% 
-    # dplyr::select(region, lon, lat) %>% 
-    # distinct()
-  # distinct_df <- data_df %>%
-  #   dplyr::select(lon, lat) %>%
-  #   distinct()
-  # coords_in <- distinct_df %>% 
-  coords_in <- data_df %>% 
-    # mutate(in_grid = sp::point.in.polygon(point.x = distinct_df[["lon"]], point.y = distinct_df[["lat"]], 
-    #                                       pol.x = region_sub[["lon"]], pol.y = region_sub[["lat"]])) %>% 
-    # filter(in_grid >= 1) %>%
-    filter(lon >= region_sub$lon1, lon <= region_sub$lon2,
-           lat >= region_sub$lat1, lat <= region_sub$lat2) %>% 
+    filter(region == region_in)
+  distinct_df <- data_df %>%
+    dplyr::select(lon, lat) %>%
+    distinct()
+  coords_in <- distinct_df %>%
+    mutate(in_grid = sp::point.in.polygon(point.x = distinct_df[["lon"]], point.y = distinct_df[["lat"]],
+                                          pol.x = region_sub[["lon"]], pol.y = region_sub[["lat"]])) %>%
+    filter(in_grid >= 1) %>%
     mutate(region = region_in) %>%
     dplyr::select(lon, lat, region)
   return(coords_in)

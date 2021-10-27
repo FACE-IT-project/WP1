@@ -46,14 +46,14 @@ dev.off()
 
 # Introduction
 
-Thanks to data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others, there is a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) available for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with data files in different formats and could potentially spend more time with data wrangling than with research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project FACE-IT, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjords and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table \@ref(tab:tab1), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html). An example analysis is performed here to highlight the functionality of these combined data. Note that there is a heavy focus on time series data and no geo-spatial data are included (e.g. bathymetry, glacier topography).
+Thanks to data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others, there is a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) available for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with data files in different formats and could may spend more time with data wrangling than with research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project FACE-IT, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table \@ref(tab:tab1), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html). An example analysis is performed here to highlight the functionality of these combined data. Note that there is a heavy focus on time series data and no geo-spatial data are included (e.g. bathymetry, glacier topography).
 
 ```{r, tab1}
 knitr::kable(
   data.frame(Site = c("Svalbard", "Kongsfjorden", "Isfjorden", "Storfjorden"),
             NPDC = c(10, 7, 3, 0),
             SIOS = c(0, 0, 3, 0),
-            PANGAEA = c(350, 130, 215, 84),
+            PANGAEA = c(1740, 130, 215, 84),
             other = c(5, 10, 7, 0)), 
   format = "html",
   caption = "Sources for the datasets amalgamated for FACE-IT.",
