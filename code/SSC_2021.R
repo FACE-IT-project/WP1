@@ -46,9 +46,6 @@ ts2clm_adapt <- function(df){
   return(res)
 }
 
-df <- MHW_res %>% 
-  filter(region == "middle", depth_cat == "1000 - 2000 m")
-
 
 # Data --------------------------------------------------------------------
 
@@ -177,6 +174,99 @@ ggplot(choice_vars_kong_monthly) +
   geom_point(aes(x = yearmon, y = value, colour = depth_cat), size = 0.5) +
   geom_line(aes(x = yearmon, y = value, colour = depth_cat)) +
   facet_grid(var_cat ~ region, scales = "free")
+
+# Relationship between daily data
+choice_vars_kong_wide <- choice_vars_kong %>% 
+  # mutate(var_name = case_when(var_cat == "temp" ~ "temp [°C]", TRUE ~ var_name)) %>% 
+  filter(!var_name %in% c("O2 [µmol/l]", "pH", "fluo_V [volt]", "par_V [volt]", "fluo [microgram/l]")) %>% 
+  # filter(depth_cat == "0 - 10 m") %>% 
+  filter(date >= "2009-01-01") %>% 
+  group_by(region, depth_cat, var_cat, date) %>% #, var_name) %>% 
+  summarise(value = mean(value, na.rn = T), .groups = "drop") %>% 
+  pivot_wider(id_cols = c("region", "depth_cat", "date"), values_from = value, names_from = var_cat)
+
+df <- choice_vars_kong_wide %>% 
+  filter(depth_cat == "50 - 200 m.", region == "transition")
+col1 <- "temp"; col2 <- "ChlA"
+
+cor_test <- function(df, col1, col2){
+  df_sub <- drop_na(df[c(col1, col2)])
+  if(nrow(df_sub) > 0) {
+    cor_res <- cor.test(df_sub[[1]], df_sub[[2]])
+    res <- data.frame(r = cor_res$estimate, p = cor_res$p.value, df = cor_res$parameter, n = nrow(df_sub))
+  } else {
+    res <- data.frame(r = NA, p = NA, df = NA, n = 0)
+  }
+  return(res)
+}
+
+# Grouped correlations
+choice_vars_kong_cor <- choice_vars_kong_wide %>% 
+  group_by(region, depth_cat) %>% 
+  nest() %>% 
+  mutate(temp_ChlA = purrr::map(data, cor_test, col1 = "temp", col2 = "ChlA")) #%>% 
+  # unnest(temp_ChlA)
+  # summarise(temp_ChlA = cor_test(df = ., col1 = "temp", col2 = "ChlA"), .groups = "drop")
+choice_vars_kong_n <- choice_vars_kong_wide %>% 
+  group_by(region, depth_cat) %>% 
+  filter(complete.cases(.)) %>% 
+  summarise(n())
+
+# Correlelograms
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  Cor <- abs(cor(x, y)) # Remove abs function if desired
+  txt <- paste0(prefix, format(c(Cor, 0.123456789), digits = digits)[1])
+  if(missing(cex.cor)) {
+    cex.cor <- 0.4 / strwidth(txt)
+  }
+  text(0.5, 0.5, txt,
+       cex = 1 + cex.cor * Cor) # Resize the text by level of correlation
+}
+pairs(choice_vars_kong_wide[c("ChlA", "O2", "temp", "PAR")],
+      upper.panel = panel.cor,
+      lower.panel = panel.smooth)
+
+library(PerformanceAnalytics)
+
+chart.Correlation(choice_vars_kong_wide[c("ChlA", "O2", "temp", "PAR")], histogram = TRUE, method = "pearson")
+
+library(psych)
+
+corPlot(choice_vars_kong_wide[c("ChlA", "O2", "temp", "PAR")], cex = 1.2)
+
+library(corrgram)
+
+corrgram(choice_vars_kong_wide[c("ChlA", "O2", "temp", "PAR")],
+         order = TRUE,              # If TRUE, PCA-based re-ordering
+         upper.panel = panel.pie,   # Panel function above diagonal
+         lower.panel = panel.shade, # Panel function below diagonal
+         text.panel = panel.txt,    # Panel function of the diagonal
+         main = "Correlogram")      # Main title
+
+library(corrplot)
+
+corrplot(cor(choice_vars_kong_wide[c("ChlA", "O2", "temp", "PAR")]),        # Correlation matrix
+         method = "shade", # Correlation plot method
+         type = "full",    # Correlation plot style (also "upper" and "lower")
+         diag = TRUE,      # If TRUE (default), adds the diagonal
+         tl.col = "black", # Labels color
+         bg = "white",     # Background color
+         title = "",       # Main title
+         col = NULL)       # Color palette
+
+# Pie charts
+corrplot(cor(choice_vars_kong_wide[c("ChlA", "O2", "temp", "PAR")]), 
+         method = "pie",
+         title = "method = 'pie'",
+         tl.pos = "n", mar = c(2, 1, 3, 1)) 
+
+corrplot.mixed(cor(choice_vars_kong_wide[c("ChlA", "O2", "temp", "PAR")], use = "everything"),
+               lower = "number", 
+               upper = "circle",
+               tl.col = "black")
 
 # MHW analysis
 # Make calculations
