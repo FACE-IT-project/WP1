@@ -191,11 +191,11 @@ col1 <- "temp"; col2 <- "ChlA"
 
 cor_test <- function(df, col1, col2){
   df_sub <- drop_na(df[c(col1, col2)])
-  if(nrow(df_sub) > 0) {
+  if(nrow(df_sub) > 2) {
     cor_res <- cor.test(df_sub[[1]], df_sub[[2]])
-    res <- data.frame(r = cor_res$estimate, p = cor_res$p.value, df = cor_res$parameter, n = nrow(df_sub))
+    res <- data.frame(r = round(cor_res$estimate, 2), p = round(cor_res$p.value, 4), df = cor_res$parameter, n = nrow(df_sub))
   } else {
-    res <- data.frame(r = NA, p = NA, df = NA, n = 0)
+    res <- data.frame(r = NA, p = NA, df = NA, n = nrow(df_sub))
   }
   return(res)
 }
@@ -204,7 +204,20 @@ cor_test <- function(df, col1, col2){
 choice_vars_kong_cor <- choice_vars_kong_wide %>% 
   group_by(region, depth_cat) %>% 
   nest() %>% 
-  mutate(temp_ChlA = purrr::map(data, cor_test, col1 = "temp", col2 = "ChlA")) #%>% 
+  mutate(temp_ChlA = purrr::map(data, cor_test, col1 = "temp", col2 = "ChlA"),
+         temp_O2 = purrr::map(data, cor_test, col1 = "temp", col2 = "O2"),
+         temp_PAR = purrr::map(data, cor_test, col1 = "temp", col2 = "PAR"),
+         ChlA_O2 = purrr::map(data, cor_test, col1 = "ChlA", col2 = "O2"),
+         ChlA_PAR = purrr::map(data, cor_test, col1 = "ChlA", col2 = "PAR"),
+         O2_PAR = purrr::map(data, cor_test, col1 = "O2", col2 = "PAR"))# %>% 
+choice_vars_kong_cor_unnest <- choice_vars_kong_cor %>% 
+  unnest(cols = c(temp_ChlA, temp_O2, temp_PAR, ChlA_O2, ChlA_PAR, O2_PAR), names_sep = "-") %>% 
+  dplyr::select(-data) %>% 
+  pivot_longer(cols = `temp_ChlA-r`:`O2_PAR-n`) %>% 
+  separate(name, into = c("test", "stat"), sep = "-") %>% 
+  pivot_wider(names_from = stat, values_from = value) %>% 
+  drop_na()
+
   # unnest(temp_ChlA)
   # summarise(temp_ChlA = cor_test(df = ., col1 = "temp", col2 = "ChlA"), .groups = "drop")
 choice_vars_kong_n <- choice_vars_kong_wide %>% 
@@ -275,7 +288,8 @@ MHW_res <- choice_vars_kong %>%
   filter(depth_cat != "1000 - 2000 m") %>% 
   dplyr::rename(t = date, temp = value) %>% 
   group_by(region, depth_cat, var_cat, t) %>%
-  summarise(temp = mean(temp, na.rn = T), .groups = "drop") %>% 
+  summarise(temp = mean(temp, na.rn = T),
+            count = n(), .groups = "drop") #%>% 
   group_by(region, depth_cat) %>%
   nest() %>% 
   mutate(clim = purrr::map(data, ts2clm_adapt),
@@ -302,19 +316,35 @@ MHW_event <- MHW_res %>%
 
 ## Figure 1: Map and time series of Kongsfjorden
 # a) map
-fig1a <- ggplot(coastline_kong, aes(x = lon, y = lat)) + geom_point() +
-  geom_polygon(data = kong_regions, aes(group = region, fill = region))
+fig1a <- ggplot(coastline_kong_expand, aes(x = lon, y = lat)) + 
+  geom_polygon(aes(x = x, y = y, group = polygon_id), fill = "grey30", colour = "black") +
+  geom_polygon(data = kong_regions, aes(group = region, fill = region), alpha = 0.2) +
+  geom_point(data = full_product_kong_unique) +
+  geom_point(data = full_region_kong, aes(colour = region)) +
+  scale_fill_brewer(palette = "Set1", aesthetics = c("colour", "fill")) +
+  coord_quickmap(expand = F,
+                 xlim = c(bbox_kong[1]-0.3, bbox_kong[2]+0.3), 
+                 ylim = c(bbox_kong[3]-0.05, bbox_kong[4]+0.05)) +
+  labs(x = NULL, y = NULL) #+
+  # theme(legend.position = "bottom")
 fig1a
 
 # b) time series
 fig1b <- ggplot(choice_vars_kong_monthly) +
+  geom_point(aes(x = yearmon, y = value, colour = depth_cat), size = 0.5) +
   geom_line(aes(x = yearmon, y = value, colour = depth_cat)) +
-  facet_grid(var_cat ~ region, scales = "free")
+  facet_grid(var_cat ~ region, scales = "free") +
+  scale_colour_brewer(palette = "Accent") +
+  theme(legend.position = "bottom") +
+  labs(x = NULL, y = NULL)
 fig1b
 
 # Combine and save
-fig1 <- ggpubr::ggarrange(fig1a, fig1b, ncol = 1)
+fig1 <- ggpubr::ggarrange(fig1a, fig1b, ncol = 1, heights = c(1, 0.6), labels = c("A)", "B)"))
 fig1
+ggsave("poster/fig1.png", width = 10, height = 10)
 
-## Figure 2: Bubble plot showing relationships of variables
+## Figure 2: Facetted scatterplot of relation of some variables with temperature
+# Use different oolours and or shapes for depths
+# Perhaps a facet grids to also show fjord position
 
