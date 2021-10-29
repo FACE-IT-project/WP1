@@ -81,7 +81,7 @@ code {
 font-size: 25pt;
 font-family: monospace;
 background-color: #00808024;
-color: #0b4545;
+color: #4473C5;
 padding: 1.2mm;
 line-height: 1;
 border-radius: 2mm;
@@ -93,7 +93,7 @@ font-style: italic;
 }
 
 tbody tr:nth-child(odd) {
-    background-color: #0b454520;
+    background-color: #4473C520;
 }
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td{
   border-spacing: 0;
@@ -165,7 +165,7 @@ line-height: 90%;
 border-bottom: 0;
 }
 #author {
-color: #0b4545;
+color: #008080;
 margin: 0;
 line-height: 90%;
 font-size: 1.17em;
@@ -211,10 +211,10 @@ width: calc(46in / 2);
 height: 32in;
 position: absolute;
 margin-left: calc(46in / 4);
-background-color: #0b4545;
+background-color: #4473C5;
 color: #FFFFFF90;
 font-family: Special Elite;
-background-image: linear-gradient(#0b4545 50%, #008080);
+background-image: linear-gradient(#4473C5 50%, #008080);
 }
 .main strong {
 color: #FFFFFF;
@@ -311,7 +311,7 @@ span > #tab:mytable {
 </div>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>Data portals like <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://sios-svalbard.org/metadata_search">SIOS</a>, <a href="https://pangaea.de/">PANGAEA</a>, and others provide a lot of <strong>FAIR</strong> data (<strong>F</strong>indable, <strong>A</strong>vailable, <strong>I</strong>nteroperable, and <strong>R</strong>euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the <strong>R</strong>euseability of the data currently hosted on data portals. As part of the Horizon2020 project <strong>FACE-IT</strong>, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table <a href="#tab:tab1">1</a>), and are referenced in a central <a href="https://face-it-project.github.io/WP1/metadatabase.html">meta-database</a> (<em>follow QR code</em>). An example analysis highlights the functionality of these combined data.</p>
+<p>Data portals like <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://sios-svalbard.org/metadata_search">SIOS</a>, <a href="https://pangaea.de/">PANGAEA</a>, and others provide a lot of <strong>FAIR</strong> data (<strong>F</strong>indable, <strong>A</strong>vailable, <strong>I</strong>nteroperable, and <strong>R</strong>euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the <strong>R</strong>euseability of the data currently hosted on data portals. As part of the Horizon2020 project <strong>FACE-IT</strong>, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, aggregated (Table <a href="#tab:tab1">1</a>), and are referenced in a central <a href="https://face-it-project.github.io/WP1/metadatabase.html">meta-database</a> (<em>follow QR code</em>). An example analysis highlights the functionality of these combined data.</p>
 <table>
 <caption>
 <span id="tab:tab1">Table 1: </span>Sources for the datasets amalgamated for FACE-IT. Note that there is a heavy focus on time series and station datasets. No geo-spatial datasets are included (e.g. bathymetry, glacier topography).
@@ -406,45 +406,29 @@ Storfjorden
 </tr>
 </tbody>
 </table>
-<div id="acknowledgements" class="section level2">
-<h2>Acknowledgements</h2>
+<div id="acknowledgement" class="section level2">
+<h2>Acknowledgement</h2>
 <p>This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 869154.</p>
 </div>
 </div>
 <div id="example-analysis" class="section level1">
 <h1>Example analysis</h1>
-<p>My current plan is to create meaned time series for the daily/monthly data in the separate parts of the fjord (i.e. inner, middle, mouth, outer) for some of the core key drivers identified for the review paper. Temperature, PAR, and ice cover OR ChlA OR pCO2. The final variable choice will depend on availability of those drivers in the main dataset. I then would like to perform a marine heatwave analysis <span class="citation">(<a href="#ref-Hobday2016" role="doc-biblioref">Hobday et al. 2016</a>, <a href="#ref-Hobday2018" role="doc-biblioref">2018</a>)</span>. The main objective is to show how dT from different datasets can be brought together to show more than any single dataset could.</p>
-</div>
-<div id="results" class="section level1">
-<h1>Results</h1>
-<p>The results will be shown with a two panel figure (Figure <a href="#fig:fig1">1</a>). Regions adapted from <span class="citation"><a href="#ref-Hop2002" role="doc-biblioref">Hop et al.</a> (<a href="#ref-Hop2002" role="doc-biblioref">2002</a>)</span>. The first panel will be a map of Kongsfjorden that shows the data points used and which part of the fjord they are in (i.e. inner, middle, mouth, outer). The second panel will be a series of averaged time series for the variables mentioned above.</p>
+<p>Key drivers in Kongsfjorden were averaged by date, depth, and regions adapted from Hop et al. (2002; The marine ecosystem of Kongsfjorden, Svalbard) (Figure <a href="#fig:fig1">1</a>). Comparisons of these averaged values were made between temperature (°C) and oxygen (% sat), chlorophyll A (μg/L), &amp; PAR (μmol/m^2/s) (Figure <a href="#fig:fig2">2</a>). With the exception of PAR data in the middle fjord, there was not enough overlap between temperature and the other variables to determine any significant relationships. This highlights the need to find additional datasets for these key drivers.</p>
+<!-- @Hop2002 -->
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig1"></span>
-<img src="/home/robert/WP1/figures/map_kongsfjorden.png" alt="This is a placeholder." width="80%" />
+<img src="fig1.png" alt="Data in Kongsfjorden. A) Points represent available data and are coloured by the region of the fjord in which they are found, with black dots showing data outside of a region. B) Dot and line plots showing averaged monthly data for the key drivers: temperature (°C), oxygen (% sat), chlorophyll A (μg/L), and PAR (μmol/m^2/s). Each column of panels represents a fjord regions and each row represents the data available per key drivers. Colours show the depth of the data, and lines connect two or more months with continuous data." width="100%" />
 <p class="caption">
-Figure 1: This is a placeholder.
+Figure 1: Data in Kongsfjorden. A) Points represent available data and are coloured by the region of the fjord in which they are found, with black dots showing data outside of a region. B) Dot and line plots showing averaged monthly data for the key drivers: temperature (°C), oxygen (% sat), chlorophyll A (μg/L), and PAR (μmol/m^2/s). Each column of panels represents a fjord regions and each row represents the data available per key drivers. Colours show the depth of the data, and lines connect two or more months with continuous data.
 </p>
 </div>
-<p>The objective for this figure (Figure <a href="#fig:fig2">2</a>) is to show a bubble plot that illustrates the relationship between the chosen variables.</p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig2"></span>
-<img src="SSC_2021_landscape_files/figure-html/fig2-1.png" alt="This is another placeholder." width="80%" />
+<img src="fig2.png" alt="Scatterplots showing the relationship between key drivers. Temperature is the x-axis of each panel, and the y-axis of each row shows the key driver being compared. Dots show the daily data being compared, and straight lines show linear models of the relationship. Colours show the depth of the data." width="100%" />
 <p class="caption">
-Figure 2: This is another placeholder.
+Figure 2: Scatterplots showing the relationship between key drivers. Temperature is the x-axis of each panel, and the y-axis of each row shows the key driver being compared. Dots show the daily data being compared, and straight lines show linear models of the relationship. Colours show the depth of the data.
 </p>
 </div>
-<div id="references" class="section level2 unnumbered">
-<h2>References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-Hobday2016" class="csl-entry">
-Hobday, Alistair J, Lisa V Alexander, Sarah E Perkins, Dan A Smale, Sandra C Straub, Eric CJ Oliver, Jessica A Benthuysen, et al. 2016. <span>“A Hierarchical Approach to Defining Marine Heatwaves.”</span> <em>Progress in Oceanography</em> 141: 227–38.
-</div>
-<div id="ref-Hobday2018" class="csl-entry">
-Hobday, Alistair J, Eric CJ Oliver, Alex Sen Gupta, Jessica A Benthuysen, Michael T Burrows, Markus G Donat, Neil J Holbrook, et al. 2018. <span>“Categorizing and Naming Marine Heatwaves.”</span> <em>Oceanography</em> 31 (2): 162–73.
-</div>
-<div id="ref-Hop2002" class="csl-entry">
-Hop, Haakon, Tom Pearson, Else Nøst Hegseth, Kit M Kovacs, Christian Wiencke, Slawek Kwasniewski, Ketil Eiane, et al. 2002. <span>“The Marine Ecosystem of Kongsfjorden, Svalbard.”</span> <em>Polar Research</em> 21 (1): 167–208.
-</div>
-</div>
-</div>
+<!-- ## References -->
+<!-- NB: Avoiding a reference section to save space -->
 </div>
 
 </div>

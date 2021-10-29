@@ -15,8 +15,11 @@ affiliation:
   - num: 2
     address: Institute for Sustainable Development and International Relations (IDDRI-Sciences Po), Paris, France
 main_findings:
-  - "**Hundreds** of fully referenced **datasets** have been combined throughout **Svalbard** via the **FACE-IT** project"
+  - "**Hundreds** of environmental **datasets** throughout **Svalbard** combined and available via the **FACE-IT** project"
   # - '![](~/WP1/poster/metadatabase_QR.png){.main_pic}'
+primary_colour: '#4473C5'
+secondary_colour: '#008080'
+author_textcol: '#008080'
 logoleft_name: '![](~/WP1/poster/metadatabase_QR.png){.main-img-left width=30%}'
 logoright_name: '![](~/WP1/poster/FACE-IT_h2020.jpg){.main-img-right width=30%}'
 output: 
@@ -42,7 +45,9 @@ options(knitr.table.format = "html")
 
 # Overview
 
-Data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others provide a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project **FACE-IT**, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, amalgamated (Table \@ref(tab:tab1)), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (_follow QR code_). An example analysis highlights the functionality of these combined data.
+Data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others provide a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project **FACE-IT**, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, aggregated (Table \@ref(tab:tab1)), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (_follow QR code_). An example analysis highlights the functionality of these combined data.
+
+<!--Add some sentences saying what the main take away is at the beginning. Add the punch line at the beginning and then go back and talk about the story and the challenges-->
 
 ```{r, tab1}
 knitr::kable(
@@ -57,33 +62,27 @@ knitr::kable(
   escape = FALSE)
 ```
 
-## Acknowledgements
+## Acknowledgement
 
 This project has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 869154.
 
 # Example analysis
 
-My current plan is to create meaned time series for the daily/monthly data in the separate parts of the fjord (i.e. inner, middle, mouth, outer) for some of the core key drivers identified for the review paper. Temperature, PAR, and ice cover OR ChlA OR pCO2. The final variable choice will depend on availability of those drivers in the main dataset. I then would like to perform a marine heatwave analysis [@Hobday2016; @Hobday2018]. The main objective is to show how different from different datasets can be brought together to show more than any single dataset could. WMO climate normals [@WMO2018]
+Key drivers in Kongsfjorden were averaged by date, depth, and regions adapted from Hop et al. (2002; The marine ecosystem of Kongsfjorden, Svalbard) (Figure \@ref(fig:fig1)). Comparisons of these averaged values were made between temperature (°C) and oxygen (% sat), chlorophyll A (μg/L), & PAR (μmol/m^2/s) (Figure \@ref(fig:fig2)). With the exception of PAR data in the middle fjord, there was not enough overlap between temperature and the other variables to determine any significant relationships. This highlights the need to find additional datasets for these key drivers.
 
-# Results
+<!-- Better introduction to why this analysis was done and how and where the data were collected. Specify that they are marine. -->
 
-The results will be shown with a two panel figure (Figure \@ref(fig:fig1)). Regions adapted from @Hop2002. The first panel will be a map of Kongsfjorden that shows the data points used and which part of the fjord they are in (i.e. inner, middle, mouth, outer). The second panel will be a series of averaged time series for the variables mentioned above.
+<!-- Add more conclusion here about why this is important -->
 
-```{r, fig1, fig.cap='This is a placeholder.', out.width="80%"}
-knitr::include_graphics("~/WP1/figures/map_kongsfjorden.png")
+<!-- @Hop2002 -->
+
+```{r, fig1, fig.cap='Data in Kongsfjorden. A) Points represent available data and are coloured by the region of the fjord in which they are found, with black dots showing data outside of a region. B) Dot and line plots showing averaged monthly data for the key drivers: temperature (°C), oxygen (% sat), chlorophyll A (μg/L), and PAR (μmol/m^2/s). Each column of panels represents a fjord regions and each row represents the data available per key drivers. Colours show the depth of the data, and lines connect two or more months with continuous data.', out.width="100%"}
+knitr::include_graphics("fig1.png")
 ```
 
-The objective for this figure (Figure \@ref(fig:fig2)) is to show a bubble plot that illustrates the relationship between the chosen variables.
-
-```{r fig2, echo=FALSE, collapse=TRUE, fig.cap='This is another placeholder.', fig.height=3.5, out.width="80%"}
-#trim whitespace
-par(mar=c(2,2,0,0))
-#plot boxplots
-boxplot(iris$Sepal.Width~iris$Species,
-        col = "#008080", 
-        border = "#0b4545",
-        ylab = "Sepal Width (cm)",
-        xlab = "Species")
+```{r fig2, fig.cap='Scatterplots showing the relationship between key drivers. Temperature is the x-axis of each panel, and the y-axis of each row shows the key driver being compared. Dots show the daily data being compared, and straight lines show linear models of the relationship. Colours show the depth of the data.', out.width="100%"}
+knitr::include_graphics("fig2.png")
 ```
 
-## References
+<!-- ## References -->
+<!-- NB: Avoiding a reference section to save space -->
