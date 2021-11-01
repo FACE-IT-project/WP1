@@ -15,11 +15,14 @@ affiliation:
   - num: 2
     address: Institute for Sustainable Development and International Relations (IDDRI-Sciences Po), Paris, France
 main_findings:
-  - "**Hundreds** of environmental **datasets** throughout **Svalbard** combined and available via the **FACE-IT** project"
+  - "**Hundreds** of environmental **datasets** throughout **Svalbard** combined via the **FACE-IT** project and ready for analyses"
   # - '![](~/WP1/poster/metadatabase_QR.png){.main_pic}'
+poster_height: '841mm'
+poster_width: '1189mm'
 primary_colour: '#4473C5'
 secondary_colour: '#008080'
 author_textcol: '#008080'
+column_padding: '10mm'
 logoleft_name: '![](~/WP1/poster/metadatabase_QR.png){.main-img-left width=30%}'
 logoright_name: '![](~/WP1/poster/FACE-IT_h2020.jpg){.main-img-right width=30%}'
 output: 
@@ -45,7 +48,7 @@ options(knitr.table.format = "html")
 
 # Overview
 
-Data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others provide a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the **R**euseability of the data currently hosted on data portals. As part of the Horizon2020 project **FACE-IT**, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, aggregated (Table \@ref(tab:tab1)), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (_follow QR code_). An example analysis highlights the functionality of these combined data.
+For the Horizon2020 project **FACE-IT**, experts from the social and natural sciences identified a list of key drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. Datasets containing these key drivers were sourced, aggregated (Table \@ref(tab:tab1)), and are referenced in a central [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (_follow QR code_). An example analysis highlights the functionality of these data. Data portals like [NPDC](https://data.npolar.no/home/), [SIOS](https://sios-svalbard.org/metadata_search), [PANGAEA](https://pangaea.de/), and others provide a lot of **FAIR** data (**F**indable, **A**vailable, **I**nteroperable, and **R**eusable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals, etc.) researchers may find themselves spending more time on data wrangling than on research. This is a limitation to the **I**nteroperability and **R**euseability of data on these data portals that currently requires a research team to have a dedicated data scientist to manage.
 
 <!--Add some sentences saying what the main take away is at the beginning. Add the punch line at the beginning and then go back and talk about the story and the challenges-->
 
@@ -62,13 +65,18 @@ knitr::kable(
   escape = FALSE)
 ```
 
+<br>
+
 ## Acknowledgement
 
 This project has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 869154.
 
+<br>
+
 # Example analysis
 
-Key drivers in Kongsfjorden were averaged by date, depth, and regions adapted from Hop et al. (2002; The marine ecosystem of Kongsfjorden, Svalbard) (Figure \@ref(fig:fig1)). Comparisons of these averaged values were made between temperature (°C) and oxygen (% sat), chlorophyll A (μg/L), & PAR (μmol/m^2/s) (Figure \@ref(fig:fig2)). With the exception of PAR data in the middle fjord, there was not enough overlap between temperature and the other variables to determine any significant relationships. This highlights the need to find additional datasets for these key drivers.
+With great amounts of data come great possibilities. To highlight the utility of data aggregated for **FACE-IT**, key drivers in Kongsfjorden were averaged by date, depth, and regions adapted from Hop et al. (2002; The marine ecosystem of Kongsfjorden, Svalbard) (Figure \@ref(fig:fig1)). Then temperature (°C) data were compared to: oxygen (% sat), chlorophyll A (μg/L), & PAR (μmol/m^2/s) (Figure \@ref(fig:fig2)). With the exception of PAR data in the middle fjord, there was not enough overlap between temperature and the other key drivers to determine meaningful relationships. This highlights the need to find additional datasets for these key drivers.
+<!-- and shows that focussed datasets from dedicated data portals like [NPDC](https://data.npolar.no/home/) and [SIOS](https://sios-svalbard.org/metadata_search) generally have more utility than hundreds of datasets scraped from larger data portals like [PANGAEA](https://pangaea.de/). -->
 
 <!-- Better introduction to why this analysis was done and how and where the data were collected. Specify that they are marine. -->
 
@@ -76,11 +84,11 @@ Key drivers in Kongsfjorden were averaged by date, depth, and regions adapted fr
 
 <!-- @Hop2002 -->
 
-```{r, fig1, fig.cap='Data in Kongsfjorden. A) Points represent available data and are coloured by the region of the fjord in which they are found, with black dots showing data outside of a region. B) Dot and line plots showing averaged monthly data for the key drivers: temperature (°C), oxygen (% sat), chlorophyll A (μg/L), and PAR (μmol/m^2/s). Each column of panels represents a fjord regions and each row represents the data available per key drivers. Colours show the depth of the data, and lines connect two or more months with continuous data.', out.width="100%"}
+```{r, fig1, fig.cap='Data aggregated for Kongsfjorden. A) Data points and are coloured by the region of the fjord in which they are found, with black dots for data outside of regions. B) Dot and line plots of averaged monthly data for key drivers (_see text_). Columns show fjord regions and rows show data available per key driver. Colours show the depth of the data, and lines connect two or more months with continuous data.', out.width="100%"}
 knitr::include_graphics("fig1.png")
 ```
 
-```{r fig2, fig.cap='Scatterplots showing the relationship between key drivers. Temperature is the x-axis of each panel, and the y-axis of each row shows the key driver being compared. Dots show the daily data being compared, and straight lines show linear models of the relationship. Colours show the depth of the data.', out.width="100%"}
+```{r fig2, fig.cap='The relationship between the key drivers  (_see text_). X-axes show temperature, y-axis of each row shows the key driver being compared. Dots show daily data, and straight lines show linear models of the relationships. Colours show the depth of the data.', out.width="100%"}
 knitr::include_graphics("fig2.png")
 ```
 

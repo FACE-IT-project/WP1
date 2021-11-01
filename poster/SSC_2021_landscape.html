@@ -34,7 +34,7 @@ Here are the required style attributes for css to make this poster work :)
 -->
 <style>
 @page {
-size: 46in 32in;
+size: 1189mm 841mm;
 margin: 0;
 padding: 0;
 background-color: #ffffff;
@@ -42,8 +42,8 @@ background-color: #ffffff;
 body {
 margin: 0px;
 padding: 0px;
-width: 46in;
-height: 32in;
+width: 1189mm;
+height: 841mm;
 text-align: justify;
 font-size: 45px;
 background-color: #FFFFFF;
@@ -127,8 +127,8 @@ float: left;
 padding: 0px;
 }
 .outer {
-width: 46in;
-height: 32in;
+width: 1189mm;
+height: 841mm;
 -webkit-column-count: 2; /* Chrome, Safari, Opera */
 -moz-column-count: 2; /* Firefox */
 column-count: 2;
@@ -207,10 +207,10 @@ color: #000000;
 text-align: left;
 }
 .main {
-width: calc(46in / 2);
-height: 32in;
+width: calc(1189mm / 2);
+height: 841mm;
 position: absolute;
-margin-left: calc(46in / 4);
+margin-left: calc(1189mm / 4);
 background-color: #4473C5;
 color: #FFFFFF90;
 font-family: Special Elite;
@@ -256,8 +256,8 @@ font-size: 5px;
 text-decoration: none;
 }
 .poster_wrap {
-width: 46in;
-height: 32in;
+width: 1189mm;
+height: 841mm;
 padding: 0cm;
 background-color: #ffffff;
 }
@@ -311,7 +311,8 @@ span > #tab:mytable {
 </div>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>Data portals like <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://sios-svalbard.org/metadata_search">SIOS</a>, <a href="https://pangaea.de/">PANGAEA</a>, and others provide a lot of <strong>FAIR</strong> data (<strong>F</strong>indable, <strong>A</strong>vailable, <strong>I</strong>nteroperable, and <strong>R</strong>euseable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals) researchers may find themselves inundated with various data files and formats, which may lead to more time spent on data wrangling than on research. This is a stumbling block in the <strong>R</strong>euseability of the data currently hosted on data portals. As part of the Horizon2020 project <strong>FACE-IT</strong>, experts across many fields of social and natural sciences identified a list of important drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. These data were sourced, aggregated (Table <a href="#tab:tab1">1</a>), and are referenced in a central <a href="https://face-it-project.github.io/WP1/metadatabase.html">meta-database</a> (<em>follow QR code</em>). An example analysis highlights the functionality of these combined data.</p>
+<p>For the Horizon2020 project <strong>FACE-IT</strong>, experts from the social and natural sciences identified a list of key drivers of change in European Arctic fjord and adjacent coastal socio-ecological systems. Datasets containing these key drivers were sourced, aggregated (Table <a href="#tab:tab1">1</a>), and are referenced in a central <a href="https://face-it-project.github.io/WP1/metadatabase.html">meta-database</a> (<em>follow QR code</em>). An example analysis highlights the functionality of these data. Data portals like <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://sios-svalbard.org/metadata_search">SIOS</a>, <a href="https://pangaea.de/">PANGAEA</a>, and others provide a lot of <strong>FAIR</strong> data (<strong>F</strong>indable, <strong>A</strong>vailable, <strong>I</strong>nteroperable, and <strong>R</strong>eusable) for Svalbard. However, should an investigation require access to multiple different variables (e.g. ocean temperature, ChlA, sea ice thickness, tourist arrivals, etc.) researchers may find themselves spending more time on data wrangling than on research. This is a limitation to the <strong>I</strong>nteroperability and <strong>R</strong>euseability of data on these data portals that currently requires a research team to have a dedicated data scientist to manage.</p>
+<!--Add some sentences saying what the main take away is at the beginning. Add the punch line at the beginning and then go back and talk about the story and the challenges-->
 <table>
 <caption>
 <span id="tab:tab1">Table 1: </span>Sources for the datasets amalgamated for FACE-IT. Note that there is a heavy focus on time series and station datasets. No geo-spatial datasets are included (e.g. bathymetry, glacier topography).
@@ -406,25 +407,30 @@ Storfjorden
 </tr>
 </tbody>
 </table>
+<p><br></p>
 <div id="acknowledgement" class="section level2">
 <h2>Acknowledgement</h2>
 <p>This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 869154.</p>
+<p><br></p>
 </div>
 </div>
 <div id="example-analysis" class="section level1">
 <h1>Example analysis</h1>
-<p>Key drivers in Kongsfjorden were averaged by date, depth, and regions adapted from Hop et al. (2002; The marine ecosystem of Kongsfjorden, Svalbard) (Figure <a href="#fig:fig1">1</a>). Comparisons of these averaged values were made between temperature (°C) and oxygen (% sat), chlorophyll A (μg/L), &amp; PAR (μmol/m^2/s) (Figure <a href="#fig:fig2">2</a>). With the exception of PAR data in the middle fjord, there was not enough overlap between temperature and the other variables to determine any significant relationships. This highlights the need to find additional datasets for these key drivers.</p>
+<p>With great amounts of data come great possibilities. To highlight the utility of data aggregated for <strong>FACE-IT</strong>, key drivers in Kongsfjorden were averaged by date, depth, and regions adapted from Hop et al. (2002; The marine ecosystem of Kongsfjorden, Svalbard) (Figure <a href="#fig:fig1">1</a>). Then temperature (°C) data were compared to: oxygen (% sat), chlorophyll A (μg/L), &amp; PAR (μmol/m^2/s) (Figure <a href="#fig:fig2">2</a>). With the exception of PAR data in the middle fjord, there was not enough overlap between temperature and the other key drivers to determine meaningful relationships. This highlights the need to find additional datasets for these key drivers.
+<!-- and shows that focussed datasets from dedicated data portals like [NPDC](https://data.npolar.no/home/) and [SIOS](https://sios-svalbard.org/metadata_search) generally have more utility than hundreds of datasets scraped from larger data portals like [PANGAEA](https://pangaea.de/). --></p>
+<!-- Better introduction to why this analysis was done and how and where the data were collected. Specify that they are marine. -->
+<!-- Add more conclusion here about why this is important -->
 <!-- @Hop2002 -->
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig1"></span>
-<img src="fig1.png" alt="Data in Kongsfjorden. A) Points represent available data and are coloured by the region of the fjord in which they are found, with black dots showing data outside of a region. B) Dot and line plots showing averaged monthly data for the key drivers: temperature (°C), oxygen (% sat), chlorophyll A (μg/L), and PAR (μmol/m^2/s). Each column of panels represents a fjord regions and each row represents the data available per key drivers. Colours show the depth of the data, and lines connect two or more months with continuous data." width="100%" />
+<img src="fig1.png" alt="Data aggregated for Kongsfjorden. A) Data points and are coloured by the region of the fjord in which they are found, with black dots for data outside of regions. B) Dot and line plots of averaged monthly data for key drivers (_see text_). Columns show fjord regions and rows show data available per key driver. Colours show the depth of the data, and lines connect two or more months with continuous data." width="100%" />
 <p class="caption">
-Figure 1: Data in Kongsfjorden. A) Points represent available data and are coloured by the region of the fjord in which they are found, with black dots showing data outside of a region. B) Dot and line plots showing averaged monthly data for the key drivers: temperature (°C), oxygen (% sat), chlorophyll A (μg/L), and PAR (μmol/m^2/s). Each column of panels represents a fjord regions and each row represents the data available per key drivers. Colours show the depth of the data, and lines connect two or more months with continuous data.
+Figure 1: Data aggregated for Kongsfjorden. A) Data points and are coloured by the region of the fjord in which they are found, with black dots for data outside of regions. B) Dot and line plots of averaged monthly data for key drivers (<em>see text</em>). Columns show fjord regions and rows show data available per key driver. Colours show the depth of the data, and lines connect two or more months with continuous data.
 </p>
 </div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig2"></span>
-<img src="fig2.png" alt="Scatterplots showing the relationship between key drivers. Temperature is the x-axis of each panel, and the y-axis of each row shows the key driver being compared. Dots show the daily data being compared, and straight lines show linear models of the relationship. Colours show the depth of the data." width="100%" />
+<img src="fig2.png" alt="The relationship between the key drivers  (_see text_). X-axes show temperature, y-axis of each row shows the key driver being compared. Dots show daily data, and straight lines show linear models of the relationships. Colours show the depth of the data." width="100%" />
 <p class="caption">
-Figure 2: Scatterplots showing the relationship between key drivers. Temperature is the x-axis of each panel, and the y-axis of each row shows the key driver being compared. Dots show the daily data being compared, and straight lines show linear models of the relationship. Colours show the depth of the data.
+Figure 2: The relationship between the key drivers (<em>see text</em>). X-axes show temperature, y-axis of each row shows the key driver being compared. Dots show daily data, and straight lines show linear models of the relationships. Colours show the depth of the data.
 </p>
 </div>
 <!-- ## References -->
@@ -433,7 +439,7 @@ Figure 2: Scatterplots showing the relationship between key drivers. Temperature
 
 </div>
 <div class="main">
-<p><strong>Hundreds</strong> of fully referenced <strong>datasets</strong> have been combined throughout <strong>Svalbard</strong> via the <strong>FACE-IT</strong> project</p>
+<p><strong>Hundreds</strong> of environmental <strong>datasets</strong> throughout <strong>Svalbard</strong> combined via the <strong>FACE-IT</strong> project and ready for analyses</p>
 <img src="metadatabase_QR.png" class="main-img-left" style="width:30.0%" />
 <img src="FACE-IT_h2020.jpg" class="main-img-right" style="width:30.0%" />
 </div>
