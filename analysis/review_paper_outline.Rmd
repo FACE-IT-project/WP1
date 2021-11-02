@@ -1,0 +1,30 @@
+---
+title: "Proposed Structure for EU Arctic Fjord Review Paper of WP1"
+author: "Robert Schlegel"
+date: "2021-11-03"
+output: html_document
+---
+
+# Outline
+
+- Non-standard paper structure
+- Identification and written summary of _core_ key drivers
+  - 7 study sites serve as a guide, but the focus is on the key drivers
+- Historic summary of data for key drivers
+- Analysis of relationship between key drivers
+- Future projections of key drivers + relationships
+- Discussion for sites that are an exception (e.g. ice in Porsangerfjorden)
+- Some mention of sites etc. besides the FACE-IT 7
+
+# Participation
+
+- Lead: Robert Schlegel
+- PI: Jean-Pierre Gattuso
+- Co-authors: Site coordinators, specialists, suggestions
+- Assigned experts per study site/key driver
+  - Suggested literature per site/speciality
+  - A few sentences regarding area of expertise
+  - Contribution of relevant data as needed
+  - Advise on relevant analyses
+  - Interpretation of historic summaries + relationships + projections
+  
