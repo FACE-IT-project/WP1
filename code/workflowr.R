@@ -1,5 +1,6 @@
 # code/workflowr.R
-# THis script houses the code used to process the workflowr project/webpage
+# This script houses the code used to process the workflowr project/webpage
+
 
 # Workflowr code ----------------------------------------------------------
 
