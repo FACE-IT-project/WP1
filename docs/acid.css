@@ -32,22 +32,6 @@
 .kwd {
   color: #004466;
 }
-.row {
-  margin-right: -100px;
-}
-.row {
-  margin-left: -300px;
-}
-#TOC {
-  position: fixed;
-  left: 50px;
-  top: 50px;
-  width: 250px;
-  overflow:auto;
-}
-#DataTables {
-  width: 1000px;
-}
 body {
   margin-left: 0;
   font-size: 12pt;
