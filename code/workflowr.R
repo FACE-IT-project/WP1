@@ -19,4 +19,4 @@ system.time(
                                      "analysis/review.Rmd"
   ),
   message = "Re-built site.")
-) # 342 seconds with all summary pages, 15 seconds with none
+) # 22 seconds
