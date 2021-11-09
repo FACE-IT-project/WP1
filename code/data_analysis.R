@@ -13,163 +13,50 @@ source("code/functions.R")
 # Load data ---------------------------------------------------------------
 
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
+load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
 
-# Meta-statistics ---------------------------------------------------------
+# Meta+spatial+temporal+depth summary -------------------------------------
 
-# These need to be combined into a table via a data.frame
+# Kongsfjorden
+sum_fig_kong <- data_summary_plot(full_product_kong, "Kongsfjorden")
+ggsave("figures/summary_kong.png", sum_fig_kong, width = 10, height = 12)
+ggsave("docs/assets/summary_kong.png", sum_fig_kong, width = 10, height = 12)
 
-# Tables of value names
-table(full_product_kong$var_type)
-table(full_product_kong$var_name)
-table(full_product_kong$var_name, full_product_kong$var_type)
+# Isfjorden
+sum_fig_is <- data_summary_plot(full_product_is, "Isfjorden")
+ggsave("figures/summary_is.png", sum_fig_is, width = 10, height = 12)
+ggsave("docs/assets/summary_is.png", sum_fig_is, width = 10, height = 12)
 
-# Ranges of values
-range(full_product_kong$lon, na.rm = T)
-range(full_product_kong$lat, na.rm = T)
-range(full_product_kong$date, na.rm = T)
-range(full_product_kong$depth, na.rm = T)
+# Storfjorden
+sum_fig_stor <- data_summary_plot(full_product_stor, "Storfjorden")
+ggsave("figures/summary_stor.png", sum_fig_stor, width = 10, height = 12)
+ggsave("docs/assets/summary_stor.png", sum_fig_stor, width = 10, height = 12)
 
-# Table of meta-stats
-meta_table <- data.frame(table(full_product_kong$var_type)) %>% 
-  pivot_wider(names_from = Var1, values_from = Freq) %>% 
-  mutate(lon_min = min(full_product_kong$lon, na.rm = T),
-         lon_max = max(full_product_kong$lon, na.rm = T),
-         lat_min = min(full_product_kong$lat, na.rm = T),
-         lat_max = max(full_product_kong$lat, na.rm = T),
-         date_min = min(full_product_kong$date, na.rm = T),
-         date_max = max(full_product_kong$date, na.rm = T),
-         depth_min = min(full_product_kong$depth, na.rm = T),
-         depth_max = max(full_product_kong$depth, na.rm = T),
-         site = "Kongsfjorden")
+# Young sound
+sum_fig_young <- data_summary_plot(full_product_young, "Young Sound")
+ggsave("figures/summary_young.png", sum_fig_young, width = 10, height = 12)
+ggsave("docs/assets/summary_young.png", sum_fig_young, width = 10, height = 12)
 
-# Or rather text ranges for compact presentation
-meta_table <- data.frame(table(full_product_kong$var_type)) %>% 
-  pivot_wider(names_from = Var1, values_from = Freq) %>% 
-  mutate(lon = paste0(min(full_product_kong$lon, na.rm = T), " to ", max(full_product_kong$lon, na.rm = T)), 
-         lat = paste0(min(full_product_kong$lat, na.rm = T), " to ", max(full_product_kong$lat, na.rm = T)),
-         date = paste0(min(full_product_kong$date, na.rm = T), " to ", max(full_product_kong$date, na.rm = T)),
-         depth = paste0(min(full_product_kong$depth, na.rm = T), " to ", max(full_product_kong$depth, na.rm = T)),
-         site = "Kongsfjorden") %>% 
-  dplyr::select(site, lon, lat, date, depth, everything())
+# Disko bay
+sum_fig_disko <- data_summary_plot(full_product_disko, "Disko Bay")
+ggsave("figures/summary_disko.png", sum_fig_disko, width = 10, height = 12)
+ggsave("docs/assets/summary_disko.png", sum_fig_disko, width = 10, height = 12)
 
-# Create graphic table
-meta_table_g <- gtable_add_grob(tableGrob(meta_table, rows = NULL),
-                                grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
-                                t = 2, b = nrow(meta_table_g), l = 1, r = ncol(meta_table_g))
-ggpubr::ggarrange(meta_table_g)
+# Nuup Kangerlua
+sum_fig_nuup <- data_summary_plot(full_product_nuup, "Nuup Kangerlua")
+ggsave("figures/summary_nuup.png", sum_fig_nuup, width = 10, height = 12)
+ggsave("docs/assets/summary_nuup.png", sum_fig_nuup, width = 10, height = 12)
 
-
-# Spatial summary ---------------------------------------------------------
-
-# Count per grid cell
-full_product_kong %>% 
-  dplyr::select(-URL, -citation) %>% 
-  mutate(lon = round(lon, 2),
-         lat = round(lat, 2)) %>% 
-  group_by(lon, lat) %>% 
-  summarise(count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = lon, y = lat)) +
-  borders(fill = "grey30") +
-  geom_tile(aes(fill = count)) +
-  scale_fill_viridis_c() +
-  # geom_tile(aes(fill = log10(count))) + # Can look better after log scaling
-  coord_quickmap(xlim = c(bbox_kong[1:2]), 
-                 ylim = c(bbox_kong[3:4])) +
-  labs(x = NULL, y = NULL, title = "All data at 0.01° (~10 km) resolution")
-
-# Temperature count per grid cell
-full_product_kong %>% 
-  dplyr::select(-URL, -citation) %>% 
-  filter(!is.na(depth),
-         grepl("°C", var_name)) %>% 
-  mutate(lon = round(lon, 2),
-         lat = round(lat, 2)) %>% 
-  group_by(lon, lat) %>% 
-  summarise(count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = lon, y = lat)) +
-  borders(fill = "grey30") +
-  geom_tile(aes(fill = count)) +
-  # geom_tile(aes(fill = log10(count))) + # Can look better after log scaling
-  scale_fill_viridis_c() +
-  coord_quickmap(xlim = c(bbox_kong[1:2]), 
-                 ylim = c(bbox_kong[3:4])) +
-  labs(x = NULL, y = NULL, title = "Temperature data at 0.01° (~10 km) resolution")
-
-
-# Temporal summary --------------------------------------------------------
-
-# Count of data
-full_product_kong %>% 
-  dplyr::select(-URL, -citation) %>% 
-  mutate(year = lubridate::year(date)) %>%
-  group_by(year, var_type) %>% 
-  dplyr::summarise(count = n(), .groups = "drop") %>% 
-  ggplot() +
-  # geom_col(aes(x = year, y = count, fill = var_type)) +
-  geom_col(aes(x = year, y = log10(count), fill = var_type)) +
-  coord_cartesian(expand = F) +
-  labs(x = NULL, fill = "Variable", y = "Count (log10)",
-       title = "Count of data points per year",
-       subtitle = "Note that these values are a bit distorted because the log10 is calculated on each group individually") +
-  theme(panel.border = element_rect(fill = NA, colour = "black"))
-
-
-# Depth summary -----------------------------------------------------------
-
-# Count of data at depth by var type
-full_product_kong %>% 
-  # filter(depth >= 0) %>%
-  filter(!is.na(depth)) %>% 
-  mutate(depth = round(depth, -1)) %>%
-  group_by(depth, var_type) %>% 
-  dplyr::summarise(count = n(), .groups = "drop") %>% 
-  ggplot() +
-  geom_col(aes(x = depth, y = log10(count), fill = var_type)) +
-  scale_y_reverse() +
-  coord_cartesian(expand = F) +
-  labs(x = NULL, fill = "Variable", y = "Count (log10)",
-       title = "Count of data at depth",
-       subtitle = "Note that these values are a bit distorted because the log10 is calculated on each group individually") +
-  theme(panel.border = element_rect(fill = NA, colour = "black"))
-
-# Count of data at depth over time
-full_product_kong %>% 
-  filter(depth >= 0) %>% 
-  mutate(depth = round(depth, -1),
-         year = lubridate::year(date)) %>%
-  group_by(depth, year) %>% 
-  dplyr::summarise(count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = depth)) +
-  # geom_tile(aes(fill = count)) +
-  geom_tile(aes(fill = log10(count))) +
-  scale_y_reverse() +
-  # scale_colour_distiller(palette = "Reds", direction = 1) +
-  scale_fill_viridis_c() +
-  coord_cartesian(expand = F) +
-  labs(x = NULL, y = "Depth (m)", fill = "Count\n(log10)",
-       title = "Count of data at depth over time in Kongsfjord") +
-  theme(panel.border = element_rect(fill = NA, colour = "black"))
-
-# Average temperature over depth
-full_product_kong %>% 
-  filter(!is.na(depth),
-         grepl("°C", var_name)) %>% 
-  mutate(depth = round(depth, -1),
-         year = lubridate::year(date)) %>%
-  # filter(value > -20, value < 10) %>%
-  group_by(depth, year) %>% 
-  dplyr::summarise(value = mean(value, na.rm = T),
-                   count = n(), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = depth)) +
-  geom_tile(aes(fill = value, colour = count), size = 0.2) +
-  scale_y_reverse() +
-  scale_colour_distiller(palette = "Reds", direction = 1) +
-  scale_fill_viridis_c() +
-  coord_cartesian(expand = F) +
-  labs(x = NULL, y = "Depth (m)", fill = "Value",
-       title = "Count and average temperature at depth over time in Kongsfjord") +
-  theme(panel.border = element_rect(fill = NA, colour = "black"))
+# Porsangerfjorden
+sum_fig_por <- data_summary_plot(full_product_por, "Porsangerfjorden")
+ggsave("figures/summary_por.png", sum_fig_por, width = 10, height = 12)
+ggsave("docs/assets/summary_por.png", sum_fig_por, width = 10, height = 12)
 
 
 # Climatology -------------------------------------------------------------
@@ -180,32 +67,81 @@ full_product_kong %>%
 # Oxygen
 # Ice cover
 
-# Temperature clim per grid cell
-full_product_kong %>% 
-  filter(depth >= 0, depth <= 50,
-         grepl("°C", var_name)) %>% 
-  mutate(lon = round(lon, 2),
-         lat = round(lat, 2),
-         month = lubridate::month(date)) %>% 
-  filter(!is.na(month)) %>% 
-  group_by(lon, lat, month) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  ggplot(aes(x = lon, y = lat)) +
-  borders(fill = "grey30") +
-  geom_tile(aes(fill = value)) +
-  scale_fill_viridis_c() +
-  coord_quickmap(xlim = c(bbox_kong[1:2]), 
-                 ylim = c(bbox_kong[3:4])) +
-  facet_wrap(~month) +
-  labs(x = NULL, y = NULL, fill = "Temp. (°C)",
-       title = "Surface (0 - 50 m) temperature clims at 0.01° (~10 km) resolution") +
-  theme(panel.border = element_rect(fill = NA, colour = "black"))
-
 # Consider spatial interpolation
 
 # Consider depth interpolation
 
 # Could combine spatial and depth interpolations into an accessible dataset via a shiny interface
+
+# Kongsfjorden
+clim_fig_kong <- data_clim_plot(full_product_kong, "Kongsfjorden")
+ggsave("figures/clim_kong.png", clim_fig_kong, width = 8, height = 12)
+ggsave("docs/assets/clim_kong.png", clim_fig_kong, width = 8, height = 12)
+
+# Isfjorden
+clim_fig_is <- data_clim_plot(full_product_is, "Isfjorden")
+ggsave("figures/clim_is.png", clim_fig_is, width = 8, height = 12)
+ggsave("docs/assets/clim_is.png", clim_fig_is, width = 8, height = 12)
+
+# Storfjorden
+clim_fig_stor <- data_clim_plot(full_product_stor, "Storfjorden")
+ggsave("figures/clim_stor.png", clim_fig_stor, width = 8, height = 12)
+ggsave("docs/assets/clim_stor.png", clim_fig_stor, width = 8, height = 12)
+
+# Young Sound
+## NB: Not enough data
+clim_fig_young <- data_clim_plot(full_product_young, "Young Sound")
+
+# Disko Bay
+clim_fig_disko <- data_clim_plot(full_product_disko, "Disko Bay")
+ggsave("figures/clim_disko.png", clim_fig_disko, width = 8, height = 12)
+ggsave("docs/assets/clim_stor.png", clim_fig_disko, width = 8, height = 12)
+
+# Nuup Kangerlua
+clim_fig_nuup <- data_clim_plot(full_product_nuup, "Nuup Kangerlua")
+ggsave("figures/clim_nuup.png", clim_fig_nuup, width = 8, height = 12)
+ggsave("docs/assets/clim_nuup.png", clim_fig_nuup, width = 8, height = 12)
+
+# Porsangerfjorden
+clim_fig_por <- data_clim_plot(full_product_por, "Porsangerfjorden")
+ggsave("figures/clim_por.png", clim_fig_por, width = 8, height = 12)
+ggsave("docs/assets/clim_por.png", clim_fig_por, width = 8, height = 12)
+
+
+# Trend summary -----------------------------------------------------------
+
+# Kongsfjorden
+trend_fig_kong <- data_trend_plot(full_product_kong, "Kongsfjorden")
+ggsave("figures/trend_kong.png", trend_fig_kong, width = 8, height = 12)
+ggsave("docs/assets/trend_kong.png", trend_fig_kong, width = 8, height = 12)
+
+# Isfjorden
+trend_fig_is <- data_trend_plot(full_product_is, "Isfjorden")
+ggsave("figures/trend_is.png", trend_fig_is, width = 8, height = 12)
+ggsave("docs/assets/trend_is.png", trend_fig_is, width = 8, height = 12)
+
+# Storfjorden
+trend_fig_stor <- data_trend_plot(full_product_stor, "Storfjorden")
+ggsave("figures/trend_stor.png", trend_fig_stor, width = 8, height = 12)
+ggsave("docs/assets/trend_stor.png", trend_fig_stor, width = 8, height = 12)
+
+# Young Sound
+## NB: Not enough data
+trend_fig_young <- data_trend_plot(full_product_young, "Young Sound")
+
+# Disko Bay
+## NB: Not enough data
+trend_fig_disko <- data_trend_plot(full_product_disko, "Disko Bay")
+
+# Nuup Kangerlua
+trend_fig_nuup <- data_trend_plot(full_product_nuup, "Nuup Kangerlua")
+ggsave("figures/trend_nuup.png", trend_fig_nuup, width = 8, height = 12)
+ggsave("docs/assets/trend_nuup.png", trend_fig_nuup, width = 8, height = 12)
+
+# Porsangerfjorden
+trend_fig_por <- data_trend_plot(full_product_por, "Porsangerfjorden")
+ggsave("figures/trend_por.png", trend_fig_por, width = 8, height = 12)
+ggsave("docs/assets/trend_por.png", trend_fig_por, width = 8, height = 12)
 
 
 # Range summary -----------------------------------------------------------
@@ -213,9 +149,43 @@ full_product_kong %>%
 # Somehow summarise the ranges in primary drivers...
 
 
-# Trend summary -----------------------------------------------------------
+# Model summary -----------------------------------------------------------
 
-# Function for creating per pixel trends in primary variables
+# Kongsfjorden
+model_kong <- load_model("kongsfjorden_rcp")
+model_fig_kong <- model_summary(model_kong, "Kongsfjorden")
+ggsave("figures/model_kong.png", model_fig_kong, height = 8, width = 8)
+ggsave("docs/assets/model_kong.png", model_fig_kong, height = 8, width = 8)
 
-# Scatterplot + lm with x = date, y = value, colour = depth
+# Isfjorden
+model_is <- load_model("isfjorden_rcp")
+model_fig_is <- model_summary(model_is, "Isfjorden")
+ggsave("figures/model_is.png", model_fig_is, height = 8, width = 8)
+ggsave("docs/assets/model_is.png", model_fig_is, height = 8, width = 8)
+
+# Inglefieldbukta
+## NB: These are from the old site, need to be updated to Storfjorden
+## This requires asking Morten Skogen to fetch new data...
+model_ingle <- load_model("inglefieldbukta_rcp")
+model_fig_ingle <- model_summary(model_ingle, "Inglefieldbukta")
+ggsave("figures/model_ingle.png", model_fig_ingle, height = 8, width = 8)
+ggsave("docs/assets/model_ingle.png", model_fig_ingle, height = 8, width = 8)
+
+# Young Sound
+model_young <- load_model("young_sound_rcp")
+model_fig_young <- model_summary(model_young, "Young Sound")
+ggsave("figures/model_young.png", model_fig_young, height = 8, width = 8)
+ggsave("docs/assets/model_young.png", model_fig_young, height = 8, width = 8)
+
+# Disko Bay
+## No model data
+
+# Nuup Kangerlua
+## Mo model data
+
+# Porsangerfjorden
+model_por <- load_model("porsangerfjorden_rcp")
+model_fig_por <- model_summary(model_por, "Porsangerfjorden")
+ggsave("figures/model_por.png", model_fig_por, height = 8, width = 8)
+ggsave("docs/assets/model_por.png", model_fig_por, height = 8, width = 8)
 

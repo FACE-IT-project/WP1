@@ -1091,10 +1091,10 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
          date_accessed = as.Date("2021-10-20"),
          var_type = case_when(var_name %in% c("z_mix", "z_photo", "strat_index", "temp", "conductivity", 
                                               "turbidity", "PAR", "salinity", "pot_temp", "sigmaT_kg_m3",
-                                              "density_kg_m3", "SoundVelocit_m_s") ~ "Phys",
+                                              "density_kg_m3", "SoundVelocit_m_s") ~ "phys",
                               var_name %in% c("nitracline", "oxygen_umol_kg", "oxygen_corrected_umol_kg", 
-                                              "NH4", "NO2", "NO3", "NO2_NO3", "PO4", "SiO4") ~ "Chem",
-                              TRUE ~ "Bio"),
+                                              "NH4", "NO2", "NO3", "NO2_NO3", "PO4", "SiO4") ~ "chem",
+                              TRUE ~ "bio"),
          var_name = case_when(var_name == "pm_chl" ~ "pm_chl [g C g-1 Chl h-1]",
                               var_name == "alpha_chl" ~ "alpha_chl [g C g-1 Chl mol-1 photons m2]",
                               var_name == "ik" ~ "ik [μmol photons m-2 s-1]",
@@ -1220,7 +1220,7 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
          date_accessed = as.Date("2021-10-20"),
          URL = "https://zenodo.org/record/4062024#.YW_TOJuxU5l",
          citation = "Carlson, Daniel F., Holding, Johnna M., Bendtsen, Jørgen, Markager, Stiig, Møller, Eva F., Meire, Lorenz, Rysgaard, Søren, Dalsgaard, Tage, & Sejr, Mikael K. (2020). CTD Profiles from the R/V Sanna cruise to Northwest Greenland fjords, August 11-31, 2016 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4062024",
-         var_type = case_when(TRUE ~ "Phys"),
+         var_type = case_when(TRUE ~ "phys"),
          units = case_when(units == "practical_salinity_units" ~ "PSU",
                            units == "degrees_Celsius" ~ "°C",
                            TRUE ~ units),
@@ -1234,7 +1234,7 @@ data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/ful
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
-if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+# if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
 
 # Nuup Kangerlua ----------------------------------------------------------

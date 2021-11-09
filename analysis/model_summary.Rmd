@@ -22,7 +22,7 @@ knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
 
 ```{r setup}
 # Necessary libraries
-source("code/functions.R")
+# source("code/functions.R")
 ```
 
 # Overview
@@ -39,49 +39,21 @@ This document contains a summary of the model data made available by Morten Skog
 
 Model temperatures. There are many more variables available within the models.
 
-```{r kong-summary-1, fig.height=10, width=10, fig.cap="__Figure 1:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
-
-# Load model
-model_kong <- load_model("kongsfjorden_rcp")
-
-# Model visuals
-model_summary(model_kong, "Kongsfjorden")
-```
+![__Figure 1:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_kong.png)
 
 ## Isfjorden
 
-```{r is-summary-1, fig.height=10, width=10, fig.cap="__Figure 2:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
-
-# Load model
-model_is <- load_model("isfjorden_rcp")
-
-# Model visuals
-model_summary(model_is, "Isfjorden")
-```
+![__Figure 2:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_is.png)
 
 ## Inglefieldbukta
 
-```{r ingle-summary-1, fig.height=10, width=10, fig.cap="__Figure 3:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
-
-# Load model
-model_ingle <- load_model("inglefieldbukta_rcp")
-
-# Model visuals
-model_summary(model_ingle, "Inglefieldbukta")
-```
+![__Figure 3:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_ingle.png)
 
 # Greenland
 
 ## Young Sound
 
-```{r young-summary-1, fig.height=10, width=10, fig.cap="__Figure 4:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
-
-# Load model
-model_young <- load_model("young_sound_rcp")
-
-# Model visuals
-model_summary(model_young, "Young Sound")
-```
+![__Figure 4:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_young.png)
 
 ## Disko Bay
 
@@ -95,12 +67,5 @@ There are no model data for the western side of Greenland.
 
 ## Porsangerfjorden
 
-```{r por-summary-1, fig.height=10, width=10, fig.cap="__Figure 5:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A."}
-
-# Load model
-model_por <- load_model("porsangerfjorden_rcp")
-
-# Model visuals
-model_summary(model_por, "Porsangerfjorden")
-```
+![__Figure 5:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_por.png)
 

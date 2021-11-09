@@ -987,7 +987,8 @@ data_summary_plot <- function(full_product, site_name){
   plot_summary_right <- ggpubr::ggarrange(plot_depth, plot_legend, labels = c("D)", ""), nrow = 2, heights = c(1, 0.4))
   plot_summary_bottom <- ggpubr::ggarrange(plot_summary_left, plot_summary_right, nrow = 1, labels = c("", "D)"), widths = c(1, 0.3))
   # plot_summary <- ggpubr::ggarrange(meta_table_g, plot_summary_bottom, ncol = 1, heights = c(0.1, 1))
-  plot_summary <- ggpubr::ggarrange(meta_table_g, plot_summary_bottom, heights = c(0.2, 1), labels = c("A)", ""), ncol = 1)
+  plot_summary <- ggpubr::ggarrange(meta_table_g, plot_summary_bottom, heights = c(0.2, 1), labels = c("A)", ""), ncol = 1) +
+    theme(plot.background = element_rect(fill = "white", color = NA))
   return(plot_summary)
 }
 
@@ -1019,6 +1020,7 @@ data_clim_plot <- function(full_product, site_name){
   # Calculate monthly depth climatologies per pixel
   depth_monthly_clims_pixel <- full_product %>% 
     filter(depth >= 0) %>% 
+    filter(value < 9999) %>% 
     mutate(lon = round(lon, res_round),
            lat = round(lat, res_round),
            month = lubridate::month(date),
@@ -1119,13 +1121,13 @@ data_clim_plot <- function(full_product, site_name){
   # Put them together
   plot_clim <- ggpubr::ggarrange(plot_depth_temp_clims, ggpubr::get_legend(plot_spatial_temp_clim), plot_spatial_temp_clim + theme(legend.position = "none"), 
                                  plot_depth_sal_clims, ggpubr::get_legend(plot_spatial_sal_clim), plot_spatial_sal_clim + theme(legend.position = "none"),
-                                 heights = c(0.3, 0.1, 1, 0.3, 0.1, 1), labels = c("A)", "", "B)", "C)", "", "D)"), ncol = 1, nrow = 6)
+                                 heights = c(0.3, 0.1, 1, 0.3, 0.1, 1), labels = c("A)", "", "B)", "C)", "", "D)"), ncol = 1, nrow = 6) +
+    theme(plot.background = element_rect(fill = "white", color = NA))
   return(plot_clim)
 }
 
 # Function for calculating and plotting the trends in the data from full products
 data_trend_plot <- function(full_product, site_name){
-  
   
   # Create factors for more consistent plotting
   full_product$var_type <- as.factor(full_product$var_type)
@@ -1152,6 +1154,7 @@ data_trend_plot <- function(full_product, site_name){
   # Calculate trends 
   depth_trend_pixel <- full_product %>% 
     filter(depth >= 0) %>% 
+    filter(value < 9999) %>% 
     mutate(lon = round(lon, res_round),
            lat = round(lat, res_round),
            year = lubridate::year(date),
@@ -1228,7 +1231,8 @@ data_trend_plot <- function(full_product, site_name){
   
   # Put them together
   plot_trend <- ggpubr::ggarrange(plot_trend_temp + theme(legend.position = "none"), ggpubr::get_legend(plot_trend_temp),  plot_trend_sal + theme(legend.position = "none"), 
-                                  ncol = 1, labels = c("A)", "", "B)"), heights = c(1, 0.2, 1))
+                                  ncol = 1, labels = c("A)", "", "B)"), heights = c(1, 0.2, 1)) +
+    theme(plot.background = element_rect(fill = "white", color = NA))
   return(plot_trend)
 }
 
@@ -1285,6 +1289,7 @@ model_summary <- function(model_product, site_name){
          title = "Average temperature across all pixels")
   
   # Combine and exit
-  plot_all <- ggpubr::ggarrange(plot_map, plot_trend, ncol = 1, labels = c("A)", "B)"), heights = c(2, 1))
+  plot_all <- ggpubr::ggarrange(plot_map, plot_trend, ncol = 1, labels = c("A)", "B)"), heights = c(2, 1)) +
+    theme(plot.background = element_rect(fill = "white", color = NA))
   return(plot_all)
 }

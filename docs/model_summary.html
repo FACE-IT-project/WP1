@@ -14,8 +14,8 @@
 
 <title>Summary of model data for FACE-IT study sites</title>
 
-<script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -354,6 +354,33 @@ div.tocify {
 <li>
   <a href="review.html">Review of drivers</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Talks
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="2021_summary.html">FACE-IT WP1 summary - 2021</a>
+    </li>
+    <li>
+      <a href="2021_analysis.html">FACE-IT example analysis - 2021</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Posters
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="SSC_2021.pdf">Svalbard Science Conference - 2021</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -374,14 +401,14 @@ div.tocify {
 
 <h1 class="title toc-ignore">Summary of model data for FACE-IT study sites</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">21 septembre 2021</h4>
+<h4 class="date">09 novembre 2021</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -390,7 +417,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -399,10 +426,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-09-21
+<strong>Last updated:</strong> 2021-11-09
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -418,12 +445,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -490,16 +517,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree68c63b2e90fb537a196e56f1dd6fce32d5396788targetblank68c63b2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/68c63b2e90fb537a196e56f1dd6fce32d5396788" target="_blank">68c63b2</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree0882635819d5be6f837c25e19c4b6eb000b0c350targetblank0882635a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/0882635819d5be6f837c25e19c4b6eb000b0c350" target="_blank">0882635</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree68c63b2e90fb537a196e56f1dd6fce32d5396788targetblank68c63b2a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree0882635819d5be6f837c25e19c4b6eb000b0c350targetblank0882635a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/68c63b2e90fb537a196e56f1dd6fce32d5396788" target="_blank">68c63b2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/0882635819d5be6f837c25e19c4b6eb000b0c350" target="_blank">0882635</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -509,9 +536,46 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    code/ny-alesund_cc_pf_rws.R
+    Ignored:    data/full_data/
     Ignored:    data/model/
     Ignored:    data/pg_data/
+    Ignored:    data/restricted/
     Ignored:    metadata/pangaea_parameters.tab
+    Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
+
+Untracked files:
+    Untracked:  figures/clim_disko.png
+    Untracked:  figures/clim_is.png
+    Untracked:  figures/clim_kong.png
+    Untracked:  figures/clim_nuup.png
+    Untracked:  figures/clim_por.png
+    Untracked:  figures/clim_stor.png
+    Untracked:  figures/model_fig_kong.png
+    Untracked:  figures/model_ingle.png
+    Untracked:  figures/model_is.png
+    Untracked:  figures/model_kong.png
+    Untracked:  figures/model_por.png
+    Untracked:  figures/model_young.png
+    Untracked:  figures/summary_disko.png
+    Untracked:  figures/summary_is.png
+    Untracked:  figures/summary_kong.png
+    Untracked:  figures/summary_nuup.png
+    Untracked:  figures/summary_por.png
+    Untracked:  figures/summary_stor.png
+    Untracked:  figures/summary_young.png
+    Untracked:  figures/trend_is.png
+    Untracked:  figures/trend_kong.png
+    Untracked:  figures/trend_nuup.png
+    Untracked:  figures/trend_por.png
+    Untracked:  figures/trend_stor.png
+
+Unstaged changes:
+    Modified:   analysis/data_summary.Rmd
+    Modified:   analysis/model_summary.Rmd
+    Modified:   code/data_analysis.R
+    Modified:   code/data_product.R
+    Modified:   code/functions.R
+    Modified:   code/workflowr.R
 
 </code></pre>
 <p>
@@ -550,6 +614,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/17f3bb3bd8d61b5bbd8ada0b84e584a1e5f576a1/docs/model_summary.html" target="_blank">17f3bb3</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -723,140 +804,23 @@ First pass at model summary page
 <div id="kongsfjorden" class="section level2">
 <h2>Kongsfjorden</h2>
 <p>Model temperatures. There are many more variables available within the models.</p>
-<div class="figure" style="text-align: center">
-<img src="figure/model_summary.Rmd/kong-summary-1-1.png" alt="__Figure 1:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A." width="768" />
-<p class="caption">
-<strong>Figure 1:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-kong-summary-1-1">
-Past versions of kong-summary-1-1.png
-</button>
-</p>
-<div id="fig-kong-summary-1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/FACE-IT-project/WP1/blob/b966f856a4be0251b7435158d583be882372787a/docs/figure/model_summary.Rmd/kong-summary-1-1.png" target="_blank">b966f85</a>
-</td>
-<td>
-Robert
-</td>
-<td>
-2021-09-21
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="figure">
+<img src="assets/model_kong.png" alt="" />
+<p class="caption"><strong>Figure 1:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.</p>
 </div>
 </div>
 <div id="isfjorden" class="section level2">
 <h2>Isfjorden</h2>
-<div class="figure" style="text-align: center">
-<img src="figure/model_summary.Rmd/is-summary-1-1.png" alt="__Figure 2:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A." width="768" />
-<p class="caption">
-<strong>Figure 2:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-is-summary-1-1">
-Past versions of is-summary-1-1.png
-</button>
-</p>
-<div id="fig-is-summary-1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/FACE-IT-project/WP1/blob/b966f856a4be0251b7435158d583be882372787a/docs/figure/model_summary.Rmd/is-summary-1-1.png" target="_blank">b966f85</a>
-</td>
-<td>
-Robert
-</td>
-<td>
-2021-09-21
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="figure">
+<img src="assets/model_is.png" alt="" />
+<p class="caption"><strong>Figure 2:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.</p>
 </div>
 </div>
 <div id="inglefieldbukta" class="section level2">
 <h2>Inglefieldbukta</h2>
-<div class="figure" style="text-align: center">
-<img src="figure/model_summary.Rmd/ingle-summary-1-1.png" alt="__Figure 3:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A." width="768" />
-<p class="caption">
-<strong>Figure 3:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-ingle-summary-1-1">
-Past versions of ingle-summary-1-1.png
-</button>
-</p>
-<div id="fig-ingle-summary-1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/FACE-IT-project/WP1/blob/b966f856a4be0251b7435158d583be882372787a/docs/figure/model_summary.Rmd/ingle-summary-1-1.png" target="_blank">b966f85</a>
-</td>
-<td>
-Robert
-</td>
-<td>
-2021-09-21
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="figure">
+<img src="assets/model_ingle.png" alt="" />
+<p class="caption"><strong>Figure 3:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.</p>
 </div>
 </div>
 </div>
@@ -864,48 +828,9 @@ Robert
 <h1>Greenland</h1>
 <div id="young-sound" class="section level2">
 <h2>Young Sound</h2>
-<div class="figure" style="text-align: center">
-<img src="figure/model_summary.Rmd/young-summary-1-1.png" alt="__Figure 4:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A." width="768" />
-<p class="caption">
-<strong>Figure 4:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-young-summary-1-1">
-Past versions of young-summary-1-1.png
-</button>
-</p>
-<div id="fig-young-summary-1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/FACE-IT-project/WP1/blob/2f621ee1ef53e5ae81c78bbcbd019e39911417f7/docs/figure/model_summary.Rmd/young-summary-1-1.png" target="_blank">2f621ee</a>
-</td>
-<td>
-Robert
-</td>
-<td>
-2021-09-21
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="figure">
+<img src="assets/model_young.png" alt="" />
+<p class="caption"><strong>Figure 4:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.</p>
 </div>
 </div>
 <div id="disko-bay" class="section level2">
@@ -921,48 +846,9 @@ Robert
 <h1>Norway</h1>
 <div id="porsangerfjorden" class="section level2">
 <h2>Porsangerfjorden</h2>
-<div class="figure" style="text-align: center">
-<img src="figure/model_summary.Rmd/por-summary-1-1.png" alt="__Figure 5:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A." width="768" />
-<p class="caption">
-<strong>Figure 5:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-por-summary-1-1">
-Past versions of por-summary-1-1.png
-</button>
-</p>
-<div id="fig-por-summary-1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/FACE-IT-project/WP1/blob/2f621ee1ef53e5ae81c78bbcbd019e39911417f7/docs/figure/model_summary.Rmd/por-summary-1-1.png" target="_blank">2f621ee</a>
-</td>
-<td>
-Robert
-</td>
-<td>
-2021-09-21
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="figure">
+<img src="assets/model_por.png" alt="" />
+<p class="caption"><strong>Figure 5:</strong> A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.</p>
 </div>
 <br>
 <p>
@@ -971,7 +857,7 @@ Robert
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.1.1 (2021-08-10)
+<pre><code>R version 4.1.2 (2021-11-01)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 18.04.6 LTS
 
@@ -988,43 +874,19 @@ locale:
 [11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
-[1] parallel  grid      stats     graphics  grDevices utils     datasets 
-[8] methods   base     
-
-other attached packages:
- [1] doParallel_1.0.16  iterators_1.0.13   foreach_1.5.1      pangaear_1.1.0    
- [5] sf_1.0-0           sp_1.4-5           RColorBrewer_1.1-2 ggOceanMaps_1.1.9 
- [9] ggspatial_1.1.5    gtable_0.3.0       gridExtra_2.3      PCICt_0.5-4.1     
-[13] tidync_0.2.4       forcats_0.5.1      stringr_1.4.0      dplyr_1.0.6       
-[17] purrr_0.3.4        readr_1.4.0        tidyr_1.1.3        tibble_3.1.2      
-[21] ggplot2_3.3.3      tidyverse_1.3.1    workflowr_1.6.2   
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
- [1] colorspace_2.0-1   ggsignif_0.6.2     ellipsis_0.3.2     class_7.3-19      
- [5] rio_0.5.26         rprojroot_2.0.2    fs_1.5.0           rstudioapi_0.13   
- [9] httpcode_0.3.0     proxy_0.4-26       ggpubr_0.4.0       farver_2.1.0      
-[13] fansi_0.5.0        lubridate_1.7.10   xml2_1.3.2         splines_4.1.1     
-[17] codetools_0.2-18   ncdf4_1.17         ncdump_0.0.3       knitr_1.33        
-[21] jsonlite_1.7.2     broom_0.7.7        dbplyr_2.1.1       rgeos_0.5-5       
-[25] oai_0.3.2          hoardr_0.5.2       compiler_4.1.1     httr_1.4.2        
-[29] backports_1.2.1    Matrix_1.3-4       assertthat_0.2.1   cli_2.5.0         
-[33] later_1.2.0        htmltools_0.5.1.1  tools_4.1.1        glue_1.4.2        
-[37] rappdirs_0.3.3     Rcpp_1.0.6         carData_3.0-4      cellranger_1.1.0  
-[41] jquerylib_0.1.4    RNetCDF_2.4-2      raster_3.4-10      vctrs_0.3.8       
-[45] crul_1.1.0         nlme_3.1-152       xfun_0.23          openxlsx_4.2.3    
-[49] rvest_1.0.0        lifecycle_1.0.0    ncmeta_0.3.0       rstatix_0.7.0     
-[53] scales_1.1.1       hms_1.1.0          promises_1.2.0.1   yaml_2.2.1        
-[57] curl_4.3.1         sass_0.4.0         stringi_1.6.2      highr_0.9         
-[61] e1071_1.7-7        zip_2.2.0          rlang_0.4.11       pkgconfig_2.0.3   
-[65] evaluate_0.14      lattice_0.20-44    labeling_0.4.2     cowplot_1.1.1     
-[69] tidyselect_1.1.1   plyr_1.8.6         magrittr_2.0.1     R6_2.5.0          
-[73] generics_0.1.0     DBI_1.1.1          mgcv_1.8-36        pillar_1.6.1      
-[77] haven_2.4.1        whisker_0.4        foreign_0.8-81     withr_2.4.2       
-[81] units_0.7-2        abind_1.4-5        modelr_0.1.8       crayon_1.4.1      
-[85] car_3.0-10         KernSmooth_2.23-20 utf8_1.2.1         rmarkdown_2.8     
-[89] sfheaders_0.4.0    readxl_1.3.1       data.table_1.14.0  git2r_0.28.0      
-[93] reprex_2.0.0       digest_0.6.27      classInt_0.4-3     httpuv_1.6.1      
-[97] munsell_0.5.0      viridisLite_0.4.0  bslib_0.2.5.1     </code></pre>
+ [1] Rcpp_1.0.7       whisker_0.4      knitr_1.36       magrittr_2.0.1  
+ [5] workflowr_1.6.2  R6_2.5.1         rlang_0.4.12     fastmap_1.1.0   
+ [9] fansi_0.5.0      stringr_1.4.0    tools_4.1.2      xfun_0.26       
+[13] utf8_1.2.2       git2r_0.28.0     jquerylib_0.1.4  htmltools_0.5.2 
+[17] ellipsis_0.3.2   rprojroot_2.0.2  yaml_2.2.1       digest_0.6.28   
+[21] tibble_3.1.5     lifecycle_1.0.1  crayon_1.4.1     later_1.3.0     
+[25] sass_0.4.0       vctrs_0.3.8      promises_1.2.0.1 fs_1.5.0        
+[29] glue_1.4.2       evaluate_0.14    rmarkdown_2.11   stringi_1.7.5   
+[33] bslib_0.3.1      compiler_4.1.2   pillar_1.6.4     jsonlite_1.7.2  
+[37] httpuv_1.6.3     pkgconfig_2.0.3 </code></pre>
 </div>
 </div>
 </div>
@@ -1081,6 +943,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
