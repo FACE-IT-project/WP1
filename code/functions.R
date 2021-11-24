@@ -16,7 +16,7 @@ library(RColorBrewer)
 library(sp)
 library(sf)
 library(pangaear)
-library(doParallel); registerDoParallel(cores = 15)
+library(doParallel); registerDoParallel(cores = 12)
 
 # Find who is the user and define the pCloud path
 if (Sys.getenv("LOGNAME") == "gattuso"){
