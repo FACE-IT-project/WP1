@@ -15,8 +15,8 @@ navbar:
       href: data_summary.html
     - text: "Model summary"
       href: model_summary.html
-  - text: "Review of drivers"
-    href: review.html
+  # - text: "Review of drivers"
+  #   href: review.html
   - text: "Talks"
     menu:
     - text: "FACE-IT WP1 summary - 2021"
