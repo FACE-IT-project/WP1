@@ -78,9 +78,11 @@ plot_sst_grid <- function(df){
     geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
     scale_fill_viridis_c() +
-    labs(x = NULL, y = NULL, fill = "Average annual\ntemperature (°C)") +
+    labs(x = NULL, y = NULL, fill = "Temp. (°C)",
+         title = "Average annual temperature",
+         subtitle = "NOAA OISST: 1982-2020") +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
-    theme(legend.position = "top", 
+    theme(legend.position = "bottom", 
           panel.background = element_rect(colour = "black", fill = NULL))
   # map_SST_average
   
@@ -98,15 +100,80 @@ plot_sst_grid <- function(df){
     geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
     scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
-    labs(x = NULL, y = NULL, fill = "Temp. trend\n(°C/decade)") +
+    labs(x = NULL, y = NULL, fill = "Trend (°C/dec)",
+         title = "Decadal trend",
+         subtitle = "NOAA OISST: 1982-2020") +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
-    theme(legend.position = "top", 
+    theme(legend.position = "bottom", 
           panel.background = element_rect(colour = "black", fill = NULL))
   # map_SST_trend
   
   # Arrange and exit
   map_SST <- ggpubr::ggarrange(map_SST_average, map_SST_trend, nrow = 1, labels = c("A)", "B)"))
   rm(df, df_annual, df_dec_trend, coastline_sub, map_SST_average, map_SST_trend); gc()
+  return(map_SST)
+}
+
+# Model surface temperature projections
+## NB: This could easily be modified to include depths and other variables
+plot_sst_model <- function(df){
+  
+  # Get annual averages for surface only
+  df_annual <- df %>% 
+    mutate(year = lubridate::year(date)) %>% 
+    filter(depth == 0, land == 1) %>%
+    group_by(proj, depth, lon, lat, year) %>% 
+    summarise(temp = mean(Temp, na.rm = T), .groups = "drop") 
+  
+  # The mean of 2000-2020 across all pathways
+  df_annual_2020 <- df_annual %>% 
+    filter(year <= 2020) %>% 
+    group_by(lon, lat) %>% 
+    summarise(temp = mean(temp, na.rm = T), .groups = "drop") 
+  
+  # Get SST stats
+  doParallel::registerDoParallel(cores = 15) # Change to taste
+  df_dec_trend <- plyr::ddply(df_annual, c( "proj", "lon", "lat", "depth"), dec_trend_calc, .parallel = T)
+  
+  # Clip coastline polygons for faster plotting
+  coastline_sub <- coastline_full_df %>% 
+    filter(x >= min(df$lon)-10, x <= max(df$lon)+10,
+           y >= min(df$lat)-10, y <= max(df$lat)+10)
+  
+  # Average temperatures from 2000-2020
+  map_SST_average <- df_annual_2020 %>%
+    ggplot() + geom_point(aes(colour = temp, x = lon, y = lat), size = 3) +
+    geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
+    scale_colour_viridis_c() +
+    labs(x = NULL, y = NULL, colour = "Temp. (°C)",
+         title = "Average annual temperature",
+         subtitle = "Model: 2000-2020") +
+    coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), 
+                   ylim = c(min(df$lat), max(df$lat))) +
+    theme(legend.position = "bottom", 
+          panel.background = element_rect(colour = "black", fill = NULL))
+  # map_SST_average
+  
+  # Trends from 2000-2099 for three RCPs
+  map_SST_trend <- df_dec_trend %>% 
+    # filter(p.value <= 0.05) %>% 
+    ggplot() + geom_point(aes(colour = dec_trend, x = lon, y = lat), size = 3) +
+    geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
+    scale_colour_gradient2(low = "blue", mid = "white", high = "red") +
+    labs(x = NULL, y = NULL, colour = "Trend (°C/dec)",
+         title = "Decadal trend",
+         subtitle = "Model: 2000-2099") +
+    coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
+    facet_wrap(~proj, ncol = 1) +
+    theme(legend.position = "bottom", 
+          panel.background = element_rect(colour = "black", fill = NULL))
+  # map_SST_trend
+  
+  # Arrange and exit
+  map_SST <- ggpubr::ggarrange(map_SST_average, map_SST_trend, nrow = 1, labels = c("A)", "B)"), widths = c(1, 0.6))
+  rm(df, df_annual, df_annual_2020, df_dec_trend, coastline_sub, map_SST_average, map_SST_trend); gc()
   return(map_SST)
 }
 
@@ -204,7 +271,11 @@ ggsave("figures/por_dec_trends.png", por_insitu_trend, height = 10, width = 8)
 
 # Plot SST grid around Porsangerfjorden
 sst_grid_por <- plot_sst_grid(sst_por)
-ggsave("figures/sst_grid_por.png", sst_grid_por, width = 8, height = 6)
+ggsave("figures/sst_grid_por.png", sst_grid_por, width = 8, height = 6.2)
+
+# Model temperature projections
+sst_model_por <- plot_sst_model(model_por)
+ggsave("figures/sst_model_por.png", sst_model_por, width = 7.5, height = 9)
 
 
 # Tromsø ------------------------------------------------------------------
@@ -214,5 +285,5 @@ bbox_trom <- c(17.6, 20.9, 69.2, 70.3)
 
 # Plot SST grid around Tromso
 sst_grid_trom <- plot_sst_grid(sst_trom)
-ggsave("figures/sst_grid_trom.png", sst_grid_trom, width = 10, height = 4.2)
+ggsave("figures/sst_grid_trom.png", sst_grid_trom, width = 10, height = 4.6)
 
