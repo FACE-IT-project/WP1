@@ -8,7 +8,7 @@
 source("code/functions.R")
 
 # Function for calculating decadal trends
-## NB: This requires a 'depth' column. Add an empty one if it's missing.
+## NB: This requires annual data with a 'depth' column. Add an empty one if it's missing.
 # df <- filter(por_temp_annual, lon == 25.24, lat == 70.35, depth == 0)
 dec_trend_calc <- function(df){
   
@@ -41,6 +41,76 @@ dec_trend_calc <- function(df){
   return(res)
 }
 
+# Plot SST means and trends
+## NB: This function expects a gridded daily data.frame with columns: lon, lat, t, temp
+plot_sst_grid <- function(df){
+  
+  # Create annual means
+  df_annual <- df %>% 
+    mutate(year = lubridate::year(t),
+           depth = 1) %>% 
+    filter(year <= 2020) %>% # Change once 2021 is complete
+    group_by(depth, lon, lat, year) %>% 
+    summarise(temp = mean(temp, na.rm = T), .groups = "drop") 
+  
+  # Get SST stats
+  doParallel::registerDoParallel(cores = 7) # Change to taste
+  df_dec_trend <- plyr::ddply(df_annual, c("lon", "lat", "depth"), dec_trend_calc, .parallel = T)
+  
+  # Clip coastline polygons for faster plotting
+  coastline_sub <- coastline_full_df %>% 
+    filter(x >= min(df$lon)-10, x <= max(df$lon)+10,
+           y >= min(df$lat)-10, y <= max(df$lat)+10)
+  
+  # Create stat labels for plots
+  
+  # Map of SST mean per pixel SST 
+  map_SST_average <- df_dec_trend %>%
+    na.omit() %>%
+    # filter(p.value <= 0.05) %>% 
+    # mutate(temp_total_05 = quantile(temp_total, probs = 0.05),
+    #        temp_total_95 = quantile(temp_total, probs = 0.95),
+    #        temp_total = case_when(temp_total > temp_total_95 ~ temp_total_95,
+    #                               temp_total < temp_total_05 ~ temp_total_05,
+    #                               TRUE ~ temp_total)) %>% 
+    ggplot() +
+    geom_tile(aes(fill = temp_average, x = lon, y = lat)) +
+    geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
+    scale_fill_viridis_c() +
+    labs(x = NULL, y = NULL, fill = "Average annual\ntemperature (°C)") +
+    coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
+    theme(legend.position = "top", 
+          panel.background = element_rect(colour = "black", fill = NULL))
+  # map_SST_average
+  
+  # Map of decadal trend per pixel
+  map_SST_trend <- df_dec_trend %>%
+    na.omit() %>% 
+    filter(p.value <= 0.05) %>% 
+    # mutate(dec_trend_05 = quantile(dec_trend, probs = 0.05),
+    #        dec_trend_95 = quantile(dec_trend, probs = 0.95),
+    #        dec_trend = case_when(dec_trend > dec_trend_95 ~ dec_trend_95,
+    #                              dec_trend < dec_trend_05 ~ dec_trend_05,
+    #                              TRUE ~ dec_trend)) %>% 
+    ggplot() +
+    geom_tile(aes(fill = dec_trend, x = lon, y = lat)) +
+    geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
+                 fill = "grey70", colour = "black") +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+    labs(x = NULL, y = NULL, fill = "Temp. trend\n(°C/decade)") +
+    coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
+    theme(legend.position = "top", 
+          panel.background = element_rect(colour = "black", fill = NULL))
+  # map_SST_trend
+  
+  # Arrange and exit
+  map_SST <- ggpubr::ggarrange(map_SST_average, map_SST_trend, nrow = 1, labels = c("A)", "B)"))
+  rm(df, df_annual, df_dec_trend, coastline_sub, map_SST_average, map_SST_trend); gc()
+  return(map_SST)
+}
+
+
 # Load data ---------------------------------------------------------------
 
 # FACE-IT collected data
@@ -52,7 +122,12 @@ load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
+# Model data
+model_por <- load_model("porsangerfjorden_rcp")
+
 # NOAA OISST extractions
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
+load("data/sst_trom.RData")
 
 
 # Porsangerfjorden --------------------------------------------------------
@@ -77,10 +152,11 @@ por_temp_annual <- por_temp %>%
          year > 1959) # The historic values aren't helpful for decadal trend calculations
 
 # Calculate decadal trends per pixel and depth
-system.time(
-por_dec_trend <- plyr::ddply(por_temp_annual, c("lon", "lat", "depth"), dec_trend_calc, .parallel = T)
-) # 463 seconds on 12 cores
-save(por_dec_trend, file = "data/analyses/por_dec_trend.RData")
+# system.time(
+# por_dec_trend <- plyr::ddply(por_temp_annual, c("lon", "lat", "depth"), dec_trend_calc, .parallel = T)
+# ) # 463 seconds on 12 cores
+# save(por_dec_trend, file = "data/analyses/por_dec_trend.RData")
+load("data/analyses/por_dec_trend.RData")
 
 # Clip coastline polygons for faster plotting
 coastline_full_df_por <- coastline_full_df %>% 
@@ -88,7 +164,7 @@ coastline_full_df_por <- coastline_full_df %>%
          y >= bbox_por[3]-10, y <= bbox_por[4]+10)
 
 # Plot the results
-por_dec_trend %>% 
+por_insitu_trend <- por_dec_trend %>% 
   filter(depth <= 30, !is.na(dec_trend), dec_trend <= 5) %>% 
   ggplot(aes(x = lon, y = lat)) +
   geom_polygon(data = coastline_full_df_por, aes(x = x, y = y, group = polygon_id), 
@@ -107,10 +183,19 @@ por_dec_trend %>%
        subtitle = "Dots with red borders show significant trends") +
   theme(panel.border = element_rect(fill = NA, colour = "black"), 
         legend.position = "bottom")
-ggsave("figures/por_dec_trends.png", height = 10, width = 8)
+ggsave("figures/por_dec_trends.png", por_insitu_trend, height = 10, width = 8)
+
+# Plot SST grid around Porsangerfjorden
+sst_grid_por <- plot_sst_grid(sst_por)
+ggsave("figures/sst_grid_por.png", sst_grid_por, width = 8, height = 6)
 
 
 # Tromsø ------------------------------------------------------------------
 
 # bbox
 bbox_trom <- c(17.6, 20.9, 69.2, 70.3)
+
+# Plot SST grid around Tromso
+sst_grid_trom <- plot_sst_grid(sst_trom)
+ggsave("figures/sst_grid_trom.png", sst_grid_trom, width = 10, height = 4.2)
+
