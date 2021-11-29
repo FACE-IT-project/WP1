@@ -7,21 +7,8 @@
 # Libraries
 source("code/functions.R")
 
-
-# Load data ---------------------------------------------------------------
-
-load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
-load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
-load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
-load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
-load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
-load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
-load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
-
-
-# Porsangerfjorden --------------------------------------------------------
-
 # Function for calculating decadal trends
+## NB: This requires a 'depth' column. Add an empty one if it's missing.
 # df <- filter(por_temp_annual, lon == 25.24, lat == 70.35, depth == 0)
 dec_trend_calc <- function(df){
   
@@ -40,7 +27,7 @@ dec_trend_calc <- function(df){
   } else {
     dec_trend_temp <- data.frame(dec_trend = NA, p.value = NA)
   }
-
+  
   # Total means
   sum_stats <- df %>% 
     summarise(temp_average = round(mean(temp, na.rm = T), 2), 
@@ -53,6 +40,22 @@ dec_trend_calc <- function(df){
   rm(df, dec_trend_temp, sum_stats); gc()
   return(res)
 }
+
+# Load data ---------------------------------------------------------------
+
+# FACE-IT collected data
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
+load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+
+# NOAA OISST extractions
+
+
+# Porsangerfjorden --------------------------------------------------------
 
 # Get temperature data
 # unique(full_product_por$var_name)
@@ -106,3 +109,8 @@ por_dec_trend %>%
         legend.position = "bottom")
 ggsave("figures/por_dec_trends.png", height = 10, width = 8)
 
+
+# Tromsø ------------------------------------------------------------------
+
+# bbox
+bbox_trom <- c(17.6, 20.9, 69.2, 70.3)
