@@ -7,9 +7,43 @@
 # Libraries
 source("code/functions.R")
 
+# Function for calculating decadal trends
+## NB: This requires a 'depth' column. Add an empty one if it's missing.
+# df <- filter(por_temp_annual, lon == 25.24, lat == 70.35, depth == 0)
+dec_trend_calc <- function(df){
+  
+  # Account for gaps
+  df_complete <- df %>%
+    # group_by(lon, lat, depth) %>% 
+    complete(nesting(lon, lat, depth), year = seq(min(year), max(year)))
+  
+  # Decadal trends
+  if(nrow(df_complete) >= 3){
+    dec_trend_temp <- broom::tidy(lm(temp ~ year, df_complete)) %>% 
+      slice(2) %>% 
+      mutate(dec_trend = round(estimate*10, 3),
+             p.value = round(p.value, 4)) %>% 
+      dplyr::select(dec_trend, p.value)
+  } else {
+    dec_trend_temp <- data.frame(dec_trend = NA, p.value = NA)
+  }
+  
+  # Total means
+  sum_stats <- df %>% 
+    summarise(temp_average = round(mean(temp, na.rm = T), 2), 
+              year_start = min(year, na.rm = T), 
+              year_end = max(year, na.rm = T),
+              year_count = n(), .groups = "drop")
+  
+  # Combine and exit
+  res <- cbind(dec_trend_temp, sum_stats)
+  rm(df, dec_trend_temp, sum_stats); gc()
+  return(res)
+}
 
 # Load data ---------------------------------------------------------------
 
+# FACE-IT collected data
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
@@ -17,6 +51,8 @@ load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+
+# NOAA OISST extractions
 
 
 # Isfjorden ---------------------------------------------------------------
@@ -37,39 +73,6 @@ is_temp <- full_product_is %>%
 
 
 # Porsangerfjorden --------------------------------------------------------
-
-# Function for calculating decadal trends
-# df <- filter(por_temp_annual, lon == 25.24, lat == 70.35, depth == 0)
-dec_trend_calc <- function(df){
-  
-  # Account for gaps
-  df_complete <- df %>%
-    # group_by(lon, lat, depth) %>% 
-    complete(nesting(lon, lat, depth), year = seq(min(year), max(year)))
-  
-  # Decadal trends
-  if(nrow(df_complete) >= 3){
-    dec_trend_temp <- broom::tidy(lm(temp ~ year, df_complete)) %>% 
-      slice(2) %>% 
-      mutate(dec_trend = round(estimate*10, 3),
-             p.value = round(p.value, 4)) %>% 
-      dplyr::select(dec_trend, p.value)
-  } else {
-    dec_trend_temp <- data.frame(dec_trend = NA, p.value = NA)
-  }
-
-  # Total means
-  sum_stats <- df %>% 
-    summarise(temp_average = round(mean(temp, na.rm = T), 2), 
-              year_start = min(year, na.rm = T), 
-              year_end = max(year, na.rm = T),
-              year_count = n(), .groups = "drop")
-  
-  # Combine and exit
-  res <- cbind(dec_trend_temp, sum_stats)
-  rm(df, dec_trend_temp, sum_stats); gc()
-  return(res)
-}
 
 # Get temperature data
 # unique(full_product_por$var_name)
@@ -123,3 +126,8 @@ por_dec_trend %>%
         legend.position = "bottom")
 ggsave("figures/por_dec_trends.png", height = 10, width = 8)
 
+
+# Tromsø ------------------------------------------------------------------
+
+# bbox
+bbox_trom <- c(17.6, 20.9, 69.2, 70.3)
