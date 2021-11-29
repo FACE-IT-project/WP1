@@ -130,6 +130,23 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
 load("data/sst_trom.RData")
 
 
+# Isfjorden ---------------------------------------------------------------
+
+is_var <- data.frame(var = unique(full_product_is$var_name))
+grep("ice", unique(full_product_is$var_name), ignore.case = F)
+
+"Ice extent"
+"Snow density, unc [kg/m**3]"
+"Snow depth, unc [m]"
+"Snow line [m a.s.l.]"
+
+is_ice_extent <- full_product_is %>% 
+  filter(var_name == "Snow line [m a.s.l.]")
+
+is_temp <- full_product_is %>% 
+  filter(grepl("°C", var_name, ignore.case = F))
+
+
 # Porsangerfjorden --------------------------------------------------------
 
 # Get temperature data
