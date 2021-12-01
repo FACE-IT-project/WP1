@@ -942,6 +942,18 @@ ingle_plankton <- data.frame(type = "Survey",
                              reference = '<a onclick="alert(\'No citation yet.\');">Søreide et al. (In prep.)</a>',
                              note = "These data have not yet been sourced.")
 
+# PAR related data
+stor_PAR <- data.frame(type = "Cruise",
+                       data_name = "PAR; turbidity; Kd; salinity; seawater temperature: surface, mid, bottom, DOM",
+                       date_range = "2020",
+                       lon_range = "16.5 to 21.5",
+                       lat_range = "76 to 78.5",
+                       depth_range = NA,
+                       file_name = '<a onclick="alert(\'Data currently under embargo until publication.\');">0 files</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/e6974f73-99bb-46d8-b06d-d00287b91729">NPDC</a>',
+                       reference = '<a onclick="alert(\'Petit, T., Granskog, M. A., Hamre, B., Kowalczuk, P., & Röttgers, R. (2022). Inherent optical properties of waters in Storfjorden (Svalbard) in summer 2020 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.e6974f73\');">Petit et al. (2020)</a>',
+                                 note = NA)
+
 # PANGAEA data product
 stor_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -966,7 +978,7 @@ full_product_stor <- data.frame(type = "FACE-IT",
                                 reference = '<a onclick="alert(\'full_product_stor.csv/.RData\');">See citation column</a>',
                                 note = "This is the full combined data product.")
 # Bind them together
-metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PG, full_product_stor)
+metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_PG, full_product_stor)
 ```
 
 ```{r storfjorden-meta-data-table}

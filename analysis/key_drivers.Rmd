@@ -52,7 +52,7 @@ In addition to changes in the air-sea fluxes and currents, it is also of great i
   
 __Key Physical Drivers__  
   
-> __Bathymetry__; __Current__: direction, location, volume; __Evaporation__; __Heatflux__: net, latent/sensible, long/shortwave radiation; __Light extinction coefficient__; __Mixed layer depth__; __Precipitation__; __River discharge__; __Salinity__; __Sea level pressure__; __Seawater temperature__: surface, mid, bottom; __Sedimentation rate__; __Suspended matter__: organic, mineral; __Wind__: direction, speed
+> __Bathymetry__; __Current__: direction, location, volume; __Evaporation__; __Heatflux__: net, latent/sensible, long/shortwave radiation; __Light extinction coefficient (Kd)__; __Mixed layer depth (MLD)__; __Precipitation__; __River discharge__; __Salinity__; __Sea level pressure__; __Seawater temperature__: surface, mid, bottom; __Sedimentation rate__; __Suspended matter__: organic, mineral; __Wind__: direction, speed
 
 # Chemistry
 
