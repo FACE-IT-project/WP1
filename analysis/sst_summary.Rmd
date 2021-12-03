@@ -1,0 +1,69 @@
+---
+title: "Summary of NOAA OISST data for FACE-IT study sites"
+author: "Robert Schlegel"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+# css: acid.css
+# csl: frontiers.csl
+# bibliography: FACE-IT.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+```
+
+<center>
+![](assets/FACE-IT_Logo_900.png){ width=70% }
+</center>
+
+```{r setup}
+# Necessary libraries
+# source("code/functions.R")
+```
+
+# Overview
+
+This document contains a summary of the NOAA OISST data that have been extracted around the FACE-IT sites.
+
+# Svalbard
+
+## Kongsfjorden
+
+![__Figure 1:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in blacke Note that the pixels in the NOAA OISST product are ~25km so there are no data within Kongsfjorden. One must also be cautious of the effect of land bleed on the temperatures for pixels that contain coastline.](assets/sst_grid_kong.png)
+
+## Isfjorden
+
+![__Figure 2:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_is.png)
+
+## Storfjorden
+
+![__Figure 3:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_stor.png)
+
+# Greenland
+
+## Young Sound
+
+![__Figure 4:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_young.png)
+
+## Disko Bay
+
+![__Figure 5:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_disko.png)
+
+## Nuup Kangerlua
+
+![__Figure 6:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_nuup.png)
+
+# Norway
+
+## Porsangerfjorden
+
+![__Figure 7:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_por.png)
+
+## Tromsø
+
+![__Figure 8:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_trom.png)
+

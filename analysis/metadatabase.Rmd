@@ -618,6 +618,18 @@ kong_ship_arrivals <- data.frame(type = "Statistics",
                                  reference = '<a onclick="alert(\'Havenstrøm, E. (2021). Port calls in Kings Bay. https://port.kingsbay.no/statistics\');">Havenstrøm (2021)</a>',
                                  note = NA)
 
+# NOAA OISST
+kong_NOAA <- data.frame(type = "Remote",
+                        data_name = "Sea temperature: surface",
+                        date_range = "1982 to 2020",
+                        lon_range = "10.125 to 12.125", 
+                        lat_range = "78.625 to 79.375",
+                        depth_range = NA,
+                        file_name = '<a onclick="alert(\'sst_kong.RData\');">1 file</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/">NOAA</a>',
+                        reference = '<a onclick="alert(\'Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1\');">Huang et al. (2021)</a>',
+                        note = NA)
+
 # PANGAEA data product
 kong_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -649,7 +661,7 @@ full_product_kong <- data.frame(type = "Combined",
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
                                kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_mooring_SAMS,
-                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_PG, full_product_kong)
+                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->

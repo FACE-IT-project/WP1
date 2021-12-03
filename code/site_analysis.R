@@ -54,7 +54,7 @@ plot_sst_grid <- function(df){
     summarise(temp = mean(temp, na.rm = T), .groups = "drop") 
   
   # Get SST stats
-  doParallel::registerDoParallel(cores = 7) # Change to taste
+  doParallel::registerDoParallel(cores = 15) # Change to taste
   df_dec_trend <- plyr::ddply(df_annual, c("lon", "lat", "depth"), dec_trend_calc, .parallel = T)
   
   # Clip coastline polygons for faster plotting
@@ -65,47 +65,39 @@ plot_sst_grid <- function(df){
   # Create stat labels for plots
   
   # Map of SST mean per pixel SST 
-  map_SST_average <- df_dec_trend %>%
-    na.omit() %>%
-    # filter(p.value <= 0.05) %>% 
-    # mutate(temp_total_05 = quantile(temp_total, probs = 0.05),
-    #        temp_total_95 = quantile(temp_total, probs = 0.95),
-    #        temp_total = case_when(temp_total > temp_total_95 ~ temp_total_95,
-    #                               temp_total < temp_total_05 ~ temp_total_05,
-    #                               TRUE ~ temp_total)) %>% 
-    ggplot() +
-    geom_tile(aes(fill = temp_average, x = lon, y = lat)) +
+  map_SST_average <- na.omit(df_dec_trend) %>%
+    ggplot() + geom_tile(aes(fill = temp_average, x = lon, y = lat)) +
     geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
     scale_fill_viridis_c() +
-    labs(x = NULL, y = NULL, fill = "Temp. (°C)",
+    labs(x = NULL, y = NULL, fill = "Temp.\n(°C)",
          title = "Average annual temperature",
          subtitle = "NOAA OISST: 1982-2020") +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
     theme(legend.position = "bottom", 
-          panel.background = element_rect(colour = "black", fill = NULL))
+          panel.border = element_rect(colour = "black", fill = NA))
   # map_SST_average
   
   # Map of decadal trend per pixel
-  map_SST_trend <- df_dec_trend %>%
-    na.omit() %>% 
-    filter(p.value <= 0.05) %>% 
+  map_SST_trend <- na.omit(df_dec_trend) %>% 
+    filter(p.value > 0.05) %>%
     # mutate(dec_trend_05 = quantile(dec_trend, probs = 0.05),
     #        dec_trend_95 = quantile(dec_trend, probs = 0.95),
     #        dec_trend = case_when(dec_trend > dec_trend_95 ~ dec_trend_95,
     #                              dec_trend < dec_trend_05 ~ dec_trend_05,
     #                              TRUE ~ dec_trend)) %>% 
-    ggplot() +
-    geom_tile(aes(fill = dec_trend, x = lon, y = lat)) +
+    ggplot() + geom_tile(aes(fill = dec_trend, x = lon, y = lat)) +
+    geom_tile(data = filter(df_dec_trend, p.value <= 0.05),
+              aes(fill = dec_trend, x = lon, y = lat), colour = "black") +
     geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
     scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
-    labs(x = NULL, y = NULL, fill = "Trend (°C/dec)",
+    labs(x = NULL, y = NULL, fill = "Trend\n(°C/dec)",
          title = "Decadal trend",
-         subtitle = "NOAA OISST: 1982-2020") +
+         subtitle = "Black outlines: p <= 0.05") +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
     theme(legend.position = "bottom", 
-          panel.background = element_rect(colour = "black", fill = NULL))
+          panel.border = element_rect(colour = "black", fill = NA))
   # map_SST_trend
   
   # Arrange and exit
@@ -146,13 +138,13 @@ plot_sst_model <- function(df){
     geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
     scale_colour_viridis_c() +
-    labs(x = NULL, y = NULL, colour = "Temp. (°C)",
+    labs(x = NULL, y = NULL, colour = "Temp.\n(°C)",
          title = "Average annual temperature",
          subtitle = "Model: 2000-2020") +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), 
                    ylim = c(min(df$lat), max(df$lat))) +
     theme(legend.position = "bottom", 
-          panel.background = element_rect(colour = "black", fill = NULL))
+          panel.border = element_rect(colour = "black", fill = NA))
   # map_SST_average
   
   # Trends from 2000-2099 for three RCPs
@@ -162,13 +154,13 @@ plot_sst_model <- function(df){
     geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
     scale_colour_gradient2(low = "blue", mid = "white", high = "red") +
-    labs(x = NULL, y = NULL, colour = "Trend (°C/dec)",
+    labs(x = NULL, y = NULL, colour = "Trend\n(°C/dec)",
          title = "Decadal trend",
          subtitle = "Model: 2000-2099") +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
     facet_wrap(~proj, ncol = 1) +
     theme(legend.position = "bottom", 
-          panel.background = element_rect(colour = "black", fill = NULL))
+          panel.border = element_rect(colour = "black", fill = NA))
   # map_SST_trend
   
   # Arrange and exit
@@ -193,6 +185,12 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 model_por <- load_model("porsangerfjorden_rcp")
 
 # NOAA OISST extractions
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_kong.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/sst_is.RData")
+load("~/pCloudDrive/FACE-IT_data/storfjorden/sst_stor.RData")
+load("~/pCloudDrive/FACE-IT_data/young_sound/sst_young.RData")
+load("~/pCloudDrive/FACE-IT_data/disko_bay/sst_disko.RData")
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
 load("data/sst_trom.RData")
 
@@ -206,6 +204,11 @@ kong_PAR <- full_product_kong %>%
   filter(!grepl("para|pari|parvum", var_name, ignore.case = T))
 unique(kong_PAR$var_name)
 write_csv(kong_PAR, file = "data/kong_PAR.csv")
+
+# Plot SST grid around Kongsfjorden
+sst_grid_kong <- plot_sst_grid(sst_kong)
+ggsave("figures/sst_grid_kong.png", sst_grid_kong, width = 7.2, height = 6.1)
+ggsave("docs/assets/sst_grid_kong.png", sst_grid_kong, width = 7.2, height = 6.1)
 
 
 # Isfjorden ---------------------------------------------------------------
@@ -223,6 +226,43 @@ is_ice_extent <- full_product_is %>%
 
 is_temp <- full_product_is %>% 
   filter(grepl("°C", var_name, ignore.case = F))
+
+# Plot SST grid around Isfjorden
+sst_grid_is <- plot_sst_grid(sst_is)
+ggsave("figures/sst_grid_is.png", sst_grid_is, width = 7.3, height = 5)
+ggsave("docs/assets/sst_grid_is.png", sst_grid_is, width = 7.3, height = 5)
+
+
+# Storfjorden -------------------------------------------------------------
+
+# Plot SST grid around Storfjorden
+sst_grid_stor <- plot_sst_grid(sst_stor)
+ggsave("figures/sst_grid_stor.png", sst_grid_stor, width = 8.5, height = 6.5)
+ggsave("docs/assets/sst_grid_stor.png", sst_grid_stor, width = 8.5, height = 6.5)
+
+
+# Young Sound -------------------------------------------------------------
+
+# Plot SST grid around Young Sound
+sst_grid_young <- plot_sst_grid(sst_young)
+ggsave("figures/sst_grid_young.png", sst_grid_young, width = 8.2, height = 7.5)
+ggsave("docs/assets/sst_grid_young.png", sst_grid_young, width = 8.2, height = 7.5)
+
+
+# Disko Bay ---------------------------------------------------------------
+
+# Plot SST grid around Disko Bay
+sst_grid_disko <- plot_sst_grid(sst_disko)
+ggsave("figures/sst_grid_disko.png", sst_grid_disko, width = 7.5, height = 6.6)
+ggsave("docs/assets/sst_grid_disko.png", sst_grid_disko, width = 7.5, height = 6.6)
+
+
+# Nuup Kangerlua ----------------------------------------------------------
+
+# Plot SST grid around Nuup Kangerlua
+sst_grid_nuup <- plot_sst_grid(sst_nuup)
+ggsave("figures/sst_grid_nuup.png", sst_grid_nuup, width = 7.5, height = 6.2)
+ggsave("docs/assets/sst_grid_nuup.png", sst_grid_nuup, width = 7.5, height = 6.2)
 
 
 # Porsangerfjorden --------------------------------------------------------
@@ -282,7 +322,8 @@ ggsave("figures/por_dec_trends.png", por_insitu_trend, height = 10, width = 8)
 
 # Plot SST grid around Porsangerfjorden
 sst_grid_por <- plot_sst_grid(sst_por)
-ggsave("figures/sst_grid_por.png", sst_grid_por, width = 8, height = 6.2)
+ggsave("figures/sst_grid_por.png", sst_grid_por, width = 8, height = 5.4)
+ggsave("docs/assets/sst_grid_por.png", sst_grid_por, width = 8, height = 5.4)
 
 # Model temperature projections
 sst_model_por <- plot_sst_model(model_por)
@@ -297,4 +338,5 @@ bbox_trom <- c(17.6, 20.9, 69.2, 70.3)
 # Plot SST grid around Tromso
 sst_grid_trom <- plot_sst_grid(sst_trom)
 ggsave("figures/sst_grid_trom.png", sst_grid_trom, width = 10, height = 4.6)
+ggsave("docs/assets/sst_grid_trom.png", sst_grid_trom, width = 10, height = 4.6)
 
