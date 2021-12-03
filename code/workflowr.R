@@ -19,4 +19,4 @@ system.time(
                                      "analysis/sst_summary.Rmd"
   ),
   message = "Re-built site.")
-) # 22 seconds
+) # 15 seconds
