@@ -197,6 +197,17 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
 load("data/sst_trom.RData")
 
 
+# Kongsfjorden ------------------------------------------------------------
+
+# Extract PAR data
+unique(full_product_kong$var_name)
+kong_PAR <- full_product_kong %>% 
+  filter(grepl("par", var_name, ignore.case = T)) %>% 
+  filter(!grepl("para|pari|parvum", var_name, ignore.case = T))
+unique(kong_PAR$var_name)
+write_csv(kong_PAR, file = "data/kong_PAR.csv")
+
+
 # Isfjorden ---------------------------------------------------------------
 
 is_var <- data.frame(var = unique(full_product_is$var_name))
