@@ -1,0 +1,100 @@
+---
+title: "Domaine de Spécialité et Travailler à Nice"
+author: "Robert Schlegel"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+css: acid.css
+csl: frontiers.csl
+language: French
+bibliography: FACE-IT.bib
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+```
+
+***
+
+# Canicules Marines
+
+- Vague de chaleur
+- Lorsque la température dans un endroit se situe dans les 10% supérieurs pendant 5 jours
+- Deux causes principales:
+    - Flux de chaleur anormaux dans l'océan - Une belle journée ensoleillée
+    - Advection anormale à travers de forts gradients thermiques - Courants océaniques errants
+    
+<center>
+![](assets/mhw-definition_1_fr.png)
+<!-- [@Hobday2016] -->
+</center>
+
+- Un problème pour le monde mais particulièrement la Méditerranée
+    - Les deux régions qui évoluent le plus rapidement: Mer Noire et Méditerranée
+
+<center>
+![](assets/GLOBAL_MHW_duration.png)
+</center>
+
+- La majeure partie de l'océan sera une canicule quasi permanent d'ici 2100
+- Pour plus d'informations: http://www.marineheatwaves.org/
+- Application interactive que j'ai créée: http://www.marineheatwaves.org/tracker.html
+
+***
+
+# FACE-IT
+
+<center>
+![](assets/FACE-IT_Logo_900.png){ width=80% }
+![](assets/h2020_grant.png){ width=60% }
+</center>
+
+- Projet de quatre ans portant sur le changement climatique dans les fjords arctiques européens
+- Je suis le data scientist pour ce projet
+  - Je passe en revue toutes les forces du changement
+  - Je fusionne les données disponibles
+  - Je fournis un support pour les statistiques, la programmation et la visualisation des données
+  - Je me rends sur place pour aider aux travaux de terrain
+
+## Dans l'arctique  {.tabset .tabset-fade .tabset-pills} 
+
+### Paysage {-}
+- Beau mais désolé, comme un désert
+<center>
+![](assets/PXL_20210621_135526825.jpg){ width=100% }
+</center>
+
+### Chasser {-}
+- Collecte de varech dans le fjord
+<center>
+![](assets/DSCN2149.JPG){ width=60% }
+</center>
+
+### Mésocosme {-}
+- Quatre climats futurs multipliés par trois répliques
+<center>
+![](assets/PXL_20210706_080323492.jpg){ width=60% }
+</center>
+
+### À la fjord {-}
+- Nous avons également étudié les conditions physiques du fjord
+<center>
+![](assets/IMG-20210706-WA0008.jpg){ width=100% }
+</center>
+
+- Il y a beaucoup de glaciers
+<center>
+![](assets/IMG-20210706-WA0007.jpg){ width=100% }
+</center>
+
+- Nous avons aussi vu des ours polaires
+<center>
+![](assets/IMG-20210712-WA0001~2.jpg){ width=100% }
+</center>
+
+<!-- *** -->
+
+<!-- # Les références -->
