@@ -1,0 +1,4209 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Robert Schlegel" />
+
+
+<title>Meta-database: environmental and societal drivers of change in Arctic fjord ecosystems</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.19/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="acid.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">WP1</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="key_drivers.html">Key drivers</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Data
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="metadatabase.html">Meta-database</a>
+    </li>
+    <li>
+      <a href="data_summary.html">Data summary</a>
+    </li>
+    <li>
+      <a href="model_summary.html">Model summary</a>
+    </li>
+    <li>
+      <a href="sst_summary.html">SST summary</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Talks
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="2021_summary.html">FACE-IT WP1 summary - 2021</a>
+    </li>
+    <li>
+      <a href="2021_analysis.html">FACE-IT example analysis - 2021</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Posters
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="SSC_2021.pdf">Svalbard Science Conference - 2021</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/FACE-IT-project/FACE-IT">
+    <span class="fab fa-github-alt"></span>
+     
+    Source code
+  </a>
+</li>
+<li>
+  <a href="DMP_FACE-IT_initial.pdf">
+    <span class="fas fa-book"></span>
+     
+    DMP
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Meta-database: environmental and societal drivers of change in Arctic fjord ecosystems</h1>
+<h4 class="author">Robert Schlegel</h4>
+<h4 class="date">10 décembre 2021</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-12-10
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210216code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210216)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210216code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210216)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree27254667223c171f7fb2d5f70902f49960cfef25targetblank2725466a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/27254667223c171f7fb2d5f70902f49960cfef25" target="_blank">2725466</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree27254667223c171f7fb2d5f70902f49960cfef25targetblank2725466a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/27254667223c171f7fb2d5f70902f49960cfef25" target="_blank">2725466</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    code/ny-alesund_cc_pf_rws.R
+    Ignored:    data/full_data/
+    Ignored:    data/model/
+    Ignored:    data/pg_data/
+    Ignored:    data/restricted/
+    Ignored:    data/sst_trom.RData
+    Ignored:    metadata/pangaea_parameters.tab
+    Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/metadatabase.Rmd</code>) and HTML (<code>docs/metadatabase.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/27254667223c171f7fb2d5f70902f49960cfef25/docs/metadatabase.html" target="_blank">2725466</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-10
+</td>
+<td>
+Merge
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/64a5252c3ca5a482975f180974dabc0f6f6f9cdf/docs/metadatabase.html" target="_blank">64a5252</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-10
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/0ef471d5e9c2c031c5b8014ed52fdfff9c995410/docs/metadatabase.html" target="_blank">0ef471d</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-10
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/2461ef87dba001105f3e5b06f048e7dce1c502d3/analysis/metadatabase.Rmd" target="_blank">2461ef8</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-10
+</td>
+<td>
+Added NOAA OISST extracts to database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/807675e24f8fa07c6f11a84cc04ee88e1ac91f27/docs/metadatabase.html" target="_blank">807675e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-12-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/104acbc17c970db19e8569bc8be0f7d16d9c3584/docs/metadatabase.html" target="_blank">104acbc</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-03
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/e8e7420d2e1e006e33d040e4b4c289e43831b8ec/analysis/metadatabase.Rmd" target="_blank">e8e7420</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-03
+</td>
+<td>
+SST analysis figures
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/e8e7420d2e1e006e33d040e4b4c289e43831b8ec/docs/metadatabase.html" target="_blank">e8e7420</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-03
+</td>
+<td>
+SST analysis figures
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/26ce5f6a2046572e5df2ac6116db9615ab017adf/docs/metadatabase.html" target="_blank">26ce5f6</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-12-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/6e445e5ade4977dcb7809c992fbabf63f7594225/analysis/metadatabase.Rmd" target="_blank">6e445e5</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-12-01
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/1e379a2e943903d5faa222e27601621625e94f7c/docs/metadatabase.html" target="_blank">1e379a2</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-11-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/79b293259b53a850eb0bec7f5a366ad214c531d5/docs/metadatabase.html" target="_blank">79b2932</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-11-10
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/7caf87bea2be461e9357e4293ab6242803e941a0/docs/metadatabase.html" target="_blank">7caf87b</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-11-09
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/49b83b1c00d2ad9c1235bd4174df03d6b1dccf66/docs/metadatabase.html" target="_blank">49b83b1</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-11-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/81993fc1ff622a689650106b2fb170a2453585fd/analysis/metadatabase.Rmd" target="_blank">81993fc</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-25
+</td>
+<td>
+Fully amalgamated Longyearbyen tourist ship arrivals
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/81993fc1ff622a689650106b2fb170a2453585fd/docs/metadatabase.html" target="_blank">81993fc</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-25
+</td>
+<td>
+Fully amalgamated Longyearbyen tourist ship arrivals
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/bd13b44f2b750d2c55061f9293bdf5b909902e12/analysis/metadatabase.Rmd" target="_blank">bd13b44</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-21
+</td>
+<td>
+Finished adding D3.1 datasets to database and expanded on Kongsfjorden ship arrival data by ship type
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/5e63c9c962b809e3e1ec8dcf0a74ae200d5e461d/analysis/metadatabase.Rmd" target="_blank">5e63c9c</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-20
+</td>
+<td>
+Getting ready to submit D1.2 Meta-database report
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/5e63c9c962b809e3e1ec8dcf0a74ae200d5e461d/docs/metadatabase.html" target="_blank">5e63c9c</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-20
+</td>
+<td>
+Getting ready to submit D1.2 Meta-database report
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/22428720ca78f3f9ab62153ed062258e4df43d42/analysis/metadatabase.Rmd" target="_blank">2242872</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-20
+</td>
+<td>
+Listed more variables
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/22428720ca78f3f9ab62153ed062258e4df43d42/docs/metadatabase.html" target="_blank">2242872</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-20
+</td>
+<td>
+Listed more variables
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/501fc26bbdd2c5db45508618b6f661406cf17e55/analysis/metadatabase.Rmd" target="_blank">501fc26</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-20
+</td>
+<td>
+Added D3.1 datasets to meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/501fc26bbdd2c5db45508618b6f661406cf17e55/docs/metadatabase.html" target="_blank">501fc26</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-20
+</td>
+<td>
+Added D3.1 datasets to meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/6b5a2e4f0f2a1520d2e8bbb37efa4e580a206ea3/analysis/metadatabase.Rmd" target="_blank">6b5a2e4</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-19
+</td>
+<td>
+Added Kongsfjorden ship/tourist arrival data to database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/6b5a2e4f0f2a1520d2e8bbb37efa4e580a206ea3/docs/metadatabase.html" target="_blank">6b5a2e4</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-19
+</td>
+<td>
+Added Kongsfjorden ship/tourist arrival data to database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b413d3037261f837181f80b4f7b5fb44e289a9c1/analysis/metadatabase.Rmd" target="_blank">b413d30</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-12
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/b413d3037261f837181f80b4f7b5fb44e289a9c1/docs/metadatabase.html" target="_blank">b413d30</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-12
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/e9308e6328312b1ff1ab971301562bd5578f1adf/analysis/metadatabase.Rmd" target="_blank">e9308e6</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-12
+</td>
+<td>
+Reworked and smoothed out full product pipeline
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/3186df3809df59a598119a2afd685d88d1fa6e3b/analysis/metadatabase.Rmd" target="_blank">3186df3</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-08
+</td>
+<td>
+Added SAMS Kongsfjorden mooring data and recompiled EU PG collections
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3186df3809df59a598119a2afd685d88d1fa6e3b/docs/metadatabase.html" target="_blank">3186df3</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-08
+</td>
+<td>
+Added SAMS Kongsfjorden mooring data and recompiled EU PG collections
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/cee139fc68e8c18ed24465caab773a17bbc5efbe/analysis/metadatabase.Rmd" target="_blank">cee139f</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-08
+</td>
+<td>
+Preparing to add in some more datasets
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/b77b272c87c12569a5def6f418fd53ca0d00c801/docs/metadatabase.html" target="_blank">b77b272</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-06
+</td>
+<td>
+Merge
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/63aea444678b40a4cb7aca89a6de7f4e90167a13/docs/metadatabase.html" target="_blank">63aea44</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/45398933ed694b138530521725191a02083a8f5c/analysis/metadatabase.Rmd" target="_blank">4539893</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-10-06
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/ca5002a9dfb1fb40c2c718195bdc64c857f6a570/docs/metadatabase.html" target="_blank">ca5002a</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-10-04
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/964cba03861cca97922b480b4bceb685a07ab6e9/analysis/metadatabase.Rmd" target="_blank">964cba0</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-10-04
+</td>
+<td>
+Final draft of analysis talk
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/964cba03861cca97922b480b4bceb685a07ab6e9/docs/metadatabase.html" target="_blank">964cba0</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-10-04
+</td>
+<td>
+Final draft of analysis talk
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3e117d437b87e3caa4510a73ec3dea7c98a7cc94/docs/metadatabase.html" target="_blank">3e117d4</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-30
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/ad7731806b0d7167c72a0607e38768dfebe1390c/docs/metadatabase.html" target="_blank">ad77318</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-30
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/72feb91f626f7c16ffa85e95779d7a8c783d386a/analysis/metadatabase.Rmd" target="_blank">72feb91</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-30
+</td>
+<td>
+Rough plots for analysis talk
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/657b15d9e7b4454017b78e042eec126d2ecdf016/analysis/metadatabase.Rmd" target="_blank">657b15d</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-29
+</td>
+<td>
+More work towards the analysis talk
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/c03fcc9256da4e0e6b0971cf364aec42d22dc1bd/analysis/metadatabase.Rmd" target="_blank">c03fcc9</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+More work on analysis talk and sourced the Svalbard population data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3ad492fbe4bd9c2a6b61c7a8841b3057279fa626/docs/metadatabase.html" target="_blank">3ad492f</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/9615efe0b045ca06dfa242a93405de4d386d9719/docs/metadatabase.html" target="_blank">9615efe</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/e2b642e877902c88a6229ca1d25460364690a3a9/docs/metadatabase.html" target="_blank">e2b642e</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/0f93d06a2578106db2d0f405a65e0c32d4a9b31f/docs/metadatabase.html" target="_blank">0f93d06</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/6f949b180ddf889a5ea9dba1765468a38f4fa816/docs/metadatabase.html" target="_blank">6f949b1</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/5786d9ecd6048376d86e0be53407785903cdc283/docs/metadatabase.html" target="_blank">5786d9e</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/72675ee17f2bb1fce6f0a7982f1823a4d4cff487/docs/metadatabase.html" target="_blank">72675ee</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/87df84ace977f194d85a89cd5d7d4bd7e74c776f/analysis/metadatabase.Rmd" target="_blank">87df84a</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-28
+</td>
+<td>
+Rough draft of analysis talk
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/4aa15033ffd8dde9060b75aa4cbbaacd4a7485bd/analysis/metadatabase.Rmd" target="_blank">4aa1503</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-24
+</td>
+<td>
+Beginning prep for 2021 annual meeting talks
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/4aa15033ffd8dde9060b75aa4cbbaacd4a7485bd/docs/metadatabase.html" target="_blank">4aa1503</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-24
+</td>
+<td>
+Beginning prep for 2021 annual meeting talks
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/dc676c14811451f7fdbf353f1412e455297a7d2b/docs/metadatabase.html" target="_blank">dc676c1</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/0e31a520a4cc327a0e53a0f530ea2d52bc1f270f/analysis/metadatabase.Rmd" target="_blank">0e31a52</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-23
+</td>
+<td>
+All datasets referred to in the Google Sheet are now listed in the meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/0e31a520a4cc327a0e53a0f530ea2d52bc1f270f/docs/metadatabase.html" target="_blank">0e31a52</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-23
+</td>
+<td>
+All datasets referred to in the Google Sheet are now listed in the meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/d42750a932010dbe6004ef0fb225ecb6deca91be/docs/metadatabase.html" target="_blank">d42750a</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+<td>
+Re-run
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/2f621ee1ef53e5ae81c78bbcbd019e39911417f7/docs/metadatabase.html" target="_blank">2f621ee</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-21
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/1caac6367be481925350a08e0b152fa3d7ff30e9/docs/metadatabase.html" target="_blank">1caac63</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-15
+</td>
+<td>
+Updates to WP1 website
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/ca9dc4eba35691c559ac05954b33ab953c7bfe00/analysis/metadatabase.Rmd" target="_blank">ca9dc4e</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-10
+</td>
+<td>
+Added some info to the PG entries
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/ca9dc4eba35691c559ac05954b33ab953c7bfe00/docs/metadatabase.html" target="_blank">ca9dc4e</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-10
+</td>
+<td>
+Added some info to the PG entries
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/9170385c43524afb5b9a541b4476d00148b3c949/analysis/metadatabase.Rmd" target="_blank">9170385</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-08
+</td>
+<td>
+New hydrographic data for Porsanger
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/d8de9128c34c3e44e6f9f47bb1a78db6f54b901f/analysis/metadatabase.Rmd" target="_blank">d8de912</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-08
+</td>
+<td>
+Added sea ice extent file for Porsangerfjorden
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/d8de9128c34c3e44e6f9f47bb1a78db6f54b901f/docs/metadatabase.html" target="_blank">d8de912</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-08
+</td>
+<td>
+Added sea ice extent file for Porsangerfjorden
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dd71077b2e294d3b6cbdc036e97067bf851ea4df/analysis/metadatabase.Rmd" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+<td>
+Update to summary figures. Now using hi-res coastlines.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/dd71077b2e294d3b6cbdc036e97067bf851ea4df/docs/metadatabase.html" target="_blank">dd71077</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-09-07
+</td>
+<td>
+Update to summary figures. Now using hi-res coastlines.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/36454ccc9ad40ad309f37f7b0efa37a8f8f76f78/docs/metadatabase.html" target="_blank">36454cc</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-17
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/52f64367ea2d561f5f15a25965eae79d10b67361/analysis/metadatabase.Rmd" target="_blank">52f6436</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-12
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/52f64367ea2d561f5f15a25965eae79d10b67361/docs/metadatabase.html" target="_blank">52f6436</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-12
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/0feaf3a3d0c0f2d4d6cc7bf59e61760154f32102/analysis/metadatabase.Rmd" target="_blank">0feaf3a</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-11
+</td>
+<td>
+Added GFI mooring data for Porsangerfjorden
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/89085958adb0d518a22870b3310d984f154829a3/analysis/metadatabase.Rmd" target="_blank">8908595</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-11
+</td>
+<td>
+Improved the ocean boundaries
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/937e36a07f7d347c29c75449d0382ad97cce9b29/analysis/metadatabase.Rmd" target="_blank">937e36a</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-11
+</td>
+<td>
+Updated the SOCAT-GLODAP comparison to use improved ocean borders
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/2ea023f51839e516d35772932a72d06ec5ea6dba/analysis/metadatabase.Rmd" target="_blank">2ea023f</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-05
+</td>
+<td>
+Some tests of the full is product
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/2ea023f51839e516d35772932a72d06ec5ea6dba/docs/metadatabase.html" target="_blank">2ea023f</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-05
+</td>
+<td>
+Some tests of the full is product
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/059b5284cc993ed5be3b625b5a52b0fa29de621a/analysis/metadatabase.Rmd" target="_blank">059b528</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-05
+</td>
+<td>
+Finished first round of all full site products and updated meta-database accordingly
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/059b5284cc993ed5be3b625b5a52b0fa29de621a/docs/metadatabase.html" target="_blank">059b528</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-05
+</td>
+<td>
+Finished first round of all full site products and updated meta-database accordingly
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/8204d71f1cd818456fd7f46e92a71939179f5370/analysis/metadatabase.Rmd" target="_blank">8204d71</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-04
+</td>
+<td>
+Almost all existing data files merged for kong and is
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/a14f4e07ac5d4b3547c465b382e134462e5efa84/analysis/metadatabase.Rmd" target="_blank">a14f4e0</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-08-03
+</td>
+<td>
+Quite a lot of progress on merging data products
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/fa84a2a5cda9ca54380bae6cdcf9312a86a7b7ed/analysis/metadatabase.Rmd" target="_blank">fa84a2a</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-07-28
+</td>
+<td>
+More work on Kongsfjorden data product merging
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/d3603e91eccdedd90c256470d7cae737f886634e/analysis/metadatabase.Rmd" target="_blank">d3603e9</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-07-28
+</td>
+<td>
+Tweaking combined product entry style in metadatabase
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/d3603e91eccdedd90c256470d7cae737f886634e/docs/metadatabase.html" target="_blank">d3603e9</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-07-28
+</td>
+<td>
+Tweaking combined product entry style in metadatabase
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/d31d7202c94f6af657923fd2eb399e80c4763a11/analysis/metadatabase.Rmd" target="_blank">d31d720</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-07-28
+</td>
+<td>
+Beginning to combine data products
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/935a827a3da0b52741f76ddb3e0db62a13c92dc7/analysis/metadatabase.Rmd" target="_blank">935a827</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-07-28
+</td>
+<td>
+Some long overdue updates to the metadatabase
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/935a827a3da0b52741f76ddb3e0db62a13c92dc7/docs/metadatabase.html" target="_blank">935a827</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-07-28
+</td>
+<td>
+Some long overdue updates to the metadatabase
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/cab57d8aa69d1da7e06f372c9155e410e5d403b4/analysis/metadatabase.Rmd" target="_blank">cab57d8</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-06-04
+</td>
+<td>
+Merge
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/ee1786b0bdf4c4ba169caa79306c0836be6905fb/analysis/metadatabase.Rmd" target="_blank">ee1786b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-06-04
+</td>
+<td>
+MInor meta-database change
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3d5b2bad513a2308e1632d5d1444b20e8a0ff20b/docs/metadatabase.html" target="_blank">3d5b2ba</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-05-20
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/1727cf7c247a48853035526749504138e1c8bade/analysis/metadatabase.Rmd" target="_blank">1727cf7</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-05-20
+</td>
+<td>
+Added GEM data to meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/1727cf7c247a48853035526749504138e1c8bade/docs/metadatabase.html" target="_blank">1727cf7</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-05-20
+</td>
+<td>
+Added GEM data to meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/43ea3c815e3f4853c2a920b3feefeeab765c518a/analysis/metadatabase.Rmd" target="_blank">43ea3c8</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-05-07
+</td>
+<td>
+Updates to meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/43ea3c815e3f4853c2a920b3feefeeab765c518a/docs/metadatabase.html" target="_blank">43ea3c8</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-05-07
+</td>
+<td>
+Updates to meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/5743fa6555cf7f6ede722e1ab3d70b99904a50d9/analysis/metadatabase.Rmd" target="_blank">5743fa6</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-05-06
+</td>
+<td>
+Starting in on GEM emta-data
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/4fd116f1dd591a27ad5039f6849c620464f336f1/analysis/metadatabase.Rmd" target="_blank">4fd116f</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-04-30
+</td>
+<td>
+Database updates
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/4fd116f1dd591a27ad5039f6849c620464f336f1/docs/metadatabase.html" target="_blank">4fd116f</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-04-30
+</td>
+<td>
+Database updates
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/6e4a07b7562582b473d8d35fd821c16ddaa6adf9/analysis/metadatabase.Rmd" target="_blank">6e4a07b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-28
+</td>
+<td>
+Steps towards multi-core PANGAEA downloads and assemblies
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/c5de9e32874963aeb955d40e7d3e78e370072724/analysis/metadatabase.Rmd" target="_blank">c5de9e3</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-27
+</td>
+<td>
+Different methods of saving PANGAEA data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/c5de9e32874963aeb955d40e7d3e78e370072724/docs/metadatabase.html" target="_blank">c5de9e3</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-27
+</td>
+<td>
+Different methods of saving PANGAEA data
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/ed75738a79762a25af76906fe34c6ab01cc0ae09/analysis/metadatabase.Rmd" target="_blank">ed75738</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-27
+</td>
+<td>
+Tidied up the meta-database before adding Pangae data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/ed75738a79762a25af76906fe34c6ab01cc0ae09/docs/metadatabase.html" target="_blank">ed75738</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-27
+</td>
+<td>
+Tidied up the meta-database before adding Pangae data
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/57a356ab46775f2a1f08fd5fe5e1791492033fc0/analysis/metadatabase.Rmd" target="_blank">57a356a</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+Update to meta-database intro text.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/57a356ab46775f2a1f08fd5fe5e1791492033fc0/docs/metadatabase.html" target="_blank">57a356a</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+Update to meta-database intro text.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/1f276c2a8d908b59c5cd150cfeae23de566b17d7/analysis/metadatabase.Rmd" target="_blank">1f276c2</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+More updates
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/05db53f7aada80e8a7615b8dffcf9eff3407ce42/docs/metadatabase.html" target="_blank">05db53f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/68676ee475820bb5c5c33d70fb9375a91ad79c9f/analysis/metadatabase.Rmd" target="_blank">68676ee</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+Update to Porsangerfjorden meta-data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/68676ee475820bb5c5c33d70fb9375a91ad79c9f/docs/metadatabase.html" target="_blank">68676ee</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-23
+</td>
+<td>
+Update to Porsangerfjorden meta-data
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b7b88dffd29fe4632f15f96af35084aa964898c2/analysis/metadatabase.Rmd" target="_blank">b7b88df</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-21
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/cff7e0f5e24eab6cb7e1fe997d263cf8aad7fa9b/analysis/metadatabase.Rmd" target="_blank">cff7e0f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-19
+</td>
+<td>
+Updates to meta-database.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/cff7e0f5e24eab6cb7e1fe997d263cf8aad7fa9b/docs/metadatabase.html" target="_blank">cff7e0f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-19
+</td>
+<td>
+Updates to meta-database.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/55836e3df08e8aeca9f8575359dda1ff8ab4aa35/analysis/metadatabase.Rmd" target="_blank">55836e3</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-16
+</td>
+<td>
+Updates to Isfjorden meta-data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/55836e3df08e8aeca9f8575359dda1ff8ab4aa35/docs/metadatabase.html" target="_blank">55836e3</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-16
+</td>
+<td>
+Updates to Isfjorden meta-data
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/ea2c8e75cceb8cd90febda76ecabde84333f0ff2/analysis/metadatabase.Rmd" target="_blank">ea2c8e7</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-15
+</td>
+<td>
+Update to meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/2fea339974c1fe8b5337cba7d8df719a1102c7be/analysis/metadatabase.Rmd" target="_blank">2fea339</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-15
+</td>
+<td>
+Updates to meta-database page
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/2fea339974c1fe8b5337cba7d8df719a1102c7be/docs/metadatabase.html" target="_blank">2fea339</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-15
+</td>
+<td>
+Updates to meta-database page
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/d63e05c2e42a16e143ee98bc0be900c63d78e87a/analysis/metadatabase.Rmd" target="_blank">d63e05c</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-15
+</td>
+<td>
+Meta-data updates from Pedro
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/3a43b497dca96305029bb1009dd786a8a85a868a/analysis/metadatabase.Rmd" target="_blank">3a43b49</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Fix a few internal links
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3a43b497dca96305029bb1009dd786a8a85a868a/docs/metadatabase.html" target="_blank">3a43b49</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Fix a few internal links
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/80c27b687eac69ab854a7be03f9750132195e897/analysis/metadatabase.Rmd" target="_blank">80c27b6</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Rearranged the key drivers table
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/80c27b687eac69ab854a7be03f9750132195e897/docs/metadatabase.html" target="_blank">80c27b6</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Rearranged the key drivers table
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/82c5970c791e6b15ec90d1aa7e9f7e6167fb6ce0/docs/metadatabase.html" target="_blank">82c5970</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Troubleshooting GitHub pages
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/90f6ec91f5a1dc18e9d480e42d6418c1aeed8b3a/docs/metadatabase.html" target="_blank">90f6ec9</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/18c0f2e7dca7c51dbffd5cd5526b348ed4f2a8fd/analysis/metadatabase.Rmd" target="_blank">18c0f2e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Update to meta-databse
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/7e3f348f35c8895c16d6ce81bf4f8099c31286a3/docs/metadatabase.html" target="_blank">7e3f348</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/19eac7920c2e8fc11293379c759e20aebcd40447/analysis/metadatabase.Rmd" target="_blank">19eac79</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/0b7ee0f8821c8fa01834af4d3f0c05a259a27f44/docs/metadatabase.html" target="_blank">0b7ee0f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/54ed6859820e7e55503b035629520b9825ec38de/analysis/metadatabase.Rmd" target="_blank">54ed685</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-04-01
+</td>
+<td>
+Added a couple more meta-data sources.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/7582d795b9e52e08d788e2fd3e6b6a34f2d020ee/docs/metadatabase.html" target="_blank">7582d79</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-26
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/b1c8ccadcf668eebc30c2f874c2a2fdc52360be8/docs/metadatabase.html" target="_blank">b1c8cca</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-26
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/a6fe1342b2239ced8536adec69627e688903fce4/analysis/metadatabase.Rmd" target="_blank">a6fe134</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-26
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/65d120edab2c6a4908c95979175e089b3020f26a/analysis/metadatabase.Rmd" target="_blank">65d120e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-24
+</td>
+<td>
+Some notes
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/951690864eb14ab77cb4ab68b1c02ec16ece3997/analysis/metadatabase.Rmd" target="_blank">9516908</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-19
+</td>
+<td>
+Added caption for Table 1
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/951690864eb14ab77cb4ab68b1c02ec16ece3997/docs/metadatabase.html" target="_blank">9516908</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-19
+</td>
+<td>
+Added caption for Table 1
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/f1183760fc861c55f6f52d9dfcfe5eaf2aa8e389/analysis/metadatabase.Rmd" target="_blank">f118376</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-19
+</td>
+<td>
+Quick touch-ups
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/f1183760fc861c55f6f52d9dfcfe5eaf2aa8e389/docs/metadatabase.html" target="_blank">f118376</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-19
+</td>
+<td>
+Quick touch-ups
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/fae1dc75284973b33a8f0b946a0cadebb5562982/analysis/metadatabase.Rmd" target="_blank">fae1dc7</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-18
+</td>
+<td>
+Added the full table of drivers determined to be important for the EU Arctic
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/fae1dc75284973b33a8f0b946a0cadebb5562982/docs/metadatabase.html" target="_blank">fae1dc7</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-18
+</td>
+<td>
+Added the full table of drivers determined to be important for the EU Arctic
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/8a2bf4b08279f9e30c49d6b6143dbfe49dcf7c5c/analysis/metadatabase.Rmd" target="_blank">8a2bf4b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-12
+</td>
+<td>
+Expanded the meta-database
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/8a2bf4b08279f9e30c49d6b6143dbfe49dcf7c5c/docs/metadatabase.html" target="_blank">8a2bf4b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-12
+</td>
+<td>
+Expanded the meta-database
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/0a2068307b2129cae04ef61bc1e4e03d755485e6/analysis/metadatabase.Rmd" target="_blank">0a20683</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-11
+</td>
+<td>
+Updates mostly to Isfjorden section
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/0a2068307b2129cae04ef61bc1e4e03d755485e6/docs/metadatabase.html" target="_blank">0a20683</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-11
+</td>
+<td>
+Updates mostly to Isfjorden section
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/17454ebe182ff29abe0f9cf832fdb65696a9dbb6/analysis/metadatabase.Rmd" target="_blank">17454eb</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-08
+</td>
+<td>
+Added a couple of entries for Isfjorden
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/17454ebe182ff29abe0f9cf832fdb65696a9dbb6/docs/metadatabase.html" target="_blank">17454eb</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-08
+</td>
+<td>
+Added a couple of entries for Isfjorden
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/f8fbec0158645d8a7cb8030a2926bc8f021a31be/docs/metadatabase.html" target="_blank">f8fbec0</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/d4b695ca9bc1921fb55747b05e7837e3b853f75c/analysis/metadatabase.Rmd" target="_blank">d4b695c</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-08
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/dc5dbf5316166224d6deaebfdb1c73047f4f8bfb/analysis/metadatabase.Rmd" target="_blank">dc5dbf5</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Formatted all of the tables
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/dc5dbf5316166224d6deaebfdb1c73047f4f8bfb/docs/metadatabase.html" target="_blank">dc5dbf5</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Formatted all of the tables
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/4a20757ea3b8b5f34a0a44ec82480c30d0f74a38/analysis/metadatabase.Rmd" target="_blank">4a20757</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Added FACE-IT logo to top of each page
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/4a20757ea3b8b5f34a0a44ec82480c30d0f74a38/docs/metadatabase.html" target="_blank">4a20757</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Added FACE-IT logo to top of each page
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/ddbd10d3f46154d6b2e22eae7c1f2c185af2f544/analysis/metadatabase.Rmd" target="_blank">ddbd10d</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Experimenting with popup rendering
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/ddbd10d3f46154d6b2e22eae7c1f2c185af2f544/docs/metadatabase.html" target="_blank">ddbd10d</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Experimenting with popup rendering
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/c2e7863776ceaaa7453eec166d94f5802ec3599d/analysis/metadatabase.Rmd" target="_blank">c2e7863</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+More HTML testing
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/c2e7863776ceaaa7453eec166d94f5802ec3599d/docs/metadatabase.html" target="_blank">c2e7863</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+More HTML testing
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/49ebabd20a94f5a9aca44c773f9da69d20ffa20e/analysis/metadatabase.Rmd" target="_blank">49ebabd</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Testing pop-ups and hyperlinks
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/49ebabd20a94f5a9aca44c773f9da69d20ffa20e/docs/metadatabase.html" target="_blank">49ebabd</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Testing pop-ups and hyperlinks
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/c44e66f4151b7942e6360b9439153274e0fb5823/analysis/metadatabase.Rmd" target="_blank">c44e66f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Added a bit of text
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/c44e66f4151b7942e6360b9439153274e0fb5823/docs/metadatabase.html" target="_blank">c44e66f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Added a bit of text
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/75d8f9b4ee6418373656c283fd7cecfa2dc4b804/docs/metadatabase.html" target="_blank">75d8f9b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/f1c0ac2740cda84d2a2406f26dd4086866eac626/analysis/metadatabase.Rmd" target="_blank">f1c0ac2</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+More spacing
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/f1c0ac2740cda84d2a2406f26dd4086866eac626/docs/metadatabase.html" target="_blank">f1c0ac2</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+More spacing
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/1765abdca7625692169a8d8bf98726947bd06b91/docs/metadatabase.html" target="_blank">1765abd</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/782169d0aa1c41066f0463c506341cd0aea1221d/analysis/metadatabase.Rmd" target="_blank">782169d</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+More playing around with widths and margins
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/782169d0aa1c41066f0463c506341cd0aea1221d/docs/metadatabase.html" target="_blank">782169d</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+More playing around with widths and margins
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/86624e03bb610710914aba2e9cbd2b575de2d6e6/docs/metadatabase.html" target="_blank">86624e0</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/f853627a982eb9659ff2d5aeb15c6085d7b4a692/analysis/metadatabase.Rmd" target="_blank">f853627</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Playing with page and table margins.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/8b8076920e2601c49fec3a69c3bbb659281d32c5/docs/metadatabase.html" target="_blank">8b80769</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/37be6e6f19063213b326e03f33f689f4abd7f410/analysis/metadatabase.Rmd" target="_blank">37be6e6</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/a89dfa3ebb315cd636d9c6588091f6384de5deba/analysis/metadatabase.Rmd" target="_blank">a89dfa3</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Moving away from a single smart meta-data functions towards more user input
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/fbef3e06586c59bf129225f1eac20324fc42cc8b/docs/metadatabase.html" target="_blank">fbef3e0</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/e0203009e98dfefa2fe8608a701c2f34164546d0/analysis/metadatabase.Rmd" target="_blank">e020300</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/e8aab70adc2841f31c49abae93ce24622330e329/docs/metadatabase.html" target="_blank">e8aab70</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/f8ad72bef2efaeea8c2812eebeebb125473f9aa4/analysis/metadatabase.Rmd" target="_blank">f8ad72b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/665719d47a944c0a45fe92dc3608c2e8b04c3bfa/analysis/metadatabase.Rmd" target="_blank">665719d</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Scraping convoluted date meta-data logic chain
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/21aed2629bab4d7551dff5bd903fb8794e81ad11/analysis/metadatabase.Rmd" target="_blank">21aed26</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Playing with meta-data function
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/6c2110fc9ad310b0c900a84306ed03937062e358/docs/metadatabase.html" target="_blank">6c2110f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/5d4b15e8403b453d7d5ceb1d54f64ba524c7fa82/analysis/metadatabase.Rmd" target="_blank">5d4b15e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3a30630cef06a4ed71ed796b72fdb69fe6649fb0/docs/metadatabase.html" target="_blank">3a30630</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/9d463844f87b38392a1901e11faa5f0bfeb92b2e/analysis/metadatabase.Rmd" target="_blank">9d46384</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3fd74f7bb5ef40712b8425925b022e0d3ddf6682/docs/metadatabase.html" target="_blank">3fd74f7</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/7d2db837d8ea6e300acbe93d033d08dad22ee9e6/analysis/metadatabase.Rmd" target="_blank">7d2db83</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/7ff8d638f73392bf90b6f6c5412a7e937224eb29/analysis/metadatabase.Rmd" target="_blank">7ff8d63</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+More work on metadatabase
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/7ff8d638f73392bf90b6f6c5412a7e937224eb29/docs/metadatabase.html" target="_blank">7ff8d63</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-03-01
+</td>
+<td>
+More work on metadatabase
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/6b2f047db1dc573542dce9fc27e46fd15c1ffebc/docs/metadatabase.html" target="_blank">6b2f047</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-24
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/3e8114ee6d4439c04818854fc4e57cc62f1a50d8/analysis/metadatabase.Rmd" target="_blank">3e8114e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-24
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/c38a8d3024a5ca17403667c24d231785dc61d807/analysis/metadatabase.Rmd" target="_blank">c38a8d3</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+More minor changes
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/9f9385e0c0a557fb0ca6f6d0eabc842b98c490f0/docs/metadatabase.html" target="_blank">9f9385e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/93d152e63f555c58bf9af49fc381e682345189d3/analysis/metadatabase.Rmd" target="_blank">93d152e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Adjusting file pathways
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/6208900599477d36a7ed04a32249f7b2a77adcbf/docs/metadatabase.html" target="_blank">6208900</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b09fb3f56daf99795741a2ce257e0bf140c9f9f3/analysis/metadatabase.Rmd" target="_blank">b09fb3f</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/51741d5d11e2170864f5b252236043f53934bb1f/docs/metadatabase.html" target="_blank">51741d5</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/ca063d37b99e42bf211eb069385e689db5b6d8b2/analysis/metadatabase.Rmd" target="_blank">ca063d3</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/849da96fc6ee5e17d4fb86f6e7535f02259cf08b/docs/metadatabase.html" target="_blank">849da96</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/c5e635e28f0f7ddedb3d1b42b488f0f8ea64c9d4/analysis/metadatabase.Rmd" target="_blank">c5e635e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-19
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/ee3511e05a7bc66f9038a175fdcaabfc5cc86571/docs/metadatabase.html" target="_blank">ee3511e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-18
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/04d996aaed661464930f48a48df0f060b4d20ad1/docs/metadatabase.html" target="_blank">04d996a</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-18
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/c3a8a72c98e738910530946b59d046716eb202ae/docs/metadatabase.html" target="_blank">c3a8a72</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-18
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3992686167be46eef3fadd6beacf1ccc1782e27a/docs/metadatabase.html" target="_blank">3992686</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-18
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/f9244d59028ea6ab14e472e6776d8aa37135f910/analysis/metadatabase.Rmd" target="_blank">f9244d5</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-02-17
+</td>
+<td>
+Re-built site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/bd0919b84af47a46d330bcb78009f083d68308e5/analysis/metadatabase.Rmd" target="_blank">bd0919b</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-02-16
+</td>
+<td>
+The metadatabase Rmd file
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<center>
+<img src="assets/FACE-IT_Logo_900.png" style="width:70.0%" />
+</center>
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p>This document is designed to satisfy D1.2 for the Horizon2020 project <a href="https://www.face-it-project.eu/">FACE-IT</a>. The interactive tables contain the meta-database for the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites (<a href="https://face-it-project.github.io/WP1/key_drivers.html">D1.1</a>). The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (<a href="https://face-it-project.github.io/WP1/review.html">D1.3</a>). The meta-database has been broken up into the different sites for convenience. With the exception that the first table contains data that span the entire European Arctic, as this is the broadest area of interest for FACE-IT, and there is a table dedicated to data that span all of Svalbard.</p>
+</div>
+<div id="european-arctic" class="section level1">
+<h1>European Arctic</h1>
+<center>
+<img src="assets/map_full.png" style="width:70.0%" />
+</center>
+<p>This section contains meta-data for pan-Arctic data files. These are almost exclusively large gridded data sets or large combined sets of CTD data.</p>
+<!-- _NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._ -->
+<!-- #### Tables {.tabset .tabset-fade .tabset-pills}  -->
+<!-- ##### Meta-data {-} -->
+<div id="htmlwidget-19fc40efc4448ecf75e7" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-19fc40efc4448ecf75e7">{"x":{"filter":"none","vertical":false,"caption":"<caption>All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.<\/caption>","data":[["","Net","Model","CTD, bottles","CTD, bottles","Ice cores","CTD","Flow meter","Model","CTD","CTD","PANGAEA"],["Bathymetry","Zooplankton: biodiversity","Sea ice: thickness; Snow cover: depth","Sea temperature; salinity; oxygen; nutrients","Sea temperature; salinity; nutrients","Protist: presence (%)","Sea temperature; salinity","River discharge","Sea ice: extent; mixed layer depth; seawater temperature: surface; partial pressure of CO2, dissolved inorganic carbon; pH","Sea temperature; salinity; fish: presence","Sea temperature; salinity; ChlA; PAR; turbidity","Most drivers"],[null,"1995 to 2008","1980 to 2016","1980-08-11 to 1980-09-19","1928 to 2007","1980 to 2015","1989-06-01 to 1989-09-09","1877 to 2020","1950 to 2099","2017","2018","1905 to 2018"],["-180 to 180","1.2 to 40.8","-180 to 180","-16.462 to 46.883","-180 to 180","-179.916 to 176.567","-10 to 62","-10 to 161.17",null,"-25 to 0","-27.5 to -18.8","-170.8 to 177.6"],["60 to 90","75.6 to 82.5","60 to 90","74 to 82.5","60 to 90","74.851 to 89.964","60.57 to 80","-163.6774 to 78.934418",null,"74 to 80","68.5 to 73.8","0 to 88"],["0 to 10920","0 to 1600",null,"101 to 5460","0 to 5352","0 to 4305","? to ?",null,null,null,"0 to 513","0 to 4450"],["<a onclick=\"alert('Not currently hosted');\">0 files<\/a>","<a onclick=\"alert('1995-2008-zooplankton-biodiversity.tsv');\">1 file<\/a>","<a onclick=\"alert('See the website');\">0 files<\/a>","<a onclick=\"alert('77YM19800811.exc.csv');\">1 file<\/a>","<a onclick=\"alert('Codispoti_Arctic_Nutrients_Submission_11-11-2010.csv');\">1 file<\/a>","<a onclick=\"alert('protists');\">1 folder<\/a>","<a onclick=\"alert('9700302.2.2.tar.gz');\">1 file<\/a>","<a onclick=\"alert('grdc_arctichycos_stations.xlsx');\">1 file<\/a>","<a onclick=\"alert('Arctic_model_output_acid.dat');\">1 file<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('LAKO_2018_SBE25_CTD_profiles.csv');\">1 file<\/a>","<a onclick=\"alert('pg_EU_CTD.csv; pg_EU_cruise_Chemistry_east.csv; pg_EU_cruise_Chemistry_west.csv; pg_EU_cruise_Ecology.csv; pg_EU_cruise_Biosphere.csv; pg_EU_cruise_Bio_class.csv; pg_EU_cruise_Cryosphere.csv; pg_EU_cruise_Atmosphere.csv; pg_EU_cruise_Oceans.csv');\">9 files<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.gebco.net/\">GEBCO<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/oceans/ncei/ocads/metadata/0113607.html\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.nodc.noaa.gov/archive/arc0034/0072133/\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html\">GRDC<\/a>","<a onclick=\"alert('File provided by Jean-Pierre Gattuso');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.polardata.ca/pdcsearch/PDCSearch.jsp?doi_id=13251\">PolarData<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://zenodo.org/record/5572329#.YW_ZW5uxU5m\">Zenodo<\/a>","<a onclick=\"alert('Links provided per row of data.');\">See URL column<\/a>"],["<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8');\">NPI (2020)<\/a>","<a onclick=\"alert('Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a');\">Liston et al. (2016)<\/a>","<a onclick=\"alert('Anderson, Leif G. (2013). Temperature, salinity and other variables collected from discrete sample and profile observations using CTD, bottle and other instruments from the YMER in the Arctic Ocean, Barents Sea and North Greenland Sea from 1980-08-11 to 1980-09-19 (NCEI Accession 0113607). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.3334/cdiac/otg.carina_77ym19800811. Accessed [date].');\">Anderson (2013)<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.nodc.noaa.gov/archive/arc0034/0072133/1.1/data/1-data/ReadMe_Codispoti_ArcticNuts.pdf\">Multiple<\/a>","<a onclick=\"alert('Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.');\">Hop et al. (2020)<\/a>","<a onclick=\"alert('Adrov, Nickoli; Murmansk Marine Biological Institute (MMBI) (2010). Physical profile data collected from bottle casts in the Barents, Greenland, and Norweigan Seas from 1989-06-01 to 1989-09-09 (NCEI Accession 9700302). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://accession.nodc.noaa.gov/9700302. Accessed [date].');\">Adrov (2010)<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.');\">Popova et al. (2014)<\/a>","<a onclick=\"alert('Bouchard, C., Chawarski, J., Geoffroy, A., & Agersted, M. (2021). Hydroacoustic data EK60 Greenland Sea August-September 2017. Waterloo, Canada: Canadian Cryospheric Information Network (CCIN). (Unpublished Data).');\">Bouchard et al. (2021)<\/a>","<a onclick=\"alert('Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329');\">Holding et al. (2021)<\/a>","<a onclick=\"alert('References provided per row of data.');\">See citation column<\/a>"],[null,null,"The file is too large to download from NPDC.",null,null,null,null,null,"Not currently in the database.","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rpubs.com/JohnnaH/798295\">Interactive map<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rpubs.com/JohnnaH/798295\">Interactive map<\/a>","These are combinations of many PANGAEA queries."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="svalbard" class="section level1">
+<h1>Svalbard</h1>
+<center>
+<img src="assets/map_svalbard.png" style="width:90.0%" />
+</center>
+<p>While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it’s own meta-data table. The primary drivers of change for each site are still listed in their own tables below.</p>
+<!-- <div style="margin-left: -200px;"> -->
+<div id="htmlwidget-a552998161ebf658e893" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a552998161ebf658e893">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.<\/caption>","data":[["","","","","Cruise","CTD","Database","Database","Database","","Bottle","Survey","Survey","Survey","AIS"],["Glacier: mass balance","Glacier: area","Glacier: tidal front","Glacier: marine front","Air: temperature, pressure; relative humidity; wind: speed, direction","Sea temperature; salinity","Seabird Colonies","Protection of geological sites","Most drivers","Fast ice: duration","Nutrients; dissolved 02; DOC; POC; PON","National statistics: population","National statistics: tourist arrivals","National statistics: guest nights","Vessel mileage; pCO2"],["1967 to 2019","1936 to 2010","2015 to 2019","2008 to 2020","2015","1876 to 2019","1880 to 2020","1993 to 2020","2015 to 2017","2014 to 2016","2009 to 2013","1990 to 2021","2008 to 2021","2008 to 2021","2017 and 2019"],[null,"9 to 30","9 to 36","10 to 34","2.9 to 29.9","0 to 34","9 to 35","20 to 80","-12.48 to 35.51"," 8.7 to 28.28","4 to 31",null,null,null,null],[null,"76 to 81","76 to 81","76 to 81","78.1 to 83.3","75 to 83","74 to 81","45 to 81","68.53 to 84.96","76.37 to  80.73","78 to  83",null,null,null,null],[null,null,null,null,null,"0 to 5600",null,null,"? to ?",null,"0 to 100",null,null,null,null],["<a onclick=\"alert('cumulative-mass-balance-for-glaciers-in-svalbard.csv; austre-broggerbreen-mass-balance.csv; etonbreen-austfonna-mass-balance.csv; kongsvegen-mass-balance.csv; kronebreenholtedahlfonna-mass-balance.csv; midtre-lovenbreen-mass-balance.csv');\">6 files<\/a>","<a onclick=\"alert('glacier_area/');\">1 folder, 3 files<\/a>","<a onclick=\"alert('tidewater/');\">1 folder, 9 files<\/a>","<a onclick=\"alert('glacier_fronts/');\">1 folder, 10 files<\/a>","<a onclick=\"alert('N-ICE_metData_v2.nc; N-ICE_metData_QC.py; README_N-ICE_metData_v2.txt');\">3 files<\/a>","<a onclick=\"alert('CTD_all_1876-2019.nc');\">1 file<\/a>","<a onclick=\"alert('See the website');\">0 files<\/a>","<a onclick=\"alert('See the website');\">0 files<\/a>","<a onclick=\"alert('See the website');\">0 files<\/a>","<a onclick=\"alert('svalbard_fastice_persistency_2014.tif; svalbard_fastice_persistency_2015.tif; svalbard_fastice_persistency_2016.tif');\">1 folder, 3 files<\/a>","<a onclick=\"alert('2009-2013-pigments-api-v1.tsv; 2010-2013-nutrients-api-v1.tsv');\">2 files<\/a>","<a onclick=\"alert('svalbard_population_stats.csv');\">1 file<\/a>","<a onclick=\"alert('svalbard_tourist_arrivals.csv; svalbard_tourist_arrivals_historic.csv; svalbard_tourist_arrivals_full.csv');\">3 files<\/a>","<a onclick=\"alert('svalbard_guest_nights.csv; svalbard_guest_nights_historic.csv; svalbard_guest_nights_full.csv');\">3 files<\/a>","<a onclick=\"alert('AIS_aggregated.csv');\">1 file<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.mosj.no/en/climate/land/mass-balance-glaciers.html\">MOSJ<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/39d9f0f9-af12-420c-a879-10990df2e22d\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/fd4fd3aa-7249-53c9-9846-6e28c5a42587\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/117acc0c-7d6e-5c58-bb80-bb220780f406\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\"\n                        href=\"https://data.npolar.no/dataset/7f7e56d0-9e70-4363-b37d-17915e09a935\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/33d631d3-051e-403d-8600-78a30b767ed3\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ssb.no/en/befolkning/folketall/statistikk/befolkningen-pa-svalbard\">SSB<\/a>","<a onclick=\"alert('https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf; https://www.ssb.no/en/statbank/table/12896');\">Multiple<\/a>","<a onclick=\"alert('https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf; https://www.ssb.no/en/statbank/table/12892');\">Multiple<\/a>","<a onclick=\"alert('Received directly from Morten Simonsen');\">NA<\/a>"],["See website","<a onclick=\"alert('König, M., Kohler, J., & Nuth, C. (2013). Glacier Area Outlines - Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2013.89f430f8');\">König et al. (2013)<\/a>","<a onclick=\"alert('Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a');\">Kohler et al. (2018)<\/a>","<a onclick=\"alert('Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a');\">Moholdt et al. (2021)<\/a>","<a onclick=\"alert('Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1');\">Hudson et. (2015)<\/a>","<a onclick=\"alert('Skogseth, R., Ellingsen, P., Berge, J., Cottier, F., Falk-Petersen, S., Ivanov, B., … Vader, A. (2019). UNIS hydrographic database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/unis-hydrography');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('Strøm, H., Descamps, S., & Bakken, V. . (2008). Seabird Colonies by the Barents Sea, White Sea and Kara Sea [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.fd4fd3aa');\">Strøm et al. (2008)<\/a>","<a onclick=\"alert('Blomeier, D. P. G., & Hjelle, A. (2008). Protection of geological sites [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.117acc0c');\">Blomeier et al. (2008)<\/a>","<a onclick=\"alert('Norwegian Polar Institute (2016). N-ICE2015 datasets [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2016.7f7e56d0');\">Norwegian Polar Institute (2016)<\/a>","<a onclick=\"alert('Itkin, M. (2017). Svalbard Fjords Fast Ice Persistence [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.33d631d3');\">Itkin (2017)<\/a>","<a onclick=\"alert('Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f');\">NPDC (2020)<\/a>","<a onclick=\"alert('Statistics Norway. www.ssb.no. Accessed 2021-09-29');\">SSB (2021)<\/a>","<a onclick=\"alert('Statistics Norway. www.ssb.no. Accessed 2021-09-29');\">SSB (2021)<\/a>","<a onclick=\"alert('Statistics Norway. www.ssb.no. Accessed 2021-09-29');\">SSB (2021)<\/a>","<a onclick=\"alert('Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.');\">Simonson (2021)<\/a>"],[null,null,null,null,"Has a python script to help with extracting.",null,null,null,"Follow the URL to see the list of the individual files with data for many drivers.",null,null,null,null,null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<!-- </div>  -->
+<div id="kongsfjorden" class="section level2">
+<h2>Kongsfjorden</h2>
+<center>
+<img src="assets/map_kongsfjorden.png" style="width:60.0%" />
+</center>
+<!-- See if it's possible to have ghost columns to aid in searching for variables -->
+<!-- <div style="margin-right: -200px;"> -->
+<div id="htmlwidget-460fe95c6f4727a031e5" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-460fe95c6f4727a031e5">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.<\/caption>","data":[["Survey","Net","Bottle","CTD","CTD","","Met station","Mooring","Mooring","Cruise","In situ","In situ","Cruise","Mooring","Survey","Survey","Statistics","Remote","PANGAEA","Combined"],["Sea ice: cover","Zooplankton: species, abundance","Protist: species; nutrients; ChlA","Sea temperature; salinity","Sea temperature; salinity; alkalinity (TA); DIC","Glacier: surface, thickness, elevation","Heatflux: longwave, shortwave; Air temperature; humidity; wind","Sea temperature; salinity; turbidity; current: direction, speed; oxygen","PAR; many chem drivers","PAR","PAR","PAR","Salinity, glacier: terminating edge","Seawater temperature; salinity; PAR; fluorescence","Macroalgae: presence, abundance; primary production","Benthic invertebrates: presence, abundance, biomass","Vessels: count, tourists arrivals: count","Sea temperature: surface","Many","Many"],["2003 to 2019","1996 to 2016","2009 to 2014","1906 to 2016","2012 to 2014","2004 to 2016","2007 to 2016","2010 to 2013","2015 to 2021","?","?","?","?","2015 - 2019","1996/98 and 2012-14","1996/98 and 2012-14","2015 to 2021","1982 to 2020","1871-08-09 to 2020-10-04","1871 to 2021"],[null,"4.2 to 12.4","4.2 to 12.0","7.5 to 12.6","4.2 to 12.4","10 to 14","13.5","13.52 to 13.59","11.92","?","?","?","?","11.81 to 11.82","?","?","11.92","10.125 to 12.125","11.0 to 12.58","4.18 to 13.15"],[null,"78.9 to 79.1","78.9 to 79.1","78.8 to 79.2","78.9 to 79.1","78.8 to 79.2","78.78","78.058 to 78.060","78.93","?","?","?","?","78.95 to 78.96","?","?","78.93","78.625 to 79.375","78.86 to 79.10","78.78 to 79.15"],[null,"0 to 2000","0 to 1129","1 to 3052","0 to 1000",null,null,"50 to 182","0 to 12","?","?","?","?","20 to 220","?","?",null,null,"-60 to 371","-60 to 3052"],["<a onclick=\"alert('Kongsfjorden_sea_ice_cover_data.csv');\">1 file<\/a>","<a onclick=\"alert('kf_zooplankton_sampling_meta.csv; kf_zooplankton_abundance_data.csv; kf_zooplankton_species_meta.csv');\">3 files<\/a>","<a onclick=\"alert('Metadata_Kongsfjorden2009-2014_Hegseth et al.csv; Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv; Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv');\">3 files<\/a>","<a onclick=\"alert('Kongsfjorden_ctd_1906_2017.nc');\">1 file<\/a>","<a onclick=\"alert('Kongsfjorden_Marine_CO2_system_2012_to_2014.csv');\">1 file<\/a>","<a onclick=\"alert('TIGRIF_DEM_ice_surface_150m_v1.tif; TIGRIF_DEM_ice_thickness_150m_1.tif; TIGRIF_DEM_subglacial_elevation_150m_v1.tif; TIGRIF_radarprofiles_2004_2016_v1.txt');\">4 files<\/a>","<a onclick=\"alert('Kongsvegen-weather.tsv');\">1 file<\/a>","<a onclick=\"alert('mooring_GFI: ');\">1 folder, 14 files<\/a>","<a onclick=\"alert('d_all.rds');\">1 file<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('mooring_SAMS');\">1 folder; 57 files<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('kong_ship_arrivals.csv');\">1 file<\/a>","<a onclick=\"alert('sst_kong.RData');\">1 file<\/a>","<a onclick=\"alert('pg_kong_ALL.csv/.RData');\">2 files<\/a>","<a onclick=\"alert('full_product_kong.csv/.RData');\">2 files<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b\">NPDC<\/a>","<a onclick=\"alert('href=\"ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_A/');\">NMDC<\/a>","<a onclick=\"alert('File provided by Jean-Pierre Gattuso');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('https://archive.sigma2.no/welcome.xhtml; Search for Kongsfjorden');\">NIRD<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://port.kingsbay.no/statistics/\">Kings Bay<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a onclick=\"alert('pg_kong_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_kong.csv OR full_product_kong.RData');\">See URL column<\/a>"],["<a onclick=\"alert('Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236');\">Gerland & Pavlova (2020)<\/a>","<a onclick=\"alert('Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.');\">Hop et. (2019)<\/a>","<a onclick=\"alert('Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.');\">Hegseth et. (2019)<\/a>","<a onclick=\"alert('Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c');\">Skogseth et. (2019)<\/a>","<a onclick=\"alert('Fransson, A., & Chierici, M. (2019). Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53');\">Fransson & Chierici (2019)<\/a>","<a onclick=\"alert('Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7');\">Lindbäck et al. (2018)<\/a>","<a onclick=\"alert('Kohler, J., Hudson, S. R., & Obleitner, F. (2017). Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.5dc31930');\">Kohler et al. (2017)<\/a>","<a onclick=\"alert('No reference provided.');\">NMDC<\/a>","<a onclick=\"alert('Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)');\">Gattuso et al. (In prep.)<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('See citation column in the data.');\">Many<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('Havenstrøm, E. (2021). Port calls in Kings Bay. https://port.kingsbay.no/statistics');\">Havenstrøm (2021)<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('pg_kong_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_kong.csv/.RData');\">See citation column<\/a>"],[null,null,"The lon/lat coordinates are suspect.","Not curently in combined product due to NetCDF issues.",null,null,"See website for full list of variables.",null,"Not currently in the database.","MOSJ cruise data were not able to be found.","Pavlov et al. 2019 data are not publicly available.","Field data collected by Kai's team will not be available until 2022.","TWICE cruise data not able to be sourced.",null,"The authors have been contacted.","The authors have been contacted.",null,null,"130 PANGAEA files.","147 files from the EU, Svalbard, and Kongsfjorden."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<!-- </div> -->
+</div>
+<div id="isfjorden" class="section level2">
+<h2>Isfjorden</h2>
+<center>
+<img src="assets/map_isfjorden.png" style="width:70.0%" />
+</center>
+<div id="htmlwidget-84dfdef171f084f09719" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-84dfdef171f084f09719">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/isfjorden/'.<\/caption>","data":[["Mooring","Mooring","Mooring","Mooring","Mooring","CTD","CTD","Niskin bottle","","Niskin bottle","Niskin bottle","Multinet","Met station","Met station","Met station","","AIS","Statistics","Remote","PANGAEA","FACE-IT"],["Sea temperature; salinity; O2; current: velocity (U, V)","Sea temperature; salinity; O2; current: velocity (U, V)","Sea temperature; salinity; O2; current: velocity (U, V)","Sea temperature; salinity; current: direction, speed; oxygen","Sea temperature; salinity; turbidity; current: direction, speed; oxygen","Sea temperature; salinity; TA; pH; EP TA","Sea temperature; salinity; TA; pH; EP TA","ChlA","PAR; suspended matter: organic, mineral","Nutrients: nitrate, nitrite, phosphate, silicate; DNA; phytoplankton: species, abundance; ChlA concentration; protists; bacteria","Nutrients: nitrate, nitrite, phosphate, silicate; DNA; phytoplankton: species, abundance; ChlA concentration; protists","Zooplankton: species, abundance, biomass","Air: temperature (2m), air pressure (sea level; 2m); wind: speed, direction (10m); relative humidity","Air: temperature (2m), air pressure (sea level; 2m); wind: speed, direction (10m); relative humidity","Air: temperature (2m), air pressure (sea level; 2m); wind: speed, direction (10m); relative humidity","Game landings; local management; national statistics; tourist vessels: mileage; tourist arrivals","Vessel mileage; pCO2","Tourist arrivals: count; Tourist vessels: count","Sea temperature: surface","Many","Many"],["2015 to 2018","2005 to 2018","2016 to 2017","2015 to 2016","2010 to 2013","2015 to 2017","2015 to 2017","2011 to 2019","2012 to ?","2011 to ?","2020 to ?","2001 to ?","1934 to 2019","1975 to 2019","2012 to 2019",null,"2017 and 2019","2007 to 2019","1982 to 2020","1871-07-19 to 2020-10-02","1871-07-19 to 2020-10-02"],["13.37895","13.522816","15.33116","13.37895","13.52211 to 13.59348","16.945 to 17.353","15.5 to 15.533","15.53","15.53","15.53","16.68","14.00 to 16.68","13.6192","15.5015","16.3603",null,null,"15.60","10.125 to 17.875","13.6204 to 17.1090","13.37895 to 17.35300"],["78.18048","78.06083","78.247416","78.18048","78.05833 to 78.06071","78.391 to 78.441","78.257 to 78.267","78.26","78.26","78.26","78.66","78.13 to 78.66","78.0625","78.2453","78.6557",null,null,"78.23","77.125 to 78.875","78.0300 to 78.7022","78.0300 to 78.7022"],["0 to 228","0 to 210","0 to 60","40 to 210","50 to 182","1.43 to 98","1.44 to 90.52","0 to 980","0 to 15","0, 15, and 75","0, 15, and 150","?",null,null,null,null,null,null,null,"-754 to 415.8","-754 to 415.8"],["<a onclick=\"alert('mooring_N: IN1516.nc; IN1617.nc; N1718.nc');\">1 folder, 3 files<\/a>","<a onclick=\"alert('mooring_S');\">1 folder, 13 files<\/a>","<a onclick=\"alert('mooring_IFO: IFO1617.nc, IFO1617_ADCP.nc');\">1 folder, 2 files<\/a>","<a onclick=\"alert('mooring_GFI_N: 1954_RCM_1318_QC.nc, 1955_RCM_645_QC.nc, 1956_RCM_646_QC.nc');\">1 folder, 3 files<\/a>","<a onclick=\"alert('mooring_GFI: 0710_RCM_783_QC.nc, 0711_RCM_784_QC.nc, 1841_RCM_464_QC.nc');\">1 folder, 4 files<\/a>","<a onclick=\"alert('Marine_CO2_system_data_from_Tempelfjorden_2015_to_2017.xlsx; Marine_CO2_system_data_from_Tempelfjorden_2015_to_2017.csv');\"2 files<\/a>","<a onclick=\"alert('Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.xlsx; Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.csv');\"2 files<\/a>","<a onclick=\"alert('chl_a: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc; IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc');\">1 folder, 2 files<\/a>","<a onclick=\"alert(' ');\">0 files<\/a>","<a onclick=\"alert(' ');\">0 files<\/a>","<a onclick=\"alert(' ');\">0 files<\/a>","<a onclick=\"alert(' ');\">0 files<\/a>","<a onclick=\"alert('SN99790.nc');\">1 file<\/a>","<a onclick=\"alert('SN99840.nc');\">1 file<\/a>","<a onclick=\"alert('SN99880.nc');\">1 file<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('AIS_2017.csv; AIS_2019.csv');\">2 files<\/a>","<a onclick=\"alert('is_ship_arrivals.csv');\">1 file<\/a>","<a onclick=\"alert('sst_is.RData');\">1 file<\/a>","<a onclick=\"alert('pg_is_ALL.csv/.RData');\">2 files<\/a>","<a onclick=\"alert('full_product_is.csv/.RData');\">1 file, 2 formats<\/a>"],["<a onclick=\"alert('https://data.npolar.no/dataset/111aca43-7f5c-4c15-9f31-dcd3214dbfcb; https://data.npolar.no/dataset/3078f619-9955-4a7f-9316-fab598fec382; https://data.npolar.no/dataset/e9106051-6c44-4849-9d62-04e4a82f1ca9');\">NPDC multiple<\/a>","<a onclick=\"alert('https://data.npolar.no/dataset/176eea39-7d99-49d7-a082-b18acf42850c; https://data.npolar.no/dataset/a1239ca3-79e6-4284-bba5-38028358994a; https://data.npolar.no/dataset/064a09b7-f590-4448-810e-3f287b182dd2; https://data.npolar.no/dataset/b0e473c4-b5b9-4ebc-96eb-411d47f1d850; https://data.npolar.no/dataset/2be7bdee-c899-45b8-901b-9ec5baa9397a; https://data.npolar.no/dataset/a247e9a9-4b62-4149-bbf4-83df3576a7c4; https://data.npolar.no/dataset/6813ce6d-bdc9-4375-a310-679e074bee6b; https://data.npolar.no/dataset/11b7e849-e53d-40d8-909b-13e29c7971a0; https://data.npolar.no/dataset/21838303-c9a0-4fc4-aac3-f537b37356df; https://data.npolar.no/dataset/cd7a2f7c-abed-4284-b7c5-a9ff43c89afc; https://data.npolar.no/dataset/54dcd0c9-b863-41b1-a72b-0827099ad2b0');\">NPDC<\/a>","<a onclick=\"alert('https://data.npolar.no/dataset/7718a106-5d13-42d9-bb79-1d2adf0f51c4');\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201508_Isfjorden/\">NMDC<\/a>","<a onclick=\"alert('href=\"ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_B/');\">NMDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All\">SIOS<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All\">SIOS<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All\">SIOS<\/a>",null,null,null,null,"<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99790.nc\">NMI<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99840.nc\">NMI<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99880.nc\">NMI<\/a>",null,"<a onclick=\"alert('Received directly from Morten Simonsen');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://portlongyear.no/statistics-of-port-longyear-2007-2012-2019/\">Port of Longyearbyen<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a onclick=\"alert('pg_is_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_is.csv/.RData');\">See URL column<\/a>"],["<a onclick=\"alert('\nSkogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.111aca43; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 15 Oct 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.3078f619; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - North (I-N) during 5 Oct 2017 to 24 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e9106051');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2005 to September 2006 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.176eea39; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during September 2006 to September 2007 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a1239ca3; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the outer Isfjorden - South (I-S) during September 2007 to January 2008 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.064a09b7; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 9 Sep 2010 to 3 Sep 2011 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.b0e473c4; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 8 Sep 2011 to 3 Sep 2012 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.2be7bdee; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 6 Sep 2012 to 28 Aug 2013 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.a247e9a9; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 2 Sep 2013 to 26 Aug 2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.6813ce6d; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2014 to 24 Aug 2015 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.11b7e849; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 31 Aug 2015 to 12 Aug 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.21838303; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 19 Aug 2016 to 2 Oct 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.cd7a2f7c; Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from the Isfjorden Mouth - South (I-S) during 5 Oct 2017 to 25 Aug 2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.54dcd0c9');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from Isfjorden online mooring (IFO) during 30 Sep 2016 to 11 Mar 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.7718a106');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('Skogseth R., Olivier L.L.A., Nilsen F., Falck E., Fraser N., Tverberg V., Ledang A.B., Vader A., Jonassen M.O., Søreide J., Cottier F., Berge J., Ivanov B.V., and Falk-Petersen S. (2019). Variability and decadal trends in the Isfjorden (Svalbard) ocean climate and circulation - a thermometer for climate change in the Arctic Ocean, Submitted to Progress in Oceanography');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('No reference provided.');\">NMDC<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference available yet.');\">Vader et al. (In prep.)<\/a>","<a onclick=\"alert('No reference available yet.');\">Vader et al. (In prep.)<\/a>","<a onclick=\"alert('No reference available yet.');\">Vader et al. (In prep.)<\/a>","<a onclick=\"alert('No reference available yet.');\">Søreide et al. (In prep.)<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>",null,"<a onclick=\"alert('Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.');\">Simonson (2021)<\/a>","<a onclick=\"alert('Port of Longyearbyen (2020). Statistics of Port Longyear 2007, 2012-2019. https://portlongyear.no/statistics-of-port-longyear-2007-2012-2019/');\">Port of Longyearbyen (2020)<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('pg_is_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_is.csv/.RData');\">See citation column<\/a>"],[null,null,null,null,null,null,null,null,"Data are not yet publicly available.","Data are not yet publicly available.","Data are not yet publicly available.","Data are not yet publicly available.",null,null,null,"Data are still being pursued.",null,null,null,"This is a combination of 215 PANGAEA data files.","This is the full combined data product."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="storfjorden" class="section level2">
+<h2>Storfjorden</h2>
+<center>
+<img src="assets/map_storfjorden.png" style="width:60.0%" />
+</center>
+<p>Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce. There are however several time series for the larger Storfjorden complex and so after the 2021 annual meeting it was decided to expand the Inglefieldbukta site to Storfjorden.</p>
+<div id="htmlwidget-1623fa19f12d2f625563" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1623fa19f12d2f625563">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/storfjorden/'.<\/caption>","data":[["Survey","CTD","Survey","Cruise","PANGAEA","Remote","FACE-IT"],["Coastal ice: cover, formation/break up; sea ice: thickness, snow cover: thickness, air temperature; wind: speed","Sea ice: thickness; snow cover: thicknes; PAR; mixed layer depth; salinity; suspended matter: mineral; bathymetry; oxygen","DNA; phytoplankton: species, abundance; zooplankton: species, abundance; ChlA concentration","PAR; turbidity; Kd; salinity; seawater temperature: surface, mid, bottom, DOM","Many","Sea temperature: surface","Many"],["2020 to 2024","2017 to ?","2018 to ?","2020","1871 to 2016","1982 to 2020","1871 to 2016"],["?","?","?","16.5 to 21.5","17.3 to 21.6","17.375 to 21.875","17.3 to 21.6"],["?","?","?","76 to 78.5","77.4 to 78.1","77.125 to 78.375","77.4 to 78.1"],["?","?","?",null,"-614 to 185",null,"-614 to 185"],["<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('');\">0 files<\/a>","<a onclick=\"alert('Data currently under embargo until publication.');\">0 files<\/a>","<a onclick=\"alert('pg_stor_ALL.csv/.RData');\">2 files<\/a>","<a onclick=\"alert('sst_stor.RData');\">1 file<\/a>","<a onclick=\"alert('full_product_stor.csv/.RData');\">2 files<\/a>"],["<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/e6974f73-99bb-46d8-b06d-d00287b91729\">NPDC<\/a>","<a onclick=\"alert('pg_stor_ALL.csv/.RData');\">See URL column<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a onclick=\"alert('full_product_stor.csv/.RData');\">See URL column<\/a>"],["<a onclick=\"alert('No citation yet.');\">Gerland et al. (In prep.)<\/a>","<a onclick=\"alert('No citation yet.');\">Søreide et al. (In prep.)<\/a>","<a onclick=\"alert('No citation yet.');\">Søreide et al. (In prep.)<\/a>","<a onclick=\"alert('Petit, T., Granskog, M. A., Hamre, B., Kowalczuk, P., & Röttgers, R. (2022). Inherent optical properties of waters in Storfjorden (Svalbard) in summer 2020 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.e6974f73');\">Petit et al. (2020)<\/a>","<a onclick=\"alert('pg_stor_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('full_product_stor.csv/.RData');\">See citation column<\/a>"],["The first year of data should be available in 2022.","These data have not yet been sourced.","These data have not yet been sourced.",null,"This is a combination of 84 PANGAEA data files.",null,"This is the full combined data product."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="greenland" class="section level1">
+<h1>Greenland</h1>
+<p>See the EU Arctic figure above for where the Greenland sites are located. They are too spread out to be shown here in a single figure with any better precision than the full study area.</p>
+<p>Please note that all GEM files must be downloaded directly from the URLs provided. Under the agreement between FACE-IT and GEM they are not to be hosted on the FACE-IT pCloud folder. This is primarily so that GEM can track the individual downloads of their files and for what purpose they were downloaded. This also requires that users of the data read a user agreement file.</p>
+<div id="young-sound" class="section level2">
+<h2>Young Sound</h2>
+<center>
+<img src="assets/map_young_sound.png" style="width:70.0%" />
+</center>
+<div id="htmlwidget-14a2a035d1f128498eff" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-14a2a035d1f128498eff">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.<\/caption>","data":[["CTD","CTD","CTD","CTD","CTD","CTD","Bottle","Bottle","Bottle","Bottle","Bottle","Bottle","Survey","Survey","Core","Survey","Survey","CTD","Remote","PANGAEA","FACE-IT"],["pCO2: air","pCO2: water","Sea temperature; salinity; PAR; turbidity; dissolved oxygen","Sea temperature; salinity; PAR; turbidity; dissolved oxygen","Sea temperature; salinity","Sea temperature; salinity; PAR; turbidity; dissolved oxygen","Phytoplankton: species name, % presence","Zooplankton: species name, abundance","Phosphate","Silicate","Dissolved inorganic carbon (DIC)","Total alkalinity (TA)","Sea ice: formation","Sea ice: breakup","Sea ice: thickness","Sea ice: open water duration","Snow: thickness","Primary production; ChlA; sea temperature; salinity","Sea temperature: surface","Many","Many"],["2006 to 2016","2006 to 2016","2004 to 2014","2003 to 2015","2003 to 2015","2003 to 2014","2004 to 2015","2003 to 2015","2003 to 2016","2003 to 2016","2003 to 2016","2003 to 2013","2002 to 2016","2002 to 2016","2003 to 2016","2002 to 2016","2002 to 2016","2014","1982 to 2020","1994 to 2015","1994 to 2015"],["-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57","-20.57",null,"-22.375 to -17.625","-22.1 to -19.9","-22.1 to -19.9"],["74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47","74.47",null,"73.125 to 75.375","74.2 to 74.6","74.2 to 74.6"],[null,"1 to 50","200 to 335","0 to 160","56 to 75","45 to 59","?","?","1 to 50","1 to 50","1 to 50","1 to 50",null,null,null,null,null,null,null,"-1044 to 344","-1044 to 344"],["<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Holding_etal_2019_data/');\">1 folder, 5 files<\/a>","<a onclick=\"alert('sst_young.RData');\">1 file<\/a>","<a onclick=\"alert('pg_young_ALL.csv/.RData');\">2 files<\/a>","<a onclick=\"alert('full_product_young.csv/.RData');\">2 files<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/A8J4-AF12\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/8GPS-CE70\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/B4E2-N060\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/MN5J-K414\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/D3C5-AJ13\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/KQ4Z-SD22\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/GFHW-ZT42\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/7FSW-D577\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/6H8H-WM93\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/5MNP-KX83\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/SM1Q-6A72\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/H5D5-TZ32\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/R3QB-7Q71\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://zenodo.org/record/5572041#.YW_Lc5uxU5m\">Zenodo<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a onclick=\"alert('pg_young_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_young.csv/.RData');\">See URL column<\/a>"],["<a onclick=\"alert('Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75.');\">GEM<\/a>","<a onclick=\"alert('Partial pressure of CO2 water (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12.');\">GEM<\/a>","<a onclick=\"alert('Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733. doi: 10.17897/J1J5-W960');\">Boone et al. (2018)<\/a>","<a onclick=\"alert('CTD measurements Water column: Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12.');\">GEM<\/a>","<a onclick=\"alert('CTD measurements mooring: Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70.');\">GEM<\/a>","<a onclick=\"alert('Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733.');\">Boone et al. (2018)<\/a>","<a onclick=\"alert('Phytoplankton Relative Species Composition (%): Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414.');\">GEM<\/a>","<a onclick=\"alert('Zooplankton Species Composition (individuals/m2): Water column MarineBasis Zackenberg. doi: 10.17897/D3C5-AJ13.');\">GEM<\/a>","<a onclick=\"alert('Water Phosphate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/KQ4Z-SD22.');\">GEM<\/a>","<a onclick=\"alert('Water Silicate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/GFHW-ZT42.');\">GEM<\/a>","<a onclick=\"alert('Water DIC Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/7FSW-D577.');\">GEM<\/a>","<a onclick=\"alert('Water TA Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/6H8H-WM93.');\">GEM<\/a>","<a onclick=\"alert('Sea ice formation: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/5MNP-KX83.');\">GEM<\/a>","<a onclick=\"alert('Sea ice breakup: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/SM1Q-6A72.');\">GEM<\/a>","<a onclick=\"alert('Sea ice thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32.');\">GEM<\/a>","<a onclick=\"alert('Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71.');\">GEM<\/a>","<a onclick=\"alert('Snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16.');\">GEM<\/a>","<a onclick=\"alert('Holding, Johnna M, Markager, Stiig, Juul-Pedersen, Thomas, Paulsen, Maria L, Møller, Eva F, & Sejr, Mikael K. (2021). Dataset from Holding et al. (2019) Seasonal and spatial patterns of primary production in a high latitude fjord [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572041');\">Holding et al. (2019)<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('pg_young_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_young.csv/.RData');\">See citation column<\/a>"],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rpubs.com/JohnnaH/798295\">Interactive map<\/a>",null,"This is a combination of 14 PANGAEA data files.","This is the full combined data product."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="disko-bay" class="section level2">
+<h2>Disko Bay</h2>
+<center>
+<img src="assets/map_disko_bay.png" style="width:50.0%" />
+</center>
+<div id="htmlwidget-df11ecfa868004b574d0" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-df11ecfa868004b574d0">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.<\/caption>","data":[["CTD","CTD","Remote","PANGAEA","FACE-IT"],["Sea temperature; salinity; PAR; turbidity; dissolved oxygen","Sea temperature; salinity; PAR; ChlA; dissolved oxygen","Sea temperature: surface","Many","Many"],["2018","2016","1982 to 2020","1867 to 2017","1867 to 2017"],["-53.51",null,"-55.875 to -50.875","-55.5 to -49.6","-55.5 to -49.6"],["69.25",null,"68.125 to 70.875","68.2 to 70.5","68.2 to 70.5"],["1 to 99",null,null,"0 to 899","0 to 899"],["<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('sst_disko.RData');\">1 file<\/a>","<a onclick=\"alert('pg_disko_ALL.csv/.RData');\">2 files<\/a>","<a onclick=\"alert('full_product_disko.csv/.RData');\">2 files<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://zenodo.org/record/4062024#.YW_TOJuxU5l\">Zenodo<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a onclick=\"alert('pg_disko_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_disko.csv/.RData');\">See URL column<\/a>"],["<a onclick=\"alert('CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61.');\">GEM<\/a>","<a onclick=\"alert('Carlson, Daniel F., Holding, Johnna M., Bendtsen, Jørgen, Markager, Stiig, Møller, Eva F., Meire, Lorenz, Rysgaard, Søren, Dalsgaard, Tage, & Sejr, Mikael K. (2020). CTD Profiles from the R/V Sanna cruise to Northwest Greenland fjords, August 11-31, 2016 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4062024');\">Carlson et al. (2020)<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('pg_disko_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_disko.csv/.RData');\">See citation column<\/a>"],[null,"<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rpubs.com/JohnnaH/798295\">Interactive map<\/a>",null,"This is a combination of 303 PANGAEA data files.","This is the full combined data product."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="nuup-kangerlua" class="section level2">
+<h2>Nuup Kangerlua</h2>
+<center>
+<img src="assets/map_nuup_kangerlua.png" style="width:70.0%" />
+</center>
+<div id="htmlwidget-85ac0d53e4c5fbf02455" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-85ac0d53e4c5fbf02455">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.<\/caption>","data":[["Net","CTD","Bottle","In situ incubation","Bottle","Bottle","Remote","PANGAEA","FACE-IT"],["Phytoplankton: species name, abundance","Sea temperature; salinity; PAR; turbidity; dissolved oxygen","Chla","Primary production","Phosphate","Silicate","Sea temperature: surface","Many","Many"],["2005 to 2013","2005 to 2020","2005 to 2014","2005 to 2013","2005 to 2014","2005 to 2013","1982 to 2020","1963 to 2017","1963 to 2017"],["-51.88","-51.88","-51.88","-51.88","-51.88","-51.88","-53.375 to -51.375","-53.3 to -49.6","-53.3 to -49.6"],["64.12","64.12","64.12","64.12","64.12","64.12","63.625 to 64.875","64.0 to 64.8","64.0 to 64.8"],["0 to 60","0 to 99","1 to 60","5 to 10","1 to 50","1 to 50",null,"-39 to 599","-39 to 599"],["<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('sst_nuup.RData');\">1 file<\/a>","<a onclick=\"alert('pg_nuup_ALL.csv/.RData');\">2 files<\/a>","<a onclick=\"alert('full_product_nuup.csv/.RData');\">2 files<\/a>"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/Y3A4-9D86\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/KMEK-TK21\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/1QK2-6B74\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/TQQV-VJ76\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/PZNK-SP15\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.g-e-m.dk/datasets?doi=10.17897/VVQP-F862\">GEM<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a onclick=\"alert('pg_nuup_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_nuup.csv/.RData');\">See URL column<\/a>"],["<a onclick=\"alert('Phytoplankton Relative Species Composition (%): Water column MarineBasis Nuuk. doi: 10.17897/Y3A4-9D86.');\">GEM<\/a>","<a onclick=\"alert('CTD measurements: Water column MarineBasis Nuuk. doi: 10.17897/KMEK-TK21.');\">GEM<\/a>","<a onclick=\"alert('Water Chlorophyll a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/1QK2-6B74.');\">GEM<\/a>","<a onclick=\"alert('Particulate Pelagic Primary Production (mg C/m2/d): Water column MarineBasis Nuuk. doi: 10.17897/TQQV-VJ76.');\">GEM<\/a>","<a onclick=\"alert('Water Phosphate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/PZNK-SP15.');\">GEM<\/a>","<a onclick=\"alert('Water Silicate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/VVQP-F862.');\">GEM<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('pg_nuup_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_nuup.csv/.RData');\">See citation column<\/a>"],[null,null,null,null,null,null,null,"This is a combination of 457 PANGAEA data files.","This is the full combined data product."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="norway" class="section level1">
+<h1>Norway</h1>
+<div id="porsangerfjorden" class="section level2">
+<h2>Porsangerfjorden</h2>
+<center>
+<img src="assets/map_porsangerfjorden.png" style="width:50.0%" />
+</center>
+<div id="htmlwidget-6977c8be14882212ccf8" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6977c8be14882212ccf8">{"x":{"filter":"none","vertical":false,"caption":"<caption>All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.<\/caption>","data":[["Mooring","Survey","Survey","Model","Satellite","CTD","CTD","Multinet","PANGAEA","FACE-IT"],["Sea temperature; salinity; current: speed, direction","Fish: species, biomass","Benthic invertebrates: species, biomass","Sea temperature: surface, mid, bottom; sea ice: thickness","Sea ice: extent","Seawater temperature: surface, mid, bottom; salinity","Seawater temperature: surface, mid, bottom; salinity; PAR; oxygen; nutrients: nitrate, nitrite, ammonium, phosphate, silicate","Phytoplankton: species, abundance, chlA concentration; Zooplankton: species, abundance, biomass","Many","Many"],["1990","2007 to 2016","2007 to 2016","2012 to 2020","2001 to 2019","1923 to 2013","2018 to ?","2018 to ?","1870 to 2019","1870 to 2019"],["23.38 to 26.87","?","?","? to ?",null,"24.6 to 26.9","25.59","25.59","24.5 to 27.0","24.5 to 27.0"],["70.59 to 71.26","?","?","? to ?",null,"70.0 to 71.2","70.53","70.53","70.0 to 71.2","70.0 to 71.2"],["2 to 115","?","?","? to ?",null,"0 to 95","0 to 200","0 to 200","-285 to 310","-285 to 310"],["<a onclick=\"alert('mooring_GFI/');\">1 folder, 16 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('12d_ice-extent.txt');\">1 file<\/a>","<a onclick=\"alert('UiT');\">1 folder, 42 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('Not on pCloud');\">0 files<\/a>","<a onclick=\"alert('pg_por_ALL.csv/.RData');\">2 files<\/a>","<a onclick=\"alert('full_product_por.csv/.RData');\">2 files<\/a>"],["<a onclick=\"alert('href=\"ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/FJ_199006_A/; ');\">NMDC<\/a>","<a onclick=\"alert('Unknown source');\">NA<\/a>","<a onclick=\"alert('Unknown source');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://thredds.met.no/thredds/fou-hi/fou-hi.html\">NMI<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://zenodo.org/record/4133926#.YTikO1uxU5l\">zenodo<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://dataverse.no/dataverse/uit?q=Mankettikkara&types=datasets&sort=score&order=desc&page=1\">UiT<\/a>",null,null,"<a onclick=\"alert('pg_por_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_por.csv/.RData');\">See URL column<\/a>"],["<a onclick=\"alert('These data were made freely available by the NMDC project.');\">NMDC<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('No reference provided.');\">NA<\/a>","<a onclick=\"alert('Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.');\">Albretsen et al. (2011)<\/a>","<a onclick=\"alert('Megan O'Sadnick, Chris Petrich, Camilla Brekke, & Jofrid Skardhamar. (2020). Ice extent in Norwegian fjords, 2001-2019 [Data set]. In Annals of Glaciology (1.0.1, Number Sea Ice at the Interface). Zenodo. https://doi.org/10.5281/zenodo.4133926');\">Sadnick et al. (2020)<\/a>","<a onclick=\"alert('Follow URLs for specific references or see full product: full_product_por.RData');\">Rahman et al. (2019)<\/a>","<a onclick=\"alert('No reference available yet.');\">Falkenhaug et al. (In prep.)<\/a>","<a onclick=\"alert('No reference available yet.');\">Falkenhaug et al. (In prep.)<\/a>","<a onclick=\"alert('pg_por_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_por.csv/.RData');\">See citation column<\/a>"],[null,null,null,null,null,null,"Data are still being prepared. No firm release date set.","Data are still being prepared. No firm release date set.","This is a combination of 230 PANGAEA data files.","This is the full combined data product."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Longitude<\/th>\n      <th>Latitude<\/th>\n      <th>Depth<\/th>\n      <th>Files<\/th>\n      <th>Link<\/th>\n      <th>Reference<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":400,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refs">
+
+</div>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.1.2 (2021-11-01)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.6 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+
+locale:
+ [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=en_GB.UTF-8    
+ [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+ [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] kableExtra_1.3.4 DT_0.19          tidync_0.2.4     forcats_0.5.1   
+ [5] stringr_1.4.0    dplyr_1.0.7      purrr_0.3.4      readr_2.0.2     
+ [9] tidyr_1.1.4      tibble_3.1.5     ggplot2_3.3.5    tidyverse_1.3.1 
+[13] workflowr_1.6.2 
+
+loaded via a namespace (and not attached):
+ [1] httr_1.4.2        sass_0.4.0        jsonlite_1.7.2    viridisLite_0.4.0
+ [5] modelr_0.1.8      bslib_0.3.1       assertthat_0.2.1  cellranger_1.1.0 
+ [9] yaml_2.2.1        pillar_1.6.4      backports_1.2.1   glue_1.4.2       
+[13] digest_0.6.28     promises_1.2.0.1  rvest_1.0.1       colorspace_2.0-2 
+[17] htmltools_0.5.2   httpuv_1.6.3      pkgconfig_2.0.3   broom_0.7.9      
+[21] haven_2.4.3       scales_1.1.1      webshot_0.5.2     svglite_2.0.0    
+[25] whisker_0.4       later_1.3.0       tzdb_0.1.2        git2r_0.28.0     
+[29] generics_0.1.1    ellipsis_0.3.2    withr_2.4.2       cli_3.0.1        
+[33] magrittr_2.0.1    crayon_1.4.1      readxl_1.3.1      evaluate_0.14    
+[37] fs_1.5.0          ncdf4_1.17        fansi_0.5.0       xml2_1.3.2       
+[41] tools_4.1.2       hms_1.1.1         lifecycle_1.0.1   munsell_0.5.0    
+[45] reprex_2.0.1      compiler_4.1.2    jquerylib_0.1.4   RNetCDF_2.5-2    
+[49] systemfonts_1.0.2 rlang_0.4.12      grid_4.1.2        rstudioapi_0.13  
+[53] htmlwidgets_1.5.4 crosstalk_1.1.1   rmarkdown_2.11    gtable_0.3.0     
+[57] DBI_1.1.1         R6_2.5.1          ncmeta_0.3.0      lubridate_1.8.0  
+[61] knitr_1.36        fastmap_1.1.0     utf8_1.2.2        rprojroot_2.0.2  
+[65] stringi_1.7.5     Rcpp_1.0.7        vctrs_0.3.8       dbplyr_2.1.1     
+[69] tidyselect_1.1.1  xfun_0.26        </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
