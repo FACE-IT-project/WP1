@@ -408,14 +408,14 @@ div.tocify {
 
 <h1 class="title toc-ignore">Summary of NOAA OISST data for FACE-IT study sites</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">10 décembre 2021</h4>
+<h4 class="date">14 décembre 2021</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -424,7 +424,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -433,10 +433,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-12-10
+<strong>Last updated:</strong> 2021-12-14
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -452,12 +452,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -524,16 +524,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree27254667223c171f7fb2d5f70902f49960cfef25targetblank2725466a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/27254667223c171f7fb2d5f70902f49960cfef25" target="_blank">2725466</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree860f5d3b3e1c3d8cff8aacf1f859708defd1ac8btargetblank860f5d3a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/860f5d3b3e1c3d8cff8aacf1f859708defd1ac8b" target="_blank">860f5d3</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree27254667223c171f7fb2d5f70902f49960cfef25targetblank2725466a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree860f5d3b3e1c3d8cff8aacf1f859708defd1ac8btargetblank860f5d3a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/27254667223c171f7fb2d5f70902f49960cfef25" target="_blank">2725466</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/860f5d3b3e1c3d8cff8aacf1f859708defd1ac8b" target="_blank">860f5d3</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -547,9 +547,25 @@ Ignored files:
     Ignored:    data/model/
     Ignored:    data/pg_data/
     Ignored:    data/restricted/
+    Ignored:    data/sst_CCI_trom.RData
     Ignored:    data/sst_trom.RData
     Ignored:    metadata/pangaea_parameters.tab
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
+
+Untracked files:
+    Untracked:  figures/sst_CCI_grid_disko.png
+    Untracked:  figures/sst_CCI_grid_is.png
+    Untracked:  figures/sst_CCI_grid_kong.png
+    Untracked:  figures/sst_CCI_grid_nuup.png
+    Untracked:  figures/sst_CCI_grid_por.png
+    Untracked:  figures/sst_CCI_grid_stor.png
+    Untracked:  figures/sst_CCI_grid_trom.png
+    Untracked:  figures/sst_CCI_grid_young.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/sst_summary.Rmd
+    Modified:   code/site_analysis.R
 
 </code></pre>
 <p>
@@ -588,6 +604,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/860f5d3b3e1c3d8cff8aacf1f859708defd1ac8b/docs/sst_summary.html" target="_blank">860f5d3</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-10
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -702,7 +735,8 @@ SST analysis figures
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This document contains a summary of the NOAA OISST data that have been extracted around the FACE-IT sites.</p>
+<p>This document contains a summary of the NOAA OISST and CCI SST (sea surface temperature) data that have been extracted around the FACE-IT sites. Both products have daily data from 1982 to 2020 however, the NOAA data are on a 0.25° grid while the CCI data are at 0.05°. This difference in the size of the pixels allows for some dramatic differences int he observed temperatures along the coast and in the fjords, as well as the decadal trends of those temperatures. Most importantly, the NOAA pixels are too coarse to capture SST within most of the FACE-IT fjords while CCI is able to provide SST in all sites except Young Sound. These very coastal/fjord pixels in the CCI data also tend to show strong cooling trends. I assume that these cooling trends are an artefact of the increased glacial melting into the fjord. But we can’t rule out that they are caused by any of the common remotely sensed coastal pixel issues, such as land bleed, which can interfere with the accurate assimilation of the data. Regardless, even in the more open coastal waters these two products do not agree very closely with one another and this is cause for some alarm. It is known that remotely sensed products begin to differ significantly from one another when approaching the poles and the quick analysis performed here certainly confirms that once again.</p>
+<p>The rest of this page provides the results of the analysis by FACE-IT site. One may use the table of contents on the left to jump to a desired section. Each figure shown here has two panels: A) The average temperatures from 1982-2020, and B) The decadal trend over the same period. The first figure shows the results from the NOAA OISST data and the second for the CCI SST data. Note that the CCI product has a much higher resolution than NOAA.</p>
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
@@ -710,21 +744,33 @@ SST analysis figures
 <h2>Kongsfjorden</h2>
 <div class="figure">
 <img src="assets/sst_grid_kong.png" alt="" />
-<p class="caption"><strong>Figure 1:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in blacke Note that the pixels in the NOAA OISST product are ~25km so there are no data within Kongsfjorden. One must also be cautious of the effect of land bleed on the temperatures for pixels that contain coastline.</p>
+<p class="caption"><strong>Figure 1:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black. Note that the pixels in the NOAA OISST product are ~25km so there are no data within Kongsfjorden. One must also be cautious of the effect of land bleed on the temperatures for pixels that contain coastline.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_kong.png" alt="" />
+<p class="caption"><strong>Figure 2:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black. Note that the pixels in the CCI SST product are ~5km so there are data within Kongsfjorden. How exactly these data points came to exist is curious and one should maintain a healthy skepticism of these results.</p>
 </div>
 </div>
 <div id="isfjorden" class="section level2">
 <h2>Isfjorden</h2>
 <div class="figure">
 <img src="assets/sst_grid_is.png" alt="" />
-<p class="caption"><strong>Figure 2:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+<p class="caption"><strong>Figure 3:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_is.png" alt="" />
+<p class="caption"><strong>Figure 4:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
 </div>
 </div>
 <div id="storfjorden" class="section level2">
 <h2>Storfjorden</h2>
 <div class="figure">
 <img src="assets/sst_grid_stor.png" alt="" />
-<p class="caption"><strong>Figure 3:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+<p class="caption"><strong>Figure 5:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_stor.png" alt="" />
+<p class="caption"><strong>Figure 6:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
 </div>
 </div>
 </div>
@@ -734,21 +780,33 @@ SST analysis figures
 <h2>Young Sound</h2>
 <div class="figure">
 <img src="assets/sst_grid_young.png" alt="" />
-<p class="caption"><strong>Figure 4:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+<p class="caption"><strong>Figure 7:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_young.png" alt="" />
+<p class="caption"><strong>Figure 8:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
 </div>
 </div>
 <div id="disko-bay" class="section level2">
 <h2>Disko Bay</h2>
 <div class="figure">
 <img src="assets/sst_grid_disko.png" alt="" />
-<p class="caption"><strong>Figure 5:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+<p class="caption"><strong>Figure 9:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_disko.png" alt="" />
+<p class="caption"><strong>Figure 10:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
 </div>
 </div>
 <div id="nuup-kangerlua" class="section level2">
 <h2>Nuup Kangerlua</h2>
 <div class="figure">
 <img src="assets/sst_grid_nuup.png" alt="" />
-<p class="caption"><strong>Figure 6:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+<p class="caption"><strong>Figure 11:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_nuup.png" alt="" />
+<p class="caption"><strong>Figure 12:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
 </div>
 </div>
 </div>
@@ -758,14 +816,22 @@ SST analysis figures
 <h2>Porsangerfjorden</h2>
 <div class="figure">
 <img src="assets/sst_grid_por.png" alt="" />
-<p class="caption"><strong>Figure 7:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+<p class="caption"><strong>Figure 13:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_por.png" alt="" />
+<p class="caption"><strong>Figure 14:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
 </div>
 </div>
 <div id="tromsø" class="section level2">
 <h2>Tromsø</h2>
 <div class="figure">
 <img src="assets/sst_grid_trom.png" alt="" />
-<p class="caption"><strong>Figure 8:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+<p class="caption"><strong>Figure 15:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
+</div>
+<div class="figure">
+<img src="assets/sst_CCI_grid_trom.png" alt="" />
+<p class="caption"><strong>Figure 16:</strong> A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p &lt;= 0.05) are framed in black.</p>
 </div>
 <br>
 <p>
@@ -793,20 +859,17 @@ locale:
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
-other attached packages:
-[1] workflowr_1.6.2
-
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.7       whisker_0.4      knitr_1.36       magrittr_2.0.1  
- [5] R6_2.5.1         rlang_0.4.12     fastmap_1.1.0    fansi_0.5.0     
- [9] stringr_1.4.0    tools_4.1.2      xfun_0.26        utf8_1.2.2      
-[13] git2r_0.28.0     jquerylib_0.1.4  htmltools_0.5.2  ellipsis_0.3.2  
-[17] rprojroot_2.0.2  yaml_2.2.1       digest_0.6.28    tibble_3.1.5    
-[21] lifecycle_1.0.1  crayon_1.4.1     later_1.3.0      sass_0.4.0      
-[25] vctrs_0.3.8      promises_1.2.0.1 fs_1.5.0         glue_1.4.2      
-[29] evaluate_0.14    rmarkdown_2.11   stringi_1.7.5    bslib_0.3.1     
-[33] compiler_4.1.2   pillar_1.6.4     jsonlite_1.7.2   httpuv_1.6.3    
-[37] pkgconfig_2.0.3 </code></pre>
+ [5] workflowr_1.6.2  R6_2.5.1         rlang_0.4.12     fastmap_1.1.0   
+ [9] fansi_0.5.0      stringr_1.4.0    tools_4.1.2      xfun_0.26       
+[13] utf8_1.2.2       git2r_0.28.0     jquerylib_0.1.4  htmltools_0.5.2 
+[17] ellipsis_0.3.2   rprojroot_2.0.2  yaml_2.2.1       digest_0.6.28   
+[21] tibble_3.1.5     lifecycle_1.0.1  crayon_1.4.1     later_1.3.0     
+[25] sass_0.4.0       vctrs_0.3.8      promises_1.2.0.1 fs_1.5.0        
+[29] glue_1.4.2       evaluate_0.14    rmarkdown_2.11   stringi_1.7.5   
+[33] bslib_0.3.1      compiler_4.1.2   pillar_1.6.4     jsonlite_1.7.2  
+[37] httpuv_1.6.3     pkgconfig_2.0.3 </code></pre>
 </div>
 </div>
 </div>
