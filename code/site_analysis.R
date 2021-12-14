@@ -43,7 +43,7 @@ dec_trend_calc <- function(df){
 
 # Plot SST means and trends
 ## NB: This function expects a gridded daily data.frame with columns: lon, lat, t, temp
-plot_sst_grid <- function(df){
+plot_sst_grid <- function(df, product_name){
   
   # Create annual means
   df_annual <- df %>% 
@@ -74,7 +74,7 @@ plot_sst_grid <- function(df){
     scale_fill_viridis_c() +
     labs(x = NULL, y = NULL, fill = "Temp.\n(°C)",
          title = "Average annual temperature",
-         subtitle = "NOAA OISST: 1982-2020") +
+         subtitle = paste0(product_name,": 1982-2020")) +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
     theme(legend.position = "bottom", 
           panel.border = element_rect(colour = "black", fill = NA))
@@ -218,12 +218,12 @@ unique(kong_PAR$var_name)
 write_csv(kong_PAR, file = "data/kong_PAR.csv")
 
 # Plot NOAA OISST grid around Kongsfjorden
-sst_grid_kong <- plot_sst_grid(sst_kong)
+sst_grid_kong <- plot_sst_grid(sst_kong, "NOAA OISST")
 ggsave("figures/sst_grid_kong.png", sst_grid_kong, width = 7.2, height = 6.1)
 ggsave("docs/assets/sst_grid_kong.png", sst_grid_kong, width = 7.2, height = 6.1)
 
 # Plot CCI SST grid around Kongsfjorden
-sst_CCI_grid_kong <- plot_sst_grid(sst_CCI_kong)
+sst_CCI_grid_kong <- plot_sst_grid(sst_CCI_kong, "CCI SST")
 ggsave("figures/sst_CCI_grid_kong.png", sst_CCI_grid_kong, width = 6.8, height = 6.3)
 ggsave("docs/assets/sst_CCI_grid_kong.png", sst_CCI_grid_kong, width = 6.8, height = 6.3)
 
@@ -245,12 +245,12 @@ is_temp <- full_product_is %>%
   filter(grepl("°C", var_name, ignore.case = F))
 
 # Plot SST grid around Isfjorden
-sst_grid_is <- plot_sst_grid(sst_is)
+sst_grid_is <- plot_sst_grid(sst_is, "NOAA OISST")
 ggsave("figures/sst_grid_is.png", sst_grid_is, width = 7.3, height = 5)
 ggsave("docs/assets/sst_grid_is.png", sst_grid_is, width = 7.3, height = 5)
 
 # Plot SST grid around Isfjorden
-sst_CCI_grid_is <- plot_sst_grid(sst_CCI_is)
+sst_CCI_grid_is <- plot_sst_grid(sst_CCI_is, "CCI SST")
 ggsave("figures/sst_CCI_grid_is.png", sst_CCI_grid_is, width = 7.0, height = 5)
 ggsave("docs/assets/sst_CCI_grid_is.png", sst_CCI_grid_is, width = 7.0, height = 5)
 
@@ -258,12 +258,12 @@ ggsave("docs/assets/sst_CCI_grid_is.png", sst_CCI_grid_is, width = 7.0, height =
 # Storfjorden -------------------------------------------------------------
 
 # Plot SST grid around Storfjorden
-sst_grid_stor <- plot_sst_grid(sst_stor)
+sst_grid_stor <- plot_sst_grid(sst_stor, "NOAA OISST")
 ggsave("figures/sst_grid_stor.png", sst_grid_stor, width = 8.5, height = 6.5)
 ggsave("docs/assets/sst_grid_stor.png", sst_grid_stor, width = 8.5, height = 6.5)
 
 # Plot SST grid around Storfjorden
-sst_CCI_grid_stor <- plot_sst_grid(sst_CCI_stor)
+sst_CCI_grid_stor <- plot_sst_grid(sst_CCI_stor, "CCI SST")
 ggsave("figures/sst_CCI_grid_stor.png", sst_CCI_grid_stor, width = 8.3, height = 6.5)
 ggsave("docs/assets/sst_CCI_grid_stor.png", sst_CCI_grid_stor, width = 8.3, height = 6.5)
 
@@ -271,12 +271,12 @@ ggsave("docs/assets/sst_CCI_grid_stor.png", sst_CCI_grid_stor, width = 8.3, heig
 # Young Sound -------------------------------------------------------------
 
 # Plot SST grid around Young Sound
-sst_grid_young <- plot_sst_grid(sst_young)
+sst_grid_young <- plot_sst_grid(sst_young, "NOAA OISST")
 ggsave("figures/sst_grid_young.png", sst_grid_young, width = 8.2, height = 7.5)
 ggsave("docs/assets/sst_grid_young.png", sst_grid_young, width = 8.2, height = 7.5)
 
 # Plot SST grid around Young Sound
-sst_CCI_grid_young <- plot_sst_grid(sst_CCI_young)
+sst_CCI_grid_young <- plot_sst_grid(sst_CCI_young, "CCI SST")
 ggsave("figures/sst_CCI_grid_young.png", sst_CCI_grid_young, width = 8.0, height = 7.7)
 ggsave("docs/assets/sst_CCI_grid_young.png", sst_CCI_grid_young, width = 8.0, height = 7.7)
 
@@ -284,12 +284,12 @@ ggsave("docs/assets/sst_CCI_grid_young.png", sst_CCI_grid_young, width = 8.0, he
 # Disko Bay ---------------------------------------------------------------
 
 # Plot SST grid around Disko Bay
-sst_grid_disko <- plot_sst_grid(sst_disko)
+sst_grid_disko <- plot_sst_grid(sst_disko, "NOAA OISST")
 ggsave("figures/sst_grid_disko.png", sst_grid_disko, width = 7.5, height = 6.6)
 ggsave("docs/assets/sst_grid_disko.png", sst_grid_disko, width = 7.5, height = 6.6)
 
 # Plot SST grid around Disko Bay
-sst_CCI_grid_disko <- plot_sst_grid(sst_CCI_disko)
+sst_CCI_grid_disko <- plot_sst_grid(sst_CCI_disko, "CCI SST")
 ggsave("figures/sst_CCI_grid_disko.png", sst_CCI_grid_disko, width = 8.2, height = 6.6)
 ggsave("docs/assets/sst_CCI_grid_disko.png", sst_CCI_grid_disko, width = 8.2, height = 6.6)
 
@@ -297,12 +297,12 @@ ggsave("docs/assets/sst_CCI_grid_disko.png", sst_CCI_grid_disko, width = 8.2, he
 # Nuup Kangerlua ----------------------------------------------------------
 
 # Plot SST grid around Nuup Kangerlua
-sst_grid_nuup <- plot_sst_grid(sst_nuup)
+sst_grid_nuup <- plot_sst_grid(sst_nuup, "NOAA OISST")
 ggsave("figures/sst_grid_nuup.png", sst_grid_nuup, width = 7.5, height = 6.2)
 ggsave("docs/assets/sst_grid_nuup.png", sst_grid_nuup, width = 7.5, height = 6.2)
 
 # Plot SST grid around Nuup Kangerlua
-sst_CCI_grid_nuup <- plot_sst_grid(sst_CCI_nuup)
+sst_CCI_grid_nuup <- plot_sst_grid(sst_CCI_nuup, "CCI SST")
 ggsave("figures/sst_CCI_grid_nuup.png", sst_CCI_grid_nuup, width = 7.5, height = 4.5)
 ggsave("docs/assets/sst_CCI_grid_nuup.png", sst_CCI_grid_nuup, width = 7.5, height = 4.5)
 
@@ -363,12 +363,12 @@ por_insitu_trend <- por_dec_trend %>%
 ggsave("figures/por_dec_trends.png", por_insitu_trend, height = 10, width = 8)
 
 # Plot SST grid around Porsangerfjorden
-sst_grid_por <- plot_sst_grid(sst_por)
+sst_grid_por <- plot_sst_grid(sst_por, "NOAA OISST")
 ggsave("figures/sst_grid_por.png", sst_grid_por, width = 8, height = 5.4)
 ggsave("docs/assets/sst_grid_por.png", sst_grid_por, width = 8, height = 5.4)
 
 # Plot SST grid around Porsangerfjorden
-sst_CCI_grid_por <- plot_sst_grid(sst_CCI_por)
+sst_CCI_grid_por <- plot_sst_grid(sst_CCI_por, "CCI SST")
 ggsave("figures/sst_CCI_grid_por.png", sst_CCI_grid_por, width = 6.7, height = 5.4)
 ggsave("docs/assets/sst_CCI_grid_por.png", sst_CCI_grid_por, width = 6.7, height = 5.4)
 
@@ -383,12 +383,12 @@ ggsave("figures/sst_model_por.png", sst_model_por, width = 7.5, height = 9)
 bbox_trom <- c(17.6, 20.9, 69.2, 70.3)
 
 # Plot SST grid around Tromso
-sst_grid_trom <- plot_sst_grid(sst_trom)
+sst_grid_trom <- plot_sst_grid(sst_trom, "NOAA OISST")
 ggsave("figures/sst_grid_trom.png", sst_grid_trom, width = 10, height = 4.6)
 ggsave("docs/assets/sst_grid_trom.png", sst_grid_trom, width = 10, height = 4.6)
 
 # Plot SST grid around Tromso
-sst_CCI_grid_trom <- plot_sst_grid(sst_CCI_trom)
+sst_CCI_grid_trom <- plot_sst_grid(sst_CCI_trom, "CCI SST")
 ggsave("figures/sst_CCI_grid_trom.png", sst_CCI_grid_trom, width = 6.8, height = 5)
 ggsave("docs/assets/sst_CCI_grid_trom.png", sst_CCI_grid_trom, width = 6.8, height = 5)
 
