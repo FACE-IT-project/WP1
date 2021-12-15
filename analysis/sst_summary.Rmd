@@ -39,49 +39,61 @@ The rest of this page provides the results of the analysis by FACE-IT site. One 
 
 ![__Figure 2:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black. Note that the pixels in the CCI SST product are ~5km so there are data within Kongsfjorden. How exactly these data points came to exist is curious and one should maintain a healthy skepticism of these results.](assets/sst_CCI_grid_kong.png)
 
+![__Figure 3:__ A) Average annual SST from 2000-2020. B) Decadal trends in SST calculated with annual averages from 2000-2099. Decadal trends are shown for the three most commonly used RCPs. Pixels with significant trends (p <= 0.05) are framed in black. Note that the pixels in the model product are not on a cartesian grid so are shown here as points rather than as a raster.](assets/sst_model_kong.png)
+
 ## Isfjorden
 
-![__Figure 3:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_is.png)
+![__Figure 4:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_is.png)
 
-![__Figure 4:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_is.png)
+![__Figure 5:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_is.png)
+
+![__Figure 6:__ A) Average annual SST from 2000-2020. B) Decadal trends in SST calculated with annual averages from 2000-2099. Decadal trends are shown for the three most commonly used RCPs. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_model_is.png)
 
 ## Storfjorden
 
-![__Figure 5:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_stor.png)
+![__Figure 7:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_stor.png)
 
-![__Figure 6:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_stor.png)
+![__Figure 8:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_stor.png)
+
+![__Figure 9:__ A) Average annual SST from 2000-2020. B) Decadal trends in SST calculated with annual averages from 2000-2099. Decadal trends are shown for the three most commonly used RCPs. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_model_stor.png)
 
 # Greenland
 
 ## Young Sound
 
-![__Figure 7:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_young.png)
+![__Figure 10:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_young.png)
 
-![__Figure 8:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_young.png)
+![__Figure 11:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_young.png)
+
+![__Figure 12:__ A) Average annual SST from 2000-2020. B) Decadal trends in SST calculated with annual averages from 2000-2099. Decadal trends are shown for the three most commonly used RCPs. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_model_young.png)
 
 ## Disko Bay
 
-![__Figure 9:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_disko.png)
+![__Figure 13:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_disko.png)
 
-![__Figure 10:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_disko.png)
+![__Figure 14:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_disko.png)
 
 ## Nuup Kangerlua
 
-![__Figure 11:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_nuup.png)
+![__Figure 15:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_nuup.png)
 
-![__Figure 12:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_nuup.png)
+![__Figure 16:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_nuup.png)
 
 # Norway
 
 ## Porsangerfjorden
 
-![__Figure 13:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_por.png)
+![__Figure 17:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_por.png)
 
-![__Figure 14:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_por.png)
+![__Figure 18:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_por.png)
+
+![__Figure 19:__ A) Average annual SST from 2000-2020. B) Decadal trends in SST calculated with annual averages from 2000-2099. Decadal trends are shown for the three most commonly used RCPs. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_model_por.png)
 
 ## Tromsø
 
-![__Figure 15:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_trom.png)
+![__Figure 20:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_grid_trom.png)
 
-![__Figure 16:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_trom.png)
+![__Figure 21:__ A) Average annual SST from 1982-2020. B) Decadal trends in SST calculated with annual averages from 1982-2020. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_CCI_grid_trom.png)
+
+![__Figure 22:__ A) Average annual SST from 2000-2020. B) Decadal trends in SST calculated with annual averages from 2000-2099. Decadal trends are shown for the three most commonly used RCPs. Pixels with significant trends (p <= 0.05) are framed in black.](assets/sst_model_trom.png)
 

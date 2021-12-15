@@ -151,12 +151,14 @@ plot_sst_model <- function(df){
   
   # Trends from 2000-2099 for three RCPs
   map_SST_trend <- df_dec_trend %>% 
-    # filter(p.value <= 0.05) %>% 
-    ggplot() + geom_point(aes(colour = dec_trend, x = lon, y = lat), size = 3) +
+    filter(p.value > 0.05) %>%
+    ggplot() + geom_point(aes(fill = dec_trend, x = lon, y = lat), shape = 21, size = 3, colour = "white") +
+    geom_point(data = filter(df_dec_trend, p.value <= 0.05),
+               aes(fill = dec_trend, x = lon, y = lat), shape = 21, size = 3, colour = "black") +
     geom_polygon(data = coastline_sub, aes(x = x, y = y, group = polygon_id), 
                  fill = "grey70", colour = "black") +
-    scale_colour_gradient2(low = "blue", mid = "white", high = "red") +
-    labs(x = NULL, y = NULL, colour = "Trend\n(°C/dec)",
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+    labs(x = NULL, y = NULL, fill = "Trend\n(°C/dec)",
          title = "Decadal trend",
          subtitle = "Model: 2000-2099") +
     coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
@@ -184,7 +186,12 @@ load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
 # Model data
+model_kong <- load_model("kongsfjorden_rcp")
+model_is <- load_model("isfjorden_rcp")
+model_stor <- load_model("storfjorden_rcp")
+model_young <- load_model("young_sound_rcp")
 model_por <- load_model("porsangerfjorden_rcp")
+model_trom <- load_model("tromso_rcp")
 
 # NOAA OISST extractions
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_kong.RData")
@@ -227,6 +234,11 @@ sst_CCI_grid_kong <- plot_sst_grid(sst_CCI_kong, "CCI SST")
 ggsave("figures/sst_CCI_grid_kong.png", sst_CCI_grid_kong, width = 6.8, height = 6.3)
 ggsave("docs/assets/sst_CCI_grid_kong.png", sst_CCI_grid_kong, width = 6.8, height = 6.3)
 
+# Model temperature projections
+sst_model_kong <- plot_sst_model(model_kong)
+ggsave("figures/sst_model_kong.png", sst_model_kong, width = 7.5, height = 9)
+ggsave("docs/assets/sst_model_kong.png", sst_model_kong, width = 7.5, height = 9)
+
 
 # Isfjorden ---------------------------------------------------------------
 
@@ -254,6 +266,11 @@ sst_CCI_grid_is <- plot_sst_grid(sst_CCI_is, "CCI SST")
 ggsave("figures/sst_CCI_grid_is.png", sst_CCI_grid_is, width = 7.0, height = 5)
 ggsave("docs/assets/sst_CCI_grid_is.png", sst_CCI_grid_is, width = 7.0, height = 5)
 
+# Model temperature projections
+sst_model_is <- plot_sst_model(model_is)
+ggsave("figures/sst_model_is.png", sst_model_is, width = 7.5, height = 9)
+ggsave("docs/assets/sst_model_is.png", sst_model_is, width = 7.5, height = 9)
+
 
 # Storfjorden -------------------------------------------------------------
 
@@ -267,6 +284,11 @@ sst_CCI_grid_stor <- plot_sst_grid(sst_CCI_stor, "CCI SST")
 ggsave("figures/sst_CCI_grid_stor.png", sst_CCI_grid_stor, width = 8.3, height = 6.5)
 ggsave("docs/assets/sst_CCI_grid_stor.png", sst_CCI_grid_stor, width = 8.3, height = 6.5)
 
+# Model temperature projections
+sst_model_stor <- plot_sst_model(model_stor)
+ggsave("figures/sst_model_stor.png", sst_model_stor, width = 7.5, height = 9)
+ggsave("docs/assets/sst_model_stor.png", sst_model_stor, width = 7.5, height = 9)
+
 
 # Young Sound -------------------------------------------------------------
 
@@ -279,6 +301,11 @@ ggsave("docs/assets/sst_grid_young.png", sst_grid_young, width = 8.2, height = 7
 sst_CCI_grid_young <- plot_sst_grid(sst_CCI_young, "CCI SST")
 ggsave("figures/sst_CCI_grid_young.png", sst_CCI_grid_young, width = 8.0, height = 7.7)
 ggsave("docs/assets/sst_CCI_grid_young.png", sst_CCI_grid_young, width = 8.0, height = 7.7)
+
+# Model temperature projections
+sst_model_young <- plot_sst_model(model_young)
+ggsave("figures/sst_model_young.png", sst_model_young, width = 9.5, height = 9)
+ggsave("docs/assets/sst_model_young.png", sst_model_young, width = 9.5, height = 9)
 
 
 # Disko Bay ---------------------------------------------------------------
@@ -375,6 +402,7 @@ ggsave("docs/assets/sst_CCI_grid_por.png", sst_CCI_grid_por, width = 6.7, height
 # Model temperature projections
 sst_model_por <- plot_sst_model(model_por)
 ggsave("figures/sst_model_por.png", sst_model_por, width = 7.5, height = 9)
+ggsave("docs/assets/sst_model_por.png", sst_model_por, width = 7.5, height = 9)
 
 
 # Tromsø ------------------------------------------------------------------
@@ -392,3 +420,7 @@ sst_CCI_grid_trom <- plot_sst_grid(sst_CCI_trom, "CCI SST")
 ggsave("figures/sst_CCI_grid_trom.png", sst_CCI_grid_trom, width = 6.8, height = 5)
 ggsave("docs/assets/sst_CCI_grid_trom.png", sst_CCI_grid_trom, width = 6.8, height = 5)
 
+# Model temperature projections
+sst_model_trom <- plot_sst_model(model_trom)
+ggsave("figures/sst_model_trom.png", sst_model_trom, width = 8, height = 9)
+ggsave("docs/assets/sst_model_trom.png", sst_model_trom, width = 8, height = 9)

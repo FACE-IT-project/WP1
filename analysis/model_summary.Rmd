@@ -45,9 +45,9 @@ Model temperatures. There are many more variables available within the models.
 
 ![__Figure 2:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_is.png)
 
-## Inglefieldbukta
+## Storfjorden
 
-![__Figure 3:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_ingle.png)
+![__Figure 3:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_stor.png)
 
 # Greenland
 
@@ -68,4 +68,8 @@ There are no model data for the western side of Greenland.
 ## Porsangerfjorden
 
 ![__Figure 5:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_por.png)
+
+## Tromso
+
+![__Figure 6:__ A) Average model temperatures at depths for different RCP projections. Note that the model data are not on a cartesian coordinate grid so the data are shown here as points instead of as a raster. B) Trends in model temperatures at different depths and RCP projections. Straight lines show linear models fitted to each point in panel A.](assets/model_trom.png)
 
