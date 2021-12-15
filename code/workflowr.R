@@ -7,6 +7,9 @@
 # All analysis files
 dir("analysis", pattern = ".Rmd", full.names = T)
 
+# Choose less angry pathway to git
+options(workflowr.sysgit = "")
+
 # Run this to re-compile the entire project
 system.time(
   workflowr::wflow_publish(files = c("analysis/index.Rmd",
@@ -16,8 +19,7 @@ system.time(
                                      "analysis/2021_analysis.Rmd",
                                      "analysis/data_summary.Rmd",
                                      "analysis/model_summary.Rmd",
-                                     "analysis/sst_summary.Rmd",
-                                     "analysis/french.Rmd"
+                                     "analysis/sst_summary.Rmd"
   ),
   message = "Re-built site.")
 ) # 15 seconds
