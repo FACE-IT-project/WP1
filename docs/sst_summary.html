@@ -525,16 +525,27 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
+<<<<<<< HEAD
 <a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree993272c295c844d673a21c3302255676c6314f7etargetblank993272ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/993272c295c844d673a21c3302255676c6314f7e" target="_blank">993272c</a> </a>
 </p>
 </div>
 <div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree993272c295c844d673a21c3302255676c6314f7etargetblank993272ca" class="panel-collapse collapse">
+=======
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treebc740fad8002f29735418c8243db28dc42335cbdtargetblankbc740faa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/bc740fad8002f29735418c8243db28dc42335cbd" target="_blank">bc740fa</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treebc740fad8002f29735418c8243db28dc42335cbdtargetblankbc740faa" class="panel-collapse collapse">
+>>>>>>> 5ba80461fc757ea915621693b0a3024196c0d53a
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
+<<<<<<< HEAD
 The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/993272c295c844d673a21c3302255676c6314f7e" target="_blank">993272c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+=======
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/bc740fad8002f29735418c8243db28dc42335cbd" target="_blank">bc740fa</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+>>>>>>> 5ba80461fc757ea915621693b0a3024196c0d53a
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -590,16 +601,44 @@ Message
 Rmd
 </td>
 <td>
+<<<<<<< HEAD
 <a href="https://github.com/FACE-IT-project/WP1/blob/993272c295c844d673a21c3302255676c6314f7e/analysis/sst_summary.Rmd" target="_blank">993272c</a>
 </td>
 <td>
 robwschlegel
+=======
+<a href="https://github.com/FACE-IT-project/WP1/blob/bc740fad8002f29735418c8243db28dc42335cbd/analysis/sst_summary.Rmd" target="_blank">bc740fa</a>
+</td>
+<td>
+Robert
 </td>
 <td>
 2021-12-15
 </td>
 <td>
+Added a bit of text
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/bc740fad8002f29735418c8243db28dc42335cbd/docs/sst_summary.html" target="_blank">bc740fa</a>
+</td>
+<td>
+Robert
+>>>>>>> 5ba80461fc757ea915621693b0a3024196c0d53a
+</td>
+<td>
+2021-12-15
+</td>
+<td>
+<<<<<<< HEAD
 Re-built site.
+=======
+Added a bit of text
+>>>>>>> 5ba80461fc757ea915621693b0a3024196c0d53a
 </td>
 </tr>
 <tr>
@@ -869,8 +908,9 @@ SST analysis figures
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This document contains a summary of the NOAA OISST and CCI SST (sea surface temperature) data that have been extracted around the FACE-IT sites. Both products have daily data from 1982 to 2020 however, the NOAA data are on a 0.25° grid while the CCI data are at 0.05°. This difference in the size of the pixels allows for some dramatic differences int he observed temperatures along the coast and in the fjords, as well as the decadal trends of those temperatures. Most importantly, the NOAA pixels are too coarse to capture SST within most of the FACE-IT fjords while CCI is able to provide SST in all sites except Young Sound. These very coastal/fjord pixels in the CCI data also tend to show strong cooling trends. I assume that these cooling trends are an artefact of the increased glacial melting into the fjord. But we can’t rule out that they are caused by any of the common remotely sensed coastal pixel issues, such as land bleed, which can interfere with the accurate assimilation of the data. Regardless, even in the more open coastal waters these two products do not agree very closely with one another and this is cause for some alarm. It is known that remotely sensed products begin to differ significantly from one another when approaching the poles and the quick analysis performed here certainly confirms that once again.</p>
-<p>The rest of this page provides the results of the analysis by FACE-IT site. One may use the table of contents on the left to jump to a desired section. Each figure shown here has two panels: A) The average temperatures from 1982-2020, and B) The decadal trend over the same period. The first figure shows the results from the NOAA OISST data and the second for the CCI SST data. Note that the CCI product has a much higher resolution than NOAA.</p>
+<p>This document contains a summary of the NOAA OISST, CCI SST (sea surface temperature), and model data that have been extracted around the FACE-IT sites. Both satellite products have daily data from 1982 to 2020 however, the NOAA data are on a 0.25° grid while the CCI data are at 0.05°. This difference in the size of the pixels allows for some dramatic differences int he observed temperatures along the coast and in the fjords, as well as the decadal trends of those temperatures. Most importantly, the NOAA pixels are too coarse to capture SST within most of the FACE-IT fjords while CCI is able to provide SST in all sites. The coastal/fjord pixels in the CCI data also tend to show strong cooling trends. I assume that these cooling trends are an artefact of the increased glacial melting into the fjord. But we can’t rule out that they are caused by any of the common remotely sensed coastal pixel issues, such as land bleed, which can interfere with the accurate assimilation of the data. Regardless, even in the more open coastal waters these two products do not agree very closely with one another and this is cause for some alarm. It is known that remotely sensed products begin to differ significantly from one another when approaching the poles and the quick analysis performed here certainly confirms that once again.</p>
+<p>The model data used here run from 2000-2099 and area available for three different climate pathways (RCP: 2.6, 4.5, 8.5) and at multiple depths (0, 50, 100, 200 m). The model is not generated on a Cartesian coordinate system so the values are shown as points, rather than as a raster. The model projections for RCP 8.5 tend to produce decadal trends that are similar to the NOAA OISST trends, implying that the current pathway we are on is 8.5, which matches most of the past literature, but moving forward we may be coming closer to RCP 7.0. Note also that the present day SST values between the model and the NOAA OISST values tend to match ore closely than to the CCI SST.</p>
+<p>The rest of this page provides the results of the analysis by FACE-IT site. One may use the table of contents on the left to jump to a desired section. Each figure shown here has two panels: A) The average temperatures from 1982-2020, and B) The decadal trend over the same period. The first figure shows the results from the NOAA OISST data, the second for the CCI SST data, and the third for the model. Note that the model was not run for the western side of Greenland so there are no data available for Disko Bay or Nuup Kangerlua.</p>
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
