@@ -164,12 +164,17 @@ ggsave("figures/model_is.png", model_fig_is, height = 8, width = 8)
 ggsave("docs/assets/model_is.png", model_fig_is, height = 8, width = 8)
 
 # Inglefieldbukta
-## NB: These are from the old site, need to be updated to Storfjorden
-## This requires asking Morten Skogen to fetch new data...
+## NB: These are from the old site, these have been replaced by Storfjorden
 model_ingle <- load_model("inglefieldbukta_rcp")
 model_fig_ingle <- model_summary(model_ingle, "Inglefieldbukta")
 ggsave("figures/model_ingle.png", model_fig_ingle, height = 8, width = 8)
 ggsave("docs/assets/model_ingle.png", model_fig_ingle, height = 8, width = 8)
+
+# Storfjorden
+model_stor <- load_model("storfjorden_rcp")
+model_fig_stor <- model_summary(model_stor, "Storfjorden")
+ggsave("figures/model_stor.png", model_fig_stor, height = 8, width = 8)
+ggsave("docs/assets/model_stor.png", model_fig_stor, height = 8, width = 8)
 
 # Young Sound
 model_young <- load_model("young_sound_rcp")
@@ -188,4 +193,10 @@ model_por <- load_model("porsangerfjorden_rcp")
 model_fig_por <- model_summary(model_por, "Porsangerfjorden")
 ggsave("figures/model_por.png", model_fig_por, height = 8, width = 8)
 ggsave("docs/assets/model_por.png", model_fig_por, height = 8, width = 8)
+
+# Tromso
+model_trom <- load_model("tromso_rcp")
+model_fig_trom <- model_summary(model_trom, "Tromso")
+ggsave("figures/model_trom.png", model_fig_trom, height = 8, width = 8)
+ggsave("docs/assets/model_trom.png", model_fig_trom, height = 8, width = 8)
 
