@@ -1,5 +1,5 @@
 ---
-title: "Summary of NOAA OISST data for FACE-IT study sites"
+title: "Summary of SST data for FACE-IT study sites"
 author: "Robert Schlegel"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output: workflowr::wflow_html
