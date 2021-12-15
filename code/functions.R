@@ -1239,16 +1239,6 @@ data_trend_plot <- function(full_product, site_name){
 # Function for plotting a quick summary of a model product
 model_summary <- function(model_product, site_name){
   
-  # get correct bounding box
-  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
-  if(site_name == "Isfjorden") bbox_plot <- bbox_is
-  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
-  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
-  if(site_name == "Young Sound") bbox_plot <- bbox_young
-  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
-  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
-  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
-  
   # Clip coastline polygons for faster plotting
   coastline_full_df_sub <- coastline_full_df %>% 
     filter(x >= min(model_product$lon, na.rm = T)-10,
