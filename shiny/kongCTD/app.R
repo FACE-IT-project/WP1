@@ -1,13 +1,6 @@
 # shiny/kongCTD/app.R
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
-# TODO: Put the loading options in the proper side bar. That way when user go from load to tidy the plotting area remains the same
-# The plotting area should contain a table, a time series, and a map window. So users get a more complete representation of the data.
-# The map will require that lon/lat be entered, and the time series will require that the data column is sorted.
-# The creation of the date column represents an intriguing challenge that I haven't yet thought of a solution to.
-# Another issue is how to rename the columns appropriately. One option would be to provide a list of pre-approved column names.
-# There could also be the option to provide a wildcard name.
-
 
 # Libraries ---------------------------------------------------------------
 
@@ -22,7 +15,7 @@ library(tidyr)
 library(ggplot2)
 library(lubridate)
 # library(ggraph)
-library(plotly)
+# library(plotly)
 # library(see)
 # library(ggtext)
 
@@ -30,24 +23,25 @@ library(plotly)
 # Data --------------------------------------------------------------------
 
 # Datatable options for all tables
-options(DT.options = list(pageLength = 10,
-                          # autoWidth = TRUE,
-                          # This chunk of code only allows six characters to be shown in a column
-                          # But it interferes with the HTML code for popups and links
-                          # columnDefs = list(list(
-                          #   targets = list(9),
-                          #   render = JS(
-                          #     "function(data, type, row, meta) {",
-                          #     "return type === 'display' && data.length > 6 ?",
-                          #     "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
-                          #     "}"))),
-                          # columnDefs = list(list(width = '20%', targets = c(2))),
-                          # deferRender = TRUE,
-                          scrollX = TRUE#,
-                          # scrollY = 400,
-                          # scrollCollapse = TRUE,
-                          # lengthMenu = c(5, 10, 25, 50, 100)))
-                          ))
+# options(DT.options = list(pageLength = 10,
+#                           # autoWidth = TRUE,
+#                           # This chunk of code only allows six characters to be shown in a column
+#                           # But it interferes with the HTML code for popups and links
+#                           # columnDefs = list(list(
+#                           #   targets = list(9),
+#                           #   render = JS(
+#                           #     "function(data, type, row, meta) {",
+#                           #     "return type === 'display' && data.length > 6 ?",
+#                           #     "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+#                           #     "}"))),
+#                           # columnDefs = list(list(width = '20%', targets = c(2))),
+#                           # deferRender = TRUE,
+#                           scrollX = TRUE,
+#                           # scrollY = TRUE
+#                           scrollY = 300#,
+#                           # scrollCollapse = TRUE,
+#                           # lengthMenu = c(5, 10, 25, 50, 100)))
+#                           ))
 
 ## The base land polygon
 ## NB: Only needed to run following code once. It is left here for posterity.
@@ -124,42 +118,45 @@ ui <- dashboardPage(
                                    ".csv")),
               
               # Horizontal line
-              tags$hr(),
+              # tags$hr(),
               
-              # Skip header rows
-              shiny::numericInput("skip", "Skip rows", value = 0, min = 0, step = 1),
+              fluidRow(
+                # Checkbox if file has header
+                column(6, checkboxInput("header", "Header", TRUE)),
+                # Skip header rows
+                column(6, shiny::numericInput("skip", "Skip rows", value = 0, min = 0, step = 1))
+              ),
+          
+              fluidRow(
+                # Select separator
+                column(6, radioButtons("sep", "Separator",
+                                       choices = c(Comma = ",",
+                                                   Semicolon = ";",
+                                                   Tab = "\t"),
+                                       selected = ",")),
+                # Select decimal
+                column(6, radioButtons("dec", "Decimal",
+                                       choices = c("Full stop" = ".",
+                                                   Comma = ","),
+                                       selected = "."))
+              ),
               
-              # Input: Checkbox if file has header
-              checkboxInput("header", "Column names", TRUE),
-              
-              # Input: Select separator
-              radioButtons("sep", "Separator",
-                           choices = c(Comma = ",",
-                                       Semicolon = ";",
-                                       Tab = "\t"),
-                           selected = ","),
-              
-              # Input: Select decimal
-              radioButtons("dec", "Decimal",
-                           choices = c("Full stop" = ".",
-                                       Coma = ","),
-                           selected = "."),
-              
-              # Input: Select quotes
-              radioButtons("quote", "Quote",
-                           choices = c(None = "",
-                                       "Double Quote" = '"',
-                                       "Single Quote" = "'"),
-                           selected = '"'),
-              
-              # Input: Select file encoding
-              radioButtons("encoding", "Encoding",
-                           choices = c(UTF8 = "UTF-8",
-                                       Latin = "latin1"),
-                           selected = "UTF-8"),
+              fluidRow(
+                # Select quotes
+                column(6, radioButtons("quote", "Quote", 
+                                       choices = c(None = "",
+                                                   "Double Quote" = '"',
+                                                   "Single Quote" = "'"),
+                                       selected = '"'),),
+                # Select file encoding
+                column(6, radioButtons("encoding", "Encoding",
+                                       choices = c(UTF8 = "UTF-8",
+                                                   Latin = "latin1"),
+                                       selected = "UTF-8"))
+              ),
               
               # Horizontal line
-              tags$hr(),
+              # tags$hr(),
               
               # Input: Select rows to display
               radioButtons("disp1", "Display",
@@ -172,10 +169,10 @@ ui <- dashboardPage(
               
               # Hints for how to handle issues
               h4("Hints"),
-              h6("Only one column -> Change 'separator'"),
-              h6("Comas instead of decimal places -> Change 'Decimal'"),
-              h6("Error: more columns than column names -> Increase 'Skip rows'"),
-              h6("Error: invalid multibyte string 6 -> Change 'Encoding'")
+              h6("Only one column -> Change 'Separator'"),
+              h6("Commas instead of decimal places -> Change 'Decimal'"),
+              h6("'Error: more columns than column names' -> Increase 'Skip rows'"),
+              h6("'Error: invalid multibyte string 6' -> Change 'Encoding'")
               ),
               
               # The data display
@@ -222,29 +219,45 @@ ui <- dashboardPage(
 
       tabItem(tabName = "tidy",
 
-              sidebarPanel(width = 3,
-
-                           # Combine date and time columns
-                           h4("Choose column order to begin"),
-                           uiOutput("selectColsUI"),
-
-                           # Filter head of df
-                           shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1),
-
-                           # Filter tail of df
-                           shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1),
-
-                           # Input: Select rows to display
-                           radioButtons("disp3", "Display",
-                                        choices = c(Head = "head",
-                                                    Tail = "tail"),
-                                        selected = "head")
-
+              fluidRow(
+                box(h5("Choose column order to begin"),
+                    
+                    # Combine date and time columns
+                    uiOutput("selectColsUI"),
+                    
+                    # Filter head of df
+                    shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1),
+                    
+                    # Filter tail of df
+                    shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1),
+                    
+                    # Add lon column
+                    
+                    # Add lat column
+                    
+                    # Input: Select rows to display
+                    radioButtons("disp3", "Display",
+                                 choices = c(Head = "head",
+                                             Tail = "tail"),
+                                 selected = "head"), 
+                    width = 3, height = "500px", title = "Controls",
+                    status = "primary", solidHeader = TRUE, collapsible = FALSE),
+                
+                # The data display
+                box(DT::dataTableOutput("contents_tidy", height = "300px"), width = 9, height = "500px", title = "Tidy data",
+                    status = "primary", solidHeader = TRUE, collapsible = FALSE)
               ),
-
-              # The data display
-              mainPanel(DT::dataTableOutput("contents_tidy"), width = 9)
-
+              
+              fluidRow(
+                box(                    
+                  dropdownButton(
+                    h4("Plot axis controls:"),
+                    uiOutput("plotXUI"),
+                    uiOutput("plotYUI"),
+                    circle = TRUE, status = "danger", icon = icon("gear")),
+                  plotOutput("tsPlot", height = "250px"), width = 12, height = "350px", title = "Time series",
+                  status = "primary", solidHeader = TRUE, collapsible = FALSE)
+              )
       ),
 
       
@@ -311,12 +324,14 @@ server <- function(input, output, session) {
     
     df_load <- df_load()
     
-    if(input$disp1 == "head") {
-      return(head(df_load, 10))
-    }
-    else {
-      return(tail(df_load, 10))
-    }
+    df_load_DT <- datatable(df_load, 
+                            options = list(pageLength = 10, scrollX = TRUE, scrollY = TRUE))
+    # if(input$disp1 == "head") {
+    #   return(head(df_load, 10))
+    # }
+    # else {
+    #   return(tail(df_load, 10))
+    # }
   })
   
 
@@ -369,7 +384,7 @@ server <- function(input, output, session) {
     
     # Bring date+time columns to front of data.frame
     df_time <- df_time %>%
-      dplyr::select(input$timeCols, date_time_char, date_time_posix, everything())
+      dplyr::select(date_time_posix, date_time_char, input$timeCols, everything())
     
     # Exit
     return(df_time)
@@ -382,12 +397,12 @@ server <- function(input, output, session) {
     
     df_time <- df_time()
     
-    if(input$disp2 == "head") {
-      return(head(df_time, 10))
-    }
-    else {
-      return(tail(df_time, 10))
-    }
+    # if(input$disp2 == "head") {
+    #   return(head(df_time, 10))
+    # }
+    # else {
+    #   return(tail(df_time, 10))
+    # }
   })
   
 
@@ -396,9 +411,29 @@ server <- function(input, output, session) {
   output$selectColsUI <- renderUI({
     req(input$file1)
     req(is.data.frame(df_time()))
-    shiny::selectInput("selectCols", "Select column order", choices = colnames(df_time()), multiple = T)
+    shiny::selectInput("selectCols", "Select column order", choices = colnames(df_time()), multiple = TRUE)
   })
 
+  output$plotXUI <- renderUI({
+    req(input$selectCols)
+    shiny::selectInput("plotX", "X axis", choices = colnames(df_tidy()), multiple = FALSE)
+  })
+  
+  output$plotYUI <- renderUI({
+    req(input$selectCols)
+    shiny::selectInput("plotY", "Y axis", choices = colnames(df_tidy()), multiple = FALSE)
+  })
+  
+  output$tsPlot <- renderPlot({
+    req(input$plotX)
+    
+    df_tidy <- df_tidy()
+    
+    ts <- ggplot(data = df_tidy, aes_string(x = input$plotX, y = input$plotY)) +
+      geom_point() + geom_line()
+    return(ts)
+  })
+  
   df_tidy <- reactive({
 
     # file1 is NULL on startup, which will cause an error
@@ -436,12 +471,14 @@ server <- function(input, output, session) {
 
     df_tidy <- df_tidy()
 
-    if(input$disp3 == "head") {
-      return(head(df_tidy, 10))
-    }
-    else {
-      return(tail(df_tidy, 10))
-    }
+    # datatable()
+    
+    # if(input$disp3 == "head") {
+    #   return(head(df_tidy, 10))
+    # }
+    # else {
+    #   return(tail(df_tidy, 10))
+    # }
   })
 
 
