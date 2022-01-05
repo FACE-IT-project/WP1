@@ -92,7 +92,7 @@ ui <- dashboardPage(
                 
                 # The various menus
                 menuItem("1) Load file", tabName = "load", icon = icon("book"), selected = TRUE),
-                menuItem("2) Time + coords", tabName = "time", icon = icon("clock")),
+                menuItem("2) Time + space", tabName = "time", icon = icon("clock")),
                 menuItem("3) Clean data", tabName = "tidy", icon = icon("shower")),
                 menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
                 menuItem("About", tabName = "about", icon = icon("question")),
@@ -177,24 +177,25 @@ ui <- dashboardPage(
                   
                   # Combine date and time columns
                   h4("Choose date/time column(s) to begin"),
-                  h6("If two columns -> date + time"),
-                  h6("Only acknowledges first two columns selected"),
+                  h5("If two columns -> date + time"),
+                  h5("Only acknowledges first two columns selected"),
                   uiOutput("timeColsUI"),
                   
                   # Coerce to POSIXCt
-                  h6("Change selection if 'date_time_posix' is blank"),
+                  h5("Change selection if 'date_time_posix' is blank"),
                   radioButtons("posix", "Date/Time format",
                                choices = c("dmy", "mdy", "ymd",
                                            "dmy_hms", "mdy_hms", "ymd_hms"),
-                               selected = "dmy_hms", inline = TRUE),
+                               selected = "dmy_hms"),#, inline = TRUE),
                   
                   # Set time zone
                   # Currently not an option because all CTDs in Kong should be UTZ
+
                   # Add lon/lat
                   h6("It is preferable but not required to have lon/lat coordinates"),
                   fluidRow(
-                    column(6, shiny::numericInput("addLon", "Longitude", value = NA)),
-                    column(6, shiny::numericInput("addLat", "Latitude", value = NA)),
+                    column(6, shiny::numericInput("addLon", "Longitude", value = 0)),
+                    column(6, shiny::numericInput("addLat", "Latitude", value = 0)),
                   )
               ),
               
@@ -211,41 +212,56 @@ ui <- dashboardPage(
       tabItem(tabName = "tidy",
               
               fluidRow(
-                box(width = 4, height = "300px", title = "Controls",
-                    status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                    
-                    h5("Choose column order to begin"),
-                    
-                    # Combine date and time columns
-                    uiOutput("selectColsUI"),
-                    
-                    # Filter head and tail of df
-                    fluidRow(
-                      column(6, shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1)),
-                      # Filter tail of df
-                      column(6, shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1)),
-                    )
+                
+                column(width = 4,
+                       
+                       box(width = 12, height = "300px", title = "Controls",
+                           status = "primary", solidHeader = TRUE, collapsible = FALSE,
+                           
+                           h4("Choose column order to begin"),
+                           
+                           # Combine date and time columns
+                           uiOutput("selectColsUI"),
+                           
+                           # Filter head and tail of df
+                           fluidRow(
+                             column(6, shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1)),
+                             column(6, shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1)),
+                           )
+                       ),
+                       
+                       box(width = 12, height = "550px", title = "Map",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                           h4("Location of CTD cast"),
+                           h5("Red border = no lon/lat"),
+                           h5("Yellow border = lon/lat not in the fjord region"),
+                           h5("Green border = lon/lat within fjord region"),
+                           plotOutput("mapPlot", height = "350px")
+                           )
                 ),
                 
                 # The data display
-                box(width = 9, height = "500px", title = "Data",
-                    status = "success", solidHeader = TRUE, collapsible = FALSE,
-                    DT::dataTableOutput("contents_tidy")
-                ),
+                column(8,
+                       box(width = 12, height = "500px", title = "Data",
+                           status = "success", solidHeader = TRUE, collapsible = FALSE,
+                           DT::dataTableOutput("contents_tidy")
+                       ),
+                       box(width = 12, height = "350px", title = "Time series",
+                           status = "danger", solidHeader = TRUE, collapsible = FALSE,
+                           fluidRow(
+                             column(2, 
+                                    # dropdownButton(
+                                    h4("Axis controls:"),
+                                    uiOutput("plotXUI"),
+                                    uiOutput("plotYUI")),
+                             # circle = TRUE, status = "danger", icon = icon("gear"))),
+                             column(10, plotOutput("tsPlot", height = "250px"))
+                           )
+                       )
+                )
+                
               ),
               
-              box(width = 12, height = "350px", title = "Time series",
-                  status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                  fluidRow(
-                    column(1, 
-                           dropdownButton(
-                             h4("Plot axis controls:"),
-                             uiOutput("plotXUI"),
-                             uiOutput("plotYUI"),
-                             circle = TRUE, status = "danger", icon = icon("gear"))),
-                    column(11, plotOutput("tsPlot", height = "250px"))
-                  )
-              )
       ),
 
       
@@ -327,8 +343,8 @@ server <- function(input, output, session) {
     req(input$timeCols)
     
     df_time <- df_load() %>% 
-      mutate(lon = input$addLon,
-             lat = input$addLat)
+      mutate(lon = input$addLon[1],
+             lat = input$addLat[1])
     
     # Create specific date_time column
     if(length(input$timeCols) == 1){
@@ -387,12 +403,14 @@ server <- function(input, output, session) {
 
   output$plotXUI <- renderUI({
     req(input$selectCols)
-    shiny::selectInput("plotX", "X axis", choices = colnames(df_tidy()), multiple = FALSE)
+    shiny::selectInput("plotX", "X axis", multiple = FALSE, 
+                       choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
   })
   
   output$plotYUI <- renderUI({
     req(input$selectCols)
-    shiny::selectInput("plotY", "Y axis", choices = colnames(df_tidy()), multiple = FALSE)
+    shiny::selectInput("plotY", "Y axis", multiple = FALSE, 
+                       choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
   })
   
   output$tsPlot <- renderPlot({
@@ -403,6 +421,39 @@ server <- function(input, output, session) {
     ts <- ggplot(data = df_tidy, aes_string(x = input$plotX, y = input$plotY)) +
       geom_point() + geom_line()
     return(ts)
+  })
+  
+  output$mapPlot <- renderPlot({
+    req(input$selectCols)
+    
+    df_tidy <- df_tidy()
+    # df_tidy <- test
+    # df_tidy <- df_tidy %>% 
+      # mutate(lon = 12.1, lat = 79.1)
+    
+    # Check that coords are present
+    if("lon" %in% colnames(df_tidy) & "lat" %in% colnames(df_tidy)){
+      df_point <- df_tidy %>% 
+        dplyr::select(lon, lat) %>% 
+        distinct()
+      
+      # Check that coords are within he fjord region
+      if(df_point$lon > 12.69 | df_point$lon < 11 | df_point$lat < 78.85 | df_point$lat > 79.15){
+        # If not create a yellow border
+        mp <- frame_base +
+          theme(panel.border = element_rect(colour = "yellow", size = 5))
+      } else {
+        # If yes create green border
+        mp <- frame_base +
+          geom_point(data = df_point, aes(x = lon, y = lat), size = 5, colour = "green") +
+          theme(panel.border = element_rect(colour = "green", size = 5))
+      }
+    } else {
+      # If no coords, red border
+      mp <- frame_base +
+        theme(panel.border = element_rect(colour = "red", size = 5))
+    }
+    return(mp)
   })
   
   df_tidy <- reactive({

@@ -1,0 +1,14 @@
+name: kongCTD
+title: kongCTD
+username:
+account: robert-schlegel
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5398107
+bundleId: 5437485
+url: https://robert-schlegel.shinyapps.io/kongCTD/
+when: 1641406329.36121
+lastSyncTime: 1641406329.36125
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data
