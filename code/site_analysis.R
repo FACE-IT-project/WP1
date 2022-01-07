@@ -1,5 +1,7 @@
 # code/site_analysis.R
 # This script contains code used for data analyses for specific sites
+# It also houses the code used for analysing gridded data and comparing them to their co-located in situ counterparts
+# This is done for remotely sensed products (e.g. NOAA OISST) as well as Morten's model
 
 
 # Setup -------------------------------------------------------------------
@@ -238,6 +240,8 @@ ggsave("docs/assets/sst_CCI_grid_kong.png", sst_CCI_grid_kong, width = 6.8, heig
 sst_model_kong <- plot_sst_model(model_kong)
 ggsave("figures/sst_model_kong.png", sst_model_kong, width = 7.5, height = 9)
 ggsave("docs/assets/sst_model_kong.png", sst_model_kong, width = 7.5, height = 9)
+
+# Compare SST and ins situ data
 
 
 # Isfjorden ---------------------------------------------------------------
