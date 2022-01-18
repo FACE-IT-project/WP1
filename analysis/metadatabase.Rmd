@@ -642,6 +642,18 @@ kong_CCI <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
+# SOCAT
+kong_SOCAT <- data.frame(type = "Synthesis",
+                         data_name = "Partial pressure of CO2",
+                         date_range = "2008 to 2019",
+                         lon_range = "11.001 to 12.282",
+                         lat_range = "78.904 to 79.099",
+                         depth_range = NA,
+                         file_name = '<a onclick="alert(\'SOCAT_kong.RData\');">1 file</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
+                         reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                         note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
+
 # PANGAEA data product
 kong_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -664,7 +676,7 @@ full_product_kong <- data.frame(type = "Combined",
                                 file_name = '<a onclick="alert(\'full_product_kong.csv/.RData\');">2 files</a>',
                                 URL = '<a onclick="alert(\'full_product_kong.csv OR full_product_kong.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
-                                note = "147 files from the EU, Svalbard, and Kongsfjorden.")
+                                note = "148 files from the EU, Svalbard, and Kongsfjorden.")
 
 # There are a lot of Kongsfjorden data on the NAADC (https://www.chinare.org.cn/en/data)
 # Bur they are limited by single use access like the GEM data
@@ -673,7 +685,8 @@ full_product_kong <- data.frame(type = "Combined",
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
                                kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_mooring_SAMS,
-                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_CCI, kong_PG, full_product_kong)
+                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_CCI, 
+                               kong_SOCAT, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->

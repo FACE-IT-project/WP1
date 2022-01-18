@@ -8,6 +8,8 @@
 library(tidyverse)
 library(tidync)
 library(PCICt) # For 'noleap' date conversions
+library(FNN)
+library(geosphere)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -92,6 +94,18 @@ coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 
 # Functions ---------------------------------------------------------------
 
+# Find the nearest grid cells for each site
+grid_match <- function(coords1, coords2){
+  coords2$idx <- 1:nrow(coords2)
+  grid_index <- data.frame(coords1,
+                           idx = knnx.index(data = as.matrix(coords2[,1:2]),
+                                            query = as.matrix(coords1[,1:2]), k = 1))
+  grid_points <- left_join(grid_index, coords2, by = c("idx")) %>% 
+    mutate(dist = round(distHaversine(cbind(lon.x, lat.x),
+                                      cbind(lon.y, lat.y))/1000, 2), idx = NULL)
+  return(grid_points)
+}
+
 # Function for finding and cleaning up points within a given region polygon
 points_in_region <- function(region_in, bbox_df, data_df){
   region_sub <- bbox_df %>% 
@@ -107,6 +121,22 @@ points_in_region <- function(region_in, bbox_df, data_df){
     dplyr::select(lon, lat, region)
   return(coords_in)
 }
+
+# Convenience function for getting bbox from site name
+bbox_from_name <- function(site_name){
+  # get correct bounding box
+  if(site_name == "Kongsfjorden") bbox_name <- bbox_kong
+  if(site_name == "Isfjorden") bbox_name <- bbox_is
+  if(site_name == "Inglefieldbukta") bbox_name <- bbox_ingle
+  if(site_name == "Storfjorden") bbox_name <- bbox_stor
+  if(site_name == "Young Sound") bbox_name <- bbox_young
+  if(site_name == "Disko Bay") bbox_name <- bbox_disko
+  if(site_name == "Nuup Kangerlua") bbox_name <- bbox_nuup
+  if(site_name == "Porsangerfjorden") bbox_name <- bbox_por
+  # This has potentially been coded to allow an error here
+  return(bbox_name)
+}
+
 
 # Function that takes 4 bounding box coordinates and converts them to a polygon for ggOceanMaps
 # The 'ID' value can be used to hold the name of the site for the bounding box
@@ -868,20 +898,13 @@ load_model <- function(file_stub, pCloud = F){
 # Data summary plotting function
 data_summary_plot <- function(full_product, site_name){
   
-  # Tweaks consistent plotting
+  # Tweaks for consistent plotting
   full_product <-  full_product %>% 
     mutate(var_type = as.factor(var_type),
            year = lubridate::year(date))
   
   # get correct bounding box
-  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
-  if(site_name == "Isfjorden") bbox_plot <- bbox_is
-  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
-  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
-  if(site_name == "Young Sound") bbox_plot <- bbox_young
-  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
-  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
-  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  bbox_plot <- bbox_from_name(site_name)
   
   # Pixel size
   if(range(full_product$lat, na.rm = T)[2]-range(full_product$lat, na.rm = T)[1] > 1){
@@ -999,14 +1022,7 @@ data_clim_plot <- function(full_product, site_name){
   full_product$var_type <- as.factor(full_product$var_type)
   
   # get correct bounding box
-  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
-  if(site_name == "Isfjorden") bbox_plot <- bbox_is
-  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
-  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
-  if(site_name == "Young Sound") bbox_plot <- bbox_young
-  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
-  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
-  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  bbox_plot <- bbox_from_name(site_name)
   
   # Pixel size
   if(range(full_product$lat, na.rm = T)[2]-range(full_product$lat, na.rm = T)[1] > 1){
@@ -1133,14 +1149,7 @@ data_trend_plot <- function(full_product, site_name){
   full_product$var_type <- as.factor(full_product$var_type)
   
   # get correct bounding box
-  if(site_name == "Kongsfjorden") bbox_plot <- bbox_kong
-  if(site_name == "Isfjorden") bbox_plot <- bbox_is
-  if(site_name == "Inglefieldbukta") bbox_plot <- bbox_ingle
-  if(site_name == "Storfjorden") bbox_plot <- bbox_stor
-  if(site_name == "Young Sound") bbox_plot <- bbox_young
-  if(site_name == "Disko Bay") bbox_plot <- bbox_disko
-  if(site_name == "Nuup Kangerlua") bbox_plot <- bbox_nuup
-  if(site_name == "Porsangerfjorden") bbox_plot <- bbox_por
+  bbox_plot <- bbox_from_name(site_name)
   
   # Pixel size
   if(range(full_product$lat, na.rm = T)[2]-range(full_product$lat, na.rm = T)[1] > 1){

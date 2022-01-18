@@ -242,6 +242,49 @@ ggsave("figures/sst_model_kong.png", sst_model_kong, width = 7.5, height = 9)
 ggsave("docs/assets/sst_model_kong.png", sst_model_kong, width = 7.5, height = 9)
 
 # Compare SST and ins situ data
+## Isolate in situ time series
+temp_insitu <- full_product_kong %>% 
+  filter(var_type == "phys") %>%
+  filter(!is.na(date), !is.na(lon), !is.na(lat)) %>% 
+  filter(grepl("°C|temp", var_name, ignore.case = F))
+unique(temp_insitu$var_name)
+
+## Find nearest in situ and SST pixels and distance
+coords_insitu <- temp_insitu %>% 
+  dplyr::select(lon, lat) %>% 
+  distinct()
+coords_CCI <- sst_CCI_kong %>% 
+  dplyr::select(lon, lat) %>% 
+  unique()
+
+coords_insitu_CCI <- grid_match(coords_insitu, coords_CCI) %>% 
+  dplyr::rename(lon_insitu = lon.x, lat_insitu = lat.x, 
+                lon_CCI = lon.y, lat_CCI = lat.y)
+
+## Find correlation and RMSE
+df_insitu_CCI <- left_join(temp_insitu, coords_insitu_CCI,
+                           by = c("lon" = "lon_insitu", lat = "lat_insitu")) %>% 
+  dplyr::rename(t = date) %>% 
+  left_join(sst_CCI_kong, by = c("t", "lon_CCI" = "lon", "lat_CCI" = "lat"))
+
+df_stats <- df_insitu_CCI %>% 
+  group_by(citation, lon, lat, dist, depth, var_name) %>% 
+  mutate(n = n()) %>%
+  filter(n > 4) %>% 
+  summarise(n = n(),
+            r = cor(value, temp), .groups = "drop")
+
+## Provide report
+# scatterplot
+df_stats %>% 
+  filter(depth < 300) %>% 
+  ggplot(aes(x = depth, y = r)) +
+  geom_point(aes(colour = log10(n)))
+
+# boxplot by var_name
+df_stats %>% 
+  ggplot(aes(x = var_name, y = r)) +
+  geom_boxplot()
 
 
 # Isfjorden ---------------------------------------------------------------
