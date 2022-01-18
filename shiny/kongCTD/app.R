@@ -1,6 +1,29 @@
 # shiny/kongCTD/app.R
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
+# TODO: Create an option in the first tab where a user can select the type of the file
+# E.g. this would set all of the options to match a certain schema
+# This in turn could be informed by how it reads the file and sees a pre-existing file name informed schema
+# Look into how to upload a batch of files
+# It would be useful for a user that the settings could be saved in between uploads
+# Need to look into how different lon/lat can be added for many different files uploaded in a batch
+# Could create a menu of the file names with input boxes next to them for lon/lat
+# That info is then joined to the main data via a left_join by keeping the file name as a column
+# Also have a master site and lon/lat box that can populate all rows
+# Also provide a column of drop downs for pre-known stations
+# Create a red to green next button to go to the next tab once all of the criteria for that tab are met
+
+# QC needs to be handled at some point
+# For starters would have a raw or QC flag to add to the data
+# Look into what the OCE package has for CTD QC
+# Any changes should be communicated via a metadata output
+
+# Add historic data to backend to allow users to see how their newly updated data fit into the historic data
+# ALlow for colour to show on maps or time series for which sources have contributed the historic data
+# Numbers for colours, and then a lookup table with product name via join by number
+
+# Authorship order could be based on the number of individual files uploaded over the year
+
 
 # Libraries ---------------------------------------------------------------
 
