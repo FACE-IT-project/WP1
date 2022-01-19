@@ -26,15 +26,30 @@ loadRData <- function(fileName){
 # Data --------------------------------------------------------------------
 
 # For testing
-input <- data.frame(selectSite = "_stor")
+# input <- data.frame(selectSite = "_stor")
 
 # Full data file paths
 full_data_paths <- dir("../../data/full_data", full.names = T)
 
 # Named sites for subsetting paths
-sites_named <- c("Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor",
+sites_named <- c("Svalbard" = "_sval", "Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor",
                  "Young Sound" = "_young", "Disko Bay" = "_disko", "Nuup Kangerlua" = "_nuup",
                  "Porsangerfjorden" = "_por")
+
+# Bounding boxes
+bbox_EU <- c(-60, 60, 63, 90)
+bbox_sval <- c(9, 30, 76, 81)
+bbox_kong <- c(11, 12.69, 78.86, 79.1)
+bbox_is <- c(12.97, 17.50, 77.95, 78.90)
+bbox_ingle <- c(18.15, 18.79, 77.87, 78.08)
+bbox_stor <- c(17.35, 21.60, 77.33, 78.13)
+bbox_young <- c(-22.367917, -19.907644, 74.210137, 74.624304)
+bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
+bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
+bbox_por <- c(24.5, 27, 70, 71.2)
+
+# The base global map
+map_base <- readRDS("../../metadata/map_base.Rda")
 
 
 # UI ----------------------------------------------------------------------
@@ -101,43 +116,6 @@ ui <- fluidPage(
 # Server ------------------------------------------------------------------
 
 server <- function(input, output) {
-
-    
-    ## Process data ------------------------------------------------------------
-
-    # Initial site load
-    df_load <- reactive({
-        req(input$selectSite)
-        file_path <- full_data_paths[grep(input$selectSite, full_data_paths)]
-        df_load <- loadRData(file_path)
-        return(df_load)
-    })
-
-    # Subset by category
-    df_cat <- reactive({
-        req(input$selectCat)
-        df_cat <- df_load() %>% filter(var_type %in% input$selectCat)
-        return(df_cat)
-    })
-    
-    # Subset by category
-    df_var <- reactive({
-        req(input$selectVar)
-        df_var <- df_cat() %>% filter(var_name %in% input$selectVar)
-        return(df_var)
-    })
-    
-    # Filter by smaller details 
-    df_filter <- reactive({
-        req(input$slideLon)
-        df_filter <- df_var() %>%
-            filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
-                   lat >= input$slideLat[1], lat <= input$slideLat[2],
-                   depth >= input$slideDepth[1], depth <= input$slideDepth[2],
-                   date >= input$slideDate[1], date <= input$slideDate[2],
-                   value >= input$slideValue[1], value <= input$slideValue[2])
-        return(df_filter)
-    })
 
     
     ## Reactive UI -------------------------------------------------------------
@@ -207,10 +185,50 @@ server <- function(input, output) {
     })
 
 
+    ## Download UI -------------------------------------------------------------
+
+    
+    ## Process data ------------------------------------------------------------
+    
+    # Initial site load
+    df_load <- reactive({
+        req(input$selectSite)
+        file_path <- full_data_paths[grep(input$selectSite, full_data_paths)]
+        df_load <- loadRData(file_path)
+        return(df_load)
+    })
+    
+    # Subset by category
+    df_cat <- reactive({
+        req(input$selectCat)
+        df_cat <- df_load() %>% filter(var_type %in% input$selectCat)
+        return(df_cat)
+    })
+    
+    # Subset by category
+    df_var <- reactive({
+        req(input$selectVar)
+        df_var <- df_cat() %>% filter(var_name %in% input$selectVar)
+        return(df_var)
+    })
+    
+    # Filter by smaller details 
+    df_filter <- reactive({
+        req(input$slideLon)
+        df_filter <- df_var() %>%
+            filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
+                   lat >= input$slideLat[1], lat <= input$slideLat[2],
+                   depth >= input$slideDepth[1], depth <= input$slideDepth[2],
+                   date >= input$slideDate[1], date <= input$slideDate[2],
+                   value >= input$slideValue[1], value <= input$slideValue[2])
+        return(df_filter)
+    })
+    
+    
     ## Time series -------------------------------------------------------------
 
     output$tsPlot <- renderPlotly({
-        req(is.data.frame(df_filter()))
+        req(input$slideLon, is.data.frame(df_filter()))
         
         # Fill date gaps in TS
         df_fill <- df_filter()
@@ -228,13 +246,39 @@ server <- function(input, output) {
     ## Map ---------------------------------------------------------------------
 
     output$mapPlot <- renderPlotly({
-        # Base map reacts to site selection
         req(input$selectSite)
         
+        # Base map reacts to site selection
+        if(input$selectSite == "_sval") bbox_name <- bbox_sval
+        if(input$selectSite == "_kong") bbox_name <- bbox_kong
+        if(input$selectSite == "_is") bbox_name <- bbox_is
+        if(input$selectSite == "_stor") bbox_name <- bbox_stor
+        if(input$selectSite == "_young") bbox_name <- bbox_young
+        if(input$selectSite == "_disko") bbox_name <- bbox_disko
+        if(input$selectSite == "_nuup") bbox_name <- bbox_nuup
+        if(input$selectSite == "_por") bbox_name <- bbox_por
+        
+        # Get buffer area for plot
+        xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
+        xmax <- bbox_name[2]+(bbox_name[2]-bbox_name[1])/4
+        ymin <- bbox_name[3]-(bbox_name[4]-bbox_name[3])/8
+        ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
+        
         # Show bbox created by lon/lat sliders
-        x    <- faithful
-        basePlot <- ggplot(data = x, aes(x = waiting, y = eruptions)) +
-            geom_line()
+        basePlot <- ggplot() + 
+            geom_polygon(data = map_base, fill = "grey80", colour = "black",
+                         aes(x = lon, y = lat, group = group)) +
+            # annotate(geom = "text", x = bbox_name[1], y = bbox_name[3], label = "1", colour = "red") +
+            geom_rect(aes(xmin = bbox_name[1], xmax = bbox_name[2], ymin = bbox_name[3], ymax = bbox_name[4]),
+                      fill = "khaki", alpha = 0.1) +
+            coord_equal(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
+            labs(x = NULL, y = NULL)
+        
+        # if(!is.null(df_filter())){
+            # basePlot <- basePlot +
+                # geom_point(data = df_filter(), aes(x = lon, y = lat, colour = var_name))
+        # }
+        
         ggplotly(basePlot)
     })
 }
