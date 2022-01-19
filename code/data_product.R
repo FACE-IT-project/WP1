@@ -152,7 +152,7 @@ EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>%
                 cfc113, pcfc113, ccl4, pccl4, sf6, psf6, c13, c14, h3, he3, he, neon, o18, toc, doc, don, tdn, chla) %>% 
   pivot_longer(temperature:chla, names_to = "var_name", values_to = "value") %>% 
   filter(!is.na(value)) %>% 
-  mutate(var_type = case_when(var_name %in% c("temperature", "theta", "salinity") ~ "Phys", TRUE ~ "Chem"),
+  mutate(var_type = case_when(var_name %in% c("temperature", "theta", "salinity") ~ "phys", TRUE ~ "chem"),
          var_name = case_when(var_name %in% c("temperature", "theta", "fco2temp") ~ paste0(var_name," [°C]"),
                               var_name %in% c("oxygen", "aou", "nitrate", "nitrite", "silicate", 
                                               "phosphate", "tco2", "talk") ~ paste0(var_name," [μmol kg-1]"),
