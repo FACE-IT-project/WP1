@@ -129,7 +129,7 @@ ui <- dashboardPage(
     tabItems(
       
 
-      # Load menu ---------------------------------------------------------------
+      ## Load menu ---------------------------------------------------------------
 
       tabItem(tabName = "load",
               
@@ -191,7 +191,7 @@ ui <- dashboardPage(
       ),
       
 
-      # Time menu ---------------------------------------------------------------
+      ## Time menu ---------------------------------------------------------------
       
       tabItem(tabName = "time",
 
@@ -230,7 +230,7 @@ ui <- dashboardPage(
 
       ),
 
-      # Tidy menu ---------------------------------------------------------------
+      ## Tidy menu ---------------------------------------------------------------
 
       tabItem(tabName = "tidy",
               
@@ -288,7 +288,7 @@ ui <- dashboardPage(
       ),
 
       
-      # Upload menu -------------------------------------------------------------
+      ## Upload menu -------------------------------------------------------------
 
       tabItem(tabName = "upload",
               fluidPage(
@@ -300,7 +300,7 @@ ui <- dashboardPage(
               )
       ),
 
-      # App explanation ---------------------------------------------------------
+      ## App explanation ---------------------------------------------------------
       
       tabItem(tabName = "about", 
               fluidPage(
@@ -318,11 +318,10 @@ ui <- dashboardPage(
 
 # Server ------------------------------------------------------------------
 
-# Define server logic required to draw a histogram
 server <- function(input, output, session) {
 
 
-  # Load server -------------------------------------------------------------
+  ## Load server -------------------------------------------------------------
 
   df_load <- reactive({
     
@@ -351,7 +350,7 @@ server <- function(input, output, session) {
   })
   
 
-  # Time server -------------------------------------------------------------
+  ## Time server -------------------------------------------------------------
 
   output$timeColsUI <- renderUI({
     req(input$file1)
@@ -416,7 +415,7 @@ server <- function(input, output, session) {
   })
   
 
-  # Tidy server -------------------------------------------------------------
+  ## Tidy server -------------------------------------------------------------
   
   output$selectColsUI <- renderUI({
     req(input$file1)
@@ -513,7 +512,7 @@ server <- function(input, output, session) {
   })
 
 
-  # Upload server -----------------------------------------------------------
+  ## Upload server -----------------------------------------------------------
 
   # Nothing here yet
   # Need to decide on a back-end

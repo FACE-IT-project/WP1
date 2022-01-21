@@ -642,6 +642,18 @@ kong_CCI <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
+# SOCAT
+kong_SOCAT <- data.frame(type = "Synthesis",
+                         data_name = "Partial pressure of CO2",
+                         date_range = "2008 to 2019",
+                         lon_range = "11.001 to 12.282",
+                         lat_range = "78.904 to 79.099",
+                         depth_range = NA,
+                         file_name = '<a onclick="alert(\'SOCAT_kong.RData\');">1 file</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
+                         reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                         note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
+
 # PANGAEA data product
 kong_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -664,7 +676,7 @@ full_product_kong <- data.frame(type = "Combined",
                                 file_name = '<a onclick="alert(\'full_product_kong.csv/.RData\');">2 files</a>',
                                 URL = '<a onclick="alert(\'full_product_kong.csv OR full_product_kong.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
-                                note = "147 files from the EU, Svalbard, and Kongsfjorden.")
+                                note = "148 files from the EU, Svalbard, and Kongsfjorden.")
 
 # There are a lot of Kongsfjorden data on the NAADC (https://www.chinare.org.cn/en/data)
 # Bur they are limited by single use access like the GEM data
@@ -673,7 +685,8 @@ full_product_kong <- data.frame(type = "Combined",
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
                                kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_mooring_SAMS,
-                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_CCI, kong_PG, full_product_kong)
+                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_CCI, 
+                               kong_SOCAT, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
@@ -915,6 +928,30 @@ is_CCI <- data.frame(type = "Remote",
                      reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                      note = NA)
 
+# SOCAT
+is_SOCAT <- data.frame(type = "Synthesis",
+                       data_name = "Partial pressure of CO2",
+                       date_range = "1999 to 2020",
+                       lon_range = "12.970 to 16.465",
+                       lat_range = "78.000 to 78.565",
+                       depth_range = "0 to 5",
+                       file_name = '<a onclick="alert(\'SOCAT_is.RData\');">1 file</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
+                       reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                       note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
+
+# GLODAP
+is_GLODAP <- data.frame(type = "Bottle",
+                        data_name = "All chemistry drivers; seawater temperature: surface, mid, bottom; salinity",
+                        date_range = "1980 to 1999",
+                        lon_range = "14.000 to 16.665",
+                        lat_range = "78.133 to 78.567",
+                        depth_range = "11 to 363",
+                        file_name = '<a onclick="alert(\'GLODAP_is.RData\');">1 file</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.glodap.info">GLODAP</a>',
+                        reference = '<a onclick="alert(\'Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2\');">2 Citations</a>',
+                        note = NA)
+
 # PANGAEA data product
 is_PG <- data.frame(type = "PANGAEA",
                     data_name = "Many",
@@ -937,13 +974,13 @@ full_product_is <- data.frame(type = "FACE-IT",
                               file_name = '<a onclick="alert(\'full_product_is.csv/.RData\');">1 file, 2 formats</a>',
                               URL = '<a onclick="alert(\'full_product_is.csv/.RData\');">See URL column</a>',
                               reference = '<a onclick="alert(\'full_product_is.csv/.RData\');">See citation column</a>',
-                              note = "This is the full combined data product.")
+                              note = "283 files from the EU, Svalbard, and Isfjorden.")
 
 # Bind them together
 metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, 
                             is_CO2_tempelfjorden, is_IsA_CO2, is_IsA_Chla, is_IsA_light, is_IsA_bio, is_BAB_bio, is_zoo,
                             is_met_radio, is_met_airport, is_met_pyramiden, is_social, is_AIS, is_ship_arrivals, is_NOAA,
-                            is_CCI, is_PG, full_product_is)
+                            is_CCI, is_SOCAT, is_GLODAP, is_PG, full_product_is)
 ```
 
 ```{r isfjorden-meta-data-table}
@@ -1026,6 +1063,30 @@ stor_CCI <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
+# SOCAT
+stor_SOCAT <- data.frame(type = "Synthesis",
+                         data_name = "Partial pressure of CO2",
+                         date_range = "1999 to 1999",
+                         lon_range = "18.266 to 20.688",
+                         lat_range = "77.332 to 78.130",
+                         depth_range = "0 to 5",
+                         file_name = '<a onclick="alert(\'SOCAT_stor.RData\');">1 file</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
+                         reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                         note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
+
+# GLODAP
+stor_GLODAP <- data.frame(type = "Bottle",
+                          data_name = "All chemistry drivers; seawater temperature: surface, mid, bottom; salinity",
+                          date_range = "1999 to 2002",
+                          lon_range = "18.000 to 21.143",
+                          lat_range = "77.34 to 78.13",
+                          depth_range = "3 to 177",
+                          file_name = '<a onclick="alert(\'GLODAP_stor.RData\');">1 file</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.glodap.info">GLODAP</a>',
+                          reference = '<a onclick="alert(\'Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2\');">2 Citations</a>',
+                          note = NA)
+
 # PANGAEA data product
 stor_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -1048,9 +1109,10 @@ full_product_stor <- data.frame(type = "FACE-IT",
                                 file_name = '<a onclick="alert(\'full_product_stor.csv/.RData\');">2 files</a>',
                                 URL = '<a onclick="alert(\'full_product_stor.csv/.RData\');">See URL column</a>',
                                 reference = '<a onclick="alert(\'full_product_stor.csv/.RData\');">See citation column</a>',
-                                note = "This is the full combined data product.")
+                                note = "93 files from the EU, Svalbard, and Storfjorden")
 # Bind them together
-metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_PG, stor_NOAA, stor_CCI, full_product_stor)
+metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_NOAA, stor_CCI, 
+                       stor_SOCAT, stor_GLODAP, stor_PG, full_product_stor)
 ```
 
 ```{r storfjorden-meta-data-table}
@@ -1336,7 +1398,7 @@ full_product_young <- data.frame(type = "FACE-IT",
                                  file_name = '<a onclick="alert(\'full_product_young.csv/.RData\');">2 files</a>',
                                  URL = '<a onclick="alert(\'full_product_young.csv/.RData\');">See URL column</a>',
                                  reference = '<a onclick="alert(\'full_product_young.csv/.RData\');">See citation column</a>',
-                                 note = "This is the full combined data product.")
+                                 note = "15 files from the EU and Young Sound.")
 
 # Bind them together
 metadata_young_sound <- rbind(young_air_pCO2, young_water_pCO2, young_CTD_bottom, young_CTD_water, 
@@ -1348,7 +1410,7 @@ metadata_young_sound <- rbind(young_air_pCO2, young_water_pCO2, young_CTD_bottom
 
 ```{r young-sound-meta-data-table}
 DT::datatable(metadata_young_sound, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/young_sound/'.")
 ```
 
 ## Disko Bay
@@ -1408,6 +1470,30 @@ disko_CCI <- data.frame(type = "Remote",
                         reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                         note = NA)
 
+# SOCAT
+disko_SOCAT <- data.frame(type = "Synthesis",
+                          data_name = "Partial pressure of CO2",
+                          date_range = "2015 to 2019",
+                          lon_range = "-54.186 to -52.869",
+                          lat_range = "68.220 to 68.750",
+                          depth_range = NA,
+                          file_name = '<a onclick="alert(\'SOCAT_disko.RData\');">1 file</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
+                          reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                          note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
+
+# GLODAP
+disko_GLODAP <- data.frame(type = "Bottle",
+                           data_name = "All chemistry drivers; seawater temperature: surface, mid, bottom; salinity",
+                           date_range = "2004 to 2015",
+                           lon_range = "-55.495 to -51.228",
+                           lat_range = "68.382 to 69.496",
+                           depth_range = "1 to 867",
+                           file_name = '<a onclick="alert(\'GLODAP_disko.RData\');">1 file</a>',
+                           URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.glodap.info">GLODAP</a>',
+                           reference = '<a onclick="alert(\'Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2\');">2 Citations</a>',
+                           note = NA)
+
 # PANGAEA data product
 disko_PG <- data.frame(type = "PANGAEA",
                        data_name = "Many",
@@ -1430,15 +1516,16 @@ full_product_disko <- data.frame(type = "FACE-IT",
                                  file_name = '<a onclick="alert(\'full_product_disko.csv/.RData\');">2 files</a>',
                                  URL = '<a onclick="alert(\'full_product_disko.csv/.RData\');">See URL column</a>',
                                  reference = '<a onclick="alert(\'full_product_disko.csv/.RData\');">See citation column</a>',
-                                 note = "This is the full combined data product.")
+                                 note = "306 files from the EU and Disko Bay.")
 
 # Bind them together
-metadata_disko_bay <- rbind(disko_CTD_water, disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_PG, full_product_disko)
+metadata_disko_bay <- rbind(disko_CTD_water, disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_SOCAT, disko_GLODAP, 
+                            disko_PG, full_product_disko)
 ```
 
 ```{r disko-bay-meta-data-table}
 DT::datatable(metadata_disko_bay, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
+              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/disko_bay/'.")
 ```
 
 ## Nuup Kangerlua
@@ -1547,6 +1634,18 @@ nuup_CCI <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
+# SOCAT
+nuup_SOCAT <- data.frame(type = "Synthesis",
+                         data_name = "Partial pressure of CO2",
+                         date_range = "2015 to 2020",
+                         lon_range = "-53.171 to -51.637",
+                         lat_range = "64.010 to 64.800",
+                         depth_range = NA,
+                         file_name = '<a onclick="alert(\'SOCAT_nuup.RData\');">1 file</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
+                        reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                        note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
+
 # PANGAEA data product
 nuup_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -1573,7 +1672,7 @@ full_product_nuup <- data.frame(type = "FACE-IT",
 
 # Bind them together
 metadata_nuup <- rbind(nuup_phyto_abundance, nuup_CTD, nuup_Chla, nuup_prim_prod, nuup_phosphate, nuup_silicate,
-                       nuup_NOAA, nuup_CCI, nuup_PG, full_product_nuup)
+                       nuup_NOAA, nuup_CCI, nuup_SOCAT, nuup_PG, full_product_nuup)
 ```
 
 ```{r nuup-meta-data-table}
@@ -1710,6 +1809,18 @@ por_CCI <- data.frame(type = "Remote",
                       reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                       note = NA)
 
+# SOCAT
+por_SOCAT <- data.frame(type = "Synthesis",
+                        data_name = "Partial pressure of CO2",
+                        date_range = "2016 to 2020",
+                        lon_range = "24.500 to 27.000",
+                        lat_range = "70.293 to 71.200",
+                        depth_range = "0 to 5",
+                        file_name = '<a onclick="alert(\'SOCAT_por.RData\');">1 file</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
+                        reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                        note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
+
 # PANGAEA data product
 por_PG <- data.frame(type = "PANGAEA",
                      data_name = "Many",
@@ -1736,7 +1847,8 @@ full_product_por <- data.frame(type = "FACE-IT",
 
 # Bind them together
 metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, 
-                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_NOAA, por_CCI, por_PG, full_product_por)
+                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_NOAA, por_CCI, por_SOCAT, 
+                                   por_PG, full_product_por)
 ```
 
 ```{r porsangerfjorden-meta-data-table}
