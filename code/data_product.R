@@ -180,6 +180,7 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 ## NB: This is really slow due to file size
 # ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/CTD_all_1876-2019.nc")
 sval_UNIS_nc_dat <- ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/CTD_all_1876-2019.nc")
+sval_UNIS_OWNER <- CTD_to_long(sval_UNIS_nc_dat, "OWNER"); gc()
 sval_UNIS_TEMP <- CTD_to_long(sval_UNIS_nc_dat, "TEMP"); gc()
 sval_UNIS_PSAL <- CTD_to_long(sval_UNIS_nc_dat, "PSAL"); gc()
 sval_UNIS_CNDC <- CTD_to_long(sval_UNIS_nc_dat, "CNDC"); gc()

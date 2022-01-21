@@ -12,3 +12,4 @@ data/full_data
 data/restricted
 data/sst_trom.RData
 data/sst_CCI_trom.RData
+shiny/kongCTD/data
