@@ -37,6 +37,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(lubridate)
+library(stringr)
 # library(ggraph)
 # library(plotly)
 # library(see)
@@ -46,7 +47,10 @@ library(lubridate)
 # Data --------------------------------------------------------------------
 
 # For testing...
-# test <- read.csv("shiny/kongCTD/data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+test_load <- read.csv("data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+test_load <- read.csv("data/KB3_018630_20210416_1728.csv", skip = 5, sep = ",", dec = ".", fileEncoding = "UTF-8")
+test_text <- read_file("data/August Bailey_0408_1141.txt")
+test_text <- read_file("data/KB3_018630_20210416_1728.csv")
 
 # Default upload start values
 default_opts <- data.frame(skip = 0,
@@ -102,7 +106,7 @@ ui <- dashboardPage(
                 
                 # The various menus
                 menuItem("1) Load file", tabName = "load", icon = icon("book"), selected = TRUE),
-                menuItem("2) Time + space", tabName = "time", icon = icon("clock")),
+                menuItem("2) Meta + lon/lat", tabName = "time", icon = icon("clock")),
                 menuItem("3) Clean data", tabName = "tidy", icon = icon("shower")),
                 menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
                 menuItem("About", tabName = "about", icon = icon("question")),
@@ -158,14 +162,14 @@ ui <- dashboardPage(
                   ),
                   
                   # Horizontal line
-                  tags$hr(),
+                  tags$hr()#,
                   
                   # Hints for how to handle issues
-                  h4("Hints"),
-                  h6("Only one column -> Change 'Separator'"),
-                  h6("Commas instead of decimal places -> Change 'Decimal'"),
-                  h6("'Error: more columns than column names' -> Increase 'Skip rows'"),
-                  h6("'Error: invalid multibyte string 6' -> Change 'Encoding'")
+                  # h4("Hints"),
+                  # h6("Only one column -> Change 'Separator'"),
+                  # h6("Commas instead of decimal places -> Change 'Decimal'"),
+                  # h6("'Error: more columns than column names' -> Increase 'Skip rows'"),
+                  # h6("'Error: invalid multibyte string 6' -> Change 'Encoding'")
               ),
               
               # The data display
@@ -326,23 +330,12 @@ server <- function(input, output, session) {
   
   # Observe uploading of file(s)
   observeEvent(input$file1, {
-    if(grepl("August", input$file1$name)){
+    req(input$file1)
+    file_text <- read_file(input$file1$datapath[1])
+    if(str_sub(file_text, 1, 10) == "From file:"){
       upload_opts$schema <- "SAIV"
-    } else if(grepl("KB3", input$file1$name)){
+    } else if(str_sub(file_text, 1, 8) == "RBR data"){
       upload_opts$schema <- "RBR"
-    } else {
-      # Intentionally blank
-    }
-  })
-  
-  # Observe choice of file schema
-  observeEvent(input$schema, {
-    if(input$schema == "SAIV"){
-      upload_opts$header <- TRUE; upload_opts$skip <- 3; upload_opts$sep <- ";"
-      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
-    } else if(input$schema == "RBR"){
-      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ","
-      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "UTF-8"
     } else {
       # Intentionally blank
     }
@@ -398,26 +391,68 @@ server <- function(input, output, session) {
                                      selected = upload_opts$encoding)
   })
   
+  # The file temp and real name data.frame
+  file_info_df <- reactive({
+    req(input$file1)
+    df <- data.frame(file_temp = input$file1$datapath,
+                     file_name = input$file1$name)
+    return(df)
+  })
+  
   # Load the file with the reactive file options
   df_load <- reactive({
-    
-    # file1 is NULL on startup, which will cause an error
     req(input$file1)
     
-    df_load <- read.csv(input$file1$datapath,
-                        header = upload_opts$header,
-                        skip = upload_opts$skip,
-                        sep = upload_opts$sep,
-                        dec = upload_opts$dec,
-                        quote = upload_opts$quote,
-                        fileEncoding = upload_opts$encoding, 
-                        blank.lines.skip = TRUE)
+    # Reactive function that is applied to all files in upload list
+    # Also need to pass the file name
+    df_load_func <- function(file_temp){
+      df <- read.csv(file_temp,
+                     header = upload_opts$header,
+                     skip = upload_opts$skip,
+                     sep = upload_opts$sep,
+                     dec = upload_opts$dec,
+                     quote = upload_opts$quote,
+                     fileEncoding = upload_opts$encoding, 
+                     blank.lines.skip = TRUE) %>%
+        mutate(file_temp = file_temp)
+      if(input$schema == "SAIV"){
+        df <- df %>% 
+          dplyr::rename(Salinity = `Sal.`, Conductivity = `Cond.`, Temperature = Temp,
+                        Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
+          mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
+          dplyr::select(file_temp, date_time, Depth, Salinity:Density)
+      } else if(input$schema == "RBR"){
+        df <- df %>% 
+          dplyr::rename(Fluorescence_ugChla_l = `Fluorometry.Chlorophyll`,  Specific_Conductivity = `Specific.Conductivity`,
+                        Density_Anomaly = `Density.Anomaly`, Speed_of_sound = `Speed.of.sound`) %>% 
+          mutate(date_time = dmy_hms(Timestamp)) %>% 
+          dplyr::select(file_temp, date_time, Depth, Conductivity:Fluorescence_ugChla_l, Salinity:Speed_of_sound)
+      }
+      return(df)
+    }
+
+    # Upload all selected files
+    df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) %>% 
+      left_join(file_info_df(), by = "file_temp") %>% 
+      dplyr::select(file_name, everything(),  -file_temp)
     
     # Exit
     return(df_load)
   })
   
   # Observe the changing of the upload UI options
+  ## Schema
+  observeEvent(input$schema, {
+    if(input$schema == "SAIV"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 3; upload_opts$sep <- ";"
+      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
+    } else if(input$schema == "RBR"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ","
+      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "UTF-8"
+    } else {
+      # Intentionally blank
+    }
+  })
   ## header
   observeEvent(input$header, {
     upload_opts$header <- input$header
@@ -447,6 +482,7 @@ server <- function(input, output, session) {
   output$contents_load <- DT::renderDataTable({
     req(input$file1)
     df_load <- df_load()
+    # file_info_df <- file_info_df()
     df_load_DT <- datatable(df_load, 
                             options = list(pageLength = 20, scrollX = TRUE, scrollY = 600))
     return(df_load_DT)
@@ -455,6 +491,45 @@ server <- function(input, output, session) {
 
   ## Time server -------------------------------------------------------------
 
+  ## NB: date_time is currently created automagically in the load step
+  ## For future iterations of the app I should created a red/green light that shows if date_time has been created
+  ## And that must be accompanied by a red light = shown (green light = hidden) UI that allows users to create date_time
+  
+  # Create dataframe of file temp names and their metadata taken from the file headers
+  file_meta_all <- reactive({
+    req(input$file1)
+    
+    file_meta_func <- function(file_temp){
+      file_text <- read_file(file_temp)
+      if(str_sub(file_text, 1, 10) == "From file:"){
+        df_meta <- data.frame(file_temp = file_temp,
+                              Sensor_brand = "SAIV",
+                              Sensor_owner = "Kings Bay",
+                              Instrument_no = gsub("[^0-9.-]", "", str_sub(file_text, 36, 70)))
+        upload_opts$schema <- "SAIV"
+      } else if(str_sub(file_text, 1, 8) == "RBR data"){
+        ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
+        df_meta <- data.frame(file_temp = file_temp,
+                              Sensor_brand = "RBR",
+                              Sensor_owner = NA,
+                              Instrument_no = gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15)))
+      } else {
+        # Intentionally blank
+      }
+    }
+
+    # read_file()
+    ## SAIV - August
+    # Sensor_brand=”SAIV”
+    # Sensor_owner=”Kings Bay”
+    # SensorNumber= row 1, characters XX-XX (will have to extract and bring along any of the instrument info/general environmental data like air pressure from the header in some way)
+    ## RBR
+    # Sensor_brand=”RBR”
+    # Sensor_owner= (can be entered manually? I think both AWI and the Indian station have this, and more may come)
+    # SensorNumber= row 2, characters xxx-.
+    
+  })
+  
   output$timeColsUI <- renderUI({
     req(input$file1)
     req(is.data.frame(df_load()))
@@ -462,8 +537,6 @@ server <- function(input, output, session) {
   })
   
   df_time <- reactive({
-    
-    # file1 is NULL on startup, which will cause an error
     req(input$file1)
     req(input$timeCols)
     
