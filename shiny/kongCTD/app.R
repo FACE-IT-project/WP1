@@ -183,31 +183,39 @@ ui <- dashboardPage(
       
       tabItem(tabName = "time",
 
-              box(width = 3, height = "550px", title = "Controls",
+              box(width = 3, #height = "550px", 
+                  title = "Controls",
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
                   # Combine date and time columns
-                  h4("Choose date/time column(s) to begin"),
-                  h5("If two columns -> date + time"),
-                  h5("Only acknowledges first two columns selected"),
-                  uiOutput("timeColsUI"),
+                  # h4("Choose date/time column(s) to begin"),
+                  # h5("If two columns -> date + time"),
+                  # h5("Only acknowledges first two columns selected"),
+                  # uiOutput("timeColsUI"),
                   
                   # Coerce to POSIXCt
-                  h5("Change selection if 'date_time_posix' is blank"),
-                  radioButtons("posix", "Date/Time format",
-                               choices = c("dmy", "mdy", "ymd",
-                                           "dmy_hms", "mdy_hms", "ymd_hms"),
-                               selected = "dmy_hms"),#, inline = TRUE),
+                  # h5("Change selection if 'date_time_posix' is blank"),
+                  # radioButtons("posix", "Date/Time format",
+                  #              choices = c("dmy", "mdy", "ymd",
+                  #                          "dmy_hms", "mdy_hms", "ymd_hms"),
+                  #              selected = "dmy_hms"),#, inline = TRUE),
                   
                   # Set time zone
                   # Currently not an option because all CTDs in Kong should be UTZ
 
                   # Add lon/lat
-                  h6("It is preferable but not required to have lon/lat coordinates"),
-                  fluidRow(
-                    column(6, shiny::numericInput("addLon", "Longitude", value = 0)),
-                    column(6, shiny::numericInput("addLat", "Latitude", value = 0)),
-                  )
+                  # h6("It is preferable but not required to have lon/lat coordinates"),
+                  
+                  # Individual boxes for all files uploaded
+                  column(4, uiOutput("fileNameUI")),
+                  column(4, uiOutput("lonInputUI")),
+                  column(4, uiOutput("latInputUI")),
+                  
+                  # One set of coords only
+                  # fluidRow(
+                  #   column(6, shiny::numericInput("addLon", "Longitude", value = 0)),
+                  #   column(6, shiny::numericInput("addLat", "Latitude", value = 0)),
+                  # )
               ),
               
               # The data display
@@ -395,7 +403,8 @@ server <- function(input, output, session) {
   file_info_df <- reactive({
     req(input$file1)
     df <- data.frame(file_temp = input$file1$datapath,
-                     file_name = input$file1$name)
+                     file_name = input$file1$name) %>% 
+      mutate(file_num = paste0("file_", 1:n()))
     return(df)
   })
   
@@ -499,85 +508,113 @@ server <- function(input, output, session) {
   file_meta_all <- reactive({
     req(input$file1)
     
+    # Extract meta-data from file headers
     file_meta_func <- function(file_temp){
       file_text <- read_file(file_temp)
       if(str_sub(file_text, 1, 10) == "From file:"){
+        # ins_no_raw <- sapply(str_split(file_text, "Instrument no.:"), "[[", 2)
+        # mini_df_1 <- read_delim("data/August Bailey_0408_1141.txt", n_max = 1, skip = 1, delim = ";")
+        mini_df_1 <- read_delim(file_temp, n_max = 1, skip = 1, delim = ";")
         df_meta <- data.frame(file_temp = file_temp,
                               Sensor_brand = "SAIV",
                               Sensor_owner = "Kings Bay",
-                              Instrument_no = gsub("[^0-9.-]", "", str_sub(file_text, 36, 70)))
-        upload_opts$schema <- "SAIV"
+                              Sensor_number = gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15)),
+                              Air_pressure = mini_df_1$`Air pressure`)
       } else if(str_sub(file_text, 1, 8) == "RBR data"){
-        ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
+        # ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
+        # mini_df_1 <- read_csv("data/KB3_018630_20210416_1728.csv", n_max = 1)
+        mini_df_1 <- read_csv(file_temp, n_max = 1)
         df_meta <- data.frame(file_temp = file_temp,
                               Sensor_brand = "RBR",
                               Sensor_owner = NA,
-                              Instrument_no = gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15)))
+                              Sensor_number = mini_df_1$...4)
       } else {
-        # Intentionally blank
+        df_meta <- data.frame(file_temp = file_temp,
+                              Sensor_brand = NA,
+                              Sensor_owner = NA,
+                              Sensor_number = NA)
       }
+      return(df_meta)
     }
-
-    # read_file()
-    ## SAIV - August
-    # Sensor_brand=”SAIV”
-    # Sensor_owner=”Kings Bay”
-    # SensorNumber= row 1, characters XX-XX (will have to extract and bring along any of the instrument info/general environmental data like air pressure from the header in some way)
-    ## RBR
-    # Sensor_brand=”RBR”
-    # Sensor_owner= (can be entered manually? I think both AWI and the Indian station have this, and more may come)
-    # SensorNumber= row 2, characters xxx-.
     
+    # Extract meta-data for all uploaded files
+    df_meta <- purrr::map_dfr(input$file1$datapath, file_meta_func) %>% 
+      left_join(file_info_df(), by = "file_temp") %>% 
+      dplyr::select(file_name, everything(),  -file_temp)
+    
+    # Exit
+    return(df_load)
   })
   
-  output$timeColsUI <- renderUI({
-    req(input$file1)
-    req(is.data.frame(df_load()))
-    shiny::selectInput("timeCols", "Date + Time column(s)", choices = colnames(df_load()), multiple = T)
+  # Dynamic generation of meta-data input UIs
+  output$fileNameUI <- renderUI({
+    file_count <- as.integer(length(input$file1$datapath))
+    lapply(1:file_count, function(i){
+      renderPrint(expr = file_info_df()$file_name[i])
+    })
   })
+  output$lonInputUI <- renderUI({
+    file_count <- as.integer(length(input$file1$datapath))
+    lapply(1:file_count, function(i){
+      numericInput(inputId = paste0("file_lon_", i), label = paste("Lon", i), value = NA)
+    })
+  })
+  output$latInputUI <- renderUI({
+    file_count <- as.integer(length(input$file1$datapath))
+    lapply(1:file_count, function(i){
+      numericInput(inputId = paste0("file_lat_", i), label = paste("Lat", i), value = NA)
+    })
+  })
+    
+  # Time + Date selection columns
+  # output$timeColsUI <- renderUI({
+  #   req(input$file1)
+  #   req(is.data.frame(df_load()))
+  #   shiny::selectInput("timeCols", "Date + Time column(s)", choices = colnames(df_load()), multiple = T)
+  # })
   
   df_time <- reactive({
     req(input$file1)
-    req(input$timeCols)
+    # req(input$timeCols)
     
-    df_time <- df_load() %>% 
-      mutate(lon = input$addLon[1],
-             lat = input$addLat[1])
+    df_time <- df_load() #%>% 
+      # mutate(lon = input$addLon[1],
+      #        lat = input$addLat[1])
     
     # Create specific date_time column
-    if(length(input$timeCols) == 1){
-      df_time <- df_time %>% 
-        mutate(date_time_char = df_time[,input$timeCols])
-    } else if(length(input$timeCols) >= 2){
-      df_time <- df_time %>% 
-        mutate(date_time_char = paste(df_time[,input$timeCols[1]],
-                                      df_time[,input$timeCols[2]], sep = " "))
-    }
+    # if(length(input$timeCols) == 1){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_char = df_time[,input$timeCols])
+    # } else if(length(input$timeCols) >= 2){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_char = paste(df_time[,input$timeCols[1]],
+    #                                   df_time[,input$timeCols[2]], sep = " "))
+    # }
     
     # Convert to POSIXCt
-    if(input$posix == "dmy"){
-      df_time <- df_time %>% 
-        mutate(date_time_posix = dmy(date_time_char))
-    } else if(input$posix == "dmy_hms"){
-      df_time <- df_time %>% 
-        mutate(date_time_posix = dmy_hms(date_time_char))
-    } else if(input$posix == "mdy"){
-      df_time <- df_time %>% 
-        mutate(date_time_posix = mdy(date_time_char))
-    } else if(input$posix == "mdy_hms"){
-      df_time <- df_time %>% 
-        mutate(date_time_posix = mdy_hms(date_time_char))
-    } else if(input$posix == "ymd"){
-      df_time <- df_time %>% 
-        mutate(date_time_posix = ymd(date_time_char))
-    } else if(input$posix == "ymd_hms"){
-      df_time <- df_time %>% 
-        mutate(date_time_posix = ymd_hms(date_time_char))
-    }
+    # if(input$posix == "dmy"){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_posix = dmy(date_time_char))
+    # } else if(input$posix == "dmy_hms"){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_posix = dmy_hms(date_time_char))
+    # } else if(input$posix == "mdy"){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_posix = mdy(date_time_char))
+    # } else if(input$posix == "mdy_hms"){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_posix = mdy_hms(date_time_char))
+    # } else if(input$posix == "ymd"){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_posix = ymd(date_time_char))
+    # } else if(input$posix == "ymd_hms"){
+    #   df_time <- df_time %>% 
+    #     mutate(date_time_posix = ymd_hms(date_time_char))
+    # }
     
     # Bring date+time columns to front of data.frame
-    df_time <- df_time %>%
-      dplyr::select(lon, lat, date_time_posix, date_time_char, input$timeCols, everything())
+    # df_time <- df_time %>%
+      # dplyr::select(lon, lat, date_time_posix, date_time_char, input$timeCols, everything())
     
     # Exit
     return(df_time)
