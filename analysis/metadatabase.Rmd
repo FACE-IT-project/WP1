@@ -1029,15 +1029,15 @@ ingle_plankton <- data.frame(type = "Survey",
 
 # PAR related data
 stor_PAR <- data.frame(type = "Cruise",
-                       data_name = "PAR; turbidity; Kd; salinity; seawater temperature: surface, mid, bottom, DOM",
+                       data_name = "Salinity; seawater temperature: surface, mid, bottom",
                        date_range = "2020",
                        lon_range = "16.5 to 21.5",
                        lat_range = "76 to 78.5",
                        depth_range = NA,
-                       file_name = '<a onclick="alert(\'Data currently under embargo until publication.\');">0 files</a>',
+                       file_name = '<a onclick="alert(\'/optical_properties\');">1 folder, 6 files</a>',
                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/e6974f73-99bb-46d8-b06d-d00287b91729">NPDC</a>',
                        reference = '<a onclick="alert(\'Petit, T., Granskog, M. A., Hamre, B., Kowalczuk, P., & Röttgers, R. (2022). Inherent optical properties of waters in Storfjorden (Svalbard) in summer 2020 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.e6974f73\');">Petit et al. (2020)</a>',
-                                 note = NA)
+                       note = "The light data in these files are in raw wave length spectra so are not included in the final FACE-IT data compilation.")
 
 # NOAA OISST
 stor_NOAA <- data.frame(type = "Remote",

@@ -3,6 +3,7 @@
 
 # TODO: Investigate PG columns that should be numeric but aren't
 # e.g. `[NO3]- [µmol/l]` for pg_nuup_clean
+# Provide lists of variables that were removed
 
 
 # Setup -------------------------------------------------------------------
@@ -138,6 +139,8 @@ EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2021.rds") %>%
          URL = "https://www.socat.info",
          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
+# load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 
 # GLODAP data
 EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>% 
@@ -172,6 +175,8 @@ EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>%
          citation = "Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016
          Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
+# load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Greenland fjord CTD casts
 EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE25_CTD_profiles.csv") %>% 
@@ -226,7 +231,8 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 ## NB: This is really slow due to file size
 # ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/CTD_all_1876-2019.nc")
 sval_UNIS_nc_dat <- ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/CTD_all_1876-2019.nc")
-sval_UNIS_OWNER <- CTD_to_long(sval_UNIS_nc_dat, "OWNER"); gc()
+# sval_UNIS_OWNER <- distinct(data.frame(ncdf4::ncvar_get(sval_UNIS_nc_dat, varid = "OWNER")))
+# sval_UNIS_CRUISE <- distinct(data.frame(ncdf4::ncvar_get(sval_UNIS_nc_dat, varid = "CRUISE")))
 sval_UNIS_TEMP <- CTD_to_long(sval_UNIS_nc_dat, "TEMP"); gc()
 sval_UNIS_PSAL <- CTD_to_long(sval_UNIS_nc_dat, "PSAL"); gc()
 sval_UNIS_CNDC <- CTD_to_long(sval_UNIS_nc_dat, "CNDC"); gc()
@@ -244,6 +250,8 @@ sval_UNIS_database <- full_join(sval_UNIS_TEMP, sval_UNIS_PSAL, by = c("lon", "l
          date_accessed = as.Date("2021-03-12")) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value); gc()
 rm(sval_UNIS_nc_dat, sval_UNIS_TEMP, sval_UNIS_PSAL, sval_UNIS_CNDC); gc()
+# Look at UNIS contributors
+
 
 # Seabird database
 # sval_seabird_database # Not on pCloud
@@ -370,9 +378,24 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
          URL = "Received directly from Morten Simonsen",
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-  
+
+## SOCAT
+### NB: EU_SOCAT loaded in EU full product section
+sval_SOCAT <- EU_SOCAT %>% 
+  filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
+         lat >= bbox_sval[3], lat <= bbox_sval[4])
+save(sval_SOCAT, file = "~/pCloudDrive/FACE-IT_data/svalbard/SOCAT_sval.RData")
+
+## GLODAP
+### NB: EU_GLODAP loaded in EU full product section
+sval_GLODAP <- EU_GLODAP %>% 
+  filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
+         lat >= bbox_sval[3], lat <= bbox_sval[4])
+save(sval_GLODAP, file = "~/pCloudDrive/FACE-IT_data/svalbard/GLODAP_sval.RData")
+
 # Combine and save
-full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS)
+full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night, 
+                           sval_AIS, sval_SOCAT, sval_GLODAP) %>% distinct()
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
 save(full_product_sval, file = "data/full_data/full_product_sval.RData")
@@ -650,7 +673,7 @@ kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_shi
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 ## SOCAT
-### NB: EU_SCOAT loaded in EU full product section
+### NB: EU_SOCAT loaded in EU full product section
 kong_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_kong[1], lon <= bbox_kong[2],
          lat >= bbox_kong[3], lat <= bbox_kong[4])
@@ -667,7 +690,8 @@ kong_GLODAP <- EU_GLODAP %>%
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
                            kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_SOCAT) %>% 
-  rbind(filter(full_product_sval, lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4]))
+  rbind(filter(full_product_sval, lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4])) %>% 
+  rbind(filter(full_product_sval, grepl("Kongsfjorden", var_name))) %>% distinct()
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 save(full_product_kong, file = "data/full_data/full_product_kong.RData")
@@ -917,7 +941,7 @@ is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arriv
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 ## SOCAT
-### NB: EU_SCOAT loaded in EU full product section
+### NB: EU_SOCAT loaded in EU full product section
 is_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_is[1], lon <= bbox_is[2],
          lat >= bbox_is[3], lat <= bbox_is[4])
@@ -935,7 +959,7 @@ full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, 
                          is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
                          is_AIS, is_ship_arrivals, is_SOCAT, is_GLODAP) %>% 
   rbind(filter(full_product_sval, lon >= bbox_is[1], lon <= bbox_is[2], lat >= bbox_is[3], lat <= bbox_is[4])) %>% 
-  rbind(filter(full_product_sval, grepl("Isfjorden", var_name)))
+  rbind(filter(full_product_sval, grepl("Isfjorden", var_name))) %>% distinct()
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 save(full_product_is, file = "data/full_data/full_product_is.RData")
@@ -1044,8 +1068,25 @@ if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
 # Load PG file
 if(!exists("pg_stor_ALL")) load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
+# Process individual files
+## Light data
+### NB: No columns with key drivers: CDOM, icam_anap, Perkins_ap
+### NB: pressure [dbar] used here as no depth data available
+stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_properties/acs_fdom_ctd.csv") %>% 
+  dplyr::select(`Lat [deg_N]`, `Lon [deg_E]`, Year, Month, Day, `Pressure [dbar]`, `Temp [degC]`, `Sal [PSU]`) %>% 
+  dplyr::rename(lat = `Lat [deg_N]`, lon = `Lon [deg_E]`, depth = `Pressure [dbar]`, `Temp [°C]` = `Temp [degC]`) %>% 
+  pivot_longer(`Temp [°C]`:`Sal [PSU]`, names_to = "var_name", values_to = "value") %>% 
+  mutate(date = as.Date(paste0(Year,"-",Month,"-",Day)),
+         date_accessed = as.Date("2022-01-21"),
+         var_type = "phys",
+         URL = "https://data.npolar.no/dataset/e6974f73-99bb-46d8-b06d-d00287b91729",
+         citation = "Petit, T., Granskog, M. A., Hamre, B., Kowalczuk, P., & Röttgers, R. (2022). Inherent optical properties of waters in Storfjorden (Svalbard) in summer 2020 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.e6974f73") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+
 ## SOCAT
-### NB: EU_SCOAT loaded in EU full product section
+### NB: EU_SOCAT loaded in EU full product section
 stor_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_stor[1], lon <= bbox_stor[2],
          lat >= bbox_stor[3], lat <= bbox_stor[4])
@@ -1059,9 +1100,9 @@ stor_GLODAP <- EU_GLODAP %>%
 save(stor_GLODAP, file = "~/pCloudDrive/FACE-IT_data/storfjorden/GLODAP_stor.RData")
 
 # Combine and save
-full_product_stor <- rbind(pg_stor_ALL, stor_SOCAT, stor_GLODAP) %>% 
+full_product_stor <- rbind(pg_stor_ALL, stor_light_CTD, stor_SOCAT, stor_GLODAP) %>% 
   rbind(filter(full_product_sval, lon >= bbox_stor[1], lon <= bbox_stor[2], lat >= bbox_stor[3], lat <= bbox_stor[4])) %>% 
-  rbind(filter(full_product_sval, grepl("Storfjorden", var_name)))
+  rbind(filter(full_product_sval, grepl("Storfjorden", var_name))) %>% distinct()
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 save(full_product_stor, file = "data/full_data/full_product_stor.RData")
@@ -1208,7 +1249,7 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
 rm(list = grep("holding_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## SOCAT
-### NB: EU_SCOAT loaded in EU full product section
+### NB: EU_SOCAT loaded in EU full product section
 ### NB: No SOCAT data in Young Sound
 young_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_young[1], lon <= bbox_young[2],
@@ -1222,7 +1263,7 @@ young_GLODAP <- EU_GLODAP %>%
          lat >= bbox_young[3], lat <= bbox_young[4])
 
 # Combine and save
-full_product_young <- rbind(pg_young_ALL, young_prim_prod)
+full_product_young <- rbind(pg_young_ALL, young_prim_prod) %>% distinct()
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 save(full_product_young, file = "data/full_data/full_product_young.RData")
@@ -1332,7 +1373,7 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
 rm(disko_CTD_ChlA_var); gc()
 
 ## SOCAT
-### NB: EU_SCOAT loaded in EU full product section
+### NB: EU_SOCAT loaded in EU full product section
 disko_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_disko[1], lon <= bbox_disko[2],
          lat >= bbox_disko[3], lat <= bbox_disko[4])
@@ -1346,7 +1387,7 @@ disko_GLODAP <- EU_GLODAP %>%
 save(disko_GLODAP, file = "~/pCloudDrive/FACE-IT_data/disko_bay/GLODAP_disko.RData")
 
 # Combine and save
-full_product_disko <- rbind(pg_disko_ALL, disko_CTD_ChlA, disko_SOCAT, disko_GLODAP)
+full_product_disko <- rbind(pg_disko_ALL, disko_CTD_ChlA, disko_SOCAT, disko_GLODAP) %>% distinct()
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
@@ -1430,7 +1471,7 @@ rm(list = grep("pg_nuup",names(.GlobalEnv),value = TRUE)); gc()
 if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
 ## SOCAT
-### NB: EU_SCOAT loaded in EU full product section
+### NB: EU_SOCAT loaded in EU full product section
 nuup_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_nuup[1], lon <= bbox_nuup[2],
          lat >= bbox_nuup[3], lat <= bbox_nuup[4])
@@ -1444,7 +1485,7 @@ nuup_GLODAP <- EU_GLODAP %>%
          lat >= bbox_nuup[3], lat <= bbox_nuup[4])
 
 # Combine and save
-full_product_nuup <- rbind(pg_nuup_ALL, nuup_SOCAT)
+full_product_nuup <- rbind(pg_nuup_ALL, nuup_SOCAT) %>% distinct()
 data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
 save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
@@ -1549,7 +1590,7 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
 por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08"))
 
 ## SOCAT
-### NB: EU_SCOAT loaded in EU full product section
+### NB: EU_SOCAT loaded in EU full product section
 por_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_por[1], lon <= bbox_por[2],
          lat >= bbox_por[3], lat <= bbox_por[4])
@@ -1563,7 +1604,7 @@ por_GLODAP <- EU_GLODAP %>%
          lat >= bbox_por[3], lat <= bbox_por[4])
 
 # Combine and save
-full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice, por_hydro, por_SOCAT)
+full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice, por_hydro, por_SOCAT) %>% distinct()
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
