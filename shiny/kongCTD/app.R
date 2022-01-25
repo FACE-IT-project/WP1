@@ -19,7 +19,7 @@
 # Any changes should be communicated via a metadata output
 
 # Add historic data to backend to allow users to see how their newly updated data fit into the historic data
-# ALlow for colour to show on maps or time series for which sources have contributed the historic data
+# Allow for colour to show on maps or time series for which sources have contributed the historic data
 # Numbers for colours, and then a lookup table with product name via join by number
 
 # Authorship order could be based on the number of individual files uploaded over the year
@@ -48,26 +48,13 @@ library(lubridate)
 # For testing...
 # test <- read.csv("shiny/kongCTD/data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
 
-# Datatable options for all tables
-# options(DT.options = list(pageLength = 10,
-#                           # autoWidth = TRUE,
-#                           # This chunk of code only allows six characters to be shown in a column
-#                           # But it interferes with the HTML code for popups and links
-#                           # columnDefs = list(list(
-#                           #   targets = list(9),
-#                           #   render = JS(
-#                           #     "function(data, type, row, meta) {",
-#                           #     "return type === 'display' && data.length > 6 ?",
-#                           #     "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
-#                           #     "}"))),
-#                           # columnDefs = list(list(width = '20%', targets = c(2))),
-#                           # deferRender = TRUE,
-#                           scrollX = TRUE,
-#                           # scrollY = TRUE
-#                           scrollY = 300#,
-#                           # scrollCollapse = TRUE,
-#                           # lengthMenu = c(5, 10, 25, 50, 100)))
-#                           ))
+# Default upload start values
+default_opts <- data.frame(skip = 0,
+                           header = TRUE,
+                           sep = ",",
+                           dec = ".",
+                           quote = '"',
+                           encoding = "UTF-8")
 
 ## The base land polygon
 ## NB: Only needed to run following code once. It is left here for posterity.
@@ -133,44 +120,41 @@ ui <- dashboardPage(
 
       tabItem(tabName = "load",
               
-              box(width = 3, height = "650px", title = "Controls",
+              box(width = 3, height = "730px", title = "Controls",
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
                   # Select a file
-                  h4("Load file to begin"),
+                  # h4("Load file to begin"),
                   fileInput("file1", "Choose CSV/TXT File",
-                            multiple = FALSE,
+                            multiple = TRUE,
                             accept = c("text/csv",
                                        "text/comma-separated-values,text/plain",
-                                       ".csv")),
+                                       ".csv"),
+                            placeholder = "Choose one or more files to begin"),
+                  # uiOutput("fileNameUI"),
                   
+                  # Select file schema
+                  uiOutput("schemaUI"),
+                  
+                  # Horizontal line
+                  tags$hr(),
+                  
+                  # Select header and skip rows
                   fluidRow(
-                    # Checkbox if file has header
-                    column(6, checkboxInput("header", "Header", TRUE)),
-                    # Skip header rows
-                    column(6, shiny::numericInput("skip", "Skip rows", value = 0, min = 0, step = 1))
+                    column(6, h5(tags$b("Header")), uiOutput("headerUI")),
+                    column(6, uiOutput("skipUI"))
                   ),
                   
+                  # Select column separator and decimal place
                   fluidRow(
-                    # Select separator
-                    column(6, radioButtons("sep", "Separator",
-                                           choices = c(Comma = ",", Semicolon = ";", Tab = "\t"),
-                                           selected = ",")),
-                    # Select decimal
-                    column(6, radioButtons("dec", "Decimal",
-                                           choices = c("Full stop" = ".", Comma = ","),
-                                           selected = "."))
+                    column(6, uiOutput("sepUI")),
+                    column(6, uiOutput("decUI"))
                   ),
                   
+                  # Select text quoting and file encoding
                   fluidRow(
-                    # Select quotes
-                    column(6, radioButtons("quote", "Quote", 
-                                           choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"),
-                                           selected = '"')),
-                    # Select file encoding
-                    column(6, radioButtons("encoding", "Encoding",
-                                           choices = c(UTF8 = "UTF-8", Latin = "latin1"),
-                                           selected = "UTF-8"))
+                    column(6, uiOutput("quoteUI")),
+                    column(6, uiOutput("encodingUI"))
                   ),
                   
                   # Horizontal line
@@ -323,24 +307,143 @@ server <- function(input, output, session) {
 
   ## Load server -------------------------------------------------------------
 
+  # Text output of uploaded file name
+  # output$fileNameUI <- renderUI({
+  #   req(input$file1)
+  #   # print(input$file1$name)
+  #   print(upload_opts$sep, upload_opts$skip, 
+  #         upload_opts$dec, upload_opts$encoding)
+  # })
+  
+  # Reactive category filters
+  upload_opts <- reactiveValues(schema = "None",
+                                header = TRUE,
+                                skip = 0,
+                                sep = ",",
+                                dec = ".",
+                                quote = '"',
+                                encoding = "UTF-8")
+  
+  # Observe uploading of file(s)
+  observeEvent(input$file1, {
+    if(grepl("August", input$file1$name)){
+      upload_opts$schema <- "SAIV"
+    } else if(grepl("KB3", input$file1$name)){
+      upload_opts$schema <- "RBR"
+    } else {
+      # Intentionally blank
+    }
+  })
+  
+  # Observe choice of file schema
+  observeEvent(input$schema, {
+    if(input$schema == "SAIV"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 3; upload_opts$sep <- ";"
+      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
+    } else if(input$schema == "RBR"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ","
+      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "UTF-8"
+    } else {
+      # Intentionally blank
+    }
+  })
+  
+  # Reactive UI for file schema
+  output$schemaUI <- renderUI({
+    selectInput("schema", "File schema", choices = c("None", "SAIV", "RBR"), selected = upload_opts$schema)
+  })
+  
+  # Reactive UI for header check box
+  output$headerUI <- renderUI({
+    shinyWidgets::prettyCheckbox("header", NULL, upload_opts$header, 
+                                 # Unnecessary. Just for fun.
+                                 status = "success", shape = "round", outline = TRUE, fill = TRUE, 
+                                 animation = "jelly", icon = icon("check"), plain = TRUE, bigger = TRUE)
+  })
+  
+  # Reactive UI for number of rows to skip
+  output$skipUI <- renderUI({
+    numericInput("skip", "Skip rows", value = upload_opts$skip, min = 0, step = 1)
+  })
+  
+  # Reactive UI for column separator options
+  output$sepUI <- renderUI({
+    shinyWidgets::prettyRadioButtons("sep", "Separator",
+                                     choiceNames = c("Comma", "Semicolon", "Tab"),
+                                     choiceValues = c(",", ";", "/t"),
+                                     selected = upload_opts$sep)
+  })
+  
+  # Reactive UI for decimal options
+  output$decUI <- renderUI({
+    shinyWidgets::prettyRadioButtons("dec", "Decimal",
+                                     choiceNames = c("Full stop", "Comma"),
+                                     choiceValues = c(".", ","),
+                                     selected = upload_opts$dec)
+  })
+  
+  # Reactive UI for text quoting options
+  output$quoteUI <- renderUI({
+    shinyWidgets::prettyRadioButtons("quote", "Quote", 
+                                     choiceNames = c("None", "Double quote", "Single quote"),
+                                     choiceValues = c("", '"', "'"),
+                                     selected = upload_opts$quote)
+  })
+  
+  # Reactive UI for encoding options
+  output$encodingUI <- renderUI({
+    shinyWidgets::prettyRadioButtons("encoding", "Encoding",
+                                     choiceNames = c("UTF8", "Latin"),
+                                     choiceValues = c("UTF-8", "latin1"),
+                                     selected = upload_opts$encoding)
+  })
+  
+  # Load the file with the reactive file options
   df_load <- reactive({
     
     # file1 is NULL on startup, which will cause an error
     req(input$file1)
     
     df_load <- read.csv(input$file1$datapath,
-                        skip = input$skip,
-                        header = input$header,
-                        sep = input$sep,
-                        dec = input$dec,
-                        quote = input$quote,
-                        fileEncoding = input$encoding, 
+                        header = upload_opts$header,
+                        skip = upload_opts$skip,
+                        sep = upload_opts$sep,
+                        dec = upload_opts$dec,
+                        quote = upload_opts$quote,
+                        fileEncoding = upload_opts$encoding, 
                         blank.lines.skip = TRUE)
     
     # Exit
     return(df_load)
   })
   
+  # Observe the changing of the upload UI options
+  ## header
+  observeEvent(input$header, {
+    upload_opts$header <- input$header
+  })
+  ## Skip
+  observeEvent(input$skip, {
+    upload_opts$skip <- input$skip
+  })
+  ## sep
+  observeEvent(input$sep, {
+    upload_opts$sep <- input$sep
+  })
+  ## dec
+  observeEvent(input$dec, {
+    upload_opts$dec <- input$dec
+  })
+  ## quote
+  observeEvent(input$quote, {
+    upload_opts$quote <- input$quote
+  })
+  ## encoding
+  observeEvent(input$encoding, {
+    upload_opts$encoding <- input$encoding
+  })
+  
+  # Table showing the uploaded file
   output$contents_load <- DT::renderDataTable({
     req(input$file1)
     df_load <- df_load()
@@ -519,7 +622,6 @@ server <- function(input, output, session) {
   # This in turn is to be dictated by a number of things
   # Also need to figure out what to do with random column names
   
-  session$onSessionEnded(stopApp)
 }
 
 
