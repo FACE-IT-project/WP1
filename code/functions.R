@@ -136,7 +136,6 @@ bbox_from_name <- function(site_name){
   return(bbox_name)
 }
 
-
 # Function that takes 4 bounding box coordinates and converts them to a polygon for ggOceanMaps
 # The 'ID' value can be used to hold the name of the site for the bounding box
 bbox_to_poly <- function(coords, ID = 1){
@@ -894,52 +893,50 @@ load_model <- function(file_stub, pCloud = F){
   return(model_all)
 }
 
-# COnvenience function for loading ony the subset of coords for hi-res ice data
-load_ice_1km_coords <- function(site_name){
+# Convenience function for loading only the subset of coords for hi-res ice data
+load_ice_coords <- function(site_name, res = "1km"){
   
   # get correct bounding box
   bbox_sub <- bbox_from_name(site_name)
   
-  # Get coords
-  ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc")
-  ice_coords_sub <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc") %>% 
-    activate("S")
-    tidync::hyper_filter(latitude = dplyr::between(latitude, bbox_sub[3], bbox_sub[4]),
-                         longitude = dplyr::between(longitude, bbox_sub[1], bbox_sub[1])) %>%
-    tidync::hyper_tibble()
+  # Load 4km res mask if necessary
+  if(!exists("ice_coords_4km")){
+    ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie_lat_lon_4km.nc") %>% 
+      tidync::hyper_tibble() %>% Sdplyr::rename(lon = longitude, lat = latitude)
+  }
   
+  # Could potentially use the 4km mask to approximate the xy and then refine
+  ice_coords_sub <- ice_coords_4km %>% 
+    filter(lon >= bbox_sub[1], lon <= bbox_sub[2],
+           lat >= bbox_sub[3], lat <= bbox_sub[4])
+  if(res == "1km"){
+    x_min <- min(ice_coords_sub$x)-2000; x_max <- max(ice_coords_sub$x)+2000
+    y_min <- min(ice_coords_sub$y)-2000; y_max <- max(ice_coords_sub$y)+2000
+    ice_coords_res <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc") %>% 
+      tidync::hyper_filter(x = dplyr::between(x, x_min, x_max),
+                           y = dplyr::between(y, y_min, y_max)) %>%
+      tidync::hyper_tibble() %>% 
+      dplyr::rename(lon = longitude, lat = latitude) %>% 
+      filter(lon >= bbox_sub[1], lon <= bbox_sub[2],
+             lat >= bbox_sub[3], lat <= bbox_sub[4])
+  } else{
+    ice_coords_res <- ice_coords_sub
+  }
+  
+  # Exit
+  return(ice_coords_res)
 }
 
 # Function for loading ice data within a bounding box
-load_ice_gridded <- function(file_name, site_name){
-  
-  # get correct bounding box
-  bbox_sub <- bbox_from_name(site_name)
-  
-  # Get corresponding lon/lat coords
-  if(file_name %in% ice_4km_files){
-    ice_coords_sub <- ice_coords_4km %>% 
-      filter(lon >= bbox_sub[1], lon <= bbox_sub[2],
-             lat >= bbox_sub[3], lat <= bbox_sub[4])
-  } else if(file_name %in% ice_1km_files){
-    ice_coords_sub <- ice_coords_1km #%>%
-      # filter(lon >= bbox_sub[1], lon <= bbox_sub[2],
-             # lat >= bbox_sub[3], lat <= bbox_sub[4])
-  } else {
-    stop("file not in MASIE dataset")
-  }
-  
-  # Subset NetCDF file accordingly
+load_ice_gridded <- function(file_name, ice_coords){
   df_sub <- tidync::tidync(file_name) %>% 
-    tidync::hyper_filter(x = dplyr::between(x, min(ice_coords_sub$x), max(ice_coords_sub$x)),
-                         y = dplyr::between(y, min(ice_coords_sub$y), max(ice_coords_sub$y))) %>%
+    tidync::hyper_filter(x = dplyr::between(x, min(ice_coords$x), max(ice_coords$x)),
+                         y = dplyr::between(y, min(ice_coords$y), max(ice_coords$y))) %>%
     tidync::hyper_tibble() %>% 
-    left_join(ice_coords_sub, by = c("x", "y")) %>%
+    left_join(ice_coords, by = c("x", "y")) %>%
     filter(!is.na(lon)) %>% # Some pixels don't seem to be able to convert to lon/lat projection
-    mutate(date = as.Date(time, origin = "1970-01-01")) %>% 
-    dplyr::select(lon, lat, sea_ice_extent)
-  
-  # Exit
+    mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
+    dplyr::select(lon, lat, date, sea_ice_extent)
   return(df_sub)
 }
 

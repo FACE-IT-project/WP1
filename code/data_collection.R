@@ -13,21 +13,28 @@
 source("code/functions.R")
 source("code/key_drivers.R")
 
+# Set cores
+doParallel::registerDoParallel(cores = 15)
+
 # Ice NetCdf locations
 ice_1km_files <- dir("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km", pattern = "masie_all", full.names = TRUE, recursive = T)
 ice_4km_files <- dir("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km", pattern = "masie_all", full.names = TRUE, recursive = T)
 
 # Load MASIE coordinate systems
-ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie_lat_lon_4km.nc") %>% tidync::hyper_tibble() %>% 
-  dplyr::rename(lon = longitude, lat = latitude)
+ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie_lat_lon_4km.nc") %>% 
+  tidync::hyper_tibble() %>% dplyr::rename(lon = longitude, lat = latitude)
 # NB: This is too large to load
 # ice_coords_1km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc") %>% tidync::hyper_tibble() %>%
 #   dplyr::rename(lon = longitude, lat = latitude)
-# It is necessary to only load the necessary subset
-ice_coords_sub <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc") %>% 
-  tidync::hyper_filter(longitude = dplyr::between(longitude, bbox_sub[1], bbox_sub[1]),
-                       y = dplyr::between(y, min(ice_coords_sub$y), max(ice_coords_sub$y))) %>%
-  tidync::hyper_tibble()
+# It is necessary to only load the necessary subset. This is done per site below.
+# Ice mask values
+## 0 = missing/not sea ice
+## 1 = ocean
+## 2 = land
+## 3 = sea ice
+## 4 = coastline (land adjacent to ocean)
+## 5 = lake
+##6 = border of region images 
 
 # Previously downloaded PANGAEA data
 # pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)
@@ -357,6 +364,14 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 # Extract gridded ice data and save
 ## NB: Not added to FACE-IT product because they are gridded data
+## 4 KM
+ice_coords_4km_kong <- load_ice_coords("Kongsfjorden", "4km")
+ice_4km_kong <- plyr::ldply(ice_4km_files, load_ice_gridded, ice_coords_4km_kong, .parallel = T)
+save(ice_4km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_4km_kong.RData") # NB: CSV files are too large
+## 1 KM
+ice_coords_1km_kong <- load_ice_coords("Kongsfjorden", "1km")
+ice_1km_kong <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_kong, .parallel = T)
+save(ice_1km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
 
 
 # Isfjorden ---------------------------------------------------------------
@@ -396,18 +411,19 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 # Ice data
 ## 4 KM
+ice_coords_4km_is <- load_ice_coords("Isfjorden", "4km")
 doParallel::registerDoParallel(cores = 15)
 system.time(
-ice_4km_is <- plyr::ldply(ice_4km_files, load_ice_gridded, site_name = "Isfjorden", .parallel = T)
-) # 17 seconds for 100, 871 seconds for all
-write_csv(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.csv")
-save(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
+ ice_4km_is <- plyr::ldply(ice_4km_files, load_ice_gridded, ice_coords_4km_is, .parallel = T)
+) # 4 seconds for 100, 206 seconds for all
+save(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData") # NB: CSV files are too large
 ## 1 KM
+ice_coords_1km_is <- load_ice_coords("Isfjorden", "1km")
 system.time(
-  ice_1km_is <- plyr::ldply(ice_1km_files[1:100], load_ice_gridded, site_name = "Isfjorden", .parallel = T)
-) # 17 seconds for 100, 871 seconds for all
-write_csv(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.csv")
-save(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
+ ice_1km_is <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_is, .parallel = T)
+) # 8 seconds for 100, 120 seconds for all
+save(ice_1km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
+
 
 # Storfjorden -------------------------------------------------------------
 
@@ -436,6 +452,17 @@ rm(pg_stor_dl); gc()
 # Update DOI list with Inglefieldbukta
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_stor_all$doi, file = "pg_stor_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+
+# Extract gridded ice data and save
+## NB: Not added to FACE-IT product because they are gridded data
+## 4 KM
+ice_coords_4km_stor <- load_ice_coords("Storfjorden", "4km")
+ice_4km_stor <- plyr::ldply(ice_4km_files, load_ice_gridded, ice_coords_4km_stor, .parallel = T)
+save(ice_4km_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/ice_4km_stor.RData") # NB: CSV files are too large
+## 1 KM
+ice_coords_1km_stor <- load_ice_coords("Storfjorden", "1km")
+ice_1km_stor <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_stor, .parallel = T)
+save(ice_1km_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.RData")
 
 
 # Svalbard ----------------------------------------------------------------
@@ -480,6 +507,17 @@ rm(pg_young_dl); gc()
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_young_all$doi, file = "pg_young_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
+# Extract gridded ice data and save
+## NB: Not added to FACE-IT product because they are gridded data
+## 4 KM
+ice_coords_4km_young <- load_ice_coords("Young Sound", "4km")
+ice_4km_young <- plyr::ldply(ice_4km_files, load_ice_gridded, ice_coords_4km_young, .parallel = T)
+save(ice_4km_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/ice_4km_young.RData") # NB: CSV files are too large
+## 1 KM
+ice_coords_1km_young <- load_ice_coords("Young Sound", "1km")
+ice_1km_young <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_young, .parallel = T)
+save(ice_1km_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/ice_1km_young.RData")
+
 
 # Disko Bay ---------------------------------------------------------------
 
@@ -516,6 +554,17 @@ rm(pg_disko_dl); gc()
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_disko_all$doi, file = "pg_disko_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
+# Extract gridded ice data and save
+## NB: Not added to FACE-IT product because they are gridded data
+## 4 KM
+ice_coords_4km_disko <- load_ice_coords("Disko Bay", "4km")
+ice_4km_disko <- plyr::ldply(ice_4km_files, load_ice_gridded, ice_coords_4km_disko, .parallel = T)
+save(ice_4km_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/ice_4km_disko.RData") # NB: CSV files are too large
+## 1 KM
+ice_coords_1km_disko <- load_ice_coords("Disko Bay", "1km")
+ice_1km_disko <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_disko, .parallel = T)
+save(ice_1km_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/ice_1km_disko.RData")
+
 
 # Nuup Kangerlua ----------------------------------------------------------
 
@@ -542,6 +591,17 @@ rm(pg_nuup_dl); gc()
 # Update DOI list with Nuup Kangerlua
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_nuup_all$doi, file = "pg_nuup_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+
+# Extract gridded ice data and save
+## NB: Not added to FACE-IT product because they are gridded data
+## 4 KM
+ice_coords_4km_nuup <- load_ice_coords("Nuup Kangerlua", "4km")
+ice_4km_nuup <- plyr::ldply(ice_4km_files, load_ice_gridded, ice_coords_4km_nuup, .parallel = T)
+save(ice_4km_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_4km_nuup.RData") # NB: CSV files are too large
+## 1 KM
+ice_coords_1km_nuup <- load_ice_coords("Nuup Kangerlua", "1km")
+ice_1km_nuup <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_nuup, .parallel = T)
+save(ice_1km_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_1km_nuup.RData")
 
 
 # Porsangerfjorden --------------------------------------------------------
@@ -571,4 +631,15 @@ rm(pg_por_dl); gc()
 # Update DOI list with Porsangerfjord
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_por_all$doi, file = "pg_por_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+
+# Extract gridded ice data and save
+## NB: Not added to FACE-IT product because they are gridded data
+## 4 KM
+ice_coords_4km_por <- load_ice_coords("Porsangerfjorden", "4km")
+ice_4km_por <- plyr::ldply(ice_4km_files, load_ice_gridded, ice_coords_4km_por, .parallel = T)
+save(ice_4km_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData") # NB: CSV files are too large
+## 1 KM
+ice_coords_1km_por <- load_ice_coords("Porsangerfjorden", "1km")
+ice_1km_por <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_por, .parallel = T)
+save(ice_1km_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_1km_por.RData")
 
