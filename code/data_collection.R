@@ -1,5 +1,7 @@
 # code/data_collection.R
 # The location of collected data and the code used when possible
+# This is primarily used for the collection of the PANGAEA data
+# It also contains the code used to subset and save hi-res gridded ice cover data per site
 
 
 # Setup -------------------------------------------------------------------
@@ -10,6 +12,22 @@
 # Libraries used in this script
 source("code/functions.R")
 source("code/key_drivers.R")
+
+# Ice NetCdf locations
+ice_1km_files <- dir("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km", pattern = "masie_all", full.names = TRUE, recursive = T)
+ice_4km_files <- dir("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km", pattern = "masie_all", full.names = TRUE, recursive = T)
+
+# Load MASIE coordinate systems
+ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie_lat_lon_4km.nc") %>% tidync::hyper_tibble() %>% 
+  dplyr::rename(lon = longitude, lat = latitude)
+# NB: This is too large to load
+# ice_coords_1km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc") %>% tidync::hyper_tibble() %>%
+#   dplyr::rename(lon = longitude, lat = latitude)
+# It is necessary to only load the necessary subset
+ice_coords_sub <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc") %>% 
+  tidync::hyper_filter(longitude = dplyr::between(longitude, bbox_sub[1], bbox_sub[1]),
+                       y = dplyr::between(y, min(ice_coords_sub$y), max(ice_coords_sub$y))) %>%
+  tidync::hyper_tibble()
 
 # Previously downloaded PANGAEA data
 # pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)
@@ -337,6 +355,9 @@ rm(pg_kong_dl); gc()
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_kong_all$doi, file = "pg_kong_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
+# Extract gridded ice data and save
+## NB: Not added to FACE-IT product because they are gridded data
+
 
 # Isfjorden ---------------------------------------------------------------
 
@@ -373,6 +394,20 @@ rm(pg_is_dl); gc()
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_is_all$doi, file = "pg_is_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
+# Ice data
+## 4 KM
+doParallel::registerDoParallel(cores = 15)
+system.time(
+ice_4km_is <- plyr::ldply(ice_4km_files, load_ice_gridded, site_name = "Isfjorden", .parallel = T)
+) # 17 seconds for 100, 871 seconds for all
+write_csv(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.csv")
+save(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
+## 1 KM
+system.time(
+  ice_1km_is <- plyr::ldply(ice_1km_files[1:100], load_ice_gridded, site_name = "Isfjorden", .parallel = T)
+) # 17 seconds for 100, 871 seconds for all
+write_csv(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.csv")
+save(ice_4km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
 
 # Storfjorden -------------------------------------------------------------
 

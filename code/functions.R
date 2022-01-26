@@ -64,7 +64,6 @@ CatColAbr <- c(
 )
 
 # Project wide colours for depth categories
-
 DepthCol <- c(
   "0 - 10 m" = brewer.pal(9, "Blues")[4],
   "10 - 50 m" = brewer.pal(9, "Blues")[5], 
@@ -893,6 +892,55 @@ load_model <- function(file_stub, pCloud = F){
     dplyr::rename(lon = Long, lat = Latt, topo = Topo, land = RMask, depth = Z) %>% 
     dplyr::select(proj, land, lon, lat, topo, date, depth, Salt:pco2w)
   return(model_all)
+}
+
+# COnvenience function for loading ony the subset of coords for hi-res ice data
+load_ice_1km_coords <- function(site_name){
+  
+  # get correct bounding box
+  bbox_sub <- bbox_from_name(site_name)
+  
+  # Get coords
+  ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc")
+  ice_coords_sub <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_1km/masie_lat_lon_1km.nc") %>% 
+    activate("S")
+    tidync::hyper_filter(latitude = dplyr::between(latitude, bbox_sub[3], bbox_sub[4]),
+                         longitude = dplyr::between(longitude, bbox_sub[1], bbox_sub[1])) %>%
+    tidync::hyper_tibble()
+  
+}
+
+# Function for loading ice data within a bounding box
+load_ice_gridded <- function(file_name, site_name){
+  
+  # get correct bounding box
+  bbox_sub <- bbox_from_name(site_name)
+  
+  # Get corresponding lon/lat coords
+  if(file_name %in% ice_4km_files){
+    ice_coords_sub <- ice_coords_4km %>% 
+      filter(lon >= bbox_sub[1], lon <= bbox_sub[2],
+             lat >= bbox_sub[3], lat <= bbox_sub[4])
+  } else if(file_name %in% ice_1km_files){
+    ice_coords_sub <- ice_coords_1km #%>%
+      # filter(lon >= bbox_sub[1], lon <= bbox_sub[2],
+             # lat >= bbox_sub[3], lat <= bbox_sub[4])
+  } else {
+    stop("file not in MASIE dataset")
+  }
+  
+  # Subset NetCDF file accordingly
+  df_sub <- tidync::tidync(file_name) %>% 
+    tidync::hyper_filter(x = dplyr::between(x, min(ice_coords_sub$x), max(ice_coords_sub$x)),
+                         y = dplyr::between(y, min(ice_coords_sub$y), max(ice_coords_sub$y))) %>%
+    tidync::hyper_tibble() %>% 
+    left_join(ice_coords_sub, by = c("x", "y")) %>%
+    filter(!is.na(lon)) %>% # Some pixels don't seem to be able to convert to lon/lat projection
+    mutate(date = as.Date(time, origin = "1970-01-01")) %>% 
+    dplyr::select(lon, lat, sea_ice_extent)
+  
+  # Exit
+  return(df_sub)
 }
 
 # Data summary plotting function

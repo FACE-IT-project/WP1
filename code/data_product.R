@@ -252,7 +252,6 @@ sval_UNIS_database <- full_join(sval_UNIS_TEMP, sval_UNIS_PSAL, by = c("lon", "l
 rm(sval_UNIS_nc_dat, sval_UNIS_TEMP, sval_UNIS_PSAL, sval_UNIS_CNDC); gc()
 # Look at UNIS contributors
 
-
 # Seabird database
 # sval_seabird_database # Not on pCloud
 
