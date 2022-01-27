@@ -426,7 +426,9 @@ save(ice_1km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
 
 # Raw AIS data
 is_AIS_raw_files <- dir("~/pCloudDrive/FACE-IT_data/isfjorden/AIS", full.names = TRUE, pattern = "ais_")
-is_AIS_raw <- map_dfr(is_AIS_raw_files, read_csv)
+is_AIS_raw <- map_dfr(is_AIS_raw_files, read_delim, delim = ";")
+is_AIS_raw <- data.frame(is_AIS_raw)
+save(is_AIS_raw, file = "~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
 
 
 # Storfjorden -------------------------------------------------------------
