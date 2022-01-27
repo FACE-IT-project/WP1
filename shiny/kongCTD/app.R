@@ -6,6 +6,11 @@
 # Could create a menu of the file names with input boxes next to them for lon/lat
 # That info is then joined to the main data via a left_join by keeping the file name as a column
 # Also have a master site and lon/lat box that can populate all rows
+# Rather allow users to enter all of this info via a reactive spreadsheet
+# https://stackoverflow.com/questions/22272571/data-input-via-shinytable-in-r-shiny-application
+# This should still have buttons at the top that populate all values in a colum
+# Should also investigate if a user could copy paste rows of meta data from an existing file
+# Add a column of metadata for data owner: PI or Investigator
 # Also provide a column of drop downs for pre-known stations
 # Create a red to green next button to go to the next tab once all of the criteria for that tab are met
 
@@ -17,6 +22,8 @@
 # Add historic data to backend to allow users to see how their newly updated data fit into the historic data
 # Allow for colour to show on maps or time series for which sources have contributed the historic data
 # Numbers for colours, and then a lookup table with product name via join by number
+
+# The data upload repository needs to start to be considered.
 
 # Authorship order could be based on the number of individual files uploaded over the year
 
@@ -43,18 +50,18 @@ library(stringr)
 # Data --------------------------------------------------------------------
 
 # For testing...
-test_load <- read.csv("data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
-test_load <- read.csv("data/KB3_018630_20210416_1728.csv", skip = 5, sep = ",", dec = ".", fileEncoding = "UTF-8")
-test_text <- read_file("data/August Bailey_0408_1141.txt")
-test_text <- read_file("data/KB3_018630_20210416_1728.csv")
+# test_load <- read.csv("data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+# test_load <- read.csv("data/KB3_018630_20210416_1728.csv", skip = 5, sep = ",", dec = ".", fileEncoding = "UTF-8")
+# test_text <- read_file("data/August Bailey_0408_1141.txt")
+# test_text <- read_file("data/KB3_018630_20210416_1728.csv")
 
 # Default upload start values
-default_opts <- data.frame(skip = 0,
-                           header = TRUE,
-                           sep = ",",
-                           dec = ".",
-                           quote = '"',
-                           encoding = "UTF-8")
+# default_opts <- data.frame(skip = 0,
+#                            header = TRUE,
+#                            sep = ",",
+#                            dec = ".",
+#                            quote = '"',
+#                            encoding = "UTF-8")
 
 ## The base land polygon
 ## NB: Only needed to run following code once. It is left here for posterity.

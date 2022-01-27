@@ -5,10 +5,10 @@ account: robert-schlegel
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5398107
-bundleId: 5437485
+bundleId: 5514664
 url: https://robert-schlegel.shinyapps.io/kongCTD/
-when: 1641406329.36121
-lastSyncTime: 1641406329.36125
+when: 1643295422.4803
+lastSyncTime: 1643295422.48036
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: data
