@@ -909,8 +909,8 @@ is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.
 is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ship AIS data
-is_AIS_2017 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS_2017.csv") %>% mutate(year = 2017)
-is_AIS_2019 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS_2019.csv") %>% mutate(year = 2019)
+is_AIS_2017 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/AIS_2017.csv") %>% mutate(year = 2017)
+is_AIS_2019 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/AIS_2019.csv") %>% mutate(year = 2019)
 is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>% 
   dplyr::select(Name, ShipName, Month, everything()) %>% 
   pivot_longer(`Number of trips`:`CO2 emissions in port (tonnes)`, names_to = "var", values_to = "value") %>% 
@@ -925,6 +925,9 @@ is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>%
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 rm(is_AIS_2017, is_AIS_2019); gc()
+
+# Raw AIS data
+"~/pCloud"
 
 ## Tourist ship arrival data
 is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arrivals.csv") %>% 

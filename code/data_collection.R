@@ -424,6 +424,10 @@ system.time(
 ) # 8 seconds for 100, 120 seconds for all
 save(ice_1km_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
 
+# Raw AIS data
+is_AIS_raw_files <- dir("~/pCloudDrive/FACE-IT_data/isfjorden/AIS", full.names = TRUE, pattern = "ais_")
+is_AIS_raw <- map_dfr(is_AIS_raw_files, read_csv)
+
 
 # Storfjorden -------------------------------------------------------------
 
