@@ -1,11 +1,7 @@
 # shiny/kongCTD/app.R
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
-# TODO: Create an option in the first tab where a user can select the type of the file
-# E.g. this would set all of the options to match a certain schema
-# This in turn could be informed by how it reads the file and sees a pre-existing file name informed schema
-# Look into how to upload a batch of files
-# It would be useful for a user that the settings could be saved in between uploads
+# TODO: It would be useful for a user that the settings could be saved in between uploads
 # Need to look into how different lon/lat can be added for many different files uploaded in a batch
 # Could create a menu of the file names with input boxes next to them for lon/lat
 # That info is then joined to the main data via a left_join by keeping the file name as a column
@@ -183,8 +179,8 @@ ui <- dashboardPage(
       
       tabItem(tabName = "time",
 
-              box(width = 3, #height = "550px", 
-                  title = "Controls",
+              box(width = 12, height = "300px", 
+                  title = "Controls", style = 'height:250px;overflow-y: scroll;',
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
                   # Combine date and time columns
@@ -208,8 +204,11 @@ ui <- dashboardPage(
                   
                   # Individual boxes for all files uploaded
                   column(4, uiOutput("fileNameUI")),
-                  column(4, uiOutput("lonInputUI")),
-                  column(4, uiOutput("latInputUI")),
+                  column(1, uiOutput("lonInputUI")),
+                  column(1, uiOutput("latInputUI")),
+                  column(2, uiOutput("brandInputUI")),
+                  column(2, uiOutput("ownerInputUI")),
+                  column(2, uiOutput("numberInputUI")),
                   
                   # One set of coords only
                   # fluidRow(
@@ -219,10 +218,18 @@ ui <- dashboardPage(
               ),
               
               # The data display
-              box(width = 9, height = "800px", title = "Data",
+              box(width = 8, height = "550px", title = "Data",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
-                  DT::dataTableOutput("contents_time")
-                  )
+                  DT::dataTableOutput("contentsTime")
+                  ),
+              box(width = 4, height = "550px", title = "Map",
+                  status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                  h4("Location of CTD cast"),
+                  h5("Red border = no lon/lat"),
+                  h5("Yellow border = lon/lat not in the fjord region"),
+                  h5("Green border = lon/lat within fjord region")#,
+                  # plotOutput("mapPlot", height = "350px")
+              )
 
       ),
 
@@ -512,7 +519,7 @@ server <- function(input, output, session) {
     file_meta_func <- function(file_temp){
       file_text <- read_file(file_temp)
       if(str_sub(file_text, 1, 10) == "From file:"){
-        # ins_no_raw <- sapply(str_split(file_text, "Instrument no.:"), "[[", 2)
+        ins_no_raw <- sapply(str_split(file_text, "Instrument no.:"), "[[", 2)
         # mini_df_1 <- read_delim("data/August Bailey_0408_1141.txt", n_max = 1, skip = 1, delim = ";")
         mini_df_1 <- read_delim(file_temp, n_max = 1, skip = 1, delim = ";")
         df_meta <- data.frame(file_temp = file_temp,
@@ -543,14 +550,17 @@ server <- function(input, output, session) {
       dplyr::select(file_name, everything(),  -file_temp)
     
     # Exit
-    return(df_load)
+    return(df_meta)
   })
   
+  ## NB: Rather I think we will create an interactive datatable where users input their info
   # Dynamic generation of meta-data input UIs
   output$fileNameUI <- renderUI({
     file_count <- as.integer(length(input$file1$datapath))
     lapply(1:file_count, function(i){
-      renderPrint(expr = file_info_df()$file_name[i])
+      renderPrint(expr = file_info_df()$file_name[[i]])
+      # renderPrint(expr = paste("\n", file_info_df()$file_name[i]))
+      # renderText(paste("\n", file_info_df()$file_name[i]))
     })
   })
   output$lonInputUI <- renderUI({
@@ -565,6 +575,29 @@ server <- function(input, output, session) {
       numericInput(inputId = paste0("file_lat_", i), label = paste("Lat", i), value = NA)
     })
   })
+  output$brandInputUI <- renderUI({
+    file_count <- as.integer(length(input$file1$datapath))
+    lapply(1:file_count, function(i){
+      textInput(inputId = paste0("sensor_brand_", i), label = paste("Brand", i), 
+                value = file_meta_all()$Sensor_brand[file_meta_all()$file_num == paste0("file_",i)][1])
+    })
+  })
+  output$ownerInputUI <- renderUI({
+    file_count <- as.integer(length(input$file1$datapath))
+    lapply(1:file_count, function(i){
+      textInput(inputId = paste0("sensor_owner_", i), label = paste("Owner", i), 
+                value = file_meta_all()$Sensor_owner[file_meta_all()$file_num == paste0("file_",i)][1])
+    })
+  })
+  output$numberInputUI <- renderUI({
+    file_count <- as.integer(length(input$file1$datapath))
+    lapply(1:file_count, function(i){
+      textInput(inputId = paste0("sensor_number_", i), label = paste("Number", i), 
+                value = file_meta_all()$Sensor_number[file_meta_all()$file_num == paste0("file_",i)][1])
+    })
+  })
+  
+  # Observe when lon/lat and sensor metadata boxes are changed
     
   # Time + Date selection columns
   # output$timeColsUI <- renderUI({
@@ -576,8 +609,11 @@ server <- function(input, output, session) {
   df_time <- reactive({
     req(input$file1)
     # req(input$timeCols)
-    
-    df_time <- df_load() #%>% 
+  
+    df_meta <- file_meta_all()
+        
+    df_time <- df_load() %>% 
+      left_join(df_meta, by = c("file_name", "file_num"))
       # mutate(lon = input$addLon[1],
       #        lat = input$addLat[1])
     
@@ -620,11 +656,44 @@ server <- function(input, output, session) {
     return(df_time)
   })
   
-  output$contents_time <- DT::renderDataTable({
+  output$contentsTime <- DT::renderDataTable({
     req(input$file1)
     df_time <- df_time()
-    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 600))
+    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 350))
     return(df_time_DT)
+  })
+
+  output$mapPlot <- renderPlot({
+    req(input$file1)
+    
+    df_time <- df_time()
+    # df_tidy <- test
+    # df_tidy <- df_tidy %>% 
+    # mutate(lon = 12.1, lat = 79.1)
+    
+    # Check that coords are present
+    if("lon" %in% colnames(df_time) & "lat" %in% colnames(df_time)){
+      df_point <- df_time %>%
+        dplyr::select(lon, lat) %>%
+        distinct()
+      
+      # Check that coords are within he fjord region
+      if(df_point$lon > 12.69 | df_point$lon < 11 | df_point$lat < 78.85 | df_point$lat > 79.15){
+        # If not create a yellow border
+        mp <- frame_base +
+          theme(panel.border = element_rect(colour = "yellow", size = 5))
+      } else {
+        # If yes create green border
+        mp <- frame_base +
+          geom_point(data = df_point, aes(x = lon, y = lat), size = 5, colour = "green") +
+          theme(panel.border = element_rect(colour = "green", size = 5))
+      }
+    } else {
+      # If no coords, red border
+      mp <- frame_base +
+        theme(panel.border = element_rect(colour = "red", size = 5))
+    }
+    # return(mp)
   })
   
 
@@ -656,39 +725,6 @@ server <- function(input, output, session) {
     ts <- ggplot(data = df_tidy, aes_string(x = input$plotX, y = input$plotY)) +
       geom_point() + geom_line()
     return(ts)
-  })
-  
-  output$mapPlot <- renderPlot({
-    req(input$selectCols)
-    
-    df_tidy <- df_tidy()
-    # df_tidy <- test
-    # df_tidy <- df_tidy %>% 
-      # mutate(lon = 12.1, lat = 79.1)
-    
-    # Check that coords are present
-    if("lon" %in% colnames(df_tidy) & "lat" %in% colnames(df_tidy)){
-      df_point <- df_tidy %>% 
-        dplyr::select(lon, lat) %>% 
-        distinct()
-      
-      # Check that coords are within he fjord region
-      if(df_point$lon > 12.69 | df_point$lon < 11 | df_point$lat < 78.85 | df_point$lat > 79.15){
-        # If not create a yellow border
-        mp <- frame_base +
-          theme(panel.border = element_rect(colour = "yellow", size = 5))
-      } else {
-        # If yes create green border
-        mp <- frame_base +
-          geom_point(data = df_point, aes(x = lon, y = lat), size = 5, colour = "green") +
-          theme(panel.border = element_rect(colour = "green", size = 5))
-      }
-    } else {
-      # If no coords, red border
-      mp <- frame_base +
-        theme(panel.border = element_rect(colour = "red", size = 5))
-    }
-    return(mp)
   })
   
   df_tidy <- reactive({
