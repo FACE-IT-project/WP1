@@ -927,7 +927,7 @@ is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>%
 rm(is_AIS_2017, is_AIS_2019); gc()
 
 # Raw AIS data
-"~/pCloud"
+load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
 
 ## Tourist ship arrival data
 is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arrivals.csv") %>% 
