@@ -1,6 +1,7 @@
 # shiny/dataAccess/app.R
 # The code used to generate the UI for accessing the FACE-IT data product
 
+# TODO: Add FACE-IT funding to app
 
 # Setup -------------------------------------------------------------------
 

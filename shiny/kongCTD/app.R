@@ -27,6 +27,8 @@
 
 # Authorship order could be based on the number of individual files uploaded over the year
 
+# Add FACE-IT branding to the about section of the app
+
 
 # Libraries ---------------------------------------------------------------
 

@@ -2,6 +2,7 @@
 # This script contains code used for data analyses for specific sites
 # It also houses the code used for analysing gridded data and comparing them to their co-located in situ counterparts
 # This is done for remotely sensed products (e.g. NOAA OISST) as well as Morten's model
+# The plots for ice cover are currently made here
 
 
 # Setup -------------------------------------------------------------------
@@ -317,6 +318,59 @@ ggsave("docs/assets/sst_CCI_grid_is.png", sst_CCI_grid_is, width = 7.0, height =
 sst_model_is <- plot_sst_model(model_is)
 ggsave("figures/sst_model_is.png", sst_model_is, width = 7.5, height = 9)
 ggsave("docs/assets/sst_model_is.png", sst_model_is, width = 7.5, height = 9)
+
+# Ice cover
+ice_cover_colours <- c(
+  "ocean" = "navy",
+  "land" = "slategrey",
+  "sea ice" = "mintcream",
+  "coast" = "dodgerblue"
+)
+load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
+ice_4km_is <- ice_4km_is %>% 
+  mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast")))
+ice_4km_is_lon_lat <- ice_4km_is %>% 
+  dplyr::select(lon, lat) %>% 
+  distinct() %>% 
+  mutate(z = 1)
+ggplot(data = filter(ice_4km_is, date == "2017-04-01"), 
+       aes(x = lon, y = lat)) +
+  geom_point(aes(colour = sea_ice_extent), size = 5, shape = 15) +
+  scale_colour_manual("Colours", values = ice_cover_colours)
+  # geom_tile(aes(fill = sea_ice_extent))
+
+ice_4km_is_reg <- akima::interp(ice_4km_is_lon_lat$lon, ice_4km_is_lon_lat$lat, z = ice_4km_is_lon_lat$z, duplicate = "mean")
+ice_4km_is_reg_df <- as.data.frame(ice_4km_is_reg)
+
+
+load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
+ice_1km_is <- ice_1km_is %>% 
+  mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast")))
+ggplot(data = filter(ice_1km_is, date == "2015-05-25"), 
+       aes(x = lon, y = lat)) +
+  geom_point(aes(colour = sea_ice_extent), size = 1, shape = 15) +
+  scale_colour_manual("Colours", values = ice_cover_colours) +
+  guides(colour = guide_legend(override.aes = list(size = 5)))
+
+
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
+ice_1km_kong <- ice_1km_kong %>% 
+  mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast")))
+ggplot(data = filter(ice_1km_kong, date == "2019-01-01"), 
+       aes(x = lon, y = lat)) +
+  geom_point(aes(colour = sea_ice_extent), size = 4, shape = 15) +
+  scale_colour_manual("Colours", values = ice_cover_colours) +
+  guides(colour = guide_legend(override.aes = list(size = 5)))
+
+
+load("~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.RData")
+ice_1km_stor <- ice_1km_stor %>% 
+  mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast")))
+ggplot(data = filter(ice_1km_stor, date == "2019-07-01"), 
+       aes(x = lon, y = lat)) +
+  geom_point(aes(colour = sea_ice_extent), size = 4, shape = 15) +
+  scale_colour_manual("Colours", values = ice_cover_colours) +
+  guides(colour = guide_legend(override.aes = list(size = 5)))
 
 
 # Storfjorden -------------------------------------------------------------
