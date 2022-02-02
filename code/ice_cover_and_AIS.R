@@ -79,6 +79,9 @@ trend_calc <- function(df){
 
 # Ship AIS data
 load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
+is_AIS_raw <- is_AIS_raw %>% 
+  mutate(year = lubridate::year(date_time_utc),
+         month = lubridate::month(date_time_utc))
 
 
 # Process ice data --------------------------------------------------------
@@ -103,14 +106,14 @@ ggplot(data = ice_1km_is_prop, aes(x = year, y = mean_prop, colour = month)) +
 ice_1km_4km_is_prop <- left_join(ice_1km_is_prop, ice_4km_is_prop, by = c("year", "month", "date")) %>% 
   dplyr::rename(mean_prop_1km = mean_prop.x, mean_prop_4km = mean_prop.y) %>% 
   mutate(diff = mean_prop_1km- mean_prop_4km)
-mean(ice_1km_4km_is_prop$diff)
+mean(abs(ice_1km_4km_is_prop$diff))
 range(ice_1km_4km_is_prop$diff)
 
 # Calculate annual monthly trends
 ice_4km_is_trend <- plyr::ddply(dplyr::rename(ice_4km_is_prop, val = mean_prop), c("month"), trend_calc, .parallel = T) %>% 
-  mutate(resolution = "4 km")
+  mutate(dataset = "ice 4 km")
 ice_1km_is_trend <- plyr::ddply(dplyr::rename(ice_1km_is_prop, val = mean_prop), c("month"), trend_calc, .parallel = T) %>% 
-  mutate(resolution = "1 km")
+  mutate(dataset = "ice 1 km")
 ice_1km_4km_is_trend <- rbind(ice_1km_is_trend, ice_4km_is_trend)
 
 # Create figure for further use
@@ -118,46 +121,82 @@ ice_1km_4km_is_trend <- rbind(ice_1km_is_trend, ice_4km_is_trend)
 ice_box <- ggplot(data = ice_4km_is_prop, aes(x = as.factor(month), y = mean_prop, fill = month)) + 
   geom_boxplot(aes(group = month)) + 
   scale_fill_continuous(type = "viridis") +
-  scale_y_continuous(breaks = c(0, 0.25, 0.50, 0.75, 1),
-                     labels = c("0%", "25%", "50%", "75%", "100%"),
-                     limits = c(-0.02, 1), expand = c(0, 0)) +
+  scale_y_continuous(breaks = c(0.25, 0.50, 0.75),
+                     labels = c("25%", "50%", "75%"),
+                     limits = c(-0.02, 1.02), expand = c(0, 0)) +
   labs(x = "Month", y = "Ice cover (%)", fill = "Month") +
-  theme_bw() + theme(legend.position = "none",
-                     axis.text.x = element_blank(),
-                     axis.ticks.x = element_blank())
+  theme_bw() + theme(legend.position = "none")
 ice_box
 
 ## Scatterplot
 ice_scatter <- ggplot(data = ice_4km_is_prop, aes(x = year, y = mean_prop, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
   scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
-  # scale_fill_viridis_d() +
-  guides(colour = guide_legend(override.aes = c(shape = 12, size = 5), nrow = 1)) +
-  # scale_x_continuous() +
-  scale_y_continuous(breaks = c(0, 0.25, 0.50, 0.75, 1),
-                     labels = c("0%", "25%", "50%", "75%", "100%"),
-                     limits = c(-0.02, 1), expand = c(0, 0)) + 
+  scale_y_continuous(breaks = c(0.25, 0.50, 0.75),
+                     labels = c("25%", "50%", "75%"),
+                     limits = c(-0.02, 1.02), expand = c(0, 0)) + 
   labs(x = "Year", y = NULL, colour = "Month") +
-  theme_bw() + theme(legend.position = "bottom")
+  theme_bw() + theme(legend.position = "none")
 ice_scatter
 
 ## Combine
-ice_plot <- ggpubr::ggarrange(ice_box, ice_scatter, ncol = 2, align = "hv", 
-                              legend = "bottom", legend.grob = ggpubr::get_legend(ice_scatter))
+ice_plot <- ggpubr::ggarrange(ice_box, ice_scatter, ncol = 2, align = "hv", labels = c("A)", "B)"))
 ice_plot
+ggsave("figures/ice_cover_is.png", ice_plot, width = 12, height = 5)
 
 
 # Process AIS data --------------------------------------------------------
 
 # Get daily count of unique ships in the fjord
+is_AIS_unique <- is_AIS_raw %>% 
+  dplyr::select(year, month, mmsi) %>% 
+  distinct() %>% 
+  group_by(year, month) %>% 
+  summarise(ship_count = n(), .groups = "drop") #%>%
+  # NB:Time series is already complete so this is unnecessary
+  # mutate(date = as.Date(paste0(year,"-",month,"-01"))) #%>% 
+  # complete(date = seq.Date(min(date), max(date), by = "month")) %>% 
+  # replace(is.na(.), 0)
 
-# Get daily count of pixels for unique ships
+# Get daily count of positions recorded for unique ships
+is_AIS_position <- is_AIS_raw %>% 
+  dplyr::select(year, month, lon, lat, mmsi) %>% 
+  distinct() %>% 
+  group_by(year, month) %>% 
+  summarise(position_count = n(), .groups = "drop")
 
 # Get daily count of time in fjord for unique ships
 
 # Get daily distance of unique ships
 
-# Plot the monthly values for ships in the fjord
+# Get trends in ship count
+is_AIS_unique_trend <- plyr::ddply(dplyr::rename(is_AIS_unique, val = ship_count), c("month"), trend_calc, .parallel = T) %>% 
+  mutate(dataset = "ship AIS")
+ice_AIS_trend <- rbind(ice_4km_is_trend, is_AIS_unique_trend)
+write_csv(ice_AIS_trend, "data/analyses/is_ice_AIS_trend.csv")
 
-# Calculate annual and monthly trends
+# Create figure for further use
+## boxplot
+ship_box <- ggplot(data = is_AIS_unique, aes(x = as.factor(month), y = ship_count, fill = month)) + 
+  geom_boxplot(aes(group = month)) + 
+  scale_fill_continuous(type = "viridis") +
+  scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
+  labs(x = "Month", y = "Unique ship count", fill = "Month") +
+  theme_bw() + theme(legend.position = "none")
+ship_box
+
+## Scatterplot
+ship_scatter <- ggplot(data = is_AIS_unique, aes(x = year, y = ship_count, colour = month)) + 
+  geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
+  scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
+  scale_x_continuous(breaks = c(2012, 2015, 2018)) +
+  scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
+  labs(x = "Year", y = NULL, colour = "Month") +
+  theme_bw() + theme(legend.position = "none")
+ship_scatter
+
+## Combine
+ship_plot <- ggpubr::ggarrange(ship_box, ship_scatter, ncol = 2, align = "hv", labels = c("A)", "B)"))
+ship_plot
+ggsave("figures/ship_count_is.png", ship_plot, width = 12, height = 5)
 
