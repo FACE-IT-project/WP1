@@ -7,6 +7,7 @@
 
 # Libraries used
 library(tidyverse)
+library(doParallel); registerDoParallel(cores = 12)
 
 # Ice data
 load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
@@ -53,6 +54,29 @@ ice_cover_prop <- function(ice_df){
     summarise(mean_prop = round(mean(prop, na.rm = T), 2), .groups = "drop")
 }
 
+# Annual trend in values
+## NB: This assumes the dataframe is temporally complete
+## It also assumes the column is called 'val'
+trend_calc <- function(df){
+  
+  # Annual trends
+  trend_res <- broom::tidy(lm(val ~ year, df)) %>% 
+    slice(2) %>% 
+    mutate(trend = round(estimate, 3),
+           p.value = round(p.value, 4)) %>% 
+    dplyr::select(trend, p.value)
+  
+  # Total means
+  sum_stats <- df %>% 
+    summarise(mean_val = round(mean(val, na.rm = T), 2),
+              sd_val = round(sd(val, na.rm = T), 3), .groups = "drop")
+  
+  # Combine and exit
+  res <- cbind(trend_res, sum_stats)
+  rm(df, trend_res, sum_stats); gc()
+  return(res)
+}
+
 # Ship AIS data
 load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
 
@@ -75,7 +99,52 @@ ggplot(data = ice_1km_is_prop, aes(x = year, y = mean_prop, colour = month)) +
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
   scale_colour_continuous(type = "viridis")
 
-# Calculate annual and monthly trends
+# Compare 4 km and 1 km results
+ice_1km_4km_is_prop <- left_join(ice_1km_is_prop, ice_4km_is_prop, by = c("year", "month", "date")) %>% 
+  dplyr::rename(mean_prop_1km = mean_prop.x, mean_prop_4km = mean_prop.y) %>% 
+  mutate(diff = mean_prop_1km- mean_prop_4km)
+mean(ice_1km_4km_is_prop$diff)
+range(ice_1km_4km_is_prop$diff)
+
+# Calculate annual monthly trends
+ice_4km_is_trend <- plyr::ddply(dplyr::rename(ice_4km_is_prop, val = mean_prop), c("month"), trend_calc, .parallel = T) %>% 
+  mutate(resolution = "4 km")
+ice_1km_is_trend <- plyr::ddply(dplyr::rename(ice_1km_is_prop, val = mean_prop), c("month"), trend_calc, .parallel = T) %>% 
+  mutate(resolution = "1 km")
+ice_1km_4km_is_trend <- rbind(ice_1km_is_trend, ice_4km_is_trend)
+
+# Create figure for further use
+## boxplot
+ice_box <- ggplot(data = ice_4km_is_prop, aes(x = as.factor(month), y = mean_prop, fill = month)) + 
+  geom_boxplot(aes(group = month)) + 
+  scale_fill_continuous(type = "viridis") +
+  scale_y_continuous(breaks = c(0, 0.25, 0.50, 0.75, 1),
+                     labels = c("0%", "25%", "50%", "75%", "100%"),
+                     limits = c(-0.02, 1), expand = c(0, 0)) +
+  labs(x = "Month", y = "Ice cover (%)", fill = "Month") +
+  theme_bw() + theme(legend.position = "none",
+                     axis.text.x = element_blank(),
+                     axis.ticks.x = element_blank())
+ice_box
+
+## Scatterplot
+ice_scatter <- ggplot(data = ice_4km_is_prop, aes(x = year, y = mean_prop, colour = month)) + 
+  geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
+  scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
+  # scale_fill_viridis_d() +
+  guides(colour = guide_legend(override.aes = c(shape = 12, size = 5), nrow = 1)) +
+  # scale_x_continuous() +
+  scale_y_continuous(breaks = c(0, 0.25, 0.50, 0.75, 1),
+                     labels = c("0%", "25%", "50%", "75%", "100%"),
+                     limits = c(-0.02, 1), expand = c(0, 0)) + 
+  labs(x = "Year", y = NULL, colour = "Month") +
+  theme_bw() + theme(legend.position = "bottom")
+ice_scatter
+
+## Combine
+ice_plot <- ggpubr::ggarrange(ice_box, ice_scatter, ncol = 2, align = "hv", 
+                              legend = "bottom", legend.grob = ggpubr::get_legend(ice_scatter))
+ice_plot
 
 
 # Process AIS data --------------------------------------------------------
