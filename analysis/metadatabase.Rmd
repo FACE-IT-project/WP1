@@ -638,7 +638,7 @@ kong_CCI <- data.frame(type = "Remote",
                        lat_range = "78.025 to 79.475",
                        depth_range = NA,
                        file_name = '<a onclick="alert(\'sst_CCI_kong.RData\');">1 file</a>',
-                       URL = '<a target="_blank" rel="noopener noreferrer" href=http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
@@ -924,7 +924,7 @@ is_CCI <- data.frame(type = "Remote",
                      lat_range = "77.025 to 78.975",
                      depth_range = NA,
                      file_name = '<a onclick="alert(\'sst_CCI_is.RData\');">1 file</a>',
-                     URL = '<a target="_blank" rel="noopener noreferrer" href=http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
+                     URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                      reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                      note = NA)
 
@@ -1059,7 +1059,7 @@ stor_CCI <- data.frame(type = "Remote",
                        lat_range = "77.025 to 78.475",
                        depth_range = NA,
                        file_name = '<a onclick="alert(\'sst_CCI_stor.RData\');">1 file</a>',
-                       URL = '<a target="_blank" rel="noopener noreferrer" href=http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
@@ -1372,7 +1372,7 @@ young_CCI <- data.frame(type = "Remote",
                         lat_range = "73.025 to 75.475",
                         depth_range = NA,
                         file_name = '<a onclick="alert(\'sst_CCI_young.RData\');">1 file</a>',
-                        URL = '<a target="_blank" rel="noopener noreferrer" href=http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                         reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                         note = NA)
 
@@ -1466,7 +1466,7 @@ disko_CCI <- data.frame(type = "Remote",
                         lat_range = "68.025 to 70.975",
                         depth_range = NA,
                         file_name = '<a onclick="alert(\'sst_CCI_disko.RData\');">1 file</a>',
-                        URL = '<a target="_blank" rel="noopener noreferrer" href=http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                         reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                         note = NA)
 
@@ -1630,7 +1630,7 @@ nuup_CCI <- data.frame(type = "Remote",
                        lat_range = "63.525 to 64.975",
                        depth_range = NA,
                        file_name = '<a onclick="alert(\'sst_CCI_nuup.RData\');">1 file</a>',
-                       URL = '<a target="_blank" rel="noopener noreferrer" href=http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
@@ -1805,7 +1805,7 @@ por_CCI <- data.frame(type = "Remote",
                       lat_range = "69.975 to 71.975",
                       depth_range = NA,
                       file_name = '<a onclick="alert(\'sst_CCI_por.RData\');">1 file</a>',
-                      URL = '<a target="_blank" rel="noopener noreferrer" href=http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
+                      URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                       reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                       note = NA)
 
