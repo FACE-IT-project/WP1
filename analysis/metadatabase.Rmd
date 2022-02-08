@@ -1422,7 +1422,7 @@ DT::datatable(metadata_young_sound, rownames = FALSE, escape = FALSE, colnames =
 ```{r disko-bay-meta-data}
 ## There are many atmospheric data from land for Disko Bay, but I've decided not to add them here for now.
 
-# Air pCO2 data
+# CTD data
 disko_CTD_water <- data.frame(type = "CTD",
                               data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
                               date_range = "2018",
