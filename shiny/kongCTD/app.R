@@ -8,11 +8,10 @@
 # Also have a master site and lon/lat box that can populate all rows
 # Rather allow users to enter all of this info via a reactive spreadsheet
 # https://stackoverflow.com/questions/22272571/data-input-via-shinytable-in-r-shiny-application
-# This should still have buttons at the top that populate all values in a colum
+# This should still have buttons at the top that populate all values in a column
 # Should also investigate if a user could copy paste rows of meta data from an existing file
 # Add a column of metadata for data owner: PI or Investigator
 # Also provide a column of drop downs for pre-known stations
-# Create a red to green next button to go to the next tab once all of the criteria for that tab are met
 
 # QC needs to be handled at some point
 # For starters would have a raw or QC flag to add to the data
@@ -43,6 +42,7 @@ library(tidyr)
 library(ggplot2)
 library(lubridate)
 library(stringr)
+library(rhandsontable)
 # library(ggraph)
 # library(plotly)
 # library(see)
@@ -111,7 +111,7 @@ ui <- dashboardPage(
                 
                 # The various menus
                 menuItem("1) Load file", tabName = "load", icon = icon("book"), selected = TRUE),
-                menuItem("2) Meta + lon/lat", tabName = "time", icon = icon("clock")),
+                menuItem("2) Metadata", tabName = "meta", icon = icon("clock")),
                 menuItem("3) Clean data", tabName = "tidy", icon = icon("shower")),
                 menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
                 menuItem("About", tabName = "about", icon = icon("question")),
@@ -184,40 +184,28 @@ ui <- dashboardPage(
       ),
       
 
-      ## Time menu ---------------------------------------------------------------
+      ## Meta menu ---------------------------------------------------------------
       
-      tabItem(tabName = "time",
+      tabItem(tabName = "meta",
 
               box(width = 12, height = "300px", 
                   title = "Controls", style = 'height:250px;overflow-y: scroll;',
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
-                  # Combine date and time columns
-                  # h4("Choose date/time column(s) to begin"),
-                  # h5("If two columns -> date + time"),
-                  # h5("Only acknowledges first two columns selected"),
-                  # uiOutput("timeColsUI"),
-                  
-                  # Coerce to POSIXCt
-                  # h5("Change selection if 'date_time_posix' is blank"),
-                  # radioButtons("posix", "Date/Time format",
-                  #              choices = c("dmy", "mdy", "ymd",
-                  #                          "dmy_hms", "mdy_hms", "ymd_hms"),
-                  #              selected = "dmy_hms"),#, inline = TRUE),
-                  
                   # Set time zone
-                  # Currently not an option because all CTDs in Kong should be UTZ
+                  # Currently not an option because all CTDs in Kong should be UTC
 
                   # Add lon/lat
                   # h6("It is preferable but not required to have lon/lat coordinates"),
                   
                   # Individual boxes for all files uploaded
-                  column(4, uiOutput("fileNameUI")),
-                  column(1, uiOutput("lonInputUI")),
-                  column(1, uiOutput("latInputUI")),
-                  column(2, uiOutput("brandInputUI")),
-                  column(2, uiOutput("ownerInputUI")),
-                  column(2, uiOutput("numberInputUI")),
+                  rHandsontableOutput("table1output")
+                  # column(4, uiOutput("fileNameUI")),
+                  # column(1, uiOutput("lonInputUI")),
+                  # column(1, uiOutput("latInputUI")),
+                  # column(2, uiOutput("brandInputUI")),
+                  # column(2, uiOutput("ownerInputUI")),
+                  # column(2, uiOutput("numberInputUI")),
                   
                   # One set of coords only
                   # fluidRow(
@@ -514,7 +502,7 @@ server <- function(input, output, session) {
   })
   
 
-  ## Time server -------------------------------------------------------------
+  ## Meta server -------------------------------------------------------------
 
   ## NB: date_time is currently created automagically in the load step
   ## For future iterations of the app I should created a red/green light that shows if date_time has been created
@@ -562,8 +550,21 @@ server <- function(input, output, session) {
     return(df_meta)
   })
   
-  ## NB: Rather I think we will create an interactive datatable where users input their info
-  # Dynamic generation of meta-data input UIs
+  # Interactive metadatatable
+  table <- reactiveValues()
+  # table$table1 <- file_meta_all()
+  output$table1output <- renderRHandsontable({rhandsontable(file_meta_all())})
+  observeEvent(input$table1output,{
+    df <- hot_to_r(input$table1output)
+    df <- as.data.frame(df)
+    table$table1 <- df
+  }, ignoreInit = TRUE, ignoreNULL = TRUE
+  )
+  # output$hot = renderRHandsontable({
+  #   rhandsontable(file_meta_all())
+  # })
+  
+  
   output$fileNameUI <- renderUI({
     file_count <- as.integer(length(input$file1$datapath))
     lapply(1:file_count, function(i){
@@ -608,58 +609,21 @@ server <- function(input, output, session) {
   
   # Observe when lon/lat and sensor metadata boxes are changed
     
-  # Time + Date selection columns
-  # output$timeColsUI <- renderUI({
-  #   req(input$file1)
-  #   req(is.data.frame(df_load()))
-  #   shiny::selectInput("timeCols", "Date + Time column(s)", choices = colnames(df_load()), multiple = T)
-  # })
-  
+
+  # Reactive 
   df_time <- reactive({
-    req(input$file1)
+    req(input$file1, table$table1)
     # req(input$timeCols)
   
-    df_meta <- file_meta_all()
+    # df_meta <- file_meta_all()
+    # df_meta <- values[["hot"]]
+    # df_meta <- output$hot
+    df_meta <- table$table1
         
     df_time <- df_load() %>% 
       left_join(df_meta, by = c("file_name", "file_num"))
       # mutate(lon = input$addLon[1],
       #        lat = input$addLat[1])
-    
-    # Create specific date_time column
-    # if(length(input$timeCols) == 1){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_char = df_time[,input$timeCols])
-    # } else if(length(input$timeCols) >= 2){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_char = paste(df_time[,input$timeCols[1]],
-    #                                   df_time[,input$timeCols[2]], sep = " "))
-    # }
-    
-    # Convert to POSIXCt
-    # if(input$posix == "dmy"){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_posix = dmy(date_time_char))
-    # } else if(input$posix == "dmy_hms"){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_posix = dmy_hms(date_time_char))
-    # } else if(input$posix == "mdy"){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_posix = mdy(date_time_char))
-    # } else if(input$posix == "mdy_hms"){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_posix = mdy_hms(date_time_char))
-    # } else if(input$posix == "ymd"){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_posix = ymd(date_time_char))
-    # } else if(input$posix == "ymd_hms"){
-    #   df_time <- df_time %>% 
-    #     mutate(date_time_posix = ymd_hms(date_time_char))
-    # }
-    
-    # Bring date+time columns to front of data.frame
-    # df_time <- df_time %>%
-      # dplyr::select(lon, lat, date_time_posix, date_time_char, input$timeCols, everything())
     
     # Exit
     return(df_time)
