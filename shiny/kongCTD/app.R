@@ -2,16 +2,6 @@
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
 # TODO: It would be useful for a user that the settings could be saved in between uploads
-# Need to look into how different lon/lat can be added for many different files uploaded in a batch
-# Could create a menu of the file names with input boxes next to them for lon/lat
-# That info is then joined to the main data via a left_join by keeping the file name as a column
-# Also have a master site and lon/lat box that can populate all rows
-# Rather allow users to enter all of this info via a reactive spreadsheet
-# https://stackoverflow.com/questions/22272571/data-input-via-shinytable-in-r-shiny-application
-# This should still have buttons at the top that populate all values in a column
-# Should also investigate if a user could copy paste rows of meta data from an existing file
-# Add a column of metadata for data owner: PI or Investigator
-# Also provide a column of drop downs for pre-known stations
 
 # QC needs to be handled at some point
 # For starters would have a raw or QC flag to add to the data
@@ -22,7 +12,7 @@
 # Allow for colour to show on maps or time series for which sources have contributed the historic data
 # Numbers for colours, and then a lookup table with product name via join by number
 
-# The data upload repository needs to start to be considered.
+# The data upload repository needs to start to be considered
 
 # Authorship order could be based on the number of individual files uploaded over the year
 
@@ -112,7 +102,7 @@ ui <- dashboardPage(
                 # The various menus
                 menuItem("1) Load file", tabName = "load", icon = icon("book"), selected = TRUE),
                 menuItem("2) Metadata", tabName = "meta", icon = icon("clock")),
-                menuItem("3) Clean data", tabName = "tidy", icon = icon("shower")),
+                menuItem("3) QC", tabName = "tidy", icon = icon("shower")),
                 menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
                 menuItem("About", tabName = "about", icon = icon("question")),
                 
@@ -129,7 +119,10 @@ ui <- dashboardPage(
 
       tabItem(tabName = "load",
               
-              box(width = 3, height = "730px", title = "Controls",
+              box(width = 3, 
+                  # height = "730px", # Length when tips are shown
+                  height = "550px",
+                  title = "File format",
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
                   # Select a file
@@ -164,10 +157,10 @@ ui <- dashboardPage(
                   fluidRow(
                     column(6, uiOutput("quoteUI")),
                     column(6, uiOutput("encodingUI"))
-                  ),
+                  )#,
                   
                   # Horizontal line
-                  tags$hr()#,
+                  # tags$hr()#,
                   
                   # Hints for how to handle issues
                   # h4("Hints"),
@@ -178,7 +171,7 @@ ui <- dashboardPage(
               ),
               
               # The data display
-              box(width = 9, height = "800px", title = "Data",
+              box(width = 9, height = "900px", title = "Data",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contents_load"))
       ),
@@ -188,30 +181,23 @@ ui <- dashboardPage(
       
       tabItem(tabName = "meta",
 
-              box(width = 12, height = "300px", 
-                  title = "Controls", style = 'height:250px;overflow-y: scroll;',
+              # The single metadata inputs
+              box(width = 4, height = "300px", title = "Fill all values", 
+                  status = "danger", solidHeader = TRUE, collapsible = FALSE,
+                  shiny::selectInput("allSite", "Site", 
+                                     choices = c("", "Site 1", "Site 2"), selected = ""),
+                  fluidRow(column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
+                           column(4, shiny::numericInput("allLat", "Single latitude", value = NA, min = 78, max = 80)),
+                           column(4, shiny::textInput("allDataOwner", "Data owner"))),
+                  fluidRow(column(4, shiny::textInput("allSensorOwner", "Sensor owner")),
+                           column(4, shiny::textInput("allSensorBrand", "Sensor brand")),
+                           column(4, shiny::textInput("allSensorNumber", "Sensor number")))),
+              
+              # The interactive table
+              box(width = 8, height = "300px", 
+                  title = "Fill individual values", style = 'height:250px;overflow-y: scroll;',
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                  
-                  # Set time zone
-                  # Currently not an option because all CTDs in Kong should be UTC
-
-                  # Add lon/lat
-                  # h6("It is preferable but not required to have lon/lat coordinates"),
-                  
-                  # Individual boxes for all files uploaded
                   rHandsontableOutput("table1output")
-                  # column(4, uiOutput("fileNameUI")),
-                  # column(1, uiOutput("lonInputUI")),
-                  # column(1, uiOutput("latInputUI")),
-                  # column(2, uiOutput("brandInputUI")),
-                  # column(2, uiOutput("ownerInputUI")),
-                  # column(2, uiOutput("numberInputUI")),
-                  
-                  # One set of coords only
-                  # fluidRow(
-                  #   column(6, shiny::numericInput("addLon", "Longitude", value = 0)),
-                  #   column(6, shiny::numericInput("addLat", "Latitude", value = 0)),
-                  # )
               ),
               
               # The data display
@@ -219,50 +205,51 @@ ui <- dashboardPage(
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contentsTime")
                   ),
+              
+              # The map display
               box(width = 4, height = "550px", title = "Map",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
                   h4("Location of CTD cast"),
                   h5("Red border = no lon/lat"),
                   h5("Yellow border = lon/lat not in the fjord region"),
-                  h5("Green border = lon/lat within fjord region")#,
-                  # plotOutput("mapPlot", height = "350px")
+                  h5("Green border = lon/lat within fjord region"),
+                  plotOutput("mapPlot", height = "350px")
               )
-
       ),
 
       ## Tidy menu ---------------------------------------------------------------
 
       tabItem(tabName = "tidy",
-              
+
               fluidRow(
-                
+
                 column(width = 4,
-                       
+
                        box(width = 12, height = "300px", title = "Controls",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                           
+
                            h4("Choose column order to begin"),
-                           
+
                            # Combine date and time columns
                            uiOutput("selectColsUI"),
-                           
+
                            # Filter head and tail of df
                            fluidRow(
                              column(6, shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1)),
                              column(6, shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1)),
                            )
                        ),
-                       
+
                        box(width = 12, height = "550px", title = "Map",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            h4("Location of CTD cast"),
                            h5("Red border = no lon/lat"),
                            h5("Yellow border = lon/lat not in the fjord region"),
-                           h5("Green border = lon/lat within fjord region"),
-                           plotOutput("mapPlot", height = "350px")
+                           h5("Green border = lon/lat within fjord region")#,
+                           # plotOutput("mapPlot", height = "350px")
                            )
                 ),
-                
+
                 # The data display
                 column(8,
                        box(width = 12, height = "500px", title = "Data",
@@ -272,7 +259,7 @@ ui <- dashboardPage(
                        box(width = 12, height = "350px", title = "Time series",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
-                             column(2, 
+                             column(2,
                                     # dropdownButton(
                                     h4("Axis controls:"),
                                     uiOutput("plotXUI"),
@@ -282,11 +269,19 @@ ui <- dashboardPage(
                            )
                        )
                 )
-                
+
               ),
-              
+
       ),
 
+      # tabItem(tabName = "tidy",
+      #         fluidPage(
+      #           column(12,
+      #                  # h2(tags$b("About")),
+      #                  p("Currently no QC functionality exists. Waiting on more progress on a unified plan.")
+      #           )
+      #         )
+      # ),
       
       ## Upload menu -------------------------------------------------------------
 
@@ -294,8 +289,7 @@ ui <- dashboardPage(
               fluidPage(
                 column(12,
                        # h2(tags$b("About")),
-                       p("Currently no upload functionality exists. The issue of how to control column names needs
-                         to be addressed first.")
+                       p("Currently no upload functionality exists. A home on a server needs to be allocated first.")
                 )
               )
       ),
@@ -342,7 +336,7 @@ server <- function(input, output, session) {
   
   # Observe uploading of file(s)
   observeEvent(input$file1, {
-    req(input$file1)
+    # req(input$file1)
     file_text <- read_file(input$file1$datapath[1])
     if(str_sub(file_text, 1, 10) == "From file:"){
       upload_opts$schema <- "SAIV"
@@ -354,6 +348,7 @@ server <- function(input, output, session) {
   })
   
   # Reactive UI for file schema
+  ## NB: These could potentially be moved to the UI and rather updated via observations as done in the meta section
   output$schemaUI <- renderUI({
     selectInput("schema", "File schema", choices = c("None", "SAIV", "RBR"), selected = upload_opts$schema)
   })
@@ -407,8 +402,8 @@ server <- function(input, output, session) {
   file_info_df <- reactive({
     req(input$file1)
     df <- data.frame(file_temp = input$file1$datapath,
-                     file_name = input$file1$name) %>% 
-      mutate(file_num = paste0("file_", 1:n()))
+                     file_name = input$file1$name) #%>% 
+      # mutate(file_num = paste0("file_", 1:n()))
     return(df)
   })
   
@@ -497,7 +492,7 @@ server <- function(input, output, session) {
     df_load <- df_load()
     # file_info_df <- file_info_df()
     df_load_DT <- datatable(df_load, 
-                            options = list(pageLength = 20, scrollX = TRUE, scrollY = 600))
+                            options = list(pageLength = 20, scrollX = TRUE, scrollY = 700))
     return(df_load_DT)
   })
   
@@ -520,8 +515,12 @@ server <- function(input, output, session) {
         # mini_df_1 <- read_delim("data/August Bailey_0408_1141.txt", n_max = 1, skip = 1, delim = ";")
         mini_df_1 <- read_delim(file_temp, n_max = 1, skip = 1, delim = ";")
         df_meta <- data.frame(file_temp = file_temp,
-                              Sensor_brand = "SAIV",
+                              Site = as.character(NA),
+                              Lon = as.numeric(NA),
+                              Lat = as.numeric(NA),
+                              Data_owner = as.character(NA),
                               Sensor_owner = "Kings Bay",
+                              Sensor_brand = "SAIV",
                               Sensor_number = gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15)),
                               Air_pressure = mini_df_1$`Air pressure`)
       } else if(str_sub(file_text, 1, 8) == "RBR data"){
@@ -529,14 +528,22 @@ server <- function(input, output, session) {
         # mini_df_1 <- read_csv("data/KB3_018630_20210416_1728.csv", n_max = 1)
         mini_df_1 <- read_csv(file_temp, n_max = 1)
         df_meta <- data.frame(file_temp = file_temp,
+                              Site = as.character(NA),
+                              Lon = as.numeric(NA),
+                              Lat = as.numeric(NA),
+                              Data_owner = as.character(NA),
+                              Sensor_owner = as.character(NA),
                               Sensor_brand = "RBR",
-                              Sensor_owner = NA,
                               Sensor_number = mini_df_1$...4)
       } else {
         df_meta <- data.frame(file_temp = file_temp,
-                              Sensor_brand = NA,
-                              Sensor_owner = NA,
-                              Sensor_number = NA)
+                              Site = as.character(NA),
+                              Lon = as.numeric(NA),
+                              Lat = as.numeric(NA),
+                              Data_owner = as.character(NA),
+                              Sensor_owner = as.character(NA),
+                              Sensor_brand = as.character(NA),
+                              Sensor_number = as.character(NA))
       }
       return(df_meta)
     }
@@ -552,186 +559,182 @@ server <- function(input, output, session) {
   
   # Interactive metadatatable
   table <- reactiveValues()
-  # table$table1 <- file_meta_all()
-  output$table1output <- renderRHandsontable({rhandsontable(file_meta_all())})
+  output$table1output <- renderRHandsontable({
+    rhandsontable(file_meta_all(), stretchH = "all") %>% 
+      # hot_col("file_num", readOnly = TRUE) %>% 
+      hot_col("file_name", readOnly = TRUE) %>% 
+      hot_col(col = "Sensor_number", strict = FALSE)})
   observeEvent(input$table1output,{
     df <- hot_to_r(input$table1output)
     df <- as.data.frame(df)
     table$table1 <- df
-  }, ignoreInit = TRUE, ignoreNULL = TRUE
-  )
-  # output$hot = renderRHandsontable({
-  #   rhandsontable(file_meta_all())
-  # })
-  
-  
-  output$fileNameUI <- renderUI({
-    file_count <- as.integer(length(input$file1$datapath))
-    lapply(1:file_count, function(i){
-      renderPrint(expr = file_info_df()$file_name[[i]])
-      # renderPrint(expr = paste("\n", file_info_df()$file_name[i]))
-      # renderText(paste("\n", file_info_df()$file_name[i]))
-    })
-  })
-  output$lonInputUI <- renderUI({
-    file_count <- as.integer(length(input$file1$datapath))
-    lapply(1:file_count, function(i){
-      numericInput(inputId = paste0("file_lon_", i), label = paste("Lon", i), value = NA)
-    })
-  })
-  output$latInputUI <- renderUI({
-    file_count <- as.integer(length(input$file1$datapath))
-    lapply(1:file_count, function(i){
-      numericInput(inputId = paste0("file_lat_", i), label = paste("Lat", i), value = NA)
-    })
-  })
-  output$brandInputUI <- renderUI({
-    file_count <- as.integer(length(input$file1$datapath))
-    lapply(1:file_count, function(i){
-      textInput(inputId = paste0("sensor_brand_", i), label = paste("Brand", i), 
-                value = file_meta_all()$Sensor_brand[file_meta_all()$file_num == paste0("file_",i)][1])
-    })
-  })
-  output$ownerInputUI <- renderUI({
-    file_count <- as.integer(length(input$file1$datapath))
-    lapply(1:file_count, function(i){
-      textInput(inputId = paste0("sensor_owner_", i), label = paste("Owner", i), 
-                value = file_meta_all()$Sensor_owner[file_meta_all()$file_num == paste0("file_",i)][1])
-    })
-  })
-  output$numberInputUI <- renderUI({
-    file_count <- as.integer(length(input$file1$datapath))
-    lapply(1:file_count, function(i){
-      textInput(inputId = paste0("sensor_number_", i), label = paste("Number", i), 
-                value = file_meta_all()$Sensor_number[file_meta_all()$file_num == paste0("file_",i)][1])
-    })
-  })
-  
-  # Observe when lon/lat and sensor metadata boxes are changed
-    
+  }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
-  # Reactive 
+  # Observe the changing of the single metadata UI options
+  ## Site
+  observeEvent(input$allSite, {
+    table$table1$Site <- input$allSite
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Site), col = 2, session = session, table$table1$Site[1])
+    if(input$allSite == "Site 1"){
+      shiny::updateNumericInput(inputId = "allLon", value = 12)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.95)
+    } else if(input$allSite == "Site 2"){
+      shiny::updateNumericInput(inputId = "allLon", value = 11.5)
+      shiny::updateNumericInput(inputId = "allLat", value = 79.05)
+    } else {
+      # Intentionally blank
+    }
+  })
+  ## Longitude
+  observeEvent(input$allLon, {
+    table$table1$Lon <- input$allLon
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lon), col = 3, session = session, table$table1$Lon[1])
+  })
+  # Latitude
+  observeEvent(input$allLat, {
+    table$table1$Lat <- input$allLat
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lat), col = 4, session = session, table$table1$Lat[1])
+  })
+  ## Data owner
+  observeEvent(input$allDataOwner, {
+    table$table1$Data_owner <- input$allDataOwner
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Data_owner), col = 5, session = session, table$table1$Data_owner[1])
+  })
+  ## Sensor owner
+  observeEvent(input$allSensorOwner, {
+    table$table1$Sensor_owner <- input$allSensorOwner
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_owner), col = 6, session = session, table$table1$Sensor_owner[1])
+  })
+  ## Sensor brand
+  observeEvent(input$allSensorBrand, {
+    table$table1$Sensor_brand <- input$allSensorBrand
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_brand), col = 7, session = session, table$table1$Sensor_brand[1])
+  })
+  ## Sensor number
+  observeEvent(input$allSensorNumber, {
+    table$table1$Sensor_number <- input$allSensorNumber
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_number), col = 8, session = session, table$table1$Sensor_number[1])
+  })
+  
+  # Reactive data for datatable
   df_time <- reactive({
     req(input$file1, table$table1)
-    # req(input$timeCols)
-  
-    # df_meta <- file_meta_all()
-    # df_meta <- values[["hot"]]
-    # df_meta <- output$hot
     df_meta <- table$table1
-        
     df_time <- df_load() %>% 
-      left_join(df_meta, by = c("file_name", "file_num"))
-      # mutate(lon = input$addLon[1],
-      #        lat = input$addLat[1])
-    
-    # Exit
+      left_join(df_meta, by = c("file_name")) #, "file_num")) %>% 
+      # dplyr::select(-file_num)
     return(df_time)
   })
   
   output$contentsTime <- DT::renderDataTable({
-    req(input$file1)
+    req(input$file1, table$table1)
     df_time <- df_time()
     df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 350))
     return(df_time_DT)
   })
 
   output$mapPlot <- renderPlot({
-    req(input$file1)
+    req(input$file1, table$table1)
     
-    df_time <- df_time()
-    # df_tidy <- test
-    # df_tidy <- df_tidy %>% 
-    # mutate(lon = 12.1, lat = 79.1)
+    df_coords <- df_time()
     
     # Check that coords are present
-    if("lon" %in% colnames(df_time) & "lat" %in% colnames(df_time)){
-      df_point <- df_time %>%
-        dplyr::select(lon, lat) %>%
-        distinct()
+    if(length(na.omit(df_coords$Lon)) == 0 | length(na.omit(df_coords$Lat)) == 0){
       
-      # Check that coords are within he fjord region
-      if(df_point$lon > 12.69 | df_point$lon < 11 | df_point$lat < 78.85 | df_point$lat > 79.15){
-        # If not create a yellow border
-        mp <- frame_base +
-          theme(panel.border = element_rect(colour = "yellow", size = 5))
-      } else {
-        # If yes create green border
-        mp <- frame_base +
-          geom_point(data = df_point, aes(x = lon, y = lat), size = 5, colour = "green") +
-          theme(panel.border = element_rect(colour = "green", size = 5))
-      }
-    } else {
       # If no coords, red border
       mp <- frame_base +
         theme(panel.border = element_rect(colour = "red", size = 5))
+      
+    } else {
+      
+      # Get unique coordinates and count of data
+      df_point <- df_coords %>%
+        group_by(Lon, Lat) %>% 
+        summarise(count = n(), .groups = "drop")
+
+      # Check that coords are within he fjord region
+      if(max(df_point$Lon, na.rm = T) > 12.69 | min(df_point$Lon, na.rm = T) < 11 | 
+         min(df_point$Lat, na.rm = T) < 78.85 | max(df_point$Lat, na.rm = T) > 79.15){
+        
+        # If not create a yellow border
+        border_colour <- "yellow"
+
+      } else {
+        
+        # If yes create green border
+        border_colour <- "green"
+        
+      }
+      # Create bordered figure
+      mp <- frame_base +
+        # geom_point(data = df_point, aes(x = Lon, y = Lat), size = 5, colour = "green") +
+        geom_label(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = border_colour) +
+        geom_text(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = "black") +
+        theme(panel.border = element_rect(colour = border_colour, size = 5))
     }
-    # return(mp)
+    return(mp)
   })
   
 
   ## Tidy server -------------------------------------------------------------
   
-  output$selectColsUI <- renderUI({
-    req(input$file1)
-    req(is.data.frame(df_time()))
-    shiny::selectInput("selectCols", "Select column order", choices = colnames(df_time()), multiple = TRUE)
-  })
-
-  output$plotXUI <- renderUI({
-    req(input$selectCols)
-    shiny::selectInput("plotX", "X axis", multiple = FALSE, 
-                       choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
-  })
-  
-  output$plotYUI <- renderUI({
-    req(input$selectCols)
-    shiny::selectInput("plotY", "Y axis", multiple = FALSE, 
-                       choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
-  })
-  
-  output$tsPlot <- renderPlot({
-    req(input$plotX)
-    
-    df_tidy <- df_tidy()
-    
-    ts <- ggplot(data = df_tidy, aes_string(x = input$plotX, y = input$plotY)) +
-      geom_point() + geom_line()
-    return(ts)
-  })
-  
-  df_tidy <- reactive({
-
-    # file1 is NULL on startup, which will cause an error
-    req(input$file1)
-    req(input$selectCols)
-
-    df_tidy <- df_time()
-
-    # Set column order
-    df_tidy <- df_tidy %>%
-      dplyr::select(input$selectCols)
-
-    # Remove top and bottom of time series
-    if(input$sliceHead > 0){
-      df_tidy <- df_tidy[-seq_len(input$sliceHead),]
-    }
-    if(input$sliceTail > 0){
-      tail_front <- nrow(df_tidy)-input$sliceTail+1
-      df_tidy <- df_tidy[-seq(tail_front, nrow(df_tidy)),]
-    }
-
-    # Exit
-    return(df_tidy)
-  })
-
-  output$contents_tidy <- DT::renderDataTable({
-    req(input$file1)
-    req(input$selectCols)
-    df_tidy <- df_tidy()
-    df_tidy_DT <- datatable(df_tidy, options = list(pageLength = 10, scrollX = TRUE, scrollY = 300))
-    return(df_tidy_DT)
-  })
+  # output$selectColsUI <- renderUI({
+  #   req(input$file1)
+  #   req(is.data.frame(df_time()))
+  #   shiny::selectInput("selectCols", "Select column order", choices = colnames(df_time()), multiple = TRUE)
+  # })
+  # 
+  # output$plotXUI <- renderUI({
+  #   req(input$selectCols)
+  #   shiny::selectInput("plotX", "X axis", multiple = FALSE, 
+  #                      choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
+  # })
+  # 
+  # output$plotYUI <- renderUI({
+  #   req(input$selectCols)
+  #   shiny::selectInput("plotY", "Y axis", multiple = FALSE, 
+  #                      choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
+  # })
+  # 
+  # output$tsPlot <- renderPlot({
+  #   req(input$plotX)
+  #   
+  #   df_tidy <- df_tidy()
+  #   
+  #   ts <- ggplot(data = df_tidy, aes_string(x = input$plotX, y = input$plotY)) +
+  #     geom_point() + geom_line()
+  #   return(ts)
+  # })
+  # 
+  # df_tidy <- reactive({
+  #   req(input$file1, input$selectCols)
+  # 
+  #   df_tidy <- df_time()
+  # 
+  #   # Set column order
+  #   df_tidy <- df_tidy %>%
+  #     dplyr::select(input$selectCols)
+  # 
+  #   # Remove top and bottom of time series
+  #   if(input$sliceHead > 0){
+  #     df_tidy <- df_tidy[-seq_len(input$sliceHead),]
+  #   }
+  #   if(input$sliceTail > 0){
+  #     tail_front <- nrow(df_tidy)-input$sliceTail+1
+  #     df_tidy <- df_tidy[-seq(tail_front, nrow(df_tidy)),]
+  #   }
+  # 
+  #   # Exit
+  #   return(df_tidy)
+  # })
+  # 
+  # output$contents_tidy <- DT::renderDataTable({
+  #   req(input$file1)
+  #   req(input$selectCols)
+  #   df_tidy <- df_tidy()
+  #   df_tidy_DT <- datatable(df_tidy, options = list(pageLength = 10, scrollX = TRUE, scrollY = 300))
+  #   return(df_tidy_DT)
+  # })
 
 
   ## Upload server -----------------------------------------------------------
