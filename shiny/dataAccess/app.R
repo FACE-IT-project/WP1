@@ -30,7 +30,7 @@ loadRData <- function(fileName){
 # input <- data.frame(selectSite = "_stor")
 
 # Full data file paths
-full_data_paths <- dir("../../data/full_data", full.names = T)
+full_data_paths <- dir("full_data", full.names = T)
 
 # Named sites for subsetting paths
 sites_named <- c("Svalbard" = "_sval", "Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor",
