@@ -50,7 +50,7 @@ bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
 bbox_por <- c(24.5, 27, 70, 71.2)
 
 # The base global map
-map_base <- readRDS("../../metadata/map_base.Rda")
+map_base <- readRDS("map_base.Rda")
 
 
 # UI ----------------------------------------------------------------------
