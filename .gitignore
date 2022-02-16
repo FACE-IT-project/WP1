@@ -13,4 +13,5 @@ data/restricted
 data/sst_trom.RData
 data/sst_CCI_trom.RData
 shiny/kongCTD/data
+shiny/kongCTD/data_base.Rds
 shiny/dataAccess/full_data

@@ -104,6 +104,7 @@ ui <- dashboardPage(
                 menuItem("2) Metadata", tabName = "meta", icon = icon("clock")),
                 menuItem("3) QC", tabName = "tidy", icon = icon("shower")),
                 menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
+                menuItem("5) Download", tabName = "download", icon = icon("download")),
                 menuItem("About", tabName = "about", icon = icon("question")),
                 
                 # The reactive controls based on the primary option chosen
@@ -265,7 +266,7 @@ ui <- dashboardPage(
                                     uiOutput("plotXUI"),
                                     uiOutput("plotYUI")),
                              # circle = TRUE, status = "danger", icon = icon("gear"))),
-                             column(10, plotOutput("tsPlot", height = "250px"))
+                             # column(10, plotOutput("tsPlot", height = "250px"))
                            )
                        )
                 )
@@ -287,13 +288,96 @@ ui <- dashboardPage(
 
       tabItem(tabName = "upload",
               fluidPage(
-                column(12,
-                       # h2(tags$b("About")),
-                       p("Currently no upload functionality exists. A home on a server needs to be allocated first.")
-                )
+                box(width = 2, 
+                    # height = "730px", # Length when tips are shown
+                    height = "550px",
+                    title = "Upload",
+                    status = "primary", solidHeader = TRUE, collapsible = FALSE,
+                    h3("Click to upload data to batabase"),
+                    actionButton("upload", "Upload", icon = icon("upload"))),
+                
+                # The uploaded data display
+                box(width = 5, height = "900px", title = "Current data",
+                    status = "success", solidHeader = TRUE, collapsible = FALSE,
+                    DT::dataTableOutput("uploadedDT")
+                ),
+                
+                # The database display
+                box(width = 5, height = "900px", title = "Database",
+                    status = "success", solidHeader = TRUE, collapsible = FALSE,
+                    DT::dataTableOutput("dataBase"))
               )
       ),
 
+      ## Download menu ----------------------------------------------------------
+
+      tabItem(tabName = "download",
+
+              fluidRow(
+
+                column(width = 3,
+
+                       box(width = 12, height = "800px", title = "Controls",
+                           status = "primary", solidHeader = TRUE, collapsible = FALSE,
+
+                           ## Data owner
+                           uiOutput("selectDOUI"),
+                           
+                           ## Sensor owner
+                           uiOutput("selectSOUI"),
+                           
+                           ### Lon
+                           uiOutput("slideLonUI"),
+                           
+                           ### Lat
+                           uiOutput("slideLatUI"),
+                           
+                           ### Depth
+                           uiOutput("slideDepthUI"),
+                           
+                           ### Date
+                           uiOutput("slideDateUI"),
+
+                           ### Download
+                           hr(),
+                           fluidRow(column(width = 6, uiOutput("downloadFilterTypeUI")),
+                                    column(width = 6, uiOutput("downloadFilterUI")))
+                       )
+                ),
+
+                # The data display
+                column(9,
+                       box(width = 12, height = "400px", title = "Data",
+                           status = "success", solidHeader = TRUE, collapsible = FALSE,
+                           DT::dataTableOutput("dataBaseFilter")),
+                       box(width = 5, height = "350px", title = "Map",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                           # h4("Location of data"),
+                           # h5("Red border = no lon/lat"),
+                           # h5("Yellow border = lon/lat not in the fjord region"),
+                           # h5("Green border = lon/lat within fjord region")#,
+                           plotOutput("mapDL", height = "350px")),
+                       box(width = 7, height = "350px", title = "Time series",
+                           status = "danger", solidHeader = TRUE, collapsible = FALSE,
+                           # fluidRow(
+                           # column(2,
+                           # dropdownButton(
+                           # h4("Axis controls:"),
+                           # uiOutput("plotXUI"),
+                           # uiOutput("plotYUI")),
+                           # circle = TRUE, status = "danger", icon = icon("gear"))),
+                           column(10, plotOutput("tsPlot", height = "250px"))
+                           # )
+                           # )
+                       )
+                       
+                              
+              ),
+
+      )
+      ),
+      
+      
       ## App explanation ---------------------------------------------------------
       
       tabItem(tabName = "about", 
@@ -301,7 +385,9 @@ ui <- dashboardPage(
                 column(12,
                        h2(tags$b("About")),
                        p("The purpose of this app is to provide a platform through which users may upload their CTD 
-                       data collected in or around Kongsfjorden.")
+                       data collected in or around Kongsfjorden."),
+                       p("This app was created as part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
+                       img(src = "FACE-IT_h2020.png", align = "left")
                 )
               )
       )
@@ -521,7 +607,7 @@ server <- function(input, output, session) {
                               Data_owner = as.character(NA),
                               Sensor_owner = "Kings Bay",
                               Sensor_brand = "SAIV",
-                              Sensor_number = gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15)),
+                              Sensor_number = as.character(gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15))),
                               Air_pressure = mini_df_1$`Air pressure`)
       } else if(str_sub(file_text, 1, 8) == "RBR data"){
         # ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
@@ -534,7 +620,7 @@ server <- function(input, output, session) {
                               Data_owner = as.character(NA),
                               Sensor_owner = as.character(NA),
                               Sensor_brand = "RBR",
-                              Sensor_number = mini_df_1$...4)
+                              Sensor_number = as.character(mini_df_1$...4))
       } else {
         df_meta <- data.frame(file_temp = file_temp,
                               Site = as.character(NA),
@@ -564,7 +650,7 @@ server <- function(input, output, session) {
       # hot_col("file_num", readOnly = TRUE) %>% 
       hot_col("file_name", readOnly = TRUE) %>% 
       hot_col(col = "Sensor_number", strict = FALSE)})
-  observeEvent(input$table1output,{
+  observeEvent(input$table1output, {
     df <- hot_to_r(input$table1output)
     df <- as.data.frame(df)
     table$table1 <- df
@@ -741,10 +827,153 @@ server <- function(input, output, session) {
 
   ## Upload server -----------------------------------------------------------
 
-  # Nothing here yet
-  # Need to decide on a back-end
-  # This in turn is to be dictated by a number of things
-  # Also need to figure out what to do with random column names
+  # Create reactive data_base object that recognizes uploads of new data
+  data_base <- reactiveValues()
+  data_base$df <- read_rds("data_base.Rds")
+  
+  # When the Upload button is clicked, save df_time()
+  observeEvent(input$upload, {
+    # saveData(df_time())
+    df_res <- bind_rows(data_base$df, df_time()) %>% distinct()
+    write_rds(df_res, file = "data_base.Rds")
+    data_base$df <- read_rds("data_base.Rds")
+  })
+  
+  # Reactive data for datatable
+  df_data_base <- reactive({
+    df_data_base <- as.data.frame(data_base$df)
+    return(df_data_base)
+  })
+  
+  # Show the uploaded data
+  output$uploadedDT <- DT::renderDataTable({
+    req(input$file1, table$table1)
+    df_time <- df_time()
+    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 700))
+    return(df_time_DT)
+  })
+  
+  # Show the newly expanded database
+  output$dataBase <- DT::renderDataTable({
+    data_base_DT <- datatable(df_data_base(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 700))
+    return(data_base_DT)
+  })
+  
+
+  ## Download server --------------------------------------------------------
+
+  # Filter data
+  ## Subset by data owners
+  output$selectDOUI <- renderUI({
+    # req(input$selectSite)
+    # selectizeInput('selectDO', 'Data owner',
+    #   choices = unique(df_data_base()$Data_owner), multiple = T,
+    #   # selected = unique(df_data_base()$Data_owner),
+    #   options = list(
+    #     placeholder = 'Select data owner(s)',
+    #     onInitialize = I('function() { this.setValue(""); }')
+    #   )
+    # )
+    selectInput("selectDO", "Data owner", multiple = T,
+                choices = unique(df_data_base()$Data_owner), 
+                selected = unique(df_data_base()$Data_owner))
+  })
+  
+  ## Subset by sensor owner
+  output$selectSOUI <- renderUI({
+    # req(df_data_base())
+    # selectizeInput('selectSO', 'Sensor owner',
+    #   choices = unique(df_data_base()$Sensor_owner), multiple = T,
+    #   options = list(
+    #     placeholder = 'Select sensor owner(s)',
+    #     onInitialize = I('function() { this.setValue(""); }')
+    #   )
+    # )
+    selectInput("selectSO", "Sensor owner", multiple = T,
+                choices = unique(df_data_base()$Sensor_owner), 
+                selected = unique(df_data_base()$Sensor_owner))
+  })
+  
+  ## Lon
+  output$slideLonUI <- renderUI({
+    # req(input$selectVar)
+    shiny::sliderInput("slideLon", "Longitude range", value = range(df_data_base()$Lon, na.rm = T),
+                       min = min(df_data_base()$Lon, na.rm = T), max = max(df_data_base()$Lon, na.rm = T))
+  })
+  
+  # Lat
+  output$slideLatUI <- renderUI({
+    # req(input$selectVar)
+    shiny::sliderInput("slideLat", "Latitude range", value = range(df_data_base()$Lat, na.rm = T),
+                       min = min(df_data_base()$Lat, na.rm = T), max = max(df_data_base()$Lat, na.rm = T))
+  })
+  
+  # Depth
+  output$slideDepthUI <- renderUI({
+    # req(input$selectVar)
+    shiny::sliderInput("slideDepth", "Depth range", value = range(df_data_base()$Depth, na.rm = T),
+                       min = min(df_data_base()$Depth, na.rm = T), max = max(df_data_base()$Depth, na.rm = T))
+  })
+  
+  # Date
+  output$slideDateUI <- renderUI({
+    # req(input$selectVar)
+    shiny::sliderInput("slideDate", "Date range", value = range(as.Date(df_data_base()$date_time), na.rm = T),
+                       min = min(as.Date(df_data_base()$date_time), na.rm = T), max = max(as.Date(df_data_base()$date_time), na.rm = T))
+  })
+  
+  # Reactive download type button
+  output$downloadFilterTypeUI <- renderUI({
+    # req(input$selectVar)
+    radioButtons("downloadFilterType", "File type", choices = c(".csv", ".Rds"), 
+                 selected = ".csv", inline = T)
+  })
+  
+  # Filter by smaller details 
+  df_filter <- reactive({
+    # req(input$selectSite)
+    if(length(input$selectDO) == 0){
+      df_filter <- data.frame(warning = "Select at least one data owner from the drop down list.")
+    } else if(length(input$selectDO) > 0){
+      req(input$slideLon)
+      df_filter <- df_data_base() %>%
+        filter(Data_owner %in% input$selectDO,
+               Sensor_owner %in% input$selectSO,
+               Lon >= input$slideLon[1], Lon <= input$slideLon[2],
+               Lat >= input$slideLat[1], Lat <= input$slideLat[2],
+               Depth >= input$slideDepth[1], Depth <= input$slideDepth[2],
+               date_time >= as.POSIXct(input$slideDate[1]), date_time <= as.POSIXct(input$slideDate[2]))
+    } else {
+      df_filter <- data.frame(warning = "Something has gone wrong :(")
+    }
+    return(df_filter)
+  })
+  
+  # Show the filtered database
+  output$dataBaseFilter <- DT::renderDataTable({
+    data_base_filter_DT <- datatable(df_filter(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
+    return(data_base_filter_DT)
+  })
+  
+  # Reactive download button
+  output$downloadFilterUI <- renderUI({
+    # req(input$selectVar)
+    downloadButton("downloadFilter", "Download data")
+  })
+  
+  # Download handler
+  output$downloadFilter <- downloadHandler(
+    filename = function() {
+      paste0("Kong_CTD_data",input$downloadFilterType[1])
+    },
+    content <- function(file) {
+      if(input$downloadFilterType == ".Rds"){
+        saveRDS(df_filter(), file = file)
+      } else if(input$downloadFilterType == ".csv"){
+        readr::write_csv(df_filter(), file)
+      }
+    }
+  )
   
 }
 
