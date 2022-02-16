@@ -17,7 +17,8 @@ The analyses performed on the data collected for FACE-IT are spread out over a s
     - __gridded_analysis.R__: Short script used to familiarise oneself with Morten's model output structure. Very short script.
     - __ice_cover_and_AIS.R__: A brief analysis of ice cover and ship presence (AIS) data. Currently limited to Isfjorden.
     - __key_drivers.R__: All of the code required to accurately scrape the PANGAEA database for FACE-IT relevant data. This is saved in it's own script because it takes a while to load and is only used by data_collection.R.
-    - __site_analysis.R__: Script where one-off analyses for specific sites are housed. Also houses the comparisons of SST products against local _in situ_ data as well as the creation of ice cover figures from gridded data.
+    - __review_paper.R__: Code used for the analyses for the WP1 review paper (D1.3). Much of this was taken from other pre-existing scripts.
+    - __site_analysis.R__: One-off analyses for specific sites. Also houses the comparisons of SST products against local _in situ_ data as well as the creation of ice cover figures from gridded data.
     - __SSC_2021.R__: Code used for analyses shown at the SSC conference in November 2021.
     - __study_sites.R__: Metadata for the FACE-IT sites. This is where the figures for the sites used throughout the [WP1 website](https://face-it-project.github.io/WP1/index.html) are created.
     - __visualising.R__: Test bed for visualising unusual data formats. Not used much.
