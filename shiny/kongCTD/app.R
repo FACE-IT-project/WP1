@@ -560,7 +560,7 @@ server <- function(input, output, session) {
   # Interactive metadatatable
   table <- reactiveValues()
   output$table1output <- renderRHandsontable({
-    rhandsontable(file_meta_all(), stretchH = "all") %>% 
+    rhandsontable(file_meta_all(), stretchH = "all", useTypes = F) %>% 
       # hot_col("file_num", readOnly = TRUE) %>% 
       hot_col("file_name", readOnly = TRUE) %>% 
       hot_col(col = "Sensor_number", strict = FALSE)})
@@ -619,10 +619,12 @@ server <- function(input, output, session) {
   # Reactive data for datatable
   df_time <- reactive({
     req(input$file1, table$table1)
-    df_meta <- table$table1
+    df_meta <- as.data.frame(table$table1) %>%
+      mutate(file_name = as.character(file_name))
     df_time <- df_load() %>% 
+      mutate(file_name = as.character(file_name)) %>% 
       left_join(df_meta, by = c("file_name")) #, "file_num")) %>% 
-      # dplyr::select(-file_num)
+    # dplyr::select(-file_num)
     return(df_time)
   })
   
