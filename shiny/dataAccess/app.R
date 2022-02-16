@@ -59,7 +59,7 @@ map_base <- readRDS("map_base.Rda")
 ui <- fluidPage(
 
     # Application title
-    titlePanel("FACE-IT Data Access"),
+    titlePanel("Access to data collected for FACE-IT"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
