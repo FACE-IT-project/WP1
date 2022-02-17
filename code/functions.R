@@ -151,14 +151,14 @@ bbox_from_name <- function(site_name){
 # Convenience function for getting wide bbox from site abbreviation
 bbox_wide_from_name <- function(site_abv){
   # get correct bounding box
-  if(site_name == "kong") bbox_name <- bbox_kong
-  if(site_name == "is") bbox_name <- bbox_is
-  if(site_name == "ingle") bbox_name <- bbox_ingle
-  if(site_name == "stor") bbox_name <- bbox_stor
-  if(site_name == "young") bbox_name <- bbox_young
-  if(site_name == "disko") bbox_name <- bbox_disko
-  if(site_name == "nuup") bbox_name <- bbox_nuup
-  if(site_name == "por") bbox_name <- bbox_por
+  if(site_abv == "kong") bbox_name <- bbox_kong_wide
+  if(site_abv == "is") bbox_name <- bbox_is_wide
+  if(site_abv == "ingle") bbox_name <- bbox_ingle
+  if(site_abv == "stor") bbox_name <- bbox_stor_wide
+  if(site_abv == "young") bbox_name <- bbox_young_wide
+  if(site_abv == "disko") bbox_name <- bbox_disko_wide
+  if(site_abv == "nuup") bbox_name <- bbox_nuup_wide
+  if(site_abv == "por") bbox_name <- bbox_por_wide
   # This has potentially been coded to allow an error here
   return(bbox_name)
 }
@@ -1367,36 +1367,37 @@ model_summary <- function(model_product, site_name){
 
 # Convenience wrapper for creating hi-res gridded coordinates
 grid_MUR <- function(bbox_coords){
-  res <- expand.grid(seq(bbox_coords[1], bbox_coords[2], by = 0.01),
+  bbox_grid <- expand.grid(seq(bbox_coords[1], bbox_coords[2], by = 0.01),
                      seq(bbox_coords[3], bbox_coords[4], by = 0.01)) %>% 
     dplyr::rename(lon = Var1, lat = Var2) %>% 
     # Raster MUR coords get extracted from largest to smallest Y
     arrange(-lat, lon)
+  return(bbox_grid)
 }
 
 # Convenience function to account for minor x axis change to MUR pixel extent
 extent_MUR <- function(bbox_coords){
-  res <- extent(c(bbox_coords[1]-0.001, bbox_coords[2],
-                  bbox_coords[3]-0.001, bbox_coords[4]))
+  bbox_extent <- extent(c(bbox_coords[1]-0.001, bbox_coords[2],
+                          bbox_coords[3]-0.001, bbox_coords[4]))
+  return(bbox_extent)
 }
 
 # Convenience wrapper used within download_MUR_ALL()
-download_MUR_site <- function(site_abv, file_date, MUR_raster){
-  
-  # Get bounding box
-  bbox_site <- bbox_wide_from_name(site_abv)
-  
-  # system.time(
-    MUR_df <- data.frame(grid_MUR(bbox_site),
-                         t = file_date,
-                         # Convert from K to C
-                         temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_site), method = "simple")-273.15))
-  # ) # 2.5 seconds
-  return(MUR_df)
+download_MUR_single <- function(site_abv, file_date, MUR_raster){
+  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/",site_abv,"/",file_date,".rds"))){
+    # bbox_site <- bbox_wide_from_name(site_abv)
+    # MUR_df <- data.frame(grid_MUR(bbox_site), t = file_date,
+    #                      temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_site), method = "simple")-273.15))
+    write_rds(data.frame(grid_MUR(bbox_wide_from_name(site_abv)), t = file_date,
+                         temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_wide_from_name(site_abv)), 
+                                                          method = "simple")-273.15)), 
+              paste0("~/pCloudDrive/FACE-IT_data/MUR/",site_abv,"/",file_date,".rds"), compress = "gz")
+  }
+  # return()
 }
 
 # Function for downloading MUR 1km data
-# file_date <- as.Date("2003-01-01")
+# file_date <- as.Date("2003-01-05")
 download_MUR_ALL <- function(file_date){
   
   # Construct file name
@@ -1410,63 +1411,20 @@ download_MUR_ALL <- function(file_date){
   )
   # ) # 2 seconds
   
-  # Download data as necessary
-  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/kong/",file_date,".rds"))){
-    MUR_df <- download_MUR_site(bbox_kong_wide, file_date, MUR_raster)
-    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/kong/",file_date,".rds"), compress = "gz")
-  }
-  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/is/",file_date,".rds"))){
-    MUR_df <- download_MUR_site(bbox_is_wide, file_date, MUR_raster)
-    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/is/",file_date,".rds"), compress = "gz")
-  }
-  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/stor/",file_date,".rds"))){
-    MUR_df <- download_MUR_site(bbox_stor_wide, file_date, MUR_raster)
-    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/stor/",file_date,".rds"), compress = "gz")
-  }
-  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/young/",file_date,".rds"))){
-    MUR_df <- download_MUR_site(bbox_young_wide, file_date, MUR_raster)
-    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/young/",file_date,".rds"), compress = "gz")
-  }
-
-  MUR_is <- download_MUR_site(bbox_is_wide, file_date, MUR_raster)
-  MUR_stor <- download_MUR_site(bbox_stor_wide, file_date, MUR_raster)
-  MUR_stor <- download_MUR_site(bbox_stor_wide, file_date, MUR_raster)
-  
-  # Extract Kong data via NetCDF
-  ## NB: Much slower, but safer, and retrieves ice cover
+  # Download data per site
   system.time(
-    MUR_data <- tidync::tidync(file_name) %>% 
-      tidync::hyper_filter(lon = dplyr::between(lon, bbox_kong_wide[1], bbox_kong_wide[2]), 
-                           lat = dplyr::between(lat, bbox_kong_wide[3], bbox_kong_wide[4])) %>% 
-      tidync::hyper_tibble() %>% 
-      mutate(temp = analysed_sst-273.15,
-             date = file_date,
-             lon = round(lon, 2),
-             lat = round(lat, 2))
-  ) # 17 seconds
-  ggplot(MUR_data, aes(x = lon, y = lat)) +
-    geom_raster(aes(fill = temp))
-  
-  # Extract Kong data via raster
+  plyr::l_ply(c("kong", "is", "stor", "young", "disko", "nuup", "por"), 
+              download_MUR_single, file_date = file_date, MUR_raster = MUR_raster, .parallel = F)
+  ) # 16 seconds for 7
   system.time(
-    MUR_df <- data.frame(grid_MUR(bbox_kong_wide),
-                         t = file_date,
-                         temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_kong_wide), method = "simple")-273.15)) # Convert from K to C
-  ) # 2.5 seconds
-  ggplot(MUR_df, aes(x = lon, y = lat)) +
-    geom_raster(aes(fill = temp))
-  
-  # Check differences
-  MUR_merge <- left_join(MUR_data, MUR_df, by = c("lon", "lat")) %>% 
-    mutate(temp_diff = temp.x - temp.y)
-  
+  lapply(c("kong", "is", "stor", "young", "disko", "nuup", "por"), 
+         download_MUR_single, file_date = file_date, MUR_raster = MUR_raster)
+  ) # 17 seconds for 7
   
   # Test visuals
-  ggplot(MUR_stor, aes(x = lon, y = lat)) +
-    geom_raster(aes(fill = temp))
+  # MUR_df <- read_rds("~/pCloudDrive/FACE-IT_data/MUR/kong/2003-01-05.rds")
+  # ggplot(MUR_df, aes(x = lon, y = lat)) +
+  #   geom_raster(aes(fill = temp))
   
   # exit without returning anything
-  rm(MUR_df); gc()
-  return()
-  
 }
