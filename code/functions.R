@@ -148,6 +148,21 @@ bbox_from_name <- function(site_name){
   return(bbox_name)
 }
 
+# Convenience function for getting wide bbox from site abbreviation
+bbox_wide_from_name <- function(site_abv){
+  # get correct bounding box
+  if(site_name == "kong") bbox_name <- bbox_kong
+  if(site_name == "is") bbox_name <- bbox_is
+  if(site_name == "ingle") bbox_name <- bbox_ingle
+  if(site_name == "stor") bbox_name <- bbox_stor
+  if(site_name == "young") bbox_name <- bbox_young
+  if(site_name == "disko") bbox_name <- bbox_disko
+  if(site_name == "nuup") bbox_name <- bbox_nuup
+  if(site_name == "por") bbox_name <- bbox_por
+  # This has potentially been coded to allow an error here
+  return(bbox_name)
+}
+
 # Function that takes 4 bounding box coordinates and converts them to a polygon for ggOceanMaps
 # The 'ID' value can be used to hold the name of the site for the bounding box
 bbox_to_poly <- function(coords, ID = 1){
@@ -1365,16 +1380,57 @@ extent_MUR <- function(bbox_coords){
                   bbox_coords[3]-0.001, bbox_coords[4]))
 }
 
+# Convenience wrapper used within download_MUR_ALL()
+download_MUR_site <- function(site_abv, file_date, MUR_raster){
+  
+  # Get bounding box
+  bbox_site <- bbox_wide_from_name(site_abv)
+  
+  # system.time(
+    MUR_df <- data.frame(grid_MUR(bbox_site),
+                         t = file_date,
+                         # Convert from K to C
+                         temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_site), method = "simple")-273.15))
+  # ) # 2.5 seconds
+  return(MUR_df)
+}
+
 # Function for downloading MUR 1km data
 # file_date <- as.Date("2003-01-01")
-download_MUR <- function(file_date){
-  
-  # Check if data have already been downloaded and skip if so
-  if(file.exists(paste0("~/pCloudDrive/MUR/",file_date,".rds"))) return()
+download_MUR_ALL <- function(file_date){
   
   # Construct file name
   file_name <- paste0(base_MUR_URL,"/",year(file_date),"/",sprintf("%03d", yday(file_date)),"/",
                       gsub("-", "", file_date),"090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc")
+  
+  # Connect to NetCDF file as a raster brick
+  # system.time(
+  suppressWarnings( # Don't need the warning that says SST layer is being used
+    MUR_raster <- brick(file_name)
+  )
+  # ) # 2 seconds
+  
+  # Download data as necessary
+  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/kong/",file_date,".rds"))){
+    MUR_df <- download_MUR_site(bbox_kong_wide, file_date, MUR_raster)
+    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/kong/",file_date,".rds"), compress = "gz")
+  }
+  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/is/",file_date,".rds"))){
+    MUR_df <- download_MUR_site(bbox_is_wide, file_date, MUR_raster)
+    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/is/",file_date,".rds"), compress = "gz")
+  }
+  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/stor/",file_date,".rds"))){
+    MUR_df <- download_MUR_site(bbox_stor_wide, file_date, MUR_raster)
+    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/stor/",file_date,".rds"), compress = "gz")
+  }
+  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/young/",file_date,".rds"))){
+    MUR_df <- download_MUR_site(bbox_young_wide, file_date, MUR_raster)
+    write_rds(MUR_df, paste0("~/pCloudDrive/FACE-IT_data/MUR/young/",file_date,".rds"), compress = "gz")
+  }
+
+  MUR_is <- download_MUR_site(bbox_is_wide, file_date, MUR_raster)
+  MUR_stor <- download_MUR_site(bbox_stor_wide, file_date, MUR_raster)
+  MUR_stor <- download_MUR_site(bbox_stor_wide, file_date, MUR_raster)
   
   # Extract Kong data via NetCDF
   ## NB: Much slower, but safer, and retrieves ice cover
@@ -1384,17 +1440,12 @@ download_MUR <- function(file_date){
                            lat = dplyr::between(lat, bbox_kong_wide[3], bbox_kong_wide[4])) %>% 
       tidync::hyper_tibble() %>% 
       mutate(temp = analysed_sst-273.15,
-             date = file_date)
+             date = file_date,
+             lon = round(lon, 2),
+             lat = round(lat, 2))
   ) # 17 seconds
   ggplot(MUR_data, aes(x = lon, y = lat)) +
-    geom_point(aes(colour = temp))
-  
-  # Connect to NetCDF file as a raster brick
-  # system.time(
-  suppressWarnings( # Don't need the warning that says SST layer is being used
-    MUR_raster <- brick(file_name)
-  )
-  # ) # 2 seconds
+    geom_raster(aes(fill = temp))
   
   # Extract Kong data via raster
   system.time(
@@ -1403,6 +1454,19 @@ download_MUR <- function(file_date){
                          temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_kong_wide), method = "simple")-273.15)) # Convert from K to C
   ) # 2.5 seconds
   ggplot(MUR_df, aes(x = lon, y = lat)) +
-    geom_point(aes(colour = temp))
+    geom_raster(aes(fill = temp))
+  
+  # Check differences
+  MUR_merge <- left_join(MUR_data, MUR_df, by = c("lon", "lat")) %>% 
+    mutate(temp_diff = temp.x - temp.y)
+  
+  
+  # Test visuals
+  ggplot(MUR_stor, aes(x = lon, y = lat)) +
+    geom_raster(aes(fill = temp))
+  
+  # exit without returning anything
+  rm(MUR_df); gc()
+  return()
   
 }
