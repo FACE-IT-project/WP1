@@ -324,8 +324,13 @@ rm(list = ls()[grep("pg_EU", ls())]); gc()
 
 
 # Collect MUR 1km data for all site
-## NB: This takes 13+ hours to run
-
+## NB: This takes ~xxx hours to run
+## Feb 19-20 2021 are missing but still download somehow...
+## The daily files are compiled below in each site section
+doParallel::registerDoParallel(cores = 15)
+system.time(
+plyr::l_ply(seq(as.Date("2003-01-01"), as.Date("2021-12-31"), by = "day"), download_MUR_ALL, .parallel = T)
+) # xxx hours
 
 
 # Kongsfjorden ------------------------------------------------------------
@@ -377,6 +382,8 @@ save(ice_4km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_4km_kong.
 ice_coords_1km_kong <- load_ice_coords("Kongsfjorden", "1km")
 ice_1km_kong <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_kong, .parallel = T)
 save(ice_1km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
+
+# Compile MUR data downloaded in EU section
 
 
 # Isfjorden ---------------------------------------------------------------

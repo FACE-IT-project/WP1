@@ -1385,19 +1385,15 @@ extent_MUR <- function(bbox_coords){
 # Convenience wrapper used within download_MUR_ALL()
 download_MUR_single <- function(site_abv, file_date, MUR_raster){
   if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/",site_abv,"/",file_date,".rds"))){
-    # bbox_site <- bbox_wide_from_name(site_abv)
-    # MUR_df <- data.frame(grid_MUR(bbox_site), t = file_date,
-    #                      temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_site), method = "simple")-273.15))
     write_rds(data.frame(grid_MUR(bbox_wide_from_name(site_abv)), t = file_date,
                          temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_wide_from_name(site_abv)), 
                                                           method = "simple")-273.15)), 
               paste0("~/pCloudDrive/FACE-IT_data/MUR/",site_abv,"/",file_date,".rds"), compress = "gz")
   }
-  # return()
 }
 
 # Function for downloading MUR 1km data
-# file_date <- as.Date("2003-01-05")
+# file_date <- as.Date("2021-02-19")
 download_MUR_ALL <- function(file_date){
   
   # Construct file name
@@ -1412,19 +1408,16 @@ download_MUR_ALL <- function(file_date){
   # ) # 2 seconds
   
   # Download data per site
-  system.time(
+  # system.time(
   plyr::l_ply(c("kong", "is", "stor", "young", "disko", "nuup", "por"), 
               download_MUR_single, file_date = file_date, MUR_raster = MUR_raster, .parallel = F)
-  ) # 16 seconds for 7
-  system.time(
-  lapply(c("kong", "is", "stor", "young", "disko", "nuup", "por"), 
-         download_MUR_single, file_date = file_date, MUR_raster = MUR_raster)
-  ) # 17 seconds for 7
+  # ) # 16 seconds for 7
   
   # Test visuals
-  # MUR_df <- read_rds("~/pCloudDrive/FACE-IT_data/MUR/kong/2003-01-05.rds")
+  # MUR_df <- read_rds("~/pCloudDrive/FACE-IT_data/MUR/young/2003-01-01.rds")
   # ggplot(MUR_df, aes(x = lon, y = lat)) +
   #   geom_raster(aes(fill = temp))
   
   # exit without returning anything
+  # return()
 }
