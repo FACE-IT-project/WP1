@@ -323,6 +323,11 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 rm(list = ls()[grep("pg_EU", ls())]); gc()
 
 
+# Collect MUR 1km data for all site
+## NB: This takes 13+ hours to run
+
+
+
 # Kongsfjorden ------------------------------------------------------------
 
 ## All Kongsfjorden bbox data files - 2525

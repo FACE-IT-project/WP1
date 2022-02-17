@@ -9,7 +9,7 @@ The analyses performed on the data collected for FACE-IT are spread out over a s
 - __analysis/__: Markdown and supporting files used to create the pages for the [project site](https://face-it-project.github.io/WP1/index.html)
 - __code/__: Scripts used to perform a range of analyses on the data collected for FACE-IT
     - __data_analysis.R__: Where most summary analyses are run and figures are saved
-    - __data_collection.R__: Primarily used to scrape PANGAEA for FACE-IT relevant data. Also used to subset and compile gridded ice cover data for the FACE-IT sites.
+    - __data_collection.R__: Primarily used to scrape PANGAEA for FACE-IT relevant data. Also used to subset and compile gridded ice cover data and MUR 1km SST data for the FACE-IT sites.
     - __data_processing.R__: Currently used to manage gridded GLODAP data.
     - __data_product.R__: Combines data collected from FACE-IT from all sources into a single data.frame per site with a project0wide standard format. Also provides a second layer of cleaning on the collected PANGAEA data before combining them. This script does a lot of work.
     - __FACE_IT_2021.R__: Code used in the analyses shown at the FACE-IT 2021 annual meeting.

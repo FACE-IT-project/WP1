@@ -10,6 +10,7 @@ data/pg_data
 data/model
 data/full_data
 data/restricted
+data/MUR
 data/sst_trom.RData
 data/sst_CCI_trom.RData
 shiny/kongCTD/data
