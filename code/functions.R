@@ -1354,9 +1354,9 @@ model_summary <- function(model_product, site_name){
 grid_MUR <- function(bbox_coords){
   res <- expand.grid(seq(bbox_coords[1], bbox_coords[2], by = 0.01),
                      seq(bbox_coords[3], bbox_coords[4], by = 0.01)) %>% 
-    dplyr::rename(x = Var1, y = Var2) %>% 
+    dplyr::rename(lon = Var1, lat = Var2) %>% 
     # Raster MUR coords get extracted from largest to smallest Y
-    arrange(-y, x)
+    arrange(-lat, lon)
 }
 
 # Convenience function to account for minor x axis change to MUR pixel extent
@@ -1376,6 +1376,19 @@ download_MUR <- function(file_date){
   file_name <- paste0(base_MUR_URL,"/",year(file_date),"/",sprintf("%03d", yday(file_date)),"/",
                       gsub("-", "", file_date),"090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc")
   
+  # Extract Kong data via NetCDF
+  ## NB: Much slower, but safer, and retrieves ice cover
+  system.time(
+    MUR_data <- tidync::tidync(file_name) %>% 
+      tidync::hyper_filter(lon = dplyr::between(lon, bbox_kong_wide[1], bbox_kong_wide[2]), 
+                           lat = dplyr::between(lat, bbox_kong_wide[3], bbox_kong_wide[4])) %>% 
+      tidync::hyper_tibble() %>% 
+      mutate(temp = analysed_sst-273.15,
+             date = file_date)
+  ) # 17 seconds
+  ggplot(MUR_data, aes(x = lon, y = lat)) +
+    geom_point(aes(colour = temp))
+  
   # Connect to NetCDF file as a raster brick
   # system.time(
   suppressWarnings( # Don't need the warning that says SST layer is being used
@@ -1383,35 +1396,13 @@ download_MUR <- function(file_date){
   )
   # ) # 2 seconds
   
-  extent_young <- extent(bbox_young_wide)
-  grid_young <- grid_MUR(bbox_young_wide)
-  grid_stor <- grid_MUR(bbox_stor_wide)
-  
-  bbox_test <- c(0, 0.1, 0, 0.1)
-  grid_test <- grid_MUR(bbox_test)
-  
-  # Extract data from NetCDF
+  # Extract Kong data via raster
   system.time(
-  MUR_data <- tidync::tidync(file_name) %>% 
-    tidync::hyper_filter(lon = dplyr::between(lon, bbox_stor_wide[1], bbox_stor_wide[2]), 
-                         lat = dplyr::between(lat, bbox_stor_wide[3], bbox_stor_wide[4])) %>% 
-    tidync::hyper_tibble()
-  )
-  
-  # Extract pointwise data
-  MUR_data <- extract(MUR_raster, extent_MUR(bbox_test), method = "simple", cellnumbers = TRUE)
-  MUR_data <- extract(MUR_raster, extent_MUR(bbox_test), method = "simple")
-  MUR_data <- extract(MUR_raster, grid_test, method = "simple")
-  MUR_cells <- cellFromXY(MUR_raster, grid_MUR(bbox_test))
-  MUR_coords <- xyFromCell(MUR_raster, MUR_data[,1])
-  MUR_coords <- xyFromCell(MUR_raster, cellFromXY(MUR_raster, grid_MUR(bbox_test)))
-  MUR_coords <- data.frame(xyFromCell(MUR_raster, MUR_cells), value = extract(MUR_raster, MUR_cells))
-  MUR_test <- extract(MUR_raster, SpatialPoints(res), sp = T)
-  MUR_df <- as.data.frame(cbind(MUR_data, MUR_coords)) %>% mutate(x = round(x, 2))
-  system.time(
-  MUR_df <- data.frame(t = file_date,
-                       temp = as.vector(raster::extract(MUR_raster, extent(bbox_test), method = "simple")-273.15)) # Convert from K to C
-  ) # 2.5 seconds for 1, 6 seconds for 20, 102 seconds for 431
-  
+    MUR_df <- data.frame(grid_MUR(bbox_kong_wide),
+                         t = file_date,
+                         temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_kong_wide), method = "simple")-273.15)) # Convert from K to C
+  ) # 2.5 seconds
+  ggplot(MUR_df, aes(x = lon, y = lat)) +
+    geom_point(aes(colour = temp))
   
 }
