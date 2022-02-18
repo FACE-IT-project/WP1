@@ -324,13 +324,14 @@ rm(list = ls()[grep("pg_EU", ls())]); gc()
 
 
 # Collect MUR 1km data for all site
-## NB: This takes ~xxx hours to run
-## Feb 19-20 2021 are missing but still download somehow...
+## NB: This takes over 2 hours to run
+## Feb 20-21 2021 are missing from the server
 ## The daily files are compiled below in each site section
 doParallel::registerDoParallel(cores = 15)
+MUR_dates <- seq(as.Date("2003-01-01"), as.Date("2021-12-31"), by = "day")[-c(6626, 6627)]
 system.time(
-plyr::l_ply(seq(as.Date("2003-01-01"), as.Date("2021-12-31"), by = "day"), download_MUR_ALL, .parallel = T)
-) # xxx hours
+plyr::l_ply(MUR_dates, download_MUR_ALL, .parallel = T)
+) # 2.4 hours
 
 
 # Kongsfjorden ------------------------------------------------------------
@@ -384,6 +385,15 @@ ice_1km_kong <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_kong
 save(ice_1km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
 
 # Compile MUR data downloaded in EU section
+system.time(
+  sst_MUR_kong <- map_dfr(dir("~/pCloudDrive/FACE-IT_data/MUR/kong/", full.names = T, pattern = ".rds"), read_rds)
+) # xxx seconds
+doParallel::registerDoParallel(cores = 15)
+system.time(
+  sst_MUR_kong_plyr <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/MUR/kong/", full.names = T, pattern = ".rds"), 
+                              read_rds, .parallel = TRUE)
+) # xxx seconds
+save(sst_MUR_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")
 
 
 # Isfjorden ---------------------------------------------------------------

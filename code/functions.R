@@ -1393,8 +1393,10 @@ download_MUR_single <- function(site_abv, file_date, MUR_raster){
 }
 
 # Function for downloading MUR 1km data
-# file_date <- as.Date("2021-02-19")
 download_MUR_ALL <- function(file_date){
+  
+  # Check if the data have already been downloaded - this should be deactivated for testing
+  if(file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/por/",file_date,".rds"))) return()
   
   # Construct file name
   file_name <- paste0(base_MUR_URL,"/",year(file_date),"/",sprintf("%03d", yday(file_date)),"/",
@@ -1421,3 +1423,4 @@ download_MUR_ALL <- function(file_date){
   # exit without returning anything
   # return()
 }
+

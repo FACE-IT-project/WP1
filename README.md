@@ -11,10 +11,10 @@ The analyses performed on the data collected for FACE-IT are spread out over a s
     - __data_analysis.R__: Where most summary analyses are run and figures are saved
     - __data_collection.R__: Primarily used to scrape PANGAEA for FACE-IT relevant data. Also used to subset and compile gridded ice cover data and MUR 1km SST data for the FACE-IT sites.
     - __data_processing.R__: Currently used to manage gridded GLODAP data.
-    - __data_product.R__: Combines data collected from FACE-IT from all sources into a single data.frame per site with a project0wide standard format. Also provides a second layer of cleaning on the collected PANGAEA data before combining them. This script does a lot of work.
+    - __data_product.R__: Combines data collected from FACE-IT from all sources into a single data.frame per site with a project-wide standard format. Also provides a second layer of cleaning on the collected PANGAEA data before combining them. This script does a lot of work.
     - __FACE_IT_2021.R__: Code used in the analyses shown at the FACE-IT 2021 annual meeting.
     - __functions.R__: The location of most of the functions used throughout the other scripts. This contains most of the intellectual effort of the work package. Lot's of fancy footwork.
-    - __gridded_analysis.R__: Short script used to familiarise oneself with Morten's model output structure. Very short script.
+    - __gridded_analysis.R__: Used to familiarise oneself with Morten's model output structure. Very short script.
     - __ice_cover_and_AIS.R__: A brief analysis of ice cover and ship presence (AIS) data. Currently limited to Isfjorden.
     - __key_drivers.R__: All of the code required to accurately scrape the PANGAEA database for FACE-IT relevant data. This is saved in it's own script because it takes a while to load and is only used by data_collection.R.
     - __review_paper.R__: Code used for the analyses for the WP1 review paper (D1.3). Much of this was taken from other pre-existing scripts.
