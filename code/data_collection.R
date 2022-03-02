@@ -385,14 +385,11 @@ ice_1km_kong <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_kong
 save(ice_1km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
 
 # Compile MUR data downloaded in EU section
-system.time(
-  sst_MUR_kong <- map_dfr(dir("~/pCloudDrive/FACE-IT_data/MUR/kong/", full.names = T, pattern = ".rds"), read_rds)
-) # xxx seconds
 doParallel::registerDoParallel(cores = 15)
 system.time(
   sst_MUR_kong_plyr <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/MUR/kong/", full.names = T, pattern = ".rds"), 
                               read_rds, .parallel = TRUE)
-) # xxx seconds
+) # 53 seconds
 save(sst_MUR_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")
 
 

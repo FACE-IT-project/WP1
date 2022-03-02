@@ -2,6 +2,12 @@
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
 # TODO: It would be useful for a user that the settings could be saved in between uploads
+# Add a column with the name of the uploader and the date of the upload
+# Have an 6) Editing tab that is password protected to go back and fix issues
+# User login would automagically attach their name to the data upload
+# Increase bounding box to include Krosfjorden
+
+# Have a popup after clicking download that lists the unique DOIs of the data
 
 # QC needs to be handled at some point
 # For starters would have a raw or QC flag to add to the data

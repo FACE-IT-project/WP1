@@ -58,8 +58,8 @@ plot_sst_grid <- function(df, product_name){
   
   # Get SST stats
   doParallel::registerDoParallel(cores = 15) # Change to taste
-  df_sub <- df_annual %>% 
-    filter(lon == lon_sub, lat == lat_sub)
+  # df_sub <- df_annual %>% 
+  #   filter(lon == lon_sub, lat == lat_sub)
   df_dec_trend <- plyr::ddply(df_annual, c("lon", "lat", "depth"), dec_trend_calc, .parallel = T)
   
   # Clip coastline polygons for faster plotting
@@ -216,6 +216,9 @@ load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_CCI_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_CCI_por.RData")
 load("data/sst_CCI_trom.RData")
 
+# MUR SST extractions
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")
+
 
 # Kongsfjorden ------------------------------------------------------------
 
@@ -236,6 +239,11 @@ ggsave("docs/assets/sst_grid_kong.png", sst_grid_kong, width = 7.2, height = 6.1
 sst_CCI_grid_kong <- plot_sst_grid(sst_CCI_kong, "CCI SST")
 ggsave("figures/sst_CCI_grid_kong.png", sst_CCI_grid_kong, width = 6.8, height = 6.3)
 ggsave("docs/assets/sst_CCI_grid_kong.png", sst_CCI_grid_kong, width = 6.8, height = 6.3)
+
+# Plot MUR SST grid around Kongsfjorden
+sst_MUR_grid_kong <- plot_sst_grid(sst_MUR_kong, "MUR SST")
+ggsave("figures/sst_MUR_grid_kong.png", sst_MUR_grid_kong, width = 6.8, height = 6.3)
+ggsave("docs/assets/sst_MUR_grid_kong.png", sst_MUR_grid_kong, width = 6.8, height = 6.3)
 
 # Model temperature projections
 sst_model_kong <- plot_sst_model(model_kong)

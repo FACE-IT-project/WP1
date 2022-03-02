@@ -671,6 +671,16 @@ kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_shi
   summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+## Bremen data
+# Daten/ELUV
+# Daten/Licht - some files only have terrestrial light values
+# Daten/Temperatur
+# DATEN4/CTD
+# DATEN4/MINI-PAM
+# LICHT - Check files for dates
+# Light Data
+# Light Data/Lydia...
+
 ## SOCAT
 ### NB: EU_SOCAT loaded in EU full product section
 kong_SOCAT <- EU_SOCAT %>% 
