@@ -967,6 +967,40 @@ load_ice_gridded <- function(file_name, ice_coords){
   return(df_sub)
 }
 
+# Function for loading old CTD data from AWI
+load_CTD_DATEN <- function(file_name){
+  # Get coords based on file_name
+  if(str_detect(file_name, "LONDON")){
+    lon_site = 12.0444
+    lat_site = 78.9611
+  } else if(str_detect(file_name, "NANSEN")){
+    lon_site = 11.9231
+    lat_site = 78.9286
+  } else if(str_detect(file_name, "STEG")){
+    lon_site = 11.9194
+    lat_site = 78.9303
+  } else if(str_detect(file_name, "TONNE")){
+    lon_site = 11.9392
+    lat_site = 78.9286
+  } else if(str_detect(file_name, "NESET")){
+    lon_site = 11.9872
+    lat_site = 78.9958
+  } else {
+    lon_site = NA
+    lat_site = NA
+  }
+  # Load+process file
+  df_res <- read.table(file_name, skip = 36, header = F,
+                       col.names = c("press", "temp", "cond", "Cvx", "Cvy", "Hx", "Hy", "sal",
+                                     "sigma", "sound", "CSPD", "CDIR", "date", "time")) %>% 
+    mutate(date = as.POSIXct(paste(date, time), tryFormats = c("%d.%m.%y %H:%M:%S")),
+           lon = lon_site, lat = lat_site) %>% 
+    dplyr::select(lon, lat, date, press, temp, cond, sal, sigma, CSPD, CDIR) %>% 
+    dplyr::rename(`press [dbar]` = press, `temp [°C]` = temp, `cond [mS/cm]` = cond, 
+                  `sal [ppt]` = sal, `sigma [kg/m3]` = sigma, `spd [cm/s]` = CSPD, `dir [°]` = CDIR)
+  return(df_res)
+}
+
 # Data summary plotting function
 data_summary_plot <- function(full_product, site_name){
   

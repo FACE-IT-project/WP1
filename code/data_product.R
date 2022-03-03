@@ -673,13 +673,61 @@ kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_shi
 
 ## Bremen data
 # Daten/ELUV
-# Daten/Licht - some files only have terrestrial light values
+# Daten/Licht
 # Daten/Temperatur
+# NB: Not yet added to Kong product
+# NB: These temperature values are dubious
+kong_ELUV1 <- map_dfr(c(dir("~/pCloudDrive/restricted_data/Bremen/Daten/ELUV", recursive = T, full.names = T),
+                       dir("~/pCloudDrive/restricted_data/Bremen/Daten/Licht", pattern = "170", full.names = T)),
+                     read.delim, sep = "\t", skip = 11, dec = ",", header = F, na.strings = "999",
+                     col.names = c("date", "UV", "IR", "temp")) %>% 
+  mutate(date = as.POSIXct(date, tryFormats = c("%d.%m.%Y %H:%M:%S")))
+kong_ELUV2 <- map_dfr(dir("~/pCloudDrive/restricted_data/Bremen/Daten/Licht", pattern = "Fjord.csv", full.names = T),
+                      read.csv, skip = 11, header = F, na.strings = "999",
+                      col.names = c("date", "UV", "IR", "temp")) %>% 
+  mutate(date = as.POSIXct(date, tryFormats = c("%d/%m/%Y %H:%M")))
+kong_ELUV3 <- read.csv("~/pCloudDrive/restricted_data/Bremen/Daten/Temperatur/EluvFjordTemperatur.csv", skip = 4) %>% 
+  mutate(UV = (`UV..mW.m2.` + `UV..mW.m2..1`)/2, IR = (IR + IR.1)/2, depth = 0.5,
+         date = as.POSIXct(Datum, tryFormats = c("%d/%m/%Y %H:%M"))) %>% 
+  dplyr::rename(temp = Temp.Korrigiert) %>% 
+  dplyr::select(date, depth, UV, IR, temp)
+kong_ELUV <- bind_rows(kong_ELUV3, kong_ELUV1, kong_ELUV2) %>% 
+  dplyr::rename(`UV [mW/m2]` = UV, `temp [°C]` = temp) %>% 
+  # need to add lon/lat
+  mutate(lon = NA, lat = NA) %>% 
+  filter(`UV [mW-m2]` < 200, `temp [°C]` > 15) %>% 
+  distinct()
+rm(kong_ELUV1, kong_ELUV2, kong_ELUV3)
+
 # DATEN4/CTD
+# NB: Not yet added to Kong product
+# NB: Once we know the coordinates these need to be added by detecting the site name in the file name
+# Consider filtering by salinity to remove surface values
+kong_CTD_DATEN4 <- map_dfr(dir("~/pCloudDrive/restricted_data/Bremen/DATEN4/CTD", full.names = T), load_CTD_DATEN)
+                           
 # DATEN4/MINI-PAM
-# LICHT - Check files for dates
+# NB: Not loaded as it only appears to have PAR values that look incorrect.
+
+# LICHT
+# NB: Not yet added to Kong product
+kong_LICHT <- read_csv("~/pCloudDrive/restricted_data/Bremen/LICHT/combined.csv") %>% 
+  mutate(lon = case_when(site == "Blomstrand" ~ 12.0444,
+                         site == "Hansneset" ~ 11.9872),
+         lat = case_when(site == "Blomstrand" ~ 78.9611,
+                         site == "Hansneset" ~ 78.9958)) %>% 
+  dplyr::select(lon, lat, date, depth, UVA, UVB, PAR)
+
 # Light Data
+# NB: Not yet added to Kong product
+# NB: May want to convert from mW to W
+kong_light <- read_csv("~/pCloudDrive/restricted_data/Bremen/Light Data/Laeseke_light_data.csv", skip = 9) %>% 
+  mutate(date = as.Date("2015-08-17"), lon = 11.9872, lat = 78.9958) %>% 
+  dplyr::rename(depth = `Depth [m]`) %>% 
+  dplyr::select(lon, lat, date, depth, `UV-B [mW*m^2]`, `UV-A [mW*m^2]`, `PAR [mW*m^2]`)
+
 # Light Data/Lydia...
+# Not loaded as these data are measurements of difference in PAR in and out of the river outflow near Ny-Alesund
+# While interesting, these data do not have lon/lat coords so are difficult to incorporate with everything else
 
 ## SOCAT
 ### NB: EU_SOCAT loaded in EU full product section
