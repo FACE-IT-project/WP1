@@ -205,6 +205,7 @@ load("~/pCloudDrive/FACE-IT_data/disko_bay/sst_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
 load("data/sst_trom.RData")
+load("data/sst_gland.RData")
 
 # CCI SST extractions
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_CCI_kong.RData")
@@ -533,3 +534,11 @@ ggsave("docs/assets/sst_CCI_grid_trom.png", sst_CCI_grid_trom, width = 6.8, heig
 sst_model_trom <- plot_sst_model(model_trom)
 ggsave("figures/sst_model_trom.png", sst_model_trom, width = 8, height = 9)
 ggsave("docs/assets/sst_model_trom.png", sst_model_trom, width = 8, height = 9)
+
+
+# Greenland ---------------------------------------------------------------
+
+# Plot SST grid around all of Greenland
+sst_grid_gland <- plot_sst_grid(sst_gland, "NOAA OISST")
+ggsave("figures/sst_grid_gland.png", sst_grid_gland, width = 8, height = 5.5)
+

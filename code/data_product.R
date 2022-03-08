@@ -695,7 +695,7 @@ kong_ELUV <- bind_rows(kong_ELUV3, kong_ELUV1, kong_ELUV2) %>%
   dplyr::rename(`UV [mW/m2]` = UV, `temp [°C]` = temp) %>% 
   # need to add lon/lat
   mutate(lon = NA, lat = NA) %>% 
-  filter(`UV [mW-m2]` < 200, `temp [°C]` > 15) %>% 
+  filter(`UV [mW/m2]` < 200, `temp [°C]` > 15) %>%
   distinct()
 rm(kong_ELUV1, kong_ELUV2, kong_ELUV3)
 
