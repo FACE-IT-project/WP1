@@ -2,10 +2,9 @@
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
 # TODO: It would be useful for a user that the settings could be saved in between uploads
-# Add a column with the name of the uploader and the date of the upload
 # Have an 6) Editing tab that is password protected to go back and fix issues
-# User login would automagically attach their name to the data upload
-# Increase bounding box to include Krosfjorden
+
+# Prevent uploading if not all boxes are filled
 
 # Have a popup after clicking download that lists the unique DOIs of the data
 
@@ -22,8 +21,6 @@
 
 # Authorship order could be based on the number of individual files uploaded over the year
 
-# Add FACE-IT branding to the about section of the app
-
 
 # Libraries ---------------------------------------------------------------
 
@@ -31,6 +28,7 @@
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
+library(shinymanager)
 library(DT)
 library(readr)
 library(dplyr)
@@ -69,7 +67,7 @@ library(rhandsontable)
 # coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 ## Subset to Kongsfjorden area and save
 # coastline_kong <- coastline_full_df %>%
-#   filter(x >= 9, x <= 13.5, y >= 78, y <= 80) %>%
+#   filter(x >= 9, x <= 13.5, y >= 78, y <= 79.5) %>%
 #   dplyr::select(x, y, polygon_id) %>%
 #   rename(lon = x, lat = y)
 # save(coastline_kong, file = "coastline_kong.RData")
@@ -82,15 +80,26 @@ frame_base <- ggplot() +
   scale_x_continuous(breaks = c(11.5, 12.0, 12.5),
                      # position = "top",
                      labels = scales::unit_format(suffix = "°E", accuracy = 0.1, sep = "")) +
-  scale_y_continuous(breaks = c(78.9, 79.0, 79.1),
+  scale_y_continuous(breaks = c(78.9, 79.0, 79.1, 79.2, 79.3),
                      labels = scales::unit_format(suffix = "°N", accuracy = 0.1, sep = "")) +
-  coord_cartesian(xlim = c(11, 12.69), ylim = c(78.85, 79.15), expand = F) +
+  coord_cartesian(xlim = c(11, 12.69), ylim = c(78.85, 79.35), expand = F) +
   labs(y = NULL, x = NULL) +
   theme_bw() +
   theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
         axis.text = element_text(size = 12, colour = "black"),
         axis.ticks = element_line(colour = "black"))
 # frame_base
+
+# login credentials
+credentials <- data.frame(
+  user = c("r", "Allison", "Clara", "shinymanager"), # mandatory
+  password = c("r", "R", "R", "12345"), # mandatory
+  start = c("2019-04-15"), # optional (all others)
+  expire = c(NA, NA, NA, "2023-12-31"),
+  admin = c(FALSE, FALSE, FALSE, TRUE),
+  comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
+  stringsAsFactors = FALSE
+)
 
 
 # UI ----------------------------------------------------------------------
@@ -266,11 +275,12 @@ ui <- dashboardPage(
                        box(width = 12, height = "350px", title = "Time series",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
-                             column(2,
+                             column(2#,
                                     # dropdownButton(
-                                    h4("Axis controls:"),
-                                    uiOutput("plotXUI"),
-                                    uiOutput("plotYUI")),
+                                    # h4("Axis controls:"),
+                                    # uiOutput("plotXUI"),
+                                    # uiOutput("plotYUI")
+                                    ),
                              # circle = TRUE, status = "danger", icon = icon("gear"))),
                              # column(10, plotOutput("tsPlot", height = "250px"))
                            )
@@ -356,29 +366,32 @@ ui <- dashboardPage(
                        box(width = 12, height = "400px", title = "Data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBaseFilter")),
-                       box(width = 5, height = "350px", title = "Map",
+                       box(width = 5, height = "400px", title = "Map",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            # h4("Location of data"),
                            # h5("Red border = no lon/lat"),
                            # h5("Yellow border = lon/lat not in the fjord region"),
                            # h5("Green border = lon/lat within fjord region")#,
-                           plotOutput("mapDL", height = "350px")),
-                       box(width = 7, height = "350px", title = "Time series",
+                           plotOutput("mapDL", height = "330px")),
+                       box(width = 7, height = "400px", title = "Time series",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
-                           # fluidRow(
-                           # column(2,
-                           # dropdownButton(
-                           # h4("Axis controls:"),
-                           # uiOutput("plotXUI"),
-                           # uiOutput("plotYUI")),
-                           # circle = TRUE, status = "danger", icon = icon("gear"))),
-                           column(10, plotOutput("tsPlot", height = "250px"))
-                           # )
-                           # )
+                           fluidRow(
+                             # column(2,
+                             #        dropdownButton(
+                             #          h4("Axis controls:"),
+                             #          uiOutput("plotXUIDL"),
+                             #          uiOutput("plotYUIDL")),
+                             #        circle = TRUE, status = "danger", icon = icon("gear")),
+                             column(2, h4("Axis controls:")),
+                             column(4, uiOutput("plotXUIDL")),
+                             column(4, uiOutput("plotYUIDL")),
+                           column(12, plotOutput("tsPlot", height = "250px"))
                        )
+                )
+              )
                        
                               
-              ),
+              # ),
 
       )
       ),
@@ -401,11 +414,28 @@ ui <- dashboardPage(
   )
 )
 
+# Wrap the UI with secure_app
+ui <- secure_app(ui)
+
 
 # Server ------------------------------------------------------------------
 
 server <- function(input, output, session) {
 
+
+  ## login creds -------------------------------------------------------------
+
+  # call the server part
+  # check_credentials returns a function to authenticate users
+  res_auth <- secure_server(
+    check_credentials = check_credentials(credentials)
+  )
+  
+  # Text output of the credentials
+  output$auth_output <- renderPrint({
+    reactiveValuesToList(res_auth)
+  })
+  
 
   ## Load server -------------------------------------------------------------
 
@@ -534,7 +564,8 @@ server <- function(input, output, session) {
     # Upload all selected files
     df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) %>% 
       left_join(file_info_df(), by = "file_temp") %>% 
-      dplyr::select(file_name, everything(),  -file_temp)
+      mutate(Uploader = reactiveValuesToList(res_auth)[[1]]) %>% 
+      dplyr::select(Uploader, file_name, everything(),  -file_temp)
     
     # Exit
     return(df_load)
@@ -710,11 +741,11 @@ server <- function(input, output, session) {
   
   # Reactive data for datatable
   df_time <- reactive({
-    req(input$file1, table$table1)
+    req(input$file1, table$table1, df_load())
     df_meta <- as.data.frame(table$table1) %>%
       mutate(file_name = as.character(file_name))
     df_time <- df_load() %>% 
-      mutate(file_name = as.character(file_name)) %>% 
+      mutate(file_name = as.character(file_name)) %>%
       left_join(df_meta, by = c("file_name")) #, "file_num")) %>% 
     # dplyr::select(-file_num)
     return(df_time)
@@ -865,7 +896,7 @@ server <- function(input, output, session) {
     return(data_base_DT)
   })
   
-
+  
   ## Download server --------------------------------------------------------
 
   # Filter data
@@ -948,7 +979,7 @@ server <- function(input, output, session) {
                Lon >= input$slideLon[1], Lon <= input$slideLon[2],
                Lat >= input$slideLat[1], Lat <= input$slideLat[2],
                Depth >= input$slideDepth[1], Depth <= input$slideDepth[2],
-               date_time >= as.POSIXct(input$slideDate[1]), date_time <= as.POSIXct(input$slideDate[2]))
+               date_time >= as.POSIXct(input$slideDate[1]-1), date_time <= as.POSIXct(input$slideDate[2]+1))
     } else {
       df_filter <- data.frame(warning = "Something has gone wrong :(")
     }
@@ -959,6 +990,77 @@ server <- function(input, output, session) {
   output$dataBaseFilter <- DT::renderDataTable({
     data_base_filter_DT <- datatable(df_filter(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
     return(data_base_filter_DT)
+  })
+  
+  # Controls for X-axis of DL time series plot
+  output$plotXUIDL <- renderUI({
+    # req(input$selectCols)
+    shiny::selectInput("plotXDL", "X axis", multiple = FALSE,
+                       choices = colnames(df_data_base())[!colnames(df_data_base()) %in% c("file_name", "lon", "lat")], 
+                       selected = "date_time")
+  })
+  
+  # Controls for Y-axis of DL time series plot
+  output$plotYUIDL <- renderUI({
+    # req(input$selectCols)
+    shiny::selectInput("plotYDL", "Y axis", multiple = FALSE,
+                       choices = colnames(df_data_base())[!colnames(df_data_base()) %in% c("file_name", "lon", "lat")],
+                       selected = "Temperature")
+  })
+  
+  # Time series plot for downloadable data
+  output$tsPlot <- renderPlot({
+    req(input$plotXDL)
+
+    df_filter <- df_filter()
+
+    ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
+      geom_point() + geom_line() +
+      theme(panel.border = element_rect(colour = "black", size = 1, fill = NA))
+    return(ts)
+  })
+  
+  # Map for downloadable data
+  output$mapDL <- renderPlot({
+    # req(input$file1, table$table1)
+
+    df_filter <- df_filter()
+
+    # Check that coords are present
+    if(length(na.omit(df_filter$Lon)) == 0 | length(na.omit(df_filter$Lat)) == 0){
+
+      # If no coords, red border
+      mp <- frame_base +
+        theme(panel.border = element_rect(colour = "red", size = 5))
+
+    } else {
+
+      # Get unique coordinates and count of data
+      df_point <- df_filter %>%
+        group_by(Lon, Lat) %>%
+        summarise(count = n(), .groups = "drop")
+
+      # Check that coords are within he fjord region
+      if(max(df_point$Lon, na.rm = T) > 12.69 | min(df_point$Lon, na.rm = T) < 11 |
+         min(df_point$Lat, na.rm = T) < 78.85 | max(df_point$Lat, na.rm = T) > 79.15){
+
+        # If not create a yellow border
+        border_colour <- "yellow"
+
+      } else {
+
+        # If yes create green border
+        border_colour <- "green"
+
+      }
+      # Create bordered figure
+      mp <- frame_base +
+        # geom_point(data = df_point, aes(x = Lon, y = Lat), size = 5, colour = "green") +
+        geom_label(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = border_colour) +
+        geom_text(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = "black") +
+        theme(panel.border = element_rect(colour = border_colour, size = 5))
+    }
+    return(mp)
   })
   
   # Reactive download button
@@ -980,7 +1082,6 @@ server <- function(input, output, session) {
       }
     }
   )
-  
 }
 
 
