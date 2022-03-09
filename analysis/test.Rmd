@@ -1,0 +1,15 @@
+---
+title: "Test for iframe"
+author: "Robert Schlegel"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+# css: acid.css
+# csl: frontiers.csl
+# bibliography: FACE-IT.bib
+---
+
+<iframe src="http://193.50.85.104:4949/dataAccess/" height="800" width="800" title="Iframe Example"></iframe>
+ 
+<!-- <iframe src="https://www.youtube.com/" height="800" width="800" title="Iframe Example"></iframe> -->
