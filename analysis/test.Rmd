@@ -10,8 +10,14 @@ editor_options:
 # bibliography: FACE-IT.bib
 ---
 
-<iframe src="http://193.50.85.104:4949/dataAccess/" height="200" width="800" title="Iframe Example"></iframe>
+<!-- <iframe src="http://193.50.85.104:4949/dataAccess/" height="200" width="800" title="Iframe Example"></iframe> -->
 
-<iframe src="http://www.marineheatwaves.org/tracker.html" height="200" width="800" title="Iframe Example"></iframe>
+<!-- <iframe src="http://www.marineheatwaves.org/tracker.html" height="200" width="800" title="Iframe Example"></iframe> -->
 
-<iframe src="https://www.youtube.com/" height="200" width="800" title="Iframe Example"></iframe>
+<!-- <iframe src="https://www.youtube.com/" height="200" width="800" title="Iframe Example"></iframe> -->
+
+<!-- <noscript> -->
+<!-- <iframe src="http://whalemap.ocean.dal.ca/MHW/" style="position:fixed; top:60px; left:0px; bottom:0px; right:0px; width:100%; height:93.6%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"> -->
+    <!-- Your browser doesn't support iframes -->
+<!-- </iframe> -->
+<!-- </noscript> -->
