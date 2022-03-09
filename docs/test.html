@@ -2,8 +2,37 @@
 <html>
 <head><title>Marine Heatwave Tracker</title></head>
 <body>
-<iframe src="http://whalemap.ocean.dal.ca/MHW/" style="position:fixed; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
+
+<noscript>
+<iframe src="http://whalemap.ocean.dal.ca/MHW/" style="position:fixed; top:60px; left:0px; bottom:0px; right:0px; width:100%; height:93.6%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
     Your browser doesn't support iframes
 </iframe>
+</noscript>
+
+<script type="text/javascript">
+ var form = 'http://whalemap.ocean.dal.ca/MHW/';
+ var params = window.location.search;
+ var thisScript = document.scripts[document.scripts.length - 1];
+ var iframe = document.createElement('iframe');
+
+ iframe.setAttribute('src', form + params);
+ iframe.setAttribute('width', '50%');
+ iframe.setAttribute('type', 'text/html');
+ iframe.setAttribute('frameborder', 0);
+ iframe.style.position = 'fixed';
+ iframe.style.top = '60px';
+ iframe.style.left = '0px';
+ iframe.style.bottom = '0px';
+ iframe.style.right = '0px';
+ iframe.style.width = '100%';
+ iframe.style.height = '93.6%';
+ iframe.style.border = 'none';
+ iframe.style.margin = '0';
+ iframe.style.padding = '0';
+ iframe.style.overflow = 'hidden';
+
+ thisScript.parentElement.replaceChild(iframe, thisScript);
+</script>
+
 </body>
 </html>
