@@ -30,7 +30,7 @@ loadRData <- function(fileName){
 # input <- data.frame(selectSite = "_stor")
 
 # Full data file paths
-full_data_paths <- dir("../../data/full_data", full.names = T)
+full_data_paths <- dir("full_data", full.names = T)
 
 # Named sites for subsetting paths
 sites_named <- c("Svalbard" = "_sval", "Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor",
@@ -50,7 +50,7 @@ bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
 bbox_por <- c(24.5, 27, 70, 71.2)
 
 # The base global map
-map_base <- readRDS("../../metadata/map_base.Rda")
+map_base <- readRDS("map_base.Rda")
 
 
 # UI ----------------------------------------------------------------------
@@ -59,7 +59,7 @@ map_base <- readRDS("../../metadata/map_base.Rda")
 ui <- fluidPage(
 
     # Application title
-    titlePanel("FACE-IT Data Access"),
+    titlePanel("Access to data collected for FACE-IT"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(

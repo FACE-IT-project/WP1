@@ -8,6 +8,8 @@
 
 # TODO: Figure out how to combine lookup tables in order to get lon/lat/date values for cruise data
 # Be more strict about the removal of empty columns when they are an unknown format
+# Consider using powerjoin for some of the issues caused by the pangaeaR package
+# https://cran.r-project.org/web/packages/powerjoin/readme/README.html
 
 # Libraries used in this script
 source("code/functions.R")
@@ -323,6 +325,17 @@ write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 rm(list = ls()[grep("pg_EU", ls())]); gc()
 
 
+# Collect MUR 1km data for all site
+## NB: This takes over 2 hours to run
+## Feb 20-21 2021 are missing from the server
+## The daily files are compiled below in each site section
+doParallel::registerDoParallel(cores = 15)
+MUR_dates <- seq(as.Date("2003-01-01"), as.Date("2021-12-31"), by = "day")[-c(6626, 6627)]
+system.time(
+plyr::l_ply(MUR_dates, download_MUR_ALL, .parallel = T)
+) # 2.4 hours
+
+
 # Kongsfjorden ------------------------------------------------------------
 
 ## All Kongsfjorden bbox data files - 2525
@@ -372,6 +385,14 @@ save(ice_4km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_4km_kong.
 ice_coords_1km_kong <- load_ice_coords("Kongsfjorden", "1km")
 ice_1km_kong <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_kong, .parallel = T)
 save(ice_1km_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
+
+# Compile MUR data downloaded in EU section
+doParallel::registerDoParallel(cores = 15)
+system.time(
+  sst_MUR_kong_plyr <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/MUR/kong/", full.names = T, pattern = ".rds"), 
+                              read_rds, .parallel = TRUE)
+) # 53 seconds
+save(sst_MUR_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")
 
 
 # Isfjorden ---------------------------------------------------------------

@@ -6,6 +6,7 @@
 
 # Libraries used in all other scripts
 library(tidyverse)
+library(lubridate)
 library(tidync)
 library(PCICt) # For 'noleap' date conversions
 library(FNN)
@@ -15,6 +16,7 @@ library(gridExtra)
 library(gtable)
 library(ggOceanMaps)
 library(RColorBrewer)
+library(raster)
 library(sp)
 library(sf)
 library(pangaear)
@@ -37,13 +39,20 @@ Sys.setenv(TZ = "UTC")
 bbox_EU <- c(-60, 60, 63, 90)
 bbox_sval <- c(9, 30, 76, 81)
 bbox_kong <- c(11, 12.69, 78.86, 79.1)
+bbox_kong_wide <- c(9.5, 14.0, 78.0, 79.5)
 bbox_is <- c(12.97, 17.50, 77.95, 78.90)
+bbox_is_wide <- c(10.0, 18.0, 77.0, 79.0)
 bbox_ingle <- c(18.15, 18.79, 77.87, 78.08)
 bbox_stor <- c(17.35, 21.60, 77.33, 78.13)
+bbox_stor_wide <- c(17.0, 22.0, 77.0, 78.5)
 bbox_young <- c(-22.367917, -19.907644, 74.210137, 74.624304)
+bbox_young_wide <- c(-22.5, -17.5, 73.0, 75.5)
 bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
+bbox_disko_wide <- c(-56.0, -49.0, 68.0, 71.0)
 bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
+bbox_nuup_wide <- c(-53.5, -48.5, 63.5, 65.0)
 bbox_por <- c(24.5, 27, 70, 71.2)
+bbox_por_wide <- c(23.5, 28, 69, 72.0)
 
 # Project wide category colours
 CatCol <- c(
@@ -72,6 +81,9 @@ DepthCol <- c(
   "1000 - 2000 m" = brewer.pal(9, "Blues")[8], 
   "2000+ m" = brewer.pal(9, "Blues")[9]
 )
+
+# Base URL for MUR data
+base_MUR_URL <- "https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data/GDS2/L4/GLOB/JPL/MUR/v4.1"
 
 
 # Meta-data ---------------------------------------------------------------
@@ -132,6 +144,21 @@ bbox_from_name <- function(site_name){
   if(site_name == "Disko Bay") bbox_name <- bbox_disko
   if(site_name == "Nuup Kangerlua") bbox_name <- bbox_nuup
   if(site_name == "Porsangerfjorden") bbox_name <- bbox_por
+  # This has potentially been coded to allow an error here
+  return(bbox_name)
+}
+
+# Convenience function for getting wide bbox from site abbreviation
+bbox_wide_from_name <- function(site_abv){
+  # get correct bounding box
+  if(site_abv == "kong") bbox_name <- bbox_kong_wide
+  if(site_abv == "is") bbox_name <- bbox_is_wide
+  if(site_abv == "ingle") bbox_name <- bbox_ingle
+  if(site_abv == "stor") bbox_name <- bbox_stor_wide
+  if(site_abv == "young") bbox_name <- bbox_young_wide
+  if(site_abv == "disko") bbox_name <- bbox_disko_wide
+  if(site_abv == "nuup") bbox_name <- bbox_nuup_wide
+  if(site_abv == "por") bbox_name <- bbox_por_wide
   # This has potentially been coded to allow an error here
   return(bbox_name)
 }
@@ -940,6 +967,40 @@ load_ice_gridded <- function(file_name, ice_coords){
   return(df_sub)
 }
 
+# Function for loading old CTD data from AWI
+load_CTD_DATEN <- function(file_name){
+  # Get coords based on file_name
+  if(str_detect(file_name, "LONDON")){
+    lon_site = 12.0444
+    lat_site = 78.9611
+  } else if(str_detect(file_name, "NANSEN")){
+    lon_site = 11.9231
+    lat_site = 78.9286
+  } else if(str_detect(file_name, "STEG")){
+    lon_site = 11.9194
+    lat_site = 78.9303
+  } else if(str_detect(file_name, "TONNE")){
+    lon_site = 11.9392
+    lat_site = 78.9286
+  } else if(str_detect(file_name, "NESET")){
+    lon_site = 11.9872
+    lat_site = 78.9958
+  } else {
+    lon_site = NA
+    lat_site = NA
+  }
+  # Load+process file
+  df_res <- read.table(file_name, skip = 36, header = F,
+                       col.names = c("press", "temp", "cond", "Cvx", "Cvy", "Hx", "Hy", "sal",
+                                     "sigma", "sound", "CSPD", "CDIR", "date", "time")) %>% 
+    mutate(date = as.POSIXct(paste(date, time), tryFormats = c("%d.%m.%y %H:%M:%S")),
+           lon = lon_site, lat = lat_site) %>% 
+    dplyr::select(lon, lat, date, press, temp, cond, sal, sigma, CSPD, CDIR) %>% 
+    dplyr::rename(`press [dbar]` = press, `temp [°C]` = temp, `cond [mS/cm]` = cond, 
+                  `sal [ppt]` = sal, `sigma [kg/m3]` = sigma, `spd [cm/s]` = CSPD, `dir [°]` = CDIR)
+  return(df_res)
+}
+
 # Data summary plotting function
 data_summary_plot <- function(full_product, site_name){
   
@@ -1337,3 +1398,63 @@ model_summary <- function(model_product, site_name){
     theme(plot.background = element_rect(fill = "white", color = NA))
   return(plot_all)
 }
+
+# Convenience wrapper for creating hi-res gridded coordinates
+grid_MUR <- function(bbox_coords){
+  bbox_grid <- expand.grid(seq(bbox_coords[1], bbox_coords[2], by = 0.01),
+                     seq(bbox_coords[3], bbox_coords[4], by = 0.01)) %>% 
+    dplyr::rename(lon = Var1, lat = Var2) %>% 
+    # Raster MUR coords get extracted from largest to smallest Y
+    arrange(-lat, lon)
+  return(bbox_grid)
+}
+
+# Convenience function to account for minor x axis change to MUR pixel extent
+extent_MUR <- function(bbox_coords){
+  bbox_extent <- extent(c(bbox_coords[1]-0.001, bbox_coords[2],
+                          bbox_coords[3]-0.001, bbox_coords[4]))
+  return(bbox_extent)
+}
+
+# Convenience wrapper used within download_MUR_ALL()
+download_MUR_single <- function(site_abv, file_date, MUR_raster){
+  if(!file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/",site_abv,"/",file_date,".rds"))){
+    write_rds(data.frame(grid_MUR(bbox_wide_from_name(site_abv)), t = file_date,
+                         temp = as.vector(raster::extract(MUR_raster, extent_MUR(bbox_wide_from_name(site_abv)), 
+                                                          method = "simple")-273.15)), 
+              paste0("~/pCloudDrive/FACE-IT_data/MUR/",site_abv,"/",file_date,".rds"), compress = "gz")
+  }
+}
+
+# Function for downloading MUR 1km data
+download_MUR_ALL <- function(file_date){
+  
+  # Check if the data have already been downloaded - this should be deactivated for testing
+  if(file.exists(paste0("~/pCloudDrive/FACE-IT_data/MUR/por/",file_date,".rds"))) return()
+  
+  # Construct file name
+  file_name <- paste0(base_MUR_URL,"/",year(file_date),"/",sprintf("%03d", yday(file_date)),"/",
+                      gsub("-", "", file_date),"090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc")
+  
+  # Connect to NetCDF file as a raster brick
+  # system.time(
+  suppressWarnings( # Don't need the warning that says SST layer is being used
+    MUR_raster <- brick(file_name)
+  )
+  # ) # 2 seconds
+  
+  # Download data per site
+  # system.time(
+  plyr::l_ply(c("kong", "is", "stor", "young", "disko", "nuup", "por"), 
+              download_MUR_single, file_date = file_date, MUR_raster = MUR_raster, .parallel = F)
+  # ) # 16 seconds for 7
+  
+  # Test visuals
+  # MUR_df <- read_rds("~/pCloudDrive/FACE-IT_data/MUR/young/2003-01-01.rds")
+  # ggplot(MUR_df, aes(x = lon, y = lat)) +
+  #   geom_raster(aes(fill = temp))
+  
+  # exit without returning anything
+  # return()
+}
+
