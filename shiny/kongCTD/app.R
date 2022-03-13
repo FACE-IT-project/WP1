@@ -12,6 +12,11 @@
 # Allow for colour to show on maps or time series for which sources have contributed the historic data
 # Numbers for colours, and then a lookup table with product name via join by number
 
+# Add text to first step with some explanation/tips
+# Need to start having some basic documentation
+# Also provide info for where the data are saved, and where they will be published
+# Provide specifics, a diagram could be good
+
 # The data upload repository needs to start to be considered
 
 # Authorship order could be based on the number of individual files uploaded over the year
