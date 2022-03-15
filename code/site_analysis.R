@@ -229,6 +229,7 @@ kong_PAR <- full_product_kong %>%
   filter(grepl("par", var_name, ignore.case = T)) %>% 
   filter(!grepl("para|pari|parvum", var_name, ignore.case = T))
 unique(kong_PAR$var_name)
+unique(kong_PAR$citation)
 write_csv(kong_PAR, file = "data/kong_PAR.csv")
 
 # Plot NOAA OISST grid around Kongsfjorden
