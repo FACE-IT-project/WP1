@@ -54,6 +54,15 @@ bbox_nuup_wide <- c(-53.5, -48.5, 63.5, 65.0)
 bbox_por <- c(24.5, 27, 70, 71.2)
 bbox_por_wide <- c(23.5, 28, 69, 72.0)
 
+# Single site bbox for use with points_in_region()
+bbox_kong_df <- data.frame(region = "kong", lon = bbox_kong[1:2], lat = bbox_kong[3:4])
+bbox_is_df <- data.frame(region = "is", lon = bbox_is[1:2], lat = bbox_is[3:4])
+bbox_stor_df <- data.frame(region = "stor", lon = bbox_stor[1:2], lat = bbox_stor[3:4])
+bbox_young_df <- data.frame(region = "young", lon = bbox_young[1:2], lat = bbox_young[3:4])
+bbox_disko_df <- data.frame(region = "disko", lon = bbox_disko[1:2], lat = bbox_disko[3:4])
+bbox_nuup_df <- data.frame(region = "nuup", lon = bbox_nuup[1:2], lat = bbox_nuup[3:4])
+bbox_por_df <- data.frame(region = "por", lon = bbox_por[1:2], lat = bbox_por[3:4])
+
 # Project wide category colours
 CatCol <- c(
   "Cryosphere" = "mintcream",

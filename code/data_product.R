@@ -634,6 +634,7 @@ kong_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/moo
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ferry box data
+### TODO: add depths and units to individual values
 kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>%
   dplyr::select(date, alp:at_calc, co2_air:depth, diff_sal_fb_insitu_9m:k600, nh4:ws) %>% 
   pivot_longer(cols = c(-"date", -"depth"), names_to = "var_name", values_to = "value") %>% 
