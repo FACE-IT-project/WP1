@@ -1,8 +1,21 @@
 # shiny/kongCTD/app.R
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
-# TODO: It would be useful for a user that the settings could be saved in between uploads
+# TODO: 
+# Also attach the date of upload, which is tied to Sys.time
+# Also create a NetCDF file format for saving data
+# Add more schemas for files Allison sent through
+# Change column names to match NMDC terminology
 # Have an 6) Editing tab that is password protected to go back and fix issues
+# Make this attached to the username so that users can only edit the data they uploaded
+# Have superusers too whose name == ALL
+# Add real sites to pre-made drop down list of stations for step 2)
+# Selectify the list to add subsets of sites by organisation. e.g. NPI stations, AWI stations etc.
+
+# Spruce up the landing page with some nice pictures of the fjord
+# Also add all sorts of info to the landing page that motivates people to use it
+
+# It would be useful for a user that the settings could be saved in between uploads
 
 # Prevent uploading if not all boxes are filled
 
@@ -92,11 +105,11 @@ frame_base <- ggplot() +
 
 # login credentials
 credentials <- data.frame(
-  user = c("r", "Allison", "Clara", "shinymanager"), # mandatory
-  password = c("r", "R", "R", "12345"), # mandatory
+  user = c("r", "Allison", "Clara", "Jean-Pierre", "shinymanager"), # mandatory
+  password = c("r", "R", "R", "Antibes", "12345"), # mandatory
   start = c("2019-04-15"), # optional (all others)
-  expire = c(NA, NA, NA, "2023-12-31"),
-  admin = c(FALSE, FALSE, FALSE, TRUE),
+  expire = c(NA, NA, NA, NA, "2023-12-31"),
+  admin = c(FALSE, FALSE, FALSE, FALSE, TRUE),
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
