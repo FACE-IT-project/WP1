@@ -768,8 +768,8 @@ is_CO2_tempelfjorden <- data.frame(type = "CTD",
                                    lon_range = "16.945 to 17.353", lat_range = "78.391 to 78.441",
                                    depth_range = "1.43 to 98",
                                    file_name = '<a onclick="alert(\'Marine_CO2_system_data_from_Tempelfjorden_2015_to_2017.xlsx; Marine_CO2_system_data_from_Tempelfjorden_2015_to_2017.csv\');"2 files</a>',
-                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All">SIOS</a>',
-                                   reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                                   URL = '<a target="_blank" rel="noopener noreferrer" href="http://metadata.nmdc.no/metadata-api/landingpage/35a23dd3ac46065c0b6cb86fcdd30e98">NMDC</a>',
+                                   reference = '<a onclick="alert(\'Ylva Ericson, UNIS, Eva Falck, UNIS, Agneta Fransson NPOLAR, and Melissa Chierici, IMR and UNIS (2019) Marine CO2 system data from Tempelfjorden, Svalbard, 2015-2017 https://doi.org/10.21335/NMDC-656799113\');">Ericson et al. (2019)</a>',
                                    note = NA)
 
 # CO2 station at IsA
@@ -780,8 +780,8 @@ is_IsA_CO2 <- data.frame(type = "CTD",
                          lat_range = "78.257 to 78.267",
                          depth_range = "1.44 to 90.52",
                          file_name = '<a onclick="alert(\'Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.xlsx; Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.csv\');"2 files</a>',
-                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All">SIOS</a>',
-                         reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="http://metadata.nmdc.no/metadata-api/landingpage/1e5ae6511b1c22a2f8d00aac50c32eb5">NMDC</a>',
+                         reference = '<a onclick="alert(\'Ylva Ericson, UNIS, Eva Falck, UNIS, and Melissa Chierici, IMR and UNIS. (2019) Marine CO2 system data from the IsA Station, Svalbard, 2015-2017 https://doi.org/10.21335/NMDC-80568951\');">Ericson et al. (2019)</a>',
                          note = NA)
 
 # Chlorophyl station at IsA

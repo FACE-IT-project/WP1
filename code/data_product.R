@@ -906,8 +906,8 @@ is_CO2_tempelfjorden <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO
   mutate(date = as.Date(paste0(Year,"-",Month,"-",Day)), .keep = "unused") %>% 
   dplyr::select(lon, lat, date, depth, `Temperature [ITS-90, deg C]`:`pHT in situ (temperature correction using EP TA)`) %>% 
   pivot_longer(`Temperature [ITS-90, deg C]`:`pHT in situ (temperature correction using EP TA)`, names_to = "var_name", values_to = "value") %>% 
-  mutate(URL = "https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All",
-         citation = NA,
+  mutate(URL = "http://metadata.nmdc.no/metadata-api/landingpage/35a23dd3ac46065c0b6cb86fcdd30e98",
+         citation = "Ylva Ericson, UNIS, Eva Falck, UNIS, Agneta Fransson NPOLAR, and Melissa Chierici, IMR and UNIS (2019) Marine CO2 system data from Tempelfjorden, Svalbard, 2015-2017 https://doi.org/10.21335/NMDC-656799113",
          var_type = case_when(var_name == "Salinity [PSU]" ~ "phys",
                               var_name == "Temperature [ITS-90, deg C]" ~ "phys",
                               var_name == "TA [µmol/kg]" ~ "chem",
@@ -924,8 +924,8 @@ is_CO2_IsA <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO2_system_d
   mutate(date = as.Date(paste0(Year,"-",Month,"-",Day)), .keep = "unused") %>% 
   dplyr::select(lon, lat, date, depth, `Temperature [ITS-90, deg C]`:`pHT in situ (temperature correction using EP TA)`) %>% 
   pivot_longer(`Temperature [ITS-90, deg C]`:`pHT in situ (temperature correction using EP TA)`, names_to = "var_name", values_to = "value") %>% 
-  mutate(URL = "https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All",
-         citation = NA,
+  mutate(URL = "http://metadata.nmdc.no/metadata-api/landingpage/1e5ae6511b1c22a2f8d00aac50c32eb5",
+         citation = "Ylva Ericson, UNIS, Eva Falck, UNIS, and Melissa Chierici, IMR and UNIS. (2019) Marine CO2 system data from the IsA Station, Svalbard, 2015-2017 https://doi.org/10.21335/NMDC-80568951",
          var_type = case_when(var_name == "Salinity [PSU]" ~ "phys",
                               var_name == "Temperature [ITS-90, deg C]" ~ "phys",
                               var_name == "TA [µmol/kg]" ~ "chem",
