@@ -670,3 +670,32 @@ ice_coords_1km_por <- load_ice_coords("Porsangerfjorden", "1km")
 ice_1km_por <- plyr::ldply(ice_1km_files, load_ice_gridded, ice_coords_1km_por, .parallel = T)
 save(ice_1km_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_1km_por.RData")
 
+
+# Tromso ------------------------------------------------------------------
+
+## All Tromso data files - 6351
+print(paste0("Began run on pg_trom at ", Sys.time()))
+pg_trom_bbox <- pg_full_search(query = "", bbox = c(bbox_trom[1], bbox_trom[3], bbox_trom[2], bbox_trom[4]))# %>% # 2775 files
+  # filter(!doi %in% pg_doi_list$doi)
+pg_trom_name_1 <- pg_full_search(query = "Tromsø") %>% # 3504 files
+  filter(!doi %in% pg_trom_bbox$doi)
+pg_trom_name_2 <- pg_full_search(query = "Tromso") %>% # 72 files
+  filter(!doi %in% pg_trom_bbox$doi, !doi %in% pg_trom_name_1$doi)
+pg_trom_all <- rbind(pg_trom_bbox, pg_trom_name_1, pg_trom_name_2) %>% 
+  filter(!grepl("Multibeam survey", citation, ignore.case = T)) %>% # This removes ~7 million rows of bathy data
+  filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via their own portal
+  arrange(citation) %>% distinct()
+rm(pg_trom_bbox, pg_trom_name_1, pg_trom_name_2); gc()
+
+# Download files
+system.time(
+  pg_trom_dl <- plyr::ldply(pg_trom_all$doi, pg_dl_proc)
+) # 44 seconds
+# colnames(pg_trom_dl)
+# test1 <- data.frame(table(pg_tromso_dl$citation)) # Investigate which files contribute the most size
+data.table::fwrite(pg_trom_dl, "~/pCloudDrive/FACE-IT_data/tromso/pg_trom.csv")
+# data.table::fwrite(pg_trom_dl, "data/pg_data/pg_por.csv")
+rm(pg_tromso_dl); gc()
+
+# PAR data
+

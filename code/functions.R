@@ -53,6 +53,7 @@ bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
 bbox_nuup_wide <- c(-53.5, -48.5, 63.5, 65.0)
 bbox_por <- c(24.5, 27, 70, 71.2)
 bbox_por_wide <- c(23.5, 28, 69, 72.0)
+bbox_trom <- c(17.5, 21.0, 69.0, 70.5)
 
 # Single site bbox for use with points_in_region()
 bbox_kong_df <- data.frame(region = "kong", lon = bbox_kong[1:2], lat = bbox_kong[3:4])
