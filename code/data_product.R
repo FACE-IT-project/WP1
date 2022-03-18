@@ -1332,6 +1332,71 @@ rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 
 
+## GEM ---------------------------------------------------------------------
+
+# Sea ice free period per year
+young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Sea_ice_conditions_Open_water_duration.csv", delim = "\t") %>% 
+  dplyr::rename(value = `Open Water duration`) %>% 
+  mutate(var_name = "Open water [annual days]",
+         var_type = "cryo",
+         date = as.Date(paste0(Year,"-12-31")),
+         depth = NA, lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/R3QB-7Q71",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Water column CTD
+young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
+                sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 
+                PAR = `Water, PAR`, turbidity = `Water turbidity`, `Tpot [°C]` = `Potential temperature, C`,
+                `oxygen [µmol/kg]` = `Water oxygen content, µmol/kg`) %>% 
+  pivot_longer(`temp [°C]`:`oxygen [µmol/kg]`, names_to = "var_name") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(var_type = case_when(var_name == "fluor" ~ "bio",
+                              var_name == "oxygen [µmol/kg]" ~ "chem",
+                              TRUE ~ "phys"),
+         lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "CTD measurements Water column: Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Mooring CTD
+young_GEM_CTD_mooring <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Water_column_Mooring_CTD_measurements.csv", delim = "\t") %>% 
+  dplyr::rename(date = DATE, depth = `PRESSURE (db)`, `temp [°C]` = `TEMPERATURE (°C)`, `sal [PSU]` = `Salinity (PSU)`) %>% 
+  pivot_longer(`temp [°C]`:`sal [PSU]`, names_to = "var_name") %>% 
+  mutate(var_type = "phys",
+         lon = -20.27883, lat = 74.31515,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/8GPS-CE70",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "CTD measurements mooring: Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+
+# Sill CTD
+young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Water_column_Sill_CTD_measurements.csv") %>% 
+  dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
+                sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 
+                PAR = `Water, PAR`, turbidity = `Water turbidity`, `Tpot [°C]` = `Potential temperature, C`,
+                `oxygen [µmol/kg]` = `Water oxygen content, µmol/kg`) %>% 
+  pivot_longer(`temp [°C]`:`oxygen [µmol/kg]`, names_to = "var_name") %>%
+  filter(value != -9999) %>% 
+  mutate(var_type = case_when(var_name == "fluor" ~ "bio",
+                              var_name == "oxygen [µmol/kg]" ~ "chem",
+                              TRUE ~ "phys"),
+         lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/B4E2-N060",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Combine and save
+young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill)
+save(young_GEM, file = "data/restricted/young_GEM.RData")
+
+
 # Disko Bay ---------------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
@@ -1456,6 +1521,34 @@ rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
 
+## GEM ---------------------------------------------------------------------
+
+# Open water CTD
+disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Disko_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, depth = `depSM: Depth (salt water, m)`, `temp [°C]` = `tv268C: Temperature (IPTS-68, deg C)`,
+                `cond [S/m]` = `c0S/m: Conductivity (S/m)`, `sal [PSU]` = `sal00: Salinity, Practical (PSU)`,
+                `density [kg/m^3]` = `density00: Density (density, kg/m^3)`, `press [psi]` = `prdE: Pressure, Strain Gauge (psi)`, 
+                `oxygen a [mg/l]` = `sbeox0Mg/L: Oxygen, SBE 43 (mg/l) a`, `oxygen b [mg/l]` = `sbeox0Mg/L: Oxygen, SBE 43 (mg/l) b`,
+                `oxygen [ml/l]` = `sbeox0ML/L: Oxygen, SBE 43 (ml/l)`, `oxygen [% sat]` = `sbeox0PS: Oxygen, SBE 43 (% saturation)`,
+                fluor = `flSP: Fluorescence, Seapoint`, `turbidity [FTU]` = `seaTurbMtr: Turbidity, Seapoint (FTU)`,
+                PAR = `par: PAR/Irradiance, Biospherical/Licor`) %>% 
+  pivot_longer(`temp [°C]`:PAR, names_to = "var_name") %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = case_when(var_name == "fluor" ~ "bio",
+                              var_name %in% c("oxygen a [mg/l]", "oxygen b [mg/l]",
+                                              "oxygen [ml/l]", "oxygen [% sat]") ~ "chem",
+                              TRUE ~ "phys"),
+         lon = -53.51, lat = 69.251,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Combine and save
+disko_GEM <- rbind(disko_GEM_CTD_open_water)
+save(disko_GEM, file = "data/restricted/disko_GEM.RData")
+
+
 # Nuup Kangerlua ----------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
@@ -1552,6 +1645,29 @@ save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_p
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+
+
+## GEM ---------------------------------------------------------------------
+
+# Open water CTD
+nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, lon = Longitude, lat = Latitude, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
+                sal = Salinity, `density [kg m-3]` = `Density, Sigma-theta, kg m-3`, fluor = `Fluorescence`, 
+                `PAR [µmol photons m-2/sec]` = `PAR, µmol photons m-2 sec-1`, `turbidity [FTU]` = `Turbidity, FTU`, 
+                `Tpot [°C]` = `Potential temperature, C`, `oxygen [µmol/kg]` = `Oxygen content, µmol kg-1`) %>% 
+  pivot_longer(`temp [°C]`:`oxygen [µmol/kg]`, names_to = "var_name") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(var_type = case_when(var_name == "fluor" ~ "bio",
+                              var_name == "oxygen [µmol/kg]" ~ "chem",
+                              TRUE ~ "phys"),
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/KMEK-TK21",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Combine and save
+nuup_GEM <- rbind(nuup_GEM_CTD_open_water)
+save(nuup_GEM, file = "data/restricted/nuup_GEM.RData")
 
 
 # Porsangerfjorden --------------------------------------------------------

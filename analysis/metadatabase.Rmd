@@ -1142,7 +1142,7 @@ young_air_pCO2 <- data.frame(type = "CTD",
                              depth_range = NA,
                              file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
-                             reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75.\');">GEM</a>',
+                             reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75\');">GEM</a>',
                              note = NA)
 
 # Water pCO2
@@ -1154,7 +1154,7 @@ young_water_pCO2 <- data.frame(type = "CTD",
                                depth_range = "1 to 50",
                                file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/A8J4-AF12">GEM</a>',
-                               reference = '<a onclick="alert(\'Partial pressure of CO2 water (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12.\');">GEM</a>',
+                               reference = '<a onclick="alert(\'Partial pressure of CO2 water (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12\');">GEM</a>',
                                note = NA)
 
 # CTD water column bottom data
@@ -1178,7 +1178,7 @@ young_CTD_water <- data.frame(type = "CTD",
                               depth_range = "0 to 160",
                               file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12">GEM</a>',
-                              reference = '<a onclick="alert(\'CTD measurements Water column: Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12.\');">GEM</a>',
+                              reference = '<a onclick="alert(\'CTD measurements Water column: Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12\');">GEM</a>',
                               note = NA)
 
 # CTD mooring data
@@ -1190,7 +1190,7 @@ young_CTD_mooring <- data.frame(type = "CTD",
                                 depth_range = "56 to 75",
                                 file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/8GPS-CE70">GEM</a>',
-                                reference = '<a onclick="alert(\'CTD measurements mooring: Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70.\');">GEM</a>',
+                                reference = '<a onclick="alert(\'CTD measurements mooring: Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70\');">GEM</a>',
                                 note = NA)
 
 # CTD sill data
@@ -1202,7 +1202,7 @@ young_CTD_sill <- data.frame(type = "CTD",
                              depth_range = "45 to 59",
                              file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/B4E2-N060">GEM</a>',
-                             reference = '<a onclick="alert(\'Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733.\');">Boone et al. (2018)</a>',
+                             reference = '<a onclick="alert(\'Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733\');">Boone et al. (2018)</a>',
                               note = NA)
 
 # Phytoplankton species composition
@@ -1214,7 +1214,7 @@ young_phyto_species <- data.frame(type = "Bottle",
                                   depth_range = "?",
                                   file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/MN5J-K414">GEM</a>',
-                                  reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414.\');">GEM</a>',
+                                  reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414\');">GEM</a>',
                                   note = NA)
 
 # Zooplankton abundance
@@ -1226,7 +1226,7 @@ young_zoo_species <- data.frame(type = "Bottle",
                                 depth_range = "?",
                                 file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/D3C5-AJ13">GEM</a>',
-                                reference = '<a onclick="alert(\'Zooplankton Species Composition (individuals/m2): Water column MarineBasis Zackenberg. doi: 10.17897/D3C5-AJ13.\');">GEM</a>',
+                                reference = '<a onclick="alert(\'Zooplankton Species Composition (individuals/m2): Water column MarineBasis Zackenberg. doi: 10.17897/D3C5-AJ13\');">GEM</a>',
                                 note = NA)
 
 # Nitrate+nitrite concentrations
@@ -1241,7 +1241,7 @@ young_phosphate <- data.frame(type = "Bottle",
                               depth_range = "1 to 50",
                               file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/KQ4Z-SD22">GEM</a>',
-                              reference = '<a onclick="alert(\'Water Phosphate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/KQ4Z-SD22.\');">GEM</a>',
+                              reference = '<a onclick="alert(\'Water Phosphate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/KQ4Z-SD22\');">GEM</a>',
                               note = NA)
 
 # Silicate concentrations
@@ -1253,7 +1253,7 @@ young_silicate <- data.frame(type = "Bottle",
                              depth_range = "1 to 50",
                              file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/GFHW-ZT42">GEM</a>',
-                             reference = '<a onclick="alert(\'Water Silicate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/GFHW-ZT42.\');">GEM</a>',
+                             reference = '<a onclick="alert(\'Water Silicate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/GFHW-ZT42\');">GEM</a>',
                              note = NA)
 
 # DIC concentrations
@@ -1265,7 +1265,7 @@ young_DIC <- data.frame(type = "Bottle",
                         depth_range = "1 to 50",
                         file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/7FSW-D577">GEM</a>',
-                        reference = '<a onclick="alert(\'Water DIC Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/7FSW-D577.\');">GEM</a>',
+                        reference = '<a onclick="alert(\'Water DIC Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/7FSW-D577\');">GEM</a>',
                         note = NA)
 
 # TA concentrations
@@ -1277,7 +1277,7 @@ young_TA <- data.frame(type = "Bottle",
                        depth_range = "1 to 50",
                        file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/6H8H-WM93">GEM</a>',
-                       reference = '<a onclick="alert(\'Water TA Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/6H8H-WM93.\');">GEM</a>',
+                       reference = '<a onclick="alert(\'Water TA Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/6H8H-WM93\');">GEM</a>',
                        note = NA)
 
 # Sea ice formation
@@ -1289,7 +1289,7 @@ young_sea_ice_formation <- data.frame(type = "Survey",
                                       depth_range = NA,
                                       file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/5MNP-KX83">GEM</a>',
-                                      reference = '<a onclick="alert(\'Sea ice formation: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/5MNP-KX83.\');">GEM</a>',
+                                      reference = '<a onclick="alert(\'Sea ice formation: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/5MNP-KX83\');">GEM</a>',
                                       note = NA)
 
 # Sea ice breakup
@@ -1301,7 +1301,7 @@ young_sea_ice_breakup <- data.frame(type = "Survey",
                                     depth_range = NA,
                                     file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                     URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/SM1Q-6A72">GEM</a>',
-                                    reference = '<a onclick="alert(\'Sea ice breakup: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/SM1Q-6A72.\');">GEM</a>',
+                                    reference = '<a onclick="alert(\'Sea ice breakup: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/SM1Q-6A72\');">GEM</a>',
                                     note = NA)
 
 # Sea ice thickness
@@ -1313,7 +1313,7 @@ young_sea_ice_thickness <- data.frame(type = "Core",
                                       depth_range = NA,
                                       file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/H5D5-TZ32">GEM</a>',
-                                      reference = '<a onclick="alert(\'Sea ice thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32.\');">GEM</a>',
+                                      reference = '<a onclick="alert(\'Sea ice thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32\');">GEM</a>',
                                       note = NA)
 
 # Open water duration
@@ -1325,7 +1325,7 @@ young_sea_ice_open <- data.frame(type = "Survey",
                                  depth_range = NA,
                                  file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/R3QB-7Q71">GEM</a>',
-                                 reference = '<a onclick="alert(\'Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71.\');">GEM</a>',
+                                 reference = '<a onclick="alert(\'Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71\');">GEM</a>',
                                  note = NA)
 
 # Snow thickness
@@ -1337,7 +1337,7 @@ young_snow_thickness <- data.frame(type = "Survey",
                                    depth_range = NA,
                                    file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16">GEM</a>',
-                                   reference = '<a onclick="alert(\'Snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16.\');">GEM</a>',
+                                   reference = '<a onclick="alert(\'Snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16\');">GEM</a>',
                                    note = NA)
 
 # Primary production data
@@ -1431,7 +1431,7 @@ disko_CTD_water <- data.frame(type = "CTD",
                               depth_range = "1 to 99",
                               file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61">GEM</a>',
-                              reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61.\');">GEM</a>',
+                              reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61\');">GEM</a>',
                               note = NA)
 
 # Biochemistry CTD cruise
@@ -1479,7 +1479,7 @@ disko_SOCAT <- data.frame(type = "Synthesis",
                           depth_range = NA,
                           file_name = '<a onclick="alert(\'SOCAT_disko.RData\');">1 file</a>',
                           URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
-                          reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
+                          reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016\');">Bakker et al. (2016)</a>',
                           note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
 
 # GLODAP
@@ -1544,7 +1544,7 @@ nuup_phyto_abundance <- data.frame(type = "Net",
                                    depth_range = "0 to 60",
                                    file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/Y3A4-9D86">GEM</a>',
-                                   reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Nuuk. doi: 10.17897/Y3A4-9D86.\');">GEM</a>',
+                                   reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Nuuk. doi: 10.17897/Y3A4-9D86\');">GEM</a>',
                                    note = NA)
 
 # CTD measurements
@@ -1556,7 +1556,7 @@ nuup_CTD <- data.frame(type = "CTD",
                        depth_range = "0 to 99",
                        file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/KMEK-TK21">GEM</a>',
-                       reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Nuuk. doi: 10.17897/KMEK-TK21.\');">GEM</a>',
+                       reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Nuuk. doi: 10.17897/KMEK-TK21\');">GEM</a>',
                        note = NA)
 
 # Water Chla
@@ -1568,7 +1568,7 @@ nuup_Chla <- data.frame(type = "Bottle",
                         depth_range = "1 to 60",
                         file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/1QK2-6B74">GEM</a>',
-                        reference = '<a onclick="alert(\'Water Chlorophyll a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/1QK2-6B74.\');">GEM</a>',
+                        reference = '<a onclick="alert(\'Water Chlorophyll a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/1QK2-6B74\');">GEM</a>',
                         note = NA)
 
 # Primary production
@@ -1580,7 +1580,7 @@ nuup_prim_prod <- data.frame(type = "In situ incubation",
                              depth_range = "5 to 10",
                              file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/TQQV-VJ76">GEM</a>',
-                             reference = '<a onclick="alert(\'Particulate Pelagic Primary Production (mg C/m2/d): Water column MarineBasis Nuuk. doi: 10.17897/TQQV-VJ76.\');">GEM</a>',
+                             reference = '<a onclick="alert(\'Particulate Pelagic Primary Production (mg C/m2/d): Water column MarineBasis Nuuk. doi: 10.17897/TQQV-VJ76\');">GEM</a>',
                              note = NA)
 
 # Nitrate + Nitrite
@@ -1595,7 +1595,7 @@ nuup_phosphate <- data.frame(type = "Bottle",
                              depth_range = "1 to 50",
                              file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/PZNK-SP15">GEM</a>',
-                             reference = '<a onclick="alert(\'Water Phosphate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/PZNK-SP15.\');">GEM</a>',
+                             reference = '<a onclick="alert(\'Water Phosphate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/PZNK-SP15\');">GEM</a>',
                              note = NA)
 
 # Silicate
@@ -1607,7 +1607,7 @@ nuup_silicate <- data.frame(type = "Bottle",
                             depth_range = "1 to 50",
                             file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/VVQP-F862">GEM</a>',
-                            reference = '<a onclick="alert(\'Water Silicate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/VVQP-F862.\');">GEM</a>',
+                            reference = '<a onclick="alert(\'Water Silicate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/VVQP-F862\');">GEM</a>',
                             note = NA)
 
 # NOAA OISST
