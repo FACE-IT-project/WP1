@@ -143,6 +143,14 @@ points_in_region <- function(region_in, bbox_df, data_df){
   return(coords_in)
 }
 
+# Convenience function for extracting bathymetry data by bbox
+extract_bathy <- function(bbox, site_name){
+  bathy_df <- tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
+    hyper_filter(lon = between(lon, bbox[1], bbox[2]),
+                 lat = between(lat, bbox[3], bbox[4])) %>% hyper_tibble()
+  write_csv(bathy_df, paste0("~/pCloudDrive/FACE-IT_data/maps/bathy_",site_name,".csv"))
+}
+
 # Convenience function for getting bbox from site name
 bbox_from_name <- function(site_name){
   # get correct bounding box
@@ -1467,4 +1475,12 @@ download_MUR_ALL <- function(file_date){
   # exit without returning anything
   # return()
 }
+
+# Convenience function for filtering variables for analyses
+## Add logic flag for atmosphere values
+filter_vars <- function(){}
+
+# Functions for checking filter_vars output
+
+# Summary analyses of filtered variables
 

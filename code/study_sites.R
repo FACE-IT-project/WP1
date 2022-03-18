@@ -104,6 +104,17 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 # load(paste0(pCloud_path,"FACE-IT_data/shape_files/EU_shapes.RData"))
 
 
+# Bathymetry --------------------------------------------------------------
+
+extract_bathy(bbox_kong, "kong")
+extract_bathy(bbox_is, "is")
+extract_bathy(bbox_stor, "stor")
+extract_bathy(bbox_young, "young")
+extract_bathy(bbox_disko, "disko")
+extract_bathy(bbox_nuup, "nuup")
+extract_bathy(bbox_por, "por")
+
+
 # Map ---------------------------------------------------------------------
 
 # Svalbard study sites

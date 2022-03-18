@@ -78,12 +78,11 @@ ggplot(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
 # Limit to the top 10 metres. Consider the bottom 10 metres.
 # Line plots comparing averages values across sites
 # Solid colour for in situ data, dashed line for NOAA, dotted for CCI
+# Also produce summary stats
+## Mean, median, min, max, skewness, kurtosis
 
 
 ## Ocean Temperature -------------------------------------------------------
-
-# Compare in situ data trends to same time period as satellite period
-# Get confidence interval of slope
 
 # Kongsfjorden
 kong_OISST <- sst_kong_bbox %>% dplyr::rename(date = t) %>% 
@@ -234,7 +233,8 @@ por_SST_citations <- data.frame(citation = unique(por_SST$citation))
 
 ## Combine all
 ALL_SST <- rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST)
-
+ALL_SST_citations <- unique(rbind(kong_SST_citations, is_SST_citations, stor_SST_citations, young_SST_citations,
+                                  disko_SST_citations, nuup_SST_citations, por_SST_citations))
 ## Monthly averages
 ALL_SST_monthly <- ALL_SST %>% 
   mutate(date_round = lubridate::round_date(date, "month")) %>% 
@@ -248,6 +248,7 @@ ALL_SST_monthly <- ALL_SST %>%
 
 ## Trends
 ALL_SST_monthly_trend <- ALL_SST_monthly %>% 
+  filter(date >= "1982-01-01", date <= "2020-12-31") %>%
   group_by(site, type) %>%
   mutate(row_idx = 1:n()) %>% 
   do(fit_site = broom::tidy(lm(temp ~ row_idx, data = .))) %>% 
@@ -263,6 +264,12 @@ ggplot(ALL_SST_monthly, aes(x = date, y = temp, colour = site, linetype = type))
   labs(y = "Temperature [°C]", x = NULL, colour = "Site", linetype = "Source") +
   theme(panel.border = element_rect(colour = "black", fill = NA))
 ggsave("~/Desktop/temp_ts.png", width = 12, height = 5)
+filter(ALL_SST_monthly, date >= "1982-01-01", date <= "2020-12-31") %>% 
+  ggplot(aes(x = date, y = temp, colour = site, linetype = type)) +
+  geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = T) +
+  labs(y = "Temperature [°C]", x = NULL, colour = "Site", linetype = "Source") +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/Desktop/temp_ts_1982-2020.png", width = 12, height = 5)
   
 ## Monthly climatologies
 ALL_SST_monthly_clim <- ALL_SST_monthly %>% 
@@ -286,6 +293,15 @@ ggplot(ALL_SST_monthly_clim, aes(x = as.factor(month), y = temp, fill = site)) +
   facet_wrap(~type, nrow = 3) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
 ggsave("~/Desktop/temp_clim_type.png", width = 12, height = 7)
+ALL_SST_monthly %>% 
+  filter(!is.na(temp)) %>% 
+  mutate(month = lubridate::month(date)) %>% 
+  ggplot(aes(x = as.factor(month), y = temp, fill = site)) +
+  geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+  labs(y = "Temperature [°C]", x = "Month", fill = "Site", colour = "Source") +
+  facet_wrap(~type, nrow = 3) +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/Desktop/temp_clim_box.png", width = 12, height = 9)
 
 ## Plot showing spatial difference between temperature products
 ### This may not work well across all sites
@@ -296,6 +312,171 @@ ggsave("~/Desktop/temp_clim_type.png", width = 12, height = 7)
 
 ## Salinity ---------------------------------------------------------------
 
+# Kongsfjorden
+kong_sal <- full_product_kong %>% 
+  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
+  # Remove overly processed variables
+  # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
+  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
+  # Remove glacial drainage land stations
+  filter(!grepl("land station|drainage|meltwater", citation, ignore.case = T)) %>% 
+  # Temporarily remove Ferry box data until units are assigned to temperature values
+  filter(!grepl("sal_", var_name, ignore.case = T)) %>% 
+  mutate(site = "Kong")
+# Check final variables + citations
+# unique(kong_sal$var_name)
+kong_sal_citations <- data.frame(citation = unique(kong_sal$citation))
+# Look at citation(s) for a given variable
+# unique(kong_sal$citation[kong_sal$var_name == "psal [1e-3]"])
+# Look at all data within a given citation
+# citation_check <- kong_sal[grepl("Skogseth", kong_sal$citation, ignore.case = T),]
+
+# Isfjorden
+is_sal <- full_product_is %>% 
+  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
+  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
+  mutate(site = "Is")
+# Check final variables + citations
+# unique(is_sal$var_name)
+is_sal_citations <- data.frame(citation = unique(is_sal$citation))
+# Look at citation(s) for a given variable
+# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
+# Look at all data within a given citation
+# citation_check <- is_sal[grepl("Knittel", is_sal$citation, ignore.case = T),]
+
+# Storfjorden
+stor_sal <- full_product_stor %>% 
+  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
+  mutate(site = "Stor")
+# Check final variables + citations
+# unique(is_sal$var_name)
+stor_sal_citations <- data.frame(citation = unique(stor_sal$citation))
+# Look at citation(s) for a given variable
+# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
+# Look at all data within a given citation
+# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+
+# Young Sound
+young_sal <- full_product_young %>% 
+  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
+  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
+  mutate(site = "Young")
+# Check final variables + citations
+# unique(young_sal$var_name)
+young_sal_citations <- data.frame(citation = unique(young_sal$citation))
+# Look at citation(s) for a given variable
+# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
+# Look at all data within a given citation
+# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+
+# Disko Bay
+disko_sal <- full_product_disko %>% 
+  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
+  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
+  mutate(site = "Disko")
+# Check final variables + citations
+unique(disko_sal$var_name)
+disko_sal_citations <- data.frame(citation = unique(disko_sal$citation))
+# Look at citation(s) for a given variable
+# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
+# Look at all data within a given citation
+# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+
+# Nuup Kangerlua
+nuup_sal <- full_product_nuup %>% 
+  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
+  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
+  mutate(site = "Nuup")
+# Check final variables + citations
+unique(nuup_sal$var_name)
+nuup_sal_citations <- data.frame(citation = unique(nuup_sal$citation))
+# Look at citation(s) for a given variable
+# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
+# Look at all data within a given citation
+# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+
+# Porsangerfjorden
+por_sal <- full_product_por %>% 
+  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
+  # Some dubious values in "Mankettikkara"
+  filter(value > 0) %>% 
+  mutate(site = "Por")
+# Check final variables + citations
+# unique(nuup_sal$var_name)
+por_sal_citations <- data.frame(citation = unique(por_sal$citation))
+# Look at citation(s) for a given variable
+# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
+# Look at all data within a given citation
+# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+
+## Combine all
+ALL_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal)
+ALL_sal_citations <- unique(rbind(kong_sal_citations, is_sal_citations, stor_sal_citations, young_sal_citations,
+                                  disko_sal_citations, nuup_sal_citations, por_sal_citations))
+## Monthly averages
+ALL_sal_monthly <- ALL_sal %>% 
+  mutate(date_round = lubridate::round_date(date, "month")) %>% 
+  group_by(site, date_round) %>% 
+  group_by(site, date_round) %>%
+  summarise(sal_mean = round(mean(value, na.rm = T), 2),
+            sal_median = round(median(value, na.rm = T), 2),
+            sal_min = round(min(value, na.rm = T), 2),
+            sal_max = round(max(value, na.rm = T), 2),
+            count = n(), 
+            count_days = length(unique(date)), .groups = "drop") %>%
+  dplyr::rename(date = date_round) %>% 
+  complete(nesting(site), date = seq(min(date), max(date), by = "month"))
+
+## Trends
+ALL_sal_trends <- ALL_sal_monthly %>% 
+  # filter(date >= "1982-01-01", date <= "2020-12-31") %>%
+  group_by(site) %>%
+  mutate(row_idx = 1:n()) %>% 
+  do(fit_site = broom::tidy(lm(sal_mean ~ row_idx, data = .))) %>% 
+  unnest(fit_site) %>% 
+  filter(term == "row_idx") %>% 
+  mutate(sal_dec_trend = round(estimate*120, 4), 
+         p.value = round(p.value, 4)) %>% 
+  dplyr::select(site, sal_dec_trend, p.value)
+
+## Plot monthly values
+ggplot(ALL_sal_monthly, aes(x = date, y = sal_mean, colour = site)) +
+  geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = F) +
+  labs(y = "Salinity [PSU]", x = NULL, colour = "Site", linetype = "Source") +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/Desktop/sal_ts.png", width = 12, height = 5)
+
+## Monthly climatologies
+ALL_sal_monthly_clim <- ALL_sal_monthly %>% 
+  filter(!is.na(sal_mean)) %>% 
+  mutate(month = lubridate::month(date)) %>% 
+  group_by(site, month) %>% 
+  summarise(sal_mean = round(mean(sal_mean, na.rm = T), 2),
+            count = n(), .groups = "drop")
+
+## Plot monthly clims
+ggplot(ALL_sal_monthly_clim, aes(x = as.factor(month), y = sal_mean, fill = site)) +
+  geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+  labs(y = "Salinity [PSU]", x = "Month", fill = "Site", colour = "Source") +
+  # facet_wrap(~site) +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/Desktop/sal_clim.png", width = 12, height = 7)
+ALL_sal_monthly %>% 
+  filter(!is.na(sal_mean)) %>% 
+  mutate(month = lubridate::month(date)) %>% 
+  ggplot(aes(x = as.factor(month), y = sal_mean, fill = site)) +
+  geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+  labs(y = "Salinity [PSU]", x = "Month", fill = "Site", colour = "Source") +
+  # facet_wrap(~site) +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/Desktop/sal_clim_box.png", width = 12, height = 7)
 
 
 # Section 3 ---------------------------------------------------------------
