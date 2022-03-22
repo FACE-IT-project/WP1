@@ -89,219 +89,81 @@ kong_OISST <- sst_kong_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-kong_SST <- full_product_kong %>% 
-  # Filter out the top ten metres
-  # NB: All air temperatures should have depth = NA, not depth = 0
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("temp|°C", var_name, ignore.case = T)) %>% 
-  # Remove air, CO2, and pH related temperature values
-  # TTT is air temperature from cruise data on PANGAEA. e.g. https://doi.pangaea.de/10.1594/PANGAEA.326679
-  # MAAT + MAGT = ground temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.808512
-  # MAT = mean annual temperature e.g. https://doi.pangaea.de/10.1594/PANGAEA.907818
-  filter(!grepl("air|co2|ph_|pHint_|TTT|MAAT|MAGT|MAT", var_name, ignore.case = T)) %>% 
-  # Remove overly processed variables (e.g. average summer SST)
-  filter(!grepl("SST sum|SST win|Temp min|Temp max|Temp interp", var_name, ignore.case = T)) %>% 
-  # Remove slightly different variables
-  # tequ = temperature at equilibrium; ~+0.6°C than the corresponding water temp
-    # e.g. https://doi.pangaea.de/10.1594/PANGAEA.849863
-  # T intern [°C] = internal temperature; ~+0.03°C than the corresponding water temp
-    # e.g. https://doi.pangaea.de/10.1594/PANGAEA.930028
-  # Removing tpot (Potential temperature) is a potentially controversial decision...
-  filter(!grepl("tequ|tpot|T intern", var_name, ignore.case = T)) %>% 
-  # Temporarily remove Ferry box data until units are assigned to temperature values
-  filter(!grepl("temp_", var_name, ignore.case = T)) %>% 
-  mutate(type = "in situ") %>% 
-  bind_rows(kong_OISST, kong_CCI) %>% 
-  mutate(site = "Kong")
-# Check final variables + citations
-# unique(kong_SST$var_name)
-kong_SST_citations <- data.frame(citation = unique(kong_SST$citation))
-# Look at citation(s) for a given variable
-# unique(kong_SST$citation[kong_SST$var_name == "MAT [°C]"])
-# Look at all data within a given citation
-# citation_check <- kong_SST[grepl("Gattuso", kong_SST$citation, ignore.case = T),]
+# mutate(type = "in situ") %>% 
+# bind_rows(kong_OISST, kong_CCI) %>% 
+# Remove air, CO2, and pH related temperature values
+# TTT is air temperature from cruise data on PANGAEA. e.g. https://doi.pangaea.de/10.1594/PANGAEA.326679
+# MAAT + MAGT = ground temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.808512
+# MAT = mean annual temperature e.g. https://doi.pangaea.de/10.1594/PANGAEA.907818
+# Remove overly processed variables (e.g. average summer SST)
+# Remove slightly different variables
+# tequ = temperature at equilibrium; ~+0.6°C than the corresponding water temp
+# e.g. https://doi.pangaea.de/10.1594/PANGAEA.849863
+# T intern [°C] = internal temperature; ~+0.03°C than the corresponding water temp
+# e.g. https://doi.pangaea.de/10.1594/PANGAEA.930028
+# Removing tpot (Potential temperature) is a potentially controversial decision...
+kong_SST <- review_filter_var(full_product_kong, "Kong", "temp|°C",
+                              "air|co2|ph_|pHint_|TTT|MAAT|MAGT|MAT|
+                              |SST sum|SST win|Temp min|Temp max|Temp interp|
+                              |tequ|tpot|T intern|temp_") # Ultimately we want the "temp_" values
+# review_filter_check(kong_SST, "MAT [°C]", "Gattuso")
 
 # Isfjorden
 is_OISST <- sst_is_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 is_CCI <- sst_CCI_is_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-is_SST <- full_product_is %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("temp|°C", var_name, ignore.case = T)) %>% 
-  # t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
-  # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
-  filter(!grepl("SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT", 
-                var_name, ignore.case = T),
-         var_name != "t [°C]") %>%
-  mutate(type = "in situ") %>% 
-  bind_rows(is_OISST, is_CCI) %>% 
-  mutate(site = "Is")
-# Check final variables + citations
-# unique(is_SST$var_name)
-# is_check <- data.frame(table(is_SST$var_name, is_SST$citation))
-is_SST_citations <- data.frame(citation = unique(is_SST$citation))
-# Look at citation(s) for a given variable
-# filter(is_SST, var_name == "Temperature [ITS-90, deg C]")
-# unique(is_SST$citation[is_SST$var_name == "Temperature [ITS-90, deg C]"])
-# Look at all data within a given citation
-# citation_check <- is_SST[grepl("VEINS Members;", is_SST$citation, ignore.case = T),]
+# t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
+# T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
+is_SST <- review_filter_var(full_product_is, "Is", "temp|°C", 
+                            "SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT", "t [°C]")
+# review_filter_check(is_SST, "Temperature [ITS-90, deg C]", "VEINS Members;")
 
 # Storfjorden
 stor_OISST <- sst_stor_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 stor_CCI <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-stor_SST <- full_product_stor %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("temp|°C", var_name, ignore.case = T)) %>% 
-  filter(!grepl("Tpot|Tequ|theta|fco2", var_name, ignore.case = T)) %>%
-  mutate(type = "in situ") %>% 
-  bind_rows(stor_OISST, stor_CCI) %>% 
-  mutate(site = "Stor")
-# Check final variables + citations
-# unique(stor_SST$var_name)
-stor_SST_citations <- data.frame(citation = unique(stor_SST$citation))
+stor_SST <- review_filter_var(full_product_stor, "Stor", "temp|°C", "Tpot|Tequ|theta|fco2")
+# review_filter_check(stor_SST)
 
 # Young Sound
 young_OISST <- sst_young_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 young_CCI <- sst_CCI_young_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-young_SST <- rbind(full_product_young, young_GEM) %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("temp|°C", var_name, ignore.case = T)) %>% 
-  # pot_temp [°C] is probably potential temperature e.g. https://zenodo.org/record/5572041#.YjIULDwo85k
-  filter(!grepl("Tpot|Tequ|theta|fco2|pot_temp", var_name, ignore.case = T)) %>%
-  mutate(type = "in situ") %>% 
-  bind_rows(young_OISST, young_CCI) %>% 
-  mutate(site = "Young")
-# Check final variables + citations
-# unique(young_SST$var_name)
-# unique(young_SST$citation[young_SST$var_name == "pot_temp [°C]"])
-young_SST_citations <- data.frame(citation = unique(young_SST$citation))
+young_SST <- review_filter_var(rbind(full_product_young, young_GEM), "Young", "temp|°C", "Tpot|Tequ|theta|fco2|pot_temp")
+# review_filter_check(young_SST, "pot_temp [°C]")
 
 # Disko Bay
 disko_OISST <- sst_disko_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 disko_CCI <- sst_CCI_disko_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-disko_SST <- rbind(full_product_disko, disko_GEM) %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("temp|°C", var_name, ignore.case = T)) %>% 
-  # potential_temperature [°C] e.g. https://zenodo.org/record/4062024#.YjIVczwo85k
-  filter(!grepl("Tequ|potential|theta|fco2", var_name, ignore.case = T)) %>%
-  mutate(type = "in situ") %>% 
-  bind_rows(disko_OISST, disko_CCI) %>% 
-  mutate(site = "Disko")
-# Check final variables + citations
-# unique(disko_SST$var_name)
-# unique(disko_SST$citation[disko_SST$var_name == "potential_temperature [°C]"])
-disko_SST_citations <- data.frame(citation = unique(disko_SST$citation))
+disko_SST <- review_filter_var(rbind(full_product_disko, disko_GEM), "Disko", "temp|°C", "Tequ|potential|theta|fco2")
+# review_filter_check(disko_SST)
 
 # Nuup Kangerlua
 nuup_OISST <- sst_nuup_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 nuup_CCI <- sst_CCI_nuup_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-nuup_SST <- rbind(full_product_nuup, nuup_GEM) %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("temp|°C", var_name, ignore.case = T)) %>% 
-  filter(!grepl("Tequ|T tech", var_name, ignore.case = T)) %>%
-  mutate(type = "in situ") %>% 
-  bind_rows(nuup_OISST, nuup_CCI) %>% 
-  mutate(site = "Nuup")
-# Check final variables + citations
-# unique(nuup_SST$var_name)
-nuup_SST_citations <- data.frame(citation = unique(nuup_SST$citation))
+nuup_SST <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "temp|°C", "Tequ|T tech")
+# review_filter_check(nuup_SST)
 
 # Porsangerfjorden
 por_OISST <- sst_por_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 por_CCI <- sst_CCI_por_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-por_SST <- full_product_por %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("temp|°C", var_name, ignore.case = T)) %>% 
-  filter(!grepl("Tequ|Tpot|TTT", var_name, ignore.case = T)) %>%
-  mutate(type = "in situ") %>% 
-  bind_rows(por_OISST, por_CCI) %>% 
-  mutate(site = "Por")
-# Check final variables + citations
-# unique(por_SST$var_name)
-por_SST_citations <- data.frame(citation = unique(por_SST$citation))
+por_SST <- review_filter_var(full_product_por, "Por", "temp|°C", "Tequ|Tpot|TTT")
+# review_filter_check(por_SST)
 
-## Combine all
-ALL_SST <- rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST)
-ALL_SST_citations <- unique(rbind(kong_SST_citations, is_SST_citations, stor_SST_citations, young_SST_citations,
-                                  disko_SST_citations, nuup_SST_citations, por_SST_citations))
-## Monthly averages
-ALL_SST_monthly <- ALL_SST %>% 
-  mutate(date_round = lubridate::round_date(date, "month")) %>% 
-  group_by(site, type, date_round) %>% 
-  group_by(site, type, date_round) %>%
-  summarise(temp = round(mean(value, na.rm = T), 2),
-            count = n(), 
-            count_days = length(unique(date)), .groups = "drop") %>%
-  dplyr::rename(date = date_round) %>% 
-  complete(nesting(site, type), date = seq(min(date), max(date), by = "month"))
+# Combine all
+summary_SST <- review_summary(rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST))
 
-## Trends
-ALL_SST_monthly_trend <- ALL_SST_monthly %>% 
-  filter(date >= "1982-01-01", date <= "2020-12-31") %>%
-  group_by(site, type) %>%
-  mutate(row_idx = 1:n()) %>% 
-  do(fit_site = broom::tidy(lm(temp ~ row_idx, data = .))) %>% 
-  unnest(fit_site) %>% 
-  filter(term == "row_idx") %>% 
-  mutate(temp_dec_trend = round(estimate*120, 4), 
-         p.value = round(p.value, 4)) %>% 
-  dplyr::select(site, type, temp_dec_trend, p.value)
-
-## Plot monthly values
-ggplot(ALL_SST_monthly, aes(x = date, y = temp, colour = site, linetype = type)) +
-  geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = F) +
-  labs(y = "Temperature [°C]", x = NULL, colour = "Site", linetype = "Source") +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/temp_ts.png", width = 12, height = 5)
-filter(ALL_SST_monthly, date >= "1982-01-01", date <= "2020-12-31") %>% 
-  ggplot(aes(x = date, y = temp, colour = site, linetype = type)) +
-  geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = T) +
-  labs(y = "Temperature [°C]", x = NULL, colour = "Site", linetype = "Source") +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/temp_ts_1982-2020.png", width = 12, height = 5)
-  
-## Monthly climatologies
-ALL_SST_monthly_clim <- ALL_SST_monthly %>% 
-  filter(!is.na(temp)) %>% 
-  mutate(month = lubridate::month(date)) %>% 
-  group_by(site, type, month) %>% 
-  summarise(temp = round(mean(temp, na.rm = T), 2),
-            count = n(), .groups = "drop")
-
-## Plot monthly clims
-ggplot(ALL_SST_monthly_clim, aes(x = as.factor(month), y = temp, fill = site, colour = type)) +
-  geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-  labs(y = "Temperature [°C]", x = "Month", fill = "Site", colour = "Source") +
-  facet_wrap(~site) +
-  theme(legend.position = c(0.63, 0.12), legend.direction = "horizontal", 
-        panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/temp_clim_site.png", width = 12, height = 7)
-ggplot(ALL_SST_monthly_clim, aes(x = as.factor(month), y = temp, fill = site)) +
-  geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-  labs(y = "Temperature [°C]", x = "Month", fill = "Site") +
-  facet_wrap(~type, nrow = 3) +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/temp_clim_type.png", width = 12, height = 7)
-ALL_SST_monthly %>% 
-  filter(!is.na(temp)) %>% 
-  mutate(month = lubridate::month(date)) %>% 
-  ggplot(aes(x = as.factor(month), y = temp, fill = site)) +
-  geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-  labs(y = "Temperature [°C]", x = "Month", fill = "Site", colour = "Source") +
-  facet_wrap(~type, nrow = 3) +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/temp_clim_box.png", width = 12, height = 9)
+# Plot results
+review_summary_plot(summary_SST, "temp")
 
 ## Plot showing spatial difference between temperature products
 ### This may not work well across all sites

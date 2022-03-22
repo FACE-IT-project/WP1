@@ -144,8 +144,10 @@ points_in_region <- function(region_in, bbox_df, data_df){
 }
 
 # Convenience function for extracting bathymetry data by bbox
-extract_bathy <- function(bbox, site_name){
-  bathy_df <- tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
+extract_bathy <- function(bbox, site_name, product = "GEBCO"){
+  if(product == "GEBCO") bathy_file <- "~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc"
+  # if(product == "IBCAO") bathy_file <- "~/pCloudDrive/FACE-IT_data/maps/IBCAO/IBCAO_v4_200m.nc"
+  bathy_df <- tidync(bathy_file) %>% 
     hyper_filter(lon = between(lon, bbox[1], bbox[2]),
                  lat = between(lat, bbox[3], bbox[4])) %>% hyper_tibble()
   write_csv(bathy_df, paste0("~/pCloudDrive/FACE-IT_data/maps/bathy_",site_name,".csv"))
@@ -1478,9 +1480,126 @@ download_MUR_ALL <- function(file_date){
 
 # Convenience function for filtering variables for analyses
 ## Add logic flag for atmosphere values
-filter_vars <- function(){}
+review_filter_var <- function(full_product, site_name, var_keep, var_remove, var_precise = NULL){
+  res_df <- full_product %>% 
+    filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+    filter(grepl(var_keep, var_name, ignore.case = T)) %>% 
+    filter(!grepl(var_remove, var_name, ignore.case = T)) %>% 
+    mutate(site = site_name, type = "in situ")
+  if(!is.null(var_precise)) res_df <- res_df %>% filter(!var_name %in% var_precise)
+  print(unique(res_df$var_name))
+  return(res_df)
+}
 
 # Functions for checking filter_vars output
+review_filter_check <- function(filter_object, check_var = NULL, check_cit = NULL){
+  if(!is.null(check_var[1])) print(unique(filter_object$citation[filter_object$var_name == check_var]))
+  if(!is.null(check_cit[1])){
+    citation_check <- filter_object[grepl(check_cit, filter_object$citation, ignore.case = T),]
+    return(citation_check)
+  }
+}
 
 # Summary analyses of filtered variables
+review_summary <- function(filter_object, trend_dates = NULL){
+  
+  # Monthly averages
+  df_monthly <- filter_object %>% 
+    mutate(date_round = lubridate::round_date(date, "month")) %>% 
+    group_by(site, type, date_round) %>% 
+    group_by(site, type, date_round) %>%
+    summarise(value_mean = mean(value, na.rm = T),
+              count = n(), 
+              count_days = length(unique(date)), .groups = "drop") %>%
+    dplyr::rename(date = date_round) %>% 
+    complete(nesting(site, type), date = seq(min(date), max(date), by = "month"))
+  
+  # Trends
+  if(is.null(trend_dates[1])) trend_dates <- range(df_monthly$date)
+  df_monthly_trend <- df_monthly %>% 
+    filter(between(date, trend_dates[1], trend_dates[2])) %>%
+    group_by(site, type) %>%
+    mutate(row_idx = 1:n()) %>% 
+    do(fit_site = broom::tidy(lm(value_mean ~ row_idx, data = .))) %>% 
+    unnest(fit_site) %>% 
+    filter(term == "row_idx") %>% 
+    mutate(dec_trend = round(estimate*120, 4), 
+           p.value = round(p.value, 4),
+           date_min = trend_dates[1], date_max = trend_dates[2]) %>% 
+    dplyr::select(site, type, dec_trend, p.value, date_min, date_max)
+  
+  # Monthly climatologies
+  df_monthly_clim <- df_monthly %>% 
+    filter(!is.na(value_mean)) %>% 
+    mutate(month = lubridate::month(date)) %>% 
+    group_by(site, type, month) %>% 
+    summarise(value_clim = mean(value_mean, na.rm = T),
+              count = n(), .groups = "drop")
+ 
+  # Citations
+  df_citations <- filter_object %>%  dplyr::select(site, citation) %>% distinct() %>% 
+    table(.) %>% data.frame() %>% pivot_wider(names_from = site, values_from = Freq)
+  
+  # Combine and exit
+  res_list <- list(monthly = df_monthly,
+                   trend = df_monthly_trend,
+                   clim = df_monthly_clim,
+                   citations = df_citations)
+  return(res_list)
+}
+
+# Convenience plotting function
+review_summary_plot <- function(summary_list, short_var, date_filter = NULL){
+  
+  # Get labels based on short_var name
+  if(short_var == "temp") y_label <- "Temperature [°C]"
+  if(short_var == "sal") y_label <- "Salinity"
+  
+  # Plot monthly values
+  ggplot(summary_list$monthly, aes(x = date, y = value_mean, colour = site, linetype = type)) +
+    geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = F) +
+    geom_label(data = summary_list$trend, show.legend = F,
+               aes(x = seq(from = min(summary_list$monthly$date), to = max(summary_list$monthly$date), 
+                           length.out = length(unique(summary_list$monthly$site))),
+                   y = max(summary_list$monthly$value_mean, na.rm = T), 
+                   label = paste0(dec_trend,"/dec\n p = ", p.value), colour = site)) +
+                   # y = mean(c(mean(summary_list$monthly$value_mean), max(summary_list$monthly$value_mean))))) +
+    labs(y = y_label, x = NULL, colour = "Site", linetype = "Source") +
+    theme(panel.border = element_rect(colour = "black", fill = NA))
+  ggsave(paste0("~/Desktop/",short_var,"_ts.png"), width = 12, height = 5)
+  
+  # Plot monthly values with a given date range filter
+  if(!is.null(date_filter[1])){
+    filter(summary_list$monthly, date >= date_filter[1], date <= date_filter[2]) %>%
+      ggplot(aes(x = date, y = value_mean, colour = site, linetype = type)) +
+      geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = T) +
+      labs(y = y_label, x = NULL, colour = "Site", linetype = "Source") +
+      theme(panel.border = element_rect(colour = "black", fill = NA))
+    ggsave(paste0("~/Desktop/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 12, height = 5)
+  }
+  
+  ## Plot monthly clims
+  ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site, colour = type)) +
+    geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+    labs(y = y_label, x = "Month", fill = "Site", colour = "Source") +
+    facet_wrap(~site) +
+    theme(legend.position = c(0.63, 0.12), legend.direction = "horizontal", 
+          panel.border = element_rect(colour = "black", fill = NA))
+  ggsave(paste0("~/Desktop/",short_var,"_clim_site.png"), width = 12, height = 7)
+  ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site)) +
+    geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+    labs(y = y_label, x = "Month", fill = "Site") +
+    facet_wrap(~type, nrow = 3) +
+    theme(panel.border = element_rect(colour = "black", fill = NA))
+  ggsave(paste0("~/Desktop/",short_var,"_clim_type.png"), width = 12, height = 7)
+  summary_list$monthly %>% 
+    filter(!is.na(value_mean)) %>% 
+    mutate(month = lubridate::month(date)) %>% 
+    ggplot(aes(x = as.factor(month), y = value_mean, fill = site)) +
+    geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+    labs(y = y_label, x = "Month", fill = "Site", colour = "Source") +
+    facet_wrap(~type, nrow = 3) +
+    theme(panel.border = element_rect(colour = "black", fill = NA))
+  ggsave(paste0("~/Desktop/",short_var,"_clim_box.png"), width = 12, height = 9)
+}
 
