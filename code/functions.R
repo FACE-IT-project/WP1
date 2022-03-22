@@ -1480,13 +1480,14 @@ download_MUR_ALL <- function(file_date){
 
 # Convenience function for filtering variables for analyses
 ## Add logic flag for atmosphere values
-review_filter_var <- function(full_product, site_name, var_keep, var_remove, var_precise = NULL){
+review_filter_var <- function(full_product, site_name, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL){
   res_df <- full_product %>% 
     filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
     filter(grepl(var_keep, var_name, ignore.case = T)) %>% 
-    filter(!grepl(var_remove, var_name, ignore.case = T)) %>% 
     mutate(site = site_name, type = "in situ")
+  if(!is.null(var_remove)) res_df <- res_df %>% filter(!grepl(var_remove, var_name, ignore.case = T))
   if(!is.null(var_precise)) res_df <- res_df %>% filter(!var_name %in% var_precise)
+  if(!is.null(cit_filter)) res_df <- res_df %>% filter(!grepl(cit_filter, citation, ignore.case = T))
   print(unique(res_df$var_name))
   return(res_df)
 }
@@ -1508,7 +1509,10 @@ review_summary <- function(filter_object, trend_dates = NULL){
     mutate(date_round = lubridate::round_date(date, "month")) %>% 
     group_by(site, type, date_round) %>% 
     group_by(site, type, date_round) %>%
-    summarise(value_mean = mean(value, na.rm = T),
+    summarise(value_mean = round(mean(value, na.rm = T), 2),
+              value_median = round(median(value, na.rm = T), 2),
+              value_min = round(min(value, na.rm = T), 2),
+              value_max = round(max(value, na.rm = T), 2),
               count = n(), 
               count_days = length(unique(date)), .groups = "drop") %>%
     dplyr::rename(date = date_round) %>% 
@@ -1555,15 +1559,27 @@ review_summary_plot <- function(summary_list, short_var, date_filter = NULL){
   if(short_var == "temp") y_label <- "Temperature [°C]"
   if(short_var == "sal") y_label <- "Salinity"
   
+  # Create x/y coords for labels
+  label_df <- summary_list$trend %>% 
+    arrange(site, type) %>% # Should already be in this order. Just a precaution.
+    mutate(x = base::rep(seq(from = min(summary_list$monthly$date), to = max(summary_list$monthly$date), 
+                             length.out = length(unique(summary_list$monthly$site))+1)[2:(length(unique(summary_list$monthly$site))+1)],
+                         each = length(unique(summary_list$monthly$type))),
+           y = base::rep(seq(from = max(summary_list$monthly$value_mean, na.rm = T), by = -1.5, 
+                             length.out = length(unique(summary_list$monthly$type))),
+                         length(unique(summary_list$monthly$site))))
+  label_key <- data.frame(x = min(summary_list$monthly$date),
+                          y = unique(label_df$y),
+                          label = unique(summary_list$monthly$type),
+                          site = "label", type = "in situ")
+  
   # Plot monthly values
   ggplot(summary_list$monthly, aes(x = date, y = value_mean, colour = site, linetype = type)) +
     geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = F) +
-    geom_label(data = summary_list$trend, show.legend = F,
-               aes(x = seq(from = min(summary_list$monthly$date), to = max(summary_list$monthly$date), 
-                           length.out = length(unique(summary_list$monthly$site))),
-                   y = max(summary_list$monthly$value_mean, na.rm = T), 
-                   label = paste0(dec_trend,"/dec\n p = ", p.value), colour = site)) +
-                   # y = mean(c(mean(summary_list$monthly$value_mean), max(summary_list$monthly$value_mean))))) +
+    geom_label(data = label_df, show.legend = F,
+               aes(x = x, y = y, colour = site,
+                   label = paste0(dec_trend,"/dec\n p = ", p.value))) +
+    geom_label(data = label_key, aes(x = x, y = y, label = label), colour = "black") +
     labs(y = y_label, x = NULL, colour = "Site", linetype = "Source") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/",short_var,"_ts.png"), width = 12, height = 5)

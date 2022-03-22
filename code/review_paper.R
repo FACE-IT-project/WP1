@@ -89,8 +89,6 @@ kong_OISST <- sst_kong_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-# mutate(type = "in situ") %>% 
-# bind_rows(kong_OISST, kong_CCI) %>% 
 # Remove air, CO2, and pH related temperature values
 # TTT is air temperature from cruise data on PANGAEA. e.g. https://doi.pangaea.de/10.1594/PANGAEA.326679
 # MAAT + MAGT = ground temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.808512
@@ -105,7 +103,8 @@ kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%
 kong_SST <- review_filter_var(full_product_kong, "Kong", "temp|°C",
                               "air|co2|ph_|pHint_|TTT|MAAT|MAGT|MAT|
                               |SST sum|SST win|Temp min|Temp max|Temp interp|
-                              |tequ|tpot|T intern|temp_") # Ultimately we want the "temp_" values
+                              |tequ|tpot|T intern|temp_") %>%  # Ultimately we want the "temp_" values
+  bind_rows(kong_OISST, kong_CCI) %>% mutate(site = "Kong")
 # review_filter_check(kong_SST, "MAT [°C]", "Gattuso")
 
 # Isfjorden
@@ -116,7 +115,8 @@ is_CCI <- sst_CCI_is_bbox %>% dplyr::rename(date = t) %>%
 # t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
 # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
 is_SST <- review_filter_var(full_product_is, "Is", "temp|°C", 
-                            "SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT", "t [°C]")
+                            "SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT", "t [°C]") %>% 
+  bind_rows(is_OISST, is_CCI) %>% mutate(site = "Is")
 # review_filter_check(is_SST, "Temperature [ITS-90, deg C]", "VEINS Members;")
 
 # Storfjorden
@@ -124,7 +124,8 @@ stor_OISST <- sst_stor_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 stor_CCI <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-stor_SST <- review_filter_var(full_product_stor, "Stor", "temp|°C", "Tpot|Tequ|theta|fco2")
+stor_SST <- review_filter_var(full_product_stor, "Stor", "temp|°C", "Tpot|Tequ|theta|fco2") %>% 
+  bind_rows(stor_OISST, stor_CCI) %>% mutate(site = "Stor")
 # review_filter_check(stor_SST)
 
 # Young Sound
@@ -132,7 +133,8 @@ young_OISST <- sst_young_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 young_CCI <- sst_CCI_young_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-young_SST <- review_filter_var(rbind(full_product_young, young_GEM), "Young", "temp|°C", "Tpot|Tequ|theta|fco2|pot_temp")
+young_SST <- review_filter_var(rbind(full_product_young, young_GEM), "Young", "temp|°C", "Tpot|Tequ|theta|fco2|pot_temp") %>% 
+  bind_rows(young_OISST, young_CCI) %>% mutate(site = "Young")
 # review_filter_check(young_SST, "pot_temp [°C]")
 
 # Disko Bay
@@ -140,7 +142,8 @@ disko_OISST <- sst_disko_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 disko_CCI <- sst_CCI_disko_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-disko_SST <- review_filter_var(rbind(full_product_disko, disko_GEM), "Disko", "temp|°C", "Tequ|potential|theta|fco2")
+disko_SST <- review_filter_var(rbind(full_product_disko, disko_GEM), "Disko", "temp|°C", "Tequ|potential|theta|fco2") %>% 
+  bind_rows(disko_OISST, disko_CCI) %>% mutate(site = "Disko")
 # review_filter_check(disko_SST)
 
 # Nuup Kangerlua
@@ -148,7 +151,8 @@ nuup_OISST <- sst_nuup_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 nuup_CCI <- sst_CCI_nuup_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-nuup_SST <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "temp|°C", "Tequ|T tech")
+nuup_SST <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "temp|°C", "Tequ|T tech") %>% 
+  bind_rows(nuup_OISST, nuup_CCI) %>% mutate(site = "Nuup")
 # review_filter_check(nuup_SST)
 
 # Porsangerfjorden
@@ -156,14 +160,16 @@ por_OISST <- sst_por_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 por_CCI <- sst_CCI_por_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-por_SST <- review_filter_var(full_product_por, "Por", "temp|°C", "Tequ|Tpot|TTT")
+por_SST <- review_filter_var(full_product_por, "Por", "temp|°C", "Tequ|Tpot|TTT") %>% 
+  bind_rows(por_OISST, por_CCI) %>% mutate(site = "Por")
 # review_filter_check(por_SST)
 
-# Combine all
+# Summary analyses
 summary_SST <- review_summary(rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST))
 
 # Plot results
-review_summary_plot(summary_SST, "temp")
+# NB: The apparent cooling trend from in situ data is due to the lack of winter temperatures from pre-satellite era data
+review_summary_plot(summary_SST, "temp", date_filter = c("1982-01-01", "2020-12-31"))
 
 ## Plot showing spatial difference between temperature products
 ### This may not work well across all sites
@@ -175,170 +181,48 @@ review_summary_plot(summary_SST, "temp")
 ## Salinity ---------------------------------------------------------------
 
 # Kongsfjorden
-kong_sal <- full_product_kong %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
-  # Remove overly processed variables
-  # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
-  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
-  # Remove glacial drainage land stations
-  filter(!grepl("land station|drainage|meltwater", citation, ignore.case = T)) %>% 
-  # Temporarily remove Ferry box data until units are assigned to temperature values
-  filter(!grepl("sal_", var_name, ignore.case = T)) %>% 
-  mutate(site = "Kong")
-# Check final variables + citations
-# unique(kong_sal$var_name)
-kong_sal_citations <- data.frame(citation = unique(kong_sal$citation))
-# Look at citation(s) for a given variable
-# unique(kong_sal$citation[kong_sal$var_name == "psal [1e-3]"])
-# Look at all data within a given citation
-# citation_check <- kong_sal[grepl("Skogseth", kong_sal$citation, ignore.case = T),]
+# Remove overly processed variables
+# sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
+# Remove glacial drainage land stations
+# Temporarily remove Ferry box data until documentation for variable names is located
+kong_sal <- review_filter_var(full_product_kong, "Kong", "sal|PSU", "sal interp|sal_", # We ultimately want "sal_"
+                              cit_filter = "land station|drainage|meltwater")
+# review_filter_check(kong_sal, "psal [1e-3]", "Skogseth")
 
 # Isfjorden
-is_sal <- full_product_is %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
-  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
-  mutate(site = "Is")
-# Check final variables + citations
-# unique(is_sal$var_name)
-is_sal_citations <- data.frame(citation = unique(is_sal$citation))
-# Look at citation(s) for a given variable
-# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
-# Look at all data within a given citation
-# citation_check <- is_sal[grepl("Knittel", is_sal$citation, ignore.case = T),]
+is_sal <- review_filter_var(full_product_is, "Is", "sal|PSU", "sal interp")
+# review_filter_check(is_sal, "Sal [mg/l]", "Knittel")
 
 # Storfjorden
-stor_sal <- full_product_stor %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
-  mutate(site = "Stor")
-# Check final variables + citations
-# unique(is_sal$var_name)
-stor_sal_citations <- data.frame(citation = unique(stor_sal$citation))
-# Look at citation(s) for a given variable
-# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
-# Look at all data within a given citation
-# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+stor_sal <- review_filter_var(full_product_stor, "Stor", "sal|PSU")
+# review_filter_check(stor_sal, "Sal [mg/l]", "Olsen, Are")
 
 # Young Sound
-young_sal <- full_product_young %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
-  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
-  mutate(site = "Young")
-# Check final variables + citations
-# unique(young_sal$var_name)
-young_sal_citations <- data.frame(citation = unique(young_sal$citation))
-# Look at citation(s) for a given variable
-# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
-# Look at all data within a given citation
-# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+young_sal <- review_filter_var(rbind(full_product_young, young_GEM), "Young", "sal|PSU", "sal interp")
+# review_filter_check(young_sal, "Sal [mg/l]")
 
 # Disko Bay
-disko_sal <- full_product_disko %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
-  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
-  mutate(site = "Disko")
-# Check final variables + citations
-unique(disko_sal$var_name)
-disko_sal_citations <- data.frame(citation = unique(disko_sal$citation))
-# Look at citation(s) for a given variable
-# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
-# Look at all data within a given citation
-# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+disko_sal <- review_filter_var(rbind(full_product_disko, disko_GEM), "Disko", "sal|PSU", "sal interp")
+# review_filter_check(disko_sal, "Sal [mg/l]")
 
 # Nuup Kangerlua
-nuup_sal <- full_product_nuup %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
-  filter(!grepl("sal interp", var_name, ignore.case = T)) %>% 
-  mutate(site = "Nuup")
-# Check final variables + citations
-unique(nuup_sal$var_name)
-nuup_sal_citations <- data.frame(citation = unique(nuup_sal$citation))
-# Look at citation(s) for a given variable
-# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
-# Look at all data within a given citation
-# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "sal|PSU", "sal interp")
+# review_filter_check(nuup_sal, "Sal [mg/l]")
 
 # Porsangerfjorden
-por_sal <- full_product_por %>% 
-  filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
-  filter(grepl("sal|PSU", var_name, ignore.case = T)) %>% 
-  # Some dubious values in "Mankettikkara"
-  filter(value > 0) %>% 
-  mutate(site = "Por")
-# Check final variables + citations
-# unique(nuup_sal$var_name)
-por_sal_citations <- data.frame(citation = unique(por_sal$citation))
-# Look at citation(s) for a given variable
-# unique(is_sal$citation[is_sal$var_name == "Sal [mg/l]"])
-# Look at all data within a given citation
-# citation_check <- stor_sal[grepl("Olsen, Are", stor_sal$citation, ignore.case = T),]
+# Some dubious values in "Mankettikkara"
+por_sal <- review_filter_var(full_product_por, "Por", "sal|PSU", "Sal interp") %>% filter(value > 0)
+# review_filter_check(por_sal, "sal", "Mankettikkara")
 
-## Combine all
-ALL_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal)
-ALL_sal_citations <- unique(rbind(kong_sal_citations, is_sal_citations, stor_sal_citations, young_sal_citations,
-                                  disko_sal_citations, nuup_sal_citations, por_sal_citations))
-## Monthly averages
-ALL_sal_monthly <- ALL_sal %>% 
-  mutate(date_round = lubridate::round_date(date, "month")) %>% 
-  group_by(site, date_round) %>% 
-  group_by(site, date_round) %>%
-  summarise(sal_mean = round(mean(value, na.rm = T), 2),
-            sal_median = round(median(value, na.rm = T), 2),
-            sal_min = round(min(value, na.rm = T), 2),
-            sal_max = round(max(value, na.rm = T), 2),
-            count = n(), 
-            count_days = length(unique(date)), .groups = "drop") %>%
-  dplyr::rename(date = date_round) %>% 
-  complete(nesting(site), date = seq(min(date), max(date), by = "month"))
+# Summary analyses
+summary_sal <- review_summary(rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal))
 
-## Trends
-ALL_sal_trends <- ALL_sal_monthly %>% 
-  # filter(date >= "1982-01-01", date <= "2020-12-31") %>%
-  group_by(site) %>%
-  mutate(row_idx = 1:n()) %>% 
-  do(fit_site = broom::tidy(lm(sal_mean ~ row_idx, data = .))) %>% 
-  unnest(fit_site) %>% 
-  filter(term == "row_idx") %>% 
-  mutate(sal_dec_trend = round(estimate*120, 4), 
-         p.value = round(p.value, 4)) %>% 
-  dplyr::select(site, sal_dec_trend, p.value)
+# Plot results
+review_summary_plot(summary_sal, "sal", date_filter = c("1982-01-01", "2020-12-31"))
 
-## Plot monthly values
-ggplot(ALL_sal_monthly, aes(x = date, y = sal_mean, colour = site)) +
-  geom_point(alpha = 0.1) + geom_line(alpha = 0.1) + geom_smooth(method = "lm", se = F) +
-  labs(y = "Salinity [PSU]", x = NULL, colour = "Site", linetype = "Source") +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/sal_ts.png", width = 12, height = 5)
 
-## Monthly climatologies
-ALL_sal_monthly_clim <- ALL_sal_monthly %>% 
-  filter(!is.na(sal_mean)) %>% 
-  mutate(month = lubridate::month(date)) %>% 
-  group_by(site, month) %>% 
-  summarise(sal_mean = round(mean(sal_mean, na.rm = T), 2),
-            count = n(), .groups = "drop")
+## Light ------------------------------------------------------------------
 
-## Plot monthly clims
-ggplot(ALL_sal_monthly_clim, aes(x = as.factor(month), y = sal_mean, fill = site)) +
-  geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-  labs(y = "Salinity [PSU]", x = "Month", fill = "Site", colour = "Source") +
-  # facet_wrap(~site) +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/sal_clim.png", width = 12, height = 7)
-ALL_sal_monthly %>% 
-  filter(!is.na(sal_mean)) %>% 
-  mutate(month = lubridate::month(date)) %>% 
-  ggplot(aes(x = as.factor(month), y = sal_mean, fill = site)) +
-  geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-  labs(y = "Salinity [PSU]", x = "Month", fill = "Site", colour = "Source") +
-  # facet_wrap(~site) +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/sal_clim_box.png", width = 12, height = 7)
 
 
 # Section 3 ---------------------------------------------------------------
