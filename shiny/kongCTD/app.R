@@ -2,13 +2,12 @@
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
 # TODO: 
-# Also attach the date of upload, which is tied to Sys.time
-# Also create a NetCDF file format for saving data
+# Create a NetCDF file format for saving data
 # Add more schemas for files Allison sent through
 # Change column names to match NMDC terminology
 # Have an 6) Editing tab that is password protected to go back and fix issues
-# Make this attached to the username so that users can only edit the data they uploaded
-# Have superusers too whose name == ALL
+  # Make this attached to the username so that users can only edit the data they uploaded
+  # Have superusers too whose name == ALL
 # Add real sites to pre-made drop down list of stations for step 2)
 # Selectify the list to add subsets of sites by organisation. e.g. NPI stations, AWI stations etc.
 
@@ -218,8 +217,15 @@ ui <- dashboardPage(
               # The single metadata inputs
               box(width = 4, height = "300px", title = "Fill all values", 
                   status = "danger", solidHeader = TRUE, collapsible = FALSE,
-                  shiny::selectInput("allSite", "Site", 
-                                     choices = c("", "Site 1", "Site 2"), selected = ""),
+                  # selectizeInput('x1', 'X1', choices = list(
+                  #   Eastern = c(`New York` = 'NY', `New Jersey` = 'NJ'),
+                  #   Western = c(`California` = 'CA', `Washington` = 'WA')
+                  # ), multiple = TRUE)
+                  selectizeInput("allSite", "Site", choices = list(
+                    New = c("No name" = "No name"),
+                    AWI = c("Site 1" = "Site 1"),
+                    SAMS = c("Site 2" = "Site 2")),
+                    selected = "No name"),
                   fluidRow(column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
                            column(4, shiny::numericInput("allLat", "Single latitude", value = NA, min = 78, max = 80)),
                            column(4, shiny::textInput("allDataOwner", "Data owner"))),
@@ -327,7 +333,7 @@ ui <- dashboardPage(
                     height = "550px",
                     title = "Upload",
                     status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                    h3("Click to upload data to batabase"),
+                    h3("Click to upload data to database"),
                     actionButton("upload", "Upload", icon = icon("upload"))),
                 
                 # The uploaded data display
@@ -542,7 +548,8 @@ server <- function(input, output, session) {
   file_info_df <- reactive({
     req(input$file1)
     df <- data.frame(file_temp = input$file1$datapath,
-                     file_name = input$file1$name) #%>% 
+                     file_name = input$file1$name,
+                     upload_date = Sys.Date()) #%>% 
       # mutate(file_num = paste0("file_", 1:n()))
     return(df)
   })
@@ -583,7 +590,7 @@ server <- function(input, output, session) {
     df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) %>% 
       left_join(file_info_df(), by = "file_temp") %>% 
       mutate(Uploader = reactiveValuesToList(res_auth)[[1]]) %>% 
-      dplyr::select(Uploader, file_name, everything(),  -file_temp)
+      dplyr::select(Uploader, upload_date, file_name, everything(),  -file_temp)
     
     # Exit
     return(df_load)
@@ -764,7 +771,7 @@ server <- function(input, output, session) {
       mutate(file_name = as.character(file_name))
     df_time <- df_load() %>% 
       mutate(file_name = as.character(file_name)) %>%
-      left_join(df_meta, by = c("file_name")) #, "file_num")) %>% 
+      left_join(df_meta, by = c("file_name", "upload_date")) #, "file_num")) %>% 
     # dplyr::select(-file_num)
     return(df_time)
   })
