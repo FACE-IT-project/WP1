@@ -63,10 +63,18 @@ library(rhandsontable)
 # Data --------------------------------------------------------------------
 
 # For testing...
-# test_load <- read.csv("data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
-# test_load <- read.csv("data/KB3_018630_20210416_1728.csv", skip = 5, sep = ",", dec = ".", fileEncoding = "UTF-8")
-# test_text <- read_file("data/August Bailey_0408_1141.txt")
-# test_text <- read_file("data/KB3_018630_20210416_1728.csv")
+# file_load <- read.csv("../test_data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+# file_load <- read.csv("../test_data/KB3_018630_20210416_1728.csv", skip = 5, sep = ",", dec = ".", fileEncoding = "UTF-8")
+# file_load <- read.csv("../test_data/010621_S.txt", skip = 5, sep = ";", dec = ",", fileEncoding = "latin1")
+# file_load <- read.csv("../test_data/011021_KB1.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+# file_load <- read.csv("../test_data/070521_S.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+# file_load <- read.csv("../test_data/080621_S.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+# file_text <- read_file("../test_data/August Bailey_0408_1141.txt")
+# file_text <- read_file("../test_data/KB3_018630_20210416_1728.csv")
+# file_text <- read_file("../test_data/010621_S.txt")
+# file_text <- read_file("../test_data/011021_KB1.txt")
+# file_text <- read_file("../test_data/070521_S.txt")
+# file_text <- read_file("../test_data/080621_S.txt")
 
 # Default upload start values
 # default_opts <- data.frame(skip = 0,
@@ -484,7 +492,9 @@ server <- function(input, output, session) {
   observeEvent(input$file1, {
     # req(input$file1)
     file_text <- read_file(input$file1$datapath[1])
-    if(str_sub(file_text, 1, 10) == "From file:"){
+    if(str_sub(file_text, 1, 16) == "From file: Alt_S"){
+      upload_opts$schema <- "Alt_S"
+    } else if(str_sub(file_text, 1, 10) == "From file:"){
       upload_opts$schema <- "SAIV"
     } else if(str_sub(file_text, 1, 8) == "RBR data"){
       upload_opts$schema <- "RBR"
@@ -496,7 +506,7 @@ server <- function(input, output, session) {
   # Reactive UI for file schema
   ## NB: These could potentially be moved to the UI and rather updated via observations as done in the meta section
   output$schemaUI <- renderUI({
-    selectInput("schema", "File schema", choices = c("None", "SAIV", "RBR"), selected = upload_opts$schema)
+    selectInput("schema", "File schema", choices = c("None", "Alt_S", "SAIV", "RBR"), selected = upload_opts$schema)
   })
   
   # Reactive UI for header check box
@@ -570,12 +580,41 @@ server <- function(input, output, session) {
                      fileEncoding = upload_opts$encoding, 
                      blank.lines.skip = TRUE) %>%
         mutate(file_temp = file_temp)
-      if(input$schema == "SAIV"){
+      if(input$schema == "Alt_S"){
         df <- df %>% 
-          dplyr::rename(Salinity = `Sal.`, Conductivity = `Cond.`, Temperature = Temp,
+          dplyr::rename(Salinity = `Sal.`, Temperature = Temp,
                         Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
           mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
           dplyr::select(file_temp, date_time, Depth, Salinity:Density)
+      } else if(input$schema == "SAIV"){
+        # NB: As more exceptions pop up, it may be better to have a logic gate for each column name
+        # Or some other clever way to attempt soft column names changes
+        if("Sal." %in% colnames(df) & "Con." %in% colnames(df) & "Depth.u." %in% colnames(df)){
+          df <- df %>% 
+            dplyr::rename(Salinity = `Sal.`, Conductivity = `Cond.`, Temperature = Temp,
+                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
+            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
+            dplyr::select(file_temp, date_time, Depth, Salinity:Density)
+        } else if("Sal." %in% colnames(df) & !"Con." %in% colnames(df) & "Depth.u." %in% colnames(df)){
+          df <- df %>% 
+            dplyr::rename(Salinity = `Sal.`, Temperature = Temp,
+                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
+            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
+            dplyr::select(file_temp, date_time, Depth, Salinity:Density)
+        } else if("Press" %in% colnames(df)){
+          df <- df %>% 
+            dplyr::rename(Salinity = `Sal.`, Conductivity = `Cond.`, Temperature = Temp,
+                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Pressure = Press) %>% 
+            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
+            dplyr::select(file_temp, date_time, Pressure, Salinity:Density)
+        } else {
+          df <- df %>% 
+            dplyr::rename(Conductivity = `Cond.`, Temperature = Temp,
+                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
+            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
+            dplyr::select(file_temp, date_time, Depth, Conductivity:Density)
+        }
+        
       } else if(input$schema == "RBR"){
         df <- df %>% 
           dplyr::rename(Fluorescence_ugChla_l = `Fluorometry.Chlorophyll`,  Specific_Conductivity = `Specific.Conductivity`,
@@ -599,7 +638,10 @@ server <- function(input, output, session) {
   # Observe the changing of the upload UI options
   ## Schema
   observeEvent(input$schema, {
-    if(input$schema == "SAIV"){
+    if(input$schema == "Alt_S"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ";"
+      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
+    } else if(input$schema == "SAIV"){
       upload_opts$header <- TRUE; upload_opts$skip <- 3; upload_opts$sep <- ";"
       upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
     } else if(input$schema == "RBR"){
@@ -658,10 +700,11 @@ server <- function(input, output, session) {
     # Extract meta-data from file headers
     file_meta_func <- function(file_temp){
       file_text <- read_file(file_temp)
+      # NB: This first schema procs for both SAIV and ALt_S
       if(str_sub(file_text, 1, 10) == "From file:"){
         ins_no_raw <- sapply(str_split(file_text, "Instrument no.:"), "[[", 2)
-        # mini_df_1 <- read_delim("data/August Bailey_0408_1141.txt", n_max = 1, skip = 1, delim = ";")
-        mini_df_1 <- read_delim(file_temp, n_max = 1, skip = 1, delim = ";")
+        # mini_df_1 <- read.csv("../test_data/150621_KB4.txt", nrows = 1, skip = 1, sep = ";", dec = ",")
+        mini_df_1 <- read.csv(file_temp, nrows = 1, skip = 1, sep = ";", dec = ",")
         df_meta <- data.frame(file_temp = file_temp,
                               Site = as.character(NA),
                               Lon = as.numeric(NA),
@@ -670,7 +713,7 @@ server <- function(input, output, session) {
                               Sensor_owner = "Kings Bay",
                               Sensor_brand = "SAIV",
                               Sensor_number = as.character(gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15))),
-                              Air_pressure = mini_df_1$`Air pressure`)
+                              Air_pressure = mini_df_1$Air.pressure)
       } else if(str_sub(file_text, 1, 8) == "RBR data"){
         # ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
         # mini_df_1 <- read_csv("data/KB3_018630_20210416_1728.csv", n_max = 1)
