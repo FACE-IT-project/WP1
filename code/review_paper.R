@@ -223,6 +223,44 @@ review_summary_plot(summary_sal, "sal", date_filter = c("1982-01-01", "2020-12-3
 
 ## Light ------------------------------------------------------------------
 
+# Kongsfjorden
+kong_PAR <- review_filter_var(full_product_kong, "Kong", "PAR", "Onc|Gym|Para|par_")  # We ultimately want "par_"
+# review_filter_check(kong_PAR)
+
+# Isfjorden
+# NB: No PAR data
+is_PAR <- review_filter_var(full_product_is, "Is", "PAR")
+# review_filter_check(is_PAR)
+
+# Storfjorden
+# NB: No PAR data
+stor_PAR <- review_filter_var(full_product_stor, "Stor", "PAR")
+# review_filter_check(stor_PAR)
+
+# Young Sound
+young_PAR <- review_filter_var(rbind(full_product_young, young_GEM), "Young", "PAR")
+# review_filter_check(young_sal)
+
+# Disko Bay
+## NB: It is unclear if these values should be divided by 10 or not
+disko_PAR <- review_filter_var(rbind(full_product_disko, disko_GEM), "Disko", "PAR") %>% filter(value > 0)
+# review_filter_check(disko_PAR)
+
+# Nuup Kangerlua
+## NB: Some of these values are also very high
+nuup_PAR <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "PAR")
+# review_filter_check(nuup_PAR)
+
+# Porsangerfjorden
+## NB: No PAR data
+por_PAR <- review_filter_var(full_product_por, "Por", "PAR")
+# review_filter_check(por_PAR)
+
+# Summary analyses
+summary_PAR <- review_summary(rbind(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR))
+
+# Plot results
+review_summary_plot(summary_PAR, "par", date_filter = c("1982-01-01", "2020-12-31"))
 
 
 # Section 3 ---------------------------------------------------------------

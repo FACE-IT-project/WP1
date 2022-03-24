@@ -1558,6 +1558,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = NULL){
   # Get labels based on short_var name
   if(short_var == "temp") y_label <- "Temperature [°C]"
   if(short_var == "sal") y_label <- "Salinity"
+  if(short_var == "par") y_label <- "PAR"
   
   # Create x/y coords for labels
   label_df <- summary_list$trend %>% 

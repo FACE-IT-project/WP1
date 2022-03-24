@@ -676,59 +676,93 @@ kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_shi
 # Daten/ELUV
 # Daten/Licht
 # Daten/Temperatur
-# NB: Not yet added to Kong product
-# NB: These temperature values are dubious
-kong_ELUV1 <- map_dfr(c(dir("~/pCloudDrive/restricted_data/Bremen/Daten/ELUV", recursive = T, full.names = T),
-                       dir("~/pCloudDrive/restricted_data/Bremen/Daten/Licht", pattern = "170", full.names = T)),
-                     read.delim, sep = "\t", skip = 11, dec = ",", header = F, na.strings = "999",
-                     col.names = c("date", "UV", "IR", "temp")) %>% 
-  mutate(date = as.POSIXct(date, tryFormats = c("%d.%m.%Y %H:%M:%S")))
-kong_ELUV2 <- map_dfr(dir("~/pCloudDrive/restricted_data/Bremen/Daten/Licht", pattern = "Fjord.csv", full.names = T),
-                      read.csv, skip = 11, header = F, na.strings = "999",
-                      col.names = c("date", "UV", "IR", "temp")) %>% 
-  mutate(date = as.POSIXct(date, tryFormats = c("%d/%m/%Y %H:%M")))
-kong_ELUV3 <- read.csv("~/pCloudDrive/restricted_data/Bremen/Daten/Temperatur/EluvFjordTemperatur.csv", skip = 4) %>% 
-  mutate(UV = (`UV..mW.m2.` + `UV..mW.m2..1`)/2, IR = (IR + IR.1)/2, depth = 0.5,
-         date = as.POSIXct(Datum, tryFormats = c("%d/%m/%Y %H:%M"))) %>% 
-  dplyr::rename(temp = Temp.Korrigiert) %>% 
-  dplyr::select(date, depth, UV, IR, temp)
-kong_ELUV <- bind_rows(kong_ELUV3, kong_ELUV1, kong_ELUV2) %>% 
-  dplyr::rename(`UV [mW/m2]` = UV, `temp [°C]` = temp) %>% 
-  # need to add lon/lat
-  mutate(lon = NA, lat = NA) %>% 
-  filter(`UV [mW/m2]` < 200, `temp [°C]` > 15) %>%
-  distinct()
-rm(kong_ELUV1, kong_ELUV2, kong_ELUV3)
+# ELUV data not loaded because they are from an experiment
+# "~/pCloudDrive/restricted_data/Bremen/Daten/ELUV", "~/pCloudDrive/restricted_data/Bremen/Daten/Licht",
+# "~/pCloudDrive/restricted_data/Bremen/Daten/Temperatur/EluvFjordTemperatur.csv"
+# The code used to load these files may be found in the history before 2022-03-23
 
 # DATEN4/CTD
-# NB: Not yet added to Kong product
-# NB: Once we know the coordinates these need to be added by detecting the site name in the file name
-# Consider filtering by salinity to remove surface values
-kong_CTD_DATEN4 <- map_dfr(dir("~/pCloudDrive/restricted_data/Bremen/DATEN4/CTD", full.names = T), load_CTD_DATEN)
+kong_CTD_DATEN4 <- map_dfr(dir("~/pCloudDrive/restricted_data/Bremen/DATEN4/CTD", full.names = T), load_CTD_DATEN) %>% 
+  dplyr::rename(depth = `press [dbar]`) %>% 
+  filter(`sal [ppt]` >= 1, depth >= 0) %>% # Sketchy surface values
+  mutate(date = as.Date(date)) %>%
+  group_by(lon, lat, date, depth) %>% 
+  # NB: Changes from 0 - 360 to -180 - 180
+  mutate(`dir [°]` = as.numeric(mean.circular(circular(`dir [°]`, units = "degrees")))) %>% 
+  pivot_longer(`temp [°C]`:`dir [°]`, names_to = "var_name") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(var_type = "phys",
+         URL = NA,
+         date_accessed = as.Date("2022-03-02"),
+         citation = "Bischof, K., Hanelt, D., TuÈg, H., Karsten, U., Brouwer, P. E., & Wiencke, C. (1998). Acclimation of brown algal photosynthesis to ultraviolet radiation in Arctic coastal waters (Spitsbergen, Norway). Polar Biology, 20(6), 388-395.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") 
                            
 # DATEN4/MINI-PAM
 # NB: Not loaded as it only appears to have PAR values that look incorrect.
 
 # LICHT
-# NB: Not yet added to Kong product
 kong_LICHT <- read_csv("~/pCloudDrive/restricted_data/Bremen/LICHT/combined.csv") %>% 
   mutate(lon = case_when(site == "Blomstrand" ~ 12.0444,
                          site == "Hansneset" ~ 11.9872),
          lat = case_when(site == "Blomstrand" ~ 78.9611,
                          site == "Hansneset" ~ 78.9958)) %>% 
-  dplyr::select(lon, lat, date, depth, UVA, UVB, PAR)
+  dplyr::select(lon, lat, date, depth, UVA, UVB, PAR) %>% 
+  pivot_longer(UVA:PAR, names_to = "var_name") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(date = as.Date(date, format = "%d/%m/%y"),
+         var_type = "phys",
+         URL = NA,
+         date_accessed = as.Date("2022-03-02"),
+         citation = "Bischof, K., Hanelt, D., TuÈg, H., Karsten, U., Brouwer, P. E., & Wiencke, C. (1998). Acclimation of brown algal photosynthesis to ultraviolet radiation in Arctic coastal waters (Spitsbergen, Norway). Polar Biology, 20(6), 388-395.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Light Data
 # NB: Not yet added to Kong product
 # NB: May want to convert from mW to W
-kong_light <- read_csv("~/pCloudDrive/restricted_data/Bremen/Light Data/Laeseke_light_data.csv", skip = 9) %>% 
+kong_light_Laeseke <- read_csv("~/pCloudDrive/restricted_data/Bremen/Light Data/Laeseke_light_data.csv", skip = 9) %>% 
   mutate(date = as.Date("2015-08-17"), lon = 11.9872, lat = 78.9958) %>% 
   dplyr::rename(depth = `Depth [m]`) %>% 
-  dplyr::select(lon, lat, date, depth, `UV-B [mW*m^2]`, `UV-A [mW*m^2]`, `PAR [mW*m^2]`)
+  dplyr::select(lon, lat, date, depth, `UV-B [mW*m^2]`, `UV-A [mW*m^2]`, `PAR [mW*m^2]`) %>% 
+  pivot_longer(`UV-B [mW*m^2]`:`PAR [mW*m^2]`, names_to = "var_name") %>% 
+  mutate(var_type = "phys",
+         var_name = str_replace(var_name, "mW", "W"),
+         value = value/1000, # Convert to W*m^2
+         URL = NA,
+         date_accessed = as.Date("2022-03-02"),
+         citation = "Laeseke, P., Bartsch, I., & Bischof, K. (2019). Effects of kelp canopy on underwater light climate and viability of brown algal spores in Kongsfjorden (Spitsbergen). Polar Biology, 42(8), 1511-1527.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Light Data/Lydia...
 # Not loaded as these data are measurements of difference in PAR in and out of the river outflow near Ny-Alesund
 # While interesting, these data do not have lon/lat coords so are difficult to incorporate with everything else
+
+## Light data from Inka
+## NB: I (Robert) need to upload these data to PANGAEA to give them a DOI etc.
+# NB: The sensors get dirty throughout the year so values after the winter dark period are best to remove
+kong_light_Inka_1 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_10M_above kelp canopy_July2012-June2013_final.csv") %>% 
+  slice(1:15999) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 10) %>% 
+  dplyr::select(-`...4`) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "var_name")
+kong_light_Inka_2 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_15M_3Jul2012-13Jun2013_final.csv") %>% 
+  slice(1:16074) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 15) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "var_name")
+kong_light_Inka_3 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_All_Depths_4July-31July2012_final.csv") %>% 
+  pivot_longer(c(`1.7 OBEN PAR [µmol m-2 s-1]`, `2.3 UNTEN PAR [µmol m-2 s-1]`, `4.2 OBEN PAR [µmol m-2 s-1]`, `4.8 UNTEN PAR [µmol m-2 s-1]`,
+                 `9.2 OBEN PAR [µmol m-2 s-1]`, `9.8 UNTEN PAR [µmol m-2 s-1]`, `14.8 PAR [µmol m-2 s-1]`), names_to = "var_name") %>% 
+  mutate(depth = case_when(grepl("14.8", var_name) ~ 14.8, grepl("1.7", var_name) ~ 1.7, grepl("2.3", var_name) ~ 2.3, 
+                           grepl("4.2", var_name) ~ 4.2, grepl("4.8", var_name) ~ 4.8, grepl("9.2", var_name) ~ 9.2, grepl("9.8", var_name) ~ 9.8),
+         date = as.Date(date, format = "%d/%m/%Y"),
+         var_name = case_when(grepl("OBEN", var_name) ~ "PAR above canopy [umol m-2 s-1]",
+                              grepl("UNTEN", var_name) ~ "PAR below canopy [umol m-2 s-1]",
+                              TRUE ~ "PAR [umol m-2 s-1]"))
+kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
+  mutate(var_type = "phys", lon = 11.9872, lat = 78.9958, URL = NA,
+         date_accessed = as.Date("2022-03-24"),
+         citation = "Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3); gc()
 
 ## SOCAT
 ### NB: EU_SOCAT loaded in EU full product section
@@ -747,7 +781,8 @@ kong_GLODAP <- EU_GLODAP %>%
 # Combine and save
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
-                           kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_SOCAT) %>% 
+                           kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
+                           kong_light_Laeseke, kong_light_Inka, kong_SOCAT) %>% 
   rbind(filter(full_product_sval, lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4])) %>% 
   rbind(filter(full_product_sval, grepl("Kongsfjorden", var_name))) %>% distinct()
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
@@ -1335,7 +1370,7 @@ rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 ## GEM ---------------------------------------------------------------------
 
 # Sea ice free period per year
-young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Sea_ice_conditions_Open_water_duration.csv", delim = "\t") %>% 
+young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Open_water_duration.csv", delim = "\t") %>% 
   dplyr::rename(value = `Open Water duration`) %>% 
   mutate(var_name = "Open water [annual days]",
          var_type = "cryo",
@@ -1347,7 +1382,7 @@ young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Z
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Water column CTD
-young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 
                 PAR = `Water, PAR`, turbidity = `Water turbidity`, `Tpot [°C]` = `Potential temperature, C`,
@@ -1364,7 +1399,7 @@ young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zac
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Mooring CTD
-young_GEM_CTD_mooring <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Water_column_Mooring_CTD_measurements.csv", delim = "\t") %>% 
+young_GEM_CTD_mooring <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Water_column_Mooring_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = DATE, depth = `PRESSURE (db)`, `temp [°C]` = `TEMPERATURE (°C)`, `sal [PSU]` = `Salinity (PSU)`) %>% 
   pivot_longer(`temp [°C]`:`sal [PSU]`, names_to = "var_name") %>% 
   mutate(var_type = "phys",
@@ -1376,7 +1411,7 @@ young_GEM_CTD_mooring <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenbe
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Sill CTD
-young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_Data_Water_column_Sill_CTD_measurements.csv") %>% 
+young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Water_column_Sill_CTD_measurements.csv") %>% 
   dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 
                 PAR = `Water, PAR`, turbidity = `Water turbidity`, `Tpot [°C]` = `Potential temperature, C`,
@@ -1391,6 +1426,8 @@ young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEMS/Zackenberg_
          date_accessed = as.Date("2022-02-03"),
          citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# 
 
 # Combine and save
 young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill)
@@ -1524,7 +1561,9 @@ rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 ## GEM ---------------------------------------------------------------------
 
 # Open water CTD
-disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Disko_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+## NB: These single lon/lat values seem dubious
+## They do not seem to agree with the similar data from Zenodo
+disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Disko_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, depth = `depSM: Depth (salt water, m)`, `temp [°C]` = `tv268C: Temperature (IPTS-68, deg C)`,
                 `cond [S/m]` = `c0S/m: Conductivity (S/m)`, `sal [PSU]` = `sal00: Salinity, Practical (PSU)`,
                 `density [kg/m^3]` = `density00: Density (density, kg/m^3)`, `press [psi]` = `prdE: Pressure, Strain Gauge (psi)`, 
@@ -1650,7 +1689,7 @@ if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua
 ## GEM ---------------------------------------------------------------------
 
 # Open water CTD
-nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, lon = Longitude, lat = Latitude, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Density, Sigma-theta, kg m-3`, fluor = `Fluorescence`, 
                 `PAR [µmol photons m-2/sec]` = `PAR, µmol photons m-2 sec-1`, `turbidity [FTU]` = `Turbidity, FTU`, 
@@ -1665,8 +1704,18 @@ nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEMS/Nuuk_D
          citation = "CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+# Primary production
+nuup_GEM_pp <- read_delim("~/pCloudDrive/restricted_data/GEM/Nuuk_Data_Water_column_Particulate_Pelagic_Primary_Production_mg_C_m2_d.csv", delim = "\t") %>% 
+  dplyr::rename(date = DATE, depth = DEPTH, `PP [mg C/m3/d]` = `Water PP`) %>% pivot_longer(`PP [mg C/m3/d]`, names_to = "var_name") %>% 
+  mutate(var_type = "bio",
+         lon = -51.883333, lat = 64.116667,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/TQQV-VJ76",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Particulate Pelagic Primary Production (mg C/m2/d): Water column MarineBasis Nuuk. doi: 10.17897/TQQV-VJ76") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Combine and save
-nuup_GEM <- rbind(nuup_GEM_CTD_open_water)
+nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp)
 save(nuup_GEM, file = "data/restricted/nuup_GEM.RData")
 
 
