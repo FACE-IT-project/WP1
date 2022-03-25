@@ -2,14 +2,13 @@
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
 # TODO: 
-# Create a NetCDF file format for saving data
-# Add more schemas for files Allison sent through
+# Change upload_date metadata box so it can't be edited
 # Change column names to match NMDC terminology
+# Add real sites to pre-made drop down list of stations for step 2)
+# Create a NetCDF file format for saving data
 # Have an 6) Editing tab that is password protected to go back and fix issues
   # Make this attached to the username so that users can only edit the data they uploaded
   # Have superusers too whose name == ALL
-# Add real sites to pre-made drop down list of stations for step 2)
-# Selectify the list to add subsets of sites by organisation. e.g. NPI stations, AWI stations etc.
 
 # Spruce up the landing page with some nice pictures of the fjord
 # Also add all sorts of info to the landing page that motivates people to use it
@@ -148,7 +147,12 @@ ui <- dashboardPage(
                 menuItem("About", tabName = "about", icon = icon("question")),
                 
                 # The reactive controls based on the primary option chosen
-                uiOutput(outputId = "sidebar_controls"))
+                uiOutput(outputId = "sidebar_controls")),
+    
+    # Add FACE-IT logo at bottom of menu bar
+    br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), 
+    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+    img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
   ),
   
   # The dashboard
