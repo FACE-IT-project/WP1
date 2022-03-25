@@ -4,6 +4,7 @@
 # TODO: 
 # Change upload_date metadata box so it can't be edited
 # Change column names to match NMDC terminology
+# Shorten boxes so that the web browser never wants to scroll down
 # Add real sites to pre-made drop down list of stations for step 2)
 # Create a NetCDF file format for saving data
 # Have an 6) Editing tab that is password protected to go back and fix issues
