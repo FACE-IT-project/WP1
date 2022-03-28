@@ -719,8 +719,6 @@ kong_LICHT <- read_csv("~/pCloudDrive/restricted_data/Bremen/LICHT/combined.csv"
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Light Data
-# NB: Not yet added to Kong product
-# NB: May want to convert from mW to W
 kong_light_Laeseke <- read_csv("~/pCloudDrive/restricted_data/Bremen/Light Data/Laeseke_light_data.csv", skip = 9) %>% 
   mutate(date = as.Date("2015-08-17"), lon = 11.9872, lat = 78.9958) %>% 
   dplyr::rename(depth = `Depth [m]`) %>% 
@@ -747,22 +745,35 @@ kong_light_Inka_1 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansne
   dplyr::select(-`...4`) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "var_name")
 kong_light_Inka_2 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_15M_3Jul2012-13Jun2013_final.csv") %>% 
   slice(1:16074) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 15) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "var_name")
-kong_light_Inka_3 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_All_Depths_4July-31July2012_final.csv") %>% 
-  pivot_longer(c(`1.7 OBEN PAR [µmol m-2 s-1]`, `2.3 UNTEN PAR [µmol m-2 s-1]`, `4.2 OBEN PAR [µmol m-2 s-1]`, `4.8 UNTEN PAR [µmol m-2 s-1]`,
-                 `9.2 OBEN PAR [µmol m-2 s-1]`, `9.8 UNTEN PAR [µmol m-2 s-1]`, `14.8 PAR [µmol m-2 s-1]`), names_to = "var_name") %>% 
+klib <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_All_Depths_4July-31July2012_final.csv") 
+kong_light_Inka_3 <- rbind(data.frame(date = klib$date, time = klib$time...2,
+                                      value = klib$`2.3 UNTEN PAR [µmol m-2 s-1]`, var_name = "2.3 UNTEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...4,
+                                      value = klib$`1.7 OBEN PAR [µmol m-2 s-1]`, var_name = "1.7 OBEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...6,
+                                      value = klib$`4.2 OBEN PAR [µmol m-2 s-1]`, var_name = "4.2 OBEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...8,
+                                      value = klib$`4.8 UNTEN PAR [µmol m-2 s-1]`, var_name = "4.8 UNTEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...10,
+                                      value = klib$`9.2 OBEN PAR [µmol m-2 s-1]`, var_name = "9.2 OBEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...12,
+                                      value = klib$`9.8 UNTEN PAR [µmol m-2 s-1]`, var_name = "9.8 UNTEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...14,
+                                      value = klib$`14.8 PAR [µmol m-2 s-1]`, var_name = "14.8 PAR [µmol m-2 s-1]")) %>% 
   mutate(depth = case_when(grepl("14.8", var_name) ~ 14.8, grepl("1.7", var_name) ~ 1.7, grepl("2.3", var_name) ~ 2.3, 
                            grepl("4.2", var_name) ~ 4.2, grepl("4.8", var_name) ~ 4.8, grepl("9.2", var_name) ~ 9.2, grepl("9.8", var_name) ~ 9.8),
          date = as.Date(date, format = "%d/%m/%Y"),
          var_name = case_when(grepl("OBEN", var_name) ~ "PAR above canopy [umol m-2 s-1]",
                               grepl("UNTEN", var_name) ~ "PAR below canopy [umol m-2 s-1]",
                               TRUE ~ "PAR [umol m-2 s-1]"))
-kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
-  mutate(var_type = "phys", lon = 11.9872, lat = 78.9958, URL = NA,
-         date_accessed = as.Date("2022-03-24"),
+kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% mutate(lon = 11.9872, lat = 78.9958)
+write_csv(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/full_data_long.csv")
+kong_light_Inka <- kong_light_Inka_hourly %>% 
+  mutate(var_type = "phys", URL = NA, date_accessed = as.Date("2022-03-24"),
          citation = "Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
-rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3); gc()
+rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Inka_hourly); gc()
 
 ## SOCAT
 ### NB: EU_SOCAT loaded in EU full product section
@@ -993,7 +1004,7 @@ is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>%
   summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 rm(is_Chla_IsA_units, is_Chla_IsA_1, is_Chla_IsA_2); gc()
 
-## Isfjord radio meteorological station
+## Isfjorden radio meteorological station
 is_met_radio <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc") %>% mutate(date_accessed = as.Date("2021-04-14"), .before = 1)
 
 ## Airport meteorological station

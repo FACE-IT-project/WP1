@@ -1,6 +1,8 @@
 # code/review_paper.R
 # The code used for the analyses in the WP1 review paper (D1.3)
 
+# TODO: Add ability to filter out specific time series depending on length or some other criteria
+
 
 # Setup -------------------------------------------------------------------
 
@@ -224,7 +226,9 @@ review_summary_plot(summary_sal, "sal", date_filter = c("1982-01-01", "2020-12-3
 ## Light ------------------------------------------------------------------
 
 # Kongsfjorden
-kong_PAR <- review_filter_var(full_product_kong, "Kong", "PAR", "Onc|Gym|Para|par_")  # We ultimately want "par_"
+kong_PAR <- review_filter_var(full_product_kong, "Kong", "PAR", "Onc|Gym|Para|par_") %>%  # We ultimately want "par_"
+  # Convert W*m2 to umol m-2 s-1 via 2.5 + 0.25 X 10^18 for Q:W ratio (Morel and Smith, 1974)
+  # We are assuming that W*m2 is per second
 # review_filter_check(kong_PAR)
 
 # Isfjorden
