@@ -565,6 +565,16 @@ kong_bischoff <- data.frame(type = "In situ",
                             reference = '<a onclick="alert(\'\');">NA</a>',
                             note = "Field data collected by Kai's team will not be available until 2022.")
 
+# PAR data collected as part of a 2012/13 experiment by Inka
+# NB: Currently being processed into PANGAEA
+# kong_bartsch <- data.frame(type = "In situ",
+#                             data_name = "PAR",
+#                             date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
+#                             file_name = '<a onclick="alert(\'\');">0 files</a>',
+#                             URL = '<a onclick="alert(\'\');">NA</a>',
+#                             reference = '<a onclick="alert(\'\');">NA</a>',
+#                             note = NA)
+
 # Cruise data sampling water along the marine terminating edge of glaciers
 kong_TWICE <- data.frame(type = "Cruise",
                          data_name = "Salinity, glacier: terminating edge",
@@ -784,15 +794,15 @@ is_IsA_CO2 <- data.frame(type = "CTD",
                          reference = '<a onclick="alert(\'Ylva Ericson, UNIS, Eva Falck, UNIS, and Melissa Chierici, IMR and UNIS. (2019) Marine CO2 system data from the IsA Station, Svalbard, 2015-2017 https://doi.org/10.21335/NMDC-80568951\');">Ericson et al. (2019)</a>',
                          note = NA)
 
-# Chlorophyl station at IsA
+# Chlorophyll station at IsA
 is_IsA_Chla <- data.frame(type = "Niskin bottle",
                           data_name = "ChlA",
                           date_range = "2011 to 2019",
                           lon_range = "15.53", lat_range = "78.26",
                           depth_range = "0 to 980",
                           file_name = '<a onclick="alert(\'chl_a: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc; IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">1 folder, 2 files</a>',
-                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All">SIOS</a>',
-                          reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                          URL = '<a onclick="alert(\'https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00063; https://ns9999k.webs.sigma2.no/10.11582_2020.00063/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc; https://ns9999k.webs.sigma2.no/10.11582_2020.00063/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">NIRD</a>',
+                          reference = '<a onclick="alert(\'University Centre in Svalbard (2020). ISA_Svalbard_Chlorophyll_A_2011_2019 [Data set]. Norstore. https://doi.org/10.11582/2020.00063\');">UCS (2020)</a>',
                           note = NA)
 
 # Light related data at the IsA station
@@ -840,7 +850,7 @@ is_zoo <- data.frame(type = "Multinet",
                      reference = '<a onclick="alert(\'No reference available yet.\');">Søreide et al. (In prep.)</a>',
                      note = "Data are not yet publicly available.")
 
-# Isfjord radio meteorological station
+# Isfjorden radio meteorological station
 is_met_radio <- data.frame(type = "Met station",
                            data_name = "Air: temperature (2m), air pressure (sea level; 2m); wind: speed, direction (10m); relative humidity",
                            date_range = "1934 to 2019",
@@ -849,7 +859,7 @@ is_met_radio <- data.frame(type = "Met station",
                            depth_range = NA,
                            file_name = '<a onclick="alert(\'SN99790.nc\');">1 file</a>',
                            URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99790.nc">NMI</a>',
-                           reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                           reference = '<a onclick="alert(\'Isfjorden radio meteorological station. Data from The Norwegian Meteorological Institute. Accessed 2021-04-14.\');">MET Norway (2021)</a>',
                            note = NA)
 
 # Longyearbyen airport meteorological station
@@ -861,7 +871,7 @@ is_met_airport <- data.frame(type = "Met station",
                              depth_range = NA,
                              file_name = '<a onclick="alert(\'SN99840.nc\');">1 file</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99840.nc">NMI</a>',
-                             reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                             reference = '<a onclick="alert(\'Longyearbyen airport meteorological station. Data from The Norwegian Meteorological Institute. Accessed 2021-08-04.\');">MET Norway (2021)</a>',
                              note = NA)
 
 # Pyramiden meteorological station
@@ -873,7 +883,7 @@ is_met_pyramiden <- data.frame(type = "Met station",
                                depth_range = NA,
                                file_name = '<a onclick="alert(\'SN99880.nc\');">1 file</a>',
                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/SN99880.nc">NMI</a>',
-                               reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                               reference = '<a onclick="alert(\'Pyramiden meteorological station. Data from The Norwegian Meteorological Institute. Accessed 2021-08-04.\');">MET Norway (2021)</a>',
                                note = NA)
 
 # Social data for Isfjorden
