@@ -766,10 +766,17 @@ kong_light_Inka_3 <- rbind(data.frame(date = klib$date, time = klib$time...2,
          var_name = case_when(grepl("OBEN", var_name) ~ "PAR above canopy [umol m-2 s-1]",
                               grepl("UNTEN", var_name) ~ "PAR below canopy [umol m-2 s-1]",
                               TRUE ~ "PAR [umol m-2 s-1]"))
-kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% mutate(lon = 11.9872, lat = 78.9958)
-write_csv(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/full_data_long.csv")
-kong_light_Inka <- kong_light_Inka_hourly %>% 
-  mutate(var_type = "phys", URL = NA, date_accessed = as.Date("2022-03-24"),
+kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
+  mutate(note = case_when(grepl("above", var_name) ~ "Above canopy",
+                              grepl("below", var_name) ~ "Below canopy",
+                              TRUE ~ "No canopy"),
+         `longitude [°E]` = 11.9872, `latitude [°N]` = 78.9958) %>% 
+  dplyr::rename(`PAR [umol m-2 s-1]` = value, `depth [m]` = depth, `time [UTC+0]` = time) %>% 
+  dplyr::select(`longitude [°E]`, `latitude [°N]`, date, `time [UTC+0]`, `depth [m]`, `PAR [umol m-2 s-1]`, note)
+write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
+kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
+  mutate(lon = 11.9872, lat = 78.9958,
+         var_type = "phys", URL = NA, date_accessed = as.Date("2022-03-24"),
          citation = "Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
