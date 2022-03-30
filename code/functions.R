@@ -1479,10 +1479,14 @@ download_MUR_ALL <- function(file_date){
 }
 
 # Convenience function for filtering variables for analyses
-## Add logic flag for atmosphere values
-review_filter_var <- function(full_product, site_name, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL){
-  res_df <- full_product %>% 
-    filter(depth <= 10, depth >= 0, !is.na(date)) %>% 
+## NB: May want to remove the is.na(date) filter
+review_filter_var <- function(full_product, site_name, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL, atmos = F){
+  if(atmos){
+    df_depth <- full_product %>% filter(is.na(depth) | depth <= 0)
+  } else {
+    df_depth <- full_product %>% filter(depth <= 10, depth >= 0)
+  }
+  res_df <- df_depth %>% filter(!is.na(date)) %>% 
     filter(grepl(var_keep, var_name, ignore.case = T)) %>% 
     mutate(site = site_name, type = "in situ")
   if(!is.null(var_remove)) res_df <- res_df %>% filter(!grepl(var_remove, var_name, ignore.case = T))
@@ -1618,5 +1622,22 @@ review_summary_plot <- function(summary_list, short_var, date_filter = NULL){
     facet_wrap(~type, nrow = 3) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/",short_var,"_clim_box.png"), width = 12, height = 9)
+}
+
+# Add depth data manually from PANGAEA files where this info is in the meta-data
+add_depth <- function(df){
+  df_res <- df %>% 
+    mutate(depth = case_when(URL == "https://doi.org/10.1594/PANGAEA.857619" ~ 0,
+                             URL == "https://doi.org/10.1594/PANGAEA.930028" ~ 310.6,
+                             URL == "https://doi.org/10.1594/PANGAEA.935267" ~ 25,
+                             grepl("Matishov, Gennady G; Zuyev, Aleksey N; Golubev", citation) ~ 0,
+                             grepl("Schmithüsen, Holger (*)", citation) & var_name == "Temp [°C]" ~ 5,
+                             grepl("Schmithüsen, Holger (*)", citation) & var_name == "TTT [°C]" ~ -29,
+                             grepl("König-Langlo, Gert (*)", citation) & var_name == "Temp [°C]" ~ 0,
+                             grepl("König-Langlo, Gert (*)", citation) & var_name == "TTT [°C]" ~ -25,
+                             #URL == "https://doi.org/10.1594/PANGAEA.484880" ~ 0, # Depth is not provided
+                             # URL == "https://doi.org/10.1594/PANGAEA.484950" ~ 0, # Depth is not provided
+                             TRUE ~ depth))
+  return(df_res)
 }
 

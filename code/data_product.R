@@ -703,12 +703,13 @@ kong_CTD_DATEN4 <- map_dfr(dir("~/pCloudDrive/restricted_data/Bremen/DATEN4/CTD"
 
 # LICHT
 kong_LICHT <- read_csv("~/pCloudDrive/restricted_data/Bremen/LICHT/combined.csv") %>% 
+  dplyr::rename(`PAR [µmol m-2 s-1]` = PAR) %>% 
   mutate(lon = case_when(site == "Blomstrand" ~ 12.0444,
                          site == "Hansneset" ~ 11.9872),
          lat = case_when(site == "Blomstrand" ~ 78.9611,
                          site == "Hansneset" ~ 78.9958)) %>% 
-  dplyr::select(lon, lat, date, depth, UVA, UVB, PAR) %>% 
-  pivot_longer(UVA:PAR, names_to = "var_name") %>% 
+  dplyr::select(lon, lat, date, depth, UVA, UVB, `PAR [µmol m-2 s-1]`) %>% 
+  pivot_longer(UVA:`PAR [µmol m-2 s-1]`, names_to = "var_name") %>% 
   filter(!is.na(value)) %>% 
   mutate(date = as.Date(date, format = "%d/%m/%y"),
          var_type = "phys",
@@ -727,6 +728,9 @@ kong_light_Laeseke <- read_csv("~/pCloudDrive/restricted_data/Bremen/Light Data/
   mutate(var_type = "phys",
          var_name = str_replace(var_name, "mW", "W"),
          value = value/1000, # Convert to W*m^2
+         # Valu of ~2.5 for conversion taken from Morel and Smith (1974): https://aslopubs.onlinelibrary.wiley.com/doi/abs/10.4319/lo.1974.19.4.0591
+         value = case_when(grepl("PAR", var_name) ~ value*2.5, TRUE ~ value), # Convert to `PAR [µmol m-2 s-1]`
+         var_name = case_when(grepl("PAR", var_name) ~ "PAR [µmol m-2 s-1]", TRUE ~ var_name),
          URL = NA,
          date_accessed = as.Date("2022-03-02"),
          citation = "Laeseke, P., Bartsch, I., & Bischof, K. (2019). Effects of kelp canopy on underwater light climate and viability of brown algal spores in Kongsfjorden (Spitsbergen). Polar Biology, 42(8), 1511-1527.") %>% 
@@ -763,19 +767,20 @@ kong_light_Inka_3 <- rbind(data.frame(date = klib$date, time = klib$time...2,
   mutate(depth = case_when(grepl("14.8", var_name) ~ 14.8, grepl("1.7", var_name) ~ 1.7, grepl("2.3", var_name) ~ 2.3, 
                            grepl("4.2", var_name) ~ 4.2, grepl("4.8", var_name) ~ 4.8, grepl("9.2", var_name) ~ 9.2, grepl("9.8", var_name) ~ 9.8),
          date = as.Date(date, format = "%d/%m/%Y"),
-         var_name = case_when(grepl("OBEN", var_name) ~ "PAR above canopy [umol m-2 s-1]",
-                              grepl("UNTEN", var_name) ~ "PAR below canopy [umol m-2 s-1]",
-                              TRUE ~ "PAR [umol m-2 s-1]"))
+         var_name = case_when(grepl("OBEN", var_name) ~ "PAR above canopy [µmol m-2 s-1]",
+                              grepl("UNTEN", var_name) ~ "PAR below canopy [µmol m-2 s-1]",
+                              TRUE ~ "PAR [µmol m-2 s-1]"))
 kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
   mutate(note = case_when(grepl("above", var_name) ~ "Above canopy",
                               grepl("below", var_name) ~ "Below canopy",
                               TRUE ~ "No canopy"),
          `longitude [°E]` = 11.9872, `latitude [°N]` = 78.9958) %>% 
-  dplyr::rename(`PAR [umol m-2 s-1]` = value, `depth [m]` = depth, `time [UTC+0]` = time) %>% 
-  dplyr::select(`longitude [°E]`, `latitude [°N]`, date, `time [UTC+0]`, `depth [m]`, `PAR [umol m-2 s-1]`, note)
+  dplyr::rename(`PAR [µmol m-2 s-1]` = value, `depth [m]` = depth, `time [UTC+0]` = time) %>% 
+  dplyr::select(`longitude [°E]`, `latitude [°N]`, date, `time [UTC+0]`, `depth [m]`, `PAR [µmol m-2 s-1]`, note)
 write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
 kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
   mutate(lon = 11.9872, lat = 78.9958,
+         var_name = case_when(var_name == "PAR [umol m-2 s-1]" ~ "PAR [µmol m-2 s-1]", TRUE ~ var_name),
          var_type = "phys", URL = NA, date_accessed = as.Date("2022-03-24"),
          citation = "Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
@@ -1400,6 +1405,7 @@ young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Za
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Water column CTD
+## NB: PAR units not given, but they look like [µmol m-2 s-1]
 young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 

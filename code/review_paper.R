@@ -21,9 +21,9 @@ load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
 # GEM data
-load("data/restricted/young_GEM.RData")
-load("data/restricted/disko_GEM.RData")
-load("data/restricted/nuup_GEM.RData")
+load("~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
+load("~/pCloudDrive/restricted_data/GEM/disko_GEM.RData")
+load("~/pCloudDrive/restricted_data/GEM/nuup_GEM.RData")
 
 # Model data
 model_kong <- load_model("kongsfjorden_rcp")
@@ -179,6 +179,12 @@ review_summary_plot(summary_SST, "temp", date_filter = c("1982-01-01", "2020-12-
 
 ## Air temperature --------------------------------------------------------
 
+kong_air <- add_depth(review_filter_var(full_product_kong, "Kong", "temp|°C", "fco2|pco2|intern|temp_",
+                                        var_precise = "Temp [°C]", atmos = T))# %>% 
+  # mutate(value = case_when(grepl("Golubev", citation) & var_name == "Temp [°C]" ~ 999, TRUE ~ value))
+  # filter(!URL == "https://doi.org/10.1594/PANGAEA.484880" & !var_name == "Temp [°C]")
+
+
 
 ## Salinity ---------------------------------------------------------------
 
@@ -226,9 +232,7 @@ review_summary_plot(summary_sal, "sal", date_filter = c("1982-01-01", "2020-12-3
 ## Light ------------------------------------------------------------------
 
 # Kongsfjorden
-kong_PAR <- review_filter_var(full_product_kong, "Kong", "PAR", "Onc|Gym|Para|par_") %>%  # We ultimately want "par_"
-  # Convert W*m2 to umol m-2 s-1 via 2.5 + 0.25 X 10^18 for Q:W ratio (Morel and Smith, 1974)
-  # We are assuming that W*m2 is per second
+kong_PAR <- review_filter_var(full_product_kong, "Kong", "PAR", "Onc|Gym|Para|below|par_") # We ultimately want "par_"
 # review_filter_check(kong_PAR)
 
 # Isfjorden
@@ -247,6 +251,7 @@ young_PAR <- review_filter_var(rbind(full_product_young, young_GEM), "Young", "P
 
 # Disko Bay
 ## NB: It is unclear if these values should be divided by 10 or not
+## It is also unclear what the time dimension is for the data
 disko_PAR <- review_filter_var(rbind(full_product_disko, disko_GEM), "Disko", "PAR") %>% filter(value > 0)
 # review_filter_check(disko_PAR)
 
