@@ -179,11 +179,12 @@ review_summary_plot(summary_SST, "temp", date_filter = c("1982-01-01", "2020-12-
 
 ## Air temperature --------------------------------------------------------
 
-kong_air <- add_depth(review_filter_var(full_product_kong, "Kong", "temp|°C", "fco2|pco2|intern|temp_",
-                                        var_precise = "Temp [°C]", atmos = T))# %>% 
-  # mutate(value = case_when(grepl("Golubev", citation) & var_name == "Temp [°C]" ~ 999, TRUE ~ value))
-  # filter(!URL == "https://doi.org/10.1594/PANGAEA.484880" & !var_name == "Temp [°C]")
-
+kong_air <- add_depth(review_filter_var(full_product_kong, "Kong", "air|temp|°C", "co2|intern|tequ|f_|p_|par_|temp_",
+                                        var_precise = "Temp [°C]", atmos = T))
+is_air <- add_depth(review_filter_var(full_product_is, "Is", "temp|°C", "tequ|intern|bulb", atmos = T)) %>% 
+  filter(var_type == "phys", is.na(depth) | depth <= 0)
+review_filter_check(is_air, "Temp [°C]")
+# is_test <- filter(is_air, var_name == "Temp wet bulb air [°C]")
 
 
 ## Salinity ---------------------------------------------------------------

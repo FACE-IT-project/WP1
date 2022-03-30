@@ -590,13 +590,13 @@ rm(kong_CTD_nc_dat, kong_CTD_TEMP, kong_CTD_PSAL, kong_CTD_CNDC); gc()
 
 ## CO2 data
 kong_CTD_CO2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_Marine_CO2_system_2012_to_2014.csv") %>% 
-  dplyr::rename(date = `yyyy-mm-dd`, lon = Longitude, lat = Latitude, depth = `Depth [m]`) %>% 
+  dplyr::rename(date = `yyyy-mm-dd`, lon = Longitude, lat = Latitude, depth = `Depth [m]`, `Temp [°C]` = `Temperature [C]`) %>% 
   dplyr::select(date:`DIC [µmol/kg]`, -`Bot.Depth [m]`) %>% 
   pivot_longer(Salinity:`DIC [µmol/kg]`, names_to = "var_name", values_to = "value") %>% 
   filter(!is.na(value)) %>% 
   mutate(date = as.Date(date),
          var_type = case_when(var_name == "Salinity" ~ "phys",
-                              var_name == "Temperature [C]" ~ "phys",
+                              var_name == "Temp [°C]" ~ "phys",
                               var_name == "AT [µmol/kg]" ~ "chem",
                               var_name == "DIC [µmol/kg]" ~ "chem"),
          date_accessed = as.Date("2021-02-11"),
@@ -634,12 +634,15 @@ kong_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/moo
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ferry box data
-### TODO: add depths and units to individual values
-kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/d_all.rds") %>%
-  dplyr::select(date, alp:at_calc, co2_air:depth, diff_sal_fb_insitu_9m:k600, nh4:ws) %>% 
-  pivot_longer(cols = c(-"date", -"depth"), names_to = "var_name", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
+kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_ferry.rds") %>%
+  dplyr::rename(date = datetime, depth = `pressure [dbar]`) %>% 
+  pivot_longer(`s_insitu [unit]`:`pH_sf [total scale]`, names_to = "var_name") %>% 
+  filter(!is.na(value)) %>%
   mutate(lon = 11.920027777777777, lat = 78.93065833333334,
+         date = as.Date(date),
+         depth = case_when(grepl("_fb", var_name) ~ 11,
+                           grepl("_11m", var_name) ~ 11,
+                           TRUE ~ depth),
          var_type = case_when(grepl("co2|ph_|phint|phEXT", var_name, ignore.case = T) ~ "chem",
                               var_name %in% c("at", "at_calc", "nh4", "NH4", "NO2","no3", "NO3", 
                                               "no3no2", "NO3NO2", "po4", "PO4", "si", "Si", "k",
@@ -683,13 +686,13 @@ kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_shi
 
 # DATEN4/CTD
 kong_CTD_DATEN4 <- map_dfr(dir("~/pCloudDrive/restricted_data/Bremen/DATEN4/CTD", full.names = T), load_CTD_DATEN) %>% 
-  dplyr::rename(depth = `press [dbar]`) %>% 
+  dplyr::rename(depth = `press [dbar]`, `Temp [°C]` = `temp [°C]`) %>% 
   filter(`sal [ppt]` >= 1, depth >= 0) %>% # Sketchy surface values
   mutate(date = as.Date(date)) %>%
   group_by(lon, lat, date, depth) %>% 
   # NB: Changes from 0 - 360 to -180 - 180
   mutate(`dir [°]` = as.numeric(mean.circular(circular(`dir [°]`, units = "degrees")))) %>% 
-  pivot_longer(`temp [°C]`:`dir [°]`, names_to = "var_name") %>% 
+  pivot_longer(`Temp [°C]`:`dir [°]`, names_to = "var_name") %>% 
   filter(!is.na(value)) %>% 
   mutate(var_type = "phys",
          URL = NA,
@@ -774,9 +777,10 @@ kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_l
   mutate(note = case_when(grepl("above", var_name) ~ "Above canopy",
                               grepl("below", var_name) ~ "Below canopy",
                               TRUE ~ "No canopy"),
-         `longitude [°E]` = 11.9872, `latitude [°N]` = 78.9958) %>% 
-  dplyr::rename(`PAR [µmol m-2 s-1]` = value, `depth [m]` = depth, `time [UTC+0]` = time) %>% 
-  dplyr::select(`longitude [°E]`, `latitude [°N]`, date, `time [UTC+0]`, `depth [m]`, `PAR [µmol m-2 s-1]`, note)
+         `longitude [°E]` = 11.9872, `latitude [°N]` = 78.9958,
+         date = paste(date, time, sep = "T")) %>% 
+  dplyr::rename(`PAR [µmol m-2 s-1]` = value, `depth [m]` = depth, `date/time [UTC+0]` = date) %>% 
+  dplyr::select(`longitude [°E]`, `latitude [°N]`, `date/time [UTC+0]`, `depth [m]`, `PAR [µmol m-2 s-1]`, note)
 write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
 kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
   mutate(lon = 11.9872, lat = 78.9958,
@@ -1588,6 +1592,7 @@ rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 # Open water CTD
 ## NB: These single lon/lat values seem dubious
 ## They do not seem to agree with the similar data from Zenodo
+## PAR units given by Thomas Juul-Pedersen as the original file does not have them
 disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Disko_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, depth = `depSM: Depth (salt water, m)`, `temp [°C]` = `tv268C: Temperature (IPTS-68, deg C)`,
                 `cond [S/m]` = `c0S/m: Conductivity (S/m)`, `sal [PSU]` = `sal00: Salinity, Practical (PSU)`,
@@ -1595,8 +1600,8 @@ disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Disko_
                 `oxygen a [mg/l]` = `sbeox0Mg/L: Oxygen, SBE 43 (mg/l) a`, `oxygen b [mg/l]` = `sbeox0Mg/L: Oxygen, SBE 43 (mg/l) b`,
                 `oxygen [ml/l]` = `sbeox0ML/L: Oxygen, SBE 43 (ml/l)`, `oxygen [% sat]` = `sbeox0PS: Oxygen, SBE 43 (% saturation)`,
                 fluor = `flSP: Fluorescence, Seapoint`, `turbidity [FTU]` = `seaTurbMtr: Turbidity, Seapoint (FTU)`,
-                PAR = `par: PAR/Irradiance, Biospherical/Licor`) %>% 
-  pivot_longer(`temp [°C]`:PAR, names_to = "var_name") %>% 
+                `PAR [µmol photons m-2 sec-1]` = `par: PAR/Irradiance, Biospherical/Licor`) %>% 
+  pivot_longer(`temp [°C]`:`PAR [µmol photons m-2 sec-1]`, names_to = "var_name") %>% 
   filter(value != -9999) %>% 
   mutate(var_type = case_when(var_name == "fluor" ~ "bio",
                               var_name %in% c("oxygen a [mg/l]", "oxygen b [mg/l]",

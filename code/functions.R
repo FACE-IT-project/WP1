@@ -743,8 +743,12 @@ load_met_NetCDF <- function(file_name){
   # Process data
   suppressWarnings(
   res <- hyper_tibble(tidync(file_name)) %>% 
-    mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
-           date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
+    # mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
+    mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
+    pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
+    mutate(value = case_when(var_name == "air_temperature_2m" & value < 200 ~ 1000001, TRUE ~ value)) %>% 
+    filter(value <= 1000000) %>% # Remove dodgy value
+    pivot_wider(names_from = var_name, values_from = value) %>% 
     group_by(date) %>% 
     summarise(air_temperature_2m = mean(air_temperature_2m, na.rm = T),
               air_pressure_at_sea_level = mean(air_pressure_at_sea_level, na.rm = T),
@@ -766,8 +770,17 @@ load_met_NetCDF <- function(file_name){
                              var_name == "wind_speed_10m" ~ "m s-1",
                              var_name == "air_pressure_at_sea_level" ~ "Pa",
                              var_name == "air_pressure_at_sea_level_qnh" ~ "hPa"),
+           depth = case_when(var_name == "surface_air_pressure_2m" ~ -2,
+                             var_name == "air_temperature_2m" ~ -2,
+                             var_name == "wind_from_direction_10m" ~ -10,
+                             var_name == "wind_speed_10m" ~ -10,
+                             var_name == "air_pressure_at_sea_level" ~ 0,
+                             var_name == "air_pressure_at_sea_level_qnh" ~ 0),
            var_name = paste0(var_name," [", units,"]"),
            var_type = "phys") %>% 
+    # Convert K to C
+    mutate(value = case_when(grepl("air_temperature_2m", var_name) ~ value - 273.15, TRUE ~ value),
+           var_name = case_when(grepl("air_temperature_2m", var_name) ~ "TTT [°C]", TRUE ~ var_name)) %>% 
     dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
   )
   return(res)
@@ -1484,7 +1497,7 @@ review_filter_var <- function(full_product, site_name, var_keep, var_remove = NU
   if(atmos){
     df_depth <- full_product %>% filter(is.na(depth) | depth <= 0)
   } else {
-    df_depth <- full_product %>% filter(depth <= 10, depth >= 0)
+    df_depth <- full_product %>% filter(is.na(depth) | depth >= 0 & depth <= 10)
   }
   res_df <- df_depth %>% filter(!is.na(date)) %>% 
     filter(grepl(var_keep, var_name, ignore.case = T)) %>% 
@@ -1629,13 +1642,14 @@ add_depth <- function(df){
   df_res <- df %>% 
     mutate(depth = case_when(URL == "https://doi.org/10.1594/PANGAEA.857619" ~ 0,
                              URL == "https://doi.org/10.1594/PANGAEA.930028" ~ 310.6,
-                             URL == "https://doi.org/10.1594/PANGAEA.935267" ~ 25,
+                             grepl("Schmithüsen, Holger; Raeke, Andreas", citation) & var_name == "TTT [°C]" ~ -25,
                              grepl("Matishov, Gennady G; Zuyev, Aleksey N; Golubev", citation) ~ 0,
                              grepl("Schmithüsen, Holger (*)", citation) & var_name == "Temp [°C]" ~ 5,
                              grepl("Schmithüsen, Holger (*)", citation) & var_name == "TTT [°C]" ~ -29,
                              grepl("König-Langlo, Gert (*)", citation) & var_name == "Temp [°C]" ~ 0,
                              grepl("König-Langlo, Gert (*)", citation) & var_name == "TTT [°C]" ~ -25,
-                             #URL == "https://doi.org/10.1594/PANGAEA.484880" ~ 0, # Depth is not provided
+                             # Basically anything by Golubev et al. is very old data with no depth values
+                             # URL == "https://doi.org/10.1594/PANGAEA.484880" ~ 0, # Depth is not provided
                              # URL == "https://doi.org/10.1594/PANGAEA.484950" ~ 0, # Depth is not provided
                              TRUE ~ depth))
   return(df_res)

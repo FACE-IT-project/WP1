@@ -533,7 +533,7 @@ kong_ferry <- data.frame(type = "Mooring",
                          lon_range = "11.92", 
                          lat_range = "78.93",
                          depth_range = "0 to 12",
-                         file_name = '<a onclick="alert(\'d_all.rds\');">1 file</a>',
+                         file_name = '<a onclick="alert(\'kong_ferry.rds\');">1 file</a>',
                          URL = '<a onclick="alert(\'File provided by Jean-Pierre Gattuso\');">NA</a>',
                          reference = '<a onclick="alert(\'Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)\');">Gattuso et al. (In prep.)</a>',
                          note = "Not currently in the database.")
