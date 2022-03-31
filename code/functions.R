@@ -1502,15 +1502,16 @@ download_MUR_ALL <- function(file_date){
 }
 
 # Convenience function for filtering variables for analyses
-## NB: May want to remove the is.na(date) filter
 review_filter_var <- function(full_product, site_name, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL, atmos = F){
-  # NB: Repetitive, but much faster
+  
+  # NB: Repetitive, but much faster depth filtering
   if(atmos){
-    df_depth <- full_product %>% filter(is.na(depth) | depth <= 0) %>% 
-      add_depth() %>% filter(is.na(depth) | depth <= 0)
+    df_depth <- full_product %>% filter(depth <= 0) %>% 
+      bind_rows(add_depth(filter(full_product, is.na(lon)))) %>% filter(is.na(depth) | depth <= 0)
   } else {
-    df_depth <- full_product %>% add_depth() %>% filter(is.na(depth) | depth >= 0 & depth <= 10) %>% 
-      add_depth() %>% filter(is.na(depth) | depth >= 0 & depth <= 10)
+    df_depth <- full_product %>% filter(depth >= 0 & depth <= 10) %>% 
+      bind_rows(add_depth(filter(full_product, is.na(lon)))) %>% 
+      filter(depth >= 0 & depth <= 10) # Disable to find missing depth data
   }
   res_df <- df_depth %>% #filter(!is.na(date)) %>% 
     filter(grepl(var_keep, var_name, ignore.case = T)) %>% 

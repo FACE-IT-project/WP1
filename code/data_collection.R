@@ -261,7 +261,7 @@ data.table::fwrite(pg_EU_cruise_biosphere_dl, "data/pg_data/pg_EU_cruise_Biosphe
 rm(pg_EU_cruise_biosphere_dl, pg_EU_cruise_biosphere_trim); gc()
 
 
-## EU Arctic cruise Ecology data on PANGAEA - 564 - Some issues
+## EU Arctic cruise Ecology data on PANGAEA - 540 - Some issues
 ## NB: Takes ~18 minutes
 print(paste0("Began run on pg_EU_cruise_ecology at ", Sys.time()))
 pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox = c(-60, 63, 60, 90)) %>% 
@@ -280,7 +280,7 @@ pg_EU_cruise_human <- pg_full_search(query = "cruise", topic = "Human Dimensions
   filter(!doi %in% pg_doi_list$doi)
 
 
-## EU Arctic cruise Chemistry data on PANGAEA west - 1906 - Some issues
+## EU Arctic cruise Chemistry data on PANGAEA west - 1913 - Some issues
 ## MB ~16 minutes
 print(paste0("Began run on pg_EU_cruise_chemistry_west at ", Sys.time()))
 pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(-60, 63, 0, 90)) %>% 
@@ -293,7 +293,7 @@ data.table::fwrite(pg_EU_cruise_chemistry_west_dl, "data/pg_data/pg_EU_cruise_Ch
 rm(pg_EU_cruise_chemistry_west_dl, pg_EU_cruise_chemistry_west_trim); gc()
 
 
-## EU Arctic cruise Chemistry data on PANGAEA east - 5647 - Some issues
+## EU Arctic cruise Chemistry data on PANGAEA east - 5646 - Some issues
 ## NB: ~68 minutes
 print(paste0("Began run on pg_EU_cruise_chemistry_east at ", Sys.time()))
 pg_EU_cruise_chemistry_east <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(0, 63, 60, 90)) %>% 
@@ -307,7 +307,7 @@ data.table::fwrite(pg_EU_cruise_chemistry_east_dl, "data/pg_data/pg_EU_cruise_Ch
 rm(pg_EU_cruise_chemistry_east_dl, pg_EU_cruise_chemistry_east_trim); gc()
 
 
-## EU Arctic CTD data on PANGAEA - 941 - Some issues
+## EU Arctic CTD data on PANGAEA - 905 - Some issues
 ## NB: ~14 minutes
 print(paste0("Began run on pg_EU_CTD at ", Sys.time()))
 pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 63, 60, 90)) %>% 
@@ -316,7 +316,7 @@ pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_CTD[c("doi", "file")]))
 pg_EU_CTD_dl <- plyr::ldply(pg_EU_CTD$doi, pg_dl_proc)
 pg_EU_CTD_trim <- filter(pg_EU_CTD_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 data.table::fwrite(pg_EU_CTD_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_CTD.csv")
-data.table::fwrite(pg_EU_CTD_dl, "data/pg_data/pg_EU_CTD.csv") # 5.3 GB
+data.table::fwrite(pg_EU_CTD_dl, "data/pg_data/pg_EU_CTD.csv") # 5.2 GB
 rm(pg_EU_CTD_dl, pg_EU_CTD_trim); gc()
 
 
@@ -338,13 +338,13 @@ plyr::l_ply(MUR_dates, download_MUR_ALL, .parallel = T)
 
 # Kongsfjorden ------------------------------------------------------------
 
-## All Kongsfjorden bbox data files - 2525
+## All Kongsfjorden bbox data files - 2530
 print(paste0("Began run on pg_kong at ", Sys.time()))
-pg_kong_bbox <- pg_full_search(query = "", bbox = c(bbox_kong[1], bbox_kong[3], bbox_kong[2], bbox_kong[4])) %>% # 2493 files
+pg_kong_bbox <- pg_full_search(query = "", bbox = c(bbox_kong[1], bbox_kong[3], bbox_kong[2], bbox_kong[4])) %>% # 2494 files
   filter(!doi %in% pg_doi_list$doi)
 pg_kong_name_1 <- pg_full_search(query = "kongsfjord") %>% # 7 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi)
-pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") %>% # 16 files
+pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") %>% # 19 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi)
 pg_kong_name_3 <- pg_full_search(query = "ny alesund") %>% # 11 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi, !doi %in% pg_kong_name_2$doi)

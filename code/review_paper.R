@@ -105,7 +105,7 @@ kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%
 kong_SST <- review_filter_var(full_product_kong, "Kong", "temp|°C",
                               "air|co2|ph_|pHint_|TTT|MAAT|MAGT|MAT|
                               |SST sum|SST win|Temp min|Temp max|Temp interp|
-                              |tequ|tpot|T intern|temp_") %>%  # Ultimately we want the "temp_" values
+                              |tequ|tpot|T intern") %>%
   bind_rows(kong_OISST, kong_CCI) %>% mutate(site = "Kong")
 # review_filter_check(kong_SST, "MAT [°C]", "Gattuso")
 
@@ -208,12 +208,12 @@ review_summary_plot(summary_air, "air", date_filter = c("1982-01-01", "2020-12-3
 # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
 # Remove glacial drainage land stations
 # Temporarily remove Ferry box data until documentation for variable names is located
-kong_sal <- review_filter_var(full_product_kong, "Kong", "sal|PSU", "sal interp|sal_", # We ultimately want "sal_"
+kong_sal <- review_filter_var(full_product_kong, "Kong", "sal|PSU|s_", "interp|ph",
                               cit_filter = "land station|drainage|meltwater")
 # review_filter_check(kong_sal, "psal [1e-3]", "Skogseth")
 
 # Isfjorden
-is_sal <- review_filter_var(full_product_is, "Is", "sal|PSU", "sal interp")
+is_sal <- review_filter_var(full_product_is, "Is", "sal|PSU", "interp")
 # review_filter_check(is_sal, "Sal [mg/l]", "Knittel")
 
 # Storfjorden
@@ -247,7 +247,7 @@ review_summary_plot(summary_sal, "sal", date_filter = c("1982-01-01", "2020-12-3
 ## Light ------------------------------------------------------------------
 
 # Kongsfjorden
-kong_PAR <- review_filter_var(full_product_kong, "Kong", "PAR", "Onc|Gym|Para|below|par_") # We ultimately want "par_"
+kong_PAR <- review_filter_var(full_product_kong, "Kong", "PAR", "Onc|Gym|Para|below")
 # review_filter_check(kong_PAR)
 
 # Isfjorden

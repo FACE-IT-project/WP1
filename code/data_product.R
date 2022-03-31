@@ -28,14 +28,16 @@ pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 # Quick filtering function
 # Manual tweaks will still be required after running this
 pg_quick_filter <- function(file_name, bbox){
-  pg_dat <- data.table::fread(file_name)
+  pg_dat <- data.table::fread(file_name, nThread = 15)
   if("Longitude" %in% colnames(pg_dat)){
-    pg_res <- pg_dat %>% 
-      dplyr::rename(lon = Longitude, lat = Latitude) %>% 
-      filter(is.na(lon), # NB: Test this 
-             lon >= bbox[1], lon <= bbox[2],
+    pg_base <- pg_dat %>% dplyr::rename(lon = Longitude, lat = Latitude) %>% 
+      filter(!Error %in% c("No columns with key drivers", "No data in DOI reference"))
+    pg_res <- pg_base %>% 
+      filter(lon >= bbox[1], lon <= bbox[2],
              lat >= bbox[3], lat <= bbox[4]) %>% 
+      bind_rows(filter(pg_base, is.na(lon))) %>%
       janitor::remove_empty("cols")
+    rm(pg_base); gc()
   } else{
     pg_res <- NULL
   }
@@ -430,9 +432,9 @@ system.time(
 # Process Kongsfjorden bbox PANGAEA data
 pg_kong_clean <- pg_kong_sub %>% 
   # dplyr::select(contains(c("Qz")), everything()) %>%  # Look at specific problem columns
-  dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
+  # dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
   # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
-  # Manually remove problematic files- no need
+  # Manually remove problematic files - no need
   # Manually remove problematic columns
   # dplyr::select(-"File start date/time", -"File stop date/time") %>%
   mutate_all(~na_if(., '')) %>%
@@ -783,7 +785,7 @@ kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_l
          date = paste(date, time, sep = "T")) %>% 
   dplyr::rename(`PAR [µmol m-2 s-1]` = value, `depth [m]` = depth, `date/time [UTC+0]` = date) %>% 
   dplyr::select(`longitude [°E]`, `latitude [°N]`, `date/time [UTC+0]`, `depth [m]`, `PAR [µmol m-2 s-1]`, note)
-write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
+# write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
 kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
   mutate(lon = 11.9872, lat = 78.9958,
          var_name = case_when(var_name == "PAR [umol m-2 s-1]" ~ "PAR [µmol m-2 s-1]", TRUE ~ var_name),
