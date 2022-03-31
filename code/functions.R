@@ -740,14 +740,24 @@ load_met_NetCDF <- function(file_name){
   # Determine URL
   met_URL <- paste0("https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html?dataset=met.no/observations/stations/",file_short)
   
+  # Citation info
+  nc_file <- ncdf4::nc_open(file_name)
+  ref_text <- paste0(ncdf4::ncatt_get(nc_file, varid = 0, "title")$value, 
+                     " (", lubridate::year(ncdf4::ncatt_get(nc_file, varid = 0, "date_created")$value), "). ",
+                     ncdf4::ncatt_get(nc_file, varid = 0, "institution")$value, ". ",
+                     ncdf4::ncatt_get(nc_file, varid = 0, "source")$value, ". ",
+                     ncdf4::ncatt_get(nc_file, varid = 0, "metadata_link")$value)
+  
   # Process data
   suppressWarnings(
   res <- hyper_tibble(tidync(file_name)) %>% 
     # mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
     mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
-    pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
-    mutate(value = case_when(var_name == "air_temperature_2m" & value < 200 ~ 1000001, TRUE ~ value)) %>% 
-    filter(value <= 1000000) %>% # Remove dodgy value
+    # NB: COlumn order differs between files so need to rather state which columns not to melt
+    pivot_longer(cols = c(-date, -time), names_to = "var_name", values_to = "value") %>% 
+    mutate(value = case_when(var_name == "air_temperature_2m" & value > 500 ~ 1000001,
+                             var_name == "air_temperature_2m" & value < 10 ~ 1000001, TRUE ~ value)) %>% 
+    filter(value <= 1000000, value >= -100000) %>% # Remove dodgy value
     pivot_wider(names_from = var_name, values_from = value) %>% 
     group_by(date) %>% 
     summarise(air_temperature_2m = mean(air_temperature_2m, na.rm = T),
@@ -762,7 +772,7 @@ load_met_NetCDF <- function(file_name){
     pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
     filter(!is.na(value)) %>% 
     mutate(URL = met_URL,
-           citation = NA, depth = NA,
+           citation = ref_text, depth = NA,
            units = case_when(var_name == "relative_humidity" ~ "1",
                              var_name == "surface_air_pressure_2m" ~ "Pa",
                              var_name == "air_temperature_2m" ~ "K",
@@ -1494,12 +1504,15 @@ download_MUR_ALL <- function(file_date){
 # Convenience function for filtering variables for analyses
 ## NB: May want to remove the is.na(date) filter
 review_filter_var <- function(full_product, site_name, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL, atmos = F){
+  # NB: Repetitive, but much faster
   if(atmos){
-    df_depth <- full_product %>% filter(is.na(depth) | depth <= 0)
+    df_depth <- full_product %>% filter(is.na(depth) | depth <= 0) %>% 
+      add_depth() %>% filter(is.na(depth) | depth <= 0)
   } else {
-    df_depth <- full_product %>% filter(is.na(depth) | depth >= 0 & depth <= 10)
+    df_depth <- full_product %>% add_depth() %>% filter(is.na(depth) | depth >= 0 & depth <= 10) %>% 
+      add_depth() %>% filter(is.na(depth) | depth >= 0 & depth <= 10)
   }
-  res_df <- df_depth %>% filter(!is.na(date)) %>% 
+  res_df <- df_depth %>% #filter(!is.na(date)) %>% 
     filter(grepl(var_keep, var_name, ignore.case = T)) %>% 
     mutate(site = site_name, type = "in situ")
   if(!is.null(var_remove)) res_df <- res_df %>% filter(!grepl(var_remove, var_name, ignore.case = T))
@@ -1573,7 +1586,9 @@ review_summary <- function(filter_object, trend_dates = NULL){
 review_summary_plot <- function(summary_list, short_var, date_filter = NULL){
   
   # Get labels based on short_var name
+  y_label <- "Missing custom data name"
   if(short_var == "temp") y_label <- "Temperature [°C]"
+  if(short_var == "air") y_label <- "Air temperature [°C]"
   if(short_var == "sal") y_label <- "Salinity"
   if(short_var == "par") y_label <- "PAR"
   
@@ -1642,15 +1657,26 @@ add_depth <- function(df){
   df_res <- df %>% 
     mutate(depth = case_when(URL == "https://doi.org/10.1594/PANGAEA.857619" ~ 0,
                              URL == "https://doi.org/10.1594/PANGAEA.930028" ~ 310.6,
+                             URL == "https://doi.org/10.1594/PANGAEA.873568" ~ -5,
+                             URL == "https://doi.org/10.1594/PANGAEA.873568" ~ -5,
                              grepl("Schmithüsen, Holger; Raeke, Andreas", citation) & var_name == "TTT [°C]" ~ -25,
+                             grepl("Schmithüsen, Holger; Rohleder, Christian", citation) & var_name == "TTT [°C]" ~ -25,
                              grepl("Matishov, Gennady G; Zuyev, Aleksey N; Golubev", citation) ~ 0,
                              grepl("Schmithüsen, Holger (*)", citation) & var_name == "Temp [°C]" ~ 5,
                              grepl("Schmithüsen, Holger (*)", citation) & var_name == "TTT [°C]" ~ -29,
                              grepl("König-Langlo, Gert (*)", citation) & var_name == "Temp [°C]" ~ 0,
                              grepl("König-Langlo, Gert (*)", citation) & var_name == "TTT [°C]" ~ -25,
                              # Basically anything by Golubev et al. is very old data with no depth values
-                             # URL == "https://doi.org/10.1594/PANGAEA.484880" ~ 0, # Depth is not provided
-                             # URL == "https://doi.org/10.1594/PANGAEA.484950" ~ 0, # Depth is not provided
+                             # But I found one entry that has the depth/altitude listed as 0, so I'm going with that
+                             grepl("PANGAEA", URL) & grepl("Golubev", citation) & is.na(depth) ~ 0,
+                             # Other URLs with no depth data
+                             # "https://doi.org/10.1594/PANGAEA.484880"
+                             # "https://doi.org/10.1594/PANGAEA.484950"
+                             # "https://doi.org/10.1594/PANGAEA.901447"
+                             # "https://doi.org/10.1594/PANGAEA.680872" - DWD cruise
+                             # "https://doi.org/10.1594/PANGAEA.680907" - DWD cruise
+                             # "https://doi.org/10.1594/PANGAEA.899570"
+                             # ""
                              TRUE ~ depth))
   return(df_res)
 }

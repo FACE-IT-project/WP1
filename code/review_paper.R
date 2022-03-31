@@ -179,12 +179,26 @@ review_summary_plot(summary_SST, "temp", date_filter = c("1982-01-01", "2020-12-
 
 ## Air temperature --------------------------------------------------------
 
-kong_air <- add_depth(review_filter_var(full_product_kong, "Kong", "air|temp|°C", "co2|intern|tequ|f_|p_|par_|temp_",
-                                        var_precise = "Temp [°C]", atmos = T))
-is_air <- add_depth(review_filter_var(full_product_is, "Is", "temp|°C", "tequ|intern|bulb", atmos = T)) %>% 
-  filter(var_type == "phys", is.na(depth) | depth <= 0)
-review_filter_check(is_air, "Temp [°C]")
-# is_test <- filter(is_air, var_name == "Temp wet bulb air [°C]")
+# Get air temperature for all sites
+kong_air <- review_filter_var(full_product_kong, "Kong", "air|temp|°C", "co2|intern|tequ|f_|p_|par_|temp_|_ctd|_sf",
+                              var_precise = "Temp [°C]", atmos = T) %>% 
+  filter(URL != "https://doi.org/10.1594/PANGAEA.882432",
+         URL != "https://doi.org/10.1594/PANGAEA.839802")
+is_air <- add_depth(review_filter_var(full_product_is, "Is", "air|temp|°C", "tequ|intern|bulb|pressure",  
+                                      var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "t [°C]")
+stor_air <- add_depth(review_filter_var(full_product_stor, "Stor", "air|temp|°C", 
+                                        var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "t [°C]")
+young_air <- add_depth(review_filter_var(full_product_young, "Young", "air|temp|°C", var_precise = "Temp [°C]", atmos = T))
+disko_air <- add_depth(review_filter_var(full_product_disko, "Disko", "air|temp|°C", "tequ", var_precise = "Temp [°C]", atmos = T))
+nuup_air <- add_depth(review_filter_var(full_product_nuup, "Nuup", "air|temp|°C", "tequ", var_precise = "Temp [°C]", atmos = T))
+por_air <- add_depth(review_filter_var(full_product_por, "Por", "air|temp|°C", "tequ|bulb", 
+                                       var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "temp [°C]")
+
+# Summary analyses
+summary_air <- review_summary(rbind(kong_air, is_air, stor_air, young_air, disko_air, nuup_air, por_air))
+
+# Plot results
+review_summary_plot(summary_air, "air", date_filter = c("1982-01-01", "2020-12-31"))
 
 
 ## Salinity ---------------------------------------------------------------

@@ -148,7 +148,7 @@ pg_full_search <- function(lookup_table = F, ...){
       filter(grepl("station list|master tracks|metadata list|links to file", citation, ignore.case = T))
   } else {
     pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
-      filter(!grepl("video|photograph|image|station list|master tracks|aircraft|flight|
+      filter(!grepl("video|photograph|image|station list|master tracks|aircraft|flight|sediment|soil|
                     |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
       filter(!grepl("ACLOUD|SOCAT", citation)) %>% 
       filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
@@ -194,49 +194,49 @@ pg_test_dl <- function(pg_doi){
 # pg_test_3 <- pg_test_dl("10.1594/PANGAEA.774421")
 
 
-## EU Arctic cruise Oceans data on PANGAEA - 285 - Some issues
+## EU Arctic cruise Oceans data on PANGAEA - 262 - Some issues
+# ~ 3 minutes
 # NB: The following PG downloads have rows with missing lon/lat values
 # This is a conscious choice for now because the spatial info may
 # be stored in a different column name and we don't want to lose data here
 print(paste0("Began run on pg_EU_cruise_oceans at ", Sys.time()))
 pg_EU_cruise_oceans <- pg_full_search(query = "cruise", topic = "Oceans", bbox = c(-60, 63, 60, 90)) 
 pg_doi_list <- distinct(data.frame(doi = pg_EU_cruise_oceans$doi, file = "pg_EU_cruise_oceans"))
-pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc) # 184 seconds
+pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)
 # Get lookup table
 # Combine and filter by coords
 pg_EU_cruise_oceans_trim <- filter(pg_EU_cruise_oceans_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_cruise_oceans_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
-data.table::fwrite(pg_EU_cruise_oceans_trim, "data/pg_data/pg_EU_cruise_Oceans.csv")
+data.table::fwrite(pg_EU_cruise_oceans_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
+data.table::fwrite(pg_EU_cruise_oceans_dl, "data/pg_data/pg_EU_cruise_Oceans.csv")
 rm(pg_EU_cruise_oceans_dl, pg_EU_cruise_oceans_trim); gc()
 
 
-## EU Arctic cruise Atmosphere data on PANGAEA - 139 - Some issues
+## EU Arctic cruise Atmosphere data on PANGAEA - 151 - Some issues
 # ~3 minutes
-# NB: More than 90% of these files do not have lon/lat values so they get removed...
 print(paste0("Began run on pg_EU_cruise_atmosphere at ", Sys.time()))
 pg_EU_cruise_atmosphere <- pg_full_search(query = "cruise", topic = "Atmosphere", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_atmosphere")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_atmosphere[c("doi", "file")]))
 pg_EU_cruise_atmosphere_dl <- plyr::ldply(pg_EU_cruise_atmosphere$doi, pg_dl_proc) 
 pg_EU_cruise_atmosphere_trim <- filter(pg_EU_cruise_atmosphere_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_cruise_atmosphere_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Atmosphere.csv")
-data.table::fwrite(pg_EU_cruise_atmosphere_trim, "data/pg_data/pg_EU_cruise_Atmosphere.csv")
+data.table::fwrite(pg_EU_cruise_atmosphere_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Atmosphere.csv")
+data.table::fwrite(pg_EU_cruise_atmosphere_dl, "data/pg_data/pg_EU_cruise_Atmosphere.csv")
 rm(pg_EU_cruise_atmosphere_dl, pg_EU_cruise_atmosphere_trim); gc()
 
 
-## EU Arctic cruise Cryosphere data on PANGAEA - 8
+## EU Arctic cruise Cryosphere data on PANGAEA - 6
 print(paste0("Began run on pg_EU_cruise_cryosphere at ", Sys.time()))
 pg_EU_cruise_cryosphere <- pg_full_search(query = "cruise", topic = "Cryosphere", bbox = c(-60, 63, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_cryosphere")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_cryosphere[c("doi", "file")]))
 pg_EU_cruise_cryosphere_dl <- plyr::ldply(pg_EU_cruise_cryosphere$doi, pg_dl_proc)
 pg_EU_cruise_cryosphere_trim <- filter(pg_EU_cruise_cryosphere_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_cruise_cryosphere_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Cryosphere.csv")
-data.table::fwrite(pg_EU_cruise_cryosphere_trim, "data/pg_data/pg_EU_cruise_Cryosphere.csv")
+data.table::fwrite(pg_EU_cruise_cryosphere_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Cryosphere.csv")
+data.table::fwrite(pg_EU_cruise_cryosphere_dl, "data/pg_data/pg_EU_cruise_Cryosphere.csv")
 rm(pg_EU_cruise_cryosphere_dl, pg_EU_cruise_cryosphere_trim); gc()
 
 
-## EU Arctic cruise Biological Classification data on PANGAEA - 262 - Some issues
+## EU Arctic cruise Biological Classification data on PANGAEA - 265 - Some issues
 # ~3 minutes
 print(paste0("Began run on pg_EU_cruise_bio_class at ", Sys.time()))
 pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological Classification", bbox = c(-60, 63, 60, 90)) %>% 
@@ -244,8 +244,8 @@ pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological C
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_bio_class[c("doi", "file")]))
 pg_EU_cruise_bio_class_dl <- plyr::ldply(pg_EU_cruise_bio_class$doi, pg_dl_proc)
 pg_EU_cruise_bio_class_trim <- filter(pg_EU_cruise_bio_class_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_cruise_bio_class_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Bio_class.csv")
-data.table::fwrite(pg_EU_cruise_bio_class_trim, "data/pg_data/pg_EU_cruise_Bio_class.csv")
+data.table::fwrite(pg_EU_cruise_bio_class_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Bio_class.csv")
+data.table::fwrite(pg_EU_cruise_bio_class_dl, "data/pg_data/pg_EU_cruise_Bio_class.csv")
 rm(pg_EU_cruise_bio_class_dl, pg_EU_cruise_bio_class_trim); gc()
 
 
@@ -256,8 +256,8 @@ pg_EU_cruise_biosphere <- pg_full_search(query = "cruise", topic = "Biosphere", 
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_biosphere[c("doi", "file")]))
 pg_EU_cruise_biosphere_dl <- plyr::ldply(pg_EU_cruise_biosphere$doi, pg_dl_proc)
 pg_EU_cruise_biosphere_trim <- filter(pg_EU_cruise_biosphere_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_cruise_biosphere_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Biosphere.csv")
-data.table::fwrite(pg_EU_cruise_biosphere_trim, "data/pg_data/pg_EU_cruise_Biosphere.csv")
+data.table::fwrite(pg_EU_cruise_biosphere_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Biosphere.csv")
+data.table::fwrite(pg_EU_cruise_biosphere_dl, "data/pg_data/pg_EU_cruise_Biosphere.csv")
 rm(pg_EU_cruise_biosphere_dl, pg_EU_cruise_biosphere_trim); gc()
 
 
@@ -269,8 +269,8 @@ pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_ecology[c("doi", "file")]))
 pg_EU_cruise_ecology_dl <- plyr::ldply(pg_EU_cruise_ecology$doi, pg_dl_proc)
 pg_EU_cruise_ecology_trim <- filter(pg_EU_cruise_ecology_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_cruise_ecology_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology.csv")
-data.table::fwrite(pg_EU_cruise_ecology_trim, "data/pg_data/pg_EU_cruise_Ecology.csv")
+data.table::fwrite(pg_EU_cruise_ecology_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology.csv")
+data.table::fwrite(pg_EU_cruise_ecology_dl, "data/pg_data/pg_EU_cruise_Ecology.csv")
 rm(pg_EU_cruise_ecology_dl, pg_EU_cruise_ecology_trim); gc()
 
 
@@ -288,8 +288,8 @@ pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemist
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_chemistry_west[c("doi", "file")]))
 pg_EU_cruise_chemistry_west_dl <- plyr::ldply(pg_EU_cruise_chemistry_west$doi, pg_dl_proc)
 pg_EU_cruise_chemistry_west_trim <- filter(pg_EU_cruise_chemistry_west_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_cruise_chemistry_west_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_west.csv")
-data.table::fwrite(pg_EU_cruise_chemistry_west_trim, "data/pg_data/pg_EU_cruise_Chemistry_west.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_west_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_west.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_west_dl, "data/pg_data/pg_EU_cruise_Chemistry_west.csv")
 rm(pg_EU_cruise_chemistry_west_dl, pg_EU_cruise_chemistry_west_trim); gc()
 
 
@@ -302,8 +302,8 @@ pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_chemistry_east[c("doi", 
 pg_EU_cruise_chemistry_east_dl <- plyr::ldply(pg_EU_cruise_chemistry_east$doi, pg_dl_proc)
 pg_EU_cruise_chemistry_east_trim <- filter(pg_EU_cruise_chemistry_east_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
 # test1 <- data.frame(table(pg_EU_cruise_chemistry_east_trim$citation)) # Investigate which files contribute the most size
-data.table::fwrite(pg_EU_cruise_chemistry_east_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_east.csv")
-data.table::fwrite(pg_EU_cruise_chemistry_east_trim, "data/pg_data/pg_EU_cruise_Chemistry_east.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_east_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_east.csv")
+data.table::fwrite(pg_EU_cruise_chemistry_east_dl, "data/pg_data/pg_EU_cruise_Chemistry_east.csv")
 rm(pg_EU_cruise_chemistry_east_dl, pg_EU_cruise_chemistry_east_trim); gc()
 
 
@@ -315,8 +315,8 @@ pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 63, 60, 90)) %>%
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_CTD[c("doi", "file")]))
 pg_EU_CTD_dl <- plyr::ldply(pg_EU_CTD$doi, pg_dl_proc)
 pg_EU_CTD_trim <- filter(pg_EU_CTD_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-data.table::fwrite(pg_EU_CTD_trim, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_CTD.csv")
-data.table::fwrite(pg_EU_CTD_trim, "data/pg_data/pg_EU_CTD.csv") # 5.3 GB
+data.table::fwrite(pg_EU_CTD_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_CTD.csv")
+data.table::fwrite(pg_EU_CTD_dl, "data/pg_data/pg_EU_CTD.csv") # 5.3 GB
 rm(pg_EU_CTD_dl, pg_EU_CTD_trim); gc()
 
 

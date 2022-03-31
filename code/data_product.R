@@ -4,6 +4,7 @@
 # TODO: Investigate PG columns that should be numeric but aren't
 # e.g. `[NO3]- [µmol/l]` for pg_nuup_clean
 # Provide lists of variables that were removed
+# Correct PANGAEA values with `t [°C]` to be type 'cryo' as this is the unit for ice/snow temperature
 
 
 # Setup -------------------------------------------------------------------
@@ -31,7 +32,8 @@ pg_quick_filter <- function(file_name, bbox){
   if("Longitude" %in% colnames(pg_dat)){
     pg_res <- pg_dat %>% 
       dplyr::rename(lon = Longitude, lat = Latitude) %>% 
-      filter(lon >= bbox[1], lon <= bbox[2],
+      filter(is.na(lon), # NB: Test this 
+             lon >= bbox[1], lon <= bbox[2],
              lat >= bbox[3], lat <= bbox[4]) %>% 
       janitor::remove_empty("cols")
   } else{
@@ -43,6 +45,7 @@ pg_quick_filter <- function(file_name, bbox){
 
 # Function for melting columns related to a specific driver
 pg_var_melt <- function(pg_clean, key_words, var_word){
+  
   # Message of which columns were melted
   sub_cols <- colnames(pg_clean)[colnames(pg_clean) %in% unique(key_words)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "lon", "lat", "date", "depth")]
@@ -57,12 +60,11 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
     filter(!is.na(value)) %>%
     distinct() %>% 
     dplyr::select(date_accessed:depth, var_type, var_name, value)
+  return(pg_melt)
 }
 
 # Function for melting individual files from other data sources
-single_file_var_melt <- function(){
-  
-}
+# single_file_var_melt <- function(){}
 
 
 # European Arctic ---------------------------------------------------------
@@ -428,7 +430,7 @@ system.time(
 # Process Kongsfjorden bbox PANGAEA data
 pg_kong_clean <- pg_kong_sub %>% 
   # dplyr::select(contains(c("Qz")), everything()) %>%  # Look at specific problem columns
-  # dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
+  dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
   # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
   # Manually remove problematic files- no need
   # Manually remove problematic columns
@@ -908,7 +910,6 @@ pg_is_Biology <- pg_var_melt(pg_is_clean, query_Biology$pg_col_name, "bio")
 pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, pg_is_Biology)
 data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.csv")
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
-save(pg_is_ALL, file = "data/pg_data/pg_is_ALL.RData")
 
 # Check that all columns were used
 # colnames(pg_is_clean)[!colnames(pg_is_clean) %in% unique(pg_is_ALL$var_name)]
