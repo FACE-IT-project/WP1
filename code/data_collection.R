@@ -397,20 +397,18 @@ save(sst_MUR_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.
 
 # Isfjorden ---------------------------------------------------------------
 
-## All Isfjorden data files - 837
+## All Isfjorden data files - 848
 print(paste0("Began run on pg_is at ", Sys.time()))
-pg_is_bbox <- pg_full_search(query = "", bbox = c(bbox_is[1], bbox_is[3], bbox_is[2], bbox_is[4])) %>% # 193 files
+pg_is_bbox <- pg_full_search(query = "", bbox = c(bbox_is[1], bbox_is[3], bbox_is[2], bbox_is[4])) %>% # 160 files
   filter(!doi %in% pg_doi_list$doi)
-pg_is_name_1 <- pg_full_search(query = "isfjord") %>% # 1 files
+pg_is_name_1 <- pg_full_search(query = "isfjord") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi)
 pg_is_name_2 <- pg_full_search(query = "isfjorden") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi, !doi %in% pg_is_name_1$doi)
-pg_is_name_3 <- pg_full_search(query = "longyearbyen") %>% # 644 files
+pg_is_name_3 <- pg_full_search(query = "longyearbyen") %>% # 689 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi, !doi %in% pg_is_name_1$doi, !doi %in% pg_is_name_2$doi)
 pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3) %>% 
   filter(!doi %in% c("10.1594/PANGAEA.909130")) %>% # Wide file with no date values
-  # filter(!grepl("Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% # This removes ~40 million rows of bathy data
-  # filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via there own portal
   arrange(citation) %>% distinct()
 rm(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3); gc()
 
@@ -454,16 +452,13 @@ save(is_AIS_raw, file = "~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RDa
 
 # Storfjorden -------------------------------------------------------------
 
-## All Storfjorden data files - 57
+## All Storfjorden data files - 54
 print(paste0("Began run on pg_stor at ", Sys.time()))
-pg_stor_bbox <- pg_full_search(query = "", bbox = c(bbox_stor[1], bbox_stor[3], bbox_stor[2], bbox_stor[4])) %>% # 34 files
+pg_stor_bbox <- pg_full_search(query = "", bbox = c(bbox_stor[1], bbox_stor[3], bbox_stor[2], bbox_stor[4])) %>% # 37 files
   filter(!doi %in% pg_doi_list$doi)
-pg_stor_name_1 <- pg_full_search(query = "storfjorden") # 12 files
-pg_stor_name_2 <- pg_full_search(query = "storfjord") # 11 files
+pg_stor_name_1 <- pg_full_search(query = "storfjorden") # 7 files
+pg_stor_name_2 <- pg_full_search(query = "storfjord") # 10 files
 pg_stor_all <- rbind(pg_stor_bbox, pg_stor_name_1, pg_stor_name_2) %>% 
-  # filter(!doi %in% c("10.1594/PANGAEA.909130")) %>% # Wide file with no date values
-  # filter(!grepl("Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% # This removes ~40 million rows of bathy data
-  # filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via their own portal
   arrange(citation) %>% distinct()
 rm(pg_stor_bbox, pg_stor_name_1, pg_stor_name_2); gc()
 
@@ -508,9 +503,9 @@ save(ice_1km_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.R
 
 # Young Sound -------------------------------------------------------------
 
-## All Young Sound data files - 178
+## All Young Sound data files - 152
 print(paste0("Began run on pg_young at ", Sys.time()))
-pg_young_bbox <- pg_full_search(query = "", bbox = c(bbox_young[1], bbox_young[3], bbox_young[2], bbox_young[4])) %>% # 176 files
+pg_young_bbox <- pg_full_search(query = "", bbox = c(bbox_young[1], bbox_young[3], bbox_young[2], bbox_young[4])) %>% # 150 files
   filter(!doi %in% pg_doi_list$doi)
 pg_young_name_1 <- pg_full_search(query = "zackenberg") %>% # 3 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_young_bbox$doi)
@@ -548,9 +543,9 @@ save(ice_1km_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/ice_1km_young
 
 # Disko Bay ---------------------------------------------------------------
 
-## All Disko Bay data files - 242
+## All Disko Bay data files - 233
 print(paste0("Began run on pg_disko at ", Sys.time()))
-pg_disko_bbox <- pg_full_search(query = "", bbox = c(bbox_disko[1], bbox_disko[3], bbox_disko[2], bbox_disko[4])) %>% # 235 files
+pg_disko_bbox <- pg_full_search(query = "", bbox = c(bbox_disko[1], bbox_disko[3], bbox_disko[2], bbox_disko[4])) %>% # 226 files
   filter(!doi %in% pg_doi_list$doi)
 pg_disko_name_1 <- pg_full_search(query = "Qeqertarsuup") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi)
@@ -595,12 +590,12 @@ save(ice_1km_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/ice_1km_disko.R
 
 # Nuup Kangerlua ----------------------------------------------------------
 
-## All Nuup Kangerlua data files - 199
+## All Nuup Kangerlua data files - 196
 print(paste0("Began run on pg_nuup at ", Sys.time()))
-pg_nuup_bbox <- pg_full_search(query = "", bbox = c(bbox_nuup[1], bbox_nuup[3], bbox_nuup[2], bbox_nuup[4])) %>% # 156 files
+pg_nuup_bbox <- pg_full_search(query = "", bbox = c(bbox_nuup[1], bbox_nuup[3], bbox_nuup[2], bbox_nuup[4])) %>% # 119 files
   filter(!doi %in% pg_doi_list$doi)
 # pg_nuup_name_1 <- pg_full_search(query = "kangerlua") # 0 files
-pg_nuup_name_2 <- pg_full_search(query = "nuuk") %>% # 74 files
+pg_nuup_name_2 <- pg_full_search(query = "nuuk") %>% # 77 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_nuup_bbox$doi)
 pg_nuup_all <- rbind(pg_nuup_bbox, pg_nuup_name_2) %>% 
   filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via their own portal
@@ -633,9 +628,9 @@ save(ice_1km_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_1km_nuu
 
 # Porsangerfjorden --------------------------------------------------------
 
-## All Porsangerfjorden data files - 76
+## All Porsangerfjorden data files - 56
 print(paste0("Began run on pg_por at ", Sys.time()))
-pg_por_bbox <- pg_full_search(query = "", bbox = c(bbox_por[1], bbox_por[3], bbox_por[2], bbox_por[4])) %>% # 107 files
+pg_por_bbox <- pg_full_search(query = "", bbox = c(bbox_por[1], bbox_por[3], bbox_por[2], bbox_por[4])) %>% # 56 files
   filter(!doi %in% pg_doi_list$doi)
 pg_por_name_1 <- pg_full_search(query = "Porsangerfjord") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_por_bbox$doi)
