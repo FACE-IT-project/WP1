@@ -2,6 +2,13 @@
 # The code used for the analyses in the WP1 review paper (D1.3)
 
 # TODO: Add ability to filter out specific time series depending on length or some other criteria
+# Do not include old data in trend analysis, but include them in the metadata summary of available data
+# Create summary metadata figure showing sampling bias over time and clim months
+# Add slope values to time constrained figures as well
+# Need to be able to link the spatial and temporal mismatch of combined summary data with lack of trends etc.
+# These issues are themselves an important part of the conclusions from the analysis
+# Create and document a treatment for outliers (i.e. salinity)
+# Consider changing analysis to 0-5 m rather than 0-10 m
 
 
 # Setup -------------------------------------------------------------------
