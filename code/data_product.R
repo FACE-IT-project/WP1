@@ -1251,8 +1251,8 @@ system.time(
 
 # Remove unneeded columns
 pg_young_clean <- pg_young_sub %>% 
-  dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
-  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
+  # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
+  dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
   # Manually remove problematic files - no need
   # Manually remove problematic columns - no need
   mutate_all(~na_if(., '')) %>% 
@@ -1266,8 +1266,7 @@ pg_young_clean <- pg_young_sub %>%
                           TRUE ~ date),
          date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
-  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Bathy depth [m]`) ~ as.numeric(`Bathy depth [m]`))) %>%
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`))) %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
                            TRUE ~ depth)) %>% 
   # dplyr::select(depth, everything())
@@ -1289,12 +1288,12 @@ pg_young_Physical <- pg_var_melt(pg_young_clean, query_Physical$pg_col_name, "ph
 # Carbonate chemistry
 pg_young_Chemistry <- pg_var_melt(pg_young_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_young_Biology <- pg_var_melt(pg_young_clean, query_Biology$pg_col_name, "bio")
+# pg_young_Biology <- pg_var_melt(pg_young_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
 # pg_young_Social <- pg_var_melt(pg_young_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_young_ALL <- rbind(pg_young_Cryosphere, pg_young_Physical, pg_young_Chemistry, pg_young_Biology)
+pg_young_ALL <- rbind(pg_young_Cryosphere, pg_young_Physical, pg_young_Chemistry)
 data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.csv")
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
@@ -1389,7 +1388,7 @@ young_GLODAP <- EU_GLODAP %>%
          lat >= bbox_young[3], lat <= bbox_young[4])
 
 # Combine and save
-full_product_young <- rbind(pg_young_ALL, young_prim_prod) %>% distinct()
+full_product_young <- rbind(pg_young_ALL, young_prim_prod, young_SOCAT, young_GLODAP) %>% distinct()
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 save(full_product_young, file = "data/full_data/full_product_young.RData")
@@ -1409,6 +1408,54 @@ young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Za
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/R3QB-7Q71",
          date_accessed = as.Date("2022-02-03"),
          citation = "Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Sea ice breakup
+young_GEM_sea_ice_breakup <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Sea_ice_breakup.csv", delim = "\t") %>% 
+  dplyr::rename(value = `Start open water`) %>% 
+  mutate(var_name = "Open water [start date]",
+         var_type = "cryo",
+         date = value,
+         value = 1,
+         depth = NA, lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/SM1Q-6A72",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Sea ice breakup: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/SM1Q-6A72") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Sea ice formation
+young_GEM_sea_ice_formation <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Sea_ice_formation.csv", delim = "\t") %>% 
+  dplyr::rename(value = `End open water`) %>% 
+  mutate(var_name = "Open water [end date]",
+         var_type = "cryo",
+         date = value,
+         value = 1,
+         depth = NA, lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/5MNP-KX83",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Sea ice formation: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/5MNP-KX83") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Sea ice thickness
+young_GEM_sea_ice_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Sea_ice_thickness.csv", delim = "\t") %>% 
+  dplyr::rename(value = `Sea ice thickness (cm)`, date = Date) %>% 
+  mutate(var_name = "Sea ice thickness [cm]",
+         var_type = "cryo",
+         depth = NA, lon = -20.25, lat = 74.31,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/H5D5-TZ32",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Sea ice thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Sea ice thickness
+young_GEM_sea_ice_snow_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Snow_thickness.csv", delim = "\t") %>% 
+  dplyr::rename(value = `Snow thickness (cm)`, date = Date) %>% 
+  mutate(var_name = "Sea ice snow thickness [cm]",
+         var_type = "cryo",
+         depth = NA, lon = -20.25, lat = 74.31,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Sea ice snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Water column CTD
@@ -1458,10 +1505,9 @@ young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_D
          citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
-# 
-
 # Combine and save
-young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill)
+young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, young_GEM_sea_ice_formation, young_GEM_sea_ice_thickness,
+                   young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill)
 save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
 rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
@@ -1500,7 +1546,6 @@ pg_disko_clean <- pg_disko_sub %>%
          date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Bathy depth [m]`) ~ as.numeric(`Bathy depth [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`))) %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
@@ -1524,12 +1569,12 @@ pg_disko_Physical <- pg_var_melt(pg_disko_clean, query_Physical$pg_col_name, "ph
 # Carbonate chemistry
 pg_disko_Chemistry <- pg_var_melt(pg_disko_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_disko_Biology <- pg_var_melt(pg_disko_clean, query_Biology$pg_col_name, "bio")
+# pg_disko_Biology <- pg_var_melt(pg_disko_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
 # pg_disko_Social <- pg_var_melt(pg_disko_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_disko_ALL <- rbind(pg_disko_Cryosphere, pg_disko_Physical, pg_disko_Chemistry, pg_disko_Biology)
+pg_disko_ALL <- rbind(pg_disko_Cryosphere, pg_disko_Physical, pg_disko_Chemistry)
 data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.csv")
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
@@ -1654,13 +1699,12 @@ pg_nuup_clean <- pg_nuup_sub %>%
          date = ifelse(date == "", NA, date),
          date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
-  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Bathy depth [m]`) ~ as.numeric(`Bathy depth [m]`))) %>%
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`))) %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
                            is.na(depth) & !is.na(`Surf elev [m]`) ~ -as.numeric(`Surf elev [m]`),
                            is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
                            TRUE ~ depth)) %>% 
-    # dplyr::select(depth, everything())
+  # dplyr::select(depth, everything())
   # Remove unwanted columns  # Manually remove problematic columns
   # dplyr::select(-contains(c("Date/", "Depth ", "Elevation ", "Elev ", "Press ", "Longitude ", "Latitude "))) %>%
   # Finish up
@@ -1677,12 +1721,12 @@ pg_nuup_Physical <- pg_var_melt(pg_nuup_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_nuup_Chemistry <- pg_var_melt(pg_nuup_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_nuup_Biology <- pg_var_melt(pg_nuup_clean, query_Biology$pg_col_name, "bio")
+# pg_nuup_Biology <- pg_var_melt(pg_nuup_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
 # pg_nuup_Social <- pg_var_melt(pg_nuup_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_nuup_ALL <- rbind(pg_nuup_Cryosphere, pg_nuup_Physical, pg_nuup_Chemistry, pg_nuup_Biology)
+pg_nuup_ALL <- rbind(pg_nuup_Cryosphere, pg_nuup_Physical, pg_nuup_Chemistry)
 data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.csv")
 save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
@@ -1718,7 +1762,7 @@ data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua
 save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
-if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+# if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 
 
 ## GEM ---------------------------------------------------------------------
@@ -1772,7 +1816,7 @@ system.time(
 # Remove unneeded columns
 pg_por_clean <- pg_por_sub %>% 
   # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
-  dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
+  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
   # Manually remove problematic files
   # filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.900501", "https://doi.org/10.1594/PANGAEA.786375",
   #                    "https://doi.org/10.1594/PANGAEA.847003","https://doi.org/10.1594/PANGAEA.867207",
@@ -1795,7 +1839,7 @@ pg_por_clean <- pg_por_sub %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
                            TRUE ~ depth)) %>% 
-    # dplyr::select(depth, everything())
+  # dplyr::select(depth, everything())
   # Remove unwanted columns
   # dplyr::select(-"Longitude e", -"Latitude e", -"Press [dbar]", -contains(c("Depth ", "Elevation "))) %>%
   # Finish up

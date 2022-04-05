@@ -2,9 +2,6 @@
 # The code used for the analyses in the WP1 review paper (D1.3)
 
 # TODO: Add ability to filter out specific time series depending on length or some other criteria
-# Do not include old data in trend analysis, but include them in the metadata summary of available data
-# Create summary metadata figure showing sampling bias over time and clim months
-# Add slope values to time constrained figures as well
 # Need to be able to link the spatial and temporal mismatch of combined summary data with lack of trends etc.
 # These issues are themselves an important part of the conclusions from the analysis
 # Create and document a treatment for outliers (i.e. salinity)
@@ -79,6 +76,24 @@ ggplot(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
   # geom_raster(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
   geom_rect(aes(xmin = bbox_young[1], xmax = bbox_young[2], 
                 ymin = bbox_young[3], ymax = bbox_young[4]))
+
+# Sea ice data 4 km
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_4km_kong.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
+load("~/pCloudDrive/FACE-IT_data/storfjorden/ice_4km_stor.RData")
+load("~/pCloudDrive/FACE-IT_data/young_sound/ice_4km_young.RData")
+load("~/pCloudDrive/FACE-IT_data/disko_bay/ice_4km_disko.RData")
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_4km_nuup.RData")
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
+
+# Sea ice data 1 km
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
+load("~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.RData")
+load("~/pCloudDrive/FACE-IT_data/young_sound/ice_1km_young.RData")
+load("~/pCloudDrive/FACE-IT_data/disko_bay/ice_1km_disko.RData")
+load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_1km_nuup.RData")
+load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_1km_por.RData")
 
 
 # Section 2 ---------------------------------------------------------------
@@ -190,8 +205,7 @@ review_summary_plot(summary_SST, "temp", date_filter = c("1982-01-01", "2020-12-
 kong_air <- review_filter_var(full_product_kong, "Kong", "air|temp|°C", 
                               "co2|intern|tequ|f_|p_|par_|temp_|interp|_ctd|_sf|MAGT|MAT|MAAT|T air", # We want T air but it requires processing before this step
                               var_precise = "Temp [°C]", atmos = T) %>% 
-  filter(URL != "https://doi.org/10.1594/PANGAEA.882432",
-         URL != "https://doi.org/10.1594/PANGAEA.839802")
+  filter(URL != "https://doi.org/10.1594/PANGAEA.882432", URL != "https://doi.org/10.1594/PANGAEA.839802")
 is_air <- add_depth(review_filter_var(full_product_is, "Is", "air|temp|°C", "tequ|intern|bulb|pressure|MAGT|MAAT|T air",  
                                       var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "t [°C]")
 stor_air <- add_depth(review_filter_var(full_product_stor, "Stor", "air|temp|°C", "Tmax",
@@ -206,7 +220,7 @@ por_air <- add_depth(review_filter_var(full_product_por, "Por", "air|temp|°C", 
 summary_air <- review_summary(rbind(kong_air, is_air, stor_air, young_air, disko_air, nuup_air, por_air))
 
 # Plot results
-review_summary_plot(summary_air, "air", date_filter = c("1982-01-01", "2020-12-31"))
+review_summary_plot(summary_air, "air")
 
 
 ## Salinity ---------------------------------------------------------------
@@ -246,11 +260,10 @@ por_sal <- review_filter_var(full_product_por, "Por", "sal|PSU", "Sal interp") %
 # review_filter_check(por_sal, "sal", "Mankettikkara")
 
 # Summary analyses
-summary_sal <- review_summary(rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal),
-                              trend_dates = )
+summary_sal <- review_summary(rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal))
 
 # Plot results
-review_summary_plot(summary_sal, "sal", date_filter = c("1982-01-01", "2020-12-31"))
+review_summary_plot(summary_sal, "sal")
 
 
 ## Light ------------------------------------------------------------------
@@ -293,7 +306,37 @@ por_PAR <- review_filter_var(full_product_por, "Por", "PAR")
 summary_PAR <- review_summary(rbind(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR))
 
 # Plot results
-review_summary_plot(summary_PAR, "par", date_filter = c("1982-01-01", "2020-12-31"))
+review_summary_plot(summary_PAR, "par")
+
+
+## Sea ice ----------------------------------------------------------------
+# NB: Add gridded ice products
+# Currently looking at % sea ice cover
+
+# https://doi.org/10.1594/PANGAEA.935267; bi [code] = ice of land origin, ci [code] = sea ice concentration, zi [code] = ice situation
+# https://doi.org/10.1594/PANGAEA.269605; t [°C] = temperature ice/snow
+# https://doi.org/10.1594/PANGAEA.269619; DI [code] = bearing of principal ice edge; l_s [code] = type of ice accretion
+# https://doi.org/10.1594/PANGAEA.935267; EsEs [m] = sea ice thickness, EsEs acc [cm] = thickness of ice accretion
+# https://doi.org/10.1594/PANGAEA.896581; RGI 6.0 ID = Randolph glacier inventory, SWE [m] = snow water equivalent, SWE unc [m] - Uncertainty
+# https://doi.org/10.1594/PANGAEA.869294; IP [km**3/day] = sea ice production
+# https://doi.org/10.1594/PANGAEA.908494; SIC d [months/a] = Sea ice cover duration NB: This file is a good candidate for checking pipeline errors
+# https://doi.org/10.1594/PANGAEA.815951; Glac w [km] = Glacier width
+kong_sea_ice <- filter(full_product_kong, var_type == "cryo", var_name == "ice cover [%]") %>% mutate(site = "Kong") # Sea ice percent cover of inner fjord
+is_sea_ice <- filter(full_product_is, var_type == "cryo", var_name == "t [°C]") %>% mutate(site = "Is") # Some sea ice/snow temperatures
+stor_sea_ice <- filter(full_product_stor, var_type == "cryo",
+                       var_name %in% c("Ice cov [%]", "EsEs [m]", "t [°C]")) %>% mutate(site = "Stor") # Sea ice percent cover and thickness, temperature.
+young_sea_ice <- filter(rbind(full_product_young, young_GEM), var_type == "cryo",
+                        !grepl("Hynek, Bernhard; Binder, Daniel;", citation),
+                        !grepl("Hynek, Bernhard; Weyss, Gernot;", citation)) %>% mutate(site = "Young") # A lot of GEM data
+disko_sea_ice <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo") %>% mutate(site = "Disko") %>% slice(0) # No sea ice data
+nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %>% mutate(site = "Nuup") %>% slice(0) # No sea ice data
+por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "Por")
+
+# Gridded data
+
+# Analyses?
+
+# Figures?
 
 
 # Section 3 ---------------------------------------------------------------

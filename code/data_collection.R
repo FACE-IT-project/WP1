@@ -148,8 +148,9 @@ pg_full_search <- function(lookup_table = F, ...){
       filter(grepl("station list|master tracks|metadata list|links to file", citation, ignore.case = T))
   } else {
     pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
-      filter(!grepl("video|photograph|image|station list|master tracks|aircraft|flight|sediment|soil|
+      filter(!grepl("video|photograph|image|station list|master tracks|aircraft|flight|
                     |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
+      filter(!grepl("sediment|soil")) %>% # It is unclear if these files should be filtered because they occasionally have a few useful data
       filter(!grepl("ACLOUD|SOCAT", citation)) %>% 
       filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
   }
@@ -511,7 +512,8 @@ pg_young_name_1 <- pg_full_search(query = "zackenberg") %>% # 3 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_young_bbox$doi)
 pg_young_all <- rbind(pg_young_bbox, pg_young_name_1) %>% 
   # filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via their own portal
-  filter(!doi == "10.1594/PANGAEA.786674") %>%   # This file causes weird date issues and doesn't have any key drivers
+  filter(!doi == "10.1594/PANGAEA.786674", # This file causes weird date issues and doesn't have any key drivers
+         !doi == "10.1594/PANGAEA.831056") %>% # Geospatial data of mass balance for Freya Glacier
   arrange(citation) %>% distinct()
 rm(pg_young_bbox, pg_young_name_1); gc()
 
