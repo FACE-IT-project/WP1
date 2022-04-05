@@ -333,10 +333,17 @@ nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "Por")
 
 # Gridded data
+## Cut down ice data to appropriate dimensions using simple rectangular filters and testing via visualising a map
+## Create function for finding number of ice (non-coastal) pixels that can then calculate proportion ice cover per day
+### See ice_cover_and_AIS.R for a head start on this
 
-# Analyses?
+# Analyses
+## Not a lot of common sea ice data between sites
+## The gridded data sea ice cover will be the best comparison between sites
 
-# Figures?
+# Figures
+## Need custom figures per site
+## Consistent metadata files may not be useful across sites
 
 
 # Section 3 ---------------------------------------------------------------
