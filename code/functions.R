@@ -1619,24 +1619,30 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                               site = "label", type = "in situ")
   
   # Plot monthly datum metadata
-  meta_panel_1 <- summary_list$monthly %>% 
+  summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     mutate(month = lubridate::month(date)) %>% 
-    ggplot(aes(x = as.factor(month), y = count, fill = site)) +
-    geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-    labs(y = paste0("Total count of data points - ",y_label), x = "Month", fill = "Site", colour = "Source") +
-    facet_wrap(~type, nrow = 3) +
+    ggplot(aes(x = as.factor(month), y = count_days)) +
+    geom_boxplot(aes(fill = site), position = "dodge", outlier.colour = NA) +
+    geom_jitter(aes(colour = log10(count))) +
+    scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
+    labs(y = paste0("Unique days with data points - ",y_label), x = "Month", fill = "Site", colour = "Count [log10(n)]") +
+    facet_wrap(site~type, nrow = 3) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  meta_panel_2 <- summary_list$monthly %>% 
-    filter(!is.na(value_mean)) %>% 
-    mutate(month = lubridate::month(date)) %>% 
-    ggplot(aes(x = as.factor(month), y = count_days, fill = site)) +
-    geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-    labs(y = paste0("Unique days with data points - ",y_label), x = "Month", fill = "Site", colour = "Source") +
-    facet_wrap(~type, nrow = 3) +
-    theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggpubr::ggarrange(meta_panel_1, meta_panel_2, common.legend = T)
   ggsave(paste0("~/Desktop/",short_var,"_meta_box.png"), width = 12, height = 9)
+  summary_list$monthly %>% 
+    filter(!is.na(value_mean)) %>% 
+    ggplot(aes(x = date, y = log10(count), colour = site)) +
+    geom_point(aes(fill = count_days), shape = 21) + #geom_line(alpha = 0.1) + 
+    stat_smooth(geom = "line", method = "lm", size = 3, linetype = "dashed", alpha = 0.3) +
+    geom_smooth(data = filter(summary_list$monthly, date >= date_filter[1], date <= date_filter[2]), method = "lm", se = F) +
+    # geom_jitter(aes(colour = log10(count))) +
+    scale_fill_viridis_c() + #scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
+    labs(y = paste0("Count [log10(n)] of daily data points - ",y_label), x = NULL, 
+         fill = "Unique days\nof sampling", colour = "Site") +
+    facet_wrap(~type, nrow = 3) +
+    theme(panel.border = element_rect(colour = "black", fill = NA))
+  ggsave(paste0("~/Desktop/",short_var,"_meta_ts.png"), width = 12, height = 9)
   
   # Plot monthly values
   ggplot(summary_list$monthly, aes(x = date, y = value_mean, colour = site, linetype = type)) +
