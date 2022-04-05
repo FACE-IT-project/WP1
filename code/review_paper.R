@@ -187,18 +187,19 @@ review_summary_plot(summary_SST, "temp", date_filter = c("1982-01-01", "2020-12-
 ## Air temperature --------------------------------------------------------
 
 # Get air temperature for all sites
-kong_air <- review_filter_var(full_product_kong, "Kong", "air|temp|°C", "co2|intern|tequ|f_|p_|par_|temp_|_ctd|_sf",
+kong_air <- review_filter_var(full_product_kong, "Kong", "air|temp|°C", 
+                              "co2|intern|tequ|f_|p_|par_|temp_|interp|_ctd|_sf|MAGT|MAT|MAAT|T air", # We want T air but it requires processing before this step
                               var_precise = "Temp [°C]", atmos = T) %>% 
   filter(URL != "https://doi.org/10.1594/PANGAEA.882432",
          URL != "https://doi.org/10.1594/PANGAEA.839802")
-is_air <- add_depth(review_filter_var(full_product_is, "Is", "air|temp|°C", "tequ|intern|bulb|pressure",  
+is_air <- add_depth(review_filter_var(full_product_is, "Is", "air|temp|°C", "tequ|intern|bulb|pressure|MAGT|MAAT|T air",  
                                       var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "t [°C]")
-stor_air <- add_depth(review_filter_var(full_product_stor, "Stor", "air|temp|°C", 
+stor_air <- add_depth(review_filter_var(full_product_stor, "Stor", "air|temp|°C", "Tmax",
                                         var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "t [°C]")
 young_air <- add_depth(review_filter_var(full_product_young, "Young", "air|temp|°C", var_precise = "Temp [°C]", atmos = T))
 disko_air <- add_depth(review_filter_var(full_product_disko, "Disko", "air|temp|°C", "tequ", var_precise = "Temp [°C]", atmos = T))
 nuup_air <- add_depth(review_filter_var(full_product_nuup, "Nuup", "air|temp|°C", "tequ", var_precise = "Temp [°C]", atmos = T))
-por_air <- add_depth(review_filter_var(full_product_por, "Por", "air|temp|°C", "tequ|bulb", 
+por_air <- add_depth(review_filter_var(full_product_por, "Por", "air|temp|°C", "tequ|bulb|MAAT|T air", 
                                        var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "temp [°C]")
 
 # Summary analyses
@@ -245,7 +246,8 @@ por_sal <- review_filter_var(full_product_por, "Por", "sal|PSU", "Sal interp") %
 # review_filter_check(por_sal, "sal", "Mankettikkara")
 
 # Summary analyses
-summary_sal <- review_summary(rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal))
+summary_sal <- review_summary(rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal),
+                              trend_dates = )
 
 # Plot results
 review_summary_plot(summary_sal, "sal", date_filter = c("1982-01-01", "2020-12-31"))
