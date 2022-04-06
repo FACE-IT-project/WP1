@@ -343,17 +343,27 @@ por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.
 # Gridded data
 ice_4km_is_xyz <- ice_4km_is %>% dplyr::rename(x = lon, y = lat, z = sea_ice_extent) %>% filter(date == "2017-08-01") %>% dplyr::select(-date)
 ice_4km_is_rast <- rasterFromXYZ(ice_4km_is_xyz)
-ice_4km_is_proc <- ice_4km_is #%>% 
-  # mutate(lon = plyr::round_any(lon, 0.16),
-         # lat = plyr::round_any(lat, 0.08))
+ice_4km_is_proc <- ice_4km_is %>% 
+  # mutate(date = case_when(date == as.Date("2006-01-01") ~ as.Date("2002-05-01"), TRUE ~ date))
+  mutate(sea_ice_extent = as.numeric(sea_ice_extent),
+         sea_ice_extent = case_when(lon > 16 & lat > 78.75 ~ 2, 
+                                    lon < 13.5 & lat > 78.35 ~ 2,
+                                    TRUE ~ sea_ice_extent))
 
-ice_4km_is_proc %>% 
-  mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast"))) %>% 
-  filter(date == "2017-08-01") %>% 
-  ggplot(aes(x = lon, y = lat)) +
-  # geom_tile(aes(fill = sea_ice_extent)) +
-  geom_point(aes(colour = sea_ice_extent), size = 5, shape = 15) +
-  scale_colour_manual("Colours", values = ice_cover_colours, aesthetics = c("colour", "fill"))
+
+quick_plot_ice(ice_4km_is_proc)
+
+quick_plot_ice <- function(df){
+  df %>% 
+    mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast"))) %>% 
+    filter(date == "2017-08-01") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    # geom_tile(aes(fill = sea_ice_extent)) +
+    geom_point(aes(colour = sea_ice_extent), size = 5, shape = 15) +
+    scale_colour_manual("Colours", values = ice_cover_colours, aesthetics = c("colour", "fill")) +
+    theme(panel.background = element_blank())
+}
+
 ## Cut down ice data to appropriate dimensions using simple rectangular filters and testing via visualising a map
 ## Create function for finding number of ice (non-coastal) pixels that can then calculate proportion ice cover per day
 ### See ice_cover_and_AIS.R for a head start on this
