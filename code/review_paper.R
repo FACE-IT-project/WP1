@@ -12,6 +12,14 @@
 
 source("code/functions.R")
 
+# Ice cover colours
+ice_cover_colours <- c(
+  "ocean" = "navy",
+  "land" = "slategrey",
+  "sea ice" = "mintcream",
+  "coast" = "dodgerblue"
+)
+
 
 # Data --------------------------------------------------------------------
 
@@ -333,6 +341,19 @@ nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "Por")
 
 # Gridded data
+ice_4km_is_xyz <- ice_4km_is %>% dplyr::rename(x = lon, y = lat, z = sea_ice_extent) %>% filter(date == "2017-08-01") %>% dplyr::select(-date)
+ice_4km_is_rast <- rasterFromXYZ(ice_4km_is_xyz)
+ice_4km_is_proc <- ice_4km_is #%>% 
+  # mutate(lon = plyr::round_any(lon, 0.16),
+         # lat = plyr::round_any(lat, 0.08))
+
+ice_4km_is_proc %>% 
+  mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast"))) %>% 
+  filter(date == "2017-08-01") %>% 
+  ggplot(aes(x = lon, y = lat)) +
+  # geom_tile(aes(fill = sea_ice_extent)) +
+  geom_point(aes(colour = sea_ice_extent), size = 5, shape = 15) +
+  scale_colour_manual("Colours", values = ice_cover_colours, aesthetics = c("colour", "fill"))
 ## Cut down ice data to appropriate dimensions using simple rectangular filters and testing via visualising a map
 ## Create function for finding number of ice (non-coastal) pixels that can then calculate proportion ice cover per day
 ### See ice_cover_and_AIS.R for a head start on this

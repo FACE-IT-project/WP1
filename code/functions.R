@@ -972,7 +972,7 @@ load_ice_coords <- function(site_name, res = "1km"){
   # Load 4km res mask if necessary
   if(!exists("ice_coords_4km")){
     ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie_lat_lon_4km.nc") %>% 
-      tidync::hyper_tibble() %>% Sdplyr::rename(lon = longitude, lat = latitude)
+      tidync::hyper_tibble() %>% dplyr::rename(lon = longitude, lat = latitude)
   }
   
   # Could potentially use the 4km mask to approximate the xy and then refine
