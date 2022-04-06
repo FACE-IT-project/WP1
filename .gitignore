@@ -12,6 +12,8 @@ data/full_data
 data/restricted
 data/MUR
 data/sst_gland.RData
+data/sst_sval.RData
+data/sst_CCI_sval.RData
 data/sst_trom.RData
 data/sst_CCI_trom.RData
 shiny/test_data

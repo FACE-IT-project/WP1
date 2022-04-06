@@ -78,7 +78,8 @@ plot_sst_grid <- function(df, product_name){
     labs(x = NULL, y = NULL, fill = "Temp.\n(°C)",
          title = "Average annual temperature",
          subtitle = paste0(product_name,": 1982-2020")) +
-    coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
+    coord_cartesian(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
+    # coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
     theme(legend.position = "bottom", 
           panel.border = element_rect(colour = "black", fill = NA))
   # map_SST_average
@@ -100,7 +101,8 @@ plot_sst_grid <- function(df, product_name){
     labs(x = NULL, y = NULL, fill = "Trend\n(°C/dec)",
          title = "Decadal trend",
          subtitle = "Black outlines: p <= 0.05") +
-    coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
+    coord_cartesian(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
+    # coord_quickmap(expand = F, xlim = c(min(df$lon), max(df$lon)), ylim = c(min(df$lat), max(df$lat))) +
     theme(legend.position = "bottom", 
           panel.border = element_rect(colour = "black", fill = NA))
   # map_SST_trend
@@ -206,6 +208,7 @@ load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
 load("data/sst_trom.RData")
 load("data/sst_gland.RData")
+load("data/sst_sval.RData")
 
 # CCI SST extractions
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_CCI_kong.RData")
@@ -216,9 +219,24 @@ load("~/pCloudDrive/FACE-IT_data/disko_bay/sst_CCI_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_CCI_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_CCI_por.RData")
 load("data/sst_CCI_trom.RData")
+# load("data/sst_CCI_sval.RData") # Too large
 
 # MUR SST extractions
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")
+
+
+# Svalbard ----------------------------------------------------------------
+
+# Plot NOAA OISST grid around Svalbard
+sst_grid_sval <- plot_sst_grid(sst_sval, "NOAA OISST")
+ggsave("figures/sst_grid_sval.png", sst_grid_sval, width = 8.3, height = 5.1)
+ggsave("docs/assets/sst_grid_sval.png", sst_grid_kong, width = 7.2, height = 6.1)
+
+# Plot CCI SST grid around Kongsfjorden
+# Not run due to size
+# sst_CCI_grid_sval <- plot_sst_grid(sst_CCI_sval, "CCI SST")
+# ggsave("figures/sst_CCI_grid_sval.png", sst_CCI_grid_sval, width = 6.8, height = 6.3)
+# ggsave("docs/assets/sst_CCI_grid_sval.png", sst_CCI_grid_sval, width = 6.8, height = 6.3)
 
 
 # Kongsfjorden ------------------------------------------------------------
