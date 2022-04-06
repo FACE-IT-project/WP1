@@ -1723,3 +1723,65 @@ add_depth <- function(df){
   return(df_res)
 }
 
+# Snappy little convenience function
+quick_plot_ice <- function(df, pixel_size = 5){
+  if(length(unique(df$sea_ice_extent)) == 4) factor_labels <- c("ocean", "land", "sea ice", "coast")
+  if(length(unique(df$sea_ice_extent)) == 5) factor_labels <- c("ocean", "land", "sea ice", "coast", "exclude")
+  df %>% 
+    # mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast"))) %>%
+    mutate(sea_ice_extent = factor(sea_ice_extent, labels = factor_labels)) %>%
+    filter(date == "2017-08-01") %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    # geom_tile(aes(fill = sea_ice_extent)) +
+    geom_point(aes(colour = sea_ice_extent), size = pixel_size, shape = 15) +
+    scale_colour_manual(values = ice_cover_colours, aesthetics = c("colour", "fill")) +
+    labs(x = NULL, y = NULL, colour = "Pixel key") +
+    theme(panel.background = element_blank())
+}
+
+# Ice prop function
+ice_cover_prop <- function(ice_df){
+  
+  # Get open water pixel count
+  water_pixels <- ice_df %>% filter(date == "2017-08-01", sea_ice_extent %in% c(1, 3)) %>% nrow()
+  
+  # Find proportion per month per year that has ice
+  ice_prop <- ice_df %>% 
+    filter(sea_ice_extent == 3,
+           date <= "2021-12-31") %>% 
+    group_by(date) %>% 
+    summarise(count = n(),
+              prop = count/water_pixels, .groups = "drop") %>% 
+    # complete(date = seq.Date(min(date), max(date), by = "day")) %>% 
+    complete(date = seq.Date(min(date), max(date), by = "day")) %>% # NB: Only works with 4km data time series
+    replace(is.na(.), 0) %>% 
+    mutate(date = lubridate::round_date(date, "month"),
+           year = lubridate::year(date),
+           month = lubridate::month(date)) %>% 
+    group_by(year, month, date) %>% 
+    summarise(mean_prop = round(mean(prop, na.rm = T), 2), .groups = "drop")
+}
+
+# Annual trend in values
+## NB: This assumes the annual dataframe is temporally complete
+## It also assumes the value column is called 'val'
+trend_calc <- function(df){
+  
+  # Annual trends
+  trend_res <- broom::tidy(lm(val ~ year, df)) %>% 
+    slice(2) %>% 
+    mutate(trend = round(estimate, 3),
+           p.value = round(p.value, 4)) %>% 
+    dplyr::select(trend, p.value)
+  
+  # Total means
+  sum_stats <- df %>% 
+    summarise(mean_val = round(mean(val, na.rm = T), 2),
+              sd_val = round(sd(val, na.rm = T), 3), .groups = "drop")
+  
+  # Combine and exit
+  res <- cbind(trend_res, sum_stats)
+  rm(df, trend_res, sum_stats); gc()
+  return(res)
+}
+

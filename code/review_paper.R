@@ -17,7 +17,8 @@ ice_cover_colours <- c(
   "ocean" = "navy",
   "land" = "slategrey",
   "sea ice" = "mintcream",
-  "coast" = "dodgerblue"
+  "coast" = "dodgerblue",
+  "exclude" = "gold"
 )
 
 
@@ -341,32 +342,61 @@ nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "Por")
 
 # Gridded data
-ice_4km_is_xyz <- ice_4km_is %>% dplyr::rename(x = lon, y = lat, z = sea_ice_extent) %>% filter(date == "2017-08-01") %>% dplyr::select(-date)
-ice_4km_is_rast <- rasterFromXYZ(ice_4km_is_xyz)
+ice_4km_kong_proc <- ice_4km_kong %>% 
+  mutate(sea_ice_extent = case_when(lon <= 11.5 & lat < 78.95 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "Kong")
 ice_4km_is_proc <- ice_4km_is %>% 
-  # mutate(date = case_when(date == as.Date("2006-01-01") ~ as.Date("2002-05-01"), TRUE ~ date))
-  mutate(sea_ice_extent = as.numeric(sea_ice_extent),
-         sea_ice_extent = case_when(lon > 16 & lat > 78.75 ~ 2, 
-                                    lon < 13.5 & lat > 78.35 ~ 2,
-                                    TRUE ~ sea_ice_extent))
+  mutate(sea_ice_extent = case_when(lon > 16 & lat > 78.75 ~ as.integer(5), 
+                                    lon < 13.5 & lat > 78.35 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "Is")
+ice_4km_stor_proc <- ice_4km_stor %>% mutate(site = "Stor") # No issues
+ice_4km_young_proc <- ice_4km_young %>% 
+  mutate(sea_ice_extent = case_when(lon > -21.5 & lat > 74.55 ~ as.integer(5),
+                                    lon < -21.7 & lat < 74.31 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "Young")
+ice_4km_disko_proc <- ice_4km_disko %>% 
+  mutate(sea_ice_extent = case_when(sea_ice_extent == 5 ~ as.integer(2), # remove lake pixels
+                                    lon > -52 & lon < -50 & lat > 70.2 ~ as.integer(5),
+                                    lon > -52.2 & lon < -50.8 & lat < 68.47 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "Disko")
+ice_4km_nuup_proc <- ice_4km_nuup %>% mutate(site = "Nuup") # No issues
+ice_4km_por_proc <- ice_4km_por %>% 
+  mutate(sea_ice_extent = case_when(lat > 71.01 ~ as.integer(5),
+                                    lon > 26.3 & lat > 70.3 & lat < 70.75 ~ as.integer(5),
+                                    lon > 26.65 & lat > 70.75 ~ as.integer(5),
+                                    lon < 25.6 & lat > 70.75 ~ as.integer(5),
+                                    lon < 24.9 & lat > 70.55 & lat < 70.75 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "Por")
+# quick_plot_ice(ice_4km_por_proc)
 
+# Sea ice proportion cover change over time
+ice_4km_prop <- plyr::ddply(rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
+                                  ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc), 
+                            c("site"), ice_cover_prop, .parallel = T)
+ice_4km_trend <- plyr::ddply(dplyr::rename(ice_4km_prop, val = mean_prop), c("site", "month"), trend_calc, .parallel = T)
+ice_4km_trend$x <- as.Date("2003-06-01")
+ice_4km_trend$y <- rep(seq(0, 1, length.out = 7), each = 12)
 
-quick_plot_ice(ice_4km_is_proc)
+# Proportion figures
+ggplot(ice_4km_prop, aes(x = date, y = mean_prop, colour = site)) +
+  geom_point() + geom_smooth(method = "lm", se = F) + facet_wrap(~month) + 
+  geom_label(data = ice_4km_trend, show.legend = F,
+             aes(x = x, y = y, colour = site,
+                 label = paste0(trend,"/year\n p = ", p.value))) +
+  scale_x_date(limits = c(as.Date("2000-09-01"), as.Date("2021-12-31")), expand = c(0, 0)) +
+  labs(x = NULL, y = "Sea ice cover [proportion]", colour = "Site")
+ggsave("~/Desktop/ice_prop_ts.png", height = 12, width = 20)
+ggplot(ice_4km_prop, aes(x = as.factor(month), y = mean_prop, fill = site)) +
+  geom_boxplot() + facet_wrap(~month, scales = "free_x") +
+  labs(x = "Month", y = "Sea ice cover [proportion]", colour = "Site")
+ggsave("~/Desktop/ice_prop_box_month.png", height = 6, width = 12)
+ggplot(ice_4km_prop, aes(x = as.factor(month), y = mean_prop, fill = site)) +
+  geom_boxplot() + facet_wrap(~site, scales = "free_x") +
+  labs(x = "Month", y = "Sea ice cover [proportion]", colour = "Site")
+ggsave("~/Desktop/ice_prop_box_site.png", height = 9, width = 12)
 
-quick_plot_ice <- function(df){
-  df %>% 
-    mutate(sea_ice_extent = factor(sea_ice_extent, labels = c("ocean", "land", "sea ice", "coast"))) %>% 
-    filter(date == "2017-08-01") %>% 
-    ggplot(aes(x = lon, y = lat)) +
-    # geom_tile(aes(fill = sea_ice_extent)) +
-    geom_point(aes(colour = sea_ice_extent), size = 5, shape = 15) +
-    scale_colour_manual("Colours", values = ice_cover_colours, aesthetics = c("colour", "fill")) +
-    theme(panel.background = element_blank())
-}
-
-## Cut down ice data to appropriate dimensions using simple rectangular filters and testing via visualising a map
-## Create function for finding number of ice (non-coastal) pixels that can then calculate proportion ice cover per day
-### See ice_cover_and_AIS.R for a head start on this
+# Calculate sea ice breakup and formation dates
+## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
 
 # Analyses
 ## Not a lot of common sea ice data between sites
