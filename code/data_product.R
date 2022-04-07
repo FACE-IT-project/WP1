@@ -128,6 +128,10 @@ EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_outpu
                         delim = " ", col_names = c("Year", "SST", "ice_extent_March", 
                                                    "ice_extent_September", "MLD", "DIC", "pH"))
 
+
+# CTD data from Ichtyo research
+# EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
+
 # SOCAT data
 EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2021.rds") %>%  
   dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
