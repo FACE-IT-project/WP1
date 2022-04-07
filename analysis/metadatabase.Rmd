@@ -75,15 +75,15 @@ This section contains meta-data for pan-Arctic data files. These are almost excl
 # GLODAP data
 
 # Bathymetry data
-EU_GEBCO <- data.frame(type = "",
+EU_GEBCO <- data.frame(type = "Gridded",
                        data_name = "Bathymetry",
                        date_range = NA,
-                       lon_range = "-180 to 180",
-                       lat_range = "60 to 90",
-                       depth_range = "0 to 10920",
+                       lon_range = "-180 - 180",
+                       lat_range = "60 - 90",
+                       depth_range = "0 - 10920",
                        file_name = '<a onclick="alert(\'Not currently hosted\');">0 files</a>',
                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.gebco.net/">GEBCO</a>',
-                       reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                       reference = '<a onclick="alert(\'GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f\');">GEBCO (2021)</a>',
                        note = NA)
 
 # Zooplankton biodiversity
