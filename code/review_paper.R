@@ -265,7 +265,7 @@ nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "sal|P
 
 # Porsangerfjorden
 # Some dubious values in "Mankettikkara"
-por_sal <- review_filter_var(full_product_por, "Por", "sal|PSU", "Sal interp") %>% filter(value > 0)
+por_sal <- review_filter_var(full_product_por, "Por", "sal|PSU", "Sal interp") #%>% filter(value > 0)
 # review_filter_check(por_sal, "sal", "Mankettikkara")
 
 # Summary analyses
@@ -340,8 +340,20 @@ young_sea_ice <- filter(rbind(full_product_young, young_GEM), var_type == "cryo"
 disko_sea_ice <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo") %>% mutate(site = "Disko") %>% slice(0) # No sea ice data
 nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %>% mutate(site = "Nuup") %>% slice(0) # No sea ice data
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "Por")
+all_sea_ice <- rbind(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice)
 
-# Gridded data
+
+# Figures
+## Need custom figures per site
+## Consistent metadata files may not be useful across sites
+# filter(all_sea_ice, !var_name %in% c("Open water [start date]", "Open water [end date]"))
+ggplot(all_sea_ice, aes(x = date, y = value, colour = site)) +
+  geom_point() + geom_line() + facet_wrap(~var_name, scales = "free")
+ggsave("~/Desktop/ice_var_ts.png", width = 20, height = 16)
+
+# Analyses
+## Not a lot of common sea ice data between sites
+## The gridded data sea ice cover will be the best comparison between sites
 ice_4km_kong_proc <- ice_4km_kong %>% 
   mutate(sea_ice_extent = case_when(lon <= 11.5 & lat < 78.95 ~ as.integer(5),
                                     TRUE ~ sea_ice_extent), site = "Kong")
@@ -397,14 +409,6 @@ ggsave("~/Desktop/ice_prop_box_site.png", height = 9, width = 12)
 
 # Calculate sea ice breakup and formation dates
 ## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
-
-# Analyses
-## Not a lot of common sea ice data between sites
-## The gridded data sea ice cover will be the best comparison between sites
-
-# Figures
-## Need custom figures per site
-## Consistent metadata files may not be useful across sites
 
 
 # Section 3 ---------------------------------------------------------------

@@ -1538,7 +1538,10 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
   # Monthly averages
   df_monthly <- filter_object %>%
     filter(!is.na(date)) %>% # This needs to be attended to eventually
-    mutate(date_round = lubridate::round_date(date, "month")) %>% 
+    mutate(date_round = lubridate::round_date(date, "month"),
+           median_value = median(value, na.rm = T),
+           # Filter low salinity values. 24 based on the base data before filtering.
+           value = case_when(median_value > 30 & value < 24 ~ as.numeric(NA), TRUE ~ value)) %>% 
     group_by(site, type, date_round) %>%
     summarise(value_mean = round(mean(value, na.rm = T), 2),
               value_median = round(median(value, na.rm = T), 2),
