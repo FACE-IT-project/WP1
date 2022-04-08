@@ -247,11 +247,11 @@ kong_sal <- review_filter_var(full_product_kong, "Kong", "sal|PSU|s_", "interp|p
 # review_filter_check(kong_sal, "psal [1e-3]", "Skogseth")
 
 # Isfjorden
-is_sal <- review_filter_var(full_product_is, "Is", "sal|PSU", "interp")
-# review_filter_check(is_sal, "Sal [mg/l]", "Knittel")
+is_sal <- review_filter_var(full_product_is, "Is", "sal|PSU", "interp|mg/l")
+# review_filter_check(is_sal, "psal [1e-3]")
 
 # Storfjorden
-stor_sal <- review_filter_var(full_product_stor, "Stor", "sal|PSU")
+stor_sal <- review_filter_var(full_product_stor, "Stor", "sal|PSU", "interp")
 # review_filter_check(stor_sal, "Sal [mg/l]", "Olsen, Are")
 
 # Young Sound
@@ -269,7 +269,7 @@ nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "sal|P
 # Porsangerfjorden
 # Some dubious values in "Mankettikkara"
 por_sal <- review_filter_var(full_product_por, "Por", "sal|PSU", "Sal interp") #%>% filter(value > 0)
-# review_filter_check(por_sal, "sal", "Mankettikkara")
+# review_filter_check(por_sal, "sal [g kg-1]")
 
 # Summary analyses
 summary_sal <- review_summary(rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal))
