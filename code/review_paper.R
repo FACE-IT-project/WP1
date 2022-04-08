@@ -4,7 +4,6 @@
 # TODO: Add ability to filter out specific time series depending on length or some other criteria
 # Need to be able to link the spatial and temporal mismatch of combined summary data with lack of trends etc.
 # These issues are themselves an important part of the conclusions from the analysis
-# Create and document a treatment for outliers (i.e. salinity)
 # Consider changing analysis to 0-5 m rather than 0-10 m
 
 
@@ -96,13 +95,14 @@ load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_4km_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 
 # Sea ice data 1 km
-load("~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
-load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
-load("~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.RData")
-load("~/pCloudDrive/FACE-IT_data/young_sound/ice_1km_young.RData")
-load("~/pCloudDrive/FACE-IT_data/disko_bay/ice_1km_disko.RData")
-load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_1km_nuup.RData")
-load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_1km_por.RData")
+## Not currently used
+# load("~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_1km_kong.RData")
+# load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
+# load("~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.RData")
+# load("~/pCloudDrive/FACE-IT_data/young_sound/ice_1km_young.RData")
+# load("~/pCloudDrive/FACE-IT_data/disko_bay/ice_1km_disko.RData")
+# load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_1km_nuup.RData")
+# load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_1km_por.RData")
 
 
 # Section 2 ---------------------------------------------------------------
@@ -157,7 +157,7 @@ stor_OISST <- sst_stor_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 stor_CCI <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-stor_SST <- review_filter_var(full_product_stor, "Stor", "temp|°C", "Tpot|Tequ|theta|fco2") %>% 
+stor_SST <- review_filter_var(full_product_stor, "Stor", "temp|°C", "Tpot|Tequ|theta|fco2|Tmax") %>% 
   bind_rows(stor_OISST, stor_CCI) %>% mutate(site = "Stor")
 # review_filter_check(stor_SST)
 
@@ -184,7 +184,7 @@ nuup_OISST <- sst_nuup_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 nuup_CCI <- sst_CCI_nuup_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-nuup_SST <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "temp|°C", "Tequ|T tech") %>% 
+nuup_SST <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "Nuup", "temp|°C", "Tequ|T tech|Tpot") %>% 
   bind_rows(nuup_OISST, nuup_CCI) %>% mutate(site = "Nuup")
 # review_filter_check(nuup_SST)
 
@@ -233,6 +233,9 @@ review_summary_plot(summary_air, "air")
 
 
 ## Salinity ---------------------------------------------------------------
+
+# NB: Remove Sal [mg/l]
+# Investigate psal [1e-3]
 
 # Kongsfjorden
 # Remove overly processed variables
@@ -342,7 +345,6 @@ nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "Por")
 all_sea_ice <- rbind(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice)
 
-
 # Figures
 ## Need custom figures per site
 ## Consistent metadata files may not be useful across sites
@@ -352,6 +354,7 @@ ggplot(all_sea_ice, aes(x = date, y = value, colour = site)) +
 ggsave("~/Desktop/ice_var_ts.png", width = 20, height = 16)
 
 # Analyses
+summary_ice <- review_summary(mutate(all_sea_ice, type = "in situ"))
 ## Not a lot of common sea ice data between sites
 ## The gridded data sea ice cover will be the best comparison between sites
 ice_4km_kong_proc <- ice_4km_kong %>% 
@@ -379,7 +382,7 @@ ice_4km_por_proc <- ice_4km_por %>%
                                     lon < 25.6 & lat > 70.75 ~ as.integer(5),
                                     lon < 24.9 & lat > 70.55 & lat < 70.75 ~ as.integer(5),
                                     TRUE ~ sea_ice_extent), site = "Por")
-# quick_plot_ice(ice_4km_por_proc)
+quick_plot_ice(ice_4km_young_proc, pixel_size = 20)
 
 # Sea ice proportion cover change over time
 ice_4km_prop <- plyr::ddply(rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
@@ -409,6 +412,29 @@ ggsave("~/Desktop/ice_prop_box_site.png", height = 9, width = 12)
 
 # Calculate sea ice breakup and formation dates
 ## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
+## Consider calculating open water days
+
+
+## Summary -----------------------------------------------------------------
+
+# Combine analysed data
+all_meta <- rbind(mutate(summary_SST$monthly, var_group = "SST"),
+                  mutate(summary_air$monthly, var_group = "Air temp"),
+                  mutate(summary_sal$monthly, var_group = "Salinity"),
+                  mutate(summary_PAR$monthly, var_group = "PAR"),
+                  mutate(summary_ice$monthly, var_group = "ice vars"))
+
+all_meta %>% 
+  filter(!is.na(value_mean)) %>% 
+  mutate(month = lubridate::month(date)) %>% 
+  ggplot(aes(x = as.factor(month), y = count_days)) +
+  geom_boxplot(aes(fill = site), position = "dodge", outlier.colour = NA) +
+  geom_jitter(aes(colour = log10(count))) +
+  scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
+  labs(y = paste0("Unique days with data points"), x = "Month", fill = "Site", colour = "Count [log10(n)]") +
+  facet_grid(site~var_group) +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/Desktop/meta_meta_box.png", width = 16, height = 12)
 
 
 # Section 3 ---------------------------------------------------------------

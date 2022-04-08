@@ -1594,6 +1594,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
   if(short_var == "air") y_label <- "Air temperature [°C]"
   if(short_var == "sal") y_label <- "Salinity"
   if(short_var == "par") y_label <- "PAR"
+  if(short_var == "ice") y_label <- "Assorted ice variables"
   
   # Create x/y coords for labels
   label_df_full <- summary_list$trend %>% 
