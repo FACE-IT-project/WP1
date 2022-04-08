@@ -57,7 +57,7 @@ plot_sst_grid <- function(df, product_name){
     summarise(temp = mean(temp, na.rm = T), .groups = "drop") 
   
   # Get SST stats
-  doParallel::registerDoParallel(cores = 15) # Change to taste
+  doParallel::registerDoParallel(cores = 5) # Change to taste
   # df_sub <- df_annual %>% 
   #   filter(lon == lon_sub, lat == lat_sub)
   df_dec_trend <- plyr::ddply(df_annual, c("lon", "lat", "depth"), dec_trend_calc, .parallel = T)
@@ -219,7 +219,7 @@ load("~/pCloudDrive/FACE-IT_data/disko_bay/sst_CCI_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_CCI_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_CCI_por.RData")
 load("data/sst_CCI_trom.RData")
-# load("data/sst_CCI_sval.RData") # Too large
+load("data/sst_CCI_sval.RData")
 
 # MUR SST extractions
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")
@@ -229,8 +229,10 @@ load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")
 
 # Plot NOAA OISST grid around Svalbard
 sst_grid_sval <- plot_sst_grid(sst_sval, "NOAA OISST")
-ggsave("figures/sst_grid_sval.png", sst_grid_sval, width = 8.3, height = 5.1)
-ggsave("docs/assets/sst_grid_sval.png", sst_grid_kong, width = 7.2, height = 6.1)
+ggsave("figures/sst_grid_sval.png", sst_grid_sval, width = 31, height = 15)
+ggsave("docs/assets/sst_grid_sval.png", sst_grid_kong, width = 31, height = 14)
+sst_CCI_grid_sval <- plot_sst_grid(sst_CCI_sval, "CCI OISST")
+ggsave("figures/sst_CCI_grid_sval.png", sst_CCI_grid_sval, width = 31, height = 15)
 
 # Plot CCI SST grid around Kongsfjorden
 # Not run due to size
