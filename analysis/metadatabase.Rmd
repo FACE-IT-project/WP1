@@ -57,6 +57,14 @@ options(DT.options = list(pageLength = 5,
 
 This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The interactive tables contain the meta-database for the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). The meta-database has been broken up into the different sites for convenience. With the exception that the first table contains data that span the entire European Arctic, as this is the broadest area of interest for FACE-IT, and there is a table dedicated to data that span all of Svalbard.
 
+## Column definitions
+
+The following tables contain these columns:
+
+-
+- 
+
+
 # European Arctic
 
 <center>
