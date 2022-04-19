@@ -165,7 +165,7 @@ ui <- dashboardPage(
 
       tabItem(tabName = "load",
               
-              box(width = 3, 
+              box(width = 3,
                   # height = "730px", # Length when tips are shown
                   height = "550px",
                   title = "File format",

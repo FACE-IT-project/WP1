@@ -825,6 +825,19 @@ save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_pro
 save(full_product_kong, file = "data/full_data/full_product_kong.RData")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
+# Split up and save smaller uncompressed objects for faster loading in app
+full_cryo_kong <- filter(full_product_kong, var_type == "cryo")
+save(full_cryo_kong, file = "data/full_data/full_cryo_kong.RData", compress = FALSE)
+full_phys_kong <- filter(full_product_kong, var_type == "phys")
+save(full_phys_kong, file = "data/full_data/full_phys_kong.RData", compress = FALSE)
+full_chem_kong <- filter(full_product_kong, var_type == "chem")
+save(full_chem_kong, file = "data/full_data/full_chem_kong.RData", compress = FALSE)
+full_bio_kong <- filter(full_product_kong, var_type == "bio")
+save(full_bio_kong, file = "data/full_data/full_bio_kong.RData", compress = FALSE)
+full_soc_kong <- filter(full_product_kong, var_type == "soc")
+save(full_soc_kong, file = "data/full_data/full_soc_kong.RData", compress = FALSE)
+rm(list = grep("_kong",names(.GlobalEnv),value = TRUE)); gc()
+
 # Search product for specific authors
 # if(!exists("full_product_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 
@@ -1096,6 +1109,19 @@ save(full_product_is, file = "data/full_data/full_product_is.RData")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 
+# Split up and save smaller uncompressed objects for faster loading in app
+full_cryo_is <- filter(full_product_is, var_type == "cryo")
+save(full_cryo_is, file = "data/full_data/full_cryo_is.RData", compress = FALSE)
+full_phys_is <- filter(full_product_is, var_type == "phys")
+save(full_phys_is, file = "data/full_data/full_phys_is.RData", compress = FALSE)
+full_chem_is <- filter(full_product_is, var_type == "chem")
+save(full_chem_is, file = "data/full_data/full_chem_is.RData", compress = FALSE)
+full_bio_is <- filter(full_product_is, var_type == "bio")
+save(full_bio_is, file = "data/full_data/full_bio_is.RData", compress = FALSE)
+full_soc_is <- filter(full_product_is, var_type == "soc")
+save(full_soc_is, file = "data/full_data/full_soc_is.RData", compress = FALSE)
+rm(list = grep("_is",names(.GlobalEnv),value = TRUE)); gc()
+
 
 ## Test visuals ------------------------------------------------------------
 
@@ -1238,6 +1264,19 @@ save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_prod
 save(full_product_stor, file = "data/full_data/full_product_stor.RData")
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
+
+# Split up and save smaller uncompressed objects for faster loading in app
+full_cryo_stor <- filter(full_product_stor, var_type == "cryo")
+save(full_cryo_stor, file = "data/full_data/full_cryo_stor.RData", compress = FALSE)
+full_phys_stor <- filter(full_product_stor, var_type == "phys")
+save(full_phys_stor, file = "data/full_data/full_phys_stor.RData", compress = FALSE)
+full_chem_stor <- filter(full_product_stor, var_type == "chem")
+save(full_chem_stor, file = "data/full_data/full_chem_stor.RData", compress = FALSE)
+full_bio_stor <- filter(full_product_stor, var_type == "bio") # None
+save(full_bio_stor, file = "data/full_data/full_bio_stor.RData", compress = FALSE)
+full_soc_stor <- filter(full_product_stor, var_type == "soc")
+save(full_soc_stor, file = "data/full_data/full_soc_stor.RData", compress = FALSE)
+rm(list = grep("_stor",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Young Sound -------------------------------------------------------------
@@ -1398,6 +1437,19 @@ save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_pro
 save(full_product_young, file = "data/full_data/full_product_young.RData")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+
+# Split up and save smaller uncompressed objects for faster loading in app
+full_cryo_young <- filter(full_product_young, var_type == "cryo")
+save(full_cryo_young, file = "data/full_data/full_cryo_young.RData", compress = FALSE)
+full_phys_young <- filter(full_product_young, var_type == "phys")
+save(full_phys_young, file = "data/full_data/full_phys_young.RData", compress = FALSE)
+full_chem_young <- filter(full_product_young, var_type == "chem")
+save(full_chem_young, file = "data/full_data/full_chem_young.RData", compress = FALSE)
+full_bio_young <- filter(full_product_young, var_type == "bio")
+save(full_bio_young, file = "data/full_data/full_bio_young.RData", compress = FALSE)
+full_soc_young <- filter(full_product_young, var_type == "soc")
+save(full_soc_young, file = "data/full_data/full_soc_young.RData", compress = FALSE)
+rm(list = grep("_young",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## GEM ---------------------------------------------------------------------
@@ -1638,6 +1690,19 @@ save(full_product_disko, file = "data/full_data/full_product_disko.RData")
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
+# Split up and save smaller uncompressed objects for faster loading in app
+full_cryo_disko <- filter(full_product_disko, var_type == "cryo")
+save(full_cryo_disko, file = "data/full_data/full_cryo_disko.RData", compress = FALSE)
+full_phys_disko <- filter(full_product_disko, var_type == "phys")
+save(full_phys_disko, file = "data/full_data/full_phys_disko.RData", compress = FALSE)
+full_chem_disko <- filter(full_product_disko, var_type == "chem")
+save(full_chem_disko, file = "data/full_data/full_chem_disko.RData", compress = FALSE)
+full_bio_disko <- filter(full_product_disko, var_type == "bio") # None
+save(full_bio_disko, file = "data/full_data/full_bio_disko.RData", compress = FALSE)
+full_soc_disko <- filter(full_product_disko, var_type == "soc") # None
+save(full_soc_disko, file = "data/full_data/full_soc_disko.RData", compress = FALSE)
+rm(list = grep("_disko",names(.GlobalEnv),value = TRUE)); gc()
+
 
 ## GEM ---------------------------------------------------------------------
 
@@ -1767,6 +1832,19 @@ save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_p
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+
+# Split up and save smaller uncompressed objects for faster loading in app
+full_cryo_nuup <- filter(full_product_nuup, var_type == "cryo")
+save(full_cryo_nuup, file = "data/full_data/full_cryo_nuup.RData", compress = FALSE)
+full_phys_nuup <- filter(full_product_nuup, var_type == "phys")
+save(full_phys_nuup, file = "data/full_data/full_phys_nuup.RData", compress = FALSE)
+full_chem_nuup <- filter(full_product_nuup, var_type == "chem")
+save(full_chem_nuup, file = "data/full_data/full_chem_nuup.RData", compress = FALSE)
+full_bio_nuup <- filter(full_product_nuup, var_type == "bio") # None
+save(full_bio_nuup, file = "data/full_data/full_bio_nuup.RData", compress = FALSE)
+full_soc_nuup <- filter(full_product_nuup, var_type == "soc") # None
+save(full_soc_nuup, file = "data/full_data/full_soc_nuup.RData", compress = FALSE)
+rm(list = grep("_nuup",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## GEM ---------------------------------------------------------------------
@@ -1921,4 +1999,17 @@ save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_
 save(full_product_por, file = "data/full_data/full_product_por.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+
+# Split up and save smaller uncompressed objects for faster loading in app
+full_cryo_por <- filter(full_product_por, var_type == "cryo")
+save(full_cryo_por, file = "data/full_data/full_cryo_por.RData", compress = FALSE)
+full_phys_por <- filter(full_product_por, var_type == "phys")
+save(full_phys_por, file = "data/full_data/full_phys_por.RData", compress = FALSE)
+full_chem_por <- filter(full_product_por, var_type == "chem")
+save(full_chem_por, file = "data/full_data/full_chem_por.RData", compress = FALSE)
+full_bio_por <- filter(full_product_por, var_type == "bio") # None
+save(full_bio_por, file = "data/full_data/full_bio_por.RData", compress = FALSE)
+full_soc_por <- filter(full_product_por, var_type == "soc") # None
+save(full_soc_por, file = "data/full_data/full_soc_por.RData", compress = FALSE)
+rm(list = grep("_por",names(.GlobalEnv),value = TRUE)); gc()
 

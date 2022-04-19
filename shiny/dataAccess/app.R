@@ -2,6 +2,10 @@
 # The code used to generate the UI for accessing the FACE-IT data product
 
 # TODO: Add FACE-IT funding to app
+# Round values and convert all plots to summaries
+# Add loading widgets
+# Add clean vs full switch for data selection
+
 
 # Setup -------------------------------------------------------------------
 
@@ -23,6 +27,23 @@ loadRData <- function(fileName){
     get(ls()[ls() != "fileName"])
 }
 
+# Project wide category colours
+CatCol <- c(
+    "Cryosphere" = "mintcream",
+    "Physical" = "skyblue",
+    "Chemistry" = "#F6EA7C",
+    "Biology" = "#A2ED84",
+    "Social" = "F48080"
+)
+
+# Same but with abbreviations for the categories
+CatColAbr <- c(
+    "cryo" = "mintcream",
+    "phys" = "skyblue",
+    "chem" = "#F6EA7C",
+    "bio" = "#A2ED84",
+    "soc" = "#F48080"
+)
 
 # Data --------------------------------------------------------------------
 
@@ -33,9 +54,15 @@ loadRData <- function(fileName){
 full_data_paths <- dir("full_data", full.names = T)
 
 # Named sites for subsetting paths
-sites_named <- c("Svalbard" = "_sval", "Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor",
-                 "Young Sound" = "_young", "Disko Bay" = "_disko", "Nuup Kangerlua" = "_nuup",
-                 "Porsangerfjorden" = "_por")
+# sites_named <- c("Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor",
+#                  # "Svalbard" = "_sval",
+#                  "Young Sound" = "_young", "Disko Bay" = "_disko", "Nuup Kangerlua" = "_nuup",
+#                  "Porsangerfjorden" = "_por")
+sites_named <- list(Svalbard = c("Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor"),
+                 # "Svalbard" = "_sval",
+                 Greenland = c("Young Sound" = "_young", "Disko Bay" = "_disko", "Nuup Kangerlua" = "_nuup"),
+                 Norway = c("Porsangerfjorden" = "_por"))
+# cats_named <- 
 
 # Bounding boxes
 bbox_EU <- c(-60, 60, 63, 90)
@@ -56,62 +83,85 @@ map_base <- readRDS("map_base.Rda")
 # UI ----------------------------------------------------------------------
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- dashboardPage(
 
     # Application title
-    titlePanel("Access to data collected for FACE-IT"),
-
+    dashboardHeader(title = "Access to data collected for FACE-IT"),
+    
     # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(width = 3,
+    dashboardSidebar(
+        # sidebarMenu(id = "mainMenu",
             # Site name
             selectizeInput(
-                'selectSite', '1. Site name', 
+                'selectSite', '1. Site name',
                 choices = sites_named,
                 options = list(
                     placeholder = 'Select a site to begin',
-                    onInitialize = I('function() { this.setValue(""); }')
-                )
+                    onInitialize = I('function() { this.setValue(""); }'))
             ),
-            
+
             ## Cat
             uiOutput("selectCatUI"),
-            
+
             ## Var
             uiOutput("selectVarUI"),
-            
+
             ### Lon
             uiOutput("slideLonUI"),
-            
+
             ### Lat
             uiOutput("slideLatUI"),
-            
+
             ### Depth
             uiOutput("slideDepthUI"),
-            
+
             ### Date
             uiOutput("slideDateUI"),
-            
+
             ### Value
             # uiOutput("slideValueUI"),
             # h5("NB: Value range filtering only makes sense if working with a single type of data (e.g. salinity)")
-            
-            ### Percentile
-            
-            ### Download
-            hr(),
-            fluidRow(column(width = 6, uiOutput("downloadFilterTypeUI")),
-                     column(width = 6, uiOutput("downloadFilterUI")))
-        ),
 
-        # Show a plot of the generated distribution
-        mainPanel(
-            column(width = 12,
-                   fluidRow(plotlyOutput("tsPlot")),
-                   fluidRow(plotlyOutput("mapPlot"))
-            )
+            ### Percentile
+
+            ### Download
+            uiOutput("downloadFilterTypeUI"),
+            fluidRow(column(width = 2), column(width = 10, uiOutput("downloadFilterUI")))
+            # hr(),
+            # h3("9. Download data"),
+            # fluidRow(column(width = 6, uiOutput("downloadFilterTypeUI")),
+            #          column(width = 6, uiOutput("downloadFilterUI")))#,
+
+            # Add FACE-IT logo at bottom of menu bar
+            # br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+            # br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+            # img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
+        # ),
+    ),
+    
+    # Show a plot of the generated distribution
+    dashboardBody(
+        fluidRow(
+            column(width = 9,
+                   box(width = 12, height = "360px", title = "Lon/lat",
+                       status = "info", solidHeader = TRUE, collapsible = FALSE,
+                       plotlyOutput("mapPlot", height = "300px")),
+                   box(width = 12, height = "360px", title = "Date",
+                       status = "primary", solidHeader = TRUE, collapsible = FALSE,
+                       plotlyOutput("tsPlot", height = "300px"))),
+            column(width = 3,
+                   box(width = 12, height = "720px", title = "Depth",
+                       status = "success", solidHeader = TRUE, collapsible = FALSE,
+                       plotlyOutput("depthPlot", height = "660px")))
+            # column(width = 3,
+            # fluidRow(plotlyOutput("depthPlot")))
+            # column(width = 3, plotlyOutput("depthPlot"))
         )
-    )
+    ),
+    
+    title = "Data Access",
+    skin = "purple"
+
 )
 
 
@@ -127,7 +177,10 @@ server <- function(input, output) {
         req(input$selectSite)
         selectizeInput(
             'selectCat', '2. Data categories',
-            choices = unique(df_load()$var_type), multiple = T,
+            # choices = unique(df_load()$var_type),
+            choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
+                        "Biology" = "_bio", "Social" = "_soc"),
+            multiple = T,
             options = list(
                 placeholder = 'Select data category(s)',
                 onInitialize = I('function() { this.setValue(""); }')
@@ -152,15 +205,19 @@ server <- function(input, output) {
     # Lon
     output$slideLonUI <- renderUI({
         req(input$selectVar)
-        shiny::sliderInput("slideLon", "4. Longitude range", value = range(df_var()$lon, na.rm = T),
-                           min = min(df_var()$lon, na.rm = T), max = max(df_var()$lon, na.rm = T))
+        min_pad <- round(min(df_var()$lon, na.rm = T), 3)-0.001
+        max_pad <- round(max(df_var()$lon, na.rm = T), 3)+0.001
+        shiny::sliderInput("slideLon", "4. Longitude range",
+                           value = c(min_pad, max_pad), min = min_pad, max = max_pad)
     })
     
     # Lat
     output$slideLatUI <- renderUI({
         req(input$selectVar)
-        shiny::sliderInput("slideLat", "5. Latitude range", value = range(df_var()$lat, na.rm = T),
-                           min = min(df_var()$lat, na.rm = T), max = max(df_var()$lat, na.rm = T))
+        min_pad <- round(min(df_var()$lat, na.rm = T), 3)-0.001
+        max_pad <- round(max(df_var()$lat, na.rm = T), 3)+0.001
+        shiny::sliderInput("slideLat", "5. Latitude range",
+                           value = c(min_pad, max_pad), min = min_pad, max = max_pad)
     })
     
     # Depth
@@ -190,7 +247,7 @@ server <- function(input, output) {
     # Reactive download type button
     output$downloadFilterTypeUI <- renderUI({
         req(input$selectVar)
-        radioButtons("downloadFilterType", "File type", choices = c(".csv", ".Rds"), 
+        radioButtons("downloadFilterType", "9. File type", choices = c(".csv", ".Rds"), 
                      selected = ".csv", inline = T)
     })
     
@@ -207,34 +264,43 @@ server <- function(input, output) {
         },
         content <- function(file) {
             if(input$downloadFilterType == ".Rds"){
-                saveRDS(df_filter(), file = file)
+                saveRDS(df_filter_dl(), file = file)
             } else if(input$downloadFilterType == ".csv"){
-                readr::write_csv(df_filter(), file)
+                readr::write_csv(df_filter_dl(), file)
             }
         }
     )
     
+    
     ## Process data ------------------------------------------------------------
     
     # Initial site load
-    df_load <- reactive({
-        req(input$selectSite)
-        file_path <- full_data_paths[grep(input$selectSite, full_data_paths)]
-        df_load <- loadRData(file_path)
-        return(df_load)
-    })
+    # df_load <- reactive({
+    #     req(input$selectSite)
+    #     file_path <- full_data_paths[grep(input$selectSite, full_data_paths)]
+    #     df_load <- loadRData(file_path)
+    #     return(df_load)
+    # })
     
     # Subset by category
     df_cat <- reactive({
         req(input$selectCat)
-        df_cat <- df_load() %>% filter(var_type %in% input$selectCat)
+        file_list <- paste0("full_data/full",
+                            # c("_cryo", "_phys"), # testing
+                            input$selectCat,
+                            input$selectSite,".RData")
+        df_cat <- purrr::map_dfr(file_list, loadRData)
         return(df_cat)
     })
     
     # Subset by variable name
     df_var <- reactive({
         req(input$selectVar)
-        df_var <- df_cat() %>% filter(var_name %in% input$selectVar)
+        df_var <- df_cat() %>% 
+            filter(var_name %in% input$selectVar) %>% 
+            mutate(lon = round(lon, 3),
+                   lat = round(lat, 3),
+                   depth = 10)
         return(df_var)
     })
     
@@ -242,7 +308,7 @@ server <- function(input, output) {
     df_filter <- reactive({
         # req(input$selectSite)
         if(length(input$selectVar) == 0){
-            df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "Select variables",
+            df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "Select drivers",
                                     lon = 1, lat = 1, depth = 1)
         } else if(length(input$selectVar) > 0){
             # base::Sys.sleep(5)
@@ -255,41 +321,28 @@ server <- function(input, output) {
                            date >= input$slideDate[1], date <= input$slideDate[2])#,
                            # value >= input$slideValue[1], value <= input$slideValue[2])
             } else {
-                df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "last",
-                                        lon = 1, lat = 1, depth = 1)
+                df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, 
+                                        var_name = "last", lon = 1, lat = 1, depth = 1)
             }
         # }
         return(df_filter)
     })
     
-    
-    ## Time series -------------------------------------------------------------
-
-    output$tsPlot <- renderPlotly({
-        req(input$selectSite)
-        # req(input$slideLon)
-        
-        df_filter <- df_filter()
-        
-        # Fill date gaps in TS
-        
-        # May want to create dummy dataframe if filtering removes all rows
-        # if(nrow(df_fill == 0)) df_fill <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "NA")
-        
-        # Plot and exit
-        basePlot <- ggplot(data = df_filter, aes(x = date, y = value)) +
-            geom_line(aes(colour = var_name, group = depth)) +
-            labs(x = NULL) +
-            theme_bw() +
-            theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
-                  axis.text = element_text(size = 12, colour = "black"),
-                  axis.ticks = element_line(colour = "black"))
-        ggplotly(basePlot)
+    # Unrounded data.frame for downloading
+    df_filter_dl <- reactive({            
+        req(input$slideLon)
+        # if(length(input$selectValue) == 2){
+        df_filter_dl <- df_cat() %>% 
+            filter(var_name %in% input$selectVar) %>% 
+            filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
+                   lat >= input$slideLat[1], lat <= input$slideLat[2],
+                   depth >= input$slideDepth[1], depth <= input$slideDepth[2],
+                   date >= input$slideDate[1], date <= input$slideDate[2])
+        return(df_filter)
     })
     
-
     ## Map ---------------------------------------------------------------------
-
+    
     output$mapPlot <- renderPlotly({
         req(input$selectSite)
         
@@ -310,30 +363,105 @@ server <- function(input, output) {
         ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
         
         # Filtered data for plotting
-        df_filter <- df_filter()
+        df_filter <- df_filter() %>% 
+            filter(!is.na(lon), !is.na(lat)) %>% 
+            group_by(lon, lat, var_name) %>% 
+            summarise(count = n())
         
         # Show bbox created by lon/lat sliders
         basePlot <- ggplot() + 
             geom_polygon(data = map_base, fill = "grey80", colour = "black",
                          aes(x = lon, y = lat, group = group)) +
-            annotate(geom = "text", x = bbox_name[1], y = bbox_name[3], label = nrow(df_filter), colour = "red") +
-            geom_rect(aes(xmin = bbox_name[1], xmax = bbox_name[2], ymin = bbox_name[3], ymax = bbox_name[4]),
-                      fill = "khaki", alpha = 0.1) +
-            coord_equal(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
-            labs(x = NULL, y = NULL) +
+            # annotate(geom = "text", x = bbox_name[1], y = bbox_name[3], label = nrow(df_filter), colour = "red") +
+            # geom_rect(aes(xmin = bbox_name[1], xmax = bbox_name[2], ymin = bbox_name[3], ymax = bbox_name[4]),
+                      # fill = "khaki", alpha = 0.1) +
+            # coord_equal(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
+            coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
+            labs(x = NULL, y = NULL, colour = "Driver") +
             theme_bw() +
             theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
                   axis.text = element_text(size = 12, colour = "black"),
-                  axis.ticks = element_line(colour = "black"))
+                  axis.ticks = element_line(colour = "black"), legend.position = "none")
         
         if(nrow(df_filter) > 0){
-            basePlot <- basePlot +
-                geom_point(data = df_filter, aes(x = lon, y = lat, colour = var_name))
+            basePlot <- basePlot + geom_point(data = df_filter, 
+                                              aes(x = lon, y = lat, colour = var_name,
+                                                  text = paste0("Driver: ", var_name,
+                                                                "<br>Lon: ",lon,
+                                                                "<br>Lat: ",lat,
+                                                                "<br>Count: ", count)))
+        }
+        
+        ggplotly(basePlot, tooltip = "text")
+    })
+    
+    
+    ## Time series -------------------------------------------------------------
+
+    output$tsPlot <- renderPlotly({
+        req(input$selectVar)
+        # req(input$slideLon)
+        
+        df_filter <- df_filter() %>% 
+            filter(!is.na(date))# %>% 
+            # Fill date gaps in TS
+            # complete(nesting(lon, lat, depth, var_name), date = seq(min(date), max(date)))
+
+        # May want to create dummy dataframe if filtering removes all rows
+        # Doesn;t work presently due to object dependencies
+        # if(nrow(df_filter == 0)) df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "NA")
+        
+        # Plot and exit
+        basePlot <- ggplot(data = df_filter, aes(x = date, y = value)) +
+            # geom_point(aes(colour = var_name)) +
+            # geom_line(aes(colour = var_name, group = depth)) +
+            labs(x = NULL, colour = "Driver") +
+            theme_bw() +
+            theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
+                  axis.text = element_text(size = 12, colour = "black"),
+                  axis.ticks = element_line(colour = "black"), legend.position = "none")
+        
+        if(nrow(df_filter) > 0){
+            basePlot <- basePlot + geom_point(data = df_filter, aes(colour = var_name))
         }
         
         ggplotly(basePlot)
     })
+    
+
+    ## Depth plot --------------------------------------------------------------
+
+    output$depthPlot <- renderPlotly({
+        req(input$selectVar)
+        # req(input$slideLon)
+        
+        df_filter <- df_filter() %>% 
+            filter(!is.na(depth)) %>% 
+            # mutate(depth = ifelse(is.na(depth), 0, depth)) %>%
+            mutate(depth = round(depth, -1)) %>%
+            group_by(depth, var_name) %>% 
+            dplyr::summarise(count = n(), .groups = "drop")
+        
+        # Count of data at depth by var name
+        basePlot <- ggplot(df_filter) +
+            geom_col(aes(x = depth, y = log10(count), fill = var_name)) +#, show.legend = F) +
+            scale_x_reverse() +
+            coord_flip(expand = F) +
+            # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
+            # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
+            labs(x = NULL, fill = "Driver", y = "Count (log10)") +
+            theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "none")
+        
+        # if(nrow(df_filter) > 0){
+        #     basePlot <- basePlot + geom_col(data = df_filter, aes(x = depth, y = log10(count), fill = var_name)) 
+        # }
+        
+        ggplotly(basePlot)# %>% config(displayModeBar = F) %>% 
+            # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+    })
+
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
