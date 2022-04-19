@@ -142,14 +142,14 @@ ui <- dashboardPage(
     # Show a plot of the generated distribution
     dashboardBody(
         fluidRow(
-            column(width = 9,
+            column(width = 8,
                    box(width = 12, height = "360px", title = "Lon/lat",
                        status = "info", solidHeader = TRUE, collapsible = FALSE,
                        plotlyOutput("mapPlot", height = "300px")),
                    box(width = 12, height = "360px", title = "Date",
                        status = "primary", solidHeader = TRUE, collapsible = FALSE,
                        plotlyOutput("tsPlot", height = "300px"))),
-            column(width = 3,
+            column(width = 4,
                    box(width = 12, height = "720px", title = "Depth",
                        status = "success", solidHeader = TRUE, collapsible = FALSE,
                        plotlyOutput("depthPlot", height = "660px")))
@@ -264,9 +264,9 @@ server <- function(input, output) {
         },
         content <- function(file) {
             if(input$downloadFilterType == ".Rds"){
-                saveRDS(df_filter_dl(), file = file)
+                saveRDS(df_filter(), file = file)
             } else if(input$downloadFilterType == ".csv"){
-                readr::write_csv(df_filter_dl(), file)
+                readr::write_csv(df_filter(), file)
             }
         }
     )
@@ -297,10 +297,7 @@ server <- function(input, output) {
     df_var <- reactive({
         req(input$selectVar)
         df_var <- df_cat() %>% 
-            filter(var_name %in% input$selectVar) %>% 
-            mutate(lon = round(lon, 3),
-                   lat = round(lat, 3),
-                   depth = 10)
+            filter(var_name %in% input$selectVar)
         return(df_var)
     })
     
@@ -329,17 +326,17 @@ server <- function(input, output) {
     })
     
     # Unrounded data.frame for downloading
-    df_filter_dl <- reactive({            
-        req(input$slideLon)
-        # if(length(input$selectValue) == 2){
-        df_filter_dl <- df_cat() %>% 
-            filter(var_name %in% input$selectVar) %>% 
-            filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
-                   lat >= input$slideLat[1], lat <= input$slideLat[2],
-                   depth >= input$slideDepth[1], depth <= input$slideDepth[2],
-                   date >= input$slideDate[1], date <= input$slideDate[2])
-        return(df_filter)
-    })
+    # df_filter_dl <- reactive({            
+    #     req(input$slideLon)
+    #     # if(length(input$selectValue) == 2){
+    #     df_filter_dl <- df_cat() %>% 
+    #         filter(var_name %in% input$selectVar) %>% 
+    #         filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
+    #                lat >= input$slideLat[1], lat <= input$slideLat[2],
+    #                depth >= input$slideDepth[1], depth <= input$slideDepth[2],
+    #                date >= input$slideDate[1], date <= input$slideDate[2])
+    #     return(df_filter)
+    # })
     
     ## Map ---------------------------------------------------------------------
     
@@ -365,8 +362,9 @@ server <- function(input, output) {
         # Filtered data for plotting
         df_filter <- df_filter() %>% 
             filter(!is.na(lon), !is.na(lat)) %>% 
+            mutate(lon = round(lon, 3), lat = round(lat, 3)) %>% 
             group_by(lon, lat, var_name) %>% 
-            summarise(count = n())
+            summarise(count = n(), .groups = "drop")
         
         # Show bbox created by lon/lat sliders
         basePlot <- ggplot() + 
@@ -386,10 +384,10 @@ server <- function(input, output) {
         if(nrow(df_filter) > 0){
             basePlot <- basePlot + geom_point(data = df_filter, 
                                               aes(x = lon, y = lat, colour = var_name,
-                                                  text = paste0("Driver: ", var_name,
+                                                  text = paste0("Driver: ",var_name,
                                                                 "<br>Lon: ",lon,
                                                                 "<br>Lat: ",lat,
-                                                                "<br>Count: ", count)))
+                                                                "<br>Count: ",count)))
         }
         
         ggplotly(basePlot, tooltip = "text")
@@ -403,29 +401,32 @@ server <- function(input, output) {
         # req(input$slideLon)
         
         df_filter <- df_filter() %>% 
-            filter(!is.na(date))# %>% 
-            # Fill date gaps in TS
-            # complete(nesting(lon, lat, depth, var_name), date = seq(min(date), max(date)))
+            filter(!is.na(date)) %>% 
+            group_by(date, var_name) %>% 
+            summarise(count = n(), .groups = "drop")
 
         # May want to create dummy dataframe if filtering removes all rows
         # Doesn;t work presently due to object dependencies
         # if(nrow(df_filter == 0)) df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "NA")
         
         # Plot and exit
-        basePlot <- ggplot(data = df_filter, aes(x = date, y = value)) +
+        basePlot <- ggplot(data = df_filter, aes(x = date, y = log10(count))) +
             # geom_point(aes(colour = var_name)) +
             # geom_line(aes(colour = var_name, group = depth)) +
-            labs(x = NULL, colour = "Driver") +
+            labs(x = NULL, y = "Count (log10)", colour = "Driver") +
             theme_bw() +
             theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
                   axis.text = element_text(size = 12, colour = "black"),
                   axis.ticks = element_line(colour = "black"), legend.position = "none")
         
         if(nrow(df_filter) > 0){
-            basePlot <- basePlot + geom_point(data = df_filter, aes(colour = var_name))
+            basePlot <- basePlot + geom_point(data = df_filter, aes(colour = var_name,
+                                                                    text = paste0("Driver: ",var_name,
+                                                                                  "<br>Date: ",date,
+                                                                                  "<br>Count: ",count)))
         }
         
-        ggplotly(basePlot)
+        ggplotly(basePlot, tooltip = "text")
     })
     
 
@@ -444,7 +445,10 @@ server <- function(input, output) {
         
         # Count of data at depth by var name
         basePlot <- ggplot(df_filter) +
-            geom_col(aes(x = depth, y = log10(count), fill = var_name)) +#, show.legend = F) +
+            geom_col(aes(x = depth, y = log10(count), fill = var_name,
+                         text = paste0("Driver: ",var_name,
+                                       "<br>Depth: ",depth,
+                                       "<br>Count: ",count))) +
             scale_x_reverse() +
             coord_flip(expand = F) +
             # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
@@ -456,7 +460,7 @@ server <- function(input, output) {
         #     basePlot <- basePlot + geom_col(data = df_filter, aes(x = depth, y = log10(count), fill = var_name)) 
         # }
         
-        ggplotly(basePlot)# %>% config(displayModeBar = F) %>% 
+        ggplotly(basePlot, tooltip = "text")# %>% config(displayModeBar = F) %>% 
             # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
 
