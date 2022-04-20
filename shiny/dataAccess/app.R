@@ -143,16 +143,19 @@ ui <- dashboardPage(
     dashboardBody(
         fluidRow(
             column(width = 8,
-                   box(width = 12, height = "360px", title = "Lon/lat",
+                   box(width = 12, height = "380px", title = "Lon/lat",
                        status = "info", solidHeader = TRUE, collapsible = FALSE,
-                       plotlyOutput("mapPlot", height = "300px")),
-                   box(width = 12, height = "360px", title = "Date",
+                       shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "325px"), 
+                                                    type = 6, color = "#b0b7be")),
+                   box(width = 12, height = "380px", title = "Date",
                        status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                       plotlyOutput("tsPlot", height = "300px"))),
+                       shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "325px"), 
+                                                    type = 6, color = "#b0b7be"))),
             column(width = 4,
-                   box(width = 12, height = "720px", title = "Depth",
+                   box(width = 12, height = "780px", title = "Depth",
                        status = "success", solidHeader = TRUE, collapsible = FALSE,
-                       plotlyOutput("depthPlot", height = "660px")))
+                       shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "720px"), 
+                                                    type = 6, color = "#b0b7be")))
             # column(width = 3,
             # fluidRow(plotlyOutput("depthPlot")))
             # column(width = 3, plotlyOutput("depthPlot"))
@@ -254,6 +257,7 @@ server <- function(input, output) {
     # Reactive download button
     output$downloadFilterUI <- renderUI({
         req(input$selectVar)
+        # h4("10. Download")
         downloadButton("downloadFilter", "Download data")
     })
     
@@ -369,7 +373,7 @@ server <- function(input, output) {
         # Show bbox created by lon/lat sliders
         basePlot <- ggplot() + 
             geom_polygon(data = map_base, fill = "grey80", colour = "black",
-                         aes(x = lon, y = lat, group = group)) +
+                         aes(x = lon, y = lat, group = group, text = "Land")) +
             # annotate(geom = "text", x = bbox_name[1], y = bbox_name[3], label = nrow(df_filter), colour = "red") +
             # geom_rect(aes(xmin = bbox_name[1], xmax = bbox_name[2], ymin = bbox_name[3], ymax = bbox_name[4]),
                       # fill = "khaki", alpha = 0.1) +
@@ -406,7 +410,7 @@ server <- function(input, output) {
             summarise(count = n(), .groups = "drop")
 
         # May want to create dummy dataframe if filtering removes all rows
-        # Doesn;t work presently due to object dependencies
+        # Doesn't work presently due to object dependencies
         # if(nrow(df_filter == 0)) df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "NA")
         
         # Plot and exit
