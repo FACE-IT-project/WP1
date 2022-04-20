@@ -2,8 +2,6 @@
 # The code used to generate the UI for accessing the FACE-IT data product
 
 # TODO: Add FACE-IT funding to app
-# Round values and convert all plots to summaries
-# Add loading widgets
 # Add clean vs full switch for data selection
 
 
@@ -101,22 +99,18 @@ ui <- dashboardPage(
             ),
 
             ## Cat
-            uiOutput("selectCatUI"),
-
-            ## Var
-            uiOutput("selectVarUI"),
-
-            ### Lon
-            uiOutput("slideLonUI"),
-
-            ### Lat
-            uiOutput("slideLatUI"),
-
-            ### Depth
-            uiOutput("slideDepthUI"),
-
-            ### Date
-            uiOutput("slideDateUI"),
+            # uiOutput("selectCatUI"),
+            selectizeInput(
+                'selectCat', '2. Data categories',
+                # choices = unique(df_load()$var_type),
+                choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
+                            "Biology" = "_bio", "Social" = "_soc"),
+                multiple = T,
+                options = list(
+                    placeholder = 'Select data category(s)',
+                    onInitialize = I('function() { this.setValue(""); }')
+                )
+            ),
 
             ### Value
             # uiOutput("slideValueUI"),
@@ -125,24 +119,32 @@ ui <- dashboardPage(
             ### Percentile
 
             ### Download
-            uiOutput("downloadFilterTypeUI"),
-            fluidRow(column(width = 2), column(width = 10, uiOutput("downloadFilterUI")))
+            # uiOutput("downloadFilterTypeUI"),
+            radioButtons("downloadFilterType", "9. File type", choices = c(".csv", ".Rds"), 
+                         selected = ".csv", inline = T),
+            fluidRow(column(width = 2), column(width = 10, downloadButton("downloadFilter", "Download data"))),
+            # fluidRow(column(width = 2), column(width = 10, uiOutput("downloadFilterUI"))),
             # hr(),
             # h3("9. Download data"),
             # fluidRow(column(width = 6, uiOutput("downloadFilterTypeUI")),
             #          column(width = 6, uiOutput("downloadFilterUI")))#,
 
             # Add FACE-IT logo at bottom of menu bar
-            # br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-            # br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-            # img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
+            br(), br(),br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+            br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+            img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
         # ),
     ),
     
     # Show a plot of the generated distribution
     dashboardBody(
         fluidRow(
-            column(width = 8,
+            column(width = 3,
+                   box(width = 12, height = "780px", title = "Filter",
+                       status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                       uiOutput("selectVarUI"), uiOutput("slideLonUI"), uiOutput("slideLatUI"),
+                       uiOutput("slideDepthUI"), uiOutput("slideDateUI"))),
+            column(width = 5,
                    box(width = 12, height = "380px", title = "Lon/lat",
                        status = "info", solidHeader = TRUE, collapsible = FALSE,
                        shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "325px"), 
@@ -176,20 +178,20 @@ server <- function(input, output) {
     ## Reactive UI -------------------------------------------------------------
 
     # Subset by category
-    output$selectCatUI <- renderUI({
-        req(input$selectSite)
-        selectizeInput(
-            'selectCat', '2. Data categories',
-            # choices = unique(df_load()$var_type),
-            choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
-                        "Biology" = "_bio", "Social" = "_soc"),
-            multiple = T,
-            options = list(
-                placeholder = 'Select data category(s)',
-                onInitialize = I('function() { this.setValue(""); }')
-            )
-        )
-    })
+    # output$selectCatUI <- renderUI({
+    #     req(input$selectSite)
+    #     selectizeInput(
+    #         'selectCat', '2. Data categories',
+    #         # choices = unique(df_load()$var_type),
+    #         choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
+    #                     "Biology" = "_bio", "Social" = "_soc"),
+    #         multiple = T,
+    #         options = list(
+    #             placeholder = 'Select data category(s)',
+    #             onInitialize = I('function() { this.setValue(""); }')
+    #         )
+    #     )
+    # })
     
     # Subset by var name
     output$selectVarUI <- renderUI({
@@ -223,18 +225,18 @@ server <- function(input, output) {
                            value = c(min_pad, max_pad), min = min_pad, max = max_pad)
     })
     
-    # Depth
-    output$slideDepthUI <- renderUI({
-        req(input$selectVar)
-        shiny::sliderInput("slideDepth", "6. Depth range", value = range(df_var()$depth, na.rm = T),
-                           min = min(df_var()$depth, na.rm = T), max = max(df_var()$depth, na.rm = T))
-    })
-    
     # Date
     output$slideDateUI <- renderUI({
         req(input$selectVar)
-        shiny::sliderInput("slideDate", "8. Date range", value = range(df_var()$date, na.rm = T),
+        shiny::sliderInput("slideDate", "6. Date range", value = range(df_var()$date, na.rm = T),
                            min = min(df_var()$date, na.rm = T), max = max(df_var()$date, na.rm = T))
+    })
+    
+    # Depth
+    output$slideDepthUI <- renderUI({
+        req(input$selectVar)
+        shiny::sliderInput("slideDepth", "7. Depth range", value = range(df_var()$depth, na.rm = T),
+                           min = min(df_var()$depth, na.rm = T), max = max(df_var()$depth, na.rm = T))
     })
 
     # Value range
@@ -248,18 +250,18 @@ server <- function(input, output) {
     ## Download UI -------------------------------------------------------------
 
     # Reactive download type button
-    output$downloadFilterTypeUI <- renderUI({
-        req(input$selectVar)
-        radioButtons("downloadFilterType", "9. File type", choices = c(".csv", ".Rds"), 
-                     selected = ".csv", inline = T)
-    })
+    # output$downloadFilterTypeUI <- renderUI({
+    #     req(input$selectVar)
+    #     radioButtons("downloadFilterType", "9. File type", choices = c(".csv", ".Rds"), 
+    #                  selected = ".csv", inline = T)
+    # })
     
     # Reactive download button
-    output$downloadFilterUI <- renderUI({
-        req(input$selectVar)
-        # h4("10. Download")
-        downloadButton("downloadFilter", "Download data")
-    })
+    # output$downloadFilterUI <- renderUI({
+    #     req(input$selectVar)
+    #     # h4("10. Download")
+    #     downloadButton("downloadFilter", "Download data")
+    # })
     
     # Download handler
     output$downloadFilter <- downloadHandler(
