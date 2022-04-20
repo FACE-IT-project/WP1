@@ -86,52 +86,65 @@ ui <- dashboardPage(
     # Application title
     dashboardHeader(title = "Access to data collected for FACE-IT"),
     
-    # Sidebar with a slider input for number of bins 
+    # Sidebar
     dashboardSidebar(
-        # sidebarMenu(id = "mainMenu",
+        
             # Site name
             selectizeInput(
-                'selectSite', '1. Site name',
+                'selectSite', '1. Site',
                 choices = sites_named,
                 options = list(
                     placeholder = 'Select a site to begin',
                     onInitialize = I('function() { this.setValue(""); }'))
             ),
 
-            ## Cat
-            # uiOutput("selectCatUI"),
+            # Category
             selectizeInput(
-                'selectCat', '2. Data categories',
+                'selectCat', '2. Categories',
                 # choices = unique(df_load()$var_type),
                 choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
                             "Biology" = "_bio", "Social" = "_soc"),
                 multiple = T,
                 options = list(
-                    placeholder = 'Select data category(s)',
+                    placeholder = 'Select driver category(s)',
                     onInitialize = I('function() { this.setValue(""); }')
                 )
             ),
-
-            ### Value
-            # uiOutput("slideValueUI"),
-            # h5("NB: Value range filtering only makes sense if working with a single type of data (e.g. salinity)")
-
-            ### Percentile
-
-            ### Download
-            # uiOutput("downloadFilterTypeUI"),
+            
+            # Switch for Clean vs Full data
+            # shinyWidgetsGallery()
+            # shinyWidgets::dropdown()
+            radioGroupButtons(
+                inputId = "cleanVSfull",
+                label = "3. Clean or full data", 
+                choices = c("Clean", "Full"),
+                status = "warning"
+            ),
+            
+            # Filter PANGAEA data
+            h5("4. Filter PANGAEA"),
+            switchInput(
+                inputId = "PANGAEAswitch",
+                label = "click", 
+                onStatus = "secondary", 
+                # offStatus = "green",
+                value = FALSE,
+                onLabel = "Yes",
+                offLabel = "No"
+            ),
+            
+            # Drivers
+            uiOutput("selectVarUI"),
+            
+            # Download
             radioButtons("downloadFilterType", "9. File type", choices = c(".csv", ".Rds"), 
                          selected = ".csv", inline = T),
+            h3("10. Download"),
             fluidRow(column(width = 2), column(width = 10, downloadButton("downloadFilter", "Download data"))),
-            # fluidRow(column(width = 2), column(width = 10, uiOutput("downloadFilterUI"))),
-            # hr(),
-            # h3("9. Download data"),
-            # fluidRow(column(width = 6, uiOutput("downloadFilterTypeUI")),
-            #          column(width = 6, uiOutput("downloadFilterUI")))#,
 
             # Add FACE-IT logo at bottom of menu bar
-            br(), br(),br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-            br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+            br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+            br(), br(), br(), br(), br(), br(), br(), br(), br(),
             img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
         # ),
     ),
@@ -140,10 +153,13 @@ ui <- dashboardPage(
     dashboardBody(
         fluidRow(
             column(width = 3,
-                   box(width = 12, height = "780px", title = "Filter",
+                   box(width = 12, height = "420px", title = "Filter data",
                        status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                       uiOutput("selectVarUI"), uiOutput("slideLonUI"), uiOutput("slideLatUI"),
-                       uiOutput("slideDepthUI"), uiOutput("slideDateUI"))),
+                       #uiOutput("selectVarUI"), 
+                       uiOutput("slideLonUI"), uiOutput("slideLatUI"),
+                       uiOutput("slideDepthUI"), uiOutput("slideDateUI"))
+                   # Insert variable explanations here
+                   ),
             column(width = 5,
                    box(width = 12, height = "380px", title = "Lon/lat",
                        status = "info", solidHeader = TRUE, collapsible = FALSE,
@@ -195,12 +211,19 @@ server <- function(input, output) {
     
     # Subset by var name
     output$selectVarUI <- renderUI({
-        req(input$selectCat)
+        # req(input$selectCat)
+        
+        if(length(input$selectCat) > 0){
+            var_choices <- unique(df_cat()$var_name)
+        } else{
+            var_choices <- ""
+        }
+        
         selectizeInput(
-            'selectVar', '3. Key drivers',
-            choices = unique(df_cat()$var_name), multiple = T,
+            'selectVar', '3. Drivers',
+            choices = var_choices, multiple = T,
             options = list(
-                placeholder = 'Select key driver(s)',
+                placeholder = 'Select driver(s)',
                 onInitialize = I('function() { this.setValue(""); }')
             )
         )
@@ -239,29 +262,8 @@ server <- function(input, output) {
                            min = min(df_var()$depth, na.rm = T), max = max(df_var()$depth, na.rm = T))
     })
 
-    # Value range
-    # output$slideValueUI <- renderUI({
-    #     req(input$selectVar)
-    #     shiny::sliderInput("slideValue", "8. Value range", value = range(df_var()$value, na.rm = T),
-    #                        min = min(df_var()$value, na.rm = T), max = max(df_var()$value, na.rm = T))
-    # })
-
     
     ## Download UI -------------------------------------------------------------
-
-    # Reactive download type button
-    # output$downloadFilterTypeUI <- renderUI({
-    #     req(input$selectVar)
-    #     radioButtons("downloadFilterType", "9. File type", choices = c(".csv", ".Rds"), 
-    #                  selected = ".csv", inline = T)
-    # })
-    
-    # Reactive download button
-    # output$downloadFilterUI <- renderUI({
-    #     req(input$selectVar)
-    #     # h4("10. Download")
-    #     downloadButton("downloadFilter", "Download data")
-    # })
     
     # Download handler
     output$downloadFilter <- downloadHandler(
@@ -279,14 +281,6 @@ server <- function(input, output) {
     
     
     ## Process data ------------------------------------------------------------
-    
-    # Initial site load
-    # df_load <- reactive({
-    #     req(input$selectSite)
-    #     file_path <- full_data_paths[grep(input$selectSite, full_data_paths)]
-    #     df_load <- loadRData(file_path)
-    #     return(df_load)
-    # })
     
     # Subset by category
     df_cat <- reactive({
@@ -309,40 +303,23 @@ server <- function(input, output) {
     
     # Filter by smaller details 
     df_filter <- reactive({
-        # req(input$selectSite)
         if(length(input$selectVar) == 0){
-            df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "Select drivers",
-                                    lon = 1, lat = 1, depth = 1)
+            df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA, var_name = "No drivers selected",
+                                    lon = NA, lat = NA, depth = NA)
         } else if(length(input$selectVar) > 0){
-            # base::Sys.sleep(5)
-            req(input$slideLon)
-            # if(length(input$selectValue) == 2){
-                df_filter <- df_var() %>%
-                    filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
-                           lat >= input$slideLat[1], lat <= input$slideLat[2],
-                           depth >= input$slideDepth[1], depth <= input$slideDepth[2],
-                           date >= input$slideDate[1], date <= input$slideDate[2])#,
-                           # value >= input$slideValue[1], value <= input$slideValue[2])
-            } else {
-                df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, 
-                                        var_name = "last", lon = 1, lat = 1, depth = 1)
-            }
-        # }
+            req(input$slideDate)
+            df_filter <- df_var() %>%
+                filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
+                       lat >= input$slideLat[1], lat <= input$slideLat[2],
+                       depth >= input$slideDepth[1], depth <= input$slideDepth[2],
+                       date >= input$slideDate[1], date <= input$slideDate[2])
+        } else {
+            df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA,
+                                    var_name = "All data have been filtered out", lon = NA, lat = NA, depth = NA)
+        }
         return(df_filter)
     })
-    
-    # Unrounded data.frame for downloading
-    # df_filter_dl <- reactive({            
-    #     req(input$slideLon)
-    #     # if(length(input$selectValue) == 2){
-    #     df_filter_dl <- df_cat() %>% 
-    #         filter(var_name %in% input$selectVar) %>% 
-    #         filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
-    #                lat >= input$slideLat[1], lat <= input$slideLat[2],
-    #                depth >= input$slideDepth[1], depth <= input$slideDepth[2],
-    #                date >= input$slideDate[1], date <= input$slideDate[2])
-    #     return(df_filter)
-    # })
+
     
     ## Map ---------------------------------------------------------------------
     
