@@ -95,7 +95,7 @@ param_list <- read_csv("param_list.csv")
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
-
+    
     # Application title
     # dashboardHeader(title = "Access to data collected for FACE-IT"),
     dashboardHeader(title = "Data access"),
@@ -155,11 +155,24 @@ ui <- dashboardPage(
         # Download
         radioButtons("downloadFilterType", "6. Download", choices = c(".csv", ".Rds"), 
                      selected = ".csv", inline = T),
-        # h3("10. Download"),
-        fluidRow(column(width = 2), column(width = 10, downloadButton("downloadFilter", "Download data")))#,
+        fluidRow(column(width = 2), column(width = 10, offset = 1, downloadButton("downloadFilter", "Download data"))),
         
         # Info popup
-        # shinyWidgets::dropdown()
+        # shinyWidgets::dropdown(shiny::renderPrint("Test"))
+        # Activate sweet alerts
+        br(),
+        hr(),
+        br(),
+        # br(),
+        useSweetAlert(),
+        actionBttn(
+            inputId = "info",
+            label = "Instructions",
+            icon = icon("book"),
+            style = "material-flat",
+            color = "success"
+        )
+        
         # ),
     ),
     
@@ -203,7 +216,7 @@ ui <- dashboardPage(
 
 # Server ------------------------------------------------------------------
 
-server <- function(input, output) {
+server <- function(input, output, session) {
 
     
     ## Reactive UI -------------------------------------------------------------
@@ -289,6 +302,28 @@ server <- function(input, output) {
         shiny::sliderInput("slideDepth", "Depth range", value = c(min_val, max_val), min = min_val, max = max_val)
     })
 
+    observeEvent(input$info, {
+        sendSweetAlert(
+            session = session,
+            title = "Instructions",
+            text = tags$span(
+                tags$h3("With HTML tags",
+                        style = "color: steelblue;"),
+                "In", tags$b("bold"), "and", tags$em("italic"),
+                tags$br(),
+                "and",
+                tags$br(),
+                "line",
+                tags$br(),
+                "breaks",
+                tags$br(),
+                "and an icon", icon("thumbs-up")
+            ),
+            html = TRUE,
+            type = "info"
+        )
+    })
+    
     
     ## Download UI -------------------------------------------------------------
     
