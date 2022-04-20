@@ -2,21 +2,35 @@
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
 # TODO: 
+# Fix upload tab, it is broken
+# Don't need to show the table of existing database data
+# Rather show the count of the data and that it get's bigger when a user uploads something
+# Don't upload all of the data at the outset OR
+# Have an additional tab that visualises all of the data
+# Time series by site/user of count of when and how much data were uploaded
+# Bar plot showing which users are in the lead w.r.t. data uploads
+  # Do this by count of files, different days of upload, count of rows of data
+# Allow filter on downloading of published vs unpublished data
+# Allow for an embargo DOI option
 # Change upload_date metadata box so it can't be edited
 # Change column names to match NMDC terminology
 # Shorten boxes so that the web browser never wants to scroll down
-# Add real sites to pre-made drop down list of stations for step 2)
 # Create a NetCDF file format for saving data
 # Have an 6) Editing tab that is password protected to go back and fix issues
   # Make this attached to the username so that users can only edit the data they uploaded
   # Have superusers too whose name == ALL
+  # This requires the database to have a lost edited column
+  # This would be added at first upload as the upload date
+  # Have a dropdown that allowed different levels of QC: Level 0 - Level 4
+  # This would be attached to the data as a QC_level column
+  # Or have a flag column with numbers that show what the issue is
 
 # Spruce up the landing page with some nice pictures of the fjord
 # Also add all sorts of info to the landing page that motivates people to use it
 
 # It would be useful for a user that the settings could be saved in between uploads
 
-# Prevent uploading if not all boxes are filled
+# Prevent uploading if not all boxes are filled except for Site
 
 # Have a popup after clicking download that lists the unique DOIs of the data
 
@@ -24,20 +38,32 @@
 # For starters would have a raw or QC flag to add to the data
 # Look into what the OCE package has for CTD QC
 # Any changes should be communicated via a metadata output
+# Have a known coordinates tab where users can go and copy paste into the Metadata step
+# Need to make it clear to users that the app is station oriented, so to upload data accordingly
 
 # Add historic data to backend to allow users to see how their newly updated data fit into the historic data
 # Allow for colour to show on maps or time series for which sources have contributed the historic data
 # Numbers for colours, and then a lookup table with product name via join by number
+# May need another column for the DOI of data that were already published and being uploaded here afterwards
 
 # Add text to first step with some explanation/tips
 # Need to start having some basic documentation
 # Also provide info for where the data are saved, and where they will be published
 # Provide specifics, a diagram could be good
+# Allow users to download a user manual
+# Popups for each tab with instructions
 
 # The data upload repository needs to start to be considered
 
 # Authorship order could be based on the number of individual files uploaded over the year
 
+# Next steps:
+  # Fix several key issues
+  # Show it to Phillip Fisher
+  # Identify five test subjects to stress test the app
+  # Before being public we need a final decision on how the data are published
+  # We need a timeline for all of these steps
+  
 
 # Libraries ---------------------------------------------------------------
 
@@ -237,7 +263,10 @@ ui <- dashboardPage(
                   selectizeInput("allSite", "Site", choices = list(
                     New = c("No name" = "No name"),
                     AWI = c("Site 1" = "Site 1"),
-                    SAMS = c("Site 2" = "Site 2")),
+                    SAMS = c("Site 2" = "Site 2"),
+                    NPI = c("Kb0" = "Kb0", "Kb1" = "Kb1", "Kb2" = "Kb2", "Kb3" = "Kb3", "Kb4" = "Kb4", 
+                            "Kb5" = "Kb5", "Kb6" = "Kb6", "Kb7" = "Kb7", "Kb8" = "Kb8",
+                            "V6" = "V6", "V10" = "V10", "V12" = "V12")),
                     selected = "No name"),
                   fluidRow(column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
                            column(4, shiny::numericInput("allLat", "Single latitude", value = NA, min = 78, max = 80)),
@@ -777,6 +806,42 @@ server <- function(input, output, session) {
     } else if(input$allSite == "Site 2"){
       shiny::updateNumericInput(inputId = "allLon", value = 11.5)
       shiny::updateNumericInput(inputId = "allLat", value = 79.05)
+    } else if(input$allSite == "Kb0"){
+      shiny::updateNumericInput(inputId = "allLon", value = 11.1393333333333)
+      shiny::updateNumericInput(inputId = "allLat", value = 79.0463333333333)
+    } else if(input$allSite == "Kb1"){
+      shiny::updateNumericInput(inputId = "allLon", value = 11.4276666666667)
+      shiny::updateNumericInput(inputId = "allLat", value = 79.0111666666667)
+    } else if(input$allSite == "Kb2"){
+      shiny::updateNumericInput(inputId = "allLon", value = 11.7318333333333)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.978)
+    } else if(input$allSite == "Kb3"){
+      shiny::updateNumericInput(inputId = "allLon", value = 11.9563333333333)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.954)
+    } else if(input$allSite == "Kb4"){
+      shiny::updateNumericInput(inputId = "allLon", value = 12.19645)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.9106)
+    } else if(input$allSite == "Kb5"){
+      shiny::updateNumericInput(inputId = "allLon", value = 12.4408333333333)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.8965)
+    } else if(input$allSite == "Kb6"){
+      shiny::updateNumericInput(inputId = "allLon", value = 12.3851666666667)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.9301666666667)
+    } else if(input$allSite == "Kb7"){
+      shiny::updateNumericInput(inputId = "allLon", value = 12.3766666666667)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.9663333333333)
+    } else if(input$allSite == "Kb8"){
+      shiny::updateNumericInput(inputId = "allLon", value = 12.522)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.8888)
+    } else if(input$allSite == "V6"){
+      shiny::updateNumericInput(inputId = "allLon", value = 7.77066666666667)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.9065)
+    } else if(input$allSite == "V10"){
+      shiny::updateNumericInput(inputId = "allLon", value =  8.547)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.9326666666667)
+    } else if(input$allSite == "V12"){
+      shiny::updateNumericInput(inputId = "allLon", value = 9.49616666666667)
+      shiny::updateNumericInput(inputId = "allLat", value = 78.9798333333333)
     } else {
       # Intentionally blank
     }
@@ -786,7 +851,7 @@ server <- function(input, output, session) {
     table$table1$Lon <- input$allLon
     rhandsontable::set_data("table1output", row = 1:length(table$table1$Lon), col = 3, session = session, table$table1$Lon[1])
   })
-  # Latitude
+  ## Latitude
   observeEvent(input$allLat, {
     table$table1$Lat <- input$allLat
     rhandsontable::set_data("table1output", row = 1:length(table$table1$Lat), col = 4, session = session, table$table1$Lat[1])
