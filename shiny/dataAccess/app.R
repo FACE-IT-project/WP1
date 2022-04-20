@@ -1,7 +1,8 @@
 # shiny/dataAccess/app.R
 # The code used to generate the UI for accessing the FACE-IT data product
 
-# TODO: Add FACE-IT funding to app
+# TODO:
+# HiRes coastline for smaller sites
 # Add clean vs full switch for data selection
 
 
@@ -43,6 +44,7 @@ CatColAbr <- c(
     "soc" = "#F48080"
 )
 
+
 # Data --------------------------------------------------------------------
 
 # For testing
@@ -77,6 +79,17 @@ bbox_por <- c(24.5, 27, 70, 71.2)
 # The base global map
 map_base <- readRDS("map_base.Rda")
 
+# Load PANGAEA driver metadata sheet
+## NB: Code only run once from home dir to get slimmed down parameter list
+# pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
+# var_names <- distinct(select(df_cat, var_name))
+# param_list <- pg_parameters %>% 
+#     mutate(Driver = paste0(Abbreviation," [",Unit,"]")) %>% 
+#     filter(Driver %in% var_names$var_name) %>% 
+#     dplyr::select(Driver, Parameter)
+# write_csv(param_list, "shiny/dataAccess/param_list.csv")
+param_list <- read_csv("param_list.csv")
+
 
 # UI ----------------------------------------------------------------------
 
@@ -84,68 +97,69 @@ map_base <- readRDS("map_base.Rda")
 ui <- dashboardPage(
 
     # Application title
-    dashboardHeader(title = "Access to data collected for FACE-IT"),
+    # dashboardHeader(title = "Access to data collected for FACE-IT"),
+    dashboardHeader(title = "Data access"),
     
     # Sidebar
     dashboardSidebar(
         
-            # Site name
-            selectizeInput(
-                'selectSite', '1. Site',
-                choices = sites_named,
-                options = list(
-                    placeholder = 'Select a site to begin',
-                    onInitialize = I('function() { this.setValue(""); }'))
-            ),
-
-            # Category
-            selectizeInput(
-                'selectCat', '2. Categories',
-                # choices = unique(df_load()$var_type),
-                choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
-                            "Biology" = "_bio", "Social" = "_soc"),
-                multiple = T,
-                options = list(
-                    placeholder = 'Select driver category(s)',
-                    onInitialize = I('function() { this.setValue(""); }')
-                )
-            ),
-            
-            # Switch for Clean vs Full data
-            # shinyWidgetsGallery()
-            # shinyWidgets::dropdown()
-            radioGroupButtons(
-                inputId = "cleanVSfull",
-                label = "3. Clean or full data", 
-                choices = c("Clean", "Full"),
-                status = "warning"
-            ),
-            
-            # Filter PANGAEA data
-            h5("4. Filter PANGAEA"),
-            switchInput(
-                inputId = "PANGAEAswitch",
-                label = "click", 
-                onStatus = "secondary", 
-                # offStatus = "green",
-                value = FALSE,
-                onLabel = "Yes",
-                offLabel = "No"
-            ),
-            
-            # Drivers
-            uiOutput("selectVarUI"),
-            
-            # Download
-            radioButtons("downloadFilterType", "9. File type", choices = c(".csv", ".Rds"), 
-                         selected = ".csv", inline = T),
-            h3("10. Download"),
-            fluidRow(column(width = 2), column(width = 10, downloadButton("downloadFilter", "Download data"))),
-
-            # Add FACE-IT logo at bottom of menu bar
-            br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-            br(), br(), br(), br(), br(), br(), br(), br(), br(),
-            img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
+        # Add FACE-IT logo to menu bar
+        br(),
+        img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225"),
+        br(), br(),
+        
+        # Site name
+        selectizeInput(
+            'selectSite', '1. Site',
+            choices = sites_named,
+            options = list(
+                placeholder = 'Select a site to begin',
+                onInitialize = I('function() { this.setValue(""); }'))
+        ),
+        
+        # Category
+        selectizeInput(
+            'selectCat', '2. Categories',
+            # choices = unique(df_load()$var_type),
+            choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
+                        "Biology" = "_bio", "Social" = "_soc"),
+            multiple = T,
+            options = list(
+                placeholder = 'Select driver category(s)',
+                onInitialize = I('function() { this.setValue(""); }')
+            )
+        ),
+        
+        # Switch for Clean vs Full data
+        # shinyWidgetsGallery()
+        radioGroupButtons(
+            inputId = "cleanVSfull",
+            label = "3. Clean or full data", 
+            selected = "Full",
+            choices = c("Clean", "Full"),
+            status = "warning"
+        ),
+        
+        # Filter PANGAEA data
+        radioGroupButtons(
+            inputId = "PANGAEAfilter",
+            label = "4. Filter PANGAEA", 
+            choices = c("Yes", "No"), 
+            selected = "No",
+            status = "warning"
+        ),
+        
+        # Drivers
+        uiOutput("selectVarUI"),
+        
+        # Download
+        radioButtons("downloadFilterType", "6. Download", choices = c(".csv", ".Rds"), 
+                     selected = ".csv", inline = T),
+        # h3("10. Download"),
+        fluidRow(column(width = 2), column(width = 10, downloadButton("downloadFilter", "Download data")))#,
+        
+        # Info popup
+        # shinyWidgets::dropdown()
         # ),
     ),
     
@@ -153,13 +167,14 @@ ui <- dashboardPage(
     dashboardBody(
         fluidRow(
             column(width = 3,
-                   box(width = 12, height = "420px", title = "Filter data",
+                   box(width = 12, height = "320px", title = "Full names",
+                       status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                       DT::dataTableOutput("longVarDT")),
+                   box(width = 12, height = "440px", title = "Filter data",
                        status = "warning", solidHeader = TRUE, collapsible = FALSE,
                        #uiOutput("selectVarUI"), 
                        uiOutput("slideLonUI"), uiOutput("slideLatUI"),
-                       uiOutput("slideDepthUI"), uiOutput("slideDateUI"))
-                   # Insert variable explanations here
-                   ),
+                       uiOutput("slideDepthUI"), uiOutput("slideDateUI"))),
             column(width = 5,
                    box(width = 12, height = "380px", title = "Lon/lat",
                        status = "info", solidHeader = TRUE, collapsible = FALSE,
@@ -192,24 +207,8 @@ server <- function(input, output) {
 
     
     ## Reactive UI -------------------------------------------------------------
-
-    # Subset by category
-    # output$selectCatUI <- renderUI({
-    #     req(input$selectSite)
-    #     selectizeInput(
-    #         'selectCat', '2. Data categories',
-    #         # choices = unique(df_load()$var_type),
-    #         choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
-    #                     "Biology" = "_bio", "Social" = "_soc"),
-    #         multiple = T,
-    #         options = list(
-    #             placeholder = 'Select data category(s)',
-    #             onInitialize = I('function() { this.setValue(""); }')
-    #         )
-    #     )
-    # })
     
-    # Subset by var name
+    # Select drivers
     output$selectVarUI <- renderUI({
         # req(input$selectCat)
         
@@ -220,7 +219,7 @@ server <- function(input, output) {
         }
         
         selectizeInput(
-            'selectVar', '3. Drivers',
+            'selectVar', '5. Drivers',
             choices = var_choices, multiple = T,
             options = list(
                 placeholder = 'Select driver(s)',
@@ -229,37 +228,65 @@ server <- function(input, output) {
         )
     })
     
+    # List of long names for drivers
+    output$longVarDT <- DT::renderDataTable({
+        # req(input$selectCat)
+        # unique(df_cat()$var_name)
+        df_names <- param_list#filter(param_list, Driver %in% )
+        df_names_DT <- datatable(df_names, rownames = FALSE,
+                                 options = list(pageLength = 1000, scrollX = TRUE, scrollY = 180, info = FALSE,
+                                                lengthChange = FALSE, paging = FALSE,
+                                                columnDefs = list(list(searchable = FALSE, targets = 1))))
+        return(df_names_DT)
+    })
+    
     # Filter data
     # Lon
     output$slideLonUI <- renderUI({
         req(input$selectVar)
-        min_pad <- round(min(df_var()$lon, na.rm = T), 3)-0.001
-        max_pad <- round(max(df_var()$lon, na.rm = T), 3)+0.001
-        shiny::sliderInput("slideLon", "4. Longitude range",
-                           value = c(min_pad, max_pad), min = min_pad, max = max_pad)
+        if(length(na.omit(df_var()$lon)) == 0){
+            min_val <- 0; max_val <- 0
+        } else {
+            min_val <- round(min(df_var()$lon, na.rm = T), 2)-0.01
+            max_val <- round(max(df_var()$lon, na.rm = T), 2)+0.01
+        }
+        shiny::sliderInput("slideLon", "Longitude range", value = c(min_val, max_val), min = min_val, max = max_val)
     })
     
     # Lat
     output$slideLatUI <- renderUI({
         req(input$selectVar)
-        min_pad <- round(min(df_var()$lat, na.rm = T), 3)-0.001
-        max_pad <- round(max(df_var()$lat, na.rm = T), 3)+0.001
-        shiny::sliderInput("slideLat", "5. Latitude range",
-                           value = c(min_pad, max_pad), min = min_pad, max = max_pad)
+        if(length(na.omit(df_var()$lat)) == 0){
+            min_val <- 0; max_val <- 0
+        } else {
+            min_val <- round(min(df_var()$lat, na.rm = T), 2)-0.01
+            max_val <- round(max(df_var()$lat, na.rm = T), 2)+0.01
+        }
+        shiny::sliderInput("slideLat", "Latitude range", value = c(min_val, max_val), min = min_val, max = max_val)
     })
     
     # Date
     output$slideDateUI <- renderUI({
         req(input$selectVar)
-        shiny::sliderInput("slideDate", "6. Date range", value = range(df_var()$date, na.rm = T),
-                           min = min(df_var()$date, na.rm = T), max = max(df_var()$date, na.rm = T))
+        if(length(na.omit(df_var()$date)) == 0){
+            min_val <- as.Date("2000-01-01"); max_val <- as.Date("2000-01-01")
+        } else {
+            min_val <- min(df_var()$date, na.rm = T)
+            max_val <- max(df_var()$date, na.rm = T)
+        }
+        shiny::sliderInput("slideDate", "Date range", value = c(min_val, max_val), min = min_val, max = max_val)
     })
     
     # Depth
     output$slideDepthUI <- renderUI({
         req(input$selectVar)
-        shiny::sliderInput("slideDepth", "7. Depth range", value = range(df_var()$depth, na.rm = T),
-                           min = min(df_var()$depth, na.rm = T), max = max(df_var()$depth, na.rm = T))
+        if(length(na.omit(df_var()$depth)) == 0){
+            min_val <- 0; max_val <- 0
+        } else {
+            min_val <- min(df_var()$depth, na.rm = T)
+            max_val <- max(df_var()$depth, na.rm = T)
+        }
+        shiny::sliderInput("slideDepth", "Depth range", value = c(min_val, max_val), min = min_val, max = max_val)
     })
 
     
@@ -268,7 +295,7 @@ server <- function(input, output) {
     # Download handler
     output$downloadFilter <- downloadHandler(
         filename = function() {
-            paste0("FACE-IT_data",input$downloadFilterType[1])
+            paste0("filtered_data",input$downloadFilterType[1])
         },
         content <- function(file) {
             if(input$downloadFilterType == ".Rds"){
@@ -285,11 +312,29 @@ server <- function(input, output) {
     # Subset by category
     df_cat <- reactive({
         req(input$selectCat)
-        file_list <- paste0("full_data/full",
-                            # c("_cryo", "_phys"), # testing
-                            input$selectCat,
-                            input$selectSite,".RData")
-        df_cat <- purrr::map_dfr(file_list, loadRData)
+        
+        # Load initial data
+        if(input$cleanVSfull == "Full"){
+            file_list <- paste0("full_data/full",
+                                # c("_cryo", "_phys"), # testing
+                                input$selectCat,
+                                input$selectSite,".RData")
+            df_cat <- purrr::map_dfr(file_list, loadRData)
+        } else {
+            df_cat <- loadRData("full_data/clean_all.RData") %>% # This should be improved to be site specific
+                filter(site == str_remove(input$selectSite, "_"),
+                       var_type %in% str_remove(input$selectCat, "_"),
+                       !grepl("g-e-m", URL)) # Remove GEM data
+            
+            # Remove GRDC data
+            ## Not yet amalgamated
+        }
+        
+        # Filter PANGAEA data
+        if(input$PANGAEAfilter == "Yes"){
+            df_cat <- filter(df_cat, !grepl("PANGAEA", URL))
+        }
+        
         return(df_cat)
     })
     
@@ -308,11 +353,27 @@ server <- function(input, output) {
                                     lon = NA, lat = NA, depth = NA)
         } else if(length(input$selectVar) > 0){
             req(input$slideDate)
-            df_filter <- df_var() %>%
-                filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
-                       lat >= input$slideLat[1], lat <= input$slideLat[2],
-                       depth >= input$slideDepth[1], depth <= input$slideDepth[2],
-                       date >= input$slideDate[1], date <= input$slideDate[2])
+            df_filter <- df_var() #%>%
+            if(!is.na(input$slideLon[1])){
+                df_filter <- df_filter %>% 
+                    filter(lon >= input$slideLon[1] | is.na(lon)) %>% 
+                    filter(lon <= input$slideLon[2] | is.na(lon))}
+            if(!is.na(input$slideLat[1])){
+                df_filter <- df_filter %>% 
+                    filter(lat >= input$slideLat[1] | is.na(lat)) %>% 
+                    filter(lat <= input$slideLat[2] | is.na(lat))}
+            if(!is.na(input$slideDepth[1])){
+                df_filter <- df_filter %>% 
+                    filter(depth >= input$slideDepth[1] | is.na(depth)) %>% 
+                    filter(depth <= input$slideDepth[2] | is.na(depth))}
+            if(!is.na(input$slideDate[1])){
+                df_filter <- df_filter %>% 
+                    filter(date >= input$slideDate[1] | is.na(date)) %>% 
+                    filter(date <= input$slideDate[2] | is.na(date))}
+                # filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
+                #        lat >= input$slideLat[1], lat <= input$slideLat[2],
+                #        depth >= input$slideDepth[1], depth <= input$slideDepth[2],
+                #        date >= input$slideDate[1], date <= input$slideDate[2])
         } else {
             df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA,
                                     var_name = "All data have been filtered out", lon = NA, lat = NA, depth = NA)
@@ -428,10 +489,10 @@ server <- function(input, output) {
         
         # Count of data at depth by var name
         basePlot <- ggplot(df_filter) +
-            geom_col(aes(x = depth, y = log10(count), fill = var_name,
-                         text = paste0("Driver: ",var_name,
-                                       "<br>Depth: ",depth,
-                                       "<br>Count: ",count))) +
+            # geom_col(aes(x = depth, y = log10(count), fill = var_name,
+            #              text = paste0("Driver: ",var_name,
+            #                            "<br>Depth: ",depth,
+            #                            "<br>Count: ",count))) +
             scale_x_reverse() +
             coord_flip(expand = F) +
             # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
@@ -439,9 +500,12 @@ server <- function(input, output) {
             labs(x = NULL, fill = "Driver", y = "Count (log10)") +
             theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "none")
         
-        # if(nrow(df_filter) > 0){
-        #     basePlot <- basePlot + geom_col(data = df_filter, aes(x = depth, y = log10(count), fill = var_name)) 
-        # }
+        if(nrow(df_filter) > 0){
+            basePlot <- basePlot + geom_col(data = df_filter, aes(x = depth, y = log10(count), fill = var_name,
+                                                                  text = paste0("Driver: ",var_name,
+                                                                                "<br>Depth: ",depth,
+                                                                                "<br>Count: ",count)))
+        }
         
         ggplotly(basePlot, tooltip = "text")# %>% config(displayModeBar = F) %>% 
             # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))

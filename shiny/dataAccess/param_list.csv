@@ -1,0 +1,135 @@
+Driver,Parameter
+AT [µmol/kg],"Alkalinity, total"
+AT [mmol(eq)/l],"Alkalinity, total"
+[NH4]+ [µmol/l],Ammonium
+[NH4]+ [µg-at/l],Ammonium
+Di [code],Bearing of principal ice edge
+CaCO3 [%],Calcium carbonate
+pCO2 [µatm],"Carbon dioxide, partial pressure"
+DIC [µmol/kg],"Carbon, inorganic, dissolved"
+ci [code],Concentration or arrangement of sea ice
+Density snow [kg/m**3],"Density, snow"
+Depth ice/snow [m],"DEPTH, ice/snow"
+Direction [deg],Direction
+Glac w [km],Glacier width
+Ice conc [tenths],Ice concentration
+Ice cov [%],Ice coverage
+bi [code],Ice of land origin
+IRD [arbitrary units],"Ice rafted debris, general"
+zi [code],Ice situation and trend over preceding 3 hours
+Indicator precipitation [code],Indicator for inclusion or ommission of precipitation data
+Indicator wind [code],Indicator for source and units of wind speed
+[NO3]- [µmol/l],Nitrate
+NO3 [µg-at/l],Nitrate
+[NO3]- + [NO2]- [µmol/l],Nitrate and Nitrite
+NO3 pen depth [mm],Nitrate penetration depth
+[NO2]- [µmol/l],Nitrite
+[NO2]- [µg-at/l],Nitrite
+O2 [µmol/l],Oxygen
+O2 sat [%],Oxygen saturation
+pCO2water_SST_wet [µatm],Partial pressure of carbon dioxide (water) at sea surface temperature (wet air)
+PO4 [µg-at/l],Phosphate
+[PO4]3- [µmol/l],Phosphate
+PO4 biog [%],"Phosphate, biogenic"
+P CO2 upt Vmax [µmol/kg/s],"Photosynthesis carbon dioxide uptake, rate maximum velocity"
+Precip [mm],Precipitation
+Precip [mm/10 min],Precipitation
+MAP [mm],"Precipitation, annual mean"
+Precip annual total [mm/a],"Precipitation, annual total"
+Precip (4) [mm/month],"Precipitation, April"
+Precip (8) [mm/month],"Precipitation, August"
+Precip aut [mm/month],"Precipitation, autumn"
+Precip (12) [mm/month],"Precipitation, December"
+Precip (2) [mm/month],"Precipitation, February"
+Precip (1) [mm/month],"Precipitation, January"
+Precip (7) [mm/month],"Precipitation, July"
+Precip (6) [mm/month],"Precipitation, June"
+Precip (3) [mm/month],"Precipitation, March"
+Precip (5) [mm/month],"Precipitation, May"
+Precip (11) [mm/month],"Precipitation, November"
+Precip (10) [mm/month],"Precipitation, October"
+Precip (9) [mm/month],"Precipitation, September"
+Precip spr [mm/month],"Precipitation, spring"
+Precip sum [mm/month],"Precipitation, summer"
+Precip wint [mm/month],"Precipitation, winter"
+Pequ [hPa],Pressure at equilibration
+PPPP [hPa],"Pressure, at given altitude"
+PPPP [hPa],"Pressure, atmospheric"
+PPPP interp [hPa],"Pressure, atmospheric, interpolated"
+Tmax [°C],Pyrolysis temperature maximum
+Sal [mg/l],"Salinity, absolute"
+IP [km**3/day],Sea ice production
+EsEs [m],Sea ice thickness
+SST (1-12) [°C],"Sea surface temperature, annual mean"
+SST anomaly [°C],"Sea surface temperature, anomaly"
+SST anomaly [°C],"Sea surface temperature, anomaly as LGM minus modern"
+SST sum [°C],"Sea surface temperature, summer"
+SST win [°C],"Sea surface temperature, winter"
+SWD [W/m**2],Short-wave downward (GLOBAL) radiation
+Si(OH)4 [µmol/l],Silicate
+Si(OH)4 [µmol/l],Silicic acid
+"Snow density, unc [kg/m**3]","Snow density, uncertainty"
+"Snow depth, unc [m]","Snow depth, uncertainty"
+Snow h [m],Snow height
+Snow line [m a.s.l.],Snow line elevation
+Snow thick [m],Snow thickness
+SWE [m],Snow water equivalent
+SWE unc [m],"Snow water equivalent, uncertainty"
+Speed [kn],Speed
+v [m/s],"Speed, velocity"
+TSS [mg/l],"Suspended matter, particulate/solids"
+TSS [mg/l],"Suspended matter, total"
+SPM [mg/l],Suspended particulate matter
+TTT [°C],"Temperature, air"
+MAAT [°C],"Temperature, air, annual mean"
+T air (4) [°C],"Temperature, air, April"
+T air (8) [°C],"Temperature, air, August"
+T air aut [°C],"Temperature, air, autumn"
+T air (12) [°C],"Temperature, air, December"
+T air (2) [°C],"Temperature, air, February"
+T air (1) [°C],"Temperature, air, January"
+T air (7) [°C],"Temperature, air, July"
+T air (6) [°C],"Temperature, air, June"
+T air (3) [°C],"Temperature, air, March"
+T air (5) [°C],"Temperature, air, May"
+T air (11) [°C],"Temperature, air, November"
+T air (10) [°C],"Temperature, air, October"
+T air (9) [°C],"Temperature, air, September"
+T air spr [°C],"Temperature, air, spring"
+T air sum [°C],"Temperature, air, summer"
+Temp wet bulb air [°C],"Temperature, air, wet bulb"
+T air wint [°C],"Temperature, air, winter"
+MAT [°C],"Temperature, annual mean"
+Tequ [°C],Temperature at equilibration
+T cal [°C],"Temperature, calculated"
+MAGT [°C],"Temperature, ground, annual mean"
+t [°C],"Temperature, ice/snow"
+t [°C],"Temperature, in rock/sediment"
+T sum [°C],"Temperature, mean summer"
+T win [°C],"Temperature, mean winter"
+T sum [°C],"Temperature, summer"
+T tech [°C],"Temperature, technical"
+Temp [°C],"Temperature, water"
+T intern [°C],"Temperature, water, internal"
+Temp interp [°C],"Temperature, water, interpolated"
+Temp max [°C],"Temperature, water, maximum"
+Temp min [°C],"Temperature, water, minimum"
+Tpot [°C],"Temperature, water, potential"
+T win [°C],"Temperature, winter"
+EsEs acc [cm],Thickness of ice accretion
+I_s [code],Type of ice accretion
+V E [mm/a],"Velocity, east"
+Vel mag [m/a],Velocity magnitude
+V N [mm/a],"Velocity, north"
+V vert [mm/a],"Velocity, vertical"
+dd [deg],Wind direction
+RelWindDir [deg],"Wind direction, relative"
+ff [m/s],Wind speed
+ff [Bft],Wind speed
+ff gust [m/s],"Wind speed, gust"
+ff max [m/s],"Wind speed, maximum"
+ff min [m/s],"Wind speed, minimum"
+RelWindSp [m/s],"Wind speed, relative"
+RelWindGust [m/s],"Wind speed, relative, gust"
+ff sum m [m/s],"Wind speed, summer mean"
+ff win m [m/s],"Wind speed, winter mean"
