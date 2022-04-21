@@ -1,0 +1,45 @@
+---
+title: "FACE-IT Data Availability"
+author: "Robert Schlegel & Jean-Pierre Gattuso"
+date: "2022-04-21"
+output:
+  html_document:
+    # code_folding: hide
+    fig_crop: no
+# description: 
+# bibliography: Presentations.bib
+---
+
+# WP1
+
+- Identify key drivers and data management
+
+# Drivers vs Variables
+
+- FACE-IT combines many different academic disciplines
+- Therefore we use the terminology from the IPCC
+- The drivers are divided into 5 categories
+    - Cryosphere, Physical, Chemistry, Biology, Social
+- More details given on the [Key drivers page](https://face-it-project.github.io/WP1/key_drivers.html)
+
+# Meta-database
+
+- Datasets of interest containing key drivers were identified
+- Most of these have been sourced and indexed
+- Information and links may be found on the [Meta-database page](https://face-it-project.github.io/WP1/metadatabase.html)
+
+# Data access app
+
+- All sourced datasets combined into one
+- This may be explored/downloaded with the [Data access app](http://193.50.85.104:4949/dataAccess/)
+
+# Data paper
+
+- The process of sourcing/combining all the datasets is being written up
+- Should be submitted end of October
+
+# Review paper
+
+- Currently writing up a review of key drivers of change
+- Should be submitted end of October
+

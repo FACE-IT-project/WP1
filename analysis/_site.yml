@@ -7,10 +7,10 @@ navbar:
   #   href: index.html
   - text: "Key drivers"
     href: key_drivers.html
-  - text: "Data"
+  - text: "Meta-database"
+    href: metadatabase.html
+  - text: "Analyses"
     menu:
-    - text: "Meta-database"
-      href: metadatabase.html
     - text: "Data summary"
       href: data_summary.html
     - text: "Model summary"
@@ -25,6 +25,8 @@ navbar:
       href: 2021_summary.html
     - text: "FACE-IT example analysis - 2021"
       href: 2021_analysis.html
+    - text: "FACE-IT seminar - 2022"
+      href: 2022_seminar.html
   - text: "Posters"
     menu:
     - text: "Svalbard Science Conference - 2021"

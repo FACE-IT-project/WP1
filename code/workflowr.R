@@ -17,7 +17,10 @@ system.time(
                                      "analysis/metadatabase.Rmd",
                                      "analysis/data_summary.Rmd",
                                      "analysis/model_summary.Rmd",
-                                     "analysis/sst_summary.Rmd"
+                                     "analysis/sst_summary.Rmd",
+                                     "analysis/2021_analysis.Rmd",
+                                     "analysis/2021_summary.Rmd",
+                                     "analysis/2022_seminar.Rmd"
   ),
   message = "Re-built site.")
 ) # 15 seconds

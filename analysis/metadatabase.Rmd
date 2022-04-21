@@ -54,20 +54,25 @@ options(DT.options = list(pageLength = 5,
                           # columnDefs = list(list(width = '20%', targets = c(2))),
                           deferRender = TRUE,
                           # scrollX = TRUE,
-                          scrollY = 400,
+                          scrollY = 500,
                           scrollCollapse = TRUE,
                           lengthMenu = c(5, 10, 25, 50, 100)))
 ```
 
-This document is designed to satisfy D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The interactive tables contain the meta-database for the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). The meta-database has been broken up into the different sites for convenience. With the exception that the first table contains data that span the entire European Arctic, as this is the broadest area of interest for FACE-IT, and there is a table dedicated to data that span all of Svalbard.
+The interactive tables found below contain the meta-database for the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). These table may be searched for key words, and clicking at the top of each column will order the rows in ascending/descending order. Individual tables are given for each site for convenience. 
 
-<!-- ## Column definitions -->
+This website was created for D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). 
 
-<!-- The following tables contain these columns: -->
+## Column definitions
 
-<!-- - -->
-<!-- -  -->
+The interactive tables found below all contain these columns:
 
+- Type: The method of data collection
+-
+
+## Data availability
+
+Many of the datasets listed below are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: [Copernicus](https://marine.copernicus.eu/), [EMODnet](https://www.emodnet.eu/en), and [NOAA](https://www.ncei.noaa.gov/). Site specific datasets can be accessed via: [NPDC](https://data.npolar.no/home/), [NSF](https://arcticdata.io/), [openpolar](https://openpolar.no/), [PANGAEA](https://pangaea.de/), and [SIOS](https://sios-svalbard.org/metadata_search). Data for drivers pertaining more to policy may be found at: [INTAROS](https://intaros.nersc.no/) and [SAON](https://www.arcticobserving.org/). The data portals for national statistics and other social drivers are: [Grønlands statistik](https://stat.gl/dialog/topmain.asp?lang=da&subject=Fiskeri%20og%20fangst&sc=FI), [kystverket](https://ais-public.kystverket.no/ais-download/), [SSB](https://www.ssb.no/), and [statistikknett](https://statistikknett.no/).
 
 # European Arctic
 
@@ -264,6 +269,8 @@ DT::datatable(metadata_EU_arctic, rownames = FALSE, escape = FALSE, colnames = D
               caption = "All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.") 
 ```
 
+<br>
+
 # Svalbard
 
 <center>
@@ -457,6 +464,8 @@ DT::datatable(metadata_svalbard, rownames = FALSE, escape = FALSE, colnames = DT
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.")
 ```
 <!-- </div>  -->
+
+<br>
 
 ## Kongsfjorden
 
@@ -746,6 +755,8 @@ DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames 
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.")
 ```
 <!-- </div> -->
+
+<br>
 
 ## Isfjorden
 
@@ -1038,6 +1049,8 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/isfjorden/'.")
 ```
 
+<br>
+
 ## Storfjorden
 
 <center>
@@ -1169,6 +1182,8 @@ metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_NOA
 DT::datatable(metadata_stor, rownames = FALSE, escape = FALSE, colnames = DT_cols,
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/storfjorden/'.")
 ```
+
+<br>
 
 # Greenland
 
@@ -1463,6 +1478,8 @@ DT::datatable(metadata_young_sound, rownames = FALSE, escape = FALSE, colnames =
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/young_sound/'.")
 ```
 
+<br>
+
 ## Disko Bay
 
 <center>
@@ -1577,6 +1594,8 @@ metadata_disko_bay <- rbind(disko_CTD_water, disko_CTD_ChlA, disko_NOAA, disko_C
 DT::datatable(metadata_disko_bay, rownames = FALSE, escape = FALSE, colnames = DT_cols,
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/disko_bay/'.")
 ```
+
+<br>
 
 ## Nuup Kangerlua
 
@@ -1729,6 +1748,8 @@ metadata_nuup <- rbind(nuup_phyto_abundance, nuup_CTD, nuup_Chla, nuup_prim_prod
 DT::datatable(metadata_nuup, rownames = FALSE, escape = FALSE, colnames = DT_cols,
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
 ```
+
+<br>
 
 # Norway
 
@@ -1905,5 +1926,7 @@ metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bi
 DT::datatable(metadata_porsangerfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
               caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
 ```
+
+<br>
 
 # References

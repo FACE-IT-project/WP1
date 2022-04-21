@@ -11,10 +11,11 @@
 
 <meta name="author" content="Robert Schlegel" />
 
+<meta name="date" content="2022-04-21" />
 
 <title>Key drivers of change in Arctic fjord ecosystems</title>
 
-<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -41,7 +42,7 @@
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
-<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
 <!-- Add a small amount of space between sections. -->
 <style type="text/css">
 div.section {
@@ -70,6 +71,7 @@ if (window.hljs) {
   }
 }
 </script>
+
 
 
 
@@ -121,6 +123,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -346,7 +351,7 @@ div.tocify {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -359,7 +364,7 @@ div.tocify {
   <a href="key_drivers.html">Key drivers</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Data
      
     <span class="caret"></span>
@@ -380,7 +385,7 @@ div.tocify {
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Talks
      
     <span class="caret"></span>
@@ -395,7 +400,7 @@ div.tocify {
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Posters
      
     <span class="caret"></span>
@@ -433,14 +438,14 @@ div.tocify {
 
 <h1 class="title toc-ignore">Key drivers of change in Arctic fjord ecosystems</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">17 décembre 2021</h4>
+<h4 class="date">21 April 2022</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -449,7 +454,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -458,17 +463,17 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-12-17
+<strong>Last updated:</strong> 2022-04-21
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
 <p>
-This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -477,12 +482,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -549,16 +554,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree122fbe43799f230781d41400b654cf30580244edtargetblank122fbe4a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/122fbe43799f230781d41400b654cf30580244ed" target="_blank">122fbe4</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treee24ed235c064d773ae8205f817b60b2db4b39e1ftargetblanke24ed23a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/e24ed235c064d773ae8205f817b60b2db4b39e1f" target="_blank">e24ed23</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree122fbe43799f230781d41400b654cf30580244edtargetblank122fbe4a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treee24ed235c064d773ae8205f817b60b2db4b39e1ftargetblanke24ed23a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/122fbe43799f230781d41400b654cf30580244ed" target="_blank">122fbe4</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/e24ed235c064d773ae8205f817b60b2db4b39e1f" target="_blank">e24ed23</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -567,15 +572,18 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    code/ny-alesund_cc_pf_rws.R
-    Ignored:    data/full_data/
-    Ignored:    data/model/
-    Ignored:    data/pg_data/
-    Ignored:    data/restricted/
-    Ignored:    data/sst_CCI_trom.RData
     Ignored:    data/sst_trom.RData
     Ignored:    metadata/pangaea_parameters.tab
+    Ignored:    mhw-definition_1_orig.xcf
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
+    Ignored:    shiny/kongCTD/data_base.Rds
+    Ignored:    shiny/test_data/
+
+Untracked files:
+    Untracked:  analysis/2022_seminar.Rmd
+
+Unstaged changes:
+    Modified:   analysis/key_drivers.Rmd
 
 </code></pre>
 <p>
@@ -614,6 +622,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/0e9f0ab844f1a739cbbf5a067d2add177f9f2efd/analysis/key_drivers.Rmd" target="_blank">0e9f0ab</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2022-04-14
+</td>
+<td>
+Adding some structure for the upcoming seminar
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/1d3a3b3c65e55e2cd88acb1a8f7bd17cbf78b504/docs/key_drivers.html" target="_blank">1d3a3b3</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-12-17
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -1547,6 +1589,9 @@ Re-built site.
 <p>This document is designed to satisfy D1.1 for the <a href="https://ec.europa.eu/programmes/horizon2020/en/home">Horizon2020</a> project <a href="https://www.face-it-project.eu/">FACE-IT</a>.</p>
 <p>It is well known that the Arctic is undergoing rapid systemic changes, and that these changes are likely to increase in both rate and extent. The FACE-IT project is primarily interested in how these changes will be impacting the socio-ecological fjord and adjacent coastal systems at seven study sites in the Arctic. There is a steadily growing body of data from these sites that can be used to document and investigate the changes that would be of scientific and societal interest. It is therefore necessary, at the outset of the FACE-IT project, to identify the key drivers of change in Arctic biodiversity and to identify the availability of data relating to these drivers.</p>
 <p>A Google Sheet was created to allow the experts at FACE-IT to fill-in which drivers were relevant for their work/study sites. The key drivers identified have been distributed into several clusters presented below.</p>
+<div id="drivers-vs-variables" class="section level2">
+<h2>Drivers vs Variables</h2>
+</div>
 </div>
 <div id="cryosphere" class="section level1">
 <h1>Cryosphere</h1>
@@ -1612,15 +1657,6 @@ Category
 <th style="text-align:left;">
 Driver
 </th>
-<th style="text-align:left;">
-Why
-</th>
-<th style="text-align:left;">
-Sites
-</th>
-<th style="text-align:left;">
-Reference
-</th>
 </tr>
 </thead>
 <tbody>
@@ -1631,12 +1667,6 @@ Cryosphere
 <td style="text-align:left;background-color: mintcream !important;">
 Coastal ice: formation/break up date, thickness
 </td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: mintcream !important;">
@@ -1644,14 +1674,6 @@ Cryosphere
 </td>
 <td style="text-align:left;background-color: mintcream !important;">
 Fast ice: extent, thickness
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Decreasing (fast) ice cover can have a range of ecological effect.
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Muckenhuber et al. (2016)
 </td>
 </tr>
 <tr>
@@ -1661,13 +1683,6 @@ Cryosphere
 <td style="text-align:left;background-color: mintcream !important;">
 Glacier: land mass balance, terminating edge
 </td>
-<td style="text-align:left;background-color: mintcream !important;">
-An indicator of the change to other drivers.
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: mintcream !important;">
@@ -1675,12 +1690,6 @@ Cryosphere
 </td>
 <td style="text-align:left;background-color: mintcream !important;">
 Permafrost: temperature, thickness
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
 </td>
 </tr>
 <tr>
@@ -1690,15 +1699,6 @@ Cryosphere
 <td style="text-align:left;background-color: mintcream !important;">
 Sea ice: concentration, extent, freeboard, thickness
 </td>
-<td style="text-align:left;background-color: mintcream !important;">
-Affects pelagic and benthic production.
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-Stroeve and Notz (2018)
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: mintcream !important;">
@@ -1706,13 +1706,6 @@ Cryosphere
 </td>
 <td style="text-align:left;background-color: mintcream !important;">
 Snow cover: thickness
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: mintcream !important;">
 </td>
 </tr>
 <tr>
@@ -1722,12 +1715,6 @@ Physical
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Bathymetry
 </td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
@@ -1735,12 +1722,6 @@ Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Current: direction, location, volume
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
 </td>
 </tr>
 <tr>
@@ -1750,12 +1731,6 @@ Physical
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Evaporation
 </td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
@@ -1763,14 +1738,6 @@ Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Heatflux: net, latent/sensible, long/shortwave radiation
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Responsible for the changing of seawater temperature in various important ways.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-EU Arctic
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
 </td>
 </tr>
 <tr>
@@ -1780,14 +1747,6 @@ Physical
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Light extinction coefficient
 </td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Indicates the amount of light to benthic producers.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-EU Arctic
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
@@ -1795,14 +1754,6 @@ Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Mixed layer depth
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-EU Arctic
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Popova et al. (2014)
 </td>
 </tr>
 <tr>
@@ -1812,14 +1763,6 @@ Physical
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Precipitation
 </td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Affects the amount of fresh water runoff into coasts.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-EU Arctic
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
@@ -1827,15 +1770,6 @@ Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 River discharge
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Delivers carbon and nutrient rich freshwater to coast.
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-EU Arctic
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Delpech et al. (2021)
 </td>
 </tr>
 <tr>
@@ -1845,13 +1779,6 @@ Physical
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Salinity
 </td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-EU Arctic
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
@@ -1859,12 +1786,6 @@ Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Sea level pressure
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
 </td>
 </tr>
 <tr>
@@ -1874,14 +1795,6 @@ Physical
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Seawater temperature: surface, mid, bottom
 </td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-EU Arctic
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-Popova et al. (2014)
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
@@ -1889,12 +1802,6 @@ Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Sedimentation rate
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
 </td>
 </tr>
 <tr>
@@ -1904,12 +1811,6 @@ Physical
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Suspended matter: organic, mineral
 </td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
@@ -1917,12 +1818,6 @@ Physical
 </td>
 <td style="text-align:left;color: black !important;background-color: skyblue !important;">
 Wind: direction, speed
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
-</td>
-<td style="text-align:left;color: black !important;background-color: skyblue !important;">
 </td>
 </tr>
 <tr>
@@ -1932,13 +1827,6 @@ Chemistry
 <td style="text-align:left;background-color: #F6EA7C !important;">
 CaCO3 saturation state
 </td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #F6EA7C !important;">
@@ -1946,14 +1834,6 @@ Chemistry
 </td>
 <td style="text-align:left;background-color: #F6EA7C !important;">
 Dissolved inorganic carbon
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Popova et al. (2014)
 </td>
 </tr>
 <tr>
@@ -1963,12 +1843,6 @@ Chemistry
 <td style="text-align:left;background-color: #F6EA7C !important;">
 Dissolved organic carbon
 </td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #F6EA7C !important;">
@@ -1976,12 +1850,6 @@ Chemistry
 </td>
 <td style="text-align:left;background-color: #F6EA7C !important;">
 Dissolved organic nitrogen
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
 </td>
 </tr>
 <tr>
@@ -1991,12 +1859,6 @@ Chemistry
 <td style="text-align:left;background-color: #F6EA7C !important;">
 Dissolved 02
 </td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #F6EA7C !important;">
@@ -2004,12 +1866,6 @@ Chemistry
 </td>
 <td style="text-align:left;background-color: #F6EA7C !important;">
 Nutrient: nitrate, nitrite, ammonium, phosphate, silicate
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
 </td>
 </tr>
 <tr>
@@ -2019,14 +1875,6 @@ Chemistry
 <td style="text-align:left;background-color: #F6EA7C !important;">
 Partial pressure of CO2
 </td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-Popova et al. (2014)
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #F6EA7C !important;">
@@ -2034,13 +1882,6 @@ Chemistry
 </td>
 <td style="text-align:left;background-color: #F6EA7C !important;">
 pH
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
 </td>
 </tr>
 <tr>
@@ -2050,13 +1891,6 @@ Chemistry
 <td style="text-align:left;background-color: #F6EA7C !important;">
 Total alkalinity
 </td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: #F6EA7C !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #A2ED84 !important;">
@@ -2064,12 +1898,6 @@ Biology
 </td>
 <td style="text-align:left;background-color: #A2ED84 !important;">
 Calcification
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
 </td>
 </tr>
 <tr>
@@ -2079,12 +1907,6 @@ Biology
 <td style="text-align:left;background-color: #A2ED84 !important;">
 Nitrogen fixation
 </td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #A2ED84 !important;">
@@ -2093,12 +1915,6 @@ Biology
 <td style="text-align:left;background-color: #A2ED84 !important;">
 Photosynthesis
 </td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #A2ED84 !important;">
@@ -2107,12 +1923,6 @@ Biology
 <td style="text-align:left;background-color: #A2ED84 !important;">
 Primary production
 </td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #A2ED84 !important;">
@@ -2120,12 +1930,6 @@ Biology
 </td>
 <td style="text-align:left;background-color: #A2ED84 !important;">
 Primary production
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
 </td>
 </tr>
 <tr>
@@ -2135,12 +1939,6 @@ Biology
 <td style="text-align:left;background-color: #A2ED84 !important;">
 Respiration
 </td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #A2ED84 !important;">
@@ -2148,12 +1946,6 @@ Biology
 </td>
 <td style="text-align:left;background-color: #A2ED84 !important;">
 Species: presence/absence, abundance/biomass
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
-</td>
-<td style="text-align:left;background-color: #A2ED84 !important;">
 </td>
 </tr>
 <tr>
@@ -2163,13 +1955,6 @@ Social
 <td style="text-align:left;background-color: #F48080 !important;">
 Fish landings: commercial, recreational, quotas, seasonality
 </td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Porsangerfjorden + Isfjorden + Disko Bay
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #F48080 !important;">
@@ -2177,13 +1962,6 @@ Social
 </td>
 <td style="text-align:left;background-color: #F48080 !important;">
 Game landings: quotas, seasonality
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Porsangerfjorden + Isfjorden + Disko Bay
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
 </td>
 </tr>
 <tr>
@@ -2193,12 +1971,6 @@ Social
 <td style="text-align:left;background-color: #F48080 !important;">
 Local and national resource management
 </td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #F48080 !important;">
@@ -2206,13 +1978,6 @@ Social
 </td>
 <td style="text-align:left;background-color: #F48080 !important;">
 National statistics: demography, income, unemployment
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-EU Arctic
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
 </td>
 </tr>
 <tr>
@@ -2222,13 +1987,6 @@ Social
 <td style="text-align:left;background-color: #F48080 !important;">
 Tourist arrivals: per month, nationality
 </td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Isfjorden + Disko Bay
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-</td>
 </tr>
 <tr>
 <td style="text-align:left;background-color: #F48080 !important;">
@@ -2236,14 +1994,6 @@ Social
 </td>
 <td style="text-align:left;background-color: #F48080 !important;">
 Tourist vessels: count, mileage
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Indicative of direct anthropogenic disturbance.
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
-Isfjorden + Disko Bay
-</td>
-<td style="text-align:left;background-color: #F48080 !important;">
 </td>
 </tr>
 </tbody>
@@ -2258,55 +2008,55 @@ Isfjorden + Disko Bay
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.1.2 (2021-11-01)
+<pre><code>R version 4.1.3 (2022-03-10)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 18.04.6 LTS
+Running under: Ubuntu 20.04.4 LTS
 
 Matrix products: default
-BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
-LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=en_GB.UTF-8    
- [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=en_GB.UTF-8   
- [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C                 
+ [3] LC_TIME=en_CA.UTF-8        LC_COLLATE=en_GB.UTF-8    
+ [5] LC_MONETARY=en_CA.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+ [7] LC_PAPER=en_CA.UTF-8       LC_NAME=C                 
  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
+[11] LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] kableExtra_1.3.4 forcats_0.5.1    stringr_1.4.0    dplyr_1.0.7     
- [5] purrr_0.3.4      readr_2.0.2      tidyr_1.1.4      tibble_3.1.5    
- [9] ggplot2_3.3.5    tidyverse_1.3.1  workflowr_1.6.2 
+ [1] kableExtra_1.3.4 forcats_0.5.1    stringr_1.4.0    dplyr_1.0.8     
+ [5] purrr_0.3.4      readr_2.1.2      tidyr_1.2.0      tibble_3.1.6    
+ [9] ggplot2_3.3.5    tidyverse_1.3.1 
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.7        svglite_2.0.0     lubridate_1.8.0   assertthat_0.2.1 
- [5] rprojroot_2.0.2   digest_0.6.28     utf8_1.2.2        R6_2.5.1         
- [9] cellranger_1.1.0  backports_1.2.1   reprex_2.0.1      evaluate_0.14    
-[13] highr_0.9         httr_1.4.2        pillar_1.6.4      rlang_0.4.12     
-[17] readxl_1.3.1      rstudioapi_0.13   whisker_0.4       jquerylib_0.1.4  
-[21] rmarkdown_2.11    webshot_0.5.2     munsell_0.5.0     broom_0.7.9      
-[25] compiler_4.1.2    httpuv_1.6.3      modelr_0.1.8      xfun_0.26        
-[29] systemfonts_1.0.2 pkgconfig_2.0.3   htmltools_0.5.2   tidyselect_1.1.1 
-[33] viridisLite_0.4.0 fansi_0.5.0       crayon_1.4.1      tzdb_0.1.2       
-[37] dbplyr_2.1.1      withr_2.4.2       later_1.3.0       grid_4.1.2       
-[41] jsonlite_1.7.2    gtable_0.3.0      lifecycle_1.0.1   DBI_1.1.1        
-[45] git2r_0.28.0      magrittr_2.0.1    scales_1.1.1      cli_3.0.1        
-[49] stringi_1.7.5     fs_1.5.0          promises_1.2.0.1  xml2_1.3.2       
-[53] bslib_0.3.1       ellipsis_0.3.2    generics_0.1.1    vctrs_0.3.8      
-[57] tools_4.1.2       glue_1.4.2        hms_1.1.1         fastmap_1.1.0    
-[61] yaml_2.2.1        colorspace_2.0-2  rvest_1.0.1       knitr_1.36       
-[65] haven_2.4.3       sass_0.4.0       </code></pre>
+ [1] Rcpp_1.0.8.3      svglite_2.1.0     lubridate_1.8.0   assertthat_0.2.1 
+ [5] rprojroot_2.0.3   digest_0.6.29     utf8_1.2.2        R6_2.5.1         
+ [9] cellranger_1.1.0  backports_1.4.1   reprex_2.0.1      evaluate_0.15    
+[13] highr_0.9         httr_1.4.2        pillar_1.7.0      rlang_1.0.2      
+[17] readxl_1.4.0      rstudioapi_0.13   whisker_0.4       jquerylib_0.1.4  
+[21] rmarkdown_2.13    webshot_0.5.2     munsell_0.5.0     broom_0.7.12     
+[25] compiler_4.1.3    httpuv_1.6.5      modelr_0.1.8      xfun_0.30        
+[29] systemfonts_1.0.4 pkgconfig_2.0.3   htmltools_0.5.2   tidyselect_1.1.2 
+[33] workflowr_1.7.0   viridisLite_0.4.0 fansi_1.0.3       crayon_1.5.1     
+[37] tzdb_0.3.0        dbplyr_2.1.1      withr_2.5.0       later_1.3.0      
+[41] grid_4.1.3        jsonlite_1.8.0    gtable_0.3.0      lifecycle_1.0.1  
+[45] DBI_1.1.2         git2r_0.30.1      magrittr_2.0.3    scales_1.1.1     
+[49] cli_3.2.0         stringi_1.7.6     fs_1.5.2          promises_1.2.0.1 
+[53] xml2_1.3.3        bslib_0.3.1       ellipsis_0.3.2    generics_0.1.2   
+[57] vctrs_0.4.0       tools_4.1.3       glue_1.6.2        hms_1.1.1        
+[61] fastmap_1.1.0     yaml_2.3.5        colorspace_2.0-3  rvest_1.0.2      
+[65] knitr_1.38        haven_2.4.3       sass_0.4.1       </code></pre>
 </div>
 </div>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
 TeX fonts only; see
-http://docs.mathjax.org/en/latest/configuration.html.  This will make
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
 the presentation more consistent at the cost of the webpage sometimes
 taking slightly longer to load. Note that this only works because the
 footer is added to webpages before the MathJax javascript. -->
