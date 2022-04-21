@@ -3,7 +3,7 @@
 
 # TODO:
 # HiRes coastline for smaller sites
-# Add clean vs full switch for data selection
+# Troubleshoot clean vs full switch for data selection
 
 
 # Setup -------------------------------------------------------------------
@@ -180,7 +180,7 @@ ui <- dashboardPage(
     dashboardBody(
         fluidRow(
             column(width = 3,
-                   box(width = 12, height = "320px", title = "Full names",
+                   box(width = 12, height = "380px", title = "Full names",
                        status = "warning", solidHeader = TRUE, collapsible = FALSE,
                        DT::dataTableOutput("longVarDT")),
                    box(width = 12, height = "440px", title = "Filter data",
@@ -189,18 +189,18 @@ ui <- dashboardPage(
                        uiOutput("slideLonUI"), uiOutput("slideLatUI"),
                        uiOutput("slideDepthUI"), uiOutput("slideDateUI"))),
             column(width = 5,
-                   box(width = 12, height = "380px", title = "Lon/lat",
+                   box(width = 12, height = "410px", title = "Lon/lat",
                        status = "info", solidHeader = TRUE, collapsible = FALSE,
-                       shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "325px"), 
+                       shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "365px"), 
                                                     type = 6, color = "#b0b7be")),
-                   box(width = 12, height = "380px", title = "Date",
+                   box(width = 12, height = "410px", title = "Date",
                        status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                       shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "325px"), 
+                       shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "365px"), 
                                                     type = 6, color = "#b0b7be"))),
             column(width = 4,
-                   box(width = 12, height = "780px", title = "Depth",
+                   box(width = 12, height = "840px", title = "Depth",
                        status = "success", solidHeader = TRUE, collapsible = FALSE,
-                       shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "720px"), 
+                       shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "820px"), 
                                                     type = 6, color = "#b0b7be")))
             # column(width = 3,
             # fluidRow(plotlyOutput("depthPlot")))
@@ -247,7 +247,7 @@ server <- function(input, output, session) {
         # unique(df_cat()$var_name)
         df_names <- param_list#filter(param_list, Driver %in% )
         df_names_DT <- datatable(df_names, rownames = FALSE,
-                                 options = list(pageLength = 1000, scrollX = TRUE, scrollY = 180, info = FALSE,
+                                 options = list(pageLength = 1000, scrollX = TRUE, scrollY = 240, info = FALSE,
                                                 lengthChange = FALSE, paging = FALSE,
                                                 columnDefs = list(list(searchable = FALSE, targets = 1))))
         return(df_names_DT)
@@ -307,19 +307,24 @@ server <- function(input, output, session) {
             session = session,
             title = "Instructions",
             text = tags$span(
-                tags$h3("With HTML tags",
-                        style = "color: steelblue;"),
-                "In", tags$b("bold"), "and", tags$em("italic"),
-                tags$br(),
-                "and",
-                tags$br(),
-                "line",
-                tags$br(),
-                "breaks",
-                tags$br(),
-                "and an icon", icon("thumbs-up"),
-                tags$br(),
-                "For questions contact Robert Schlegel: robert.schlegel@imev-mer.fr"
+                "The FACE-IT data access app is laid out as a dashboard with a ",tags$em("side bar"),
+                " on the left and additional information and plots in the ",tags$em("body"),".",
+                tags$h3(icon("bars"),"Side bar", style = "color: cadetblue;"),
+                tags$h4(tags$b("1. Site"),": Select a site to begin the data exploration process. Currently it is only possible to select one site at a time. After selecting a site the 'Lon/lat' figure in the body will display a rough map."),
+                tags$h4(tags$b("2. Categories"),": Select one or more categories of interest."),
+                tags$h4(icon("hammer"),tags$b("3. Clean or full data"),": Much of the data sourced for FACE-IT are formatted differently from one another. In an effort to adress this issue the data are undergoing an additional level of cleaning. This is currently under construction."),
+                tags$h4(tags$b("4. Filter PANGAEA"),": The data downloaded from PANGAEA are voluminous, but often contain data that are not of interest. Switch this value to 'Yes' to remove PANGAEA data from the list of drivers selected in the next step. ."),
+                tags$h4(tags$b("5. Drivers"),": The four preceeding steps will have filtered down the possible drivers that can now be selected here. After selecting one or more drivers the figures in the body will begin to be populated by the data."),
+                tags$h4(tags$b("6. Download"),": When one is happy with the selected/filtered data they may be downloaded here. First choose the file type, then click the download button."),
+                tags$h3(icon("images"),"Body", style = "color: steelblue;"),
+                tags$h4(tags$b("Full names"),": This menu allows the user to search for the full names of the drivers seen in ", tags$em("5. Drivers"), "in the sidebar."),
+                tags$h4(tags$b("Filter data"),": The ranges in the data for: longitude, latitude, depth, and date will be displayed here. Moving these sliders will filter out the data and this will be reflected in the figures to the right."),
+                tags$h4(tags$b("Lon/lat"),": Displays a map of where the selected data are located. Different colours show different drivers. Mouse over the dots on within the map to see more information."),
+                tags$h4(tags$b("Date"),": Displays the selected/filtered data as a time series. May mouse over the points to see more information."),
+                tags$h4(tags$b("Depth"),": Shows the selected data as a stacked bar plot from the surface (0 m) down to the deepest depth in the data. Data are binned into 10 m groups. Negative values show data above the sea surface (altimetry). Mouse over for more information."),
+                # tags$br(),
+                tags$h3(icon("address-book"),"Contact", style = "color: royalblue;"),
+                "For questions etc. please contact Robert Schlegel: robert.schlegel@imev-mer.fr"
             ),
             html = TRUE,
             type = "info"
@@ -351,22 +356,22 @@ server <- function(input, output, session) {
         req(input$selectCat)
         
         # Load initial data
-        if(input$cleanVSfull == "Full"){
+        # if(input$cleanVSfull == "Full"){
             file_list <- paste0("full_data/full",
                                 # c("_cryo", "_phys"), # testing
                                 input$selectCat,
                                 input$selectSite,".RData")
             df_cat <- purrr::map_dfr(file_list, loadRData)
-        } else {
-            df_cat <- loadRData("full_data/clean_all.RData") %>% # This should be improved to be site specific
-                filter(site == str_remove(input$selectSite, "_"),
-                       var_type %in% str_remove(input$selectCat, "_"),
-                       !grepl("g-e-m", URL)) # Remove GEM data
+        # } else {
+        #     df_cat <- loadRData("full_data/clean_all.RData") %>% # This should be improved to be site specific
+        #         filter(site == str_remove(input$selectSite, "_"),
+        #                var_type %in% str_remove(input$selectCat, "_"),
+        #                !grepl("g-e-m", URL)) # Remove GEM data
             
             # Remove GRDC data
             ## Not yet amalgamated
-        }
-        
+        # }
+
         # Filter PANGAEA data
         if(input$PANGAEAfilter == "Yes"){
             df_cat <- filter(df_cat, !grepl("PANGAEA", URL))
