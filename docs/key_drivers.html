@@ -363,16 +363,16 @@ div.tocify {
         <li>
   <a href="key_drivers.html">Key drivers</a>
 </li>
+<li>
+  <a href="metadatabase.html">Meta-database</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Data
+    Analyses
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="metadatabase.html">Meta-database</a>
-    </li>
     <li>
       <a href="data_summary.html">Data summary</a>
     </li>
@@ -396,6 +396,9 @@ div.tocify {
     </li>
     <li>
       <a href="2021_analysis.html">FACE-IT example analysis - 2021</a>
+    </li>
+    <li>
+      <a href="2022_seminar.html">FACE-IT seminar - 2022</a>
     </li>
   </ul>
 </li>
@@ -445,7 +448,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -454,7 +457,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -466,7 +469,7 @@ div.tocify {
 <strong>Last updated:</strong> 2022-04-21
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -482,12 +485,12 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
@@ -554,16 +557,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treee24ed235c064d773ae8205f817b60b2db4b39e1ftargetblanke24ed23a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/e24ed235c064d773ae8205f817b60b2db4b39e1f" target="_blank">e24ed23</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree8035d41ab77da3af7fdb6d029d94c06f60a98243targetblank8035d41a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/8035d41ab77da3af7fdb6d029d94c06f60a98243" target="_blank">8035d41</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treee24ed235c064d773ae8205f817b60b2db4b39e1ftargetblanke24ed23a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree8035d41ab77da3af7fdb6d029d94c06f60a98243targetblank8035d41a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/e24ed235c064d773ae8205f817b60b2db4b39e1f" target="_blank">e24ed23</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/8035d41ab77da3af7fdb6d029d94c06f60a98243" target="_blank">8035d41</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -578,12 +581,6 @@ Ignored files:
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
     Ignored:    shiny/kongCTD/data_base.Rds
     Ignored:    shiny/test_data/
-
-Untracked files:
-    Untracked:  analysis/2022_seminar.Rmd
-
-Unstaged changes:
-    Modified:   analysis/key_drivers.Rmd
 
 </code></pre>
 <p>
@@ -622,6 +619,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/8035d41ab77da3af7fdb6d029d94c06f60a98243/analysis/key_drivers.Rmd" target="_blank">8035d41</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2022-04-21
+</td>
+<td>
+Created smol seminar talk outline
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/8035d41ab77da3af7fdb6d029d94c06f60a98243/docs/key_drivers.html" target="_blank">8035d41</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2022-04-21
+</td>
+<td>
+Created smol seminar talk outline
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1586,11 +1617,12 @@ Re-built site.
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This document is designed to satisfy D1.1 for the <a href="https://ec.europa.eu/programmes/horizon2020/en/home">Horizon2020</a> project <a href="https://www.face-it-project.eu/">FACE-IT</a>.</p>
 <p>It is well known that the Arctic is undergoing rapid systemic changes, and that these changes are likely to increase in both rate and extent. The FACE-IT project is primarily interested in how these changes will be impacting the socio-ecological fjord and adjacent coastal systems at seven study sites in the Arctic. There is a steadily growing body of data from these sites that can be used to document and investigate the changes that would be of scientific and societal interest. It is therefore necessary, at the outset of the FACE-IT project, to identify the key drivers of change in Arctic biodiversity and to identify the availability of data relating to these drivers.</p>
-<p>A Google Sheet was created to allow the experts at FACE-IT to fill-in which drivers were relevant for their work/study sites. The key drivers identified have been distributed into several clusters presented below.</p>
+<p>A Google Sheet was created to allow the experts at FACE-IT to fill-in which drivers were relevant for their work/study sites. The key drivers identified have been distributed into five categories presented below.</p>
+<p>This website was created for D1.1 of the <a href="https://ec.europa.eu/programmes/horizon2020/en/home">Horizon2020</a> project <a href="https://www.face-it-project.eu/">FACE-IT</a>.</p>
 <div id="drivers-vs-variables" class="section level2">
 <h2>Drivers vs Variables</h2>
+<p>The use of the word ‘Driver,’ rather than ‘Variable,’ to describe data may seem strange to some. The argument for this decision is based on the fact that FACE-IT is a consortium of a many teams that employ a range of different methods of scientific inquiry. The technical vocabulary used across these groups may differ in some important ways so it was decided to defer to the definitions used in the IPCC. It must therefore be noted here that a ‘Driver’ does not necessarily mean that something is a physical (or otherwise) driver of another variable. In the context of FACE-IT most of the types of data that are being measured are indeed drivers of other types of data, but it is not necessary for them to be in order to be labelled as ‘Drivers.’ For some it may be easier to think of the data outlined here as ‘Variables,’ rather than ‘Drivers.’</p>
 </div>
 </div>
 <div id="cryosphere" class="section level1">
@@ -1638,10 +1670,6 @@ Re-built site.
 <blockquote>
 <p><strong>Fish landings</strong>: commercial, recreational, quotas, seasonality; <strong>Game landings</strong>: quotas, seasonality; <strong>Local and national resource management</strong>; <strong>National statistics</strong>: demography, income, unemployment; <strong>Tourist arrivals</strong>: per month, nationality; <strong>Tourist vessels</strong>: count, mileage</p>
 </blockquote>
-</div>
-<div id="data-availability" class="section level1">
-<h1>Data availability</h1>
-<p>The data for the drivers outlined above are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: <a href="https://marine.copernicus.eu/">Copernicus</a>, <a href="https://www.emodnet.eu/en">EMODnet</a>, and <a href="https://www.ncei.noaa.gov/">NOAA</a>. Site specific datasets can be accessed via: <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://arcticdata.io/">NSF</a>, <a href="https://openpolar.no/">openpolar</a>, <a href="https://pangaea.de/">PANGAEA</a>, and <a href="https://sios-svalbard.org/metadata_search">SIOS</a>. Data for drivers pertaining more to policy may be found at: <a href="https://intaros.nersc.no/">INTAROS</a> and <a href="https://www.arcticobserving.org/">SAON</a>. The data portals for national statistics and other social drivers are: <a href="https://stat.gl/dialog/topmain.asp?lang=da&amp;subject=Fiskeri%20og%20fangst&amp;sc=FI">Grønlands statistik</a>, <a href="https://ais-public.kystverket.no/ais-download/">kystverket</a>, <a href="https://www.ssb.no/">SSB</a>, and <a href="https://statistikknett.no/">statistikknett</a>. The specific data of relevance to the key drivers that may be found within each of these sources are given in greater detail in <a href="https://FACE-IT-project.github.io/WP1/metadatabase.html">D1.2: Meta-database</a>.</p>
 </div>
 <div id="summary" class="section level1">
 <h1>Summary</h1>
@@ -2030,26 +2058,27 @@ attached base packages:
 other attached packages:
  [1] kableExtra_1.3.4 forcats_0.5.1    stringr_1.4.0    dplyr_1.0.8     
  [5] purrr_0.3.4      readr_2.1.2      tidyr_1.2.0      tibble_3.1.6    
- [9] ggplot2_3.3.5    tidyverse_1.3.1 
+ [9] ggplot2_3.3.5    tidyverse_1.3.1  workflowr_1.7.0 
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.8.3      svglite_2.1.0     lubridate_1.8.0   assertthat_0.2.1 
- [5] rprojroot_2.0.3   digest_0.6.29     utf8_1.2.2        R6_2.5.1         
- [9] cellranger_1.1.0  backports_1.4.1   reprex_2.0.1      evaluate_0.15    
-[13] highr_0.9         httr_1.4.2        pillar_1.7.0      rlang_1.0.2      
-[17] readxl_1.4.0      rstudioapi_0.13   whisker_0.4       jquerylib_0.1.4  
-[21] rmarkdown_2.13    webshot_0.5.2     munsell_0.5.0     broom_0.7.12     
-[25] compiler_4.1.3    httpuv_1.6.5      modelr_0.1.8      xfun_0.30        
-[29] systemfonts_1.0.4 pkgconfig_2.0.3   htmltools_0.5.2   tidyselect_1.1.2 
-[33] workflowr_1.7.0   viridisLite_0.4.0 fansi_1.0.3       crayon_1.5.1     
-[37] tzdb_0.3.0        dbplyr_2.1.1      withr_2.5.0       later_1.3.0      
-[41] grid_4.1.3        jsonlite_1.8.0    gtable_0.3.0      lifecycle_1.0.1  
-[45] DBI_1.1.2         git2r_0.30.1      magrittr_2.0.3    scales_1.1.1     
-[49] cli_3.2.0         stringi_1.7.6     fs_1.5.2          promises_1.2.0.1 
-[53] xml2_1.3.3        bslib_0.3.1       ellipsis_0.3.2    generics_0.1.2   
-[57] vctrs_0.4.0       tools_4.1.3       glue_1.6.2        hms_1.1.1        
-[61] fastmap_1.1.0     yaml_2.3.5        colorspace_2.0-3  rvest_1.0.2      
-[65] knitr_1.38        haven_2.4.3       sass_0.4.1       </code></pre>
+ [1] Rcpp_1.0.8.3      svglite_2.1.0     lubridate_1.8.0   getPass_0.2-2    
+ [5] ps_1.6.0          assertthat_0.2.1  rprojroot_2.0.3   digest_0.6.29    
+ [9] utf8_1.2.2        R6_2.5.1          cellranger_1.1.0  backports_1.4.1  
+[13] reprex_2.0.1      evaluate_0.15     highr_0.9         httr_1.4.2       
+[17] pillar_1.7.0      rlang_1.0.2       readxl_1.4.0      rstudioapi_0.13  
+[21] whisker_0.4       callr_3.7.0       jquerylib_0.1.4   rmarkdown_2.13   
+[25] webshot_0.5.2     munsell_0.5.0     broom_0.7.12      compiler_4.1.3   
+[29] httpuv_1.6.5      modelr_0.1.8      xfun_0.30         systemfonts_1.0.4
+[33] pkgconfig_2.0.3   htmltools_0.5.2   tidyselect_1.1.2  viridisLite_0.4.0
+[37] fansi_1.0.3       withr_2.5.0       crayon_1.5.1      tzdb_0.3.0       
+[41] dbplyr_2.1.1      later_1.3.0       grid_4.1.3        jsonlite_1.8.0   
+[45] gtable_0.3.0      lifecycle_1.0.1   DBI_1.1.2         git2r_0.30.1     
+[49] magrittr_2.0.3    scales_1.1.1      cli_3.2.0         stringi_1.7.6    
+[53] fs_1.5.2          promises_1.2.0.1  xml2_1.3.3        bslib_0.3.1      
+[57] ellipsis_0.3.2    generics_0.1.2    vctrs_0.4.0       tools_4.1.3      
+[61] glue_1.6.2        hms_1.1.1         processx_3.5.3    fastmap_1.1.0    
+[65] yaml_2.3.5        colorspace_2.0-3  rvest_1.0.2       knitr_1.38       
+[69] haven_2.4.3       sass_0.4.1       </code></pre>
 </div>
 </div>
 
