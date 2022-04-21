@@ -317,7 +317,9 @@ server <- function(input, output, session) {
                 tags$br(),
                 "breaks",
                 tags$br(),
-                "and an icon", icon("thumbs-up")
+                "and an icon", icon("thumbs-up"),
+                tags$br(),
+                "For questions contact Robert Schlegel: robert.schlegel@imev-mer.fr"
             ),
             html = TRUE,
             type = "info"

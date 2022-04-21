@@ -67,20 +67,32 @@ This website was created for D1.2 for the Horizon2020 project [FACE-IT](https://
 
 The interactive tables found below all contain these columns:
 
-- Type: The method of data collection
--
+- Type: The method of data collection/creation (e.g. CTD casts or modelled data)
+    - Datasets marked as 'PANGAEA' are the combined output of a data query to that database
+    - Datasets marked as 'FACE-IT' are a combination of all data from all collected sources
+      - This includes the EU Arctic and Svalbard (when applicable) meta-data tables as well as PANGAEA data
+- Driver: The list of [drivers](https://face-it-project.github.io/WP1/key_drivers.html) found within the dataset
+- Date: The years over which the data were collected
+- Source: A clickable link to the website were the data file may be downloaded
+- Citation: A clickable pop-up window that provides the citation for the dataset
+- Notes: Any additional comments may be found here
 
-## Data availability
+## Data access
 
 Many of the datasets listed below are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: [Copernicus](https://marine.copernicus.eu/), [EMODnet](https://www.emodnet.eu/en), and [NOAA](https://www.ncei.noaa.gov/). Site specific datasets can be accessed via: [NPDC](https://data.npolar.no/home/), [NSF](https://arcticdata.io/), [openpolar](https://openpolar.no/), [PANGAEA](https://pangaea.de/), and [SIOS](https://sios-svalbard.org/metadata_search). Data for drivers pertaining more to policy may be found at: [INTAROS](https://intaros.nersc.no/) and [SAON](https://www.arcticobserving.org/). The data portals for national statistics and other social drivers are: [Grønlands statistik](https://stat.gl/dialog/topmain.asp?lang=da&subject=Fiskeri%20og%20fangst&sc=FI), [kystverket](https://ais-public.kystverket.no/ais-download/), [SSB](https://www.ssb.no/), and [statistikknett](https://statistikknett.no/).
 
+The non-embargoed data that have been collected for FACE-IT may be explored and downloaded via a [data access app](http://193.50.85.104:4949/dataAccess/). The data in this app are populated by the datasets listed in the meta-database tables below as having the type 'FACE-IT'.
+
 # European Arctic
+
+This section contains meta-data for pan-Arctic data files. All data within these files that overlap with one or more of the FACE-IT study sites may also be found in the aggregated datasets for the corresponding site(s).
 
 <center>
 ![](assets/map_full.png){ width=70% }
-</center>
 
-This section contains meta-data for pan-Arctic data files. These are almost exclusively large gridded data sets or large combined sets of CTD data.
+Figure 1: FACE-IT study sites throughout the EU Arctic. The light blue bounding box (appears here as a triangle due to polar projection) shows the spatial range within which data were considered for collection.
+</center>
+<br>
 
 <!-- _NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._ -->
 
@@ -266,18 +278,22 @@ metadata_EU_arctic <- rbind(EU_GEBCO, EU_zooplankton, EU_ice, EU_YMER, EU_Codisp
 ```{r EU-arctic-meta-data-table}
 DT::datatable(metadata_EU_arctic, rownames = FALSE, escape = FALSE, colnames = DT_cols,
               # filter = "top", 
-              caption = "All files in this table are found within '~/pCloudDrive/FACE-IT_data/EU_arctic/'.") 
+              caption = "Table 1: Pan-arcitc datasets. These are generally very large files. Data within these files that overlap with study sites may be found within their aggregated datasets.") 
 ```
 
 <br>
 
 # Svalbard
 
+While not a study site itself, there are a lot of studies and datasets that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it's own meta-data table. The data within these Svalbard datasets that overlap with any of the individual study sites have been extracted and added to those amalgamated datasets.
+
 <center>
 ![](assets/map_svalbard.png){ width=90% }
-</center>
 
-While not a study site itself, there are a lot of studies and data products that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it's own meta-data table. The primary drivers of change for each site are still listed in their own tables below.
+Figure 2: Map of Svalbard showing the location of the three FACE-IT study sites located on the archipelago.
+</center>
+<br>
+
 
 ```{r svalbard-meta-data}
 # Glacial topography + thickness
@@ -461,7 +477,7 @@ metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glac
 <!-- <div style="margin-left: -200px;"> -->
 ```{r svalbard-meta-data-table}
 DT::datatable(metadata_svalbard, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/svalbard/'.")
+              caption = "Table 2: Datasets that were collected across a broad range around Svalbard. Data found within these datasets that overlap with study sites may be found within the corresponding amalgamated datasets.")
 ```
 <!-- </div>  -->
 
@@ -471,7 +487,10 @@ DT::datatable(metadata_svalbard, rownames = FALSE, escape = FALSE, colnames = DT
 
 <center>
 ![](assets/map_kongsfjorden.png){ width=60% }
+
+Figure 3: The bathymetry around Kongsfjorden. The green bounding box shows the area within which data were sourced.
 </center>
+<br>
 
 ```{r kongsfjorden-meta-data}
 # Sea ice cover
@@ -572,14 +591,15 @@ kong_mooring_GFI <- data.frame(type = "Mooring",
 
 # Ferry box data
 kong_ferry <- data.frame(type = "Mooring",
-                         data_name = "PAR; many chem drivers",
+                         data_name = "Salinity; Seawater temperature: surface, mid, bottom; Total alkalinity; pCO2; pH ",
                          date_range = "2015 - 2021",
                          # lon_range = "11.92", 
                          # lat_range = "78.93",
                          # depth_range = "0 - 12",
                          # file_name = '<a onclick="alert(\'kong_ferry.rds\');">1 file</a>',
                          URL = '<a onclick="alert(\'File provided by Jean-Pierre Gattuso\');">NA</a>',
-                         reference = '<a onclick="alert(\'Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)\');">Gattuso et al. (In prep.)</a>',
+                         reference = "Multiple pending",
+                         # reference = '<a onclick="alert(\'Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)\');">Gattuso et al. (In prep.)</a>',
                          note = NA)
 
 # MOSJ crusie data
@@ -725,7 +745,7 @@ kong_PG <- data.frame(type = "PANGAEA",
                       note = "130 PANGAEA files.")
 
 # Fully combined product
-full_product_kong <- data.frame(type = "Combined",
+full_product_kong <- data.frame(type = "FACE-IT",
                                 data_name = "Many",
                                 date_range = "1871 - 2021",
                                 # lon_range = "4.2 - 13.2", 
@@ -752,7 +772,7 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_n
 <!-- <div style="margin-right: -200px;"> -->
 ```{r kongsfjorden-meta-data-table}
 DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/kongsfjorden/'.")
+              caption = "Table 3: The datasets containing key drivers for Kongsfjorden. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.")
 ```
 <!-- </div> -->
 
@@ -762,7 +782,10 @@ DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames 
 
 <center>
 ![](assets/map_isfjorden.png){ width=70% }
+
+Figure 4: The bathymetry around Isfjorden. The green bounding box shows the area within which data were sourced.
 </center>
+<br>
 
 ```{r isfjorden-meta-data}
 # Mouth mooring North
@@ -1046,18 +1069,21 @@ metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_moori
 
 ```{r isfjorden-meta-data-table}
 DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/isfjorden/'.")
+              caption = "Table 4: The datasets containing key drivers for Isfjorden. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.")
 ```
 
 <br>
 
 ## Storfjorden
 
+Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce. There are however several time series for the larger Storfjorden complex and so after the 2021 annual meeting it was decided to expand the Inglefieldbukta site to Storfjorden.
+
 <center>
 ![](assets/map_storfjorden.png){ width=60% }
-</center>
 
-Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce. There are however several time series for the larger Storfjorden complex and so after the 2021 annual meeting it was decided to expand the Inglefieldbukta site to Storfjorden.
+Figure 5: The bathymetry around Storfjorden. The green bounding box shows the area within which data were sourced.
+</center>
+<br>
 
 ```{r storfjorden-meta-data}
 # Cryosphere survey data
@@ -1180,7 +1206,7 @@ metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_NOA
 
 ```{r storfjorden-meta-data-table}
 DT::datatable(metadata_stor, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/storfjorden/'.")
+              caption = "Table 5: The datasets containing key drivers for Storfjorden. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.")
 ```
 
 <br>
@@ -1195,7 +1221,10 @@ Please note that all GEM files must be downloaded directly from the URLs provide
 
 <center>
 ![](assets/map_young_sound.png){ width=70% }
+
+Figure 6: The bathymetry around Young Sound (Zackenberg). The green bounding box shows the area within which data were sourced.
 </center>
+<br>
 
 ```{r young-sound-meta-data}
 # Air pCO2 data
@@ -1475,7 +1504,7 @@ metadata_young_sound <- rbind(young_air_pCO2, young_water_pCO2, young_CTD_bottom
 
 ```{r young-sound-meta-data-table}
 DT::datatable(metadata_young_sound, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/young_sound/'.")
+              caption = "Table 6: The datasets containing key drivers for Young Sound. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.")
 ```
 
 <br>
@@ -1484,7 +1513,10 @@ DT::datatable(metadata_young_sound, rownames = FALSE, escape = FALSE, colnames =
 
 <center>
 ![](assets/map_disko_bay.png){ width=50% }
+
+Figure 7: The bathymetry around Disko Bay. The green bounding box shows the area within which data were sourced.
 </center>
+<br>
 
 ```{r disko-bay-meta-data}
 ## There are many atmospheric data from land for Disko Bay, but I've decided not to add them here for now.
@@ -1592,7 +1624,7 @@ metadata_disko_bay <- rbind(disko_CTD_water, disko_CTD_ChlA, disko_NOAA, disko_C
 
 ```{r disko-bay-meta-data-table}
 DT::datatable(metadata_disko_bay, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/disko_bay/'.")
+              caption = "Table 7: The datasets containing key drivers for Disko Bay. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.")
 ```
 
 <br>
@@ -1601,7 +1633,10 @@ DT::datatable(metadata_disko_bay, rownames = FALSE, escape = FALSE, colnames = D
 
 <center>
 ![](assets/map_nuup_kangerlua.png){ width=70% }
+
+Figure 8: The bathymetry around Nuup Kangerlua (Nuuk). The green bounding box shows the area within which data were sourced.
 </center>
+<br>
 
 ```{r nuup-meta-data}
 # Phytoplankton abundance
@@ -1746,7 +1781,7 @@ metadata_nuup <- rbind(nuup_phyto_abundance, nuup_CTD, nuup_Chla, nuup_prim_prod
 
 ```{r nuup-meta-data-table}
 DT::datatable(metadata_nuup, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
+              caption = "Table 8: The datasets containing key drivers for Nuup Kangerlua. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.")
 ```
 
 <br>
@@ -1757,7 +1792,10 @@ DT::datatable(metadata_nuup, rownames = FALSE, escape = FALSE, colnames = DT_col
 
 <center>
 ![](assets/map_porsangerfjorden.png){ width=50% }
+
+Figure 9: The bathymetry around Porsangerfjorden. The green bounding box shows the area within which data were sourced.
 </center>
+<br>
 
 ```{r porsangerfjorden-meta-data}
 # GFI moorings
@@ -1924,7 +1962,7 @@ metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bi
 
 ```{r porsangerfjorden-meta-data-table}
 DT::datatable(metadata_porsangerfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "All data files in this table are found within '~/pCloudDrive/FACE-IT_data/porsangerfjorden/'.")
+              caption = "Table 9: The datasets containing key drivers for Porsangerfjorden. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.")
 ```
 
 <br>
