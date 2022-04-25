@@ -1561,9 +1561,36 @@ young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_D
          citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+# Mooring with many variables
+## NB: These data are part of an upcoming publication
+## Therefore a lot of the information is still forthcoming
+young_mooring_multi <- read_csv("~/pCloudDrive/restricted_data/Young_Sound/RBR_Sedimentfaelde_2108-19_SN080360.csv") %>% 
+  dplyr::select(-`Average of PAR`) %>% # Rather using the corrected PAR values
+  dplyr::rename(date = Date, 
+                `cndc [mS/cm]` = `Average of Conductivity`,
+                `sal [PSU]` = `Average of Salinity`, 
+                `press [dbar]` = `Average of Pressure`,
+                `temp [°C]` = `Average of Temperature`, 
+                `chlA [µg/l]` = `Average of Chlorophyll a`,
+                `oxygen [µmol/l]` = `Average of Dissolved O₂ concentration`,
+                `PAR [µMol/m²/s]` = `PAR corrected`,
+                `turbidity [NTU]` = `Average of Turbidity`, 
+                `depth` = `Average of Depth`) %>% 
+  pivot_longer(`cndc [mS/cm]`:`turbidity [NTU]`, names_to = "var_name") %>% 
+  mutate(var_type = case_when(var_name == "chlA [µg/l]" ~ "bio",
+                              var_name == "oxygen [µmol/l]" ~ "chem",
+                              TRUE ~ "phys"),
+         lon = NA, lat = NA, # NB: Still need this information from Mikael or from when the publication comes out
+         depth = round(depth, 1),
+         date = as.Date(date, format = "%B %d, %Y"),
+         URL = "Received directly from Mikael Sejr (g-e-m)", # NB: g-e-m added for screening of GEM data from Data Access app
+         date_accessed = as.Date("2021-12-01"),
+         citation = "Singh, R., Belanger, S., ... Sejr, M. (2022) In prep.") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Combine and save
 young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, young_GEM_sea_ice_formation, young_GEM_sea_ice_thickness,
-                   young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill)
+                   young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill, young_mooring_multi)
 save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
 rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
