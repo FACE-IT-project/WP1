@@ -802,6 +802,7 @@ kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_In
 rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Inka_hourly); gc()
 
 # PAR data from Dieter Hanelt
+## NB: The coords that are slightly different from Hansneset are a but of a guess RE advise from Dieter
 kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Hansneset_PAR.csv") %>% 
   dplyr::select(-Air, - Ratio) %>% dplyr::rename(value = UW) %>% 
   mutate(var_name = "PAR [umol m-2 s-1]",
@@ -1605,7 +1606,7 @@ young_mooring_multi <- read_csv("~/pCloudDrive/restricted_data/Young_Sound/RBR_S
 young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, young_GEM_sea_ice_formation, young_GEM_sea_ice_thickness,
                    young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill, young_mooring_multi)
 save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
-rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); gc()
+rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_multi); gc()
 
 
 # Disko Bay ---------------------------------------------------------------
