@@ -793,11 +793,24 @@ kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_l
 kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
   mutate(lon = 11.9872, lat = 78.9958,
          var_name = case_when(var_name == "PAR [umol m-2 s-1]" ~ "PAR [µmol m-2 s-1]", TRUE ~ var_name),
-         var_type = "phys", URL = NA, date_accessed = as.Date("2022-03-24"),
+         var_type = "phys", 
+         date_accessed = as.Date("2022-03-24"),
+         URL = "Received directly from Inka Bartsch", 
          citation = "Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Inka_hourly); gc()
+
+# PAR data from Dieter Hanelt
+kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Hansneset_PAR.csv") %>% 
+  dplyr::select(-Air, - Ratio) %>% dplyr::rename(value = UW) %>% 
+  mutate(var_name = "PAR [umol m-2 s-1]",
+         var_type = "phys", 
+         date_accessed = as.Date("2022-04-19"),
+         URL = "Received directly from Dieter Hanelt", 
+         citation = "Pavlov, A. K., Leu, E., Hanelt, D., Bartsch, I., Karsten, U., Hudson, S. R., ... & Granskog, M. A. (2019). The underwater light climate in Kongsfjorden and its ecological implications. In The ecosystem of Kongsfjorden, Svalbard (pp. 137-170). Springer, Cham.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 ## SOCAT
 ### NB: EU_SOCAT loaded in EU full product section
@@ -817,7 +830,7 @@ kong_GLODAP <- EU_GLODAP %>%
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
                            kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
-                           kong_light_Laeseke, kong_light_Inka, kong_SOCAT) %>% 
+                           kong_light_Laeseke, kong_light_Inka, kong_PAR_Dieter, kong_SOCAT) %>% 
   rbind(filter(full_product_sval, lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4])) %>% 
   rbind(filter(full_product_sval, grepl("Kongsfjorden", var_name))) %>% distinct()
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
