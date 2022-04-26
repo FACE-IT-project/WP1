@@ -36,7 +36,7 @@ ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie
 ## 3 = sea ice
 ## 4 = coastline (land adjacent to ocean)
 ## 5 = lake
-##6 = border of region images 
+## 6 = border of region images 
 
 # Previously downloaded PANGAEA data
 # pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)

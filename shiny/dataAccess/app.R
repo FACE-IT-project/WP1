@@ -366,7 +366,8 @@ server <- function(input, output, session) {
         #     df_cat <- loadRData("full_data/clean_all.RData") %>% # This should be improved to be site specific
         #         filter(site == str_remove(input$selectSite, "_"),
         #                var_type %in% str_remove(input$selectCat, "_"),
-        #                !grepl("g-e-m", URL)) # Remove GEM data
+        #                !grepl("g-e-m", URL),  # Remove GEM data
+                         # !grpl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
             
             # Remove GRDC data
             ## Not yet amalgamated

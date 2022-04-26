@@ -59,18 +59,18 @@ options(DT.options = list(pageLength = 5,
                           lengthMenu = c(5, 10, 25, 50, 100)))
 ```
 
-The interactive tables found below contain the meta-database for the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). These table may be searched for key words, and clicking at the top of each column will order the rows in ascending/descending order. Individual tables are given for each site for convenience. 
+The interactive tables found below contain the meta-database of the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). These tables may be searched for key words. One may also click at the top of each column to order the rows in ascending/descending order. Datasets that are restricted to a single FACE-IT study site (e.g. mooring data from Kongsfjorden) are listed in the corresponding meta-datatable below and one may jump to these tables quickly using the table of contents (TOC) on the left. Datasets that encompass the entire European Arctic are listed in their own meta-datatable rather than being listed repeatedly in the tables for individual sites. The same applies for Svalbard. Nearly all of the datasets listed here were collected through some means of _in situ_ sampling however, for some important drivers (e.g. sea ice cover) gridded data from remotely sampled or modelled datasets were sourced and are listed in the meta-datatables for each site.
 
 This website was created for D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). 
 
 ## Column definitions
 
-The interactive tables found below all contain these columns:
+The interactive tables found below contain the following columns:
 
 - Type: The method of data collection/creation (e.g. CTD casts or modelled data)
     - Datasets marked as 'PANGAEA' are the combined output of a data query to that database
     - Datasets marked as 'FACE-IT' are a combination of all data from all collected sources
-      - This includes the EU Arctic and Svalbard (when applicable) meta-data tables as well as PANGAEA data
+      - This includes datasets from the EU Arctic and Svalbard meta-datatables (when applicable) as well as the PANGAEA data
 - Driver: The list of [drivers](https://face-it-project.github.io/WP1/key_drivers.html) found within the dataset
 - Date: The years over which the data were collected
 - Source: A clickable link to the website were the data file may be downloaded
@@ -633,14 +633,26 @@ kong_bischoff <- data.frame(type = "In situ",
                             note = "Field data collected by Kai's team may be available in 2022.")
 
 # PAR data collected as part of a 2012/13 experiment by Inka
-# NB: Currently being processed into PANGAEA
-# kong_bartsch <- data.frame(type = "In situ",
-#                             data_name = "PAR",
-#                             date_range = "?", lon_range = "?", lat_range = "?", depth_range = "?",
-#                             file_name = '<a onclick="alert(\'\');">0 files</a>',
-#                             URL = '<a onclick="alert(\'\');">NA</a>',
-#                             reference = '<a onclick="alert(\'\');">NA</a>',
-#                             note = NA)
+## NB: Currently being processed into PANGAEA
+kong_bartsch <- data.frame(type = "In situ",
+                           data_name = "PAR",
+                           date_range = "2012 - 2013", 
+                           # lon_range = "?", lat_range = "?", depth_range = "?",
+                           # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                           URL = '<a onclick="alert(\'Currently in process\');">PANGAEA</a>',
+                           reference = '<a onclick="alert(\'Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.\');">Bartsch et al. (2016)</a>',
+                           note = NA)
+
+
+# PAR data from Dieter Hanelt
+kong_hanelt <- data.frame(type = "In situ",
+                          data_name = "PAR",
+                          date_range = "2012",
+                          # lon_range = "?", lat_range = "?", depth_range = "?",
+                          # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                          URL = '<a onclick="alert(\'Received directly from Dieter Hanelt\');">NA</a>',
+                          reference = '<a onclick="alert(\'Pavlov, A. K., Leu, E., Hanelt, D., Bartsch, I., Karsten, U., Hudson, S. R., ... & Granskog, M. A. (2019). The underwater light climate in Kongsfjorden and its ecological implications. In The ecosystem of Kongsfjorden, Svalbard (pp. 137-170). Springer, Cham.\');">Pavlov et al. (2019)</a>',
+                           note = NA)
 
 # Cruise data sampling water along the marine terminating edge of glaciers
 kong_TWICE <- data.frame(type = "Cruise",
@@ -720,6 +732,14 @@ kong_CCI <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
+# MASIE ice cover data
+kong_MASIE <- data.frame(type = "Remote",
+                         data_name = "Sea ice: concentration, extent",
+                         date_range = "2006 - 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.7265/N5GT5K3K">NSIDC</a>',
+                         reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
+                         note = NA)
+
 # SOCAT
 kong_SOCAT <- data.frame(type = "Synthesis",
                          data_name = "Partial pressure of CO2",
@@ -762,8 +782,8 @@ full_product_kong <- data.frame(type = "FACE-IT",
 # Bind them together
 metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
-                               kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_TWICE, kong_mooring_SAMS,
-                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_CCI, 
+                               kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_bartsch, kong_hanelt, kong_TWICE, kong_mooring_SAMS,
+                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_CCI, kong_MASIE, 
                                kong_SOCAT, kong_PG, full_product_kong)
 ```
 
@@ -1012,6 +1032,14 @@ is_CCI <- data.frame(type = "Remote",
                      reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                      note = NA)
 
+# MASIE ice cover data
+is_MASIE <- data.frame(type = "Remote",
+                       data_name = "Sea ice: concentration, extent",
+                       date_range = "2006 - 2021",
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.7265/N5GT5K3K">NSIDC</a>',
+                       reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
+                       note = NA)
+
 # SOCAT
 is_SOCAT <- data.frame(type = "Synthesis",
                        data_name = "Partial pressure of CO2",
@@ -1064,7 +1092,7 @@ full_product_is <- data.frame(type = "FACE-IT",
 metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, 
                             is_CO2_tempelfjorden, is_IsA_CO2, is_IsA_Chla, is_IsA_light, is_IsA_bio, is_BAB_bio, is_zoo,
                             is_met_radio, is_met_airport, is_met_pyramiden, is_social, is_AIS, is_ship_arrivals, is_NOAA,
-                            is_CCI, is_SOCAT, is_GLODAP, is_PG, full_product_is)
+                            is_CCI, is_MASIE, is_SOCAT, is_GLODAP, is_PG, full_product_is)
 ```
 
 ```{r isfjorden-meta-data-table}
@@ -1152,6 +1180,14 @@ stor_CCI <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
+# MASIE ice cover data
+stor_MASIE <- data.frame(type = "Remote",
+                         data_name = "Sea ice: concentration, extent",
+                         date_range = "2006 - 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.7265/N5GT5K3K">NSIDC</a>',
+                         reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
+                         note = NA)
+
 # SOCAT
 stor_SOCAT <- data.frame(type = "Synthesis",
                          data_name = "Partial pressure of CO2",
@@ -1200,7 +1236,7 @@ full_product_stor <- data.frame(type = "FACE-IT",
                                 reference = '<a onclick="alert(\'full_product_stor.csv/.RData\');">See citation column</a>',
                                 note = "93 files from the EU, Svalbard, and Storfjorden")
 # Bind them together
-metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_NOAA, stor_CCI, 
+metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_NOAA, stor_CCI, stor_MASIE,
                        stor_SOCAT, stor_GLODAP, stor_PG, full_product_stor)
 ```
 
@@ -1446,6 +1482,14 @@ young_prim_prod <- data.frame(type = "CTD",
                               reference = '<a onclick="alert(\'Holding, Johnna M, Markager, Stiig, Juul-Pedersen, Thomas, Paulsen, Maria L, Møller, Eva F, & Sejr, Mikael K. (2021). Dataset from Holding et al. (2019) Seasonal and spatial patterns of primary production in a high latitude fjord [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572041\');">Holding et al. (2019)</a>',
                               note = '<a target="_blank" rel="noopener noreferrer" href="https://rpubs.com/JohnnaH/798295">Interactive map</a>')
 
+# Mooring data from Mikael with many variables
+young_mooring_multi <- data.frame(type = "Mooring",
+                                  data_name = "Seawater temperature: bottom; salinity; turbidity; PAR; dissolved oxygen; ChlA",
+                                  date_range = "2018 - 2019",
+                                  URL = '<a onclick="alert(\'Received driectly from Mikael Sejr\');">NA</a>',
+                                  reference = '<a onclick="alert(\'Singh, R., Belanger, S., ... Sejr, M. (2022) In prep.\');">Singh et al. (2022)</a>',
+                                  note = NA)
+
 # NOAA OISST
 young_NOAA <- data.frame(type = "Remote",
                          data_name = "Sea temperature: surface",
@@ -1469,6 +1513,14 @@ young_CCI <- data.frame(type = "Remote",
                         URL = '<a target="_blank" rel="noopener noreferrer" href="http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0">NEODC</a>',
                         reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                         note = NA)
+
+# MASIE ice cover data
+young_MASIE <- data.frame(type = "Remote",
+                          data_name = "Sea ice: concentration, extent",
+                          date_range = "2006 - 2021",
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.7265/N5GT5K3K">NSIDC</a>',
+                          reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
+                          note = NA)
 
 # PANGAEA data product
 young_PG <- data.frame(type = "PANGAEA",
@@ -1499,7 +1551,7 @@ metadata_young_sound <- rbind(young_air_pCO2, young_water_pCO2, young_CTD_bottom
                               young_CTD_mooring, young_CTD_sill, young_phyto_species, young_zoo_species,
                               young_phosphate, young_silicate, young_DIC, young_TA, young_sea_ice_formation,
                               young_sea_ice_breakup, young_sea_ice_thickness, young_sea_ice_open, young_snow_thickness,
-                              young_prim_prod, young_NOAA, young_CCI, young_PG, full_product_young)
+                              young_prim_prod, young_mooring_multi, young_NOAA, young_CCI, young_MASIE, young_PG, full_product_young)
 ```
 
 ```{r young-sound-meta-data-table}
@@ -1569,6 +1621,14 @@ disko_CCI <- data.frame(type = "Remote",
                         reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                         note = NA)
 
+# MASIE ice cover data
+disko_MASIE <- data.frame(type = "Remote",
+                          data_name = "Sea ice: concentration, extent",
+                          date_range = "2006 - 2021",
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.7265/N5GT5K3K">NSIDC</a>',
+                          reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
+                          note = NA)
+
 # SOCAT
 disko_SOCAT <- data.frame(type = "Synthesis",
                           data_name = "Partial pressure of CO2",
@@ -1618,7 +1678,7 @@ full_product_disko <- data.frame(type = "FACE-IT",
                                  note = "306 files from the EU and Disko Bay.")
 
 # Bind them together
-metadata_disko_bay <- rbind(disko_CTD_water, disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_SOCAT, disko_GLODAP, 
+metadata_disko_bay <- rbind(disko_CTD_water, disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_MASIE, disko_SOCAT, disko_GLODAP, 
                             disko_PG, full_product_disko)
 ```
 
@@ -1738,6 +1798,14 @@ nuup_CCI <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                        note = NA)
 
+# MASIE ice cover data
+nuup_MASIE <- data.frame(type = "Remote",
+                         data_name = "Sea ice: concentration, extent",
+                         date_range = "2006 - 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.7265/N5GT5K3K">NSIDC</a>',
+                         reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
+                         note = NA)
+
 # SOCAT
 nuup_SOCAT <- data.frame(type = "Synthesis",
                          data_name = "Partial pressure of CO2",
@@ -1776,7 +1844,7 @@ full_product_nuup <- data.frame(type = "FACE-IT",
 
 # Bind them together
 metadata_nuup <- rbind(nuup_phyto_abundance, nuup_CTD, nuup_Chla, nuup_prim_prod, nuup_phosphate, nuup_silicate,
-                       nuup_NOAA, nuup_CCI, nuup_SOCAT, nuup_PG, full_product_nuup)
+                       nuup_NOAA, nuup_CCI, nuup_MASIE, nuup_SOCAT, nuup_PG, full_product_nuup)
 ```
 
 ```{r nuup-meta-data-table}
@@ -1918,6 +1986,14 @@ por_CCI <- data.frame(type = "Remote",
                       reference = '<a onclick="alert(\'Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.\');">Merchant et al. (2019)</a>',
                       note = NA)
 
+# MASIE ice cover data
+por_MASIE <- data.frame(type = "Remote",
+                        data_name = "Sea ice: concentration, extent",
+                        date_range = "2006 - 2021",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.7265/N5GT5K3K">NSIDC</a>',
+                        reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
+                        note = NA)
+
 # SOCAT
 por_SOCAT <- data.frame(type = "Synthesis",
                         data_name = "Partial pressure of CO2",
@@ -1956,7 +2032,7 @@ full_product_por <- data.frame(type = "FACE-IT",
 
 # Bind them together
 metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, 
-                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_NOAA, por_CCI, por_SOCAT, 
+                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_NOAA, por_CCI, por_MASIE, por_SOCAT, 
                                    por_PG, full_product_por)
 ```
 

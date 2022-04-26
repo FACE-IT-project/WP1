@@ -35,6 +35,9 @@ options(scipen = 9999)
 # Set Timezone to UTC
 Sys.setenv(TZ = "UTC")
 
+# Set system time to English
+Sys.setlocale("LC_TIME","en_GB.UTF-8")
+
 # Bounding boxes
 bbox_EU <- c(-60, 60, 63, 90)
 bbox_sval <- c(9, 30, 76, 81)

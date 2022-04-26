@@ -803,6 +803,8 @@ rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Ink
 
 # PAR data from Dieter Hanelt
 ## NB: The coords that are slightly different from Hansneset are a but of a guess RE advise from Dieter
+## NB: There are two different sampling profiles on the same day with the same coords provided
+## This is because the time of day of sampling is different
 kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Hansneset_PAR.csv") %>% 
   dplyr::select(-Air, - Ratio) %>% dplyr::rename(value = UW) %>% 
   mutate(var_name = "PAR [umol m-2 s-1]",
@@ -1597,7 +1599,7 @@ young_mooring_multi <- read_csv("~/pCloudDrive/restricted_data/Young_Sound/RBR_S
          lon = NA, lat = NA, # NB: Still need this information from Mikael or from when the publication comes out
          depth = round(depth, 1),
          date = as.Date(date, format = "%B %d, %Y"),
-         URL = "Received directly from Mikael Sejr (g-e-m)", # NB: g-e-m added for screening of GEM data from Data Access app
+         URL = "Received directly from Mikael Sejr",
          date_accessed = as.Date("2021-12-01"),
          citation = "Singh, R., Belanger, S., ... Sejr, M. (2022) In prep.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
