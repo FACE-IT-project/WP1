@@ -3,8 +3,10 @@
 
 # TODO: 
 # Fix upload tab, it is broken
+# Remove upload tab and add the upload button to the metadata tab
 # Don't need to show the table of existing database data
 # Rather show the count of the data and that it get's bigger when a user uploads something
+# Selectise the sensor owners etc. in the download tab
 # Don't upload all of the data at the outset OR
 # Have an additional tab that visualises all of the data
 # Time series by site/user of count of when and how much data were uploaded
