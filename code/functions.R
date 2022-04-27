@@ -1544,11 +1544,12 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
   # Monthly averages
   df_monthly <- filter_object %>%
     filter(!is.na(date)) %>% # This needs to be attended to eventually
+    group_by(var_name) %>% 
     mutate(date_round = lubridate::round_date(date, "month"),
            median_value = median(value, na.rm = T),
            # Filter low salinity values. 24 based on the base data before filtering.
            value = case_when(median_value > 30 & value < 24 ~ as.numeric(NA), TRUE ~ value)) %>% 
-    group_by(site, type, date_round) %>%
+    group_by(site, type, var_name, date_round) %>%
     summarise(value_mean = round(mean(value, na.rm = T), 2),
               value_median = round(median(value, na.rm = T), 2),
               value_min = round(min(value, na.rm = T), 2),
@@ -1556,26 +1557,36 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
               count = n(), 
               count_days = length(unique(date)), .groups = "drop") %>%
     dplyr::rename(date = date_round) %>% 
-    complete(nesting(site, type), date = seq(min(date), max(date), by = "month"))
+    group_by(site, type, var_name) %>% 
+    complete(date = seq(min(date), max(date), by = "month"))
+  
+  # Summary data
+  df_monthly_summary <- df_monthly %>% 
+    group_by(site, type, var_name) %>%
+    summarise(date_min = min(date),
+              date_max = max(date),
+              value_min = min(value_min, na.rm = T),
+              value_mean = mean(value_mean, na.rm = T),
+              value_max = min(value_max, na.rm = T), .groups = "drop")
   
   # Trends
   df_monthly_trend <- df_monthly %>% 
     filter(between(date, as.Date(trend_dates[1]), as.Date(trend_dates[2]))) %>%
-    group_by(site, type) %>%
-    mutate(row_idx = 1:n()) %>% 
+    group_by(site, type, var_name) %>%
+    mutate(row_idx = 1:n()) %>%
     do(fit_site = broom::tidy(lm(value_mean ~ row_idx, data = .))) %>% 
     unnest(fit_site) %>% 
     filter(term == "row_idx") %>% 
     mutate(dec_trend = round(estimate*120, 4), 
-           p.value = round(p.value, 4),
-           date_min = trend_dates[1], date_max = trend_dates[2]) %>% 
-    dplyr::select(site, type, dec_trend, p.value, date_min, date_max)
+           p.value = round(p.value, 4)) %>% 
+    dplyr::select(site, type, var_name, dec_trend, p.value) %>% 
+    left_join(df_monthly_summary, by = c("site", "type", "var_name"))
   
   # Monthly climatologies
   df_monthly_clim <- df_monthly %>% 
     filter(!is.na(value_mean)) %>% 
     mutate(month = lubridate::month(date)) %>% 
-    group_by(site, type, month) %>% 
+    group_by(site, type, var_name, month) %>% 
     summarise(value_clim = mean(value_mean, na.rm = T),
               count = n(), .groups = "drop")
  
@@ -1589,6 +1600,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
                    clim = df_monthly_clim,
                    citations = df_citations)
   return(res_list)
+  # rm(filter_object, trend_dates, df_monthly, df_monthly_trend, df_monthly_clim, df_citations, res_list); gc() # testing
 }
 
 # Convenience plotting function
@@ -1601,14 +1613,20 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
   if(short_var == "sal") y_label <- "Salinity"
   if(short_var == "par") y_label <- "PAR"
   if(short_var == "ice") y_label <- "Assorted ice variables"
+  if(short_var == "snow") y_label <- "Assorted snow variables"
+  if(short_var == "pCO2") y_label <- "pCO2 [µatm]"
+  if(short_var == "nutrients") y_label <- "Assorted nutrients [µmol/l]"
   
   # Create x/y coords for labels
   label_df_full <- summary_list$trend %>% 
-    arrange(site, type) %>% # Should already be in this order. Just a precaution.
-    mutate(x = base::rep(seq(from = min(summary_list$monthly$date), to = max(summary_list$monthly$date), 
-                             length.out = length(unique(summary_list$monthly$site))+1)[2:(length(unique(summary_list$monthly$site))+1)],
-                         each = length(unique(summary_list$monthly$type))),
-           y = base::rep(seq(from = max(summary_list$monthly$value_mean, na.rm = T), by = -1.5, 
+    arrange(var_name, site, type) %>%
+    group_by(var_name) %>% 
+    # mutate(x = case_when(length(unique(type))*length(unique(site)) == 1 ~ "1"))
+    mutate(n_site = length(unique(site)), n_type = length(unique(type))) %>% 
+    mutate(x = base::rep(seq(from = min(date_min), to = max(date_max), 
+                             length.out = n_site[1]+1)[2:(n_site+1)],
+                         each = n_type[1]),
+           y = base::rep(seq(from = max(value_max, na.rm = T), by = 
                              length.out = length(unique(summary_list$monthly$type))),
                          length(unique(summary_list$monthly$site))))
   label_df_sub <- summary_list$trend %>% 
@@ -1628,7 +1646,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                               label = unique(summary_list$monthly$type),
                               site = "label", type = "in situ")
   
-  # Plot monthly datum metadata
+  # Plot monthly metadata
   summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     mutate(month = lubridate::month(date)) %>% 
@@ -1767,7 +1785,7 @@ ice_cover_prop <- function(ice_df){
     replace(is.na(.), 0) %>% 
     mutate(date = lubridate::round_date(date, "month"),
            year = lubridate::year(date),
-           month = lubridate::month(date)) %>% 
+           month = lubridate::month(date, abbr = TRUE, label = TRUE)) %>% 
     group_by(year, month, date) %>% 
     summarise(mean_prop = round(mean(prop, na.rm = T), 2), .groups = "drop")
 }
