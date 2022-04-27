@@ -31,6 +31,9 @@ load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
+# NB: It's not clear if this is worthwhile
+full_product_all <- rbind(full_product_sval, full_product_kong, full_product_is, full_product_stor,
+                          full_product_young, full_product_disko, full_product_nuup)
 
 # GEM data
 load("~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
@@ -362,17 +365,23 @@ review_summary_plot(summary_PAR, "par")
 
 # https://doi.org/10.1594/PANGAEA.935267; bi [code] = ice of land origin, ci [code] = sea ice concentration, zi [code] = ice situation
 # https://doi.org/10.1594/PANGAEA.269605; t [°C] = temperature ice/snow
-# https://doi.org/10.1594/PANGAEA.269619; DI [code] = bearing of principal ice edge; l_s [code] = type of ice accretion
+# https://doi.org/10.1594/PANGAEA.269619; DI [code] = bearing of principal ice edge, l_s [code] = type of ice accretion
 # https://doi.org/10.1594/PANGAEA.935267; EsEs [m] = sea ice thickness, EsEs acc [cm] = thickness of ice accretion
 # https://doi.org/10.1594/PANGAEA.896581; RGI 6.0 ID = Randolph glacier inventory, SWE [m] = snow water equivalent, SWE unc [m] - Uncertainty
 # https://doi.org/10.1594/PANGAEA.869294; IP [km**3/day] = sea ice production
 # https://doi.org/10.1594/PANGAEA.908494; SIC d [months/a] = Sea ice cover duration NB: This file is a good candidate for checking pipeline errors
 # https://doi.org/10.1594/PANGAEA.815951; Glac w [km] = Glacier width
+# https://doi.org/10.1594/PANGAEA.59224; IRD [arbitrary units] = Ice rafted debris, general
 kong_sea_ice <- filter(full_product_kong, var_type == "cryo", var_name == "ice cover [%]") %>% mutate(site = "kong") # Sea ice percent cover of inner fjord
-is_sea_ice <- filter(full_product_is, var_type == "cryo", var_name == "t [°C]") %>% mutate(site = "is") # Some sea ice/snow temperatures
+is_sea_ice <- filter(full_product_is, var_type == "cryo",
+                     URL != "https://doi.org/10.1594/PANGAEA.57721", # Glacial maximum ice sheet extension
+                     var_name %in% c("EsEs acc [cm]", "Ice extent")) %>% mutate(site = "is") # Sea ice extent and ice accretion
 stor_sea_ice <- filter(full_product_stor, var_type == "cryo",
-                       var_name %in% c("Ice cov [%]", "EsEs [m]", "t [°C]")) %>% mutate(site = "stor") # Sea ice percent cover and thickness, temperature.
+                       URL != "https://doi.org/10.1594/PANGAEA.57721",
+                       var_name %in% c("Ice conc [tenths]", "Ice cov [%]", "Ice extent", 
+                                       "IP [km**3/day]", "EsEs [m]")) %>% mutate(site = "stor") # Sea ice percent cover and thickness
 young_sea_ice <- filter(rbind(full_product_young, young_GEM), var_type == "cryo",
+                        !grepl("snow", var_name),
                         !grepl("Hynek, Bernhard; Binder, Daniel;", citation),
                         !grepl("Hynek, Bernhard; Weyss, Gernot;", citation)) %>% mutate(site = "young") # A lot of GEM data
 disko_sea_ice <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo") %>% mutate(site = "disko") %>% slice(0) # No sea ice data
@@ -380,17 +389,17 @@ nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "por")
 clean_sea_ice <- rbind(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice) %>% 
   mutate(type = "in situ")
+rm(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice); gc()
 
 # Figures
 ## Need custom figures per site
 ## Consistent metadata files may not be useful across sites
 # filter(all_sea_ice, !var_name %in% c("Open water [start date]", "Open water [end date]"))
 ggplot(clean_sea_ice, aes(x = date, y = value, colour = site)) +
-  geom_point() + geom_line() + facet_wrap(~var_name, scales = "free")
+  geom_point() + geom_line() + 
+  facet_wrap(~var_name, scales = "free_y")
 ggsave("~/Desktop/ice_var_ts.png", width = 20, height = 16)
 
-# Analyses
-summary_ice <- review_summary(clean_sea_ice)
 ## Not a lot of common sea ice data between sites
 ## The gridded data sea ice cover will be the best comparison between sites
 ice_4km_kong_proc <- ice_4km_kong %>% 
@@ -424,13 +433,39 @@ ice_4km_por_proc <- ice_4km_por %>%
 ice_4km_prop <- plyr::ddply(rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
                                   ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc), 
                             c("site"), ice_cover_prop, .parallel = T)
+rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
+   ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
+   ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc); gc()
 
 # Calculate trends
 ice_4km_trend <- plyr::ddply(dplyr::rename(ice_4km_prop, val = mean_prop), c("site", "month"), trend_calc, .parallel = T)
-ice_4km_trend$x <- as.Date("2003-06-01")
-ice_4km_trend$y <- rep(seq(0, 1, length.out = 7), each = 12)
+
+# Combine with other clean data
+ice_4km_prop_long <- ice_4km_prop %>%
+  dplyr::rename(value = mean_prop) %>% 
+  dplyr::select(date, value, site) %>% 
+  mutate(var_name = "sea ice cover [proportion]")
+ice_4km_trend_long <- ice_4km_trend %>% 
+  pivot_longer(trend:sd_val, names_to = "var_name") %>% 
+  mutate(var_name = case_when(var_name == "trend" ~ paste0("sea ice cover ",month," [annual proportion trend]"),
+                              var_name == "p.value" ~ paste0("sea ice cover ",month," [annual proportion trend p-value]"),
+                              var_name == "mean_val" ~ paste0("sea ice cover ",month," [mean proportion]"),
+                              var_name == "sd_val" ~ paste0("sea ice cover ",month," [SD proportion]"))) %>% 
+  dplyr::select(-month)
+ice_4km_stats <- bind_rows(ice_4km_prop_long, ice_4km_trend_long) %>% 
+  mutate(type = "remote",
+         var_type = "cryo",
+         date_accessed = as.Date("2022-04-26"),
+         URL = "https://doi.org/10.7265/N5GT5K3K",
+         citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.")
+clean_sea_ice <- bind_rows(clean_sea_ice, ice_4km_stats)
+
+# Analyses
+summary_ice <- review_summary(clean_sea_ice)
 
 # Proportion figures
+ice_4km_trend$x <- as.Date("2003-06-01")
+ice_4km_trend$y <- rep(seq(0, 1, length.out = 7), each = 12)
 ggplot(ice_4km_prop, aes(x = date, y = mean_prop, colour = site)) +
   geom_point() + geom_smooth(method = "lm", se = F) + facet_wrap(~month) + 
   geom_label(data = ice_4km_trend, show.legend = F,
@@ -447,10 +482,108 @@ ggplot(ice_4km_prop, aes(x = as.factor(month), y = mean_prop, fill = site)) +
   geom_boxplot() + facet_wrap(~site, scales = "free_x") +
   labs(x = "Month", y = "Sea ice cover [proportion]", colour = "Site")
 ggsave("~/Desktop/ice_prop_box_site.png", height = 9, width = 12)
+rm(ice_4km_prop, ice_4km_prop_long, ice_4km_trend, ice_4km_trend_long, ice_4km_stats); gc()
 
 # Calculate sea ice breakup and formation dates
 ## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
 ## Consider calculating open water days
+
+
+## Snow --------------------------------------------------------------------
+
+# See sea ice section for notes on curious variables
+kong_snow <- filter(full_product_kong, var_type == "cryo") %>% mutate(site = "kong") %>% slice(0) # No snow data
+is_snow <- filter(full_product_is, var_type == "cryo",
+                  URL != "https://doi.org/10.1594/PANGAEA.930472", # Benthos data
+                  var_name %in% c("t [°C]", "Snow depth, unc [m]", "Density snow [kg/m**3]", "Snow density, unc [kg/m**3]",
+                                  "SWE [m]", "SWE unc [m]" )) %>% mutate(site = "is") # Many snow values
+stor_snow <- filter(full_product_stor, var_type == "cryo",
+                       var_name %in% c("t [°C]", "Depth ice/snow [m]", "Snow depth, unc [m]", "Density snow [kg/m**3]",
+                                       "Snow density, unc [kg/m**3]", "SWE [m]", "SWE unc [m]", "Snow thick [m]")) %>% mutate(site = "stor") # 
+young_snow <- filter(rbind(full_product_young, young_GEM), var_type == "cryo",
+                     var_name %in% c("Snow h [m]", "Density snow [kg/m**3]", "Sea ice snow thickness [cm]")) %>% 
+  mutate(site = "young") # A lot of geospatial glacier data... consider removing or averaging
+disko_snow <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo") %>% mutate(site = "disko") %>% slice(0) # No snow data
+nuup_snow <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %>% mutate(site = "nuup") %>% slice(0) # No snow data
+por_snow <- filter(full_product_por, var_type == "cryo") %>% mutate(site = "por") %>% slice(0) # No snow data
+clean_snow <- bind_rows(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow) %>% 
+  mutate(type = "in situ")
+rm(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow); gc()
+
+# Summary analyses
+summary_snow <- review_summary(clean_snow)
+
+# Plot results
+review_summary_plot(summary_snow, "snow")
+
+
+## Glacier -----------------------------------------------------------------
+
+# grepl("gla", var_name) returns nothing of use
+kong_glacier <- filter(full_product_kong) %>% mutate(site = "kong")
+# Grab glacier values directly from EU or Svalbard products for certainty
+# Look for specific DOI in each site file
+
+
+## pCO2 --------------------------------------------------------------------
+
+# Note that there are duplicates from GLODAP and the underlying files downloaded via PANGAEA
+# But this is actually a good thing as it allows us to acknowledge specific contributors,
+# which is something that the GLODAP product requests that we do.
+kong_pCO2 <- review_filter_var(full_product_kong, "kong", "CO2")
+is_pCO2 <- review_filter_var(full_product_is, "is", "CO2", "emissions")
+stor_pCO2 <- review_filter_var(full_product_stor, "stor", "CO2", "emissions|tco2|fco2")
+young_pCO2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "CO2") # No pCO2 data
+disko_pCO2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "CO2", "fco2|tco2")
+nuup_pCO2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "CO2")
+por_pCO2 <- review_filter_var(full_product_por, "por", "CO2")
+clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2) %>% 
+  mutate(var_name = "pCO2 [µatm]") # This may be incorrect to do
+rm(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2); gc()
+
+# Summary analyses
+summary_pCO2 <- review_summary(clean_pCO2)
+
+# Plot results
+review_summary_plot(summary_pCO2, "pCO2")
+
+
+## Nutrients ---------------------------------------------------------------
+
+kong_nutrients <- review_filter_var(full_product_kong, "kong", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "stddev", 
+                                    var_precise = c("[NO3]- + [NO2]- [µmol/l]", "PO4 biog [%]"))
+is_nutrients <- review_filter_var(full_product_is, "is", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", var_precise = "PO4 biog [%]")
+stor_nutrients <- review_filter_var(full_product_stor, "stor", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
+                                    var_precise = "NO3 pen depth [mm]")
+young_nutrients <- review_filter_var(rbind(full_product_young, young_GEM), "young", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", 
+                                     "nitracline", "NO2_NO3 [µmol/l]")
+disko_nutrients <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
+                                     var_precise = "[NO3]- + [NO2]- [µmol/l]")
+nuup_nutrients <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
+                                    var_precise = "[NO3]- + [NO2]- [µmol/l]")
+por_nutrients <- review_filter_var(full_product_por, "por", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4") # No nutrient data
+clean_nutrients <- rbind(kong_nutrients, is_nutrients, stor_nutrients, young_nutrients, disko_nutrients, nuup_nutrients, por_nutrients) %>% 
+  # Change GLODAP var_name to match PANGAEA standard 
+  mutate(var_name = case_when(var_name == "nitrate [μmol kg-1]" ~ "NO3 [µmol/l]",   
+                              var_name == "nitrite [μmol kg-1]" ~ "NO2 [µmol/l]",   
+                              var_name == "silicate [μmol kg-1]" ~ "SiO4 [µmol/l]",
+                              var_name == "phosphate [μmol kg-1]" ~ "PO4 [µmol/l]",
+                              TRUE ~ var_name)); unique(clean_nutrients$var_name)
+rm(kong_nutrients, is_nutrients, stor_nutrients, young_nutrients, disko_nutrients, nuup_nutrients, por_nutrients); gc()
+
+# Summary analyses
+summary_nutrients <- review_summary(clean_nutrients)
+
+# Plot results
+review_summary_plot(summary_nutrients, "nutrients")
+
+
+## ChlA --------------------------------------------------------------------
+
+
+
+# Biomass -----------------------------------------------------------------
+
 
 
 ## Species assemblage ------------------------------------------------------
@@ -458,6 +591,8 @@ ggsave("~/Desktop/ice_prop_box_site.png", height = 9, width = 12)
 
 
 ## Save clean data ---------------------------------------------------------
+
+# Create function for programmatically saving .RData files by site and category
 
 clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR, clean_sea_ice)
 save(clean_all, file = "data/full_data/clean_all.RData", compress = FALSE)
