@@ -1085,7 +1085,9 @@ is_CO2_IsA <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/Marine_CO2_system_d
 # tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")
 # as.data.frame(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$attribute$global)
 is_Chla_IsA_units <- rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc")$variable,
-                           ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$variable) %>% distinct()
+                           ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")$variable) %>% distinct() %>% 
+  mutate(units = case_when(units == "Micrograms per liter" ~ "µg/l", 
+                           units == "Millilitres" ~ "ml", TRUE ~ units))
 is_Chla_IsA_1 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc")) %>% mutate(data = "10um")
 is_Chla_IsA_2 <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/chl_a/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc")) %>% mutate(data = "GFF")
 is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>% 
@@ -1093,7 +1095,7 @@ is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>%
   mutate(date = as.Date(`Days since 1st jan 2011`, origin = "2011-01-01"), .keep = "unused") %>% 
   pivot_longer(`Chlorophyll A`:Phaeophytin, names_to = "var_name", values_to = "value") %>% 
   left_join(is_Chla_IsA_units, by = c("var_name" = "name")) %>% 
-  mutate(URL = "https://sios-svalbard.org/metsis/search?fulltext=isfjorden&start_date=&end_date=&is_parent=All",
+  mutate(URL = "https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00063",
          citation = "University Centre in Svalbard (2020).ISA_Svalbard_Chlorophyll_A_2011_2019 [Data set]. Norstore. https://doi.org/10.11582/2020.00063",
          lon = 15.52992, lat = 78.26105,
          var_name = paste0(var_name," - ",data," [", units,"]"),
@@ -1153,14 +1155,14 @@ is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arriv
 is_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_is[1], lon <= bbox_is[2],
          lat >= bbox_is[3], lat <= bbox_is[4])
-save(is_SOCAT, file = "~/pCloudDrive/FACE-IT_data/isfjorden/SOCAT_is.RData")
+# save(is_SOCAT, file = "~/pCloudDrive/FACE-IT_data/isfjorden/SOCAT_is.RData")
 
 ## GLODAP
 ### NB: EU_GLODAP loaded in EU full product section
 is_GLODAP <- EU_GLODAP %>% 
   filter(lon >= bbox_is[1], lon <= bbox_is[2],
          lat >= bbox_is[3], lat <= bbox_is[4])
-save(is_GLODAP, file = "~/pCloudDrive/FACE-IT_data/isfjorden/GLODAP_is.RData")
+# save(is_GLODAP, file = "~/pCloudDrive/FACE-IT_data/isfjorden/GLODAP_is.RData")
 
 # Combine and save
 full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
@@ -1473,6 +1475,8 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
                               var_name %in% c("sigmaT_kg_m3", "density_kg_m3") ~ paste0(var_name," [kg m-3]"),
                               var_name == "SoundVelocit_m_s" ~ "SoundVelocit_m_s [m/s]",
                               var_name == "chl_flu" ~ "chl_flu [µg chl m-3]",
+                              var_name %in% c("chla_GFF_conc", "chla_plus_10_conc") ~ paste0(var_name," [µg Chla m-3]"),
+                              var_name %in% c("chla_area_GFF_frac", "chla_area_plus_10_frac") ~ paste0(var_name," [mg Chla m-2]"),
                               var_name == "pp_vol" ~ "pp_vol [mg C m-3 day-1]",
                               var_name == "pp_chla" ~ "pp_chla [mg C µg Chla-1 m–3 day-1]",
                               var_name %in% c("NH4", "NO2", "NO3", "NO2_NO3", "PO4", "SiO4") ~ paste0(var_name," [µmol/l]"),
@@ -1755,6 +1759,13 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
          var_type = case_when(TRUE ~ "phys"),
          units = case_when(units == "practical_salinity_units" ~ "PSU",
                            units == "degrees_Celsius" ~ "°C",
+                           units == "mS_per_cm" ~ "mS/cm",
+                           units == "microgram_per_liter" ~ "µg/l",
+                           units == "millimoles_per_square_meter" ~ "mmol/m-2",
+                           units == "percent" ~ "%",
+                           units == "micro_moles_per_kg" ~ "mmol/kg",
+                           units == "kg_per_cubic_meter" ~ "kg/m-3",
+                           units == "meters_per_second" ~ "m/s",
                            TRUE ~ units),
          var_name = paste0(var_name," [",units,"]"), .keep = "unused") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
@@ -1765,14 +1776,14 @@ rm(disko_CTD_ChlA_var); gc()
 disko_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_disko[1], lon <= bbox_disko[2],
          lat >= bbox_disko[3], lat <= bbox_disko[4])
-save(disko_SOCAT, file = "~/pCloudDrive/FACE-IT_data/disko_bay/SOCAT_disko.RData")
+# save(disko_SOCAT, file = "~/pCloudDrive/FACE-IT_data/disko_bay/SOCAT_disko.RData")
 
 ## GLODAP
 ### NB: EU_GLODAP loaded in EU full product section
 disko_GLODAP <- EU_GLODAP %>% 
   filter(lon >= bbox_disko[1], lon <= bbox_disko[2],
          lat >= bbox_disko[3], lat <= bbox_disko[4])
-save(disko_GLODAP, file = "~/pCloudDrive/FACE-IT_data/disko_bay/GLODAP_disko.RData")
+# save(disko_GLODAP, file = "~/pCloudDrive/FACE-IT_data/disko_bay/GLODAP_disko.RData")
 
 # Combine and save
 full_product_disko <- rbind(pg_disko_ALL, disko_CTD_ChlA, disko_SOCAT, disko_GLODAP) %>% distinct()

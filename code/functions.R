@@ -1565,9 +1565,9 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
     group_by(site, type, var_name) %>%
     summarise(date_min = min(date),
               date_max = max(date),
-              value_min = min(value_min, na.rm = T),
-              value_mean = mean(value_mean, na.rm = T),
-              value_max = min(value_max, na.rm = T), .groups = "drop")
+              value_mean_min = min(value_mean, na.rm = T),
+              value_mean_mean = mean(value_mean, na.rm = T),
+              value_mean_max = max(value_mean, na.rm = T), .groups = "drop")
   
   # Trends
   df_monthly_trend <- df_monthly %>% 
@@ -1606,45 +1606,37 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
 # Convenience plotting function
 review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date("1982-01-01"), as.Date("2020-12-31"))){
   
-  # Get labels based on short_var name
-  y_label <- "Missing custom data name"
-  if(short_var == "temp") y_label <- "Temperature [°C]"
-  if(short_var == "air") y_label <- "Air temperature [°C]"
-  if(short_var == "sal") y_label <- "Salinity"
-  if(short_var == "par") y_label <- "PAR"
-  if(short_var == "ice") y_label <- "Assorted ice variables"
-  if(short_var == "snow") y_label <- "Assorted snow variables"
-  if(short_var == "pCO2") y_label <- "pCO2 [µatm]"
-  if(short_var == "nutrients") y_label <- "Assorted nutrients [µmol/l]"
-  
   # Create x/y coords for labels
   label_df_full <- summary_list$trend %>% 
     arrange(var_name, site, type) %>%
-    group_by(var_name) %>% 
-    # mutate(x = case_when(length(unique(type))*length(unique(site)) == 1 ~ "1"))
-    mutate(n_site = length(unique(site)), n_type = length(unique(type))) %>% 
+    group_by(var_name) %>%
     mutate(x = base::rep(seq(from = min(date_min), to = max(date_max), 
-                             length.out = n_site[1]+1)[2:(n_site+1)],
-                         each = n_type[1]),
-           y = base::rep(seq(from = max(value_max, na.rm = T), by = 
-                             length.out = length(unique(summary_list$monthly$type))),
-                         length(unique(summary_list$monthly$site))))
+                             length.out = length(unique(site))+1)[2:(length(unique(site))+1)], 
+                         each = length(unique(type))),
+           y = base::rep(seq(from = max(value_mean_max, na.rm = T),#max(value_mean, na.rm = T)-((max(value_mean, na.rm = T)-min(value_mean, na.rm = T))/4), 
+                             by = -((max(value_mean_max, na.rm = T)-min(value_mean_min, na.rm = T))/4),
+                             length.out = length(unique(type))),
+                         each = length(unique(site)))) %>% 
+    ungroup()
   label_df_sub <- summary_list$trend %>% 
-    arrange(site, type) %>% # Should already be in this order. Just a precaution.
-    mutate(x = base::rep(seq(from = date_filter[1], to = date_filter[2], 
-                             length.out = length(unique(summary_list$monthly$site))+1)[2:(length(unique(summary_list$monthly$site))+1)],
-                         each = length(unique(summary_list$monthly$type))),
-           y = base::rep(seq(from = max(summary_list$monthly$value_mean, na.rm = T), by = -1.5, 
-                             length.out = length(unique(summary_list$monthly$type))),
-                         length(unique(summary_list$monthly$site))))
-  label_key_full <- data.frame(x = min(summary_list$monthly$date),
-                               y = unique(label_df_full$y),
-                               label = unique(summary_list$monthly$type),
-                               site = "label", type = "in situ")
-  label_key_sub <- data.frame(x = date_filter[1],
-                              y = unique(label_df_sub$y),
-                              label = unique(summary_list$monthly$type),
-                              site = "label", type = "in situ")
+    arrange(var_name, site, type) %>%
+    group_by(var_name) %>%
+    mutate(x = base::rep(seq(from = date_filter[1], to = date_filter[2],
+                             length.out = length(unique(site))+1)[2:(length(unique(site))+1)], 
+                         each = length(unique(type))),
+           y = base::rep(seq(from = max(value_mean_max, na.rm = T),#max(value_mean, na.rm = T)-((max(value_mean, na.rm = T)-min(value_mean, na.rm = T))/4), 
+                             by = -((max(value_mean_max, na.rm = T)-min(value_mean_min, na.rm = T))/4),
+                             length.out = length(unique(type))),
+                         each = length(unique(site)))) %>% 
+    ungroup()
+  label_key_full <- label_df_full %>% 
+    group_by(var_name) %>% 
+    summarise(x = min(date_min), y = unique(y),
+              label = unique(type), site = "label", type = "in situ", .groups = "drop")
+  label_key_sub <- label_df_sub %>% 
+    group_by(var_name) %>% 
+    summarise(x = date_filter[1], y = unique(y),
+              label = unique(type), site = "label", type = "in situ", .groups = "drop")
   
   # Plot monthly metadata
   summary_list$monthly %>% 
@@ -1654,10 +1646,10 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     geom_boxplot(aes(fill = site), position = "dodge", outlier.colour = NA) +
     geom_jitter(aes(colour = log10(count))) +
     scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
-    labs(y = paste0("Unique days with data points - ",y_label), x = "Month", fill = "Site", colour = "Count [log10(n)]") +
-    facet_wrap(site~type, nrow = 3) +
+    labs(y = "Unique days with data points", x = "Month", fill = "Site", colour = "Count of\nindividual\ndata points\n[log10(n)]") +
+    facet_grid(site+type~var_name) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_meta_box.png"), width = 12, height = 9)
+  ggsave(paste0("~/Desktop/",short_var,"_meta_box.png"), width = 20, height = 9)
   summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     ggplot(aes(x = date, y = log10(count), colour = site)) +
@@ -1666,11 +1658,11 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     geom_smooth(data = filter(summary_list$monthly, date >= date_filter[1], date <= date_filter[2]), method = "lm", se = F) +
     # geom_jitter(aes(colour = log10(count))) +
     scale_fill_viridis_c() + #scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
-    labs(y = paste0("Count [log10(n)] of daily data points - ",y_label), x = NULL, 
+    labs(y = "Count [log10(n)] of daily data points", x = NULL, 
          fill = "Unique days\nof sampling", colour = "Site") +
-    facet_wrap(~type, nrow = 3) +
+    facet_grid(type~var_name) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_meta_ts.png"), width = 12, height = 9)
+  ggsave(paste0("~/Desktop/",short_var,"_meta_ts.png"), width = 20, height = 9)
   
   # Plot monthly values
   ggplot(summary_list$monthly, aes(x = date, y = value_mean, colour = site, linetype = type)) +
@@ -1681,9 +1673,10 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                aes(x = x, y = y, colour = site,
                    label = paste0(dec_trend,"/dec\n p = ", p.value))) +
     geom_label(data = label_key_full, aes(x = x, y = y, label = label), colour = "black") +
-    labs(y = y_label, x = NULL, colour = "Site", linetype = "Source") +
+    labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
+    facet_wrap(~var_name, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_ts.png"), width = 12, height = 5)
+  ggsave(paste0("~/Desktop/",short_var,"_ts.png"), width = 20, height = 9)
   
   # Plot monthly values with the given date range filter
   filter(summary_list$monthly, date >= date_filter[1], date <= date_filter[2]) %>%
@@ -1693,33 +1686,34 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                aes(x = x, y = y, colour = site,
                    label = paste0(dec_trend,"/dec\n p = ", p.value))) +
     geom_label(data = label_key_sub, aes(x = x, y = y, label = label), colour = "black") +
-    labs(y = y_label, x = NULL, colour = "Site", linetype = "Source") +
+    labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
+    facet_wrap(~var_name, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 12, height = 5)
+  ggsave(paste0("~/Desktop/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 20, height = 9)
   
   ## Plot monthly clims
-  ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site, colour = type)) +
-    geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-    labs(y = y_label, x = "Month", fill = "Site", colour = "Source") +
-    facet_wrap(~site) +
-    theme(panel.border = element_rect(colour = "black", fill = NA))#,
-          # legend.position = c(0.63, 0.12), legend.direction = "horizontal")
-  ggsave(paste0("~/Desktop/",short_var,"_clim_site.png"), width = 12, height = 7)
-  ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site)) +
-    geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-    labs(y = y_label, x = "Month", fill = "Site") +
-    facet_wrap(~type, nrow = 3) +
-    theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_clim_type.png"), width = 12, height = 7)
+  # ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site, colour = type)) +
+  #   geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+  #   labs(y = NULL, x = "Month", fill = "Site", colour = "Source") +
+  #   facet_grid(site~var_name, scales = "free_y") +
+  #   theme(panel.border = element_rect(colour = "black", fill = NA))#,
+  #         # legend.position = c(0.63, 0.12), legend.direction = "horizontal")
+  # ggsave(paste0("~/Desktop/",short_var,"_clim_site.png"), width = 16, height = 9)
+  # ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site)) +
+  #   geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
+  #   labs(y = NULL, x = "Month", fill = "Site") +
+  #   facet_grid(var_name~type, scales = "free_y") +
+  #   theme(panel.border = element_rect(colour = "black", fill = NA))
+  # ggsave(paste0("~/Desktop/",short_var,"_clim_type.png"), width = 9, height = 16)
   summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     mutate(month = lubridate::month(date)) %>% 
     ggplot(aes(x = as.factor(month), y = value_mean, fill = site)) +
-    geom_boxplot(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
-    labs(y = y_label, x = "Month", fill = "Site", colour = "Source") +
-    facet_wrap(~type, nrow = 3) +
+    geom_boxplot() +
+    labs(y = NULL, x = "Month", fill = "Site", colour = "Source") +
+    facet_grid(site+type~var_name, scales = "free_y") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_clim_box.png"), width = 12, height = 9)
+  ggsave(paste0("~/Desktop/",short_var,"_clim_box.png"), width = 20, height = 9)
 }
 
 # Add depth data manually from PANGAEA files where this info is in the meta-data

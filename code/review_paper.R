@@ -580,10 +580,27 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 ## ChlA --------------------------------------------------------------------
 
+# https://zenodo.org/record/5572041#.YW_Lc5uxU5m: chl_flu [µg chl m-3] = chlorophyll a calculated from fluorescence profile
+kong_chla <- review_filter_var(full_product_kong, "kong", "chl", "phyceae|dinium|monas")
+is_chla <- review_filter_var(full_product_is, "is", "chl")
+stor_chla <- review_filter_var(full_product_stor, "stor", "chl") # No ChlA data
+young_chla <- review_filter_var(rbind(full_product_young, young_GEM), "young", "chl", "alpha|pm_|pp_|_frac|max|TOTAL")
+disko_chla <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "chl")
+nuup_chla <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "chl") # No ChlA data
+por_chla <- review_filter_var(full_product_por, "por", "chl") # No ChlA data
+clean_chla <- rbind(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla)
+rm(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla); gc()
+
+# Summary analyses
+summary_chla <- review_summary(clean_chla)
+
+# Plot results
+review_summary_plot(summary_chla, "chla")
 
 
-# Biomass -----------------------------------------------------------------
+## Biomass -----------------------------------------------------------------
 
+# Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
 
 
 ## Species assemblage ------------------------------------------------------
