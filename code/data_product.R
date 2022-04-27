@@ -128,7 +128,6 @@ EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_outpu
                         delim = " ", col_names = c("Year", "SST", "ice_extent_March", 
                                                    "ice_extent_September", "MLD", "DIC", "pH"))
 
-
 # CTD data from Ichtyo research
 # EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
 
@@ -229,7 +228,33 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 # glacier_fronts/
 # sval_marine_glacier_front # Not working with shape files of geomorphology
 
+# Tidewater glacier ablation
+# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fronts_data.nc")
+sval_tidewater_ablation <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fronts_data.nc") %>% 
+  hyper_tibble() %>% 
+  dplyr::rename(lon = longitude, lat = latitude) %>% 
+  pivot_longer(thickness1:trajectory, names_to = "var_name") %>% 
+  mutate(date1 = as.Date(t1, origin = "0000-01-01"), 
+         date2 = as.Date(t2, origin = "0000-01-01"),
+         # NB: This isn't ideal...
+         date = date2,
+         # NB: Not processing uncertainty values
+         var_name = case_when(var_name == "thickness1" ~ "glacier ice thickness front [m]",
+                              var_name == "thickness2" ~ "glacier ice thickness flux gate [m]",
+                              var_name == "area_rate" ~ "glacier ice area rate [km2 yr-1]",
+                              var_name == "velocity" ~ "glacier ice surface velocity [m yr-1]",
+                              var_name == "mass_rate" ~ "glacier mass balance front [Gt yr-1]",
+                              var_name == "discharge" ~ "glacier mass balance calving [Gt yr-1]",
+                              var_name == "front_abl" ~ "glacier mass balance ablation [Gt yr-1]"),
+         URL = "https://data.npolar.no/dataset/d1d08fac-622a-4ba6-a911-f369b4fb67a0",
+         citation = " Moholdt, G., Maton, J., & Kohler, J. (2021). Frontal ablation of Svalbard tidewater glaciers [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d1d08fac",
+         var_type = "cryo", depth = NA,
+         date_accessed = as.Date("2022-04-26")) %>% 
+  filter(date2 > "1901-01-01", !is.na(var_name)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Surface meteorology
+# ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc")
 # N-ICE_metData_v2.nc; 
 # N-ICE_metData_QC.py;
 # README_N-ICE_metData_v2.txt
@@ -274,7 +299,6 @@ rm(sval_UNIS_nc_dat, sval_UNIS_TEMP, sval_UNIS_PSAL, sval_UNIS_CNDC); gc()
 # sval_fast # Not working with shape files of geomorphology
 
 # Biogeochemistry
-# 2009-2013-pigments-api-v1.tsv; 2010-2013-nutrients-api-v1.tsv
 sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbard/2009-2013-pigments-api-v1.tsv", delim = "\t"),
                                   read_delim("~/pCloudDrive/FACE-IT_data/svalbard/2010-2013-nutrients-api-v1.tsv", delim = "\t")) %>% 
   dplyr::rename(date = eventDate, lon = decimalLongitude, lat = decimalLatitude) %>% 
@@ -286,6 +310,21 @@ sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbar
   filter(!is.na(value)) %>% 
   mutate(var_type = case_when(var_name %in% c("chlorophyll_a", "phaeopigment") ~ "bio",
                               TRUE ~ "chem"),
+         # Waiting on confirmation from Conrad Helgeland (conrad@npolar.no) that these units are correct
+         var_name = case_when(var_name == "chlorophyll_a" ~ "Chla [µg/l]",  
+                              var_name == "nox" ~ "diss_oxygen [mg/l]",
+                              var_name == "nox_stddev" ~ "diss_oxygen stddev [mg/l]",
+                              var_name == "phosphate" ~ "PO4 [µmol/l]",
+                              var_name == "phosphate_stddev" ~ "PO4 stddev [µmol/l]", 
+                              var_name == "silicate" ~ "SiO4 [µmol/l]",
+                              var_name == "silicate_stddev" ~ "SiO4 stddev [µmol/l]",
+                              var_name == "nitrite" ~ "NO2 [µmol/l]",
+                              var_name == "nitrite_stddev" ~ "NO2 stddev [µmol/l]",
+                              var_name == "nitrate" ~ "NO3 [µmol/l]",
+                              var_name == "nitrate_stddev" ~ "NO3 stddev [µmol/l]",
+                              var_name == "ammonium" ~ "NH4 [µmol/l]", 
+                              # "phaeopigment"
+                              TRUE ~ var_name),
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5",
          citation = "Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f") %>% 
@@ -306,7 +345,7 @@ sval_pop <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_
          var_type = "soc", var_name = paste0("pop [",settlement,"]"),
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-write_csv(sval_pop, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats_full.csv")
+# write_csv(sval_pop, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats_full.csv")
 
 # Svalbard tourist arrivals
 # NB: The historic camping data are only available per year
@@ -325,7 +364,7 @@ sval_tour_arrival_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard
                    date = as.Date(c("2016-12-31", "2017-12-31", "2018-12-31")),
                    value = c(862, 779, 612))) %>% 
   mutate(URL = "https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf")
-sval_tour_arrival <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals.csv", delim = "\t") %>% 
+sval_tour_arrival <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals.csv", delim = "\t") %>%
   dplyr::rename(type = `type of accommodation`, residence = `country of residence`) %>% 
   pivot_longer(`2020M01`:`2021M07`) %>% # NB: This will expand as the months go by
   separate(name, into = c("year", "month"), sep = "M") %>% 
@@ -339,7 +378,7 @@ sval_tour_arrival <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_to
          var_type = "soc", var_name = paste0("arrival [",type," - ",residence,"]"),
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-write_csv(sval_tour_arrival, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals_full.csv")
+# write_csv(sval_tour_arrival, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals_full.csv")
 
 # Svalbard guest nights
 sval_guest_night_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_historic.csv") %>% 
@@ -370,7 +409,7 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
          var_type = "soc", var_name = paste0("guest night [",type," - ",residence,"]"),
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
+# write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
 
 # AIS data
 sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %>% 
@@ -391,17 +430,18 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
 sval_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
          lat >= bbox_sval[3], lat <= bbox_sval[4])
-save(sval_SOCAT, file = "~/pCloudDrive/FACE-IT_data/svalbard/SOCAT_sval.RData")
+# save(sval_SOCAT, file = "~/pCloudDrive/FACE-IT_data/svalbard/SOCAT_sval.RData")
 
 ## GLODAP
 ### NB: EU_GLODAP loaded in EU full product section
 sval_GLODAP <- EU_GLODAP %>% 
   filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
          lat >= bbox_sval[3], lat <= bbox_sval[4])
-save(sval_GLODAP, file = "~/pCloudDrive/FACE-IT_data/svalbard/GLODAP_sval.RData")
+# save(sval_GLODAP, file = "~/pCloudDrive/FACE-IT_data/svalbard/GLODAP_sval.RData")
 
 # Combine and save
-full_product_sval <- rbind(sval_UNIS_database, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night, 
+full_product_sval <- rbind(sval_tidewater_ablation, sval_UNIS_database, sval_biogeochemistry,
+                           sval_pop, sval_tour_arrival, sval_guest_night, 
                            sval_AIS, sval_SOCAT, sval_GLODAP) %>% distinct()
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
@@ -565,6 +605,13 @@ kong_protist_nutrient_chla <- kong_protist_nutrient_chla_1 %>%
   filter(!is.na(value)) %>% 
   mutate(var_type = case_when(var_name %in% c("P", "NO2", "NO3", "Si", "NH4") ~ "chem", # May want to include "Chla
                               TRUE ~ "bio"),
+         var_name = case_when(var_name == "P" ~ "P [µmol/l]", 
+                              var_name == "NO2" ~ "NO2 [µmol/l]", 
+                              var_name == "NO3" ~ "NO3 [µmol/l]", 
+                              var_name == "Si" ~ "Si [µmol/l]", 
+                              var_name == "NH4" ~ "NH4 [µmol/l]", 
+                              var_name == "Chla" ~ "Chla [µg/l]",
+                              TRUE ~ var_name),
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
          citation = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.") %>% 
@@ -820,7 +867,7 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
 kong_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_kong[1], lon <= bbox_kong[2],
          lat >= bbox_kong[3], lat <= bbox_kong[4])
-save(kong_SOCAT, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/SOCAT_kong.RData")
+# save(kong_SOCAT, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/SOCAT_kong.RData")
 
 ## GLODAP
 ### NB: EU_GLODAP loaded in EU full product section
@@ -1066,6 +1113,8 @@ is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.
 is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ship AIS data
+# NB: Consider changing this so that the individual ships are not their own variable
+# Rather combine all of the ships into one variable
 is_AIS_2017 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/AIS_2017.csv") %>% mutate(year = 2017)
 is_AIS_2019 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/AIS_2019.csv") %>% mutate(year = 2019)
 is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>% 
@@ -1426,7 +1475,7 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
                               var_name == "chl_flu" ~ "chl_flu [µg chl m-3]",
                               var_name == "pp_vol" ~ "pp_vol [mg C m-3 day-1]",
                               var_name == "pp_chla" ~ "pp_chla [mg C µg Chla-1 m–3 day-1]",
-                              var_name %in% c("NH4", "NO2", "NO3", "NO2_NO3", "PO4", "SiO4") ~ paste0(var_name," [µmol L-1]"),
+                              var_name %in% c("NH4", "NO2", "NO3", "NO2_NO3", "PO4", "SiO4") ~ paste0(var_name," [µmol/l]"),
                               TRUE ~ var_name)) %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
