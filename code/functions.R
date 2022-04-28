@@ -1047,6 +1047,12 @@ load_CTD_DATEN <- function(file_name){
   return(df_res)
 }
 
+# Convenience function to save site products as individual files
+save_category <- function(df, data_type = "full", site_name){
+  full_cryo_kong <- filter(full_product_kong, var_type == "cryo")
+  system.time(data.table::fwrite(full_phys_kong, "data/full_data/full_phys_kong.csv")) # 0.5 seconds, 1.7 GB
+}
+
 # Data summary plotting function
 data_summary_plot <- function(full_product, site_name){
   

@@ -901,6 +901,14 @@ full_soc_kong <- filter(full_product_kong, var_type == "soc")
 save(full_soc_kong, file = "data/full_data/full_soc_kong.RData", compress = FALSE)
 rm(list = grep("_kong",names(.GlobalEnv),value = TRUE)); gc()
 
+# Speed tests
+system.time(save(full_phys_kong, file = "data/full_data/full_phys_kong.RData", compress = FALSE)) # 3.0 seconds, 1.8 GB
+system.time(write_rds(full_phys_kong, "data/full_data/full_phys_kong.Rds", compress = "none")) # 4.4 seconds, 1.8 GB
+system.time(data.table::fwrite(full_phys_kong, "data/full_data/full_phys_kong.csv")) # 0.5 seconds, 1.7 GB
+system.time(load("data/full_data/full_phys_kong.RData")) # 4 seconds
+system.time(test1 <- read_rds("data/full_data/full_phys_kong.Rds")) # 4 seconds
+system.time(test1 <- data.table::fread("data/full_data/full_phys_kong.csv")) # 2.6 seconds
+
 # Search product for specific authors
 # if(!exists("full_product_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 
