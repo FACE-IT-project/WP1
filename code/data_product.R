@@ -1779,6 +1779,8 @@ rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## GEM ---------------------------------------------------------------------
 
+# NB: Several undownloaded wind data files as these are not currently to be used in the review paper
+
 # Open water CTD
 ## NB: These single lon/lat values seem dubious
 ## They do not seem to agree with the similar data from Zenodo
@@ -1910,6 +1912,8 @@ rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## GEM ---------------------------------------------------------------------
+
+# NB: Several undownloaded wind data files as these are not currently to be used in the review paper
 
 # Open water CTD
 nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
