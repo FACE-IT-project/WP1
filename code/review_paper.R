@@ -614,6 +614,11 @@ plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
             df = clean_all, data_type = "clean", site_name = "all")
 
 
+## References --------------------------------------------------------------
+
+# NB: Check for N-ICE and remove if present
+
+
 ## Summary -----------------------------------------------------------------
 
 # Combine analysed data

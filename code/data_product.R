@@ -207,7 +207,7 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product ------------------------------------------------------------
 
 # Glacier mass balance
-## NB: Update annual in May
+## NB: Update annually in May
 sval_MOSJ_cmb <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/cumulative-mass-balance-for-glaciers-in-svalbard.csv", delim = ";") %>% mutate(site = `Series name`, `Series name` = "cumulative mass balance")
 sval_MOSJ_austre <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/austre-broggerbreen-mass-balance.csv", delim = ";") %>% mutate(site = "Austre Brøggerbreen")
 sval_MOSJ_etonbreen <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/etonbreen-austfonna-mass-balance.csv", delim = ";") %>% mutate(site = "Etonbreen (Austfonna)")
@@ -278,11 +278,55 @@ sval_tidewater_ablation <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fron
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Surface meteorology
+# See 'README_N-ICE_metData_v2.txt' for detailed info
 # ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc")
-# N-ICE_metData_v2.nc; 
-# N-ICE_metData_QC.py;
-# README_N-ICE_metData_v2.txt
-# sval_surface_met
+sval_NICE <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") %>% 
+  hyper_tibble() %>% 
+  dplyr::rename(lon = longitude, lat = latitude) %>% 
+  unite(year, month, day, sep = "-", remove = TRUE, col = date) %>% 
+  dplyr::select(lon, lat, date, everything(), -second, -minute, -hour, -time, -unix_time,
+                -wind_speed_10m_flag, -wind_from_direction_10m_flag, # _flag: don't need to know about wind data interpolation status
+                -air_temperature_fill, -air_pressure_at_sea_level_fill) %>% # _fill: data seem problematic
+  group_by(lon, lat, date) %>% 
+  summarise(air_pressure_at_sea_level = mean(air_pressure_at_sea_level, na.rm = T),
+            air_temperature_2m = mean(air_temperature_2m, na.rm = T),
+            air_temperature_4m = mean(air_temperature_4m, na.rm = T),
+            air_temperature_10m = mean(air_temperature_10m, na.rm = T),
+            relative_humidity_2m = mean(relative_humidity_2m, na.rm = T),
+            relative_humidity_4m = mean(relative_humidity_4m, na.rm = T),
+            relative_humidity_10m = mean(relative_humidity_10m, na.rm = T),
+            relative_humidity_ice_2m = mean(relative_humidity_ice_2m, na.rm = T),
+            relative_humidity_ice_4m = mean(relative_humidity_ice_4m, na.rm = T),
+            relative_humidity_ice_10m = mean(relative_humidity_ice_10m, na.rm = T),
+            wind_speed_2m = mean(wind_speed_2m, na.rm = T),
+            wind_speed_4m = mean(wind_speed_4m, na.rm = T),
+            wind_speed_10m = mean(wind_speed_10m, na.rm = T),
+            wind_from_direction_2m = as.numeric(round(mean.circular(circular(wind_from_direction_2m, units = "degrees"), na.rm = T))),
+            wind_from_direction_4m = as.numeric(round(mean.circular(circular(wind_from_direction_4m, units = "degrees"), na.rm = T))),
+            wind_from_direction_10m = as.numeric(round(mean.circular(circular(wind_from_direction_10m, units = "degrees"), na.rm = T))), 
+            .groups = "drop") %>% 
+  mutate(wind_from_direction_2m = case_when(wind_from_direction_2m < 0 ~ wind_from_direction_2m + 360, TRUE ~ wind_from_direction_2m),
+         wind_from_direction_4m = case_when(wind_from_direction_4m < 0 ~ wind_from_direction_4m + 360, TRUE ~ wind_from_direction_4m),
+         wind_from_direction_10m = case_when(wind_from_direction_10m < 0 ~ wind_from_direction_10m + 360, TRUE ~ wind_from_direction_10m)) %>% 
+  pivot_longer(air_pressure_at_sea_level:wind_from_direction_10m, names_to = "var_name") %>% 
+  filter(!is.na(value)) %>% 
+  mutate(URL = "https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d",
+         citation = "Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1",
+         var_type = "phys",
+         depth = case_when(grepl("_at_sea_level", var_name) ~ 0,
+                           grepl("_2m", var_name) ~ -2,
+                           grepl("_4m" , var_name) ~ -4,
+                           grepl("_10m" , var_name) ~ -10),
+         var_name = str_remove(var_name, "_at_sea_level|_2m|_4m|_10m"),
+         var_name = case_when(grepl("air_temperature", var_name) ~ "TTT [°C]",
+                              grepl("air_pressure", var_name) ~ "air_pressure [hPa]",
+                              grepl("relative_humidity", var_name) ~ paste0(var_name," [%]"),
+                              grepl("wind_speed", var_name) ~ "wind_speed [m/s]",
+                              grepl("wind_from_direction", var_name) ~ "wind_from_direction [°]",
+                              TRUE ~ var_name),
+         value = case_when(var_name == "TTT [°C]" ~ value-273.15, TRUE ~ value), 
+         date_accessed = as.Date("2021-02-11")) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # UNIS database
 ## NB: This is really slow due to file size
@@ -464,7 +508,7 @@ sval_GLODAP <- EU_GLODAP %>%
 # save(sval_GLODAP, file = "~/pCloudDrive/FACE-IT_data/svalbard/GLODAP_sval.RData")
 
 # Combine and save
-full_product_sval <- rbind(sval_MOSJ_glacier_mass, sval_tidewater_ablation, sval_UNIS_database, sval_biogeochemistry,
+full_product_sval <- rbind(sval_MOSJ_glacier_mass, sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
                            sval_pop, sval_tour_arrival, sval_guest_night, 
                            sval_AIS, sval_SOCAT, sval_GLODAP) %>% distinct()
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
