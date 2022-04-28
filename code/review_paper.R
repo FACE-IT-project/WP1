@@ -609,10 +609,9 @@ review_summary_plot(summary_chla, "chla")
 
 ## Save clean data ---------------------------------------------------------
 
-# Create function for programmatically saving .RData files by site and category
-
 clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR, clean_sea_ice)
-save(clean_all, file = "data/full_data/clean_all.RData", compress = FALSE)
+plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
+            df = clean_all, data_type = "clean", site_name = "all")
 
 
 ## Summary -----------------------------------------------------------------

@@ -1048,9 +1048,11 @@ load_CTD_DATEN <- function(file_name){
 }
 
 # Convenience function to save site products as individual files
-save_category <- function(df, data_type = "full", site_name){
-  full_cryo_kong <- filter(full_product_kong, var_type == "cryo")
-  system.time(data.table::fwrite(full_phys_kong, "data/full_data/full_phys_kong.csv")) # 0.5 seconds, 1.7 GB
+# NB: This is designed to be multicored with the categories as the grouped variable
+save_category <- function(cat_sub, df, data_type, site_name){
+  sub_df <- filter(df, var_type == cat_sub)
+  system.time(data.table::fwrite(sub_df, paste0("data/full_data/",data_type,"_",cat_sub,"_",site_name,".csv")))
+  rm(sub_df); gc()
 }
 
 # Data summary plotting function

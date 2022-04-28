@@ -146,7 +146,7 @@ EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2021.rds") %>%
          URL = "https://www.socat.info",
          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
+# save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 
 # GLODAP data
@@ -182,7 +182,7 @@ EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>%
          citation = "Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016
          Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
-save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
+# save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Greenland fjord CTD casts
@@ -206,15 +206,39 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
-# The intention here is to create a product from which data for other sites may be accessed
-## Glacial topography + thickness
-# cumulative-mass-balance-for-glaciers-in-svalbard.csv; 
-# austre-broggerbreen-mass-balance.csv; 
-# etonbreen-austfonna-mass-balance.csv; 
-# kongsvegen-mass-balance.csv; 
-# kronebreenholtedahlfonna-mass-balance.csv; 
-# midtre-lovenbreen-mass-balance.csv
-# sval_glacier_mass
+# Glacier mass balance
+## NB: Update annual in May
+sval_MOSJ_cmb <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/cumulative-mass-balance-for-glaciers-in-svalbard.csv", delim = ";") %>% mutate(site = `Series name`, `Series name` = "cumulative mass balance")
+sval_MOSJ_austre <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/austre-broggerbreen-mass-balance.csv", delim = ";") %>% mutate(site = "Austre Brøggerbreen")
+sval_MOSJ_etonbreen <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/etonbreen-austfonna-mass-balance.csv", delim = ";") %>% mutate(site = "Etonbreen (Austfonna)")
+sval_MOSJ_kongsvegen <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/kongsvegen-mass-balance.csv", delim = ";") %>% mutate(site = "Kongsvegen")
+sval_MOSJ_kronebreen <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/kronebreenholtedahlfonna-mass-balance.csv", delim = ";") %>% mutate(site = "Kronebreen/Holtedahlfonna")
+sval_MOSJ_midtre <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/midtre-lovenbreen-mass-balance.csv", delim = ";") %>% mutate(site = "Midtre Lovénbreen")
+sval_MOSJ_glacier_mass <- bind_rows(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, sval_MOSJ_kronebreen, sval_MOSJ_midtre) %>% 
+  pivot_longer(`1967`:`2020`, names_to = "year") %>% 
+  dplyr::rename(var_name = `Series name`) %>% 
+  mutate(date = as.Date(paste0(year,"-12-31")),
+         lon = case_when(site == "Austre Brøggerbreen" ~ 11.8438992,
+                         site == "Kongsvegen" ~ 12.5523049,
+                         site == "Midtre Lovénbreen" ~ 12.004464,
+                         grepl("Kronebreen", site) ~ 13.264755,
+                         grepl("Etonbreen", site) ~ 22.693686),
+         lat = case_when(site == "Austre Brøggerbreen" ~ 78.9163196,
+                         site == "Kongsvegen" ~ 78.8504786,
+                         site == "Midtre Lovénbreen" ~ 78.824676,
+                         grepl("Kronebreen", site) ~ 78.990132,
+                         grepl("Etonbreen", site) ~ 79.705398),
+         var_name = case_when(grepl("with ", site) ~ paste0(var_name, " with calving"),
+                              grepl("without ", site) ~ paste0(var_name, " without calving"),
+                              TRUE ~ var_name),
+         var_name = paste0(var_name," [",Unit,"]"),
+         URL = "https://www.mosj.no/en/climate/land/mass-balance-glaciers.html",
+         citation = "Kohler, J. & Moholdt, G. (2021) Mass balance of Svalbard glaciers [Dataset]. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). Accessed: 2022-04-26. https://www.mosj.no/en/climate/land/mass-balance-glaciers.html",
+         var_type = "cryo", depth = NA,
+         date_accessed = as.Date("2022-04-28")) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, sval_MOSJ_kronebreen, sval_MOSJ_midtre); gc()
 
 # Glacier area outlines
 # glacier_area/
@@ -440,7 +464,7 @@ sval_GLODAP <- EU_GLODAP %>%
 # save(sval_GLODAP, file = "~/pCloudDrive/FACE-IT_data/svalbard/GLODAP_sval.RData")
 
 # Combine and save
-full_product_sval <- rbind(sval_tidewater_ablation, sval_UNIS_database, sval_biogeochemistry,
+full_product_sval <- rbind(sval_MOSJ_glacier_mass, sval_tidewater_ablation, sval_UNIS_database, sval_biogeochemistry,
                            sval_pop, sval_tour_arrival, sval_guest_night, 
                            sval_AIS, sval_SOCAT, sval_GLODAP) %>% distinct()
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
@@ -886,28 +910,10 @@ full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 save(full_product_kong, file = "data/full_data/full_product_kong.RData")
+plyr::l_ply(unique(full_product_kong$var_type), save_category, .parallel = T,
+            df = full_product_kong, data_type = "full", site_name = "kong")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
-# Split up and save smaller uncompressed objects for faster loading in app
-full_cryo_kong <- filter(full_product_kong, var_type == "cryo")
-save(full_cryo_kong, file = "data/full_data/full_cryo_kong.RData", compress = FALSE)
-full_phys_kong <- filter(full_product_kong, var_type == "phys")
-save(full_phys_kong, file = "data/full_data/full_phys_kong.RData", compress = FALSE)
-full_chem_kong <- filter(full_product_kong, var_type == "chem")
-save(full_chem_kong, file = "data/full_data/full_chem_kong.RData", compress = FALSE)
-full_bio_kong <- filter(full_product_kong, var_type == "bio")
-save(full_bio_kong, file = "data/full_data/full_bio_kong.RData", compress = FALSE)
-full_soc_kong <- filter(full_product_kong, var_type == "soc")
-save(full_soc_kong, file = "data/full_data/full_soc_kong.RData", compress = FALSE)
-rm(list = grep("_kong",names(.GlobalEnv),value = TRUE)); gc()
-
-# Speed tests
-system.time(save(full_phys_kong, file = "data/full_data/full_phys_kong.RData", compress = FALSE)) # 3.0 seconds, 1.8 GB
-system.time(write_rds(full_phys_kong, "data/full_data/full_phys_kong.Rds", compress = "none")) # 4.4 seconds, 1.8 GB
-system.time(data.table::fwrite(full_phys_kong, "data/full_data/full_phys_kong.csv")) # 0.5 seconds, 1.7 GB
-system.time(load("data/full_data/full_phys_kong.RData")) # 4 seconds
-system.time(test1 <- read_rds("data/full_data/full_phys_kong.Rds")) # 4 seconds
-system.time(test1 <- data.table::fread("data/full_data/full_phys_kong.csv")) # 2.6 seconds
 
 # Search product for specific authors
 # if(!exists("full_product_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
@@ -1181,21 +1187,10 @@ full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, 
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 save(full_product_is, file = "data/full_data/full_product_is.RData")
+plyr::l_ply(unique(full_product_is$var_type), save_category, .parallel = T,
+            df = full_product_is, data_type = "full", site_name = "is")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
-
-# Split up and save smaller uncompressed objects for faster loading in app
-full_cryo_is <- filter(full_product_is, var_type == "cryo")
-save(full_cryo_is, file = "data/full_data/full_cryo_is.RData", compress = FALSE)
-full_phys_is <- filter(full_product_is, var_type == "phys")
-save(full_phys_is, file = "data/full_data/full_phys_is.RData", compress = FALSE)
-full_chem_is <- filter(full_product_is, var_type == "chem")
-save(full_chem_is, file = "data/full_data/full_chem_is.RData", compress = FALSE)
-full_bio_is <- filter(full_product_is, var_type == "bio")
-save(full_bio_is, file = "data/full_data/full_bio_is.RData", compress = FALSE)
-full_soc_is <- filter(full_product_is, var_type == "soc")
-save(full_soc_is, file = "data/full_data/full_soc_is.RData", compress = FALSE)
-rm(list = grep("_is",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## Test visuals ------------------------------------------------------------
@@ -1337,21 +1332,10 @@ full_product_stor <- rbind(pg_stor_ALL, stor_light_CTD, stor_SOCAT, stor_GLODAP)
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 save(full_product_stor, file = "data/full_data/full_product_stor.RData")
+plyr::l_ply(unique(full_product_stor$var_type), save_category, .parallel = T,
+            df = full_product_stor, data_type = "full", site_name = "stor")
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
-
-# Split up and save smaller uncompressed objects for faster loading in app
-full_cryo_stor <- filter(full_product_stor, var_type == "cryo")
-save(full_cryo_stor, file = "data/full_data/full_cryo_stor.RData", compress = FALSE)
-full_phys_stor <- filter(full_product_stor, var_type == "phys")
-save(full_phys_stor, file = "data/full_data/full_phys_stor.RData", compress = FALSE)
-full_chem_stor <- filter(full_product_stor, var_type == "chem")
-save(full_chem_stor, file = "data/full_data/full_chem_stor.RData", compress = FALSE)
-full_bio_stor <- filter(full_product_stor, var_type == "bio") # None
-save(full_bio_stor, file = "data/full_data/full_bio_stor.RData", compress = FALSE)
-full_soc_stor <- filter(full_product_stor, var_type == "soc")
-save(full_soc_stor, file = "data/full_data/full_soc_stor.RData", compress = FALSE)
-rm(list = grep("_stor",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Young Sound -------------------------------------------------------------
@@ -1512,21 +1496,10 @@ full_product_young <- rbind(pg_young_ALL, young_prim_prod, young_SOCAT, young_GL
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 save(full_product_young, file = "data/full_data/full_product_young.RData")
+plyr::l_ply(unique(full_product_young$var_type), save_category, .parallel = T,
+            df = full_product_young, data_type = "full", site_name = "young")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
-
-# Split up and save smaller uncompressed objects for faster loading in app
-full_cryo_young <- filter(full_product_young, var_type == "cryo")
-save(full_cryo_young, file = "data/full_data/full_cryo_young.RData", compress = FALSE)
-full_phys_young <- filter(full_product_young, var_type == "phys")
-save(full_phys_young, file = "data/full_data/full_phys_young.RData", compress = FALSE)
-full_chem_young <- filter(full_product_young, var_type == "chem")
-save(full_chem_young, file = "data/full_data/full_chem_young.RData", compress = FALSE)
-full_bio_young <- filter(full_product_young, var_type == "bio")
-save(full_bio_young, file = "data/full_data/full_bio_young.RData", compress = FALSE)
-full_soc_young <- filter(full_product_young, var_type == "soc")
-save(full_soc_young, file = "data/full_data/full_soc_young.RData", compress = FALSE)
-rm(list = grep("_young",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## GEM ---------------------------------------------------------------------
@@ -1798,21 +1771,10 @@ full_product_disko <- rbind(pg_disko_ALL, disko_CTD_ChlA, disko_SOCAT, disko_GLO
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
+plyr::l_ply(unique(full_product_disko$var_type), save_category, .parallel = T,
+            df = full_product_disko, data_type = "full", site_name = "disko")
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
-
-# Split up and save smaller uncompressed objects for faster loading in app
-full_cryo_disko <- filter(full_product_disko, var_type == "cryo")
-save(full_cryo_disko, file = "data/full_data/full_cryo_disko.RData", compress = FALSE)
-full_phys_disko <- filter(full_product_disko, var_type == "phys")
-save(full_phys_disko, file = "data/full_data/full_phys_disko.RData", compress = FALSE)
-full_chem_disko <- filter(full_product_disko, var_type == "chem")
-save(full_chem_disko, file = "data/full_data/full_chem_disko.RData", compress = FALSE)
-full_bio_disko <- filter(full_product_disko, var_type == "bio") # None
-save(full_bio_disko, file = "data/full_data/full_bio_disko.RData", compress = FALSE)
-full_soc_disko <- filter(full_product_disko, var_type == "soc") # None
-save(full_soc_disko, file = "data/full_data/full_soc_disko.RData", compress = FALSE)
-rm(list = grep("_disko",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## GEM ---------------------------------------------------------------------
@@ -1941,21 +1903,10 @@ full_product_nuup <- rbind(pg_nuup_ALL, nuup_SOCAT) %>% distinct()
 data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
 save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
+plyr::l_ply(unique(full_product_nuup$var_type), save_category, .parallel = T,
+            df = full_product_nuup, data_type = "full", site_name = "nuup")
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
-
-# Split up and save smaller uncompressed objects for faster loading in app
-full_cryo_nuup <- filter(full_product_nuup, var_type == "cryo")
-save(full_cryo_nuup, file = "data/full_data/full_cryo_nuup.RData", compress = FALSE)
-full_phys_nuup <- filter(full_product_nuup, var_type == "phys")
-save(full_phys_nuup, file = "data/full_data/full_phys_nuup.RData", compress = FALSE)
-full_chem_nuup <- filter(full_product_nuup, var_type == "chem")
-save(full_chem_nuup, file = "data/full_data/full_chem_nuup.RData", compress = FALSE)
-full_bio_nuup <- filter(full_product_nuup, var_type == "bio") # None
-save(full_bio_nuup, file = "data/full_data/full_bio_nuup.RData", compress = FALSE)
-full_soc_nuup <- filter(full_product_nuup, var_type == "soc") # None
-save(full_soc_nuup, file = "data/full_data/full_soc_nuup.RData", compress = FALSE)
-rm(list = grep("_nuup",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## GEM ---------------------------------------------------------------------
@@ -2108,19 +2059,8 @@ full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice, por_hydro, p
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
+plyr::l_ply(unique(full_product_por$var_type), save_category, .parallel = T,
+            df = full_product_por, data_type = "full", site_name = "por")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
-if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
-
-# Split up and save smaller uncompressed objects for faster loading in app
-full_cryo_por <- filter(full_product_por, var_type == "cryo")
-save(full_cryo_por, file = "data/full_data/full_cryo_por.RData", compress = FALSE)
-full_phys_por <- filter(full_product_por, var_type == "phys")
-save(full_phys_por, file = "data/full_data/full_phys_por.RData", compress = FALSE)
-full_chem_por <- filter(full_product_por, var_type == "chem")
-save(full_chem_por, file = "data/full_data/full_chem_por.RData", compress = FALSE)
-full_bio_por <- filter(full_product_por, var_type == "bio") # None
-save(full_bio_por, file = "data/full_data/full_bio_por.RData", compress = FALSE)
-full_soc_por <- filter(full_product_por, var_type == "soc") # None
-save(full_soc_por, file = "data/full_data/full_soc_por.RData", compress = FALSE)
-rm(list = grep("_por",names(.GlobalEnv),value = TRUE)); gc()
+# if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
