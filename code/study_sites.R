@@ -40,6 +40,7 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
 bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 
 # Svalbard
+bbox_sval_poly <- bbox_to_poly(bbox_sval, "Svalbard")
 bbox_kong_poly <- bbox_to_poly(bbox_kong, "Kongsfjorden")
 bbox_is_poly <- bbox_to_poly(bbox_is, "Isfjorden")
 bbox_stor_poly <- bbox_to_poly(bbox_stor, "Storfjorden")
@@ -106,6 +107,7 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 
 # Bathymetry --------------------------------------------------------------
 
+extract_bathy(bbox_sval, "sval")
 extract_bathy(bbox_kong, "kong")
 extract_bathy(bbox_is, "is")
 extract_bathy(bbox_stor, "stor")
@@ -118,11 +120,19 @@ extract_bathy(bbox_por, "por")
 # Map ---------------------------------------------------------------------
 
 # Svalbard study sites
-map_sval <- basemap(c(9, 30, 76, 81)) +
+map_sval <- basemap(c(7, 30, 75.5, 81.5), bathymetry = T) +
+  annotation_spatial(bbox_sval_poly, fill = "darkgreen", colour = "black", alpha = 0.1) +
   geom_spatial_point(data = site_points[c(1,2,4),], size = 9, crs = 4326,
-                     aes(x = lon, y = lat, colour = site)) + ggtitle("Svalbard")
-ggsave("figures/map_svalbard.png", map_sval, width = 12, height = 6)
-ggsave("docs/assets/map_svalbard.png", map_sval, width = 12, height = 6)
+                     aes(x = lon, y = lat), colour = "black") +
+  geom_spatial_point(data = site_points[c(1,2,4),], size = 8, crs = 4326,
+                     aes(x = lon, y = lat, colour = site)) +
+  labs(title = "Svalbard sites", colour = "Site") +
+  theme(panel.border = element_rect(colour = "black", fill = NA),
+       # legend.position = c(0.899, 0.779),
+       legend.box.margin = margin(10, 10, 10, 10),
+       legend.box.background = element_rect(fill = "white", colour = "black"))
+ggsave("figures/map_svalbard.png", map_sval, width = 7, height = 6)
+ggsave("docs/assets/map_svalbard.png", map_sval, width = 7, height = 6)
 
 # Kongsfjorden
 # NB: These bathy data are too burly to use with stat_contour
@@ -167,8 +177,8 @@ ggsave("docs/assets/map_disko_bay.png", map_disko, width = 6, height = 6)
 
 # Nuup Kangerlua
 map_nuup <- bbox_to_map(bbox_nuup, lon_pad = 1.5, lat_pad = 0.35) + ggtitle("Nuup Kangerlua")
-ggsave("figures/map_nuup_kangerlua.png", map_nuup, width = 6, height = 6)
-ggsave("docs/assets/map_nuup_kangerlua.png", map_nuup, width = 6, height = 6)
+ggsave("figures/map_nuup_kangerlua.png", map_nuup, width = 11, height = 6)
+ggsave("docs/assets/map_nuup_kangerlua.png", map_nuup, width = 11, height = 6)
 
 # Porsangerfjorden
 map_por <- bbox_to_map(bbox_por, lon_pad = 1, lat_pad = 0.3) + ggtitle("Porsangerfjorden")
@@ -177,7 +187,7 @@ ggsave("docs/assets/map_porsangerfjorden.png", map_por, width = 6, height = 6)
 
 # Full study area
 map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
-  annotation_spatial(bbox_EU_poly, fill = "cadetblue1", colour = "black", alpha = 0.1) +
+  annotation_spatial(bbox_EU_poly, fill = "darkgreen", colour = "black", alpha = 0.1) +
   geom_spatial_point(data = site_points[-3,], size = 9, crs = 4326,
                      aes(x = lon, y = lat), colour = "black") +
   geom_spatial_point(data = site_points[-3,], size = 8, crs = 4326,

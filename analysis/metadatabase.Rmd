@@ -90,7 +90,7 @@ This section contains meta-data for pan-Arctic data files. All data within these
 <center>
 ![](assets/map_full.png){ width=70% }
 
-Figure 1: FACE-IT study sites throughout the EU Arctic. The light blue bounding box (appears here as a triangle due to polar projection) shows the spatial range within which data were considered for collection.
+Figure 1: FACE-IT study sites throughout the EU Arctic. The light green bounding box (appears here as a triangle due to polar projection) shows the spatial range within which data were considered for collection.
 </center>
 <br>
 
@@ -290,7 +290,7 @@ While not a study site itself, there are a lot of studies and datasets that focu
 <center>
 ![](assets/map_svalbard.png){ width=90% }
 
-Figure 2: Map of Svalbard showing the location of the three FACE-IT study sites located on the archipelago.
+Figure 2: Map of Svalbard showing the location of the three FACE-IT study sites located on the archipelago. The light green bounding box shows the range within which trans-Svalbard data were collected.
 </center>
 <br>
 
@@ -347,7 +347,8 @@ sval_tidewater_ablation <- data.frame(type = "Analysis",
                                       data_name = "Glacier: thickness, velocity, mass balance, flux, ablation",
                                       date_range = "2012 - 2021",
                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d1d08fac-622a-4ba6-a911-f369b4fb67a0">NPDC</a>',
-                                      reference = '<a onclick="alert(\'Moholdt, G., Maton, J., & Kohler, J. (2021). Frontal ablation of Svalbard tidewater glaciers [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d1d08fac\');">Moholdt et al. (2021)</a>')
+                                      reference = '<a onclick="alert(\'Moholdt, G., Maton, J., & Kohler, J. (2021). Frontal ablation of Svalbard tidewater glaciers [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d1d08fac\');">Moholdt et al. (2021)</a>',
+                                      note = NA)
 
 # Surface meteorology
 sval_surface_met <- data.frame(type = "Cruise",
@@ -359,7 +360,7 @@ sval_surface_met <- data.frame(type = "Cruise",
                                # file_name = '<a onclick="alert(\'N-ICE_metData_v2.nc; N-ICE_metData_QC.py; README_N-ICE_metData_v2.txt\');">3 files</a>',
                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d">NPDC</a>',
                                reference = '<a onclick="alert(\'Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1\');">Hudson & Walden (2015)</a>', 
-                               note = '<a onclick="alert(\'The N-ICE Atmospheric Forcing work package team requests that users of these data: 1) Contact both  Stephen Hudson (Stephen.Hudson@npolar.no) and Lana Cohen (Lana.Cohen@npolar.no) to discuss your specific uses of the data, and 2) Include the requested_acknowledgment in any presentations or publications: The authors acknowledge support from Stephen Hudson and Lana Cohen at the Norwegian Polar Institute and Von P. Walden at Washington State University for use of the N-ICE2015 dataset.\');">Requirements for use</a>', )
+                               note = '<a onclick="alert(\'The N-ICE Atmospheric Forcing work package team requests that users of these data: 1) Contact both  Stephen Hudson (Stephen.Hudson@npolar.no) and Lana Cohen (Lana.Cohen@npolar.no) to discuss your specific uses of the data, and 2) Include the requested_acknowledgment in any presentations or publications: The authors acknowledge support from Stephen Hudson and Lana Cohen at the Norwegian Polar Institute and Von P. Walden at Washington State University for use of the N-ICE2015 dataset.\');">Requirements for use</a>')
 
 # UNIS database
 sval_UNIS_database <- data.frame(type = "CTD",
