@@ -48,7 +48,8 @@ CatColAbr <- c(
 # Data --------------------------------------------------------------------
 
 # For testing
-# input <- data.frame(selectSite = "_stor")
+# input <- data.frame(selectSite = "_kong",
+#                     selectCat = "_phys")
 
 # Full data file paths
 full_data_paths <- dir("full_data", full.names = T)
@@ -356,27 +357,35 @@ server <- function(input, output, session) {
         req(input$selectCat)
         
         # Load initial data
-        # if(input$cleanVSfull == "Full"){
+        if(input$cleanVSfull == "Full"){
             file_list <- paste0("full_data/full",
                                 # c("_cryo", "_phys"), # testing
                                 input$selectCat,
-                                input$selectSite,".RData")
-            df_cat <- purrr::map_dfr(file_list, loadRData)
-        # } else {
-        #     df_cat <- loadRData("full_data/clean_all.RData") %>% # This should be improved to be site specific
-        #         filter(site == str_remove(input$selectSite, "_"),
-        #                var_type %in% str_remove(input$selectCat, "_"),
-        #                !grepl("g-e-m", URL),  # Remove GEM data
-                         # !grpl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
+                                input$selectSite,".csv")
+            df_cat <- purrr::map_dfr(file_list, data.table::fread)
+        } else {
+            file_list <- paste0("full_data/clean",
+                                # c("_cryo", "_phys"), # testing
+                                input$selectCat,
+                                # input$selectSite,
+                                "_all.csv")
+            df_cat <- purrr::map_dfr(file_list, data.table::fread) %>% # This should be improved to be site specific
+                filter(site == stringr::str_remove(input$selectSite, "_"),
+                       # var_type %in% str_remove(input$selectCat, "_"),
+                       !grepl("g-e-m", URL),  # Remove GEM data
+                       !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
             
             # Remove GRDC data
             ## Not yet amalgamated
-        # }
+        }
 
         # Filter PANGAEA data
         if(input$PANGAEAfilter == "Yes"){
             df_cat <- filter(df_cat, !grepl("PANGAEA", URL))
         }
+        
+        # Format dates
+        df_cat$date <- as.Date(df_cat$date)
         
         return(df_cat)
     })
