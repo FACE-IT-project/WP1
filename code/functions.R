@@ -156,6 +156,94 @@ extract_bathy <- function(bbox, site_name, product = "GEBCO"){
   write_csv(bathy_df, paste0("~/pCloudDrive/FACE-IT_data/maps/bathy_",site_name,".csv"))
 }
 
+# Convert from one EPSG to another
+## NB: Currently hardcoded to IBCAO bathy product. Need to change for any NetCDF input
+epsg3996_to_4326 <- function(by = 100, GETz = FALSE, zone = NULL, ind = NULL) {
+  #---
+  #title: "Convert Polar Stereographic Coordinates to Lat-Lon"
+  #author: "g. Cutter and D. Kinzey"
+  #date: "11/8/2020"
+  #output:  
+  #  md_document:
+  #    variant: gfm
+  #---
+  nc <- nc_open("~/pCloudDrive/FACE-IT_data/maps/IBCAO/IBCAO_v4_200m.nc")
+  x <- ncvar_get(nc, "x")
+  y <- ncvar_get(nc, "y")
+  if(GETz) z <- ncvar_get(nc, "z")
+  
+  if(is.null(zone)) {
+    m <- seq(ceiling(by/2), length(x), by = by)
+    n <- seq(ceiling(by/2), length(y), by = by)
+  } else {
+    if(is.null(ind)) stop(paste("IBCAO index is NULL", "(argument ind)"))
+    rlon <- zone[1:2]
+    rlat <- zone[3:4]
+    i <- ind[[5]] >= rlon[1] & ind[[5]] <= rlon[2] & ind[[6]] >= rlat[1] & ind[[6]] <= rlat[2]
+    m <- min(ind[i, 1]):max(ind[i, 1])
+    n <- min(ind[i, 2]):max(ind[i, 2])
+  }
+  x <- x[m]
+  y <- y[n]
+  if(GETz) z <- z[m, n]
+  
+  # Create ygrid and xgrid vectors from the data frame columns and remove any padded NaNs
+  ygrid <- x
+  xgrid <- y
+  
+  # Use expand to create a points data frame of all possible coordinate combinations
+  points.df <- expand.grid(ygrid,xgrid)
+  index.df <- expand.grid(n,m)
+  
+  ##  Create a spatial dataframe of the coordinates
+  
+  #Next we will convert the coordinate points dataframe to a spatial object (spatial dataframe).
+  #Create the **coordsinit** variable to verify the initial coordinates of the spatial dataframe.
+  
+  dfcoords = cbind(points.df$Var1, points.df$Var2)      # coords in y,x order
+  sppoints = SpatialPoints(coords = dfcoords)
+  spdf     = SpatialPointsDataFrame(coords = dfcoords, points.df)
+  
+  coordsinit <- spdf@coords
+  
+  ## Reproject data from polar sterographic to latitude-longitude
+  
+  #* Define each of the coordinate reference systems 
+  #* The polar stereographic projection is EPSG:3412 
+  # ************************************* #
+  # but projection IBCAO epsg:3996
+  # ************************************* #
+  #* The latitude-longitude (WGS84) projection is EPSG:4326
+  #* Transform the coordinates with **spTransform**
+  #* Check new coordinates with **coords** and **bbox**
+  
+  # Define coordinate reference systems
+  crslatlong       = CRSargs(CRS("+init=epsg:4326"))
+  crsseaicepolster3996 = CRSargs(CRS("+init=epsg:3996"))
+  
+  # Set CRS of spatial dataframe
+  proj4string(spdf) = CRS(crsseaicepolster3996)
+  ps_bbox       = spdf@bbox
+  print(ps_bbox)
+  
+  # Check the initial CRS 
+  crs_set = proj4string(spdf)
+  
+  # Converts from existing crs to latlon (4326)
+  spdfProjected = spTransform(spdf, CRS(crslatlong))  
+  crs_projected = proj4string(spdfProjected)
+  
+  coordsproj = spdfProjected@coords
+  bbox       = spdfProjected@bbox
+  print(bbox)
+  
+  df_latlon <- as.data.frame(spdfProjected)
+  longitude = df_latlon$coords.x1
+  latitude = df_latlon$coords.x2
+  if(!GETz) return(cbind(index.df, points.df, data.frame(longitude, latitude)))
+  if(GETz) return(data.frame(longitude, latitude, as.vector(z)))
+}
+
 # Convenience function for getting bbox from site name
 bbox_from_name <- function(site_name){
   # get correct bounding box

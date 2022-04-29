@@ -38,6 +38,59 @@ ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie
 ## 5 = lake
 ## 6 = border of region images 
 
+## Code to be adapted to convert MASIE data to a cartesian grid
+# Main program
+cat("limits", zone0, "\n")
+cat("enlarged limits", zone, "\n")
+# first call to function epsg3996_to_4326
+# I take one point over 100 (in the 2 dimensions) in order to
+# make a correspondance between indices and lon-lat coordinates
+ind <- epsg3996_to_4326(by = 100, GETz = FALSE, zone = NULL, ind = NULL)
+# second call to function epsg3996_to_4326 : I take all the points within my enlarged zone
+dum <- epsg3996_to_4326(by = 1, GETz = TRUE, zone = zone, ind = ind)
+write.table(file = "depth.dat", dum, row.names = FALSE, col.names = FALSE)
+
+# rasterization
+lon <- dum[[1]]
+lat <- dum[[2]]
+z <- dum[[3]]
+# This is to calculate the number of rows and columns of the raster
+# I try to be close to the initial resolution (200m for IBCAO)
+# but a little more in order not to have empty cells;
+# so I take a mean value of 250m for the size of the raster cell
+dlon <- diff(range(lon))
+dlat <- diff(range(lat))
+dlon_meters <- floor(dlon * 1.e5 * cos(mean(lat) * pi / 180))
+dlat_meters <- floor(dlat * 1.e5)
+dcell_meters <- 250
+nrows <- floor(dlat_meters / dcell_meters)
+ncols <- floor(dlon_meters / dcell_meters)
+# the raster (void)
+depth_rasterized <- raster(nrows = nrows, ncols = ncols, xmn = min(lon), xmx = max(lon), ymn = min(lat), ymx = max(lat))
+# use of rasterize function from raster package
+depth_rasterized <- rasterize(cbind(lon, lat), depth_rasterized, z)
+
+jpeg(file = "depth.jpg", width = 500, height = 900)
+par(mfrow = c(2, 1))
+
+# plot with the rectangle of my zone of interest
+plot(depth_rasterized)
+polygon(c(zone0[1], zone0[1], zone0[2], zone0[2]), c(zone0[3], zone0[4], zone0[4], zone0[3]), border = 1, lwd = 4)
+# I crop my zone of interest
+depth_rasterized <- crop(depth_rasterized, extent(zone0))
+# dump raster to file
+writeRaster(filename = "depth.grd", depth_rasterized, overwrite = TRUE)
+
+# some controls
+cat("mean area of cells", mean(values(area(depth_rasterized))), "")
+cat("  should be close to", dcell_meters**2 * 1.e-6, "\n")
+v <- values(depth_rasterized)
+cat("number of cells", length(v), "NA-values", length(which(is.na(v))), "percentage of NA-values", 100 * length(which(is.na(v))) / length(v), "%\n")
+# plot of the final raster (my zone of interest)
+plot(depth_rasterized)
+
+dev.off()
+
 # Previously downloaded PANGAEA data
 # pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)
 # pg_files <- pg_files[grepl(".csv", pg_files)]
