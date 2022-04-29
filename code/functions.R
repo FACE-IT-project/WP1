@@ -1517,16 +1517,16 @@ review_filter_var <- function(full_product, site_name, var_keep, var_remove = NU
   
   # NB: Repetitive, but much faster depth filtering
   # Disabled for now for clean data pieline to dataAccess app
-  if(atmos){
-    df_depth <- full_product %>% filter(depth <= 0) %>%
-      bind_rows(add_depth(filter(full_product, is.na(lon)))) %>% filter(is.na(depth) | depth <= 0)
-  } else {
-    df_depth <- full_product %>% filter(depth >= 0 & depth <= 10) %>%
-      bind_rows(add_depth(filter(full_product, is.na(lon)))) %>%
-      filter(depth >= 0)# & depth <= 10) # Disable to find missing depth data
-  }
-  res_df <- df_depth %>% #filter(!is.na(date)) %>%
-  # res_df <- full_product %>% 
+  # if(atmos){
+  #   df_depth <- full_product %>% filter(depth <= 0) %>%
+  #     bind_rows(add_depth(filter(full_product, is.na(lon)))) %>% filter(is.na(depth) | depth <= 0)
+  # } else {
+  #   df_depth <- full_product %>% filter(depth >= 0 & depth <= 10) %>%
+  #     bind_rows(add_depth(filter(full_product, is.na(lon)))) %>%
+  #     filter(depth >= 0)# & depth <= 10) # Disable to find missing depth data
+  # }
+  # res_df <- df_depth %>% #filter(!is.na(date)) %>%
+  res_df <- full_product %>%
     filter(grepl(var_keep, var_name, ignore.case = T)) %>% 
     mutate(site = site_name, type = "in situ")
   if(!is.null(var_remove)) res_df <- res_df %>% filter(!grepl(var_remove, var_name, ignore.case = T))

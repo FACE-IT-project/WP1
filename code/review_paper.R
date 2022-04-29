@@ -32,8 +32,8 @@ load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 # NB: It's not clear if this is worthwhile
-full_product_all <- rbind(full_product_sval, full_product_kong, full_product_is, full_product_stor,
-                          full_product_young, full_product_disko, full_product_nuup)
+# full_product_all <- rbind(full_product_sval, full_product_kong, full_product_is, full_product_stor,
+#                           full_product_young, full_product_disko, full_product_nuup)
 
 # GEM data
 load("~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
@@ -264,50 +264,24 @@ review_summary_plot(summary_air, "air")
 
 ## Salinity ---------------------------------------------------------------
 
+# Get all salinity data
 # NB: Remove Sal [mg/l]
-# Investigate psal [1e-3]
-
-# Kongsfjorden
 # Remove overly processed variables
 # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
 # Remove glacial drainage land stations
-# Temporarily remove Ferry box data until documentation for variable names is located
 kong_sal <- review_filter_var(full_product_kong, "kong", "sal|PSU|s_", "interp|ph",
                               cit_filter = "land station|drainage|meltwater")
-# review_filter_check(kong_sal, "psal [1e-3]", "Skogseth")
-
-# Isfjorden
 is_sal <- review_filter_var(full_product_is, "is", "sal|PSU", "interp|mg/l")
-# review_filter_check(is_sal, "psal [1e-3]")
-
-# Storfjorden
 stor_sal <- review_filter_var(full_product_stor, "stor", "sal|PSU", "interp")
-# review_filter_check(stor_sal, "Sal [mg/l]", "Olsen, Are")
-
-# Young Sound
 young_sal <- review_filter_var(rbind(full_product_young, young_GEM), "young", "sal|PSU", "sal interp")
-# review_filter_check(young_sal, "Sal [mg/l]")
-
-# Disko Bay
 disko_sal <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "sal|PSU", "sal interp")
-# review_filter_check(disko_sal, "Sal [mg/l]")
-
-# Nuup Kangerlua
 nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "sal|PSU", "sal interp")
-# review_filter_check(nuup_sal, "Sal [mg/l]")
-
-# Porsangerfjorden
-# Some dubious values in "Mankettikkara"
-por_sal <- review_filter_var(full_product_por, "por", "sal|PSU", "Sal interp") #%>% filter(value > 0)
-# review_filter_check(por_sal, "sal [g kg-1]")
-
-# Combine cleaned data
-clean_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal) %>% 
-  mutate(var_name = "Sal")
+por_sal <- review_filter_var(full_product_por, "por", "sal|PSU", "Sal interp")
+clean_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal) %>% mutate(var_name = "Sal")
 rm(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal); gc()
 
 # Summary analyses
-summary_sal <- review_summary(clean_sal)
+summary_sal <- review_summary(filter(clean_sal, depth >= 0, depth <= 10))
 
 # Plot results
 review_summary_plot(summary_sal, "sal")
@@ -315,47 +289,22 @@ review_summary_plot(summary_sal, "sal")
 
 ## Light ------------------------------------------------------------------
 
-# Kongsfjorden
+# Get all PAR data
 kong_PAR <- review_filter_var(full_product_kong, "kong", "PAR", "Onc|Gym|Para|below")
-# review_filter_check(kong_PAR)
-
-# Isfjorden
-# NB: No PAR data
-is_PAR <- review_filter_var(full_product_is, "is", "PAR")
-# review_filter_check(is_PAR)
-
-# Storfjorden
-# NB: No PAR data
-stor_PAR <- review_filter_var(full_product_stor, "stor", "PAR")
-# review_filter_check(stor_PAR)
-
-# Young Sound
+is_PAR <- review_filter_var(full_product_is, "is", "PAR") # No PAR data
+stor_PAR <- review_filter_var(full_product_stor, "stor", "PAR") # No PAR data
 young_PAR <- review_filter_var(rbind(full_product_young, young_GEM), "young", "PAR")
-# review_filter_check(young_sal)
-
-# Disko Bay
 ## NB: It is unclear if these values should be divided by 10 or not
 ## It is also unclear what the time dimension is for the data
 disko_PAR <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "PAR", "milli") %>% filter(value > 0)
-# review_filter_check(disko_PAR)
-
-# Nuup Kangerlua
 ## NB: Some of these values are also very high
 nuup_PAR <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "PAR")
-# review_filter_check(nuup_PAR)
-
-# Porsangerfjorden
-## NB: No PAR data
-por_PAR <- review_filter_var(full_product_por, "por", "PAR")
-# review_filter_check(por_PAR)
-
-# Combine cleaned data
-clean_PAR <- rbind(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR) %>% 
-  mutate(var_name = "PAR [µmol m-2 s-1]")
+por_PAR <- review_filter_var(full_product_por, "por", "PAR") # No PAR data
+clean_PAR <- rbind(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR) %>% mutate(var_name = "PAR [µmol m-2 s-1]")
 rm(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR); gc()
 
 # Summary analyses
-summary_PAR <- review_summary(clean_PAR)
+summary_PAR <- review_summary(filter(clean_PAR, depth >= 0, depth <= 10))
 
 # Plot results
 review_summary_plot(summary_PAR, "par")
@@ -363,6 +312,7 @@ review_summary_plot(summary_PAR, "par")
 
 ## Sea ice ----------------------------------------------------------------
 
+# Collect all ice related data
 # https://doi.org/10.1594/PANGAEA.935267; bi [code] = ice of land origin, ci [code] = sea ice concentration, zi [code] = ice situation
 # https://doi.org/10.1594/PANGAEA.269605; t [°C] = temperature ice/snow
 # https://doi.org/10.1594/PANGAEA.269619; DI [code] = bearing of principal ice edge, l_s [code] = type of ice accretion
@@ -506,8 +456,7 @@ young_snow <- filter(rbind(full_product_young, young_GEM), var_type == "cryo",
 disko_snow <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo") %>% mutate(site = "disko") %>% slice(0) # No snow data
 nuup_snow <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %>% mutate(site = "nuup") %>% slice(0) # No snow data
 por_snow <- filter(full_product_por, var_type == "cryo") %>% mutate(site = "por") %>% slice(0) # No snow data
-clean_snow <- bind_rows(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow) %>% 
-  mutate(type = "in situ")
+clean_snow <- bind_rows(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow) %>% mutate(type = "in situ")
 rm(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow); gc()
 
 # Summary analyses
@@ -527,6 +476,7 @@ kong_glacier <- filter(full_product_kong) %>% mutate(site = "kong")
 
 ## pCO2 --------------------------------------------------------------------
 
+# Get all pCO2 data
 # Note that there are duplicates from GLODAP and the underlying files downloaded via PANGAEA
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
 # which is something that the GLODAP product requests that we do.
@@ -542,7 +492,7 @@ clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_
 rm(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2); gc()
 
 # Summary analyses
-summary_pCO2 <- review_summary(clean_pCO2)
+summary_pCO2 <- review_summary(filter(clean_pCO2, depth >= 0, depth <= 10))
 
 # Plot results
 review_summary_plot(summary_pCO2, "pCO2")
@@ -550,6 +500,7 @@ review_summary_plot(summary_pCO2, "pCO2")
 
 ## Nutrients ---------------------------------------------------------------
 
+# Get all nutrient data
 kong_nutrients <- review_filter_var(full_product_kong, "kong", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "stddev", 
                                     var_precise = c("[NO3]- + [NO2]- [µmol/l]", "PO4 biog [%]"))
 is_nutrients <- review_filter_var(full_product_is, "is", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", var_precise = "PO4 biog [%]")
@@ -572,7 +523,7 @@ clean_nutrients <- rbind(kong_nutrients, is_nutrients, stor_nutrients, young_nut
 rm(kong_nutrients, is_nutrients, stor_nutrients, young_nutrients, disko_nutrients, nuup_nutrients, por_nutrients); gc()
 
 # Summary analyses
-summary_nutrients <- review_summary(clean_nutrients)
+summary_nutrients <- review_summary(filter(clean_nutrients, depth >= 0, depth <= 10))
 
 # Plot results
 review_summary_plot(summary_nutrients, "nutrients")
@@ -580,6 +531,7 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 ## ChlA --------------------------------------------------------------------
 
+# Collect all ChlA data
 # https://zenodo.org/record/5572041#.YW_Lc5uxU5m: chl_flu [µg chl m-3] = chlorophyll a calculated from fluorescence profile
 kong_chla <- review_filter_var(full_product_kong, "kong", "chl", "phyceae|dinium|monas")
 is_chla <- review_filter_var(full_product_is, "is", "chl")
@@ -592,7 +544,7 @@ clean_chla <- rbind(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_
 rm(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla); gc()
 
 # Summary analyses
-summary_chla <- review_summary(clean_chla)
+summary_chla <- review_summary(filter(clean_chla, depth >= 0, depth <= 10))
 
 # Plot results
 review_summary_plot(summary_chla, "chla")
@@ -609,7 +561,11 @@ review_summary_plot(summary_chla, "chla")
 
 ## Save clean data ---------------------------------------------------------
 
-clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR, clean_sea_ice)
+clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR, clean_sea_ice, clean_snow,
+                   # clean_glacier,
+                   # clean_biomass,
+                   # clean_spass,
+                   clean_pCO2, clean_nutrients, clean_chla)
 plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
             df = clean_all, data_type = "clean", site_name = "all")
 
@@ -626,7 +582,11 @@ all_meta <- rbind(mutate(summary_SST$monthly, var_group = "SST"),
                   mutate(summary_air$monthly, var_group = "Air temp"),
                   mutate(summary_sal$monthly, var_group = "Salinity"),
                   mutate(summary_PAR$monthly, var_group = "PAR"),
-                  mutate(summary_ice$monthly, var_group = "ice vars"))
+                  mutate(summary_ice$monthly, var_group = "Ice vars"),
+                  mutate(summary_snow$monthly, var_group = "Snow vars"),
+                  mutate(summary_pCO2$monthly, var_group = "pCO2"),
+                  mutate(summary_nutrients$monthly, var_group = "Nutrients"),
+                  mutate(summary_chla$monthly, var_group = "ChlA"))
 
 all_meta %>% 
   filter(!is.na(value_mean)) %>% 

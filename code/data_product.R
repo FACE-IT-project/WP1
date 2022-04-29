@@ -1360,14 +1360,14 @@ stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_prope
 stor_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_stor[1], lon <= bbox_stor[2],
          lat >= bbox_stor[3], lat <= bbox_stor[4])
-save(stor_SOCAT, file = "~/pCloudDrive/FACE-IT_data/storfjorden/SOCAT_stor.RData")
+# save(stor_SOCAT, file = "~/pCloudDrive/FACE-IT_data/storfjorden/SOCAT_stor.RData")
 
 ## GLODAP
 ### NB: EU_GLODAP loaded in EU full product section
 stor_GLODAP <- EU_GLODAP %>% 
   filter(lon >= bbox_stor[1], lon <= bbox_stor[2],
          lat >= bbox_stor[3], lat <= bbox_stor[4])
-save(stor_GLODAP, file = "~/pCloudDrive/FACE-IT_data/storfjorden/GLODAP_stor.RData")
+# save(stor_GLODAP, file = "~/pCloudDrive/FACE-IT_data/storfjorden/GLODAP_stor.RData")
 
 # Combine and save
 full_product_stor <- rbind(pg_stor_ALL, stor_light_CTD, stor_SOCAT, stor_GLODAP) %>% 
@@ -1458,8 +1458,7 @@ if(!exists("pg_young_ALL")) load("~/pCloudDrive/FACE-IT_data/young_sound/pg_youn
 # Primary production data
 holding_station_idx <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_CTD_biochem.csv") %>% 
   dplyr::rename(lon = LONG_DD, lat = LAT_DD) %>% 
-  dplyr::select(lon, lat, station) %>% 
-  distinct()
+  dplyr::select(lon, lat, station) %>% distinct()
 holding_CTD_biochem <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_CTD_biochem.csv") %>% 
   mutate(date = as.Date(date, format = "%d/%m/%Y")) %>% 
   dplyr::rename(lon = LONG_DD, lat = LAT_DD) %>% 
@@ -1935,7 +1934,7 @@ if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nu
 nuup_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_nuup[1], lon <= bbox_nuup[2],
          lat >= bbox_nuup[3], lat <= bbox_nuup[4])
-save(nuup_SOCAT, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/SOCAT_nuup.RData")
+# save(nuup_SOCAT, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/SOCAT_nuup.RData")
 
 ## GLODAP
 ### NB: EU_GLODAP loaded in EU full product section
@@ -2093,7 +2092,7 @@ por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("202
 por_SOCAT <- EU_SOCAT %>% 
   filter(lon >= bbox_por[1], lon <= bbox_por[2],
          lat >= bbox_por[3], lat <= bbox_por[4])
-save(por_SOCAT, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/SOCAT_por.RData")
+# save(por_SOCAT, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/SOCAT_por.RData")
 
 ## GLODAP
 ### NB: EU_GLODAP loaded in EU full product section
