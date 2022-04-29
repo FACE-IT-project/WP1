@@ -8,7 +8,9 @@
 # Rather show the count of the data and that it get's bigger when a user uploads something
 # Selectise the sensor owners etc. in the download tab
 # Don't upload all of the data at the outset OR
+# Allow filtering of download data by variable
 # Have an additional tab that visualises all of the data
+# Consider looking at the Argo standards for CTD QC - Look into the R Argo package
 # Time series by site/user of count of when and how much data were uploaded
 # Bar plot showing which users are in the lead w.r.t. data uploads
   # Do this by count of files, different days of upload, count of rows of data

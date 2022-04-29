@@ -288,7 +288,7 @@ DT::datatable(metadata_EU_arctic, rownames = FALSE, escape = FALSE, colnames = D
 While not a study site itself, there are a lot of studies and datasets that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it's own meta-data table. The data within these Svalbard datasets that overlap with any of the individual study sites have been extracted and added to those amalgamated datasets.
 
 <center>
-![](assets/map_svalbard.png){ width=90% }
+![](assets/map_svalbard.png){ width=70% }
 
 Figure 2: Map of Svalbard showing the location of the three FACE-IT study sites located on the archipelago. The light green bounding box shows the range within which trans-Svalbard data were collected.
 </center>
