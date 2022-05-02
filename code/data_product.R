@@ -1768,7 +1768,7 @@ young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, youn
                    young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill, 
                    young_GEM_phyto_sp, young_GEM_DIC, young_GEM_pCO2, young_GEM_phosphate, young_GEM_silicate, young_GEM_TA, 
                    young_mooring_multi)
-save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
+save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_GEM.RData")
 rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_multi); gc()
 
 
@@ -1945,6 +1945,19 @@ disko_GEM_precip <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Da
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
+# Air pressure
+disko_GEM_air_press <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Pressure_Air_pressure_60min_sample_hPa.csv") %>% 
+  dplyr::rename(date = Date, value = `Pressure (hPa)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Air pressure [hPa]",
+         lon = -53.5288581848145, lat = 69.2441711425781, depth = -2,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/BQKG-JJ88",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Atmospheric pressure - sampled once per hour. Pressure ClimateBasis Disko. doi: 10.17897/BQKG-JJ88") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
 # Shortwave radiation at 2 m
 disko_GEM_swr <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Radiation_Short_wave_incoming_radiation_@_200_cm_5min_average_W_m2.csv") %>% 
   dplyr::rename(date = Date, value = `SRI (W/m2)`) %>% 
@@ -1959,15 +1972,15 @@ disko_GEM_swr <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_
   summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
 # Snow depth
-disko_GEM_snow <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Snow_depth_Snow_depth_3min_average_every_hour_m2.csv") %>% 
+disko_GEM_snow <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Snow_depth_Snow_depth_3min_average_every_hour_m.csv") %>% 
   dplyr::rename(date = Date, value = `SD (m)`) %>% 
   filter(value != -9999) %>% 
   mutate(var_type = "cryo",
          var_name = "Snow depth [m]",
          lon = -53.5288581848145, lat = 69.2441711425781, depth = NA,
-         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/0TSZ-ZV79",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/FDJZ-6X91",
          date_accessed = as.Date("2022-04-28"),
-         citation = "Snow depth measured by ultrasonic ranger. Radiation ClimateBasis Disko. doi: 10.17897/0TSZ-ZV79") %>% 
+         citation = "Snow depth measured by ultrasonic ranger. Snow depth ClimateBasis Disko. doi: 10.17897/FDJZ-6X91") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
 
@@ -1984,10 +1997,23 @@ disko_GEM_air_temp_2m <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
 
+# Air temperature at 7.5 m
+disko_GEM_air_temp_7m <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Temperature_Air_temperature_@_750_cm_60min_sample_DegreesC.csv") %>% 
+  dplyr::rename(date = Date, value = `AT (°C)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "TTT [°C]",
+         lon = -53.5288581848145, lat = 69.2441711425781, depth = -7.5,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/71Q9-KP53",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Air temperature at 750 cm above ground, sampled once per hour. Temperature ClimateBasis Disko. doi: 10.17897/71Q9-KP53") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
+
 # Combine and save
-disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow, disko_GEM_air_temp_2m)
-save(disko_GEM, file = "data/restricted/disko_GEM.RData")
-save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko_GEM.RData")
+disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow, 
+                   disko_GEM_air_temp_2m, disko_GEM_air_temp_7m)
+save(disko_GEM, file = "data/restricted/disko_GEM.RData"); save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -2093,6 +2119,7 @@ rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 ## GEM ---------------------------------------------------------------------
 
 # NB: Several undownloaded wind data files as these are not currently to be used in the review paper
+# Other radiation files are available but we are just using net radiation here
 
 # Open water CTD
 nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
@@ -2152,10 +2179,141 @@ nuup_GEM_ChlA <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Wa
          citation = "Water Chlorophyll a Concentration (µg/L). Water column MarineBasis Nuuk. doi: 10.17897/1QK2-6B74") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+# Precipitation
+nuup_GEM_precip <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Precipitation_Precipitation_accumulated_mm.csv") %>% 
+  dplyr::rename(date = Date, value = `Precipitation accumulated (mm)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "precipitation [mm/h]",
+         lon = -51.34305568, lat = 64.133055, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/SXJ8-WA79",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Precipitation accumulated - 60min (mm). Precipitation ClimateBasis Nuuk. doi: 10.17897/SXJ8-WA79") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+
+# Snow depth
+nuup_GEM_snow <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Precipitation_Snow_depth_m.csv") %>% 
+  dplyr::rename(date = Date, value = `SD (m)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "cryo",
+         var_name = "Snow depth [m]",
+         lon = -51.34305568, lat = 64.133055, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/19YH-DB49",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Snow depth - 3min average every 180min (m). Precipitation ClimateBasis Nuuk. doi: 10.17897/19YH-DB49") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
+
+# Air pressure
+nuup_GEM_air_press <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Pressure_Air_pressure_@_150_cm_30min_average_hPa.csv") %>% 
+  dplyr::rename(date = Date, value = `Air pressure, 150 cm - 30min average (hPa)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Air pressure [hPa]",
+         lon = -51.34305568, lat = 64.133055, depth = -1.5,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/EG71-TC03",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Air pressure, 150 cm - 30min average (hPa). Pressure ClimateBasis Nuuk. doi: 10.17897/EG71-TC03") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# Shortwave radiation at 2 m
+nuuk_GEM_qnet <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Radiation_Net_radiation_@_200_cm_5min_average_W_m2.csv") %>% 
+  dplyr::rename(date = Date, value = `NR (W/m2)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Net radiation (incoming) [W/m2]",
+         lon = -51.34305568, lat = 64.133055, depth = -2,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/P4DC-7863",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Net radiation (CNR1), 200 cm (W/m2) calculated from QCed radiation components. Radiation ClimateBasis Nuuk. doi: 10.17897/P4DC-7863") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# Air temperature at 2 m
+nuuk_GEM_air_temp_2m <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Temperature_Air_temperature_@_200_cm_30min_average_DegreesC.csv") %>% 
+  dplyr::rename(date = Date, value = `Air temperature, 200 cm - 30min average (°C)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "TTT [°C]",
+         lon = -51.34305568, lat = 64.133055, depth = -2,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/PGN3-7597",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Air temperature, 200 cm - 30min average (°C). Temperature ClimateBasis Nuuk. doi: 10.17897/PGN3-7597") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# Air temperature at 2 m at Kobbefjord
+nuuk_GEM_air_temp_2m_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Air_temperature_@_200_cm_30min_average__DegreesC.csv") %>% 
+  dplyr::rename(date = Date, value = `AT (°C)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "TTT [°C]",
+         lon = -51.38077775, lat = 64.133111, depth = -2,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/QWJG-TB45",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Kobbefjord hydrometric station air temperature - 30m average (°C). River hydrology ClimateBasis Nuuk. doi: 10.17897/QWJG-TB45") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# River discharge at Kingigtorssuaq
+nuuk_GEM_Kingigtorssuaq <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Kingigtorssuaq_m3_s.csv") %>% 
+  dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Q [m3/s]",
+         lon = -51.5795, lat = 64.138722, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VWS5-4688",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Discharge at river Kingigtorssuaq (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/VWS5-4688") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# River discharge at Kobbefjord
+nuuk_GEM_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Kobbefjord_m3_s.csv") %>% 
+  dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Q [m3/s]",
+         lon = -51.38077775, lat = 64.133111, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/H2MR-PP28",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Discharge at river Kobbefjord (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/H2MR-PP28") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# River discharge at Oriartorfik
+nuuk_GEM_Oriartorfik <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Oriartorfik_m3_s.csv") %>% 
+  dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Q [m3/s]",
+         lon = -51.40661103, lat = 64.171861, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VHDT-PX65",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Discharge at river Oriartorfik (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/VHDT-PX65") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# River discharge at Teqinngalip
+nuuk_GEM_Teqinngalip <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Teqinngalip_m3_s.csv") %>% 
+  dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Q [m3/s]",
+         lon = -51.54838892, lat = 64.158611, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/DFVW-4R58",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Discharge at river Teqinngalip (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/DFVW-4R58") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
 # Combine and save
-nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_GEM_silicate, nuup_GEM_ChlA)
-save(nuup_GEM, file = "data/restricted/nuup_GEM.RData")
-save(nuup_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
+nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_GEM_silicate, nuup_GEM_ChlA, nuup_GEM_precip, nuup_GEM_snow,
+                  nuup_GEM_air_press, nuuk_GEM_qnet, nuuk_GEM_air_temp_2m, nuuk_GEM_air_temp_2m_Kobbefjord, nuuk_GEM_Kingigtorssuaq, 
+                  nuuk_GEM_Kobbefjord, nuuk_GEM_Oriartorfik, nuuk_GEM_Teqinngalip)
+save(nuup_GEM, file = "data/restricted/nuup_GEM.RData"); save(nuup_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
 rm(list = grep("nuup_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
 
