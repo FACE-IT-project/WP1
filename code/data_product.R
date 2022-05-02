@@ -1548,7 +1548,7 @@ rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 ## GEM ---------------------------------------------------------------------
 
 # Sea ice free period per year
-young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Open_water_duration.csv", delim = "\t") %>% 
+young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Sea_ice_conditions_Open_water_duration.csv", delim = "\t") %>% 
   dplyr::rename(value = `Open Water duration`) %>% 
   mutate(var_name = "Open water [annual days]",
          var_type = "cryo",
@@ -1556,11 +1556,11 @@ young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Za
          depth = NA, lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/R3QB-7Q71",
          date_accessed = as.Date("2022-02-03"),
-         citation = "Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71") %>% 
+         citation = "Open water duration. Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Sea ice breakup
-young_GEM_sea_ice_breakup <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Sea_ice_breakup.csv", delim = "\t") %>% 
+young_GEM_sea_ice_breakup <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Sea_ice_conditions_Sea_ice_breakup.csv", delim = "\t") %>% 
   dplyr::rename(value = `Start open water`) %>% 
   mutate(var_name = "Open water [start date]",
          var_type = "cryo",
@@ -1569,11 +1569,11 @@ young_GEM_sea_ice_breakup <- read_delim("~/pCloudDrive/restricted_data/GEM/Zacke
          depth = NA, lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/SM1Q-6A72",
          date_accessed = as.Date("2022-02-03"),
-         citation = "Sea ice breakup: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/SM1Q-6A72") %>% 
+         citation = "Sea ice breakup. Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/SM1Q-6A72") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Sea ice formation
-young_GEM_sea_ice_formation <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Sea_ice_formation.csv", delim = "\t") %>% 
+young_GEM_sea_ice_formation <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Sea_ice_conditions_Sea_ice_formation.csv", delim = "\t") %>% 
   dplyr::rename(value = `End open water`) %>% 
   mutate(var_name = "Open water [end date]",
          var_type = "cryo",
@@ -1582,34 +1582,34 @@ young_GEM_sea_ice_formation <- read_delim("~/pCloudDrive/restricted_data/GEM/Zac
          depth = NA, lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/5MNP-KX83",
          date_accessed = as.Date("2022-02-03"),
-         citation = "Sea ice formation: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/5MNP-KX83") %>% 
+         citation = "Sea ice formation. Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/5MNP-KX83") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Sea ice thickness
-young_GEM_sea_ice_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Sea_ice_thickness.csv", delim = "\t") %>% 
+young_GEM_sea_ice_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Sea_ice_conditions_Sea_ice_thickness.csv", delim = "\t") %>% 
   dplyr::rename(value = `Sea ice thickness (cm)`, date = Date) %>% 
   mutate(var_name = "Sea ice thickness [cm]",
          var_type = "cryo",
          depth = NA, lon = -20.25, lat = 74.31,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/H5D5-TZ32",
          date_accessed = as.Date("2022-02-03"),
-         citation = "Sea ice thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32") %>% 
+         citation = "Sea ice thickness. Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Sea ice thickness
-young_GEM_sea_ice_snow_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Sea_ice_conditions_Snow_thickness.csv", delim = "\t") %>% 
+young_GEM_sea_ice_snow_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Sea_ice_conditions_Snow_thickness.csv", delim = "\t") %>% 
   dplyr::rename(value = `Snow thickness (cm)`, date = Date) %>% 
   mutate(var_name = "Sea ice snow thickness [cm]",
          var_type = "cryo",
          depth = NA, lon = -20.25, lat = 74.31,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16",
          date_accessed = as.Date("2022-02-03"),
-         citation = "Sea ice snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16") %>% 
+         citation = "Sea ice snow thickness. Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Water column CTD
 ## NB: PAR units not given, but they look like [µmol m-2 s-1]
-young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 
                 PAR = `Water, PAR`, turbidity = `Water turbidity`, `Tpot [°C]` = `Potential temperature, C`,
@@ -1622,23 +1622,23 @@ young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEM/Zack
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12",
          date_accessed = as.Date("2022-02-03"),
-         citation = "CTD measurements Water column: Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12") %>% 
+         citation = "CTD measurements Water column. Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Mooring CTD
-young_GEM_CTD_mooring <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Water_column_Mooring_CTD_measurements.csv", delim = "\t") %>% 
+young_GEM_CTD_mooring <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Mooring_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = DATE, depth = `PRESSURE (db)`, `temp [°C]` = `TEMPERATURE (°C)`, `sal [PSU]` = `Salinity (PSU)`) %>% 
   pivot_longer(`temp [°C]`:`sal [PSU]`, names_to = "var_name") %>% 
   mutate(var_type = "phys",
          lon = -20.27883, lat = 74.31515,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/8GPS-CE70",
          date_accessed = as.Date("2022-02-03"),
-         citation = "CTD measurements mooring: Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70") %>% 
+         citation = "CTD measurements mooring. Water column MarineBasis Zackenberg. doi: 10.17897/8GPS-CE70") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Sill CTD
-young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_Data_Water_column_Sill_CTD_measurements.csv") %>% 
+young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Sill_CTD_measurements.csv") %>% 
   dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 
                 PAR = `Water, PAR`, turbidity = `Water turbidity`, `Tpot [°C]` = `Potential temperature, C`,
@@ -1653,6 +1653,88 @@ young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/Zackenberg_D
          date_accessed = as.Date("2022-02-03"),
          citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Phytoplankton relative species composition
+young_GEM_phyto_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Phytoplankton_Relative_Species_Composition.csv", delim = "\t") %>%
+  dplyr::rename(date = Date, var_name = `Species name`, value = `% of total cells`) %>% 
+  mutate(var_type = "bio",
+         var_name = paste0(var_name," [%]"),
+         lon = -20.57, lat = 74.47, depth = 0,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/MN5J-K414",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Phytoplankton Relative Species Composition (%). Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# DIC concentration
+young_GEM_DIC <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_DIC_Concentration_æmol_kg.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, depth = Depth, value = `Dissolved inorganic carbon (DIC), µmol kg-1`) %>% 
+  mutate(var_type = "chem",
+         var_name = "DIC [µmol/kg]",
+         lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/7FSW-D577",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Water DIC Concentration (µmol/kg). Water column MarineBasis Zackenberg. doi: 10.17897/7FSW-D577") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# pCO2 in the water column
+young_GEM_pCO2 <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_pCO2.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, lat_char = lat, lon_char = long, depth = `Depth, m`, value = `pCO2, µatm`) %>% 
+  mutate(var_type = "chem",
+         var_name = "pCO2 [µatm]", # NB: This may need volume units
+         lon_clean = str_replace(str_remove(lon_char, "’W|'W"), "°", " "), 
+         lat_clean = str_replace(str_remove(lat_char, "’N|'N"), "°", " "), 
+         lon = measurements::conv_unit(lon_clean, "deg_dec_min", "dec_deg"),
+         lat = measurements::conv_unit(lat_clean, "deg_dec_min", "dec_deg"),
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/A8J4-AF12",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Water pCO2. Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+
+# Phosphate concentration
+young_GEM_phosphate <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_Phosphate_Concentration.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, depth = Depth, value = `PO4, µM`) %>% 
+  mutate(var_type = "chem",
+         var_name = "PO4 [µmol/l]",
+         lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/KQ4Z-SD22",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Water Phosphate Concentration (µmol/L). Water column MarineBasis Zackenberg. doi: 10.17897/KQ4Z-SD22") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Silicate concentration
+young_GEM_silicate <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_Silicate_Concentration.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, depth = Depth, value = `Si, µM`) %>% 
+  mutate(var_type = "chem",
+         var_name = "Si [µmol/l]",
+         lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/GFHW-ZT42",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Water Silicate Concentration (µmol/L). Water column MarineBasis Zackenberg. doi: 10.17897/GFHW-ZT42") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Silicate concentration
+young_GEM_TA <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_TA_Concentration_æmol_kg.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, depth = Depth, value = `Total Alkalinity (TA), µmol kg-1`) %>% 
+  mutate(var_type = "chem",
+         var_name = "TA [µmol/kg]",
+         lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/6H8H-WM93",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Water TA Concentration (µmol/kg). Water column MarineBasis Zackenberg. doi: 10.17897/6H8H-WM93") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Zooplankton abundance
+young_GEM_zoo_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Zooplankton_Abundance.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, value = `Abundance/m2`) %>% 
+  mutate(var_type = "bio",
+         var_name = paste0(`Species name`," ",`Stage/sex`," [Abundance/m2]"),
+         lon = -20.57, lat = 74.47, depth = 0,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/D3C5-AJ13",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Zooplankton Species Composition (individuals/m2). Water column MarineBasis Zackenberg. doi: 10.17897/D3C5-AJ13") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T)), .groups = "drop")
 
 # Mooring with many variables
 ## NB: These data are part of an upcoming publication
@@ -1683,7 +1765,9 @@ young_mooring_multi <- read_csv("~/pCloudDrive/restricted_data/Young_Sound/RBR_S
 
 # Combine and save
 young_GEM <- rbind(young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, young_GEM_sea_ice_formation, young_GEM_sea_ice_thickness,
-                   young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill, young_mooring_multi)
+                   young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, young_GEM_CTD_sill, 
+                   young_GEM_phyto_sp, young_GEM_DIC, young_GEM_pCO2, young_GEM_phosphate, young_GEM_silicate, young_GEM_TA, 
+                   young_mooring_multi)
 save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
 rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_multi); gc()
 
@@ -1828,7 +1912,7 @@ rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 ## NB: These single lon/lat values seem dubious
 ## They do not seem to agree with the similar data from Zenodo
 ## PAR units given by Thomas Juul-Pedersen as the original file does not have them
-disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Disko_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, depth = `depSM: Depth (salt water, m)`, `temp [°C]` = `tv268C: Temperature (IPTS-68, deg C)`,
                 `cond [S/m]` = `c0S/m: Conductivity (S/m)`, `sal [PSU]` = `sal00: Salinity, Practical (PSU)`,
                 `density [kg/m^3]` = `density00: Density (density, kg/m^3)`, `press [psi]` = `prdE: Pressure, Strain Gauge (psi)`, 
@@ -1845,11 +1929,63 @@ disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Disko_
          lon = -53.51, lat = 69.251,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61",
          date_accessed = as.Date("2022-02-03"),
-         citation = "CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
+         citation = "CTD measurements. Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+# Precipitation
+disko_GEM_precip <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Precipitation_Precipitation_60min_sample_mm.csv") %>% 
+  dplyr::rename(date = Date, value = `PRE (mm)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "precipitation [mm/h]",
+         lon = -53.5288581848145, lat = 69.2441711425781, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/KQ4Z-SD22",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Precipitation, sampled once per hour. Precipitation ClimateBasis Disko. doi: 10.17897/KQ4Z-SD22") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+
+# Shortwave radiation at 2 m
+disko_GEM_swr <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Radiation_Short_wave_incoming_radiation_@_200_cm_5min_average_W_m2.csv") %>% 
+  dplyr::rename(date = Date, value = `SRI (W/m2)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "Shortwave radiation (incoming) [W/m2]",
+         lon = -53.5288581848145, lat = 69.2441711425781, depth = -2,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/0TSZ-ZV79",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Incoming shortwave radition, measured at 200 cm above ground, averaged over 5 min interval with time label at end of bin. Radiation ClimateBasis Disko. doi: 10.17897/0TSZ-ZV79") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+
+# Snow depth
+disko_GEM_snow <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Snow_depth_Snow_depth_3min_average_every_hour_m2.csv") %>% 
+  dplyr::rename(date = Date, value = `SD (m)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "cryo",
+         var_name = "Snow depth [m]",
+         lon = -53.5288581848145, lat = 69.2441711425781, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/0TSZ-ZV79",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Snow depth measured by ultrasonic ranger. Radiation ClimateBasis Disko. doi: 10.17897/0TSZ-ZV79") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
+
+# Air temperature at 2 m
+disko_GEM_air_temp_2m <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Temperature_Air_temperature_@_200_cm_60min_sample_DegreesC.csv") %>% 
+  dplyr::rename(date = Date, value = `AT (°C)`) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "phys",
+         var_name = "TTT [°C]",
+         lon = -53.5288581848145, lat = 69.2441711425781, depth = -2,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/19SC-2708",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Air temperature at 200 cm above ground, sampled once per hour. Temperature ClimateBasis Disko. doi: 10.17897/19SC-2708") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
+
 # Combine and save
-disko_GEM <- rbind(disko_GEM_CTD_open_water)
+disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow, disko_GEM_air_temp_2m)
 save(disko_GEM, file = "data/restricted/disko_GEM.RData")
 save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko_GEM.RData")
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
@@ -1959,7 +2095,7 @@ rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 # NB: Several undownloaded wind data files as these are not currently to be used in the review paper
 
 # Open water CTD
-nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
+nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, lon = Longitude, lat = Latitude, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Density, Sigma-theta, kg m-3`, fluor = `Fluorescence`, 
                 `PAR [µmol photons m-2/sec]` = `PAR, µmol photons m-2 sec-1`, `turbidity [FTU]` = `Turbidity, FTU`, 
@@ -1971,23 +2107,55 @@ nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/Nuuk_Da
                               TRUE ~ "phys"),
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/KMEK-TK21",
          date_accessed = as.Date("2022-02-03"),
-         citation = "CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
+         citation = "CTD measurements. Water column MarineBasis Nuuk. doi: 10.17897/KMEK-TK21") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Primary production
-nuup_GEM_pp <- read_delim("~/pCloudDrive/restricted_data/GEM/Nuuk_Data_Water_column_Particulate_Pelagic_Primary_Production_mg_C_m2_d.csv", delim = "\t") %>% 
+nuup_GEM_pp <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Particulate_Pelagic_Primary_Production_mg_C_m2_d.csv", delim = "\t") %>% 
   dplyr::rename(date = DATE, depth = DEPTH, `PP [mg C/m3/d]` = `Water PP`) %>% pivot_longer(`PP [mg C/m3/d]`, names_to = "var_name") %>% 
   mutate(var_type = "bio",
          lon = -51.883333, lat = 64.116667,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/TQQV-VJ76",
          date_accessed = as.Date("2022-02-03"),
-         citation = "Particulate Pelagic Primary Production (mg C/m2/d): Water column MarineBasis Nuuk. doi: 10.17897/TQQV-VJ76") %>% 
+         citation = "Particulate Pelagic Primary Production (mg C/m2/d). Water column MarineBasis Nuuk. doi: 10.17897/TQQV-VJ76") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Phytoplankton relative species composition
+nuup_GEM_phyto_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Phytoplankton_Relative_Species_Composition_Percent.csv", delim = "\t") %>% 
+  dplyr::rename(date = DATE, var_name = SPECIES, value = Phytopl) %>% 
+  mutate(var_type = "bio",
+         var_name = paste0(var_name," [%]"),
+         lon = -51.883333, lat = 64.116667, depth = 0,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/Y3A4-9D86",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Phytoplankton Relative Species Composition (%). Water column MarineBasis Nuuk. doi: 10.17897/Y3A4-9D86") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Silicate concentration
+nuup_GEM_silicate <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Silicate_Concentration_æmol_L.csv", delim = "\t") %>% 
+  dplyr::rename(date = Date, lat = Latitude, lon = Longitude, depth = `Depth, m`, value = `Si(OH)4, µM`) %>% 
+  mutate(var_type = "chem",
+         var_name = "Si(OH)4 [µM/l]",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VVQP-F862",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Monthly measurements of the concentration of silicate (Si(OH)4). Water column MarineBasis Nuuk. doi: 10.17897/VVQP-F862") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# ChlA concentrations
+nuup_GEM_ChlA <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Water_Chlorophyll_a_Concentration_æg_L.csv", delim = "\t") %>% 
+  dplyr::rename(date = DATE, depth = DEPTH, value = `WATER CHL A`) %>% 
+  mutate(var_type = "bio",
+         var_name = "Chl a [µg/l]",
+         lon = -51.883333, lat = 64.116667,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/1QK2-6B74",
+         date_accessed = as.Date("2022-02-03"),
+         citation = "Water Chlorophyll a Concentration (µg/L). Water column MarineBasis Nuuk. doi: 10.17897/1QK2-6B74") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Combine and save
-nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp)
+nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_GEM_silicate, nuup_GEM_ChlA)
 save(nuup_GEM, file = "data/restricted/nuup_GEM.RData")
-save(nuup_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup_GEM.RData")
+save(nuup_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
 rm(list = grep("nuup_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
 
