@@ -2187,9 +2187,36 @@ disko_GEM_air_temp_7m <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
 
+# Cruise CTD data
+disko_GEM_CTD_cruise <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Disko_Bay_Cruise_2019_CTD_measurements.csv") %>% 
+  rename(date = Date, lat = Latitude, lon = Longitude, depth = `depSM: Depth (salt water, m)`, `temp [°C]` = `tv268C: Temperature (IPTS-68, deg C)`,
+         `conductivity [S/m]` = `c0S/m: Conductivity (S/m)`, `salinity [PSU]` = `sal00: Salinity, Practical (PSU)`, 
+         `density [kg/m3]` = `density00: Density (density, kg/m^3)`, `pressure [psi]` = `prdE: Pressure, Strain Gauge (psi)`,
+         fluorescence = `flSP: Fluorescence, Seapoint`, `turbidity [FTU]` = `seaTurbMtr: Turbidity, Seapoint (FTU)`, 
+         `PAR [µmol photons m2/sec]` = `par: PAR/Irradiance, Biospherical/Licor`) %>% 
+  pivot_longer(`temp [°C]`:`PAR [µmol photons m2/sec]`, names_to = "var_name") %>% 
+  mutate(var_type = case_when(var_name == "fluorescence" ~ "bio", TRUE ~ "phys"),
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VB94-Y512",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Disko Bay Cruise 2019, CTD measurements. Water column MarineBasis Disko. doi: 10.17897/VB94-Y512") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+
+# Historic temperature and salinity data
+disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Historic_temperature_and_salinity__1924_to_2010.csv") %>% 
+  dplyr::rename(date = Date, depth = `Depth (m)`, `temp [°C]` = `Temperature (deg C)`, `salinity [PSU]` = `Salinity(psu)`, 
+                lat = `Latitude (degrees_north)`, lon = `Longitude (degrees_east)`) %>% 
+  dplyr::select(lon, lat, date, depth, `temp [°C]`, `salinity [PSU]`, `Sigma-t`) %>% 
+  pivot_longer(`temp [°C]`:`Sigma-t`, names_to = "var_name") %>% 
+  mutate(var_type = "phys",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/62VX-AX79",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Historic temperature and salinity, 1924 to 2010. Water column MarineBasis Disko. doi: 10.17897/62VX-AX79") %>% 
+    dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Combine and save
 disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow, 
-                   disko_GEM_air_temp_2m, disko_GEM_air_temp_7m)
+                   disko_GEM_air_temp_2m, disko_GEM_air_temp_7m, disko_GEM_CTD_cruise, disko_GEM_historic_ts)
 save(disko_GEM, file = "data/restricted/disko_GEM.RData"); save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
@@ -2302,7 +2329,7 @@ rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_CTD_measurements.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, lon = Longitude, lat = Latitude, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
                 sal = Salinity, `density [kg m-3]` = `Density, Sigma-theta, kg m-3`, fluor = `Fluorescence`, 
-                `PAR [µmol photons m-2/sec]` = `PAR, µmol photons m-2 sec-1`, `turbidity [FTU]` = `Turbidity, FTU`, 
+                `PAR [µmol photons m2/sec]` = `PAR, µmol photons m-2 sec-1`, `turbidity [FTU]` = `Turbidity, FTU`, 
                 `Tpot [°C]` = `Potential temperature, C`, `oxygen [µmol/kg]` = `Oxygen content, µmol kg-1`) %>% 
   pivot_longer(`temp [°C]`:`oxygen [µmol/kg]`, names_to = "var_name") %>% 
   filter(!is.na(value)) %>% 
