@@ -1684,6 +1684,23 @@ young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zacken
          citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
+# Bottom CTD measurements
+young_GEM_CTD_bottom <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Bottom_CTD_measurements.csv") %>% 
+  dplyr::rename(date = Date, `depth` = `Pressure, db`, `temp [°C]` = `Temperature, C`, 
+                sal = Salinity, `density [kg m-3]` = `Water Density, kg m-3`, fluor = `Water Fluorescence`, 
+                PAR = `Water, PAR`, turbidity = `Water turbidity`, `Tpot [°C]` = `Potential temperature, C`,
+                `oxygen [µmol/kg]` = `Water oxygen content, µmol/kg`) %>% 
+  pivot_longer(`temp [°C]`:`oxygen [µmol/kg]`, names_to = "var_name") %>%
+  filter(value != -9999) %>% 
+  mutate(var_type = case_when(var_name == "fluor" ~ "bio",
+                              var_name == "oxygen [µmol/kg]" ~ "chem",
+                              TRUE ~ "phys"),
+         lon = -20.57, lat = 74.47,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/J1J5-W960",
+         date_accessed = as.Date("2022-05-03"),
+         citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Phytoplankton relative species composition
 young_GEM_phyto_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Phytoplankton_Relative_Species_Composition.csv", delim = "\t") %>%
   dplyr::rename(date = Date, var_name = `Species name`, value = `% of total cells`) %>% 
@@ -1941,9 +1958,10 @@ young_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/young
 # Combine and save
 young_GEM <- rbind(young_mooring_multi, young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, young_GEM_sea_ice_formation, 
                    young_GEM_sea_ice_thickness, young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, 
-                   young_GEM_CTD_sill, young_GEM_phyto_sp, young_GEM_DIC, young_GEM_pCO2, young_GEM_phosphate, young_GEM_silicate, young_GEM_TA, 
-                   young_GEM_air_temp_2m, young_GEM_air_temp_7m, young_GEM_precip, young_GEM_snow_fall, young_GEM_air_press, young_GEM_qnet,
-                   young_GEM_river_dis, young_GEM_PAR_land, young_GEM_gmb, young_GEM_snow_depth, young_GEM_chla, young_GEM_nitrate_nitrite)
+                   young_GEM_CTD_sill, young_GEM_CTD_bottom, young_GEM_phyto_sp, young_GEM_DIC, young_GEM_pCO2, young_GEM_phosphate, 
+                   young_GEM_silicate, young_GEM_TA, young_GEM_air_temp_2m, young_GEM_air_temp_7m, young_GEM_precip, young_GEM_snow_fall, 
+                   young_GEM_air_press, young_GEM_qnet, young_GEM_river_dis, young_GEM_PAR_land, young_GEM_gmb, young_GEM_snow_depth, 
+                   young_GEM_chla, young_GEM_nitrate_nitrite)
 save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_GEM.RData")
 rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_multi); gc()
 
@@ -2149,15 +2167,57 @@ disko_GEM_swr <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_
   summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
 # Snow depth
-disko_GEM_snow <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Snow_depth_Snow_depth_3min_average_every_hour_m.csv") %>% 
+## NB: These might be precipitation values...
+disko_GEM_snow1 <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Snow_depth_Snow_depth_3min_average_every_hour_m.csv") %>% 
   dplyr::rename(date = Date, value = `SD (m)`) %>% 
   filter(value != -9999) %>% 
   mutate(var_type = "cryo",
-         var_name = "Snow depth [m]",
+         var_name = "snow depth [m]",
          lon = -53.5288581848145, lat = 69.2441711425781, depth = NA,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/FDJZ-6X91",
          date_accessed = as.Date("2022-04-28"),
          citation = "Snow depth measured by ultrasonic ranger. Snow depth ClimateBasis Disko. doi: 10.17897/FDJZ-6X91") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
+
+# Snow depth 
+disko_GEM_snow2 <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Snow_cover_Snow_sonic_ranger_height.csv") %>% 
+  dplyr::rename(value = h_snow_A) %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "cryo",
+         var_name = "snow depth [m]",
+         lon = -53.51, lat = 69.251, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VF9W-CE81",
+         date_accessed = as.Date("2022-05-03"),
+         citation = "Snow height observations at LYN-A. Snow cover GlacioBasis Disko. doi: 10.17897/VF9W-CE81") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+  summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
+
+# Glacier ice mass balance
+disko_GEM_gmb <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Glacier_ice_Surface_mass_balance.csv") %>% 
+  filter(ablation != -9999) %>% 
+  dplyr::rename(value = ablation) %>% 
+  mutate(var_type = "cryo",
+         var_name = "ablation [m w.e.]",
+         lon = -53.51, lat = 69.251, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/QXKF-G654",
+         date_accessed = as.Date("2022-05-03"),
+         citation = "Ablation stake readings in the ablation zone. Glacier ice GlacioBasis Disko. doi: 10.17897/QXKF-G654") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Glacier ice temperature
+disko_GEM_glacier_ice <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Glacier_ice_AWS_LYN_A.csv") %>% 
+  filter(qual != -9999) %>% 
+  dplyr::select(lon, lat, date, alt, h_ice:ice_T8) %>% 
+  pivot_longer(h_ice:ice_T8, names_to = "var_name") %>% 
+  filter(value != -9999) %>% 
+  mutate(var_type = "cryo",
+         var_name = case_when(var_name == "h_ice" ~ "ice depth [m]",
+                              grepl("ice_", var_name) ~ paste0(var_name," [°C]")),
+         lon = -53.51, lat = 69.251, depth = -alt,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/JQ7G-3G55",
+         date_accessed = as.Date("2022-05-03"),
+         citation = "Ice temperature profile at station LYN-A. Glacier ice GlacioBasis Disko. doi: 10.17897/JQ7G-3G55") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
 
@@ -2215,8 +2275,9 @@ disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
     dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Combine and save
-disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow, 
-                   disko_GEM_air_temp_2m, disko_GEM_air_temp_7m, disko_GEM_CTD_cruise, disko_GEM_historic_ts)
+disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow1, disko_GEM_snow2, 
+                   disko_GEM_gmb, disko_GEM_glacier_ice, disko_GEM_air_temp_2m, disko_GEM_air_temp_7m, disko_GEM_CTD_cruise, 
+                   disko_GEM_historic_ts)
 save(disko_GEM, file = "data/restricted/disko_GEM.RData"); save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
