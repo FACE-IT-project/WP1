@@ -1947,7 +1947,7 @@ young_GEM_chla <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg
 young_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_Nitrate_Nitrite_Concentration.csv") %>% 
   dplyr::rename(date = Date, depth = Depth, value = `Nitrate+nitrite (NOx), µM`) %>% 
   mutate(var_type = "chem",
-         var_name = "Nitrate+nitrite [µmol/l]",
+         var_name = "nitrate+nitrite [µmol/l]",
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/N626-SX63",
          date_accessed = as.Date("2022-04-28"),
@@ -2417,6 +2417,7 @@ nuup_GEM_phyto_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Dat
   dplyr::rename(date = DATE, var_name = SPECIES, value = Phytopl) %>% 
   mutate(var_type = "bio",
          var_name = paste0(var_name," [%]"),
+         value = as.numeric(value),
          lon = -51.883333, lat = 64.116667, depth = 0,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/Y3A4-9D86",
          date_accessed = as.Date("2022-02-03"),
@@ -2589,10 +2590,81 @@ nuup_GEM_Teqinngalip <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
+# Nitrate and nitrite concentrations
+nuup_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Nitrate_Nitrite_Concentration_цmol_L.csv") %>% 
+  dplyr::rename(date = Date, depth = `Depth, m`, value = `NOx, µM`, lon = Longitude, lat = Latitude) %>% 
+  mutate(var_type = "chem",
+         var_name = "nitrate+nitrite [µmol/l]",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/3NQX-FA50",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Monthly measurements of the concentration of Nox, which is Nitrate (NO3) plus Nitrite (NO2). Water column MarineBasis Nuuk. doi: 10.17897/3NQX-FA50") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Fish larvae presence
+nuup_GEM_fish_larvae <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Fish_Larvae_Species_Composition_individuals_m.csv") %>% 
+  dplyr::rename(date = DATE, var_name = SPECIES, value = `FISH LARV`) %>% 
+  mutate(var_type = "bio",
+         var_name = paste0(var_name," [individuals/m3]"),
+         value = as.numeric(value),
+         lon = -20.55568835, lat = 74.47914496, depth = 0,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/SBG4-YH51",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Fish Larvae Species Composition (individuals/m3). Water column MarineBasis Nuuk. doi: 10.17897/SBG4-YH51") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Leaf growth of Saccharina latissima (g)
+nuup_GEM_Slat_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_vegetation_Leaf_Growth_of_Saccharina_latissima_g_C_yr.csv") %>% 
+  dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - BIOMASS`) %>% 
+  mutate(var_type = "bio",
+         var_name = paste0("S. latissima blade growth (",LOCATION,") [g C/year]"),
+         lon = -20.55568835, lat = 74.47914496, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/EWVJ-KX92",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Leaf Growth of Saccharina latissima (g C/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/EWVJ-KX92") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Leaf growth of Saccharina latissima (cm)
+nuup_GEM_Slat_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_vegetation_Leaf_Growth_of_Saccharina_latissima_cm_yr.csv") %>% 
+  dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - LENGTH`) %>%
+  mutate(var_type = "bio",
+         var_name = paste0("S. latissima blade growth (",LOCATION,") [cm/year]"),
+         lon = -20.55568835, lat = 74.47914496, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/TDEK-WQ82",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Leaf Growth of Saccharina latissima (cm/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/TDEK-WQ82") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Ascophyllum nodosum tips (g)
+nuup_GEM_Anod_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_Vegetation_Ascophyllum_nodosum_segment_biomass.csv") %>% 
+  dplyr::rename(date = Date, lon = Longitude, lat = Latitude, `[Avg g dw]` = `Avg (g dw)`, 
+                `[Std g dw]` = `Std (g dw)`, `[n]` = N, `[SE g dw]` = `SE (g dw)`) %>%
+  pivot_longer(`[Avg g dw]`:`[SE g dw]`, names_to = "units") %>% 
+  mutate(var_type = "bio",
+         var_name = paste0("A. nodosum tip growth (",`Segment (year)`," year segment - ",Site," ",Tidalzone," Tidal Zone) ",units),
+         lon = -51.38, lat = 64.13, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/KEMY-JJ24",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Annual (2012-2021) sampling of 20 Ascophyllum nodosum tips. Benthic vegetation MarineBasis Nuuk. doi: 10.17897/KEMY-JJ24") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Ascophyllum nodosum tips (cm)
+nuup_GEM_Anod_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_Vegetation_Ascophyllum_nodosum_segment_length.csv") %>% 
+  dplyr::rename(date = Date, lon = Longitude, lat = Latitude, `[Avg cm]` = `Avg (cm)`, 
+                `[Std cm]` = `Std (cm)`, `[n]` = N, `[SE cm]` = `SE (cm)`) %>%
+  pivot_longer(`[Avg cm]`:`[SE cm]`, names_to = "units") %>% 
+  mutate(var_type = "bio",
+         var_name = paste0("A. nodosum tip growth (",`Segment (year)`," year segment - ",Site," ",Tidalzone," Tidal Zone) ",units),
+         lon = -51.38, lat = 64.13, depth = NA,
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/4NJK-ZV13",
+         date_accessed = as.Date("2022-04-28"),
+         citation = "Annual (2012-2021) sampling of 20 Ascophyllum nodosum tips. Benthic vegetation MarineBasis Nuuk. doi: 10.17897/4NJK-ZV13") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
 # Combine and save
 nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_GEM_silicate, nuup_GEM_ChlA, nuup_GEM_precip, nuup_GEM_snow,
                   nuup_GEM_air_press, nuup_GEM_qnet, nuup_GEM_air_temp_2m, nuup_GEM_air_temp_10m, nuup_GEM_air_temp_2m_Kobbefjord, 
-                  nuup_GEM_Kingigtorssuaq, nuup_GEM_Kobbefjord, nuup_GEM_Oriartorfik, nuup_GEM_Teqinngalip)
+                  nuup_GEM_Kingigtorssuaq, nuup_GEM_Kobbefjord, nuup_GEM_Oriartorfik, nuup_GEM_Teqinngalip, nuup_GEM_nitrate_nitrite,
+                  nuup_GEM_fish_larvae, nuup_GEM_Slat_g, nuup_GEM_Slat_cm, nuup_GEM_Anod_g, nuup_GEM_Anod_cm)
 save(nuup_GEM, file = "data/restricted/nuup_GEM.RData"); save(nuup_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
 rm(list = grep("nuup_GEM",names(.GlobalEnv),value = TRUE)); gc()
 

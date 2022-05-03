@@ -36,9 +36,9 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 #                           full_product_young, full_product_disko, full_product_nuup)
 
 # GEM data
-load("~/pCloudDrive/restricted_data/GEM/young_GEM.RData")
-load("~/pCloudDrive/restricted_data/GEM/disko_GEM.RData")
-load("~/pCloudDrive/restricted_data/GEM/nuup_GEM.RData")
+load("~/pCloudDrive/restricted_data/GEM/young/young_GEM.RData")
+load("~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
+load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
 
 # Model data
 model_kong <- load_model("kongsfjorden_rcp")
@@ -468,8 +468,27 @@ review_summary_plot(summary_snow, "snow")
 
 ## Glacier -----------------------------------------------------------------
 
-# grepl("gla", var_name) returns nothing of use
-kong_glacier <- filter(full_product_kong) %>% mutate(site = "kong")
+# Test check for all cryo vars to make sure no glacier vars are missed
+as.vector(distinct(filter(full_product_por, var_type == "cryo"), var_name))
+as.vector(distinct(filter(nuup_GEM, var_type == "cryo"), var_name))
+
+# Get all glacier variables
+kong_glacier <- review_filter_var(full_product_kong, "kong", "balance|glacier")
+is_glacier <- review_filter_var(full_product_is, "is", "balance|glacier")
+stor_glacier <- review_filter_var(full_product_stor, "stor", "balance|glacier")
+young_glacier <- review_filter_var(rbind(full_product_young, young_GEM), "young", "balance|glacier|ablation")
+disko_glacier <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "balance|glacier|ablation")
+nuup_glacier <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "glac")
+por_glacier <- review_filter_var(full_product_por, "por", "balance|glac") # No glacier data
+clean_glacier <- rbind(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier)
+rm(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier); gc()
+
+# Summary analyses
+summary_glacier <- review_summary(clean_glacier)
+
+# Plot results
+review_summary_plot(summary_glacier, "glacier")
+
 # Grab glacier values directly from EU or Svalbard products for certainty
 # Look for specific DOI in each site file
 
@@ -491,8 +510,7 @@ young_pCO2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "
 disko_pCO2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "CO2", "fco2|tco2")
 nuup_pCO2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "CO2")
 por_pCO2 <- review_filter_var(full_product_por, "por", "CO2")
-clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2) %>% 
-  mutate(var_name = "pCO2 [µatm]") # This may be incorrect to do
+clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2)
 rm(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2); gc()
 
 # Summary analyses
@@ -570,9 +588,67 @@ review_summary_plot(summary_chla, "chla")
 
 # Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
 
+# Test check for all bio vars to make sure no glacier vars are missed
+as.vector(distinct(filter(full_product_kong, var_type == "bio"), var_name))
+as.vector(distinct(filter(nuup_GEM, var_type == "bio"), var_name))
+
+# Get all biomass variables
+kong_biomass <- filter(full_product_kong, var_type == "bio",
+                       !grepl("Zooplankton in Kongsfjorden|Phytoplankton Seasonal", citation)) %>%
+  mutate(site = "kong") %>% slice(0) # No biomass data
+is_biomass <- filter(full_product_is, var_type == "bio",
+                     var_name == "P CO2 upt Vmax [µmol/kg/s]") %>% mutate(site = "is")
+stor_biomass <- filter(full_product_stor, var_type == "bio") %>% mutate(site = "stor") # No bio data
+young_biomass <- filter(rbind(full_product_young, young_GEM), var_type == "bio",
+                        !grepl("Species Composition", citation),
+                        grepl("pp_", var_name, ignore.case = T)) %>% mutate(site = "young") # "pp_" may be too restrictive
+disko_biomass <- filter(rbind(full_product_disko, disko_GEM), var_type == "bio") %>% mutate(site = "disko") %>% slice(0) # No biomass data
+nuup_biomass <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "bio",
+                       !grepl("Species Composition", citation),
+                       !grepl("fluor|Chl a", var_name)) %>% mutate(site = "nuup") # Should filter some of the tip growth data
+por_biomass <- filter(full_product_por, var_type == "bio") %>% mutate(site = "por") # No bio data
+clean_biomass <- rbind(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass) %>% 
+  mutate(type = "in situ")
+rm(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass); gc()
+
+# Summary analyses
+summary_biomass <- review_summary(clean_biomass)
+
+# Plot results
+review_summary_plot(summary_biomass, "biomass")
+
 
 ## Species assemblage ------------------------------------------------------
 # NB: Contact Allison Bailey about more recent plankton species data for Kongsfjorden
+
+# Test check for all bio vars to make sure no glacier vars are missed
+as.vector(distinct(filter(full_product_is, var_type == "bio"), var_name))
+as.vector(distinct(filter(nuup_GEM, var_type == "bio"), var_name))
+
+# Get all species variables
+kong_sp_ass <- filter(full_product_kong, var_type == "bio",
+                      !grepl("Temperature, salinity, light", citation),
+                      !grepl("Marine biogeochemistry", citation)) %>% mutate(site = "kong")
+is_sp_ass <- filter(full_product_is, var_type == "bio") %>% mutate(site = "is") %>% slice(0) # No species data
+stor_sp_ass <- filter(full_product_stor, var_type == "bio") %>% mutate(site = "stor") # No bio data
+young_sp_ass <- filter(rbind(full_product_young, young_GEM), var_type == "bio",
+                       grepl("Water Chlorophyll a", citation)) %>% mutate(site = "young")
+disko_sp_ass <- filter(rbind(full_product_disko, disko_GEM), var_type == "bio") %>% mutate(site = "disko") %>% slice(0) # No species data
+nuup_sp_ass <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "bio",
+                      grepl("Species Composition", citation)) %>% mutate(site = "nuup")
+por_sp_ass <- filter(full_product_por, var_type == "bio") %>% mutate(site = "por") # No bio data
+clean_sp_ass <- rbind(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass) %>% 
+  mutate(type = "in situ")
+rm(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass); gc()
+
+# Need to think about how these analyses should proceed
+# One idea is to extract or focus on specific species
+
+# Summary analyses
+# summary_sp_ass <- review_summary(clean_sp_ass)
+
+# Plot results
+# review_summary_plot(summary_sp_ass, "sp_ass")
 
 
 ## Save clean data ---------------------------------------------------------
