@@ -476,6 +476,10 @@ kong_glacier <- filter(full_product_kong) %>% mutate(site = "kong")
 
 ## pCO2 --------------------------------------------------------------------
 
+# Keep pCO2_calc as a separate variable because they can't be taken as absolutely the same
+# Same foe PCO2water_SST_wet
+# Can use SeaCarb to transform fco2 to pCO2
+
 # Get all pCO2 data
 # Note that there are duplicates from GLODAP and the underlying files downloaded via PANGAEA
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
@@ -499,6 +503,15 @@ review_summary_plot(summary_pCO2, "pCO2")
 
 
 ## Nutrients ---------------------------------------------------------------
+
+# Contact Fred: [µmol/l] vs [µg-at/l]
+# [µmol/l] vs [μmol kg-1] are different, a conversion must be made between them
+
+# Keep Nitrate + Nitrite
+
+# Same same
+# - [NO2]- vs NO2
+# - PO4 vs [PO4]3-
 
 # Get all nutrient data
 kong_nutrients <- review_filter_var(full_product_kong, "kong", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "stddev", 
@@ -530,6 +543,9 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 
 ## ChlA --------------------------------------------------------------------
+
+# [10um] vs [GFF] are different methods and both are valid.
+# Must keep the difference between them documented.
 
 # Collect all ChlA data
 # https://zenodo.org/record/5572041#.YW_Lc5uxU5m: chl_flu [µg chl m-3] = chlorophyll a calculated from fluorescence profile
