@@ -237,7 +237,7 @@ review_summary_plot(summary_SST, "temp")
 ## Air temperature --------------------------------------------------------
 
 # Get air temperature for all sites
-kong_air <- review_filter_var(full_product_kong, "kong", "air|temp|°C", 
+kong_air <- review_filter_var(full_product_kong, "kong", "air|temp|°C|TTT", 
                               "co2|intern|tequ|f_|p_|par_|temp_|interp|_ctd|_sf|MAGT|MAT|MAAT|T air", # We want T air but it requires processing before this step
                               var_precise = "Temp [°C]", atmos = T) %>% 
   filter(URL != "https://doi.org/10.1594/PANGAEA.882432", URL != "https://doi.org/10.1594/PANGAEA.839802")
