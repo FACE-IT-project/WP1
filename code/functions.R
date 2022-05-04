@@ -157,6 +157,10 @@ extract_bathy <- function(bbox, site_name, product = "GEBCO"){
 }
 
 # Convert from one EPSG to another
+# This is the function to convert Polar Stereographic Coordinates to Lat-Lon
+# Bernard Gentili found this script at https://github.com/jenseva/projected-data-demos
+# The polar stereographic projection is EPSG:3412 
+# but projection IBCAO is epsg:3996
 ## NB: Currently hardcoded to IBCAO bathy product. Need to change for any NetCDF input
 epsg3996_to_4326 <- function(by = 100, GETz = FALSE, zone = NULL, ind = NULL) {
   #---

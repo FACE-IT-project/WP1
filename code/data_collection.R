@@ -38,6 +38,7 @@ ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie
 ## 5 = lake
 ## 6 = border of region images 
 
+# Code from Bernard Gentili
 ## Code to be adapted to convert MASIE data to a cartesian grid
 # Main program
 cat("limits", zone0, "\n")
