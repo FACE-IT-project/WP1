@@ -495,6 +495,8 @@ review_summary_plot(summary_glacier, "glacier")
 
 ## pCO2 --------------------------------------------------------------------
 
+# NB: For this and other chemistry variables see best practices sent by JP on Slack
+
 # Keep pCO2_calc as a separate variable because they can't be taken as absolutely the same
 # Same foe PCO2water_SST_wet
 # Can use SeaCarb to transform fco2 to pCO2

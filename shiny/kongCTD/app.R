@@ -3,8 +3,6 @@
 
 # TODO: 
 # Fix upload tab, it is broken - Currently waiting on more hard drive space on awipev-co2
-# Remove upload tab and add the upload button to the metadata tab
-# Don't need to show the table of existing database data
 # Rather show the count of the data and that it get's bigger when a user uploads something
 # Selectise the sensor owners etc. in the download tab
 # Don't upload all of the data at the outset OR
@@ -92,21 +90,41 @@ library(rhandsontable)
 
 # Data --------------------------------------------------------------------
 
-# For testing...
+# Workflow for adding new data schema
+# 1) First figure out how to upload the file correctly via the 'file_load' examples below
+# 2) Then load the file as text via 'file_text' to identify how many characters must be read to identify something unique
+# 3) If the file requires a new schema follow these steps:
+# 3.1) Add the unique text identifier (step 2) in the`observeEvent(input$file1` and `output$schemaUI <- renderUI({` code chunks
+# 3.2) In the `observeEvent(input$schema, {` code chunk add the csv settings for the new schema
+# 3.3) Then in the `df_load <- reactive({` object add the new chunk matching the new schema requirements
+# 3.3.1) Note that this code chunk may need to be expanded to account for minor variations within a given schema
+# 4) If no new schema is required then one should be able to tweak the above code chunks as necessary
+# 5) Once the upload appears to work go through all of the tabs to check for normal behaviour
+
+# Testing: load file correctly
 # file_load <- read.csv("../test_data/August Bailey_0408_1141.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
 # file_load <- read.csv("../test_data/KB3_018630_20210416_1728.csv", skip = 5, sep = ",", dec = ".", fileEncoding = "UTF-8")
 # file_load <- read.csv("../test_data/010621_S.txt", skip = 5, sep = ";", dec = ",", fileEncoding = "latin1")
 # file_load <- read.csv("../test_data/011021_KB1.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
-# file_load <- read.csv("../test_data/070521_S.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
-# file_load <- read.csv("../test_data/080621_S.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1")
+# file_load <- read.table("../test_data/070521_S.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1", fill = T)
+# file_load <- read.table("../test_data/080621_S.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1", fill = T)
+# file_load <- read.table("../test_data/DAU_20200722_0750_SBE_7868.asc", skip = 57, sep = ",", dec = ".", fileEncoding = "UTF-8", header = F, fill = T)
+# file_load <- read.table("../test_data/DAU_20200804_0722_SBE_13894_001.asc", skip = 79, sep = ",", dec = ".", fileEncoding = "UTF-8", header = F, fill = T)
+# file_load <- read.table("../test_data/DAU_20200722_0804_CTD_454.txt", sep = "", skip = 30, dec = ".", fileEncoding = "latin1", header = F, fill = T)
+# file_load <- read.table("../test_data/DAU_20200722_0804_CTD_454.TOB", sep = "", skip = 30, dec = ".", fileEncoding = "latin1", header = F, fill = T)
+
+# Testing: read text for unique identifier
 # file_text <- read_file("../test_data/August Bailey_0408_1141.txt")
 # file_text <- read_file("../test_data/KB3_018630_20210416_1728.csv")
 # file_text <- read_file("../test_data/010621_S.txt")
 # file_text <- read_file("../test_data/011021_KB1.txt")
 # file_text <- read_file("../test_data/070521_S.txt")
 # file_text <- read_file("../test_data/080621_S.txt")
+# file_text <- read_file("../test_data/DAU_20200722_0750_SBE_7868.asc")
+# file_text <- read_file("../test_data/DAU_20200804_0722_SBE_13894_001.asc")
+# file_text <- read_file("../test_data/DAU_20200722_0800_CTD_275.TOB")
 
-# Default upload start values
+# Testing: default upload start values
 # default_opts <- data.frame(skip = 0,
 #                            header = TRUE,
 #                            sep = ",",
@@ -114,7 +132,7 @@ library(rhandsontable)
 #                            quote = '"',
 #                            encoding = "UTF-8")
 
-## The base land polygon
+# The base land polygon
 ## NB: Only needed to run following code once. It is left here for posterity.
 ## Load shapefile
 # coastline_full <- sf::read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
@@ -156,13 +174,15 @@ credentials <- data.frame(
   stringsAsFactors = FALSE
 )
 
+# Increase file upload size limit
+options(shiny.maxRequestSize = 50*1024^2)
+
 
 # UI ----------------------------------------------------------------------
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
 
-  
   # The app title
   dashboardHeader(title = "Kongsfjorden CTD"),
   
@@ -199,7 +219,7 @@ ui <- dashboardPage(
     ),
     
     # Add FACE-IT logo at bottom of menu bar
-    br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),
+    br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), br(),
     br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
     img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
   ),
@@ -223,9 +243,9 @@ ui <- dashboardPage(
                   # h4("Load file to begin"),
                   fileInput("file1", "Choose CSV/TXT File",
                             multiple = TRUE,
-                            accept = c("text/csv",
-                                       "text/comma-separated-values,text/plain",
-                                       ".csv"),
+                            # accept = c("text/csv",
+                            #            "text/comma-separated-values,text/plain",
+                            #            ".csv"),
                             placeholder = "Choose one or more files to begin"),
                   # uiOutput("fileNameUI"),
                   
@@ -265,7 +285,7 @@ ui <- dashboardPage(
               ),
               
               # The data display
-              box(width = 9, height = "800px", title = "Data",
+              box(width = 9, height = "850px", title = "Data",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contents_load"))
       ),
@@ -584,12 +604,19 @@ server <- function(input, output, session) {
   observeEvent(input$file1, {
     # req(input$file1)
     file_text <- read_file(input$file1$datapath[1])
-    if(str_sub(file_text, 1, 16) == "From file: Alt_S"){
+    file_text_list <- str_split(file_text, "\r\n")
+    if(str_sub(file_text_list[[1]][1], 1, 16) == "From file: Alt_S"){
       upload_opts$schema <- "Alt_S"
-    } else if(str_sub(file_text, 1, 10) == "From file:"){
+    } else if(str_sub(file_text_list[[1]][1], 1, 10) == "From file:"){
       upload_opts$schema <- "SAIV"
-    } else if(str_sub(file_text, 1, 8) == "RBR data"){
+    } else if(str_sub(file_text_list[[1]][1], 1, 8) == "RBR data"){
       upload_opts$schema <- "RBR"
+    } else if(str_sub(file_text_list[[1]][1], 1, 10) == "* Sea-Bird" & str_sub(file_text_list[[1]][17], 1, 15) == "* output oxygen"){
+        upload_opts$schema <- "Sea-Bird O2"
+    } else if(str_sub(file_text_list[[1]][1], 1, 10) == "* Sea-Bird"){
+      upload_opts$schema <- "Sea-Bird"
+    } else if(str_sub(file_text_list[[1]][1], 1, 14) == "SSDA Sea & Sun"){
+      upload_opts$schema <- "Sea & Sun"
     } else {
       # Intentionally blank
     }
@@ -598,7 +625,8 @@ server <- function(input, output, session) {
   # Reactive UI for file schema
   ## NB: These could potentially be moved to the UI and rather updated via observations as done in the meta section
   output$schemaUI <- renderUI({
-    selectInput("schema", "File schema", choices = c("None", "Alt_S", "SAIV", "RBR"), selected = upload_opts$schema)
+    selectInput("schema", "File schema", choices = c("None", "Alt_S", "SAIV", "RBR", "Sea-Bird", "Sea-Bird O2", "Sea & Sun"), 
+                selected = upload_opts$schema)
   })
   
   # Reactive UI for header check box
@@ -617,8 +645,8 @@ server <- function(input, output, session) {
   # Reactive UI for column separator options
   output$sepUI <- renderUI({
     shinyWidgets::prettyRadioButtons("sep", "Separator",
-                                     choiceNames = c("Comma", "Semicolon", "Tab"),
-                                     choiceValues = c(",", ";", "/t"),
+                                     choiceNames = c("None", "Comma", "Semicolon", "Tab"),
+                                     choiceValues = c("", ",", ";", "\t"),
                                      selected = upload_opts$sep)
   })
   
@@ -646,13 +674,63 @@ server <- function(input, output, session) {
                                      selected = upload_opts$encoding)
   })
   
+  # Observe the changing of the upload UI options
+  ## Schema
+  observeEvent(input$schema, {
+    if(input$schema == "Alt_S"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ";"
+      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
+    } else if(input$schema == "SAIV"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 3; upload_opts$sep <- ";"
+      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
+    } else if(input$schema == "RBR"){
+      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ","
+      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "UTF-8"
+    } else if(input$schema == "Sea-Bird"){
+      upload_opts$header <- FALSE; upload_opts$skip <- 57; upload_opts$sep <- ","
+      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "UTF-8"
+    } else if(input$schema == "Sea-Bird O2"){
+      upload_opts$header <- FALSE; upload_opts$skip <- 79; upload_opts$sep <- ","
+      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "UTF-8"
+    } else if(input$schema == "Sea & Sun"){
+      upload_opts$header <- FALSE; upload_opts$skip <- 30; upload_opts$sep <- ""
+      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
+    } else {
+      # Intentionally blank
+    }
+  })
+  ## header
+  observeEvent(input$header, {
+    upload_opts$header <- input$header
+  })
+  ## Skip
+  observeEvent(input$skip, {
+    upload_opts$skip <- input$skip
+  })
+  ## sep
+  observeEvent(input$sep, {
+    upload_opts$sep <- input$sep
+  })
+  ## dec
+  observeEvent(input$dec, {
+    upload_opts$dec <- input$dec
+  })
+  ## quote
+  observeEvent(input$quote, {
+    upload_opts$quote <- input$quote
+  })
+  ## encoding
+  observeEvent(input$encoding, {
+    upload_opts$encoding <- input$encoding
+  })
+  
   # The file temp and real name data.frame
   file_info_df <- reactive({
     req(input$file1)
     df <- data.frame(file_temp = input$file1$datapath,
                      file_name = input$file1$name,
                      upload_date = Sys.Date()) #%>% 
-      # mutate(file_num = paste0("file_", 1:n()))
+    # mutate(file_num = paste0("file_", 1:n()))
     return(df)
   })
   
@@ -663,14 +741,15 @@ server <- function(input, output, session) {
     # Reactive function that is applied to all files in upload list
     # Also need to pass the file name
     df_load_func <- function(file_temp){
-      df <- read.csv(file_temp,
-                     header = upload_opts$header,
-                     skip = upload_opts$skip,
-                     sep = upload_opts$sep,
-                     dec = upload_opts$dec,
-                     quote = upload_opts$quote,
-                     fileEncoding = upload_opts$encoding, 
-                     blank.lines.skip = TRUE) %>%
+      df <- read.table(file_temp,
+                       header = upload_opts$header,
+                       skip = upload_opts$skip,
+                       sep = upload_opts$sep,
+                       dec = upload_opts$dec,
+                       quote = upload_opts$quote,
+                       fileEncoding = upload_opts$encoding, 
+                       blank.lines.skip = TRUE,
+                       fill = TRUE) %>%
         mutate(file_temp = file_temp)
       if(input$schema == "Alt_S"){
         df <- df %>% 
@@ -713,59 +792,50 @@ server <- function(input, output, session) {
                         Density_Anomaly = `Density.Anomaly`, Speed_of_sound = `Speed.of.sound`) %>% 
           mutate(date_time = dmy_hms(Timestamp)) %>% 
           dplyr::select(file_temp, date_time, Depth, Conductivity:Fluorescence_ugChla_l, Salinity:Speed_of_sound)
+        
+      } else if(input$schema == "Sea-Bird"){
+        suppressWarnings( # Forcing numeric temperatures causes warning
+        df <- df %>% 
+          dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Salinity = V4, date = V5, time = V6) %>%
+          mutate(Temperature = as.numeric(Temperature)) %>%
+          filter(!is.na(Temperature)) %>% 
+          mutate(date_time = dmy_hms(paste0(date, time))) %>%
+          dplyr::select(file_temp, date_time, Pressure, Temperature, Salinity, Conductivity)
+        )
+      } else if(input$schema == "Sea-Bird O2"){
+        suppressWarnings( # Forcing numeric temperatures causes warning
+          df <- df %>% 
+            dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Oxygen = V4, 
+                          Salinity = V5, Sound_velocity = V6, date = V7, time = V8) %>%
+            mutate(Temperature = as.numeric(Temperature)) %>%
+            filter(!is.na(Temperature)) %>% 
+            mutate(date_time = dmy_hms(paste0(date, time))) %>%
+            dplyr::select(file_temp, date_time, Pressure, Temperature, Salinity, Conductivity, Oxygen, Sound_velocity)
+        )
+      } else if(input$schema == "Sea & Sun"){
+          df <- df %>% 
+            dplyr::rename(row_n = V1, date = V2, time = V3, Pressure = V4, 
+                          Temperature = V5, Conductivity = V6, Salinity = V7) %>%
+            mutate(date_time = dmy_hms(paste0(date, time)),
+                   # NB: This requires better troubleshooting
+                   Temperature = as.numeric(Temperature),
+                   Pressure = as.numeric(Pressure),
+                   Salinity = as.numeric(Salinity),
+                   Conductivity = as.numeric(Conductivity)) %>%
+            dplyr::select(file_temp, date_time, Pressure, Temperature, Salinity, Conductivity)
       }
+      
       return(df)
     }
-
+    
     # Upload all selected files
     df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) %>% 
       left_join(file_info_df(), by = "file_temp") %>% 
       mutate(Uploader = reactiveValuesToList(res_auth)[[1]]) %>% 
-      dplyr::select(Uploader, upload_date, file_name, everything(),  -file_temp)
+      dplyr::select(Uploader, upload_date, file_name, everything(), -file_temp)
     
     # Exit
     return(df_load)
-  })
-  
-  # Observe the changing of the upload UI options
-  ## Schema
-  observeEvent(input$schema, {
-    if(input$schema == "Alt_S"){
-      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ";"
-      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
-    } else if(input$schema == "SAIV"){
-      upload_opts$header <- TRUE; upload_opts$skip <- 3; upload_opts$sep <- ";"
-      upload_opts$dec <- ","; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
-    } else if(input$schema == "RBR"){
-      upload_opts$header <- TRUE; upload_opts$skip <- 5; upload_opts$sep <- ","
-      upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "UTF-8"
-    } else {
-      # Intentionally blank
-    }
-  })
-  ## header
-  observeEvent(input$header, {
-    upload_opts$header <- input$header
-  })
-  ## Skip
-  observeEvent(input$skip, {
-    upload_opts$skip <- input$skip
-  })
-  ## sep
-  observeEvent(input$sep, {
-    upload_opts$sep <- input$sep
-  })
-  ## dec
-  observeEvent(input$dec, {
-    upload_opts$dec <- input$dec
-  })
-  ## quote
-  observeEvent(input$quote, {
-    upload_opts$quote <- input$quote
-  })
-  ## encoding
-  observeEvent(input$encoding, {
-    upload_opts$encoding <- input$encoding
   })
   
   # Table showing the uploaded file
@@ -774,7 +844,7 @@ server <- function(input, output, session) {
     df_load <- df_load()
     # file_info_df <- file_info_df()
     df_load_DT <- datatable(df_load, 
-                            options = list(pageLength = 20, scrollX = TRUE, scrollY = 600))
+                            options = list(pageLength = 20, scrollX = TRUE, scrollY = 650))
     return(df_load_DT)
   })
   
@@ -1068,7 +1138,7 @@ server <- function(input, output, session) {
   observeEvent(input$upload, {
     # saveData(df_time())
     df_res <- bind_rows(data_base$df, df_time()) %>% distinct()
-    write_rds(df_res, file = "data_base.Rds")
+    # write_rds(df_res, file = "data_base.Rds") # NB: Reactivate this line once the hard drive space has been increased to allow uploading
     data_base$df <- read_rds("data_base.Rds")
   })
   
@@ -1292,7 +1362,7 @@ server <- function(input, output, session) {
         # tags$h3(icon("bars"),"Side bar", style = "color: skyblue;"),
         
         tags$h3(icon("desktop"),tags$b("1. Load file")),  
-        tags$ul(
+        tags$ul(style = "text-align: justify;",
           tags$li("In the blue box ('File format') you can identify the files you want to upload and in which format they are"),
           tags$ul(
             tags$li("Click on browse and select the file(s) you want to upload (can be multiple files at once)"),
@@ -1304,7 +1374,7 @@ server <- function(input, output, session) {
         ),
         
         tags$h3(icon("cog"),tags$b("2. Metadata")),
-        tags$ul(
+        tags$ul(style = "text-align: justify;",
           tags$li("The information to be provided in this page is critically needed to upload data"),
           tags$li("In the red box ('Fill all values') you can add information to all currently uploaded files"),
           tags$ul(
@@ -1335,17 +1405,17 @@ server <- function(input, output, session) {
         ),
         
         tags$h3(icon("upload"),tags$b("3. QC/Upload")),
-        tags$ul(
+        tags$ul(style = "text-align: justify;",
           tags$li("[Not yet implemented]"),
           ), 
         
         tags$h3(icon("shower"),tags$b("4. Edit")),
-        tags$ul(
+        tags$ul(style = "text-align: justify;",
           tags$li("[Not yet implemented]"),
           ), 
         
         tags$h3(icon("download"),tags$b("5. Download")),
-        tags$ul(
+        tags$ul(style = "text-align: justify;",
           tags$li("On this page, uploaded data (and published data with DOI [not yet implemented]) can be found and downloaded"),
           tags$li("In the blue box (‘controls’), you can select the range of data you want to download in terms of 6 characteristics"),
           tags$ul(
@@ -1358,7 +1428,7 @@ server <- function(input, output, session) {
           ),
         
         tags$h3(icon("question"),tags$b("About")),
-        tags$ul(
+        tags$ul(style = "text-align: justify;",
           tags$li("This tab contains more specific information about the app"),
           ), 
         
@@ -1367,7 +1437,8 @@ server <- function(input, output, session) {
       ),
       
       html = TRUE,
-      type = "info"
+      type = "info",
+      width = "50%"
     )
     
   })
