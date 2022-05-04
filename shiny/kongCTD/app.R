@@ -2,7 +2,7 @@
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
 # TODO: 
-# Fix upload tab, it is broken
+# Fix upload tab, it is broken - Currently waiting on more hard drive space on awipev-co2
 # Remove upload tab and add the upload button to the metadata tab
 # Don't need to show the table of existing database data
 # Rather show the count of the data and that it get's bigger when a user uploads something
@@ -161,28 +161,46 @@ credentials <- data.frame(
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
+
   
   # The app title
   dashboardHeader(title = "Kongsfjorden CTD"),
   
   # The primary options
   dashboardSidebar(
+    
+    # Get more awesome icons
+    tags$style("@import url(https://use.fontawesome.com/releases/v6.1.1/css/all.css);"),
+    
+    # The side bar
     sidebarMenu(id = "mainMenu",
                 
                 # The various menus
-                menuItem("1) Load file", tabName = "load", icon = icon("book"), selected = TRUE),
-                menuItem("2) Metadata", tabName = "meta", icon = icon("clock")),
-                menuItem("3) QC", tabName = "tidy", icon = icon("shower")),
-                menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
+                menuItem("1) Load file", tabName = "load", icon = icon("desktop"), selected = TRUE),
+                menuItem("2) Metadata", tabName = "meta", icon = icon("cog")),
+                menuItem("3) QC/Upload", tabName = "tidy", icon = icon("upload")),
+                # menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
+                menuItem("4) Edit", tabName = "edit", icon = icon("shower")),
                 menuItem("5) Download", tabName = "download", icon = icon("download")),
-                menuItem("About", tabName = "about", icon = icon("question")),
+                menuItem("About", tabName = "about", icon = icon("question"))),
                 
                 # The reactive controls based on the primary option chosen
-                uiOutput(outputId = "sidebar_controls")),
+                # uiOutput(outputId = "sidebar_controls")),
+    
+    # Instructions popup
+    br(),
+    useSweetAlert(),
+    actionBttn(
+      inputId = "info",
+      label = "Instructions",
+      icon = icon("book"),
+      style = "material-flat",
+      color = "success"
+    ),
     
     # Add FACE-IT logo at bottom of menu bar
-    br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), 
-    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+    br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),
+    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
     img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
   ),
   
@@ -247,7 +265,7 @@ ui <- dashboardPage(
               ),
               
               # The data display
-              box(width = 9, height = "900px", title = "Data",
+              box(width = 9, height = "800px", title = "Data",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contents_load"))
       ),
@@ -314,7 +332,9 @@ ui <- dashboardPage(
                        box(width = 12, height = "300px", title = "Controls",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
 
-                           h4("Choose column order to begin"),
+                           # h4("Choose column order to begin"),
+                           h4("This will contain controls for choosing QC level"),
+                           h5("QC is currently planned to be based on the ARGO standards"),
 
                            # Combine date and time columns
                            uiOutput("selectColsUI"),
@@ -323,25 +343,28 @@ ui <- dashboardPage(
                            fluidRow(
                              column(6, shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1)),
                              column(6, shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1)),
-                           )
+                           ),
+                           
+                           h4("Click to upload data to database"),
+                           actionButton("upload", "Upload", icon = icon("upload"))
                        ),
-
-                       box(width = 12, height = "550px", title = "Map",
-                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                           h4("Location of CTD cast"),
-                           h5("Red border = no lon/lat"),
-                           h5("Yellow border = lon/lat not in the fjord region"),
-                           h5("Green border = lon/lat within fjord region")#,
-                           # plotOutput("mapPlot", height = "350px")
-                           )
+                       
+                       # box(width = 12,
+                       #     height = "350px",
+                       #     title = "Upload",
+                       #     status = "primary", solidHeader = TRUE, collapsible = FALSE,
+                       #     h3("Click to upload data to database"),
+                       #     actionButton("upload", "Upload", icon = icon("upload")))
                 ),
 
                 # The data display
                 column(8,
+                       
                        box(width = 12, height = "500px", title = "Data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("contents_tidy")
                        ),
+                       
                        box(width = 12, height = "350px", title = "Time series",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
@@ -354,47 +377,47 @@ ui <- dashboardPage(
                              # circle = TRUE, status = "danger", icon = icon("gear"))),
                              # column(10, plotOutput("tsPlot", height = "250px"))
                            )
-                       )
+                       ),
                 )
 
               ),
 
       ),
-
-      # tabItem(tabName = "tidy",
-      #         fluidPage(
-      #           column(12,
-      #                  # h2(tags$b("About")),
-      #                  p("Currently no QC functionality exists. Waiting on more progress on a unified plan.")
-      #           )
-      #         )
-      # ),
+      
       
       ## Upload menu -------------------------------------------------------------
 
-      tabItem(tabName = "upload",
-              fluidPage(
-                box(width = 2, 
-                    # height = "730px", # Length when tips are shown
-                    height = "550px",
-                    title = "Upload",
-                    status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                    h3("Click to upload data to database"),
-                    actionButton("upload", "Upload", icon = icon("upload"))),
-                
-                # The uploaded data display
-                box(width = 5, height = "900px", title = "Current data",
-                    status = "success", solidHeader = TRUE, collapsible = FALSE,
-                    DT::dataTableOutput("uploadedDT")
-                ),
-                
-                # The database display
-                box(width = 5, height = "900px", title = "Database",
-                    status = "success", solidHeader = TRUE, collapsible = FALSE,
-                    DT::dataTableOutput("dataBase"))
-              )
-      ),
+      # tabItem(tabName = "upload",
+      #         fluidPage(
+      #           box(width = 2, 
+      #               # height = "730px", # Length when tips are shown
+      #               height = "550px",
+      #               title = "Upload",
+      #               status = "primary", solidHeader = TRUE, collapsible = FALSE,
+      #               h3("Click to upload data to database"),
+      #               actionButton("upload", "Upload", icon = icon("upload"))),
+      #           
+      #           # The uploaded data display
+      #           box(width = 5, height = "900px", title = "Current data",
+      #               status = "success", solidHeader = TRUE, collapsible = FALSE,
+      #               DT::dataTableOutput("uploadedDT")
+      #           ),
+      #           
+      #           # The database display
+      #           box(width = 5, height = "900px", title = "Database",
+      #               status = "success", solidHeader = TRUE, collapsible = FALSE,
+      #               DT::dataTableOutput("dataBase"))
+      #         )
+      # ),
 
+      
+
+      ## Edit menu ---------------------------------------------------------------
+
+      tabItem(tabName = "edit",
+              
+              fluidRow(h4("   No one here but us chickens."))),
+      
       ## Download menu ----------------------------------------------------------
 
       tabItem(tabName = "download",
@@ -475,8 +498,39 @@ ui <- dashboardPage(
                        h2(tags$b("About")),
                        p("The purpose of this app is to provide a platform through which users may upload their CTD 
                        data collected in or around Kongsfjorden."),
-                       p("This app was created as part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
-                       img(src = "FACE-IT_h2020.png", align = "left")
+                       h3(tags$b("Prepare your data")),
+                       tags$ul(
+                         tags$li("You can upload the raw files exported from the CTD, but do not use versions where you have manually changed the file or added additional text."),
+                         tags$li("Datasets can be uploaded as multiple individual txt or csv files per profile."),
+                         tags$li("It is easiest to upload your data sorted by station ID (if you use those) or lat long location."),
+                         tags$li("If you want to upload data from different stations in one go, make sure you have the lat long data for each profile available (you can copy past that data into the app)."),
+                         tags$li("In one upload session, only files from the same device brand and data structure can be uploaded."),
+                       ),
+                       h3(tags$b("General layout")),
+                       tags$ul(
+                         tags$li("After logging in, you will see the first page of the app ( ‘1) Upload’ )."),
+                         tags$li("On the left, you can navigate between the different pages. To move to the next step of your data upload, you need to click on the next tab once you are finished with the current one."),
+                         tags$li("You can move back and forth between the different tabs without losing or having to save your data in between.")
+                       ),
+                       h3(tags$b("Data publishing")),
+                       tags$ul(
+                         tags$li("If your data has already been published, please add the DOI [DOI field still needs to be implemented] of the primary data publication when uploading the data (see 'Instructions')."),
+                         tags$li("If your data needs be published in another database first, write ‘xxx’ into the DOI field."),
+                         tags$li("In this case, your data will also not be included into the Pangaea publication of that year."),
+                         tags$li("If you do not add a DOI within 1 year, the data will be added to the next Pangaea publication with you as the primary data owner."),
+                         tags$li("In case you want your data to be published via the automated pipeline provided by the app, leave the DOI field empty."),
+                         tags$li("The data will be published together with the other data from that year with all data providers and/or data owners as coauthors [yet to be determined]."),
+                         tags$li("The order of the author list will be dictated by the number of provided datasets [yet to be determined].")
+                       ),
+                       h3(tags$b("Create user account")),
+                       tags$ul(
+                         tags$li("Please contact the administrator to have a new user account created. Provide them with your name and e-mail, as well as your desired username and password.")
+                         ),
+                       h3(tags$b("Acknowledgments")),
+                       tags$ul(
+                         tags$li("This app was created as part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
+                         img(src = "FACE-IT_h2020.png", align = "left")
+                       )
                 )
               )
       )
@@ -720,7 +774,7 @@ server <- function(input, output, session) {
     df_load <- df_load()
     # file_info_df <- file_info_df()
     df_load_DT <- datatable(df_load, 
-                            options = list(pageLength = 20, scrollX = TRUE, scrollY = 700))
+                            options = list(pageLength = 20, scrollX = TRUE, scrollY = 600))
     return(df_load_DT)
   })
   
@@ -1224,6 +1278,100 @@ server <- function(input, output, session) {
       }
     }
   )
+  
+
+  ## Instructions ------------------------------------------------------------
+
+  observeEvent(input$info, {
+    sendSweetAlert(
+      session = session,
+      title = "Instructions",
+      text = tags$span(
+        "The Kongsfjorden CTD data upload app is laid out as a dashboard with a ",tags$em("side bar"),
+        " on the left and additional controls and plots in the ",tags$em("body"),
+        # tags$h3(icon("bars"),"Side bar", style = "color: skyblue;"),
+        
+        tags$h3(icon("desktop"),tags$b("1. Load file")),  
+        tags$ul(
+          tags$li("In the blue box ('File format') you can identify the files you want to upload and in which format they are"),
+          tags$ul(
+            tags$li("Click on browse and select the file(s) you want to upload (can be multiple files at once)"),
+            tags$li("If the software recognized the file type, it will suggest to you a pre-described file format (e.g. for SAIV or RBR), you can also select a file schema in the drop down menu"),
+            tags$li("Alternatively, you can change the file format settings manually, and check in the green box whether your data is not shown correctly"),
+            tags$li("f you want to upload several files for a CTD that is not a SAIV (e.g. the instrument provided by Kingsbay) or RBR instrument (e.g. the instrument operated by AWIPEV), contact us in advance to see whether it is possible to include an automated upload scheme for your instrument type")
+          ),
+          tags$li("In the green box, you can check how the data is being uploaded. Double check e.g. if decimals are displayed correctly")
+        ),
+        
+        tags$h3(icon("cog"),tags$b("2. Metadata")),
+        tags$ul(
+          tags$li("The information to be provided in this page is critically needed to upload data"),
+          tags$li("In the red box ('Fill all values') you can add information to all currently uploaded files"),
+          tags$ul(
+            tags$li("If your profiles have been collected at one of the pre-described stations (e.g. KB3), you can select this station from the drop down menu"),
+            tags$li("If you select a pre-described station, lat/long values will appear in the blue box for all uploaded files"),
+            tags$li("If your station is not in the drop down menu or if your station has no fixed ID, the individual lat/long values can be edited manually in the blue box (see below)"),
+            tags$li("Add the name of the data owner"),
+            tags$li("The sensor owner (e.g. Kingsbay for the SAIV data format), brand and number are pre-described based on the file structure"),
+            tags$li("If these values are missing or incorrect, they can be changed/added in the blue box (see below) for all currently uploaded files"),
+            ),
+          tags$li("The blue box ('Fill individual Values') can be used to add or edit metadata for individual files (e.g. if you upload files form different stations together)"),
+          tags$ul(
+            tags$li("This works like a normal spreadsheet (e.g. excel), where you can type, drag, and copy past from a different file)"),
+            tags$li("If you want to upload files form different stations together, it makes sense to prepare a table with site, lat, long info that can be directly copy-pasted into this box")
+            ),
+          tags$li("The map (orange box) shows you the lat long position of your data"),
+          tags$ul(
+            tags$li("If the box around the map is green, all data are within the geographic range, if it is orange some or all data are located outside"),
+            tags$li("In this case you may want to double check your lat/long entries")
+          ),
+          tags$li("If your data have already been published, please add the DOI [DOI field still needs to be implemented] of the primary data publication (in this case, the data will be accessible via the database, but will not be published in Pangaea)"),
+          tags$ul(
+            tags$li("If you want your data to be published via the automated pipeline provided by the app, leave the DOI field empty"),
+            tags$li("If your data needs be published in another database first, write ‘xxx’ into the DOI field"),
+            tags$li("You can add a DOI to your dataset later via the '4) Edit' tab (see below)"),
+            tags$li("Please see the 'About' tab for more details on DOI's and publishing of data")
+          )
+        ),
+        
+        tags$h3(icon("upload"),tags$b("3. QC/Upload")),
+        tags$ul(
+          tags$li("[Not yet implemented]"),
+          ), 
+        
+        tags$h3(icon("shower"),tags$b("4. Edit")),
+        tags$ul(
+          tags$li("[Not yet implemented]"),
+          ), 
+        
+        tags$h3(icon("download"),tags$b("5. Download")),
+        tags$ul(
+          tags$li("On this page, uploaded data (and published data with DOI [not yet implemented]) can be found and downloaded"),
+          tags$li("In the blue box (‘controls’), you can select the range of data you want to download in terms of 6 characteristics"),
+          tags$ul(
+            tags$li("All data and sensor owners are displayed, but can be omitted by clicking on the name and deleting it [to be improved]"),
+            tags$li("Deleted data or sensor owners can be added back via the appearing drop down menu"),
+            tags$li("Data can be downloaded as .csv or .rds files via the download data button"),
+            ),
+          tags$li("The selected data points are shown in the green data box and their locations are illustrated in the orange map box"),
+          tags$li("To illustrate data distribution and ranges, all selected data can be plotted in the red time series box by selecting the variables for the x and y axis of the plot")
+          ),
+        
+        tags$h3(icon("question"),tags$b("About")),
+        tags$ul(
+          tags$li("This tab contains more specific information about the app"),
+          ), 
+        
+        tags$h3(icon("address-book"),"Contact", style = "color: royalblue;"),
+        "For questions etc. please contact Robert Schlegel: robert.schlegel@imev-mer.fr"
+      ),
+      
+      html = TRUE,
+      type = "info"
+    )
+    
+  })
+  
 }
 
 
