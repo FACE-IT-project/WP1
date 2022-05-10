@@ -10,6 +10,8 @@
 # Be more strict about the removal of empty columns when they are an unknown format
 # Consider using powerjoin for some of the issues caused by the pangaeaR package
 # https://cran.r-project.org/web/packages/powerjoin/readme/README.html
+# Or some other cleaning methods:
+# https://www.r-bloggers.com/2022/05/data-cleaning-in-r-2-r-packages-to-clean-and-validate-datasets/?utm_source=phpList&utm_medium=email&utm_campaign=R-bloggers-daily&utm_content=HTML
 
 # Libraries used in this script
 source("code/functions.R")

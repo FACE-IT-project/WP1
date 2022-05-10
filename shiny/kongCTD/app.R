@@ -1,70 +1,68 @@
 # shiny/kongCTD/app.R
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
-# TODO: 
-# Fix upload tab, it is broken - Currently waiting on more hard drive space on awipev-co2
-# Rather show the count of the data and that it get's bigger when a user uploads something
-# Selectise the sensor owners etc. in the download tab
-# Don't upload all of the data at the outset OR
-# Allow filtering of download data by variable
-# Have an additional tab that visualises all of the data
-# Consider looking at the Argo standards for CTD QC - Look into the R Argo package
+### TODO: 
+## General fixes
+# Fix upload button, it is broken - Currently waiting on more hard drive space on awipev-co2
+# Change upload_date metadata box so it can't be edited
+# Change column names to match NMDC terminology
+
+## Graphical features
 # Time series by site/user of count of when and how much data were uploaded
 # Bar plot showing which users are in the lead w.r.t. data uploads
   # Do this by count of files, different days of upload, count of rows of data
-# Allow filter on downloading of published vs unpublished data
-# Allow for an embargo DOI option
-# Change upload_date metadata box so it can't be edited
-# Change column names to match NMDC terminology
 # Shorten boxes so that the web browser never wants to scroll down
+# Allow for colour to show on maps or time series for which sources have contributed the historic data
+  # Numbers for colours, and then a lookup table with product name via join by number
+
+## UI features
+# Rather show the count of the data and that it get's bigger when a user uploads something
+# Selectise the sensor owners etc. in the download tab
 # Create a NetCDF file format for saving data
-# Have an 6) Editing tab that is password protected to go back and fix issues
+# Have a '6) Editing' tab that is password protected to go back and fix issues
   # Make this attached to the username so that users can only edit the data they uploaded
   # Have superusers too whose name == ALL
-  # This requires the database to have a lost edited column
+  # This requires the database to have a last edited column
   # This would be added at first upload as the upload date
   # Have a dropdown that allowed different levels of QC: Level 0 - Level 4
   # This would be attached to the data as a QC_level column
   # Or have a flag column with numbers that show what the issue is
-
-# Spruce up the landing page with some nice pictures of the fjord
-# Also add all sorts of info to the landing page that motivates people to use it
-
-# It would be useful for a user that the settings could be saved in between uploads
-
+# It would be useful for a user that the settings could be saved in between uploads:
+# https://discindo.org/post/2022-05-09-building-a-multi-session-shiny-application-with-brochure/
 # Prevent uploading if not all boxes are filled except for Site
 
-# Have a popup after clicking download that lists the unique DOIs of the data
-
-# QC needs to be handled at some point
-# For starters would have a raw or QC flag to add to the data
-# Look into what the OCE package has for CTD QC
-# Any changes should be communicated via a metadata output
-# Have a known coordinates tab where users can go and copy paste into the Metadata step
-# Need to make it clear to users that the app is station oriented, so to upload data accordingly
-
-# Add historic data to backend to allow users to see how their newly updated data fit into the historic data
-# Allow for colour to show on maps or time series for which sources have contributed the historic data
-# Numbers for colours, and then a lookup table with product name via join by number
-# May need another column for the DOI of data that were already published and being uploaded here afterwards
-
-# Add text to first step with some explanation/tips
-# Need to start having some basic documentation
-# Also provide info for where the data are saved, and where they will be published
-# Provide specifics, a diagram could be good
+## Documentation
+# Spruce up the landing page with some nice pictures of the fjord
+# Add all sorts of info to the landing page that motivates people to use it
+# Provide specific info for where the data are saved, and where they will be published; a diagram could be good
 # Allow users to download a user manual
-# Popups for each tab with instructions
 
-# The data upload repository needs to start to be considered
+## QC
+# Consider looking at the Argo standards for CTD QC - Look into the R Argo package
+# For starters would have a raw or QC flag to add to the data
+# Any changes should be communicated via a metadata output
 
+## DOI
+# Allow for an embargo DOI option
+# Have a popup after clicking download that lists the unique DOIs of the data
+# May need another column for the DOI of data that were already published and being uploaded here afterwards
 # Authorship order could be based on the number of individual files uploaded over the year
 
-# Next steps:
-  # Fix several key issues
-  # Show it to Phillip Fisher
-  # Identify five test subjects to stress test the app
-  # Before being public we need a final decision on how the data are published
-  # We need a timeline for all of these steps
+## Data management
+# The data upload repository needs to start to be considered
+# Don't upload all of the data at the launch of the app
+  # Rather have a meta-data file ready that provides the parametres for a user to chose what to load
+  # Allow filtering of download data by variable
+  # Allow filter on downloading of published vs unpublished data
+# May want to implement a database of meta-data per file, as well as the raw data
+  # Via a look-up table one could then avoid having extra columns with the raw data
+# Add historic data to backend to allow users to see how their newly updated data fit into the historic data
+
+## Next steps
+# Fix several key issues
+# Identify five test subjects to stress test the app
+# Before being public we need a final decision on how the data are published
+# We need a timeline for all of these steps
   
 
 # Libraries ---------------------------------------------------------------
