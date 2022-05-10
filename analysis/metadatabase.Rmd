@@ -513,6 +513,18 @@ kong_sea_ice_inner <- data.frame(type = "Survey",
                                  reference = '<a onclick="alert(\'Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236\');">Gerland & Pavlova (2020)</a>',
                                  note = NA)
 
+# Sea ice cover shape files
+kong_sea_ice_shp <- data.frame(type = "Survey",
+                                 data_name = "Sea ice: cover",
+                                 date_range = "2003 - 2021",
+                                 # lon_range = NA,
+                                 # lat_range = NA,
+                                 # depth_range = "surface",
+                                 # file_name = '<a onclick="alert(\'Kongsfjorden_sea_ice_cover_data.csv\');">1 file</a>',
+                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d6d31f5b-8413-42b4-9736-db88d55816dc">NPDC</a>',
+                                 reference = '<a onclick="alert(\'Gerland, S., Pavlova, O., Marnela, M., Divine, D., Kohler, J., Renner, A. H., & Skoglund, A. (2022). Sea ice extent variability in Kongsfjorden, Svalbard during 2003-2021, based on visual observations from the mountain Zeppelinfjellet. [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.d6d31f5b\');">Gerland et al. (2022)</a>',
+                                 note = NA)
+
 # Zooplankton abundance and species
 kong_zoo_data <- data.frame(type = "Net",
                             data_name = "Zooplankton: species, abundance",
@@ -522,7 +534,7 @@ kong_zoo_data <- data.frame(type = "Net",
                             # depth_range = "0 - 2000",
                             # file_name = '<a onclick="alert(\'kf_zooplankton_sampling_meta.csv; kf_zooplankton_abundance_data.csv; kf_zooplankton_species_meta.csv\');">3 files</a>',
                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2">NPDC</a>',
-                            reference = '<a onclick="alert(\'Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hop et. (2019)</a>',
+                            reference = '<a onclick="alert(\'Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hop et al. (2019)</a>',
                             note = NA)
 
 # Protist species and nutrients and Chla
@@ -534,7 +546,7 @@ kong_protist_nutrient_chla <- data.frame(type = "Bottle",
                                          # depth_range = "0 - 1129",
                                          # file_name = '<a onclick="alert(\'Metadata_Kongsfjorden2009-2014_Hegseth et al.csv; Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv; Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv\');">3 files</a>',
                                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4">NPDC</a>',
-                                         reference = '<a onclick="alert(\'Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hegseth et. (2019)</a>',
+                                         reference = '<a onclick="alert(\'Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.\');">Hegseth et al. (2019)</a>',
                                          note = NA)
 
 # CTD sampling data
@@ -546,7 +558,7 @@ kong_CTD_database <- data.frame(type = "CTD",
                                 # depth_range = "1 - 3052",
                                 # file_name = '<a onclick="alert(\'Kongsfjorden_ctd_1906_2017.nc\');">1 file</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6">NPDC</a>',
-                                reference = '<a onclick="alert(\'Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c\');">Skogseth et. (2019)</a>',
+                                reference = '<a onclick="alert(\'Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c\');">Skogseth et al. (2019)</a>',
                                 note = NA)
 
 # CO2 data
@@ -788,11 +800,11 @@ full_product_kong <- data.frame(type = "FACE-IT",
 # Bur they are limited by single use access like the GEM data
 
 # Bind them together
-metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
+metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_sea_ice_shp, kong_zoo_data, kong_protist_nutrient_chla, kong_CTD_database, 
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
-                               kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_bartsch, kong_hanelt, kong_TWICE, kong_mooring_SAMS,
-                               kong_macroalgae, kong_benthic, kong_ship_arrivals, kong_NOAA, kong_CCI, kong_MASIE, 
-                               kong_SOCAT, kong_PG, full_product_kong)
+                               kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_bartsch, kong_hanelt, kong_TWICE,
+                               kong_mooring_SAMS, kong_macroalgae, kong_benthic, kong_ship_arrivals, 
+                               kong_NOAA, kong_CCI, kong_MASIE, kong_SOCAT, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->

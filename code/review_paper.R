@@ -5,6 +5,7 @@
 # Need to be able to link the spatial and temporal mismatch of combined summary data with lack of trends etc.
 # These issues are themselves an important part of the conclusions from the analysis
 # Consider changing analysis to 0-5 m rather than 0-10 m
+# For meta-data figures, also include the count of datsets/publications per variable per site
 
 
 # Setup -------------------------------------------------------------------
@@ -524,7 +525,7 @@ review_summary_plot(summary_pCO2, "pCO2")
 
 ## Nutrients ---------------------------------------------------------------
 
-# Contact Fred: [µmol/l] vs [µg-at/l]
+# [µmol/l] is the same as [µg-at/l]
 # [µmol/l] vs [μmol kg-1] are different, a conversion must be made between them
 
 # Keep Nitrate + Nitrite

@@ -378,7 +378,6 @@ sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbar
   filter(!is.na(value)) %>% 
   mutate(var_type = case_when(var_name %in% c("chlorophyll_a", "phaeopigment") ~ "bio",
                               TRUE ~ "chem"),
-         # Waiting on confirmation from Conrad Helgeland (conrad@npolar.no) that these units are correct
          var_name = case_when(var_name == "chlorophyll_a" ~ "Chla [µg/l]",  
                               var_name == "nox" ~ "diss_oxygen [mg/l]",
                               var_name == "nox_stddev" ~ "diss_oxygen stddev [mg/l]",
@@ -625,6 +624,10 @@ kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjo
          URL = "https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7",
          citation = "Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+## Sea ice cover from shape files
+### NB: Not loaded as these are shape files
+# kong_sea_ice_shp <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/IceMap_KF_2003to2021.zip")
 
 ## Zooplankton abundance and species
 kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_abundance_data.csv") %>% 
