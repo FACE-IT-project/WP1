@@ -297,13 +297,23 @@ Figure 2: Map of Svalbard showing the location of the three FACE-IT study sites 
 
 ```{r svalbard-meta-data}
 # Glacial topography + thickness
-sval_glacier_mass <- data.frame(type = "Survey",
+sval_MOSJ_glacier_mass <- data.frame(type = "Survey",
                                 data_name = "Glacier: mass balance",
                                 date_range = "1967 - 2019",
                                 # lon_range = NA, lat_range = NA, depth_range = NA,
                                 # file_name = '<a onclick="alert(\'cumulative-mass-balance-for-glaciers-in-svalbard.csv; austre-broggerbreen-mass-balance.csv; etonbreen-austfonna-mass-balance.csv; kongsvegen-mass-balance.csv; kronebreenholtedahlfonna-mass-balance.csv; midtre-lovenbreen-mass-balance.csv\');">6 files</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.mosj.no/en/climate/land/mass-balance-glaciers.html">MOSJ</a>',
                                 reference = '<a onclick="alert(\'Kohler, J. & Moholdt, G. (2021) Mass balance of Svalbard glaciers [Dataset]. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). Accessed: 2022-04-26. https://www.mosj.no/en/climate/land/mass-balance-glaciers.html\');">Kohler & Moholdt (2021)</a>',
+                                note = NA)
+
+# Glacial topography + thickness
+sval_Nature_glacier_mass <- data.frame(type = "Analysis",
+                                data_name = "Glacier: mass balance",
+                                date_range = "1990 - 2019",
+                                # lon_range = NA, lat_range = NA, depth_range = NA,
+                                # file_name = '<a onclick="alert(\'cumulative-mass-balance-for-glaciers-in-svalbard.csv; austre-broggerbreen-mass-balance.csv; etonbreen-austfonna-mass-balance.csv; kongsvegen-mass-balance.csv; kronebreenholtedahlfonna-mass-balance.csv; midtre-lovenbreen-mass-balance.csv\');">6 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/f6afca5c-6c95-4345-9e52-cfe2f24c7078">NPDC</a>',
+                                reference = '<a onclick="alert(\'Geyman, E., van Pelt, W., Maloof, A., Aas, H. F., & Kohler, J. (2021). 1936/1938 DEM of Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.f6afca5c\');">Geyman et al. (2021)</a>',
                                 note = NA)
 
 # Glacier area outlines
@@ -477,9 +487,10 @@ sval_AIS <- data.frame(type = "AIS",
                        note = NA)
 
 # Combine
-metadata_svalbard <- rbind(sval_glacier_mass, sval_glacier_area, sval_tidal_glacier_front, sval_marine_glacier_front, sval_tidewater_ablation,
-                           sval_surface_met, sval_UNIS_database, sval_seabird_database, sval_protection, sval_NICE, 
-                           sval_fast, sval_biogeochemistry, sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS)
+metadata_svalbard <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, sval_glacier_area, sval_tidal_glacier_front,
+                           sval_marine_glacier_front, sval_tidewater_ablation, sval_surface_met, sval_UNIS_database,
+                           sval_seabird_database, sval_protection, sval_NICE, sval_fast, sval_biogeochemistry, 
+                           sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->

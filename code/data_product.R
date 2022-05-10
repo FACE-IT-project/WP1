@@ -240,6 +240,10 @@ sval_MOSJ_glacier_mass <- bind_rows(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_e
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, sval_MOSJ_kronebreen, sval_MOSJ_midtre); gc()
 
+# Glacier mass balance from Nature publication
+## NB: Need to convert coords from UTM 33N
+sval_Nature_glacier_mass <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/Geyman_et_al_Svalbard_glacier_data_final.csv", skip = 1)
+
 # Glacier area outlines
 # glacier_area/
 # sval_glacier_area # Not working with shape files of geomorphology
