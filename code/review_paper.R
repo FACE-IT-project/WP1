@@ -7,6 +7,10 @@
 # Consider changing analysis to 0-5 m rather than 0-10 m
 # For meta-data figures, also include the count of datsets/publications per variable per site
 
+# Quotes are from Viitasalo and Bonsdorff (2022) unless stated otherwise
+# https://esd.copernicus.org/articles/13/711/2022/
+# "In addition, to better understand the effects of climate change on the biodiversity of the Baltic Sea, more emphasis should be placed on studies of shallow photic environments."
+
 
 # Setup -------------------------------------------------------------------
 
@@ -265,6 +269,10 @@ review_summary_plot(summary_air, "air")
 
 ## Salinity ---------------------------------------------------------------
 
+# "Knowledge gaps include uncertainties in projecting the future salinity level, as well as stratification and potential rate of internal loading, under different climate forcings."
+# "This weakens our ability to project how pelagic productivity, fish populations and macroalgal communities may change in the future."
+# "the decline of marine taxa has usually been proposed to be linked to a decrease of salinity (Suikkanen et al., 2013; Hänninen et al., 2015)"
+
 # Get all salinity data
 # NB: Remove Sal [mg/l]
 # Remove overly processed variables
@@ -494,6 +502,9 @@ review_summary_plot(summary_glacier, "glacier")
 # Look for specific DOI in each site file
 
 
+## Oxygen -----------------------------------------------------------------
+
+
 ## pCO2 --------------------------------------------------------------------
 
 # NB: For this and other chemistry variables see best practices sent by JP on Slack
@@ -523,7 +534,18 @@ summary_pCO2 <- review_summary(filter(clean_pCO2, depth >= 0, depth <= 10))
 review_summary_plot(summary_pCO2, "pCO2")
 
 
+## pH ----------------------------------------------------------------------
+
+# This is perhaps unnecessary if we are also looking at pCO2
+
+
 ## Nutrients ---------------------------------------------------------------
+
+# "The associated increase in N:P ratio may contribute to maintaining the “vicious circle of eutrophication”. "
+# "An increase of riverine dissolved organic matter (DOM) may also decrease primary production, but the relative importance of this process in different sea areas is not well known."
+# "Climate change will probably delay the effects of nutrient abatement and tend to keep the ecosystem in its “novel” state."
+# "However, several modelling studies conclude that nutrient reductions will be a stronger driver for ecosystem functioning of the Baltic Sea than climate change."
+# "Such studies highlight the importance of studying the Baltic Sea as an interlinked socio-ecological system."
 
 # [µmol/l] is the same as [µg-at/l]
 # [µmol/l] vs [μmol kg-1] are different, a conversion must be made between them
@@ -564,6 +586,10 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 
 ## ChlA --------------------------------------------------------------------
+
+# "For phytoplankton, clear symptoms of climate change, such as prolongation of the growing season, are evident and can be explained by the warming, but otherwise climate effects vary from species to species and area to area."
+# "A 15-year study (2000–2014) using FerryBox observations, covering the area between Helsinki (Gulf of Finland) and Travemünde (Mecklenburg Bight), confirmed that spring bloom intensity was mainly determined by winter nutrient concentration, while bloom timing and duration co-varied with meteorological conditions." 
+# "The authors conclude that the bloom magnitude has been affected by the reduction of nutrient loading from land, while bloom phenology can also be modified by global climate change affecting seasonal oceanographic and biogeochemical processes (Groetsch et al., 2016)."
 
 # [10um] vs [GFF] are different methods and both are valid.
 # Must keep the difference between them documented.
@@ -623,6 +649,18 @@ review_summary_plot(summary_biomass, "biomass")
 
 ## Species assemblage ------------------------------------------------------
 # NB: Contact Allison Bailey about more recent plankton species data for Kongsfjorden
+
+# For the time being it may be easier to convert these values to the more basic count of simply phytoplankton or zooplankton
+# This would then allow for a more simple summary of the meta/data.
+
+# "Several modelling studies project a decrease of phytoplankton bloom in spring and an increase in cyanobacteria blooms in summer."
+# "However, uncertainties remain because some field studies claim that cyanobacteria have not increased and some experimental studies show that responses of cyanobacteria to temperature, salinity and pH vary from species to species. "
+# "Warming of seawater in spring also speeds up zooplankton growth and shortens the time lag between phytoplankton and zooplankton peaks, which may lead to decreasing of phytoplankton in spring"
+# "In summer, a shift towards smaller-sized zooplankton and a decline of marine copepod species has been projected."
+# "In the shallower photic systems, heatwaves may produce eutrophication-like effects, e.g. overgrowth of bladderwrack by epiphytes, due to a trophic cascade."
+# "It has also been suggested that in the future climate higher temperatures and less ice will cause an earlier bloom of both diatoms and dinoflagellates, with increased dinoflagellate dominance (Hjerne et al., 2019)."
+# "Other studies did not find any explanation for the observed changes in the biovolumes of different taxa, e.g. decrease in diatoms and increase in certain dinoflagellate taxa, 
+#  and concluded that phytoplankton community in the Baltic Sea is not in a steady state (Olli et al., 2011), or noted that stochastic dynamics at local scales confound any commonalities between phytoplankton groups (Griffiths et al., 2020)."
 
 # Test check for all bio vars to make sure no glacier vars are missed
 as.vector(distinct(filter(full_product_is, var_type == "bio"), var_name))
@@ -699,9 +737,18 @@ ggsave("~/Desktop/meta_meta_box.png", width = 16, height = 12)
 # Section 3 ---------------------------------------------------------------
 # Relationships between data analysed for Section 2
 
+# "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
 # Section 4 ---------------------------------------------------------------
 # Future projections of data analysed for Section 2 and relationships from Section 3
+
+# "It has also been suggested that the various drivers of climate change may contribute to increase blooms and toxicity of cyanobacteria in the Baltic Sea. 
+# For instance, the intracellular toxin concentration of the cyanobacterium Dolichospermum sp. may increase with elevated temperature (+4∘C) (Brutemark et al., 2015; Wulff et al., 2018) and with decreased salinity (from 6 to 3) (Wulff et al., 2018)."
+# "an increase in temperature from 16 to 18–20∘C led to an earlier peak of cyanobacteria, while the biomass of cyanobacteria, especially that of nitrogen-fixer Dolichospermum sp. declined (Berner et al., 2018)."
+# "To sum up, a shift towards smaller-sized zooplankton and a stronger linkage between mesozooplankton and the microbial food web is probable in a warmer Baltic Sea."
+# "It has been projected that macroalgae will decline in hard bottoms and vascular plants increase in the more sheltered soft-bottom areas (Torn et al., 2020)."
+# "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
+# "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
 
 
 # Figure 1 ----------------------------------------------------------------

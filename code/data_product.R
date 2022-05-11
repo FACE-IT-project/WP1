@@ -242,6 +242,7 @@ rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, s
 
 # Glacier mass balance from Nature publication
 ## NB: Need to convert coords from UTM 33N
+## https://www.nature.com/articles/s41586-021-04314-4#data-availability
 sval_Nature_glacier_mass <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/Geyman_et_al_Svalbard_glacier_data_final.csv", skip = 1)
 
 # Glacier area outlines
