@@ -5,7 +5,7 @@
 # Need to be able to link the spatial and temporal mismatch of combined summary data with lack of trends etc.
 # These issues are themselves an important part of the conclusions from the analysis
 # Consider changing analysis to 0-5 m rather than 0-10 m
-# For meta-data figures, also include the count of datsets/publications per variable per site
+# For meta-data figures, also include the count of datasets/publications per variable per site
 
 # Quotes are from Viitasalo and Bonsdorff (2022) unless stated otherwise
 # https://esd.copernicus.org/articles/13/711/2022/
@@ -667,13 +667,13 @@ as.vector(distinct(filter(full_product_is, var_type == "bio"), var_name))
 as.vector(distinct(filter(nuup_GEM, var_type == "bio"), var_name))
 
 # Get all species variables
-kong_sp_ass <- filter(full_product_kong, var_type == "bio",
-                      !grepl("Temperature, salinity, light", citation),
-                      !grepl("Marine biogeochemistry", citation)) %>% mutate(site = "kong")
+kong_sp_ass <- filter(full_product_kong, var_type == "bio") %>% 
+  filter(!grepl("Temperature, salinity, light", citation),
+         !grepl("Marine biogeochemistry", citation)) %>% mutate(site = "kong")
 is_sp_ass <- filter(full_product_is, var_type == "bio") %>% mutate(site = "is") %>% slice(0) # No species data
 stor_sp_ass <- filter(full_product_stor, var_type == "bio") %>% mutate(site = "stor") # No bio data
-young_sp_ass <- filter(rbind(full_product_young, young_GEM), var_type == "bio",
-                       grepl("Water Chlorophyll a", citation)) %>% mutate(site = "young")
+young_sp_ass <- filter(rbind(full_product_young, young_GEM), var_type == "bio") %>% 
+  filter(grepl("Water Chlorophyll a", citation)) %>% mutate(site = "young")
 disko_sp_ass <- filter(rbind(full_product_disko, disko_GEM), var_type == "bio") %>% mutate(site = "disko") %>% slice(0) # No species data
 nuup_sp_ass <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "bio",
                       grepl("Species Composition", citation)) %>% mutate(site = "nuup")

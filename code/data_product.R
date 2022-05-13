@@ -1560,6 +1560,7 @@ rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Mooring with many variables
 ## NB: These data are part of an upcoming publication
+## NB: Not yet added to meta-database. Waiting for publication.
 ## Therefore a lot of the information is still forthcoming
 young_mooring_multi <- read_csv("~/pCloudDrive/restricted_data/Young_Sound/RBR_Sedimentfaelde_2108-19_SN080360.csv") %>% 
   dplyr::select(-`Average of PAR`) %>% # Rather using the corrected PAR values
@@ -1804,7 +1805,7 @@ young_GEM_air_temp_2m <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zac
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
-# Air temperature at 2 m
+# Air temperature at 7 m
 young_GEM_air_temp_7m <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Air_temperature_Air_temperature_750cm_@_60min_sample_DegreesC.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, value = `Air temperature, 750cm - 60min average (°C)`) %>% 
   filter(value != -9999) %>% 
@@ -1951,7 +1952,7 @@ young_GEM_chla <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg
          citation = "Pigment concentration: Collected using Niskin Bottle Water Sampler. Water column MarineBasis Zackenberg. doi: 10.17897/DS37-V333") %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
-# Nitrate and nitrite concentrations
+# Nitrate plus nitrite concentrations
 young_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_Nitrate_Nitrite_Concentration.csv") %>% 
   dplyr::rename(date = Date, depth = Depth, value = `Nitrate+nitrite (NOx), µM`) %>% 
   mutate(var_type = "chem",
@@ -2271,7 +2272,7 @@ disko_GEM_CTD_cruise <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disk
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Historic temperature and salinity data
-disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Historic_temperature_and_salinity__1924_to_2010.csv") %>% 
+disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Historic_temperature_and_salinity_1924_to_2010.csv") %>% 
   dplyr::rename(date = Date, depth = `Depth (m)`, `temp [°C]` = `Temperature (deg C)`, `salinity [PSU]` = `Salinity(psu)`, 
                 lat = `Latitude (degrees_north)`, lon = `Longitude (degrees_east)`) %>% 
   dplyr::select(lon, lat, date, depth, `temp [°C]`, `salinity [PSU]`, `Sigma-t`) %>% 
@@ -2494,7 +2495,7 @@ nuup_GEM_air_press <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Da
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
-# Shortwave radiation at 2 m
+# Net radiation at 2 m
 nuup_GEM_qnet <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Radiation_Net_radiation_@_200_cm_5min_average_W_m2.csv") %>% 
   dplyr::rename(date = Date, value = `NR (W/m2)`) %>% 
   filter(value != -9999) %>% 
@@ -2521,7 +2522,7 @@ nuup_GEM_air_temp_2m <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
   summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
 # Air temperature at 10 m
-nuup_GEM_air_temp_10m <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Temperature_Air_temperature_@_1000_cm_30min_average__DegreesC.csv") %>% 
+nuup_GEM_air_temp_10m <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Temperature_Air_temperature_@_1000_cm_30min_average_DegreesC.csv") %>% 
   dplyr::rename(date = Date, value = `Air temperature, 1000 cm - 30min average (°C)`) %>% 
   filter(value != -9999) %>% 
   mutate(var_type = "phys",
@@ -2534,7 +2535,7 @@ nuup_GEM_air_temp_10m <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk
   summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
 # Air temperature at 2 m at Kobbefjord
-nuup_GEM_air_temp_2m_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Air_temperature_@_200_cm_30min_average__DegreesC.csv") %>% 
+nuup_GEM_air_temp_2m_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Air_temperature_@_200_cm_30min_average_DegreesC.csv") %>% 
   dplyr::rename(date = Date, value = `AT (°C)`) %>% 
   filter(value != -9999) %>% 
   mutate(var_type = "phys",

@@ -1294,6 +1294,56 @@ Figure 6: The bathymetry around Young Sound (Zackenberg). The green bounding box
 <br>
 
 ```{r young-sound-meta-data}
+# Air temperature at 2 m
+young_air_temp_2m <- data.frame(type = "MET station",
+                                data_name = "Air temperature",
+                                date_range = "2009 - 2020",
+                                # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/G5WS-0W04">GEM</a>',
+                                reference = '<a onclick="alert(\'Air temperature, 200cm - 30min sample (°C). Air temperature ClimateBasis Zackenberg. doi: 10.17897/G5WS-0W04\');">GEM</a>',
+                                note = NA)
+
+# Air temperature at 7 m
+young_air_temp_7m <- data.frame(type = "MET station",
+                                data_name = "Air temperature",
+                                date_range = "2009 - 2020",
+                                # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/9V7J-Z845">GEM</a>',
+                                reference = '<a onclick="alert(\'Air temperature, 750cm - 60min sample (°C). Air temperature ClimateBasis Zackenberg. doi: 10.17897/9V7J-Z845\');">GEM</a>',
+                                note = NA)
+
+# Precipitation
+young_precip <- data.frame(type = "MET station",
+                           data_name = "Precipitation",
+                           date_range = "1995 - 2020",
+                           # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                           # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/KVVQ-BE46">GEM</a>',
+                           reference = '<a onclick="alert(\'Precipitation accumulated - 60min (mm) . Precipitation ClimateBasis Zackenberg. doi: 10.17897/KVVQ-BE46\');">GEM</a>',
+                           note = NA)
+
+# Air pressure
+young_air_press <- data.frame(type = "MET station",
+                              data_name = "Sea level pressure",
+                              date_range = "1995 - 2020",
+                              # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/WG9V-3J16">GEM</a>',
+                              reference = '<a onclick="alert(\'Air pressure, 200cm - 60min sample (hPa). Pressure ClimateBasis Zackenberg. doi: 10.17897/WG9V-3J16\');">GEM</a>',
+                              note = NA)
+
+# Net downward heatflux
+young_qnet <- data.frame(type = "MET station",
+                         data_name = "Heatflux: net",
+                         date_range = "2011 - 2020",
+                         # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                         # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/ZNNM-V349">GEM</a>',
+                         reference = '<a onclick="alert(\'Net radiation (CNR1), 200 cm - 5min average (W/m2). Radiation ClimateBasis Zackenberg. doi: 10.17897/ZNNM-V349\');">GEM</a>',
+                         note = NA)
+
 # Air pCO2 data
 young_air_pCO2 <- data.frame(type = "CTD",
                              data_name = "pCO2: air",
@@ -1326,7 +1376,7 @@ young_CTD_bottom <- data.frame(type = "CTD",
                                # lat_range = "74.5",
                                # depth_range = "200 - 335",
                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12">GEM</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/J1J5-W960">GEM</a>',
                                reference = '<a onclick="alert(\'Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733. doi: 10.17897/J1J5-W960\');">Boone et al. (2018)</a>',
                                note = NA)
 
@@ -1358,21 +1408,27 @@ young_CTD_mooring <- data.frame(type = "CTD",
 young_CTD_sill <- data.frame(type = "CTD",
                              data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
                              date_range = "2003 - 2014",
-                             # lon_range = "-20.6",
-                             # lat_range = "74.5",
-                             # depth_range = "45 - 59",
+                             # lon_range = "-20.6", lat_range = "74.5", depth_range = "45 - 59",
                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/B4E2-N060">GEM</a>',
                              reference = '<a onclick="alert(\'Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733\');">Boone et al. (2018)</a>',
                               note = NA)
 
 # Phytoplankton species composition
+young_chla <- data.frame(type = "Bottle",
+                         data_name = "Chl a",
+                         date_range = "2004 - 2020",
+                         # lon_range = "-20.6", lat_range = "74.5", depth_range = "?",
+                         # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/DS37-V333">GEM</a>',
+                         reference = '<a onclick="alert(\'Pigment concentration: Collected using Niskin Bottle Water Sampler. Water column MarineBasis Zackenberg. doi: 10.17897/DS37-V333\');">GEM</a>',
+                         note = NA)
+
+# Phytoplankton species composition
 young_phyto_species <- data.frame(type = "Bottle",
                                   data_name = "Phytoplankton: species name, % presence",
                                   date_range = "2004 - 2015",
-                                  # lon_range = "-20.6",
-                                  # lat_range = "74.5",
-                                  # depth_range = "?",
+                                  # lon_range = "-20.6", lat_range = "74.5", depth_range = "?",
                                   # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/MN5J-K414">GEM</a>',
                                   reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414\');">GEM</a>',
@@ -1390,9 +1446,6 @@ young_zoo_species <- data.frame(type = "Bottle",
                                 reference = '<a onclick="alert(\'Zooplankton Species Composition (individuals/m2): Water column MarineBasis Zackenberg. doi: 10.17897/D3C5-AJ13\');">GEM</a>',
                                 note = NA)
 
-# Nitrate+nitrite concentrations
-## Dead link
-
 # Phosphate concentrations
 young_phosphate <- data.frame(type = "Bottle",
                               data_name = "Phosphate",
@@ -1409,13 +1462,21 @@ young_phosphate <- data.frame(type = "Bottle",
 young_silicate <- data.frame(type = "Bottle",
                              data_name = "Silicate",
                              date_range = "2003 - 2016",
-                             # lon_range = "-20.6",
-                             # lat_range = "74.5",
-                             # depth_range = "1 - 50",
+                             # lon_range = "-20.6", lat_range = "74.5", depth_range = "1 - 50",
                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/GFHW-ZT42">GEM</a>',
                              reference = '<a onclick="alert(\'Water Silicate Concentration (µmol/L): Water column MarineBasis Zackenberg. doi: 10.17897/GFHW-ZT42\');">GEM</a>',
                              note = NA)
+
+# Nitrate plus nitrite concentrations
+young_nitrate_nitrite <- data.frame(type = "Bottle",
+                                    data_name = "Nitrate + nitrite",
+                                    date_range = "2003 - 2016",
+                                    # lon_range = "-20.6", lat_range = "74.5", depth_range = "1 - 50",
+                                    # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/N626-SX63">GEM</a>',
+                                    reference = '<a onclick="alert(\'Water Nitrate+Nitrite Concentration (µmol/L). Water column MarineBasis Zackenberg. doi: 10.17897/N626-SX63\');">GEM</a>',
+                                    note = NA)
 
 # DIC concentrations
 young_DIC <- data.frame(type = "Bottle",
@@ -1440,6 +1501,16 @@ young_TA <- data.frame(type = "Bottle",
                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/6H8H-WM93">GEM</a>',
                        reference = '<a onclick="alert(\'Water TA Concentration (µmol/kg): Water column MarineBasis Zackenberg. doi: 10.17897/6H8H-WM93\');">GEM</a>',
                        note = NA)
+
+# River discharge
+young_river_dis <- data.frame(type = "Survey",
+                              data_name = "River discharge",
+                              date_range = "1996 - 2020",
+                              # lon_range = "-20.6", lat_range = "74.5", depth_range = "1 - 50",
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/A308-6075">GEM</a>',
+                              reference = '<a onclick="alert(\'Discharge at a cross section of the river (m3/s). Zackenberg River Hydrometric data ClimateBasis Zackenberg. doi: 10.17897/A308-6075\');">GEM</a>',
+                              note = NA)
 
 # Sea ice formation
 young_sea_ice_formation <- data.frame(type = "Survey",
@@ -1489,17 +1560,55 @@ young_sea_ice_open <- data.frame(type = "Survey",
                                  reference = '<a onclick="alert(\'Open water duration: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/R3QB-7Q71\');">GEM</a>',
                                  note = NA)
 
+# Snow fall
+young_snow_fall <- data.frame(type = "MET station",
+                              data_name = "Snow cover: thickness",
+                              date_range = "1997 - 2020",
+                              # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/7RVV-Z412">GEM</a>',
+                              reference = '<a onclick="alert(\'Snow depth - 180min sample (m). Precipitation ClimateBasis Zackenberg. doi: 10.17897/7RVV-Z412\');">GEM</a>',
+                              note = NA)
+
 # Snow thickness
 young_snow_thickness <- data.frame(type = "Survey",
                                    data_name = "Snow: thickness",
                                    date_range = "2002 - 2016",
-                                   # lon_range = "-20.6",
-                                   # lat_range = "74.5",
-                                   # depth_range = NA,
+                                   # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
                                    # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16">GEM</a>',
                                    reference = '<a onclick="alert(\'Snow thickness: Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16\');">GEM</a>',
                                    note = NA)
+
+# Glacier: ice surface mass balance
+young_gmb <- data.frame(type = "Survey",
+                        data_name = "Glacier: ice surface mass balance",
+                        date_range = "2009 - 2019",
+                        # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                        # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/SNZB-ZA54">GEM</a>',
+                        reference = '<a onclick="alert(\'Surface mass balance. Glacier ice GlacioBasis Zackenberg. doi: 10.17897/SNZB-ZA54\');">GEM</a>',
+                        note = NA)
+
+# Glacier: snow depth
+young_snow_depth <- data.frame(type = "Survey",
+                               data_name = "Glacier: snow depth",
+                               date_range = "2008 - 2021",
+                               # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/8GMN-WJ32">GEM</a>',
+                               reference = '<a onclick="alert(\'Snow height observations at Zack-M, -S and -T Snow cover. Snow cover GlacioBasis Zackenberg. doi: 10.17897/8GMN-WJ32\');">GEM</a>',
+                               note = NA)
+
+# PAR over land
+young_PAR_land <- data.frame(type = "MET station",
+                             data_name = "PAR (over land)",
+                             date_range = "2014 - 2020",
+                             # lon_range = "-20.6", lat_range = "74.5", depth_range = NA,
+                             # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/XRDQ-N135">GEM</a>',
+                             reference = '<a onclick="alert(\'Photosyntetic active radiation, 200 cm - 5min sample (µmol/sec/m2). Radiation ClimateBasis Zackenberg. doi: 10.17897/XRDQ-N135\');">GEM</a>',
+                             note = NA)
 
 # Primary production data
 young_prim_prod <- data.frame(type = "CTD",
@@ -1578,11 +1687,13 @@ full_product_young <- data.frame(type = "FACE-IT",
                                  note = "15 files from the EU and Young Sound.")
 
 # Bind them together
-metadata_young_sound <- rbind(young_air_pCO2, young_water_pCO2, young_CTD_bottom, young_CTD_water, 
-                              young_CTD_mooring, young_CTD_sill, young_phyto_species, young_zoo_species,
-                              young_phosphate, young_silicate, young_DIC, young_TA, young_sea_ice_formation,
-                              young_sea_ice_breakup, young_sea_ice_thickness, young_sea_ice_open, young_snow_thickness,
-                              young_prim_prod, young_mooring_multi, young_NOAA, young_CCI, young_MASIE, young_PG, full_product_young)
+metadata_young_sound <- rbind(young_air_temp_2m, young_air_temp_7m, young_precip, young_air_press, young_qnet, young_air_pCO2,
+                              young_water_pCO2, young_CTD_bottom, young_CTD_water, young_CTD_mooring, young_CTD_sill, 
+                              young_chla, young_phyto_species, young_zoo_species, young_phosphate, young_silicate, 
+                              young_nitrate_nitrite, young_DIC, young_TA, young_river_dis, young_sea_ice_formation,
+                              young_sea_ice_breakup, young_sea_ice_thickness, young_sea_ice_open, young_snow_fall, young_snow_thickness,
+                              young_gmb, young_snow_depth, young_PAR_land, young_prim_prod, young_mooring_multi, 
+                              young_NOAA, young_CCI, young_MASIE, young_PG, full_product_young)
 ```
 
 ```{r young-sound-meta-data-table}
@@ -1602,19 +1713,125 @@ Figure 7: The bathymetry around Disko Bay. The green bounding box shows the area
 <br>
 
 ```{r disko-bay-meta-data}
-## There are many atmospheric data from land for Disko Bay, but I've decided not to add them here for now.
+# Air temperature 2 m
+disko_air_temp_2m <- data.frame(type = "MET station",
+                                data_name = "Air temperature",
+                                date_range = "1993 - 2020",
+                                # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/19SC-2708">GEM</a>',
+                                reference = '<a onclick="alert(\'Air temperature at 200 cm above ground, sampled once per hour. Temperature ClimateBasis Disko. doi: 10.17897/19SC-2708\');">GEM</a>',
+                                note = NA)
+
+# Air temperature 7 m
+disko_air_temp_7m <- data.frame(type = "MET station",
+                                data_name = "Air temperature",
+                                date_range = "2016 - 2020",
+                                # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/71Q9-KP53">GEM</a>',
+                                reference = '<a onclick="alert(\'Air temperature at 750 cm above ground, sampled once per hour. Temperature ClimateBasis Disko. doi: 10.17897/71Q9-KP53\');">GEM</a>',
+                                note = NA)
+
+# Precipitation
+disko_precip <- data.frame(type = "MET station",
+                           data_name = "Precipitation",
+                           date_range = "2010 - 2020",
+                           # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                           # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/KQ4Z-SD22">GEM</a>',
+                           reference = '<a onclick="alert(\'Precipitation, sampled once per hour. Precipitation ClimateBasis Disko. doi: 10.17897/KQ4Z-SD22\');">GEM</a>',
+                           note = NA)
+
+# Air pressure
+disko_air_press <- data.frame(type = "MET station",
+                              data_name = "Sea level pressure",
+                              date_range = "2006 - 2020",
+                              # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/BQKG-JJ88">GEM</a>',
+                              reference = '<a onclick="alert(\'Atmospheric pressure - sampled once per hour. Pressure ClimateBasis Disko. doi: 10.17897/BQKG-JJ88\');">GEM</a>',
+                              note = NA)
+
+# Short wave radiation
+disko_swr <- data.frame(type = "MET station",
+                              data_name = "Heatflux: shortwave radiation",
+                              date_range = "2010 - 2020",
+                              # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/0TSZ-ZV79">GEM</a>',
+                              reference = '<a onclick="alert(\'Incoming shortwave radition, measured at 200 cm above ground, averaged over 5 min interval with time label at end of bin. Radiation ClimateBasis Disko. doi: 10.17897/0TSZ-ZV79\');">GEM</a>',
+                              note = NA)
 
 # CTD data
 disko_CTD_water <- data.frame(type = "CTD",
                               data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
                               date_range = "2018",
-                              # lon_range = "-53.5",
-                              # lat_range = "69.3",
-                              # depth_range = "1 - 99",
+                              # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61">GEM</a>',
                               reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Disko. doi: 10.17897/WH30-HT61\');">GEM</a>',
                               note = NA)
+
+# CTD cruise data
+disko_CTD_cruise <- data.frame(type = "CTD",
+                               data_name = "Sea temperature; salinity; PAR; turbidity",
+                               date_range = "2019",
+                              # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/VB94-Y512">GEM</a>',
+                              reference = '<a onclick="alert(\'Disko Bay Cruise 2019, CTD measurements. Water column MarineBasis Disko. doi: 10.17897/VB94-Y512\');">GEM</a>',
+                              note = NA)
+
+# Historic CTD data
+disko_historic_ts <- data.frame(type = "CTD",
+                                data_name = "Sea temperature; salinity",
+                                date_range = "1924 - 2010",
+                                # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/62VX-AX79">GEM</a>',
+                                reference = '<a onclick="alert(\'Historic temperature and salinity, 1924 to 2010. Water column MarineBasis Disko. doi: 10.17897/62VX-AX79\');">GEM</a>',
+                                note = NA)
+
+# Snow depth - depth
+disko_snow1 <- data.frame(type = "Survey",
+                          data_name = "Snow cover: depth",
+                          date_range = "2017 - 2020",
+                          # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/FDJZ-6X91">GEM</a>',
+                          reference = '<a onclick="alert(\'Snow depth measured by ultrasonic ranger. Snow depth ClimateBasis Disko. doi: 10.17897/FDJZ-6X91\');">GEM</a>',
+                          note = NA)
+
+# Snow depth - height
+disko_snow2 <- data.frame(type = "Survey",
+                          data_name = "Snow cover: height",
+                          date_range = "2018 - 2020",
+                          # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/VF9W-CE81">GEM</a>',
+                          reference = '<a onclick="alert(\'Snow height observations at LYN-A. Snow cover GlacioBasis Disko. doi: 10.17897/VF9W-CE81\');">GEM</a>',
+                          note = NA)
+
+# Glacier ice mass balance
+disko_gmb <- data.frame(type = "Survey",
+                        data_name = "Glacier: ice mass balance (ablation)",
+                        date_range = "2016 - 2019",
+                        # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                        # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/QXKF-G654">GEM</a>',
+                        reference = '<a onclick="alert(\'Ablation stake readings in the ablation zone. Glacier ice GlacioBasis Disko. doi: 10.17897/QXKF-G654\');">GEM</a>',
+                        note = NA)
+
+# Glacier ice temperature and depth
+disko_glacier_ice <- data.frame(type = "Survey",
+                                data_name = "Glacier: ice teperature, ice depth",
+                                date_range = "2011 - 2020",
+                                # lon_range = "-53.5", lat_range = "69.3", depth_range = "1 - 99",
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/JQ7G-3G55">GEM</a>',
+                                reference = '<a onclick="alert(\'Ice temperature profile at station LYN-A. Glacier ice GlacioBasis Disko. doi: 10.17897/JQ7G-3G55\');">GEM</a>',
+                                note = NA)
 
 # Biochemistry CTD cruise
 disko_CTD_ChlA <- data.frame(type = "CTD",
@@ -1709,7 +1926,9 @@ full_product_disko <- data.frame(type = "FACE-IT",
                                  note = "306 files from the EU and Disko Bay.")
 
 # Bind them together
-metadata_disko_bay <- rbind(disko_CTD_water, disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_MASIE, disko_SOCAT, disko_GLODAP, 
+metadata_disko_bay <- rbind(disko_air_temp_2m, disko_air_temp_7m, disko_precip, disko_air_press,  disko_swr, disko_CTD_water, 
+                            disko_CTD_cruise, disko_historic_ts, disko_snow1, disko_snow2, disko_gmb, disko_glacier_ice, 
+                            disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_MASIE, disko_SOCAT, disko_GLODAP, 
                             disko_PG, full_product_disko)
 ```
 
@@ -1730,29 +1949,86 @@ Figure 8: The bathymetry around Nuup Kangerlua (Nuuk). The green bounding box sh
 <br>
 
 ```{r nuup-meta-data}
-# Phytoplankton abundance
-nuup_phyto_abundance <- data.frame(type = "Net",
-                                   data_name = "Phytoplankton: species name, abundance",
-                                   date_range = "2005 - 2013",
-                                   # lon_range = "-51.9",
-                                   # lat_range = "64.1",
-                                   # depth_range = "0 - 60",
-                                   # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/Y3A4-9D86">GEM</a>',
-                                   reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Nuuk. doi: 10.17897/Y3A4-9D86\');">GEM</a>',
-                                   note = NA)
+# Air temperature 2 m
+nuup_air_temp_2m <- data.frame(type = "MET station",
+                               data_name = "Air temperature",
+                               date_range = "2007 - 2020",
+                               # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 99",
+                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/PGN3-7597">GEM</a>',
+                               reference = '<a onclick="alert(\'Air temperature, 200 cm - 30min average (°C). Temperature ClimateBasis Nuuk. doi: 10.17897/PGN3-7597\');">GEM</a>',
+                               note = NA)
+
+# Air temperature 10 m
+nuup_air_temp_10m <- data.frame(type = "MET station",
+                                data_name = "Air temperature",
+                                date_range = "2015 - 2020",
+                                # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 99",
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/969D-S292">GEM</a>',
+                                reference = '<a onclick="alert(\'Air temperature, 1000 cm - 30min average (°C). Temperature ClimateBasis Nuuk. doi: 10.17897/969D-S292\');">GEM</a>',
+                                note = NA)
+
+# Air temperature 2 m at Kobbefjord
+nuup_air_temp_2m_Kobbefjord <- data.frame(type = "MET station",
+                                          data_name = "Air temperature",
+                                          date_range = "2008 - 2020",
+                                          # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 99",
+                                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/QWJG-TB45">GEM</a>',
+                                          reference = '<a onclick="alert(\'Kobbefjord hydrometric station air temperature - 30m average (°C). River hydrology ClimateBasis Nuuk. doi: 10.17897/QWJG-TB45\');">GEM</a>',
+                                          note = NA)
+
+# Precipitation
+nuup_precip <- data.frame(type = "MET station",
+                          data_name = "Precipitation",
+                          date_range = "2007 - 2020",
+                          # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 99",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/SXJ8-WA79">GEM</a>',
+                          reference = '<a onclick="alert(\'Precipitation accumulated - 60min (mm). Precipitation ClimateBasis Nuuk. doi: 10.17897/SXJ8-WA79\');">GEM</a>',
+                          note = NA)
+
+# Air pressure
+nuup_air_press <- data.frame(type = "MET station",
+                             data_name = "Sea level pressure",
+                             date_range = "2007 - 2020",
+                             # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 99",
+                             # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/EG71-TC03">GEM</a>',
+                             reference = '<a onclick="alert(\'Air pressure, 150 cm - 30min average (hPa). Pressure ClimateBasis Nuuk. doi: 10.17897/EG71-TC03\');">GEM</a>',
+                             note = NA)
+
+
+# Net heatflux
+nuup_qnet <- data.frame(type = "MET station",
+                        data_name = "Heatflux: net",
+                        date_range = "2008 - 2020",
+                        # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 99",
+                        # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/P4DC-7863">GEM</a>',
+                        reference = '<a onclick="alert(\'Net radiation (CNR1), 200 cm (W/m2) calculated from QCed radiation components. Radiation ClimateBasis Nuuk. doi: 10.17897/P4DC-7863\');">GEM</a>',
+                        note = NA)
 
 # CTD measurements
 nuup_CTD <- data.frame(type = "CTD",
                        data_name = "Sea temperature; salinity; PAR; turbidity; dissolved oxygen",
                        date_range = "2005 - 2020",
-                       # lon_range = "-51.9",
-                       # lat_range = "64.1",
-                       # depth_range = "0 - 99",
+                       # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 99",
                        # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/KMEK-TK21">GEM</a>',
                        reference = '<a onclick="alert(\'CTD measurements: Water column MarineBasis Nuuk. doi: 10.17897/KMEK-TK21\');">GEM</a>',
                        note = NA)
+
+# Phytoplankton abundance
+nuup_phyto_abundance <- data.frame(type = "Net",
+                                   data_name = "Phytoplankton: species name, abundance",
+                                   date_range = "2005 - 2013",
+                                   # lon_range = "-51.9", lat_range = "64.1", depth_range = "0 - 60",
+                                   # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/Y3A4-9D86">GEM</a>',
+                                   reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Nuuk. doi: 10.17897/Y3A4-9D86\');">GEM</a>',
+                                   note = NA)
 
 # Water Chla
 nuup_Chla <- data.frame(type = "Bottle",
@@ -1770,24 +2046,67 @@ nuup_Chla <- data.frame(type = "Bottle",
 nuup_prim_prod <- data.frame(type = "In situ incubation",
                              data_name = "Primary production",
                              date_range = "2005 - 2013",
-                             # lon_range = "-51.9",
-                             # lat_range = "64.1",
-                             # depth_range = "5 - 10",
+                             # lon_range = "-51.9", lat_range = "64.1", depth_range = "5 - 10",
                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/TQQV-VJ76">GEM</a>',
                              reference = '<a onclick="alert(\'Particulate Pelagic Primary Production (mg C/m2/d): Water column MarineBasis Nuuk. doi: 10.17897/TQQV-VJ76\');">GEM</a>',
                              note = NA)
 
-# Nitrate + Nitrite
-## Dead link
+# Fish larvae presence
+nuup_fish_larvae <- data.frame(type = "Survey",
+                               data_name = "Fish larvae: presence, abundance",
+                               date_range = "2005 - 2013",
+                               # lon_range = "-51.9", lat_range = "64.1", depth_range = "5 - 10",
+                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/SBG4-YH51">GEM</a>',
+                               reference = '<a onclick="alert(\'Fish Larvae Species Composition (individuals/m3). Water column MarineBasis Nuuk. doi: 10.17897/SBG4-YH51\');">GEM</a>',
+                             note = NA)
+
+# Leaf growth of Saccharina latissima (g)
+nuup_Slat_g <- data.frame(type = "Survey",
+                          data_name = "Primary production",
+                          date_range = "2007 - 2011",
+                          # lon_range = "-51.9", lat_range = "64.1", depth_range = "5 - 10",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/EWVJ-KX92">GEM</a>',
+                          reference = '<a onclick="alert(\'Leaf Growth of Saccharina latissima (g C/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/EWVJ-KX92\');">GEM</a>',
+                          note = NA)
+
+# Leaf growth of Saccharina latissima (cm)
+nuup_Slat_cm <- data.frame(type = "Survey",
+                          data_name = "Primary production",
+                          date_range = "2007 - 2011",
+                          # lon_range = "-51.9", lat_range = "64.1", depth_range = "5 - 10",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/TDEK-WQ82">GEM</a>',
+                          reference = '<a onclick="alert(\'Leaf Growth of Saccharina latissima (cm/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/TDEK-WQ82\');">GEM</a>',
+                          note = NA)
+
+# Ascophyllum nodosum tips (g)
+nuup_Anod_g <- data.frame(type = "Survey",
+                          data_name = "Primary production",
+                          date_range = "2012 - 2021",
+                          # lon_range = "-51.9", lat_range = "64.1", depth_range = "5 - 10",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/KEMY-JJ24">GEM</a>',
+                          reference = '<a onclick="alert(\'Annual (2012-2021) sampling of 20 Ascophyllum nodosum tips. Benthic vegetation MarineBasis Nuuk. doi: 10.17897/KEMY-JJ24\');">GEM</a>',
+                          note = NA)
+
+# Ascophyllum nodosum tips (cm)
+nuup_Anod_cm <- data.frame(type = "Survey",
+                           data_name = "Primary production",
+                           date_range = "2012 - 2021",
+                           # lon_range = "-51.9", lat_range = "64.1", depth_range = "5 - 10",
+                           # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/4NJK-ZV13">GEM</a>',
+                           reference = '<a onclick="alert(\'Annual (2012-2021) sampling of 20 Ascophyllum nodosum tips. Benthic vegetation MarineBasis Nuuk. doi: 10.17897/4NJK-ZV13\');">GEM</a>',
+                           note = NA)
 
 # Phosphate
 nuup_phosphate <- data.frame(type = "Bottle",
                              data_name = "Phosphate",
                              date_range = "2005 - 2014",
-                             # lon_range = "-51.9",
-                             # lat_range = "64.1",
-                             # depth_range = "1 - 50",
+                             # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/PZNK-SP15">GEM</a>',
                              reference = '<a onclick="alert(\'Water Phosphate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/PZNK-SP15\');">GEM</a>',
@@ -1797,13 +2116,71 @@ nuup_phosphate <- data.frame(type = "Bottle",
 nuup_silicate <- data.frame(type = "Bottle",
                             data_name = "Silicate",
                             date_range = "2005 - 2013",
-                            # lon_range = "-51.9",
-                            # lat_range = "64.1",
-                            # depth_range = "1 - 50",
+                            # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
                             # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/VVQP-F862">GEM</a>',
                             reference = '<a onclick="alert(\'Water Silicate a Concentration (µg/L): Water column MarineBasis Nuuk. doi: 10.17897/VVQP-F862\');">GEM</a>',
                             note = NA)
+
+# Nitrate + nitrite
+nuup_nitrate_nitrite <- data.frame(type = "Bottle",
+                                   data_name = "Nitrate + nitrite",
+                                   date_range = "2005 - 2020",
+                                   # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
+                                   # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                   URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/3NQX-FA50">GEM</a>',
+                                   reference = '<a onclick="alert(\'Monthly measurements of the concentration of Nox, which is Nitrate (NO3) plus Nitrite (NO2). Water column MarineBasis Nuuk. doi: 10.17897/3NQX-FA50\');">GEM</a>',
+                                   note = NA)
+
+# River discharge at Kingigtorssuaq
+nuup_Kingigtorssuaq <- data.frame(type = "Survey",
+                                  data_name = "River discharge",
+                                  date_range = "2008 - 2020",
+                                  # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
+                                  # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/VWS5-4688">GEM</a>',
+                                  reference = '<a onclick="alert(\'Discharge at river Kingigtorssuaq (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/VWS5-4688\');">GEM</a>',
+                                  note = NA)
+
+# River discharge at Kobbefjord
+nuup_Kobbefjord <- data.frame(type = "Survey",
+                              data_name = "River discharge",
+                              date_range = "2007 - 2020",
+                              # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/H2MR-PP28">GEM</a>',
+                              reference = '<a onclick="alert(\'Discharge at river Kobbefjord (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/H2MR-PP28\');">GEM</a>',
+                              note = NA)
+
+# River discharge at Oriartorfik
+nuup_Oriartorfik <- data.frame(type = "Survey",
+                               data_name = "River discharge",
+                               date_range = "2007 - 2020",
+                               # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
+                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/VHDT-PX65">GEM</a>',
+                               reference = '<a onclick="alert(\'Discharge at river Oriartorfik (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/VHDT-PX65\');">GEM</a>',
+                               note = NA)
+
+# River discharge at Teqinngalip
+nuup_Teqinngalip <- data.frame(type = "Survey",
+                               data_name = "River discharge",
+                               date_range = "2007 - 2020",
+                               # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
+                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/DFVW-4R58">GEM</a>',
+                               reference = '<a onclick="alert(\'Discharge at river Teqinngalip (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/DFVW-4R58\');">GEM</a>',
+                               note = NA)
+
+# Snow depth
+nuup_snow <- data.frame(type = "Survey",
+                        data_name = "Snow cover: fall",
+                        date_range = "2007 - 2020",
+                        # lon_range = "-51.9", lat_range = "64.1", depth_range = "1 - 50",
+                        # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/19YH-DB49">GEM</a>',
+                        reference = '<a onclick="alert(\'Snow depth - 3min average every 180min (m). Precipitation ClimateBasis Nuuk. doi: 10.17897/19YH-DB49\');">GEM</a>',
+                        note = NA)
 
 # NOAA OISST
 nuup_NOAA <- data.frame(type = "Remote",
@@ -1874,7 +2251,10 @@ full_product_nuup <- data.frame(type = "FACE-IT",
                                 note = "This is the full combined data product.")
 
 # Bind them together
-metadata_nuup <- rbind(nuup_phyto_abundance, nuup_CTD, nuup_Chla, nuup_prim_prod, nuup_phosphate, nuup_silicate,
+metadata_nuup <- rbind(nuup_air_temp_2m, nuup_air_temp_10m, nuup_air_temp_2m_Kobbefjord, nuup_precip, nuup_air_press, nuup_qnet, 
+                       nuup_CTD, nuup_phyto_abundance, nuup_Chla, nuup_prim_prod, nuup_fish_larvae, nuup_Slat_g, nuup_Slat_cm,
+                       nuup_Anod_g, nuup_Anod_cm, nuup_phosphate, nuup_silicate, nuup_nitrate_nitrite,
+                       nuup_Kingigtorssuaq, nuup_Kobbefjord, nuup_Oriartorfik, nuup_Teqinngalip, nuup_snow,
                        nuup_NOAA, nuup_CCI, nuup_MASIE, nuup_SOCAT, nuup_PG, full_product_nuup)
 ```
 
