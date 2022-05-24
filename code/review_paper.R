@@ -87,11 +87,11 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_CCI_por.RData")
 sst_CCI_por_bbox <- filter(sst_CCI_por, between(lon, bbox_por[1], bbox_por[2]), between(lat, bbox_por[3], bbox_por[4]))
 
 # Comparisons of SST pixels in/out of the site bbox
-ggplot(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
-  geom_tile(colour = "red") +
-  # geom_raster(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
-  geom_rect(aes(xmin = bbox_young[1], xmax = bbox_young[2], 
-                ymin = bbox_young[3], ymax = bbox_young[4]))
+# ggplot(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
+#   geom_tile(colour = "red") +
+#   # geom_raster(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
+#   geom_rect(aes(xmin = bbox_young[1], xmax = bbox_young[2], 
+#                 ymin = bbox_young[3], ymax = bbox_young[4]))
 
 # Sea ice data 4 km
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_4km_kong.RData")
@@ -146,9 +146,6 @@ kong_SST <- review_filter_var(full_product_kong, "kong", "temp|°C",
                               |SST sum|SST win|Temp min|Temp max|Temp interp|
                               |tequ|tpot|T intern") %>%
   bind_rows(kong_OISST, kong_CCI) %>% mutate(site = "kong")
-# review_filter_check(kong_SST, "MAT [°C]", "Gattuso")
-
-# Isfjorden
 is_OISST <- sst_is_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 is_CCI <- sst_CCI_is_bbox %>% dplyr::rename(date = t) %>%  
@@ -159,9 +156,6 @@ is_SST <- review_filter_var(full_product_is, "is", "temp|°C",
                             "SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT|
                             |T sum|T win|SST anomaly|theta", c("t [°C]", "SST (1-12) [°C]")) %>% # Can re-add if annual values
   bind_rows(is_OISST, is_CCI) %>% mutate(site = "is")
-# review_filter_check(is_SST, "SST (1-12) [°C]")
-
-# Storfjorden
 stor_OISST <- sst_stor_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 stor_CCI <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%  
@@ -169,9 +163,6 @@ stor_CCI <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%
 stor_SST <- review_filter_var(full_product_stor, "stor", "temp|°C", "Tpot|Tequ|theta|fco2|Tmax|TTT|
                               |SST anomaly", c("t [°C]", "SST (1-12) [°C]")) %>% 
   bind_rows(stor_OISST, stor_CCI) %>% mutate(site = "stor")
-# review_filter_check(stor_SST, "t [°C]")
-
-# Young Sound
 young_OISST <- sst_young_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 young_CCI <- sst_CCI_young_bbox %>% dplyr::rename(date = t) %>%  
@@ -179,9 +170,6 @@ young_CCI <- sst_CCI_young_bbox %>% dplyr::rename(date = t) %>%
 young_SST <- review_filter_var(rbind(full_product_young, young_GEM), "young", "temp|°C", 
                                "Tpot|Tequ|theta|fco2|pot_temp|SST sum|SST win|MAGT|MAAT") %>% 
   bind_rows(young_OISST, young_CCI) %>% mutate(site = "young")
-# review_filter_check(young_SST, "pot_temp [°C]")
-
-# Disko Bay
 disko_OISST <- sst_disko_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 disko_CCI <- sst_CCI_disko_bbox %>% dplyr::rename(date = t) %>%  
@@ -189,9 +177,6 @@ disko_CCI <- sst_CCI_disko_bbox %>% dplyr::rename(date = t) %>%
 disko_SST <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "temp|°C", 
                                "Tequ|potential|theta|fco2|SST sum|SST win|TTT|SST anomaly", "SST (1-12) [°C]") %>% 
   bind_rows(disko_OISST, disko_CCI) %>% mutate(site = "disko")
-# review_filter_check(disko_SST)
-
-# Nuup Kangerlua
 nuup_OISST <- sst_nuup_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 nuup_CCI <- sst_CCI_nuup_bbox %>% dplyr::rename(date = t) %>%  
@@ -199,9 +184,6 @@ nuup_CCI <- sst_CCI_nuup_bbox %>% dplyr::rename(date = t) %>%
 nuup_SST <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "temp|°C", 
                               "Tequ|T tech|Tpot|SST sum|SST win|TTT") %>% 
   bind_rows(nuup_OISST, nuup_CCI) %>% mutate(site = "nuup")
-# review_filter_check(nuup_SST)
-
-# Porsangerfjorden
 por_OISST <- sst_por_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 por_CCI <- sst_CCI_por_bbox %>% dplyr::rename(date = t) %>%  
@@ -357,7 +339,7 @@ rm(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_se
 ggplot(clean_sea_ice, aes(x = date, y = value, colour = site)) +
   geom_point() + geom_line() + 
   facet_wrap(~var_name, scales = "free_y")
-ggsave("~/Desktop/ice_var_ts.png", width = 20, height = 16)
+ggsave("~/Desktop/anlyses_output/ice_var_ts.png", width = 20, height = 16)
 
 ## Not a lot of common sea ice data between sites
 ## The gridded data sea ice cover will be the best comparison between sites
@@ -504,6 +486,48 @@ review_summary_plot(summary_glacier, "glacier")
 
 ## Oxygen -----------------------------------------------------------------
 
+# Test check for all bio vars to make sure no glacier vars are missed
+as.vector(distinct(filter(full_product_is, var_type == "chem"), var_name))
+as.vector(distinct(filter(nuup_GEM, var_type == "chem"), var_name))
+
+# Get all O2 variables
+# oxy [1] is "Fractional saturation of oxygen in sea water" 
+# ncdump::NetCDF("/home/robert/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/1841_RCM_464_QC.nc")
+# Contacted Johnna (2022-05-24) about the difference between corrected and uncorrected 02 in Young Sound
+# It is unclear what Oxygen a and b are: https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61
+kong_O2 <- review_filter_var(full_product_kong, "kong", "O2|ox|02", "pc|no|amph|tel|rhis")
+is_O2 <- review_filter_var(full_product_is, "is", "O2|ox|02", "tonnes|pc|no|tc|vmax")
+stor_O2 <- review_filter_var(full_product_stor, "stor", "O2|ox|02", "tonnes|pc|no|tc|fc")
+young_O2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "O2|ox|02", "no|pc|favella")
+disko_O2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "O2|ox|02", "pc|no|tc|fc") # a and b values are odd
+nuup_O2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "O2|ox|02", "pc|no|cox|myox")
+por_O2 <- review_filter_var(full_product_por, "por", "O2|ox|02", "pc") # No O2 data
+clean_O2 <- rbind(kong_O2, is_O2, stor_O2, young_O2, disko_O2, nuup_O2, por_O2) %>% 
+    # Correct negative proportion/percentage and remove other negative and 0 values
+  mutate(value = case_when(var_name == "oxygen [% sat]" ~ value + 100, TRUE ~ value)) %>% 
+  filter(value > 0) %>% 
+  # create standardised names
+  mutate(var_name = case_when(var_name %in% c("oxygen [µmol/l]") ~ "O2 [µmol/l]",
+                              var_name %in% c("oxygen [μmol kg-1]", "oxygen_umol_kg [µmol kg-1]", 
+                                              "oxygen_umol_kg [µmol kg-1]", "oxygen [µmol/kg]") ~ "O2 [µmol/kg]",
+                              var_name %in% c("oxygen_mmkg [mmol/kg]") ~ "O2 [mmol/kg]",
+                              var_name %in% c("oxygen_corrected_umol_kg [µmol kg-1]") ~ "O2 [µmol/kg; corrected]",
+                              var_name %in% c("O2 sat [%]", "OXYS [1]", "oxygen_sat [%]", "oxygen [% sat]") ~ "O2 [% sat]",
+                              var_name %in% c("diss_oxygen [mg/l]" ) ~ "O2 [mg/l]",
+                              var_name %in% c("OXY [mol m-3]") ~ "O2 [mol/m^3]",
+                              var_name %in% c("oxy [1]") ~ "O2 [fractional saturation]",
+                              var_name %in% c("oxygen a [mg/l]") ~ "O2 a [mg/l]",
+                              var_name %in% c("oxygen b [mg/l]") ~ "O2 b [mg/l]",
+                              var_name %in% c("oxygen [ml/l]") ~ "O2 [ml/l]",
+                              TRUE ~ var_name))
+rm(kong_O2, is_O2, stor_O2, young_O2, disko_O2, nuup_O2, por_O2); gc()
+
+# Summary analyses
+summary_O2 <- review_summary(clean_O2)
+
+# Plot results
+review_summary_plot(summary_O2, "O2")
+
 
 ## pCO2 --------------------------------------------------------------------
 
@@ -649,9 +673,10 @@ review_summary_plot(summary_biomass, "biomass")
 
 ## Species assemblage ------------------------------------------------------
 # NB: Contact Allison Bailey about more recent plankton species data for Kongsfjorden
+# Contacted, but she is in Ny-Alesund until May 23rd.
 
 # For the time being it may be easier to convert these values to the more basic count of simply phytoplankton or zooplankton
-# This would then allow for a more simple summary of the meta/data.
+# This would then allow for a more simple summary of the meta/data but requires knowledge of the genus per species etc.
 
 # "Several modelling studies project a decrease of phytoplankton bloom in spring and an increase in cyanobacteria blooms in summer."
 # "However, uncertainties remain because some field studies claim that cyanobacteria have not increased and some experimental studies show that responses of cyanobacteria to temperature, salinity and pH vary from species to species. "
@@ -682,23 +707,49 @@ clean_sp_ass <- rbind(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_s
   mutate(type = "in situ")
 rm(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass); gc()
 
+# Summary analyses
 # Need to think about how these analyses should proceed
 # One idea is to extract or focus on specific species
-
-# Summary analyses
-# summary_sp_ass <- review_summary(clean_sp_ass)
+# Rather converting them to count data in order to apply the same analyses as for the other variables
+summary_sp_ass <- clean_sp_ass %>% 
+  filter(value != 0) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, site, type) %>% 
+  summarise(value = as.numeric(n()), .groups = "drop") %>% 
+  mutate(var_name = "sps_count") %>% 
+  review_summary()
 
 # Plot results
-# review_summary_plot(summary_sp_ass, "sp_ass")
+review_summary_plot(summary_sp_ass, "sp_ass")
+
+
+## Social ------------------------------------------------------------------
+
+# See sea ice section for notes on curious variables
+kong_social <- filter(full_product_kong, var_type == "soc") %>% mutate(site = "kong")
+is_social <- filter(full_product_is, var_type == "soc") %>% mutate(site = "is")
+stor_social <- filter(full_product_stor, var_type == "soc") %>% mutate(site = "stor")
+young_social <- filter(rbind(full_product_young, young_GEM), var_type == "soc") %>% mutate(site = "young") # No social data
+disko_social <- filter(rbind(full_product_disko, disko_GEM), var_type == "soc") %>% mutate(site = "disko") # No social data
+nuup_social <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "soc") %>% mutate(site = "nuup") # No social data
+por_social <- filter(full_product_por, var_type == "soc") %>% mutate(site = "por") # No social data
+clean_social <- bind_rows(kong_social, is_social, stor_social, young_social, disko_social, nuup_social, por_social) %>% mutate(type = "in situ")
+rm(kong_social, is_social, stor_social, young_social, disko_social, nuup_social, por_social); gc()
+
+# Summary analyses
+summary_social <- review_summary(clean_social)
+
+# Plot results
+# NB: This is a bit pointless due to the number of different variables
+review_summary_plot(summary_social, "social")
 
 
 ## Save clean data ---------------------------------------------------------
 
-clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR, clean_sea_ice, clean_snow,
-                   # clean_glacier,
-                   # clean_biomass,
-                   # clean_spass,
-                   clean_pCO2, clean_nutrients, clean_chla)
+clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR, 
+                   clean_sea_ice, clean_snow, clean_glacier,
+                   clean_O2, clean_pCO2, clean_nutrients, #clean_pH, # pH shouldn't be necessary if we have pCO2
+                   clean_chla, clean_biomass, clean_sp_ass,
+                   clean_social)
 plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
             df = clean_all, data_type = "clean", site_name = "all")
 
@@ -717,9 +768,14 @@ all_meta <- rbind(mutate(summary_SST$monthly, var_group = "SST"),
                   mutate(summary_PAR$monthly, var_group = "PAR"),
                   mutate(summary_ice$monthly, var_group = "Ice vars"),
                   mutate(summary_snow$monthly, var_group = "Snow vars"),
+                  mutate(summary_glacier$monthly, var_group = "Glacier vars"),
+                  mutate(summary_O2$monthly, var_group = "O2"),
                   mutate(summary_pCO2$monthly, var_group = "pCO2"),
                   mutate(summary_nutrients$monthly, var_group = "Nutrients"),
-                  mutate(summary_chla$monthly, var_group = "ChlA"))
+                  mutate(summary_chla$monthly, var_group = "ChlA"), 
+                  mutate(summary_biomass$monthly, var_group = "Biomass"),
+                  mutate(summary_sp_ass$monthly, var_group = "Species"),
+                  mutate(summary_social$monthly, var_group = "Social vars"))
 
 all_meta %>% 
   filter(!is.na(value_mean)) %>% 
@@ -731,13 +787,14 @@ all_meta %>%
   labs(y = paste0("Unique days with data points"), x = "Month", fill = "Site", colour = "Count [log10(n)]") +
   facet_grid(site~var_group) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/meta_meta_box.png", width = 16, height = 12)
+ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 
 
 # Section 3 ---------------------------------------------------------------
 # Relationships between data analysed for Section 2
 
 # "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
+
 
 # Section 4 ---------------------------------------------------------------
 # Future projections of data analysed for Section 2 and relationships from Section 3

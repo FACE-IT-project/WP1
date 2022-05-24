@@ -19,6 +19,7 @@ library(RColorBrewer)
 library(raster)
 library(sp)
 library(sf)
+library(circular) # For calculating mean daily wind direction from degree values
 library(pangaear)
 library(doParallel); registerDoParallel(cores = 12)
 
@@ -1749,7 +1750,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = "Unique days with data points", x = "Month", fill = "Site", colour = "Count of\nindividual\ndata points\n[log10(n)]") +
     facet_grid(site+type~var_name) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_meta_box.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_meta_box.png"), width = 20, height = 9)
   summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     ggplot(aes(x = date, y = log10(count), colour = site)) +
@@ -1762,7 +1763,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
          fill = "Unique days\nof sampling", colour = "Site") +
     facet_grid(type~var_name) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_meta_ts.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_meta_ts.png"), width = 20, height = 9)
   
   # Plot monthly values
   ggplot(summary_list$monthly, aes(x = date, y = value_mean, colour = site, linetype = type)) +
@@ -1776,7 +1777,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
     facet_wrap(~var_name, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_ts.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_ts.png"), width = 20, height = 9)
   
   # Plot monthly values with the given date range filter
   filter(summary_list$monthly, date >= date_filter[1], date <= date_filter[2]) %>%
@@ -1789,7 +1790,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
     facet_wrap(~var_name, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 20, height = 9)
   
   ## Plot monthly clims
   # ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site, colour = type)) +
@@ -1813,7 +1814,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = NULL, x = "Month", fill = "Site", colour = "Source") +
     facet_grid(site+type~var_name, scales = "free_y") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/",short_var,"_clim_box.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_clim_box.png"), width = 20, height = 9)
 }
 
 # Add depth data manually from PANGAEA files where this info is in the meta-data

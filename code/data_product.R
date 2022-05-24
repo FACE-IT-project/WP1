@@ -12,10 +12,7 @@
 # Libraries
 source("code/functions.R")
 source("code/key_drivers.R")
-library(tidync)
 library(stringi)
-library(raster)
-library(circular) # For calculating mean daily wind direction from degree values
 
 # Re-run full data collection pipeline
 # system.time(
@@ -1181,27 +1178,68 @@ is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.
 is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ship AIS data
-# NB: Consider changing this so that the individual ships are not their own variable
 # Rather combine all of the ships into one variable
 is_AIS_2017 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/AIS_2017.csv") %>% mutate(year = 2017)
 is_AIS_2019 <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/AIS_2019.csv") %>% mutate(year = 2019)
 is_AIS <- rbind(is_AIS_2017, is_AIS_2019) %>% 
   dplyr::select(Name, ShipName, Month, everything()) %>% 
-  pivot_longer(`Number of trips`:`CO2 emissions in port (tonnes)`, names_to = "var", values_to = "value") %>% 
+  group_by(year, Month) %>% 
+  summarise(`trips [n]` = sum(`Number of trips`),
+            `gross weight [sum]` = sum(`Gross weight`),
+            `gross weight [mean]` = round(mean(`Gross weight`)),
+            `built year [mean]` = round(mean(BuiltYear)),
+            `berths [n; sum]` = sum(Berths),
+            `berths [n; mean]` = round(mean(Berths)),
+            `speed [mean]` = round(mean(Speed), 2),
+            `nautical miles [sum]` = sum(`Nautical miles`),
+            `nautical miles [mean]` = round(mean(`Nautical miles`), 2),
+            `duration [hours; sum]` = sum(`Duration (hours)`),
+            `duration [hours; mean]` = round(mean(`Duration (hours)`), 2),
+            `duration in port [hours; sum]` = sum(`Duration In port (hours)`),
+            `duration in port [hours; mean]` = round(mean(`Duration In port (hours)`), 1),
+            `Total fuel [tonnes; sum]` = sum(`Total fuel (tonnes)`),
+            `Total fuel [tonnes; mean]` = round(mean(`Total fuel (tonnes)`), 2),
+            `Fuel propulsion [tonnes; sum]` = sum(`Fuel propulsion (tonnes)`),
+            `Fuel propulsion [tonnes; mean]` = round(mean(`Fuel propulsion (tonnes)`), 2),
+            `Fuel in port [tonnes; sum]` = sum(`Fuel in port (tonnes)`),
+            `Fuel in port [tonnes; mean]` = round(mean(`Fuel in port (tonnes)`), 2),
+            `Power total [GWh; sum]` = sum(`Power total (GWh)`),
+            `Power total [GWh; mean]` = round(mean(`Power total (GWh)`), 1),
+            `Power in port [GWh; sum]` = sum(`Power in port (GWh)`),
+            `Power in port [GWh; mean]` = round(mean(`Power in port (GWh)`), 3),
+            `CO2 emissions total [tonnes; sum]` = sum(`CO2 emissions total (tonnes)`),
+            `CO2 emissions total [tonnes; mean]` = round(mean(`CO2 emissions total (tonnes)`), 2),
+            `CO2 emissions in port [tonnes; sum]` = sum(`CO2 emissions in port (tonnes)`),
+            `CO2 emissions in port [tonnes; mean]` = round(mean(`CO2 emissions in port (tonnes)`), 2),
+            `NOx emissions total [tonnes; sum]` = sum(`NOx emissions total (tonnes)`),
+            `NOx emissions total [tonnes; mean]` = round(mean(`NOx emissions total (tonnes)`), 4),
+            `NOx emissions in port [tonnes; sum]` = sum(`NOx emissions in port (tonnes)`),
+            `NOx emissions in port [tonnes; mean]` = round(mean(`NOx emissions in port (tonnes)`), 4),
+            `SOx emissions total [tonnes; sum]` = sum(`SOx emissions total (tonnes)`),
+            `SOx emissions total [tonnes; mean]` = round(mean(`SOx emissions total (tonnes)`), 4),
+            `SOx emissions in port [tonnes; sum]` = sum(`SOx emissions in port (tonnes)`),
+            `SOx emissions in port [tonnes; mean]` = round(mean(`SOx emissions in port (tonnes)`), 4),
+            `PM emissions total [tonnes; sum]` = sum(`PM emissions total (tonnes)`),
+            `PM emissions total [tonnes; mean]` = round(mean(`PM emissions total (tonnes)`), 4),
+            `PM emissions in port [tonnes; sum]` = sum(`PM emissions in port (tonnes)`),
+            `PM emissions in port [tonnes; mean]` = round(mean(`PM emissions in port (tonnes)`), 4), .groups = "drop") %>% 
+  pivot_longer(`trips [n]`:`PM emissions in port [tonnes; mean]`, names_to = "var_name", values_to = "value") %>%
   mutate(date = as.Date(paste0(year,"-",Month,"-01")),
          depth = 0, # It may be better to list this as NA 
          lon = NA, lat = NA, 
          date_accessed = as.Date("2020-09-30"),
-         var_name = paste0(ShipName," [",var,"]"),
-         var_type = case_when(grepl("co2|nox|sox", var_name, ignore.case = T) ~ "chem",
-                              grepl("PM", var_name, ignore.case = T) ~ "phys", TRUE ~ "soc"),
+         # var_name = paste0(ShipName," [",var,"]"), # No longer using individual ships
+         # var_type = case_when(grepl("co2|nox|sox", var_name, ignore.case = T) ~ "chem",
+                              # grepl("PM", var_name, ignore.case = T) ~ "phys", TRUE ~ "soc"),
+         var_type = "soc", # Rather I think these should all be classified as social data
          URL = "Received directly from Morten Simonsen",
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 rm(is_AIS_2017, is_AIS_2019); gc()
 
 # Raw AIS data
-load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
+# NB: Not used
+# load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
 
 ## Tourist ship arrival data
 is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arrivals.csv") %>% 
