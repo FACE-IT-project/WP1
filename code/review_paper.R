@@ -278,7 +278,7 @@ summary_sal <- review_summary(filter(clean_sal, depth >= 0, depth <= 10))
 review_summary_plot(summary_sal, "sal")
 
 
-## Light ------------------------------------------------------------------
+## PAR --------------------------------------------------------------------
 
 # Get all PAR data
 kong_PAR <- review_filter_var(full_product_kong, "kong", "PAR", "Onc|Gym|Para|below")

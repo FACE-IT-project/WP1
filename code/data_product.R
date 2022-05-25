@@ -5,6 +5,7 @@
 # e.g. `[NO3]- [µmol/l]` for pg_nuup_clean
 # Provide lists of variables that were removed
 # Correct PANGAEA values with `t [°C]` to be type 'cryo' as this is the unit for ice/snow temperature
+# Convert UTM coords for sval_Nature_glacier_mass to lon/lat
 
 
 # Setup -------------------------------------------------------------------
@@ -82,51 +83,151 @@ rm(pg_EU); gc()
 
 ## Full product ------------------------------------------------------------
 
-# No products are currently planned to be made for the EU Arctic
-# Rather access the existing files directly: ~/pCloud/EU_Arctic/...
-# Though now thinking about it perhaps it would be better to create a combined product
-# from which the site specific products may draw data
-
 # Bathymetry data
-# EU_GEBCO # Not on pCloud
-
-# Zooplankton biodiversity
-# 1995-2008-zooplankton-biodiversity.tsv
-# EU_zooplankton
+## Not on pCloud as this is a large file hosted on a well known website
+# EU_GEBCO
 
 # Ice modelling output
-# EU_ice # Not on pCloud
-
-# CTD data from YMER cruise in 1980
-# 77YM19800811.exc.csv
-# EU_YMER
-
-# CTD data for Arctic
-# Codispoti_Arctic_Nutrients_Submission_11-11-2010.csv
-# EU_Codispoti
-
-# Ice core samples for protist presence
-# protists\
-# EU_protists
+## Not on pCloud, too large to download
+# EU_ice
 
 # CTD data from NCEI Accession 9700302
-# 9700302.2.2.tar.gz # This appears to be some sort of proprietary data format...
+## 9700302.2.2.tar.gz # This appears to be some sort of proprietary data format...
 # EU_NCEI_1989
 
 # GRDC river discharge data
-# grdc_arctichycos_stations.xlsx
-# EU_GRDC
-
-# Carb chem Arctic model output
-# Outputs are stored at the Centre for Environmental Data Analysis's (CEDA) JASMIN servers:/gws/nopw/j04/nemo_vol2/ROAM. 
-# JASMIN's web address is https://www.jasmin.ac.uk and its access point https://www.jasmin.ac.uk/users/access/. 
-# Note that non-UK users may need to demonstrate association with NERC, ESA, the EC or a non-profit.  
-EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_output_acid.dat", 
-                        delim = " ", col_names = c("Year", "SST", "ice_extent_March", 
-                                                   "ice_extent_September", "MLD", "DIC", "pH"))
+## NB: These are restricted data so they are not added to 'full_product_EU'
+## Site: https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html
+## Citation: Arctic Region Discharge Data (2021). The Global Runoff Data Centre, 56068 Koblenz, Germany
+# EU_GRDC <- read_csv("~/pCloudDrive/restricted_data/GRDC/grdc_arctichycos_stations.csv")
 
 # CTD data from Ichtyo research
+## NB: Server was done when attempting to access these data on 2022-05-25
 # EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
+
+# Zooplankton biodiversity
+EU_zooplankton <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", delim = "\t") %>%
+  dplyr::rename(lon = decimalLongitude, lat = decimalLatitude, date = eventDate, depth = minimumDepthInMeters) %>% 
+  dplyr::select(lon, lat, date, depth, organismQuantity, organismQuantityType, scientificName, 
+                lifeStage, identificationQualifier, sizeGroup, sizeGroupOperator) %>%
+  mutate(date = as.Date(date),
+         var_name = case_when(!is.na(identificationQualifier) ~ paste0(scientificName," ",identificationQualifier), TRUE ~ scientificName),
+         var_name = case_when(!is.na(lifeStage) ~ paste0(var_name," - ",lifeStage), TRUE ~ var_name),
+         var_name = case_when(!is.na(sizeGroup) ~ paste0(var_name,"; ",sizeGroup," ",sizeGroupOperator), TRUE ~ var_name),
+         var_name = paste0(var_name," [",organismQuantityType,"]"),
+         var_type = "bio",
+         value = organismQuantity,
+         date_accessed = as.Date("2021-02-11"),
+         URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
+         citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# CTD data from YMER cruise in 1980
+## Note that the first row after the header contains the units:
+## METERS, DBARS, ITS-90, PSS-78, flag, UMOL/KG, flag, UMOL/KG, flag, UMOL/KG, flag, UMOL/KG, flag, TU, TU, flag, O/OO, flag, DEGC
+EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv", skip = 36) %>%
+  dplyr::rename(lon = LONGITUDE, lat = LATITUDE, date = DATE, depth = DEPTH, pres = CTDPRS,
+                temp = CTDTMP, sal = CTDSAL, O2 = OXYGEN, SiO4 = SILCAT, NO3 = NITRAT, PO4 = PHSPHT) %>% 
+  dplyr::select(date:sal, O2, SiO4, NO3, PO4, TRITUM, TRITER, DELO18, THETA) %>% 
+  slice(-1) %>% # Remove row containing units
+  pivot_longer(pres:THETA, names_to = "var_name", values_to = "value") %>%
+  mutate(date = lubridate::ymd(date),
+         var_type = case_when(var_name %in% c("O2", "SiO4", "NO3", "PO4") ~ "chem", TRUE ~ "phys"),
+         var_name = case_when(var_name == "pres" ~ "pres [DBARS]",
+                              var_name == "temp" ~ "temp [ITS-90]",
+                              var_name == "sal" ~ "sal [PSS-78]",
+                              var_name %in% c("O2", "SiO4", "NO3", "PO4") ~ paste0(var_name," [µmol/kg]"),
+                              var_name %in% c("TRITUM", "TRITER") ~ paste0(var_name," [TU]"),
+                              var_name == "DELO18" ~ "DELO18 [0/00]",
+                              var_name == "THETA" ~ "THETA [°C]"),
+         value = as.numeric(value),
+         depth = as.numeric(depth),
+         date_accessed = as.Date("2021-04-15"),
+         URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
+         citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value) %>% 
+  filter(value != -999)
+
+# CTD data for Arctic
+## NB: The documentation does not give the volume of sampling for nutrients (i.e. liters (l) or kilograms (kg))
+## But searching through a 1976 paper that they reference it appears to be in liters
+EU_Codispoti <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/Codispoti_Arctic_Nutrients_Submission_11-11-2010.csv") %>%
+  dplyr::rename(lon = Longitude, lat = Latitude, date = Date, depth = z, temp = `T`, sal = Sal) %>% 
+  dplyr::select(date, lat:NO3, NO2) %>% 
+  pivot_longer(temp:NO2, names_to = "var_name", values_to = "value") %>%
+  filter(value != -999) %>% 
+  mutate(date = as.Date(date, format = "%m/%d/%Y"),
+         var_type = case_when(var_name %in% c("PO4", "NO2", "NO3") ~ "chem", TRUE ~ "phys"),
+         var_name = case_when(var_name == "temp" ~ "temp [°C]",
+                              var_name == "sal" ~ "sal [PSU]",
+                              var_name %in% c("PO4", "NO2", "NO3") ~ paste0(var_name," [µmol/l]")),
+         date_accessed = as.Date("2021-04-15"),
+         URL = "https://www.nodc.noaa.gov/archive/arc0034/0072133/",
+         citation = "Multiple. See References section in: https://www.nodc.noaa.gov/archive/arc0034/0072133/1.1/data/1-data/ReadMe_Codispoti_ArcticNuts.pdf") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Ice core samples for protist presence
+## NB: Units for PAR data are not given so it is assumed that they are [µmol m-2 s-1]
+## NB: Some ice thickness data is available but the values are not documented so I have not included them here
+EU_protists <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/protists/sea-ice protist percentage.csv", delim = ";") %>%
+  dplyr::rename(lon = longitude, lat = latitude, PAR = par) %>% 
+  dplyr::select(lon, lat, date, depth, PAR, `Acanthostomella norvegica`:`Uronema marinum`) %>% 
+  pivot_longer(PAR:`Uronema marinum`, names_to = "var_name", values_to = "value") %>%
+  mutate(date = as.Date(date, format = "%d.%m.%Y"),
+         var_type = case_when(var_name == "PAR" ~ "phys", TRUE ~ "bio"),
+         var_name = case_when(var_name == "PAR" ~ "PAR [µmol m-2 s-1]", TRUE ~ paste0(var_name," [% total]")),
+         date_accessed = as.Date("2021-04-19"),
+         URL = "https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842",
+         citation = "Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Carb chem Arctic model output
+## Outputs are stored at the Centre for Environmental Data Analysis's (CEDA) JASMIN servers:/gws/nopw/j04/nemo_vol2/ROAM. 
+## JASMIN's web address is https://www.jasmin.ac.uk and its access point https://www.jasmin.ac.uk/users/access/. 
+## Getting access to this full dataset proved to be nearly impossible and was scrapped after months of effort
+## NB: No units were included with these data
+EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_output_acid.dat", delim = " ", 
+                        col_names = c("Year", "SST", "ice_extent_March", "ice_extent_September", "MLD", "DIC", "pH")) %>% 
+  pivot_longer(SST:pH, names_to = "var_name", values_to = "value") %>% 
+  mutate(date = case_when(var_name == "ice_extent_March" ~ as.Date(paste0(Year,"-03-01")),
+                          var_name == "ice_extent_September" ~ as.Date(paste0(Year,"-09-01")),
+                          TRUE ~ as.Date(paste0(Year,"-12-31"))),
+         var_type = case_when(var_name %in% c("SST", "MLD") ~ "phys",
+                              var_name %in% c("DIC", "pH") ~ "chem",
+                              TRUE ~ "cryo"),
+         var_name = case_when(var_name == "SST" ~ "temp [°C]",
+                              grepl("ice_extent", var_name) ~ "ice extent [km^2]",
+                              var_name == "MLD" ~ "MLD [m]",
+                              var_name == "DIC" ~ "DIC [µmol/kg]",
+                              TRUE ~ var_name),
+         lon = NA, lat = NA, depth = NA,
+         date_accessed = as.Date("2021-08-11"),
+         URL = "File was received directly from J-P Gattuso",
+         citation = "Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+
+# Greenland fjord CTD casts
+## NB: The units are found in the README by following the URL
+EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE25_CTD_profiles.csv") %>% 
+  dplyr::rename(lon = LONG, lat = LAT) %>% 
+  mutate(date = as.Date(paste0(year,"-",month,"-",day))) %>% 
+  dplyr::select(lon, lat, date, depth, pressure, salinity:par) %>% 
+  pivot_longer(pressure:par, names_to = "var_name", values_to = "value") %>% 
+  mutate(var_type = case_when(var_name == "fluorescence" ~ "bio", TRUE ~ "phys"),
+         var_name = case_when(var_name == "pressure" ~ "pres [db]",
+                              var_name == "temperature" ~ "temp [°C]",
+                              var_name == "salinity" ~ "sal [PSU]",
+                              var_name == "fluorescence" ~ "fluor",
+                              var_name == "turbidity" ~ "turbidity [FTU]",
+                              var_name == "conductivity" ~ "conductivity [S/m]",
+                              var_name == "par" ~ "PAR [µmol m-2 s-1]"),
+         # Remove impossible negative values
+         value = case_when(var_name != "temp [°C]" & value < 0 ~ as.numeric(NA), TRUE ~ value),
+         date_accessed = as.Date("2021-10-20"),
+         URL = "https://zenodo.org/record/5572329#.Yo5IrzlBw5n",
+         citation = "Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value) %>% 
+  filter(!is.na(value))
 
 # SOCAT data
 EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2021.rds") %>%  
@@ -182,14 +283,12 @@ EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>%
 # save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
-# Greenland fjord CTD casts
-EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE25_CTD_profiles.csv") %>% 
-  mutate(date = as.Date(paste0(year,"-",month,"-",day)))
-
 # Combine and save
-# full_product_EU <- rbind()
-# data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
-# save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
+full_product_EU <- rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, EU_green_fjords,
+                         EU_SOCAT, EU_GLODAP)
+data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
+save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
+save(full_product_EU, file = "data/full_data/full_product_EU.RData")
 rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -203,8 +302,10 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
+# Intentionally not loading and adding the full EU product here
+
 # Glacier mass balance
-## NB: Update annually in May
+## NB: Updated annually in May
 sval_MOSJ_cmb <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/cumulative-mass-balance-for-glaciers-in-svalbard.csv", delim = ";") %>% mutate(site = `Series name`, `Series name` = "cumulative mass balance")
 sval_MOSJ_austre <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/austre-broggerbreen-mass-balance.csv", delim = ";") %>% mutate(site = "Austre Brøggerbreen")
 sval_MOSJ_etonbreen <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/etonbreen-austfonna-mass-balance.csv", delim = ";") %>% mutate(site = "Etonbreen (Austfonna)")
@@ -606,6 +707,9 @@ rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ## Full product ------------------------------------------------------------
+
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
 
 # Load full Svalbard file
 if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
