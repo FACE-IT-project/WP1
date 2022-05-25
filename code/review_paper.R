@@ -810,4 +810,12 @@ ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 
 # Figure 1 ----------------------------------------------------------------
 
+# Map of the study area that also manages to show SST, ice cover, and any other well covered drivers 
+
+
+# Figure 2 ----------------------------------------------------------------
+
+# Metadata figure showing the coverage of the key drivers
+# This should concisely show how many datasets/points are available for each key drivers and site
+# But one should be cautious about focussing too much on the sites
 

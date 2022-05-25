@@ -71,7 +71,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
 ## PG product --------------------------------------------------------------
 
 # There is no EU PANGAEA product because the bits and pieces were given to the individual PG site files
-# This file is loaded to get a summary of the data
+# This file is only loaded to get a summary of the data
 pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
 system.time(
   pg_EU <- plyr::ldply(pg_EU_files, pg_quick_filter, bbox = bbox_EU)
@@ -2295,6 +2295,7 @@ disko_GEM_air_temp_7m <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
   summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
 
 # Cruise CTD data
+## NB: Longitude values corrected for - sign
 disko_GEM_CTD_cruise <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Disko_Bay_Cruise_2019_CTD_measurements.csv") %>% 
   rename(date = Date, lat = Latitude, lon = Longitude, depth = `depSM: Depth (salt water, m)`, `temp [°C]` = `tv268C: Temperature (IPTS-68, deg C)`,
          `conductivity [S/m]` = `c0S/m: Conductivity (S/m)`, `salinity [PSU]` = `sal00: Salinity, Practical (PSU)`, 
@@ -2305,11 +2306,13 @@ disko_GEM_CTD_cruise <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disk
   mutate(var_type = case_when(var_name == "fluorescence" ~ "bio", TRUE ~ "phys"),
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VB94-Y512",
          date_accessed = as.Date("2022-04-28"),
+         lon = -lon,
          citation = "Disko Bay Cruise 2019, CTD measurements. Water column MarineBasis Disko. doi: 10.17897/VB94-Y512") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Historic temperature and salinity data
+## NB: Longitude values corrected for - sign
 disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Historic_temperature_and_salinity_1924_to_2010.csv") %>% 
   dplyr::rename(date = Date, depth = `Depth (m)`, `temp [°C]` = `Temperature (deg C)`, `salinity [PSU]` = `Salinity(psu)`, 
                 lat = `Latitude (degrees_north)`, lon = `Longitude (degrees_east)`) %>% 
@@ -2318,6 +2321,7 @@ disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
   mutate(var_type = "phys",
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/62VX-AX79",
          date_accessed = as.Date("2022-04-28"),
+         lon = -lon,
          citation = "Historic temperature and salinity, 1924 to 2010. Water column MarineBasis Disko. doi: 10.17897/62VX-AX79") %>% 
     dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
@@ -2648,6 +2652,7 @@ nuup_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/N
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Fish larvae presence
+## NB: These values have erroneously been given Zackenberg coordinates on the GEM database
 nuup_GEM_fish_larvae <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Fish_Larvae_Species_Composition_individuals_m.csv") %>% 
   dplyr::rename(date = DATE, var_name = SPECIES, value = `FISH LARV`) %>% 
   mutate(var_type = "bio",
@@ -2660,6 +2665,7 @@ nuup_GEM_fish_larvae <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Leaf growth of Saccharina latissima (g)
+## NB: These values have erroneously been given Zackenberg coordinates on the GEM database
 nuup_GEM_Slat_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_vegetation_Leaf_Growth_of_Saccharina_latissima_g_C_yr.csv") %>% 
   dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - BIOMASS`) %>% 
   mutate(var_type = "bio",
@@ -2671,6 +2677,7 @@ nuup_GEM_Slat_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Leaf growth of Saccharina latissima (cm)
+## NB: These values have erroneously been given Zackenberg coordinates on the GEM database
 nuup_GEM_Slat_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_vegetation_Leaf_Growth_of_Saccharina_latissima_cm_yr.csv") %>% 
   dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - LENGTH`) %>%
   mutate(var_type = "bio",
