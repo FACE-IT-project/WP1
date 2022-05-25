@@ -302,7 +302,8 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
-# Intentionally not loading and adding the full EU product here
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
 
 # Glacier mass balance
 ## NB: Updated annually in May
@@ -595,24 +596,11 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-sval_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
-         lat >= bbox_sval[3], lat <= bbox_sval[4])
-# save(sval_SOCAT, file = "~/pCloudDrive/FACE-IT_data/svalbard/SOCAT_sval.RData")
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-sval_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
-         lat >= bbox_sval[3], lat <= bbox_sval[4])
-# save(sval_GLODAP, file = "~/pCloudDrive/FACE-IT_data/svalbard/GLODAP_sval.RData")
-
 # Combine and save
-full_product_sval <- rbind(sval_MOSJ_glacier_mass, sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
-                           sval_pop, sval_tour_arrival, sval_guest_night, 
-                           sval_AIS, sval_SOCAT, sval_GLODAP) %>% distinct()
+full_product_sval <- rbind(sval_MOSJ_glacier_mass, #sval_Nature_glacier_mass, # Need to convert UTM to lon/lat
+                           sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
+                           sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) %>% 
+  rbind(filter(full_product_EU, lon >= bbox_sval[1], lon <= bbox_sval[2], lat >= bbox_sval[3], lat <= bbox_sval[4])) %>% distinct()
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
 save(full_product_sval, file = "data/full_data/full_product_sval.RData")
@@ -708,10 +696,8 @@ rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
-# Load full EU file
-if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
-
 # Load full Svalbard file
+## NB: This contains the full EU Arctic data
 if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
 
 # Load PG file
@@ -1039,34 +1025,19 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-kong_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_kong[1], lon <= bbox_kong[2],
-         lat >= bbox_kong[3], lat <= bbox_kong[4])
-# save(kong_SOCAT, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/SOCAT_kong.RData")
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-### NB: There are no GLODAP data in Kongsfjorden
-kong_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_kong[1], lon <= bbox_kong[2],
-         lat >= bbox_kong[3], lat <= bbox_kong[4])
-
 # Combine and save
 full_product_kong <- rbind(pg_kong_ALL, kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
                            kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
-                           kong_light_Laeseke, kong_light_Inka, kong_PAR_Dieter, kong_SOCAT) %>% 
+                           kong_light_Laeseke, kong_light_Inka, kong_PAR_Dieter) %>% 
   rbind(filter(full_product_sval, lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4])) %>% 
-  rbind(filter(full_product_sval, grepl("Kongsfjorden", var_name))) %>% distinct()
+  rbind(filter(full_product_sval, grepl("Kongsfjorden", citation))) %>% distinct()
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 save(full_product_kong, file = "data/full_data/full_product_kong.RData")
 plyr::l_ply(unique(full_product_kong$var_type), save_category, .parallel = T,
             df = full_product_kong, data_type = "full", site_name = "kong")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
-
 
 # Search product for specific authors
 # if(!exists("full_product_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
@@ -1170,6 +1141,7 @@ rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product ------------------------------------------------------------
 
 # Load full Svalbard file
+## NB: This contains the full EU Arctic data
 if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
 
 # Load PG file
@@ -1358,26 +1330,12 @@ is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arriv
          citation = "Port of Longyearbyen (2020). Statistics of Port Longyear 2007, 2012-2019. https://portlongyear.no/statistics-of-port-longyear-2007-2012-2019/") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-is_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_is[1], lon <= bbox_is[2],
-         lat >= bbox_is[3], lat <= bbox_is[4])
-# save(is_SOCAT, file = "~/pCloudDrive/FACE-IT_data/isfjorden/SOCAT_is.RData")
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-is_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_is[1], lon <= bbox_is[2],
-         lat >= bbox_is[3], lat <= bbox_is[4])
-# save(is_GLODAP, file = "~/pCloudDrive/FACE-IT_data/isfjorden/GLODAP_is.RData")
-
 # Combine and save
 full_product_is <- rbind(pg_is_ALL, is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
                          is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
-                         is_AIS, is_ship_arrivals, is_SOCAT, is_GLODAP) %>% 
+                         is_AIS, is_ship_arrivals) %>% 
   rbind(filter(full_product_sval, lon >= bbox_is[1], lon <= bbox_is[2], lat >= bbox_is[3], lat <= bbox_is[4])) %>% 
-  rbind(filter(full_product_sval, grepl("Isfjorden", var_name))) %>% distinct()
+  rbind(filter(full_product_sval, grepl("Isfjorden", citation))) %>% distinct()
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 save(full_product_is, file = "data/full_data/full_product_is.RData")
@@ -1483,6 +1441,7 @@ rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product ------------------------------------------------------------
 
 # Load full Svalbard file
+## NB: This contains the full EU Arctic data
 if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
 
 # Load PG file
@@ -1505,24 +1464,10 @@ stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_prope
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-stor_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_stor[1], lon <= bbox_stor[2],
-         lat >= bbox_stor[3], lat <= bbox_stor[4])
-# save(stor_SOCAT, file = "~/pCloudDrive/FACE-IT_data/storfjorden/SOCAT_stor.RData")
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-stor_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_stor[1], lon <= bbox_stor[2],
-         lat >= bbox_stor[3], lat <= bbox_stor[4])
-# save(stor_GLODAP, file = "~/pCloudDrive/FACE-IT_data/storfjorden/GLODAP_stor.RData")
-
 # Combine and save
-full_product_stor <- rbind(pg_stor_ALL, stor_light_CTD, stor_SOCAT, stor_GLODAP) %>% 
+full_product_stor <- rbind(pg_stor_ALL, stor_light_CTD) %>% 
   rbind(filter(full_product_sval, lon >= bbox_stor[1], lon <= bbox_stor[2], lat >= bbox_stor[3], lat <= bbox_stor[4])) %>% 
-  rbind(filter(full_product_sval, grepl("Storfjorden", var_name))) %>% distinct()
+  rbind(filter(full_product_sval, grepl("Storfjorden", citation))) %>% distinct()
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 save(full_product_stor, file = "data/full_data/full_product_stor.RData")
@@ -1602,6 +1547,9 @@ rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
 # Load PG product
 if(!exists("pg_young_ALL")) load("~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
@@ -1670,22 +1618,10 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(list = grep("holding_",names(.GlobalEnv),value = TRUE)); gc()
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-### NB: No SOCAT data in Young Sound
-young_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_young[1], lon <= bbox_young[2],
-         lat >= bbox_young[3], lat <= bbox_young[4])
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-### NB: No GLODAP data in Young Sound
-young_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_young[1], lon <= bbox_young[2],
-         lat >= bbox_young[3], lat <= bbox_young[4])
-
 # Combine and save
-full_product_young <- rbind(pg_young_ALL, young_prim_prod, young_SOCAT, young_GLODAP) %>% distinct()
+full_product_young <- rbind(pg_young_ALL, young_prim_prod) %>% 
+  rbind(filter(full_product_EU, lon >= bbox_young[1], lon <= bbox_young[2], lat >= bbox_young[3], lat <= bbox_young[4])) %>% 
+  rbind(filter(full_product_EU, grepl("Young Sound", citation))) %>% distinct()
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 save(full_product_young, file = "data/full_data/full_product_young.RData")
@@ -2192,6 +2128,9 @@ rm(list = grep("pg_disko",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
 # Load PG product
 if(!exists("pg_disko_ALL")) load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
@@ -2224,22 +2163,10 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 rm(disko_CTD_ChlA_var); gc()
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-disko_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_disko[1], lon <= bbox_disko[2],
-         lat >= bbox_disko[3], lat <= bbox_disko[4])
-# save(disko_SOCAT, file = "~/pCloudDrive/FACE-IT_data/disko_bay/SOCAT_disko.RData")
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-disko_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_disko[1], lon <= bbox_disko[2],
-         lat >= bbox_disko[3], lat <= bbox_disko[4])
-# save(disko_GLODAP, file = "~/pCloudDrive/FACE-IT_data/disko_bay/GLODAP_disko.RData")
-
 # Combine and save
-full_product_disko <- rbind(pg_disko_ALL, disko_CTD_ChlA, disko_SOCAT, disko_GLODAP) %>% distinct()
+full_product_disko <- rbind(pg_disko_ALL, disko_CTD_ChlA) %>% 
+  rbind(filter(full_product_EU, lon >= bbox_disko[1], lon <= bbox_disko[2], lat >= bbox_disko[3], lat <= bbox_disko[4])) %>% 
+  rbind(filter(full_product_EU, grepl("Disko", citation))) %>% distinct()
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
@@ -2508,25 +2435,16 @@ rm(list = grep("pg_nuup",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
 # Load PG product
 if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-nuup_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_nuup[1], lon <= bbox_nuup[2],
-         lat >= bbox_nuup[3], lat <= bbox_nuup[4])
-# save(nuup_SOCAT, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/SOCAT_nuup.RData")
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-### NB: No GLODAP data in Nuup Kangerlua
-nuup_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_nuup[1], lon <= bbox_nuup[2],
-         lat >= bbox_nuup[3], lat <= bbox_nuup[4])
-
 # Combine and save
-full_product_nuup <- rbind(pg_nuup_ALL, nuup_SOCAT) %>% distinct()
+full_product_nuup <- rbind(pg_nuup_ALL) %>% 
+  rbind(filter(full_product_EU, lon >= bbox_nuup[1], lon <= bbox_nuup[2], lat >= bbox_nuup[3], lat <= bbox_nuup[4])) %>% 
+  rbind(filter(full_product_EU, grepl("Nuup|Nuuk", citation))) %>% distinct()
 data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
 save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
@@ -2901,6 +2819,9 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Full product ------------------------------------------------------------
 
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
 # Load PG product
 if(!exists("pg_por_ALL")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
@@ -2923,22 +2844,10 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
 ## Hydrographic data
 por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08"))
 
-## SOCAT
-### NB: EU_SOCAT loaded in EU full product section
-por_SOCAT <- EU_SOCAT %>% 
-  filter(lon >= bbox_por[1], lon <= bbox_por[2],
-         lat >= bbox_por[3], lat <= bbox_por[4])
-# save(por_SOCAT, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/SOCAT_por.RData")
-
-## GLODAP
-### NB: EU_GLODAP loaded in EU full product section
-### NB: No GLODAP data in Porsangerfjorden
-por_GLODAP <- EU_GLODAP %>% 
-  filter(lon >= bbox_por[1], lon <= bbox_por[2],
-         lat >= bbox_por[3], lat <= bbox_por[4])
-
 # Combine and save
-full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice, por_hydro, por_SOCAT) %>% distinct()
+full_product_por <- rbind(pg_por_ALL, por_mooring_GFI, por_sea_ice, por_hydro) %>% 
+  rbind(filter(full_product_EU, lon >= bbox_por[1], lon <= bbox_por[2], lat >= bbox_por[3], lat <= bbox_por[4])) %>% 
+  rbind(filter(full_product_EU, grepl("Porsanger", citation))) %>% distinct()
 data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")

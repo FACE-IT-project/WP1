@@ -70,7 +70,7 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
 sst_por_bbox <- filter(sst_por, between(lon, bbox_por[1], bbox_por[2]), between(lat, bbox_por[3], bbox_por[4]))
 
 # CCI SST extractions
-## NB: Load one-by-one, not all in one go, they are very large files
+## NB: These all take ~ 5 minutes to load
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_CCI_kong.RData")
 sst_CCI_kong_bbox <- filter(sst_CCI_kong, between(lon, bbox_kong[1], bbox_kong[2]), between(lat, bbox_kong[3], bbox_kong[4]))
 load("~/pCloudDrive/FACE-IT_data/isfjorden/sst_CCI_is.RData")
@@ -125,11 +125,6 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 
 ## Ocean Temperature -------------------------------------------------------
 
-# Kongsfjorden
-kong_OISST <- sst_kong_bbox %>% dplyr::rename(date = t) %>% 
-  group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
-  group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
 # Remove air, CO2, and pH related temperature values
 # TTT is air temperature from cruise data on PANGAEA. e.g. https://doi.pangaea.de/10.1594/PANGAEA.326679
 # MAAT + MAGT = ground temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.808512
@@ -141,6 +136,12 @@ kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%
 # T intern [°C] = internal temperature; ~+0.03°C than the corresponding water temp
 # e.g. https://doi.pangaea.de/10.1594/PANGAEA.930028
 # Removing tpot (Potential temperature) is a potentially controversial decision...
+# t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
+# T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
+kong_OISST <- sst_kong_bbox %>% dplyr::rename(date = t) %>% 
+  group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
+kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
+  group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
 kong_SST <- review_filter_var(full_product_kong, "kong", "temp|°C",
                               "air|co2|ph_|pHint_|TTT|MAAT|MAGT|MAT|
                               |SST sum|SST win|Temp min|Temp max|Temp interp|
@@ -150,8 +151,6 @@ is_OISST <- sst_is_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 is_CCI <- sst_CCI_is_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-# t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
-# T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
 is_SST <- review_filter_var(full_product_is, "is", "temp|°C", 
                             "SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT|
                             |T sum|T win|SST anomaly|theta", c("t [°C]", "SST (1-12) [°C]")) %>% # Can re-add if annual values
@@ -168,14 +167,14 @@ young_OISST <- sst_young_bbox %>% dplyr::rename(date = t) %>%
 young_CCI <- sst_CCI_young_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
 young_SST <- review_filter_var(rbind(full_product_young, young_GEM), "young", "temp|°C", 
-                               "Tpot|Tequ|theta|fco2|pot_temp|SST sum|SST win|MAGT|MAAT") %>% 
+                               "Tpot|Tequ|theta|fco2|pot_temp|SST sum|SST win|MAGT|MAAT|TTT") %>% 
   bind_rows(young_OISST, young_CCI) %>% mutate(site = "young")
 disko_OISST <- sst_disko_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 disko_CCI <- sst_CCI_disko_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
 disko_SST <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "temp|°C", 
-                               "Tequ|potential|theta|fco2|SST sum|SST win|TTT|SST anomaly", "SST (1-12) [°C]") %>% 
+                               "Tequ|potential|theta|fco2|SST sum|SST win|TTT|SST anomaly|ice_", "SST (1-12) [°C]") %>% 
   bind_rows(disko_OISST, disko_CCI) %>% mutate(site = "disko")
 nuup_OISST <- sst_nuup_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
@@ -225,18 +224,24 @@ review_summary_plot(summary_SST, "temp")
 
 # Get air temperature for all sites
 kong_air <- review_filter_var(full_product_kong, "kong", "air|temp|°C|TTT", 
-                              "co2|intern|tequ|f_|p_|par_|temp_|interp|_ctd|_sf|MAGT|MAT|MAAT|T air", # We want T air but it requires processing before this step
-                              var_precise = "Temp [°C]", atmos = T) %>% 
-  filter(URL != "https://doi.org/10.1594/PANGAEA.882432", URL != "https://doi.org/10.1594/PANGAEA.839802")
-is_air <- add_depth(review_filter_var(full_product_is, "is", "air|temp|°C", "tequ|intern|bulb|pressure|MAGT|MAAT|T air",  
-                                      var_precise = c("Temp [°C]", "t [°C]"), atmos = T))
-stor_air <- add_depth(review_filter_var(full_product_stor, "stor", "air|temp|°C", "Tmax",
-                                        var_precise = c("Temp [°C]", "t [°C]"), atmos = T))
-young_air <- add_depth(review_filter_var(full_product_young, "young", "air|temp|°C", var_precise = "Temp [°C]", atmos = T))
-disko_air <- add_depth(review_filter_var(full_product_disko, "disko", "air|temp|°C", "tequ", var_precise = "Temp [°C]", atmos = T))
-nuup_air <- add_depth(review_filter_var(full_product_nuup, "nuup", "air|temp|°C", "tequ", var_precise = "Temp [°C]", atmos = T))
-por_air <- add_depth(review_filter_var(full_product_por, "por", "air|temp|°C", "tequ|bulb|MAAT|T air", 
-                                       var_precise = "Temp [°C]", atmos = T)) %>% filter(!var_name == "temp [°C]")
+                              "SST|co2|intern|tequ|f_|p_|par_|temp_|interp|_ctd|_sf|MAGT|MAT|MAAT|T air", # We want T air but it requires processing before this step
+                              var_precise = "Temp [°C]", atmos = T) %>% filter(is.na(depth) | depth < 0) %>% 
+  filter(URL != "https://doi.org/10.1594/PANGAEA.882432", URL != "https://doi.org/10.1594/PANGAEA.839802") %>% add_depth()
+is_air <- review_filter_var(full_product_is, "is", "air|temp|°C|TTT", "SST|tequ|intern|bulb|pressure|MAGT|MAAT|MAT|T cal|T tech|T air",  
+                                      var_precise = c("Temp [°C]", "t [°C]"), atmos = T) %>% 
+  filter(is.na(depth) | depth < 0) %>% add_depth()
+stor_air <- review_filter_var(full_product_stor, "stor", "air|temp|°C", "SST|Tmax",
+                              var_precise = c("Temp [°C]", "t [°C]"), atmos = T) %>% 
+  filter(is.na(depth) | depth < 0) %>% add_depth()
+young_air <- review_filter_var(full_product_young, "young", "air|temp|°C", "MAGT|MAAT", var_precise = "Temp [°C]", atmos = T) %>% 
+  filter(is.na(depth) | depth < 0) %>% add_depth() # No air temperatures
+disko_air <- review_filter_var(full_product_disko, "disko", "air|temp|°C", "SST|tequ", var_precise = "Temp [°C]", atmos = T) %>% 
+  filter(is.na(depth) | depth < 0) %>% add_depth()
+nuup_air <- review_filter_var(full_product_nuup, "nuup", "air|temp|°C", "tequ", var_precise = "Temp [°C]", atmos = T) %>% 
+  filter(is.na(depth) | depth < 0) %>% add_depth()
+por_air <- review_filter_var(full_product_por, "por", "air|temp|°C", "SST|tequ|bulb|MAAT|T air", 
+                             var_precise = c("Temp [°C]", "temp [°C]"), atmos = T) %>% 
+  filter(is.na(depth) | depth < 0) %>% add_depth()
 
 # Combined cleaned data
 clean_air <- rbind(kong_air, is_air, stor_air, young_air, disko_air, nuup_air, por_air)
@@ -260,15 +265,15 @@ review_summary_plot(summary_air, "air")
 # Remove overly processed variables
 # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
 # Remove glacial drainage land stations
-kong_sal <- review_filter_var(full_product_kong, "kong", "sal|PSU|s_", "interp|ph",
+kong_sal <- review_filter_var(full_product_kong, "kong", "sal|PSU|s_", "interp|ph|oxy|ws",
                               cit_filter = "land station|drainage|meltwater")
 is_sal <- review_filter_var(full_product_is, "is", "sal|PSU", "interp|mg/l")
-stor_sal <- review_filter_var(full_product_stor, "stor", "sal|PSU", "interp")
-young_sal <- review_filter_var(rbind(full_product_young, young_GEM), "young", "sal|PSU", "sal interp")
+stor_sal <- review_filter_var(full_product_stor, "stor", "sal|PSU", "interp|acu|ent")
+young_sal <- review_filter_var(rbind(full_product_young, young_GEM), "young", "sal|PSU", "sal interp|acu|ent")
 disko_sal <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "sal|PSU", "sal interp")
-nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "sal|PSU", "sal interp")
+nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "sal|PSU", "sal interp|acu|ent")
 por_sal <- review_filter_var(full_product_por, "por", "sal|PSU", "Sal interp")
-clean_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal) %>% mutate(var_name = "Sal")
+clean_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal) %>% mutate(var_name = "sal")
 rm(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal); gc()
 
 # Summary analyses
@@ -281,15 +286,15 @@ review_summary_plot(summary_sal, "sal")
 ## PAR --------------------------------------------------------------------
 
 # Get all PAR data
-kong_PAR <- review_filter_var(full_product_kong, "kong", "PAR", "Onc|Gym|Para|below")
-is_PAR <- review_filter_var(full_product_is, "is", "PAR") # No PAR data
+kong_PAR <- review_filter_var(full_product_kong, "kong", "PAR", "Onc|Gym|Para|below|abys")
+is_PAR <- review_filter_var(full_product_is, "is", "PAR", "aeuch|eleg") # No PAR data
 stor_PAR <- review_filter_var(full_product_stor, "stor", "PAR") # No PAR data
-young_PAR <- review_filter_var(rbind(full_product_young, young_GEM), "young", "PAR")
+young_PAR <- review_filter_var(rbind(full_product_young, young_GEM), "young", "PAR", "vella|tinn")
 ## NB: It is unclear if these values should be divided by 10 or not
 ## It is also unclear what the time dimension is for the data
 disko_PAR <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "PAR", "milli") %>% filter(value > 0)
 ## NB: Some of these values are also very high
-nuup_PAR <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "PAR")
+nuup_PAR <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "PAR", "trip|vella|sulc|lip|lib|parv")
 por_PAR <- review_filter_var(full_product_por, "por", "PAR") # No PAR data
 clean_PAR <- rbind(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR) %>% mutate(var_name = "PAR [µmol m-2 s-1]")
 rm(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR); gc()
@@ -414,15 +419,15 @@ ggplot(ice_4km_prop, aes(x = date, y = mean_prop, colour = site)) +
                  label = paste0(trend,"/year\n p = ", p.value))) +
   scale_x_date(limits = c(as.Date("2000-09-01"), as.Date("2021-12-31")), expand = c(0, 0)) +
   labs(x = NULL, y = "Sea ice cover [proportion]", colour = "Site")
-ggsave("~/Desktop/ice_prop_ts.png", height = 12, width = 20)
+ggsave("~/Desktop/anlyses_output/ice_prop_ts.png", height = 12, width = 20)
 ggplot(ice_4km_prop, aes(x = as.factor(month), y = mean_prop, fill = site)) +
   geom_boxplot() + facet_wrap(~month, scales = "free_x") +
   labs(x = "Month", y = "Sea ice cover [proportion]", colour = "Site")
-ggsave("~/Desktop/ice_prop_box_month.png", height = 6, width = 12)
+ggsave("~/Desktop/anlyses_output/ice_prop_box_month.png", height = 6, width = 12)
 ggplot(ice_4km_prop, aes(x = as.factor(month), y = mean_prop, fill = site)) +
   geom_boxplot() + facet_wrap(~site, scales = "free_x") +
   labs(x = "Month", y = "Sea ice cover [proportion]", colour = "Site")
-ggsave("~/Desktop/ice_prop_box_site.png", height = 9, width = 12)
+ggsave("~/Desktop/anlyses_output/ice_prop_box_site.png", height = 9, width = 12)
 rm(ice_4km_prop, ice_4km_prop_long, ice_4km_trend, ice_4km_trend_long, ice_4km_stats); gc()
 
 # Calculate sea ice breakup and formation dates
@@ -440,12 +445,12 @@ is_snow <- filter(full_product_is, var_type == "cryo",
                                   "SWE [m]", "SWE unc [m]" )) %>% mutate(site = "is") # Many snow values
 stor_snow <- filter(full_product_stor, var_type == "cryo",
                        var_name %in% c("t [°C]", "Depth ice/snow [m]", "Snow depth, unc [m]", "Density snow [kg/m**3]",
-                                       "Snow density, unc [kg/m**3]", "SWE [m]", "SWE unc [m]", "Snow thick [m]")) %>% mutate(site = "stor") # 
+                                       "Snow density, unc [kg/m**3]", "SWE [m]", "SWE unc [m]", "Snow thick [m]")) %>% mutate(site = "stor") # Many snow values
 young_snow <- filter(rbind(full_product_young, young_GEM), var_type == "cryo",
                      var_name %in% c("Snow h [m]", "Density snow [kg/m**3]", "Sea ice snow thickness [cm]")) %>% 
   mutate(site = "young") # A lot of geospatial glacier data... consider removing or averaging
-disko_snow <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo") %>% mutate(site = "disko") %>% slice(0) # No snow data
-nuup_snow <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %>% mutate(site = "nuup") %>% slice(0) # No snow data
+disko_snow <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo", grepl("snow", var_name, ignore.case = T)) %>% mutate(site = "disko") # Snow depth and snow line
+nuup_snow <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo", grepl("snow", var_name, ignore.case = T)) %>% mutate(site = "nuup") # Snow depth
 por_snow <- filter(full_product_por, var_type == "cryo") %>% mutate(site = "por") %>% slice(0) # No snow data
 clean_snow <- bind_rows(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow) %>% mutate(type = "in situ")
 rm(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow); gc()
@@ -469,7 +474,7 @@ is_glacier <- review_filter_var(full_product_is, "is", "balance|glacier")
 stor_glacier <- review_filter_var(full_product_stor, "stor", "balance|glacier")
 young_glacier <- review_filter_var(rbind(full_product_young, young_GEM), "young", "balance|glacier|ablation")
 disko_glacier <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "balance|glacier|ablation")
-nuup_glacier <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "glac")
+nuup_glacier <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "glac", "poro")
 por_glacier <- review_filter_var(full_product_por, "por", "balance|glac") # No glacier data
 clean_glacier <- rbind(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier)
 rm(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier); gc()
@@ -532,6 +537,7 @@ review_summary_plot(summary_O2, "O2")
 ## pCO2 --------------------------------------------------------------------
 
 # NB: For this and other chemistry variables see best practices sent by JP on Slack
+# Also see e-mail from Liqing Jiang
 
 # Keep pCO2_calc as a separate variable because they can't be taken as absolutely the same
 # Same foe PCO2water_SST_wet
@@ -542,7 +548,7 @@ review_summary_plot(summary_O2, "O2")
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
 # which is something that the GLODAP product requests that we do.
 kong_pCO2 <- review_filter_var(full_product_kong, "kong", "CO2")
-is_pCO2 <- review_filter_var(full_product_is, "is", "CO2", "emissions")
+is_pCO2 <- review_filter_var(full_product_is, "is", "CO2", "emissions|tco2")
 stor_pCO2 <- review_filter_var(full_product_stor, "stor", "CO2", "emissions|tco2|fco2")
 young_pCO2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "CO2") # No pCO2 data
 disko_pCO2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "CO2", "fco2|tco2")
@@ -581,7 +587,7 @@ review_summary_plot(summary_pCO2, "pCO2")
 # - PO4 vs [PO4]3-
 
 # Get all nutrient data
-kong_nutrients <- review_filter_var(full_product_kong, "kong", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "stddev", 
+kong_nutrients <- review_filter_var(full_product_kong, "kong", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "stddev|stephos", 
                                     var_precise = c("[NO3]- + [NO2]- [µmol/l]", "PO4 biog [%]"))
 is_nutrients <- review_filter_var(full_product_is, "is", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", var_precise = "PO4 biog [%]")
 stor_nutrients <- review_filter_var(full_product_stor, "stor", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
@@ -591,7 +597,7 @@ young_nutrients <- review_filter_var(rbind(full_product_young, young_GEM), "youn
 disko_nutrients <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
                                      var_precise = "[NO3]- + [NO2]- [µmol/l]")
 nuup_nutrients <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
-                                    var_precise = "[NO3]- + [NO2]- [µmol/l]")
+                                    "chlam", var_precise = "[NO3]- + [NO2]- [µmol/l]")
 por_nutrients <- review_filter_var(full_product_por, "por", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4") # No nutrient data
 clean_nutrients <- rbind(kong_nutrients, is_nutrients, stor_nutrients, young_nutrients, disko_nutrients, nuup_nutrients, por_nutrients) %>% 
   # Change GLODAP var_name to match PANGAEA standard 
@@ -625,7 +631,7 @@ is_chla <- review_filter_var(full_product_is, "is", "chl")
 stor_chla <- review_filter_var(full_product_stor, "stor", "chl") # No ChlA data
 young_chla <- review_filter_var(rbind(full_product_young, young_GEM), "young", "chl", "alpha|pm_|pp_|_frac|max|TOTAL")
 disko_chla <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "chl")
-nuup_chla <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "chl") # No ChlA data
+nuup_chla <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "chl", "chlam|macu")
 por_chla <- review_filter_var(full_product_por, "por", "chl") # No ChlA data
 clean_chla <- rbind(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla)
 rm(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla); gc()
@@ -647,7 +653,7 @@ as.vector(distinct(filter(nuup_GEM, var_type == "bio"), var_name))
 
 # Get all biomass variables
 kong_biomass <- filter(full_product_kong, var_type == "bio",
-                       !grepl("Zooplankton in Kongsfjorden|Phytoplankton Seasonal", citation)) %>%
+                       !grepl("zooplankton|phytoplankton", citation, ignore.case = T)) %>%
   mutate(site = "kong") %>% slice(0) # No biomass data
 is_biomass <- filter(full_product_is, var_type == "bio",
                      var_name == "P CO2 upt Vmax [µmol/kg/s]") %>% mutate(site = "is")
@@ -695,10 +701,13 @@ as.vector(distinct(filter(nuup_GEM, var_type == "bio"), var_name))
 kong_sp_ass <- filter(full_product_kong, var_type == "bio") %>% 
   filter(!grepl("Temperature, salinity, light", citation),
          !grepl("Marine biogeochemistry", citation)) %>% mutate(site = "kong")
-is_sp_ass <- filter(full_product_is, var_type == "bio") %>% mutate(site = "is") %>% slice(0) # No species data
+is_sp_ass <- filter(full_product_is, var_type == "bio") %>% 
+  filter(!var_name %in% c("P CO2 upt Vmax [µmol/kg/s]", "Chlorophyll A - 10um [µg/l]",
+                          "Chlorophyll A - GFF [µg/l]", "Phaeophytin - 10um [µg/l]", 
+                          "Phaeophytin - GFF [µg/l]")) %>% mutate(site = "is")
 stor_sp_ass <- filter(full_product_stor, var_type == "bio") %>% mutate(site = "stor") # No bio data
 young_sp_ass <- filter(rbind(full_product_young, young_GEM), var_type == "bio") %>% 
-  filter(grepl("Water Chlorophyll a", citation)) %>% mutate(site = "young")
+  filter(grepl("Phytoplankton", citation)) %>% mutate(site = "young")
 disko_sp_ass <- filter(rbind(full_product_disko, disko_GEM), var_type == "bio") %>% mutate(site = "disko") %>% slice(0) # No species data
 nuup_sp_ass <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "bio",
                       grepl("Species Composition", citation)) %>% mutate(site = "nuup")
