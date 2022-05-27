@@ -2680,7 +2680,7 @@ nuup_GEM_fish_larvae <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
   mutate(var_type = "bio",
          var_name = paste0(var_name," [individuals/m3]"),
          value = as.numeric(value),
-         lon = -20.55568835, lat = 74.47914496, depth = 0,
+         lon = -51.54838892, lat = 64.158611, depth = 0, # NB: Coordinates are the general estimate of Nuuk as proper coords not provided
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/SBG4-YH51",
          date_accessed = as.Date("2022-04-28"),
          citation = "Fish Larvae Species Composition (individuals/m3). Water column MarineBasis Nuuk. doi: 10.17897/SBG4-YH51") %>% 
@@ -2692,7 +2692,7 @@ nuup_GEM_Slat_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_
   dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - BIOMASS`) %>% 
   mutate(var_type = "bio",
          var_name = paste0("S. latissima blade growth (",LOCATION,") [g C/year]"),
-         lon = -20.55568835, lat = 74.47914496, depth = NA,
+         lon = -51.54838892, lat = 64.158611, depth = NA, # NB: Coordinates are the general estimate of Nuuk as proper coords not provided
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/EWVJ-KX92",
          date_accessed = as.Date("2022-04-28"),
          citation = "Leaf Growth of Saccharina latissima (g C/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/EWVJ-KX92") %>% 
@@ -2704,7 +2704,7 @@ nuup_GEM_Slat_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data
   dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - LENGTH`) %>%
   mutate(var_type = "bio",
          var_name = paste0("S. latissima blade growth (",LOCATION,") [cm/year]"),
-         lon = -20.55568835, lat = 74.47914496, depth = NA,
+         lon = -51.54838892, lat = 64.158611, depth = NA, # NB: Coordinates are the general estimate of Nuuk as proper coords not provided
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/TDEK-WQ82",
          date_accessed = as.Date("2022-04-28"),
          citation = "Leaf Growth of Saccharina latissima (cm/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/TDEK-WQ82") %>% 
