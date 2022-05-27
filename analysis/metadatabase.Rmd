@@ -771,18 +771,6 @@ kong_MASIE <- data.frame(type = "Remote",
                          reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
                          note = NA)
 
-# SOCAT
-kong_SOCAT <- data.frame(type = "Synthesis",
-                         data_name = "Partial pressure of CO2",
-                         date_range = "2008 - 2019",
-                         # lon_range = "11.0 - 12.3",
-                         # lat_range = "78.9 - 79.1",
-                         # depth_range = NA,
-                         # file_name = '<a onclick="alert(\'SOCAT_kong.RData\');">1 file</a>',
-                         URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
-                         reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
-                         note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
-
 # PANGAEA data product
 kong_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -815,7 +803,7 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_sea_ice_shp, kong_zoo_da
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
                                kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_bartsch, kong_hanelt, kong_TWICE,
                                kong_mooring_SAMS, kong_macroalgae, kong_benthic, kong_ship_arrivals, 
-                               kong_NOAA, kong_CCI, kong_MASIE, kong_SOCAT, kong_PG, full_product_kong)
+                               kong_NOAA, kong_CCI, kong_MASIE, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
@@ -1071,30 +1059,6 @@ is_MASIE <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
                        note = NA)
 
-# SOCAT
-is_SOCAT <- data.frame(type = "Synthesis",
-                       data_name = "Partial pressure of CO2",
-                       date_range = "1999 - 2020",
-                       # lon_range = "12.9 - 16.7",
-                       # lat_range = "78.0 - 78.6",
-                       # depth_range = "0 - 5",
-                       # file_name = '<a onclick="alert(\'SOCAT_is.RData\');">1 file</a>',
-                       URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
-                       reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
-                       note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
-
-# GLODAP
-is_GLODAP <- data.frame(type = "Bottle",
-                        data_name = "All chemistry drivers; seawater temperature: surface, mid, bottom; salinity",
-                        date_range = "1980 - 1999",
-                        # lon_range = "14.0 - 16.7",
-                        # lat_range = "78.1 - 78.6",
-                        # depth_range = "11 - 363",
-                        # file_name = '<a onclick="alert(\'GLODAP_is.RData\');">1 file</a>',
-                        URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.glodap.info">GLODAP</a>',
-                        reference = '<a onclick="alert(\'Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2\');">2 Citations</a>',
-                        note = NA)
-
 # PANGAEA data product
 is_PG <- data.frame(type = "PANGAEA",
                     data_name = "Many",
@@ -1123,7 +1087,7 @@ full_product_is <- data.frame(type = "FACE-IT",
 metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, 
                             is_CO2_tempelfjorden, is_IsA_CO2, is_IsA_Chla, is_IsA_light, is_IsA_bio, is_BAB_bio, is_zoo,
                             is_met_radio, is_met_airport, is_met_pyramiden, is_social, is_AIS, is_ship_arrivals, is_NOAA,
-                            is_CCI, is_MASIE, is_SOCAT, is_GLODAP, is_PG, full_product_is)
+                            is_CCI, is_MASIE, is_PG, full_product_is)
 ```
 
 ```{r isfjorden-meta-data-table}
@@ -1219,30 +1183,6 @@ stor_MASIE <- data.frame(type = "Remote",
                          reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
                          note = NA)
 
-# SOCAT
-stor_SOCAT <- data.frame(type = "Synthesis",
-                         data_name = "Partial pressure of CO2",
-                         date_range = "1999",
-                         # lon_range = "18.2 - 20.7",
-                         # lat_range = "77.3 - 78.1",
-                         # depth_range = "0 - 5",
-                         # file_name = '<a onclick="alert(\'SOCAT_stor.RData\');">1 file</a>',
-                         URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
-                         reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
-                         note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
-
-# GLODAP
-stor_GLODAP <- data.frame(type = "Bottle",
-                          data_name = "All chemistry drivers; seawater temperature: surface, mid, bottom; salinity",
-                          date_range = "1999 - 2002",
-                          # lon_range = "18.0 - 21.1",
-                          # lat_range = "77.3 - 78.1",
-                          # depth_range = "3 - 177",
-                          # file_name = '<a onclick="alert(\'GLODAP_stor.RData\');">1 file</a>',
-                          URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.glodap.info">GLODAP</a>',
-                          reference = '<a onclick="alert(\'Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2\');">2 Citations</a>',
-                          note = NA)
-
 # PANGAEA data product
 stor_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -1267,8 +1207,8 @@ full_product_stor <- data.frame(type = "FACE-IT",
                                 reference = '<a onclick="alert(\'full_product_stor.csv/.RData\');">See citation column</a>',
                                 note = "93 files from the EU, Svalbard, and Storfjorden")
 # Bind them together
-metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_NOAA, stor_CCI, stor_MASIE,
-                       stor_SOCAT, stor_GLODAP, stor_PG, full_product_stor)
+metadata_stor <- rbind(ingle_cryo, ingle_CTD, ingle_plankton, stor_PAR, stor_NOAA, stor_CCI, stor_MASIE, 
+                       stor_PG, full_product_stor)
 ```
 
 ```{r storfjorden-meta-data-table}
@@ -1877,30 +1817,6 @@ disko_MASIE <- data.frame(type = "Remote",
                           reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
                           note = NA)
 
-# SOCAT
-disko_SOCAT <- data.frame(type = "Synthesis",
-                          data_name = "Partial pressure of CO2",
-                          date_range = "2015 - 2019",
-                          # lon_range = "-54.2 - -52.9",
-                          # lat_range = "68.2 - 68.8",
-                          # depth_range = NA,
-                          # file_name = '<a onclick="alert(\'SOCAT_disko.RData\');">1 file</a>',
-                          URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
-                          reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016\');">Bakker et al. (2016)</a>',
-                          note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
-
-# GLODAP
-disko_GLODAP <- data.frame(type = "Bottle",
-                           data_name = "All chemistry drivers; seawater temperature: surface, mid, bottom; salinity",
-                           date_range = "2004 - 2015",
-                           # lon_range = "-55.5 - -51.2",
-                           # lat_range = "68.4 - 69.5",
-                           # depth_range = "1 - 867",
-                           # file_name = '<a onclick="alert(\'GLODAP_disko.RData\');">1 file</a>',
-                           URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.glodap.info">GLODAP</a>',
-                           reference = '<a onclick="alert(\'Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2\');">2 Citations</a>',
-                           note = NA)
-
 # PANGAEA data product
 disko_PG <- data.frame(type = "PANGAEA",
                        data_name = "Many",
@@ -1928,7 +1844,7 @@ full_product_disko <- data.frame(type = "FACE-IT",
 # Bind them together
 metadata_disko_bay <- rbind(disko_air_temp_2m, disko_air_temp_7m, disko_precip, disko_air_press,  disko_swr, disko_CTD_water, 
                             disko_CTD_cruise, disko_historic_ts, disko_snow1, disko_snow2, disko_gmb, disko_glacier_ice, 
-                            disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_MASIE, disko_SOCAT, disko_GLODAP, 
+                            disko_CTD_ChlA, disko_NOAA, disko_CCI, disko_MASIE,
                             disko_PG, full_product_disko)
 ```
 
@@ -2214,18 +2130,6 @@ nuup_MASIE <- data.frame(type = "Remote",
                          reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
                          note = NA)
 
-# SOCAT
-nuup_SOCAT <- data.frame(type = "Synthesis",
-                         data_name = "Partial pressure of CO2",
-                         date_range = "2015 - 2020",
-                         # lon_range = "-53.2 - -51.6",
-                         # lat_range = "64.0 - 64.8",
-                         # depth_range = NA,
-                         # file_name = '<a onclick="alert(\'SOCAT_nuup.RData\');">1 file</a>',
-                         URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
-                         reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
-                         note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
-
 # PANGAEA data product
 nuup_PG <- data.frame(type = "PANGAEA",
                       data_name = "Many",
@@ -2255,7 +2159,7 @@ metadata_nuup <- rbind(nuup_air_temp_2m, nuup_air_temp_10m, nuup_air_temp_2m_Kob
                        nuup_CTD, nuup_phyto_abundance, nuup_Chla, nuup_prim_prod, nuup_fish_larvae, nuup_Slat_g, nuup_Slat_cm,
                        nuup_Anod_g, nuup_Anod_cm, nuup_phosphate, nuup_silicate, nuup_nitrate_nitrite,
                        nuup_Kingigtorssuaq, nuup_Kobbefjord, nuup_Oriartorfik, nuup_Teqinngalip, nuup_snow,
-                       nuup_NOAA, nuup_CCI, nuup_MASIE, nuup_SOCAT, nuup_PG, full_product_nuup)
+                       nuup_NOAA, nuup_CCI, nuup_MASIE, nuup_PG, full_product_nuup)
 ```
 
 ```{r nuup-meta-data-table}
@@ -2405,18 +2309,6 @@ por_MASIE <- data.frame(type = "Remote",
                         reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
                         note = NA)
 
-# SOCAT
-por_SOCAT <- data.frame(type = "Synthesis",
-                        data_name = "Partial pressure of CO2",
-                        date_range = "2016 - 2020",
-                        # lon_range = "24.5 - 27.0",
-                        # lat_range = "70.3 - 71.2",
-                        # depth_range = "0 - 5",
-                        # file_name = '<a onclick="alert(\'SOCAT_por.RData\');">1 file</a>',
-                        URL = '<a target="_blank" rel="noopener noreferrer" href=https://www.socat.info">SOCAT</a>',
-                        reference = '<a onclick="alert(\'Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.\');">Bakker et al. (2016)</a>',
-                        note = '<a onclick="alert(\'The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.\');"> Acknowledgement</a>')
-
 # PANGAEA data product
 por_PG <- data.frame(type = "PANGAEA",
                      data_name = "Many",
@@ -2443,7 +2335,7 @@ full_product_por <- data.frame(type = "FACE-IT",
 
 # Bind them together
 metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, 
-                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_NOAA, por_CCI, por_MASIE, por_SOCAT, 
+                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_NOAA, por_CCI, por_MASIE,
                                    por_PG, full_product_por)
 ```
 
