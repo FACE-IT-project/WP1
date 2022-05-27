@@ -43,6 +43,12 @@ ice_coords_4km <- tidync::tidync("~/pCloudDrive/FACE-IT_data/ice/MASIE_4km/masie
 # Code from Bernard Gentili
 ## Code to be adapted to convert MASIE data to a cartesian grid
 # Main program
+# My zone of interest : lon-lat
+zone0 <- c(8.2,12.7,78.7,79.4)
+# I increase the zone by 0.3 degree (lon and lat) to be sure that my zone of interest will be covered
+add2zone <- c(0.3, 0.3)
+zone <- c(zone0[1] - add2zone[1],zone0[2] + add2zone[1],zone0[3] - add2zone[2],zone0[4] + add2zone[2])
+# Print info
 cat("limits", zone0, "\n")
 cat("enlarged limits", zone, "\n")
 # first call to function epsg3996_to_4326
@@ -50,7 +56,7 @@ cat("enlarged limits", zone, "\n")
 # make a correspondance between indices and lon-lat coordinates
 ind <- epsg3996_to_4326(by = 100, GETz = FALSE, zone = NULL, ind = NULL)
 # second call to function epsg3996_to_4326 : I take all the points within my enlarged zone
-dum <- epsg3996_to_4326(by = 1, GETz = TRUE, zone = zone, ind = ind)
+dum <- epsg3996_to_4326(by = 100, GETz = TRUE, zone = zone, ind = ind)
 write.table(file = "depth.dat", dum, row.names = FALSE, col.names = FALSE)
 
 # rasterization

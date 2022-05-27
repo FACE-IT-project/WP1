@@ -340,9 +340,39 @@ sval_MOSJ_glacier_mass <- bind_rows(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_e
 rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, sval_MOSJ_kronebreen, sval_MOSJ_midtre); gc()
 
 # Glacier mass balance from Nature publication
-## NB: Need to convert coords from UTM 33N
+## NB: Need to convert coords from UTM 33N - EPSG:32633
 ## https://www.nature.com/articles/s41586-021-04314-4#data-availability
-sval_Nature_glacier_mass <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/Geyman_et_al_Svalbard_glacier_data_final.csv", skip = 1)
+sval_Nature_glacier_mass_base <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/Geyman_et_al_Svalbard_glacier_data_final.csv", skip = 1)
+sval_Nature_glacier_mass_latlon <- convert_epsg(x = sval_Nature_glacier_mass_base$X_center, 
+                                                y = sval_Nature_glacier_mass_base$Y_center, epsg1 = "epsg:32633")
+sval_Nature_glacier_mass <- left_join(sval_Nature_glacier_mass_base, sval_Nature_glacier_mass_latlon, 
+                                      by = c("X_center" = "x", "Y_center" = "y")) %>% 
+  dplyr::select(lon, lat, isTidewater:`mass_change_method2_oneSigma_1990_2010 (kg)`) %>% 
+  pivot_longer(isTidewater:`mass_change_method2_oneSigma_1990_2010 (kg)`, names_to = "var_name") %>% 
+  mutate(var_name = gsub("\\(m)", "[m]", var_name),
+         var_name = gsub("\\(degree days)", "[degree days]", var_name),
+         var_name = gsub("\\(mwe yr-1)", "[mwe/yr]", var_name),
+         var_name = gsub("\\(m yr-1)", "[m/yr]", var_name),
+         var_name = gsub("\\(m2)", "[m^2]", var_name),
+         var_name = gsub("\\(m3)", "[m^3]", var_name),
+         var_name = gsub("\\(kg)", "[kg]", var_name),
+         var_name = gsub("\\(C)", "[°C]", var_name),
+         date = case_when(grepl("_1936 ", var_name) ~ as.Date("1936-12-31"),
+                          grepl("_1957 ", var_name) ~ as.Date("1957-12-31"),
+                          grepl("_1990 ", var_name) ~ as.Date("1990-12-31"),
+                          grepl("_2010 ", var_name) ~ as.Date("1936-12-31"),
+                          grepl("_2100_", var_name) ~ as.Date("2100-12-31"),
+                          grepl("slope_1936", var_name) ~ as.Date("1936-12-31"),
+                          grepl("slope_1990", var_name) ~ as.Date("1990-12-31"),
+                          grepl("slope_2010", var_name) ~ as.Date("2010-12-31"),
+                          grepl("1990_with", var_name) ~ as.Date("1990-12-31"),
+                          grepl("2010_with", var_name) ~ as.Date("2010-12-31")),
+         URL = "https://data.npolar.no/dataset/f6afca5c-6c95-4345-9e52-cfe2f24c7078",
+         citation = "Geyman, E., van Pelt, W., Maloof, A., Aas, H. F., & Kohler, J. (2021). 1936/1938 DEM of Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.f6afca5c",
+         var_type = "cryo", depth = NA,
+         date_accessed = as.Date("2022-05-10")) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
+rm(sval_Nature_glacier_mass_base, sval_Nature_glacier_mass_latlon); gc()
 
 # Glacier area outlines
 # glacier_area/
@@ -597,7 +627,7 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value)
 
 # Combine and save
-full_product_sval <- rbind(sval_MOSJ_glacier_mass, #sval_Nature_glacier_mass, # Need to convert UTM to lon/lat
+full_product_sval <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
                            sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
                            sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) %>% 
   rbind(filter(full_product_EU, lon >= bbox_sval[1], lon <= bbox_sval[2], lat >= bbox_sval[3], lat <= bbox_sval[4])) %>% distinct()

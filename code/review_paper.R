@@ -464,14 +464,16 @@ review_summary_plot(summary_snow, "snow")
 
 ## Glacier -----------------------------------------------------------------
 
+# NB: Chose not to get many variables from Geyman et al. 2021
+
 # Test check for all cryo vars to make sure no glacier vars are missed
-as.vector(distinct(filter(full_product_por, var_type == "cryo"), var_name))
+as.vector(distinct(filter(full_product_stor, var_type == "cryo"), var_name))
 as.vector(distinct(filter(nuup_GEM, var_type == "cryo"), var_name))
 
 # Get all glacier variables
-kong_glacier <- review_filter_var(full_product_kong, "kong", "balance|glacier")
-is_glacier <- review_filter_var(full_product_is, "is", "balance|glacier")
-stor_glacier <- review_filter_var(full_product_stor, "stor", "balance|glacier")
+kong_glacier <- review_filter_var(full_product_kong, "kong", "balance|glacier|area|volume|slope")
+is_glacier <- review_filter_var(full_product_is, "is", "balance|glacier|area|volume|slope")
+stor_glacier <- review_filter_var(full_product_stor, "stor", "balance|glacier|area|volume|slope")
 young_glacier <- review_filter_var(rbind(full_product_young, young_GEM), "young", "balance|glacier|ablation")
 disko_glacier <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "balance|glacier|ablation")
 nuup_glacier <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "glac", "poro")
