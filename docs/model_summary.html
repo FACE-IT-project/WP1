@@ -11,11 +11,10 @@
 
 <meta name="author" content="Robert Schlegel" />
 
-<meta name="date" content="2022-04-21" />
 
 <title>Summary of model data for FACE-IT study sites</title>
 
-<script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -416,7 +415,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Summary of model data for FACE-IT study sites</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">21 April 2022</h4>
+<h4 class="date">27 mai 2022</h4>
 
 </div>
 
@@ -441,7 +440,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-04-21
+<strong>Last updated:</strong> 2022-05-27
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -532,16 +531,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree8035d41ab77da3af7fdb6d029d94c06f60a98243targetblank8035d41a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/8035d41ab77da3af7fdb6d029d94c06f60a98243" target="_blank">8035d41</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree8035d41ab77da3af7fdb6d029d94c06f60a98243targetblank8035d41a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/8035d41ab77da3af7fdb6d029d94c06f60a98243" target="_blank">8035d41</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -550,10 +549,20 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    code/ny-alesund_cc_pf_rws.R
+    Ignored:    data/MUR/
+    Ignored:    data/full_data/
+    Ignored:    data/model/
+    Ignored:    data/pg_data/
+    Ignored:    data/restricted/
+    Ignored:    data/sst_CCI_sval.RData
+    Ignored:    data/sst_CCI_trom.RData
+    Ignored:    data/sst_gland.RData
+    Ignored:    data/sst_sval.RData
     Ignored:    data/sst_trom.RData
     Ignored:    metadata/pangaea_parameters.tab
-    Ignored:    mhw-definition_1_orig.xcf
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
+    Ignored:    shiny/dataAccess/full_data
     Ignored:    shiny/kongCTD/data_base.Rds
     Ignored:    shiny/test_data/
 
@@ -594,6 +603,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/b32f47e5721c1ff6c449910c9050d101408e42f8/docs/model_summary.html" target="_blank">b32f47e</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2022-04-21
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -1201,21 +1227,21 @@ First pass at model summary page
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.1.3 (2022-03-10)
+<pre><code>R version 4.2.0 (2022-04-22)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 20.04.4 LTS
+Running under: Ubuntu 18.04.6 LTS
 
 Matrix products: default
-BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
-LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_CA.UTF-8        LC_COLLATE=en_GB.UTF-8    
- [5] LC_MONETARY=en_CA.UTF-8    LC_MESSAGES=en_GB.UTF-8   
- [7] LC_PAPER=en_CA.UTF-8       LC_NAME=C                 
+ [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=en_GB.UTF-8    
+ [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+ [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C                 
  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C       
+[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
@@ -1224,16 +1250,16 @@ other attached packages:
 [1] workflowr_1.7.0
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.8.3     bslib_0.3.1      compiler_4.1.3   pillar_1.7.0    
- [5] later_1.3.0      git2r_0.30.1     jquerylib_0.1.4  tools_4.1.3     
+ [1] Rcpp_1.0.8.3     bslib_0.3.1      compiler_4.2.0   pillar_1.7.0    
+ [5] later_1.3.0      git2r_0.30.1     jquerylib_0.1.4  tools_4.2.0     
  [9] getPass_0.2-2    digest_0.6.29    jsonlite_1.8.0   evaluate_0.15   
 [13] tibble_3.1.6     lifecycle_1.0.1  pkgconfig_2.0.3  rlang_1.0.2     
-[17] cli_3.2.0        rstudioapi_0.13  yaml_2.3.5       xfun_0.30       
-[21] fastmap_1.1.0    httr_1.4.2       stringr_1.4.0    knitr_1.38      
-[25] sass_0.4.1       fs_1.5.2         vctrs_0.4.0      rprojroot_2.0.3 
+[17] cli_3.3.0        rstudioapi_0.13  yaml_2.3.5       xfun_0.30       
+[21] fastmap_1.1.0    httr_1.4.2       stringr_1.4.0    knitr_1.39      
+[25] sass_0.4.1       fs_1.5.2         vctrs_0.4.1      rprojroot_2.0.3 
 [29] glue_1.6.2       R6_2.5.1         processx_3.5.3   fansi_1.0.3     
-[33] rmarkdown_2.13   callr_3.7.0      magrittr_2.0.3   whisker_0.4     
-[37] ps_1.6.0         promises_1.2.0.1 htmltools_0.5.2  ellipsis_0.3.2  
+[33] rmarkdown_2.14   callr_3.7.0      magrittr_2.0.3   whisker_0.4     
+[37] ps_1.7.0         promises_1.2.0.1 htmltools_0.5.2  ellipsis_0.3.2  
 [41] httpuv_1.6.5     utf8_1.2.2       stringi_1.7.6    crayon_1.5.1    </code></pre>
 </div>
 </div>
