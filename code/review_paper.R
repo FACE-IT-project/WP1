@@ -376,12 +376,12 @@ ice_4km_por_proc <- ice_4km_por %>%
 # quick_plot_ice(ice_4km_young_proc, pixel_size = 20)
 
 # Sea ice proportion cover change over time
-ice_4km_prop <- plyr::ddply(rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
-                                  ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc), 
-                            c("site"), ice_cover_prop, .parallel = T)
-rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
-   ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
-   ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc); gc()
+ice_4km_proc <- rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
+                      ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc)
+ice_4km_prop <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
+# rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
+#    ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
+#    ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc); gc()
 
 # Calculate trends
 ice_4km_trend <- plyr::ddply(dplyr::rename(ice_4km_prop, val = mean_prop), c("site", "month"), trend_calc, .parallel = T)
@@ -834,11 +834,80 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
                           lat = c(78.98, 78.235, 77.87, 77.78, 74.517, 69.36, 64.405, 70.6))
 
 # EU SST trends
+## NB: This file is very large, only load if necessary
+load("~/pCloudDrive/FACE-IT_data/EU_arctic/sst_EU_arctic.RData")
+sst_EU_arctic_annual <- sst_EU_arctic %>% 
+  mutate(year = lubridate::year(t)) %>% 
+  group_by(lon, lat, year) %>% 
+  summarise(temp_annual = mean(temp, na.rm = T), .groups = "drop")
+sst_EU_arctic_annual_trends <- plyr::ddply(dplyr::rename(sst_EU_arctic_annual, val = temp_annual), 
+                                           c("lon", "lat"), trend_calc, .parallel = T)
+save(sst_EU_arctic_annual_trends, file = "data/analyses/sst_EU_arctic_annual_trends.RData")
+
+# Per pixels ice cover trends
+ice_4km_annual_prop <- ice_4km_proc %>% 
+  filter(sea_ice_extent == 3,
+         date <= "2021-12-31") %>% 
+  mutate(sea_ice_extent = 1) %>% # Convert to binary yes/no
+  group_by(site, lon, lat) %>% 
+  # complete(date = seq.Date(min(date), max(date), by = "day")) %>% 
+  complete(date = seq.Date(as.Date("2006-01-01"), as.Date("2021-12-31"), by = "day")) %>% # NB: Only works with 4km data time series
+  ungroup() %>% 
+  replace(is.na(.), 0) %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  group_by(site, lon, lat, year) %>% 
+  summarise(annual_ice_cover_days = sum(sea_ice_extent), .groups = "drop")
+
+# Per pixel annual trends in ice cover days
+ice_4km_annual_trends <- plyr::ddply(dplyr::rename(ice_4km_annual_prop, val = annual_ice_cover_days), 
+                                     c("site", "lon", "lat"), trend_calc, .parallel = T)
+save(ice_4km_annual_trends, file = "data/analyses/ice_4km_annual_trends.RData")
+
+# rasterization
+lon <- dum[[1]]
+lat <- dum[[2]]
+z <- dum[[3]]
+# This is to calculate the number of rows and columns of the raster
+# I try to be close to the initial resolution (200m for IBCAO)
+# but a little more in order not to have empty cells;
+# so I take a mean value of 250m for the size of the raster cell
+dlon <- diff(range(lon))
+dlat <- diff(range(lat))
+dlon_meters <- floor(dlon * 1.e5 * cos(mean(lat) * pi / 180))
+dlat_meters <- floor(dlat * 1.e5)
+dcell_meters <- 250
+nrows <- floor(dlat_meters / dcell_meters)
+ncols <- floor(dlon_meters / dcell_meters)
+# the raster (void)
+depth_rasterized <- raster(nrows = nrows, ncols = ncols, xmn = min(lon), xmx = max(lon), ymn = min(lat), ymx = max(lat))
+# use of rasterize function from raster package
+depth_rasterized <- rasterize(cbind(lon, lat), depth_rasterized, z)
+
+jpeg(file = "depth.jpg", width = 500, height = 900)
+par(mfrow = c(2, 1))
+
+# plot with the rectangle of my zone of interest
+plot(depth_rasterized)
+polygon(c(zone0[1], zone0[1], zone0[2], zone0[2]), c(zone0[3], zone0[4], zone0[4], zone0[3]), border = 1, lwd = 4)
+# I crop my zone of interest
+depth_rasterized <- crop(depth_rasterized, extent(zone0))
+# dump raster to file
+writeRaster(filename = "depth.grd", depth_rasterized, overwrite = TRUE)
+
+# some controls
+cat("mean area of cells", mean(values(area(depth_rasterized))), "")
+cat("  should be close to", dcell_meters**2 * 1.e-6, "\n")
+v <- values(depth_rasterized)
+cat("number of cells", length(v), "NA-values", length(which(is.na(v))), "percentage of NA-values", 100 * length(which(is.na(v))) / length(v), "%\n")
+# plot of the final raster (my zone of interest)
+plot(depth_rasterized)
+
+dev.off()
 
 # Top panel: polar projection of SST trends
 map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
   annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
-  geom_spatial_rect(data = , crs = 4326) +
+  geom_spatial_rect(data = sst_EU_arctic_annual_trends, aes(fill = trend), crs = 4326) +
   geom_spatial_point(data = site_points[-3,], size = 9, crs = 4326,
                      aes(x = lon, y = lat), colour = "black") +
   geom_spatial_point(data = site_points[-3,], size = 8, crs = 4326,
@@ -853,8 +922,13 @@ map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
         legend.box.background = element_rect(fill = "white", colour = "black"))
 map_full
 
-# Side panels: ice cover trends by site
-
+# Side panels: ice cover trends by site (days of year of ice cover)
+site_choice <- "is"
+ice_sub <- ice_4km_annual_trends %>% 
+  filter(site == site_choice) %>%
+  ggplot(aes(x = lon, y = lat)) +
+  geom_point(aes(colour = trend, x = lon, y = lat))
+ice_sub
 
 
 # Figure 2 ----------------------------------------------------------------
