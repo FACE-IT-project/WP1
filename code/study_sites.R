@@ -9,8 +9,6 @@
 # Norway: Porsangerfjorden (PF), Finnmark: Lis Lindal Jørgensen
 
 # Search the literature for the necessary bounding boxes and transects
-# Isfjorden needs to be extended to the east
-# Add the bathymetry data from JP to the young sound bounding box
 
 # Maps per study site that are more zoomed out and show the coordinates labelled per corner of
 # the bounding boxes so it is more clear within what lon/lat confines the data are desired for

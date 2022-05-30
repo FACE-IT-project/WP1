@@ -823,6 +823,39 @@ ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 
 # Map of the study area that also manages to show SST, ice cover, and any other well covered drivers 
 
+# EU bbox
+bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
+
+# Study sites
+site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta", "Storfjorden", 
+                                   "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                   "Porsangerfjorden"),
+                          lon = c(11.845, 14.365, 18.31, 19.88, -21.237, -52.555, -50.625, 25.75),
+                          lat = c(78.98, 78.235, 77.87, 77.78, 74.517, 69.36, 64.405, 70.6))
+
+# EU SST trends
+
+# Top panel: polar projection of SST trends
+map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
+  annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
+  geom_spatial_rect(data = , crs = 4326) +
+  geom_spatial_point(data = site_points[-3,], size = 9, crs = 4326,
+                     aes(x = lon, y = lat), colour = "black") +
+  geom_spatial_point(data = site_points[-3,], size = 8, crs = 4326,
+                     aes(x = lon, y = lat, colour = site)) +
+  labs(title = "Region and study sites",
+       colour = "Site",
+        x  = NULL, y = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA),
+        legend.position = c(0.948, 0.29),
+        # legend.margin = margin(10, 10, 10, 10),
+        legend.box.margin = margin(10, 10, 10, 10), 
+        legend.box.background = element_rect(fill = "white", colour = "black"))
+map_full
+
+# Side panels: ice cover trends by site
+
+
 
 # Figure 2 ----------------------------------------------------------------
 
