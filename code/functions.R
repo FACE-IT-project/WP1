@@ -210,6 +210,37 @@ convert_epsg <- function(x, y, epsg1, epsg2 = "epsg:4326") {
   return(data.frame(x = points.df$y, y = points.df$x, lon = lon, lat = lat)) # Intentionally swapping x and y
 }
 
+# Function for converting uneven lon/lat coords to an even grid for plotting
+# df <- filter(ice_4km_annual_trends, site == "kong")
+# z_col <- "trend"; pixel_res <- 1000
+convert_even_grid <- function(df, z_col, pixel_res){
+  
+  # Base info
+  lon <- df$lon; lat <- df$lat; z <- df[,which(colnames(df) == z_col)]
+  
+  # Calculate the number of rows and columns of the raster
+  dlon <- diff(range(lon))
+  dlat <- diff(range(lat))
+  dlon_meters <- floor(dlon * 1.e5 * cos(mean(lat) * pi / 180))
+  dlat_meters <- floor(dlat * 1.e5)
+  dcell_meters <- pixel_res
+  nrows <- floor(dlat_meters / dcell_meters)
+  ncols <- floor(dlon_meters / dcell_meters)
+  z_rasterized <- raster(nrows = nrows, ncols = ncols, xmn = min(lon), xmx = max(lon), ymn = min(lat), ymx = max(lat))
+  z_rasterized <- rasterize(cbind(lon, lat), z_rasterized, z)
+  
+  # Info
+  cat("mean area of cells", mean(values(area(z_rasterized))), "")
+  cat("    should be close to", dcell_meters**2 * 1.e-6, "\n")
+  v <- values(z_rasterized)
+  cat("number of cells", length(v), "NA-values", length(which(is.na(v))), "percentage of NA-values", 100 * length(which(is.na(v))) / length(v), "%\n")
+  
+  # Convert to data.frame and exit
+  z_df <- as.data.frame(z_rasterized, xy = TRUE) %>% 
+    `colnames<-`(c("lon", "lat", "z"))
+  return(z_df)
+}
+
 # Convenience function for getting bbox from site name
 bbox_from_name <- function(site_name){
   # get correct bounding box
@@ -1607,20 +1638,23 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
   df_monthly <- filter_object %>%
     filter(!is.na(date)) %>% # This needs to be attended to eventually
     group_by(var_name) %>% 
-    mutate(date_round = lubridate::round_date(date, "month"),
+    mutate(date_round = lubridate::floor_date(date, "month"),
            median_value = median(value, na.rm = T),
            # Filter low salinity values. 24 based on the base data before filtering.
            value = case_when(median_value > 30 & value < 24 ~ as.numeric(NA), TRUE ~ value)) %>% 
-    group_by(site, type, var_name, date_round) %>%
+    group_by(site, type, var_group, date_round) %>%
+    mutate(count_days_group = length(unique(date))) %>% 
+    group_by(site, type, var_type, var_group, var_name, date_round, count_days_group) %>%
     summarise(value_mean = round(mean(value, na.rm = T), 2),
               value_median = round(median(value, na.rm = T), 2),
               value_min = round(min(value, na.rm = T), 2),
               value_max = round(max(value, na.rm = T), 2),
               count = n(), 
-              count_days = length(unique(date)), .groups = "drop") %>%
+              count_days_name = length(unique(date)), .groups = "drop") %>%
     dplyr::rename(date = date_round) %>% 
-    group_by(site, type, var_name) %>% 
-    complete(date = seq(min(date), max(date), by = "month"))
+    group_by(site, type, var_type, var_group, var_name) %>% 
+    complete(date = seq(min(date), max(date), by = "month")) %>% 
+    ungroup()
   
   # Summary data
   df_monthly_summary <- df_monthly %>% 
@@ -1704,7 +1738,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
   summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     mutate(month = lubridate::month(date)) %>% 
-    ggplot(aes(x = as.factor(month), y = count_days)) +
+    ggplot(aes(x = as.factor(month), y = count_days_name)) +
     geom_boxplot(aes(fill = site), position = "dodge", outlier.colour = NA) +
     geom_jitter(aes(colour = log10(count))) +
     scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
@@ -1715,7 +1749,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
   summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     ggplot(aes(x = date, y = log10(count), colour = site)) +
-    geom_point(aes(fill = count_days), shape = 21) + #geom_line(alpha = 0.1) + 
+    geom_point(aes(fill = count_days_name), shape = 21) + #geom_line(alpha = 0.1) + 
     stat_smooth(geom = "line", method = "lm", size = 3, linetype = "dashed", alpha = 0.3) +
     geom_smooth(data = filter(summary_list$monthly, date >= date_filter[1], date <= date_filter[2]), method = "lm", se = F) +
     # geom_jitter(aes(colour = log10(count))) +
@@ -1821,6 +1855,45 @@ quick_plot_ice <- function(df, pixel_size = 5){
     scale_colour_manual(values = ice_cover_colours, aesthetics = c("colour", "fill")) +
     labs(x = NULL, y = NULL, colour = "Pixel key") +
     theme(panel.background = element_blank())
+}
+
+# Function for converting ice data to an even grid before plotting
+# NB: This function expects lon/lat data not on an even grid
+ice_grid_plot <- function(df, pixel_res, coords, plot_title, lon_nudge = 0, lat_nudge = 0,
+                          z_col = "trend", check_conv = FALSE, lon_pad = 0, lat_pad = 0){
+
+  # Convert to even grid
+  df_even <- convert_even_grid(df, z_col = z_col, pixel_res = pixel_res) %>% na.omit() %>% 
+    mutate(lon = lon+lon_nudge, lat = lat+lat_nudge) # The rasterizing tends to skew towards the top left corner
+  
+  # Crop down 
+  coastline_full_df_sub <- coastline_full_df %>% 
+    filter(x >= coords[1]-lon_pad-10, x <= coords[2]+lon_pad+10,
+           y >= coords[3]-lat_pad-10, y <= coords[4]+lat_pad+10)
+  
+  # Plot
+  ice_plot <- ggplot(data = df_even, aes(x = lon, y = lat)) +
+    geom_tile(aes(fill = z, x = lon, y = lat)) +
+    geom_polygon(data = coastline_full_df_sub, fill = "grey70", colour = "black",
+                 aes(x = x, y = y, group = polygon_id)) +  
+    annotate("rect",  colour = "black", fill = NA, alpha = 0.1,
+             xmin = coords[1], xmax = coords[2], ymin = coords[3], ymax = coords[4]) +
+    scale_fill_distiller(palette = "Blues", direction = -1) +
+    labs(title = plot_title, fill = "Ice cover\ndays/year", x = NULL, y = NULL) +
+    coord_quickmap(expand = F,
+                   xlim = c(coords[1]-lon_pad, coords[2]+lon_pad), 
+                   ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
+    theme(panel.border = element_rect(fill = NA, colour = "black"),
+          panel.background = element_rect(fill = "black"),
+          legend.position = "bottom")
+  if(check_conv){
+    ice_plot <- ice_plot +
+      geom_point(data = df, size = 4, colour = "black") +
+      geom_point(data = df, size = 3, aes(colour = trend)) +
+      scale_colour_distiller(palette = "Blues", direction = -1) +
+      labs(colour = "Original\ndata")
+  }
+  return(ice_plot)
 }
 
 # Ice prop function

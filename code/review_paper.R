@@ -25,6 +25,15 @@ ice_cover_colours <- c(
   "exclude" = "gold"
 )
 
+# Key driver category colours
+driver_cat_colours <- c(
+  "cryo" = "mintcream",
+  "phys" = "skyblue",
+  "chem" = "#F6EA7C",
+  "bio" = "#A2ED84",
+  "soc" = "#F48080"
+)
+
 
 # Data --------------------------------------------------------------------
 
@@ -205,7 +214,8 @@ clean_SST <- rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, p
                          TRUE ~ URL),
          citation = case_when(type == "CCI" ~ "Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.",
                               type == "OISST" ~ "Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1",
-                              TRUE ~ citation)) %>% 
+                              TRUE ~ citation),
+         var_group = "SST") %>% 
   filter(depth >= 0)
 rm(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST); gc()
 
@@ -224,13 +234,14 @@ review_summary_plot(summary_SST, "temp")
 
 # Get air temperature for all sites
 kong_air <- review_filter_var(full_product_kong, "kong", "air|temp|°C|TTT", 
-                              "SST|co2|intern|tequ|f_|p_|par_|temp_|interp|_ctd|_sf|MAGT|MAT|MAAT|T air", # We want T air but it requires processing before this step
+                              "SST|co2|intern|tequ|f_|p_|par_|temp_|interp|_ctd|_sf|MAGT|MAT|MAAT|mean_|T air", # We want T air but it requires processing before this step
                               var_precise = "Temp [°C]", atmos = T) %>% filter(is.na(depth) | depth < 0) %>% 
   filter(URL != "https://doi.org/10.1594/PANGAEA.882432", URL != "https://doi.org/10.1594/PANGAEA.839802") %>% add_depth()
-is_air <- review_filter_var(full_product_is, "is", "air|temp|°C|TTT", "SST|tequ|intern|bulb|pressure|MAGT|MAAT|MAT|T cal|T tech|T air",  
-                                      var_precise = c("Temp [°C]", "t [°C]"), atmos = T) %>% 
+is_air <- review_filter_var(full_product_is, "is", "air|temp|°C|TTT", 
+                            "SST|tequ|intern|bulb|pressure|MAGT|MAAT|MAT|T cal|T tech|mean_|T air|T sum|T win",  
+                            var_precise = c("Temp [°C]", "t [°C]"), atmos = T) %>% 
   filter(is.na(depth) | depth < 0) %>% add_depth()
-stor_air <- review_filter_var(full_product_stor, "stor", "air|temp|°C", "SST|Tmax",
+stor_air <- review_filter_var(full_product_stor, "stor", "air|temp|°C", "SST|Tmax|mean_",
                               var_precise = c("Temp [°C]", "t [°C]"), atmos = T) %>% 
   filter(is.na(depth) | depth < 0) %>% add_depth()
 young_air <- review_filter_var(full_product_young, "young", "air|temp|°C", "MAGT|MAAT", var_precise = "Temp [°C]", atmos = T) %>% 
@@ -244,7 +255,7 @@ por_air <- review_filter_var(full_product_por, "por", "air|temp|°C", "SST|tequ|
   filter(is.na(depth) | depth < 0) %>% add_depth()
 
 # Combined cleaned data
-clean_air <- rbind(kong_air, is_air, stor_air, young_air, disko_air, nuup_air, por_air)
+clean_air <- rbind(kong_air, is_air, stor_air, young_air, disko_air, nuup_air, por_air) %>% mutate(var_group = "Air temp")
 rm(kong_air, is_air, stor_air, young_air, disko_air, nuup_air, por_air); gc()
 
 # Summary analyses
@@ -273,7 +284,8 @@ young_sal <- review_filter_var(rbind(full_product_young, young_GEM), "young", "s
 disko_sal <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "sal|PSU", "sal interp")
 nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "sal|PSU", "sal interp|acu|ent")
 por_sal <- review_filter_var(full_product_por, "por", "sal|PSU", "Sal interp")
-clean_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal) %>% mutate(var_name = "sal")
+clean_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal) %>%
+  mutate(var_name = "sal", var_group = "Salinity")
 rm(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal); gc()
 
 # Summary analyses
@@ -296,7 +308,8 @@ disko_PAR <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "P
 ## NB: Some of these values are also very high
 nuup_PAR <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "PAR", "trip|vella|sulc|lip|lib|parv")
 por_PAR <- review_filter_var(full_product_por, "por", "PAR") # No PAR data
-clean_PAR <- rbind(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR) %>% mutate(var_name = "PAR [µmol m-2 s-1]")
+clean_PAR <- rbind(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR) %>% 
+  mutate(var_name = "PAR [µmol m-2 s-1]", var_group = "PAR")
 rm(kong_PAR, is_PAR, stor_PAR, young_PAR, disko_PAR, nuup_PAR, por_PAR); gc()
 
 # Summary analyses
@@ -334,7 +347,7 @@ disko_sea_ice <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo"
 nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %>% mutate(site = "nuup") %>% slice(0) # No sea ice data
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "por")
 clean_sea_ice <- rbind(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice) %>% 
-  mutate(type = "in situ")
+  mutate(type = "in situ", var_group = "Ice vars")
 rm(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice); gc()
 
 # Figures
@@ -401,6 +414,7 @@ ice_4km_trend_long <- ice_4km_trend %>%
 ice_4km_stats <- bind_rows(ice_4km_prop_long, ice_4km_trend_long) %>% 
   mutate(type = "remote",
          var_type = "cryo",
+         var_group = "Ice vars",
          date_accessed = as.Date("2022-04-26"),
          URL = "https://doi.org/10.7265/N5GT5K3K",
          citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.")
@@ -452,7 +466,8 @@ young_snow <- filter(rbind(full_product_young, young_GEM), var_type == "cryo",
 disko_snow <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo", grepl("snow", var_name, ignore.case = T)) %>% mutate(site = "disko") # Snow depth and snow line
 nuup_snow <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo", grepl("snow", var_name, ignore.case = T)) %>% mutate(site = "nuup") # Snow depth
 por_snow <- filter(full_product_por, var_type == "cryo") %>% mutate(site = "por") %>% slice(0) # No snow data
-clean_snow <- bind_rows(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow) %>% mutate(type = "in situ")
+clean_snow <- bind_rows(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow) %>% 
+  mutate(type = "in situ", var_group = "Snow vars")
 rm(kong_snow, is_snow, stor_snow, young_snow, disko_snow, nuup_snow, por_snow); gc()
 
 # Summary analyses
@@ -478,7 +493,8 @@ young_glacier <- review_filter_var(rbind(full_product_young, young_GEM), "young"
 disko_glacier <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "balance|glacier|ablation")
 nuup_glacier <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "glac", "poro")
 por_glacier <- review_filter_var(full_product_por, "por", "balance|glac") # No glacier data
-clean_glacier <- rbind(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier)
+clean_glacier <- rbind(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier) %>% 
+  mutate(var_group = "Glacier vars")
 rm(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier); gc()
 
 # Summary analyses
@@ -526,7 +542,8 @@ clean_O2 <- rbind(kong_O2, is_O2, stor_O2, young_O2, disko_O2, nuup_O2, por_O2) 
                               var_name %in% c("oxygen a [mg/l]") ~ "O2 a [mg/l]",
                               var_name %in% c("oxygen b [mg/l]") ~ "O2 b [mg/l]",
                               var_name %in% c("oxygen [ml/l]") ~ "O2 [ml/l]",
-                              TRUE ~ var_name))
+                              TRUE ~ var_name),
+         var_group = "O2")
 rm(kong_O2, is_O2, stor_O2, young_O2, disko_O2, nuup_O2, por_O2); gc()
 
 # Summary analyses
@@ -556,7 +573,8 @@ young_pCO2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "
 disko_pCO2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "CO2", "fco2|tco2")
 nuup_pCO2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "CO2")
 por_pCO2 <- review_filter_var(full_product_por, "por", "CO2")
-clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2)
+clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2) %>% 
+  mutate(var_group = "pCO2")
 rm(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2); gc()
 
 # Summary analyses
@@ -607,7 +625,8 @@ clean_nutrients <- rbind(kong_nutrients, is_nutrients, stor_nutrients, young_nut
                               var_name == "nitrite [μmol kg-1]" ~ "NO2 [µmol/l]",   
                               var_name == "silicate [μmol kg-1]" ~ "SiO4 [µmol/l]",
                               var_name == "phosphate [μmol kg-1]" ~ "PO4 [µmol/l]",
-                              TRUE ~ var_name)); unique(clean_nutrients$var_name)
+                              TRUE ~ var_name),
+         var_group = "Nutrients"); unique(clean_nutrients$var_name)
 rm(kong_nutrients, is_nutrients, stor_nutrients, young_nutrients, disko_nutrients, nuup_nutrients, por_nutrients); gc()
 
 # Summary analyses
@@ -635,7 +654,8 @@ young_chla <- review_filter_var(rbind(full_product_young, young_GEM), "young", "
 disko_chla <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "chl")
 nuup_chla <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "chl", "chlam|macu")
 por_chla <- review_filter_var(full_product_por, "por", "chl") # No ChlA data
-clean_chla <- rbind(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla)
+clean_chla <- rbind(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla) %>% 
+  mutate(var_group = "ChlA")
 rm(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla); gc()
 
 # Summary analyses
@@ -669,7 +689,7 @@ nuup_biomass <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "bio",
                        !grepl("fluor|Chl a", var_name)) %>% mutate(site = "nuup") # Should filter some of the tip growth data
 por_biomass <- filter(full_product_por, var_type == "bio") %>% mutate(site = "por") # No bio data
 clean_biomass <- rbind(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass) %>% 
-  mutate(type = "in situ")
+  mutate(type = "in situ", var_group = "Biomass")
 rm(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass); gc()
 
 # Summary analyses
@@ -715,7 +735,7 @@ nuup_sp_ass <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "bio",
                       grepl("Species Composition", citation)) %>% mutate(site = "nuup")
 por_sp_ass <- filter(full_product_por, var_type == "bio") %>% mutate(site = "por") # No bio data
 clean_sp_ass <- rbind(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass) %>% 
-  mutate(type = "in situ")
+  mutate(type = "in situ", var_group = "Species")
 rm(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass); gc()
 
 # Summary analyses
@@ -724,7 +744,7 @@ rm(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass,
 # Rather converting them to count data in order to apply the same analyses as for the other variables
 summary_sp_ass <- clean_sp_ass %>% 
   filter(value != 0) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, site, type) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_group, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
   mutate(var_name = "sps_count") %>% 
   review_summary()
@@ -743,7 +763,8 @@ young_social <- filter(rbind(full_product_young, young_GEM), var_type == "soc") 
 disko_social <- filter(rbind(full_product_disko, disko_GEM), var_type == "soc") %>% mutate(site = "disko") # No social data
 nuup_social <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "soc") %>% mutate(site = "nuup") # No social data
 por_social <- filter(full_product_por, var_type == "soc") %>% mutate(site = "por") # No social data
-clean_social <- bind_rows(kong_social, is_social, stor_social, young_social, disko_social, nuup_social, por_social) %>% mutate(type = "in situ")
+clean_social <- bind_rows(kong_social, is_social, stor_social, young_social, disko_social, nuup_social, por_social) %>% 
+  mutate(type = "in situ", var_group = "Social vars")
 rm(kong_social, is_social, stor_social, young_social, disko_social, nuup_social, por_social); gc()
 
 # Summary analyses
@@ -768,25 +789,23 @@ plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
 ## References --------------------------------------------------------------
 
 # NB: Check for N-ICE and remove if present
+all_ref <- bind_rows(summary_ice$citations, summary_snow$citations, summary_glacier$citations,
+                 summary_SST$citations, summary_air$citations, summary_sal$citations, summary_PAR$citations,
+                 summary_O2$citations, summary_pCO2$citations, summary_nutrients$citations, 
+                 summary_chla$citations, summary_biomass$citations, summary_sp_ass$citations, 
+                 summary_social$citations)
+save(all_ref, file = "data/analyses/all_ref.RData")
 
 
 ## Summary -----------------------------------------------------------------
 
 # Combine analysed data
-all_meta <- rbind(mutate(summary_SST$monthly, var_group = "SST"),
-                  mutate(summary_air$monthly, var_group = "Air temp"),
-                  mutate(summary_sal$monthly, var_group = "Salinity"),
-                  mutate(summary_PAR$monthly, var_group = "PAR"),
-                  mutate(summary_ice$monthly, var_group = "Ice vars"),
-                  mutate(summary_snow$monthly, var_group = "Snow vars"),
-                  mutate(summary_glacier$monthly, var_group = "Glacier vars"),
-                  mutate(summary_O2$monthly, var_group = "O2"),
-                  mutate(summary_pCO2$monthly, var_group = "pCO2"),
-                  mutate(summary_nutrients$monthly, var_group = "Nutrients"),
-                  mutate(summary_chla$monthly, var_group = "ChlA"), 
-                  mutate(summary_biomass$monthly, var_group = "Biomass"),
-                  mutate(summary_sp_ass$monthly, var_group = "Species"),
-                  mutate(summary_social$monthly, var_group = "Social vars"))
+all_meta <- rbind(summary_ice$monthly, summary_snow$monthly, summary_glacier$monthly,
+                  summary_SST$monthly, summary_air$monthly, summary_sal$monthly, summary_PAR$monthly,
+                  summary_O2$monthly, summary_pCO2$monthly, summary_nutrients$monthly, 
+                  summary_chla$monthly, summary_biomass$monthly, summary_sp_ass$monthly, 
+                  summary_social$monthly)
+save(all_meta, file = "data/analyses/all_meta.RData")
 
 all_meta %>% 
   filter(!is.na(value_mean)) %>% 
@@ -838,14 +857,15 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
 
 # EU SST trends
 ## NB: This file is very large, only load if necessary
-load("~/pCloudDrive/FACE-IT_data/EU_arctic/sst_EU_arctic.RData")
-sst_EU_arctic_annual <- sst_EU_arctic %>% 
-  mutate(year = lubridate::year(t)) %>% 
-  group_by(lon, lat, year) %>% 
-  summarise(temp_annual = mean(temp, na.rm = T), .groups = "drop")
-sst_EU_arctic_annual_trends <- plyr::ddply(dplyr::rename(sst_EU_arctic_annual, val = temp_annual), 
-                                           c("lon", "lat"), trend_calc, .parallel = T)
-save(sst_EU_arctic_annual_trends, file = "data/analyses/sst_EU_arctic_annual_trends.RData")
+# load("~/pCloudDrive/FACE-IT_data/EU_arctic/sst_EU_arctic.RData")
+# sst_EU_arctic_annual <- sst_EU_arctic %>% 
+#   mutate(year = lubridate::year(t)) %>% 
+#   group_by(lon, lat, year) %>% 
+#   summarise(temp_annual = mean(temp, na.rm = T), .groups = "drop")
+# sst_EU_arctic_annual_trends <- plyr::ddply(dplyr::rename(sst_EU_arctic_annual, val = temp_annual), 
+#                                            c("lon", "lat"), trend_calc, .parallel = T)
+# save(sst_EU_arctic_annual_trends, file = "data/analyses/sst_EU_arctic_annual_trends.RData")
+load("data/analyses/sst_EU_arctic_annual_trends.RData")
 
 # Per pixels ice cover trends
 ice_4km_annual_prop <- ice_4km_proc %>% 
@@ -862,50 +882,17 @@ ice_4km_annual_prop <- ice_4km_proc %>%
   summarise(annual_ice_cover_days = sum(sea_ice_extent), .groups = "drop")
 
 # Per pixel annual trends in ice cover days
-ice_4km_annual_trends <- plyr::ddply(dplyr::rename(ice_4km_annual_prop, val = annual_ice_cover_days), 
-                                     c("site", "lon", "lat"), trend_calc, .parallel = T)
-save(ice_4km_annual_trends, file = "data/analyses/ice_4km_annual_trends.RData")
+# NB: This takes a while to run, better to just load the results
+# ice_4km_annual_trends <- plyr::ddply(dplyr::rename(ice_4km_annual_prop, val = annual_ice_cover_days), 
+#                                      c("site", "lon", "lat"), trend_calc, .parallel = T)
+# save(ice_4km_annual_trends, file = "data/analyses/ice_4km_annual_trends.RData")
+load("data/analyses/ice_4km_annual_trends.RData")
 
-# rasterization
-lon <- dum[[1]]
-lat <- dum[[2]]
-z <- dum[[3]]
-# This is to calculate the number of rows and columns of the raster
-# I try to be close to the initial resolution (200m for IBCAO)
-# but a little more in order not to have empty cells;
-# so I take a mean value of 250m for the size of the raster cell
-dlon <- diff(range(lon))
-dlat <- diff(range(lat))
-dlon_meters <- floor(dlon * 1.e5 * cos(mean(lat) * pi / 180))
-dlat_meters <- floor(dlat * 1.e5)
-dcell_meters <- 250
-nrows <- floor(dlat_meters / dcell_meters)
-ncols <- floor(dlon_meters / dcell_meters)
-# the raster (void)
-depth_rasterized <- raster(nrows = nrows, ncols = ncols, xmn = min(lon), xmx = max(lon), ymn = min(lat), ymx = max(lat))
-# use of rasterize function from raster package
-depth_rasterized <- rasterize(cbind(lon, lat), depth_rasterized, z)
+# Remove one suspect pixel in Disko Bay
+ice_4km_annual_trends <- filter(ice_4km_annual_trends, trend < 10)
 
-jpeg(file = "depth.jpg", width = 500, height = 900)
-par(mfrow = c(2, 1))
-
-# plot with the rectangle of my zone of interest
-plot(depth_rasterized)
-polygon(c(zone0[1], zone0[1], zone0[2], zone0[2]), c(zone0[3], zone0[4], zone0[4], zone0[3]), border = 1, lwd = 4)
-# I crop my zone of interest
-depth_rasterized <- crop(depth_rasterized, extent(zone0))
-# dump raster to file
-writeRaster(filename = "depth.grd", depth_rasterized, overwrite = TRUE)
-
-# some controls
-cat("mean area of cells", mean(values(area(depth_rasterized))), "")
-cat("  should be close to", dcell_meters**2 * 1.e-6, "\n")
-v <- values(depth_rasterized)
-cat("number of cells", length(v), "NA-values", length(which(is.na(v))), "percentage of NA-values", 100 * length(which(is.na(v))) / length(v), "%\n")
-# plot of the final raster (my zone of interest)
-plot(depth_rasterized)
-
-dev.off()
+# Convert ice data to an even grid for plotting
+ice_4km_annual_trends_grid <- plyr::ddply(ice_4km_annual_trends, c("site"), convert_even_grid, z_col = "trend", pixel_res = 4000)
 
 # Top panel: polar projection of SST trends
 fig_1_a <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
@@ -937,14 +924,20 @@ fig_1_a <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
 fig_1_a$layers <- fig_1_a$layers[c(2,1,3,4,5)] # Reorder land shape and SST rasters
 ggsave("~/Desktop/anlyses_output/fig_1_a.png", fig_1_a, width = 10, height = 7)
 
-
 # Side panels: ice cover trends by site (days of year of ice cover)
-site_choice <- "is"
-ice_sub <- ice_4km_annual_trends %>% 
-  filter(site == site_choice) %>%
-  ggplot(aes(x = lon, y = lat)) +
-  geom_point(aes(colour = trend, x = lon, y = lat))
-ice_sub
+(fig_1_b_kong <- ice_grid_plot(filter(ice_4km_annual_trends, site == "kong"), 3000, bbox_kong, "Kongsfjorden", check_conv = F, lat_nudge = 0.01))
+(fig_1_b_is <- ice_grid_plot(filter(ice_4km_annual_trends, site == "is"), 4000, bbox_is, "Isfjorden", check_conv = F, lon_nudge = -0.01, lat_nudge = 0.02))
+(fig_1_b_stor <- ice_grid_plot(filter(ice_4km_annual_trends, site == "stor"), 4000, bbox_stor, "Storfjorden", check_conv = F, lat_nudge = 0.01, lon_nudge = -0.02))
+(fig_1_b_young <- ice_grid_plot(filter(ice_4km_annual_trends, site == "young"), 4000, bbox_young, "Young Sound", check_conv = F, lon_nudge = 0.01, lat_nudge = 0.02))
+(fig_1_b_disko <- ice_grid_plot(filter(ice_4km_annual_trends, site == "disko"), 5000, bbox_disko, "Disko Bay", check_conv = F))
+(fig_1_b_nuup <- ice_grid_plot(filter(ice_4km_annual_trends, site == "nuup"), 5000, bbox_nuup, "Nuup Kangerlua", check_conv = F, lon_nudge = -0.04))
+(fig_1_b_por <- ice_grid_plot(filter(ice_4km_annual_trends, site == "por"), 5000, bbox_por, "Porsangerfjorden", check_conv = F, lon_nudge = -0.04, lat_nudge = 0.0))
+
+# Combine
+fig_1_b_left <- ggpubr::ggarrange(fig_1_b_young, fig_1_b_disko, fig_1_b_nuup, ncol = 1)
+fig_1_b_right <- ggpubr::ggarrange(fig_1_b_kong, fig_1_b_is, fig_1_b_stor, fig_1_b_por, ncol = 1)
+fig_1 <- ggpubr::ggarrange(fig_1_b_left, fig_1_a, fig_1_b_right, ncol = 3, widths = c(0.25, 1, 0.25))
+ggsave("figures/fig_1.png", fig_1, width = 30, height = 15)
 
 
 # Figure 2 ----------------------------------------------------------------
@@ -952,4 +945,38 @@ ice_sub
 # Metadata figure showing the coverage of the key drivers
 # This should concisely show how many datasets/points are available for each key drivers and site
 # But one should be cautious about focussing too much on the sites
+load("data/analyses/all_meta.RData")
+load("data/analyses/all_ref.RData") # NB: Must add data sources to this output
+
+# Filter out remote products
+all_meta_insitu <- filter(all_meta, type == "in situ") %>% 
+  mutate(month = lubridate::month(date), 
+         site = factor(site, levels = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
+                       labels = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
+                                  "Young Sound", "Disko Bay", "Nuup Kangelrua",
+                                  "Porsangerfjorden")))
+
+# Create bar plot for each category
+fig_2_plot <- function(var_filter, var_title){
+  fig_2_panel <- ggplot(data = filter(all_meta_insitu, var_type == var_filter)) +
+    geom_boxplot(aes(x = as.factor(month), y = count_days_group, colour = var_group, fill = var_type), outlier.colour = NA) +
+    scale_fill_manual(values = driver_cat_colours, aesthetics = "fill") +
+    facet_wrap(~site, nrow = 1) + guides(fill = "none") +
+    labs(x = "Month", y = "Unique days of measurement", title = var_title,
+         colour = "Driver group")
+  return(fig_2_panel)
+}
+fig_2_a <- fig_2_plot("cryo", "Cryosphere")
+fig_2_b <- fig_2_plot("phys", "Physical")
+fig_2_c <- fig_2_plot("chem", "Chemistry")
+fig_2_d <- fig_2_plot("bio", "Eco/biology")
+fig_2_e <- fig_2_plot("soc", "Social")
+
+# Combine
+fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, fig_2_c, fig_2_d, fig_2_e, ncol = 1, labels = c("A)", "B)", "C)", "D)", "E)"))
+ggsave("figures/fig_2.png", width = 15, height = 15)
+
+# Create table of sources for each category/group
+
+# Final figure
 
