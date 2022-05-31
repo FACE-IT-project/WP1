@@ -826,6 +826,9 @@ ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 # EU bbox
 bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 
+# EU Arctic land shapes
+coastline_Arctic <- filter(coastline_full_df, y > 50, x < 90, x > -90)
+
 # Study sites
 site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta", "Storfjorden", 
                                    "Young Sound", "Disko Bay", "Nuup Kangerlua", 
@@ -905,22 +908,35 @@ plot(depth_rasterized)
 dev.off()
 
 # Top panel: polar projection of SST trends
-map_full <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
-  annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
-  geom_spatial_rect(data = sst_EU_arctic_annual_trends, aes(fill = trend), crs = 4326) +
-  geom_spatial_point(data = site_points[-3,], size = 9, crs = 4326,
+fig_1_a <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
+  geom_spatial_tile(data = filter(sst_EU_arctic_annual_trends, lat >= 63), 
+                    crs = 4326, colour = NA,
+                    aes(fill = trend*10, x = lon, y = lat)) +
+  # Add spatial polygon to reintroduce the land shapefiles
+  # geom_spatial_polygon(data = coastline_full_df, crs = 4326, fill = "grey70", colour = "black",
+  #                      aes(x = x, y = y, group = polygon_id)) +
+  geom_spatial_point(data = site_points[-3,], size = 5, crs = 4326,
                      aes(x = lon, y = lat), colour = "black") +
-  geom_spatial_point(data = site_points[-3,], size = 8, crs = 4326,
+  geom_spatial_point(data = site_points[-3,], size = 4, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
+  annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
+  scale_colour_brewer(palette = "Set1") +
+  scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
   labs(title = "Region and study sites",
-       colour = "Site",
+       colour = "Site", fill = "Trend (°C/dec)",
         x  = NULL, y = NULL) +
   theme(panel.border = element_rect(colour = "black", fill = NA),
-        legend.position = c(0.948, 0.29),
+        # legend.position = c(0.948, 0.29),
+        legend.position = "bottom",
         # legend.margin = margin(10, 10, 10, 10),
-        legend.box.margin = margin(10, 10, 10, 10), 
+        legend.box.margin = margin(10, 10, 10, 10),
         legend.box.background = element_rect(fill = "white", colour = "black"))
-map_full
+# fig_1_a <- reorder_layers(map_full) # Put land back on top... doesn't work with the geoms
+# tmp <- sapply(fig_1_a$layers, function(k) !is.null(k$mapping$label)) # the layer with label mapping
+# fig_1_a$layers <- c(fig_1_a$layers[-which(tmp)], fig_1_a$layers[which(tmp)])
+fig_1_a$layers <- fig_1_a$layers[c(2,1,3,4,5)] # Reorder land shape and SST rasters
+ggsave("~/Desktop/anlyses_output/fig_1_a.png", fig_1_a, width = 10, height = 7)
+
 
 # Side panels: ice cover trends by site (days of year of ice cover)
 site_choice <- "is"
