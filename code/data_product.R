@@ -1199,8 +1199,8 @@ is_mooring_IFO <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO16
   mutate(units = case_when(units == "degree_Celsius" ~ "°C", TRUE ~ units),
          URL = "https://data.npolar.no/dataset/7718a106-5d13-42d9-bb79-1d2adf0f51c4",
          citation = "Skogseth, R., & Ellingsen, P. G. (2019). Mooring data from Isfjorden online mooring (IFO) during 30 Sep 2016 to 11 Mar 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.7718a106",
+         var_type = case_when(var_name %in% c("OXY", "OXYS") ~ "chem", TRUE ~ "phys"),
          var_name = paste0(var_name, " [", units,"]"),
-         var_type = "phys",
          date_accessed = as.Date("2021-04-15")) %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
   summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
@@ -2178,7 +2178,8 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
          date_accessed = as.Date("2021-10-20"),
          URL = "https://zenodo.org/record/4062024#.YW_TOJuxU5l",
          citation = "Carlson, Daniel F., Holding, Johnna M., Bendtsen, Jørgen, Markager, Stiig, Møller, Eva F., Meire, Lorenz, Rysgaard, Søren, Dalsgaard, Tage, & Sejr, Mikael K. (2020). CTD Profiles from the R/V Sanna cruise to Northwest Greenland fjords, August 11-31, 2016 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4062024",
-         var_type = case_when(TRUE ~ "phys"),
+         var_type = case_when(var_name %in% c("oxygen_sat", "oxygen_mmkg") ~ "chem", 
+                              var_name %in% c("chl_fluor") ~ "bio", TRUE ~ "phys"),
          units = case_when(units == "practical_salinity_units" ~ "PSU",
                            units == "degrees_Celsius" ~ "°C",
                            units == "mS_per_cm" ~ "mS/cm",

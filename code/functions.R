@@ -650,8 +650,8 @@ load_is_mooring <- function(file_name){
     filter(!is.na(value)) %>% 
     left_join(is_units, by = c("var_name" = "name")) %>% 
     mutate(units = case_when(units == "degree_Celsius" ~ "°C", TRUE ~ units),
+           var_type = case_when(var_name %in% c("OXY", "OXYS") ~ "chem", TRUE ~ "phys"),
            var_name = paste0(var_name, " [", units,"]"),
-           var_type = "phys",
            depth = round(depth, 2),
            date_accessed = as.Date("2021-04-15"),
            URL = is_ref_info$URL[is_ref_info$short_name == file_short], 
@@ -716,8 +716,8 @@ load_GFI <- function(file_name){
     left_join(GFI_units, by = c("var_name" = "name")) %>% 
     mutate(URL = FTP_URL,
            citation = GFI_citation,
+           var_type = case_when(var_name %in% c("oxy") ~ "chem", TRUE ~ "phys"),
            units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
-           var_type = "phys",
            var_name = paste0(var_name, " [", units,"]")) %>% 
     dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
   )
@@ -1687,8 +1687,32 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
               count = n(), .groups = "drop")
  
   # Citations
-  df_citations <- filter_object %>%  dplyr::select(site, citation) %>% distinct() %>% 
-    table(.) %>% data.frame() %>% pivot_wider(names_from = site, values_from = Freq)
+  df_source <- filter_object %>% 
+    dplyr::select(type, URL, citation) %>% distinct() %>% 
+    mutate(source = case_when(grepl("PANGAEA", URL) ~ "PANGAEA",
+                              grepl("data.npolar.no", URL) ~ "NPDC",
+                              grepl("/nmdc/", URL) ~ "NMDC",
+                              grepl("nmdc.no", URL) ~ "NMDC",
+                              grepl("dataverse.no", URL) ~ "NMDC",
+                              grepl("glodap.info", URL) ~ "GLODAP",
+                              grepl("socat.info", URL) ~ "SOCAT",
+                              grepl("zenodo.org", URL) ~ "Zenodo",
+                              grepl("g-e-m.dk", URL) ~ "GEM",
+                              grepl("mosj.no", URL) ~ "MOSJ",
+                              grepl("archive.sigma2.no", URL) ~ "NIRD",
+                              grepl("port.kingsbay.no", URL) ~ "Kings Bay",
+                              grepl("portlongyear.no", URL) ~ "Port of Longyearbyen",
+                              URL == "https://doi.org/10.7265/N5GT5K3K" ~ "NSIDC",
+                              grepl("thredds.met.no", URL) ~ "NMI",
+                              grepl("noaa.gov", URL) ~ "NOAA",
+                              grepl("dap.ceda.ac.uk", URL) ~ "CCI",
+                              grepl("Received directly from", URL) ~ "Author",
+                              grepl("File provided by", URL) ~ "Author",
+                              TRUE ~ URL)) %>% 
+    table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = source, values_from = Freq)
+  df_citations <- filter_object %>% dplyr::select(type, var_type, site, URL, citation) %>% distinct() %>% 
+    table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = site, values_from = Freq) %>% 
+    left_join(df_source, by = c("type", "URL", "citation"))
   
   # Combine and exit
   res_list <- list(monthly = df_monthly,
@@ -1696,7 +1720,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
                    clim = df_monthly_clim,
                    citations = df_citations)
   return(res_list)
-  # rm(filter_object, trend_dates, df_monthly, df_monthly_trend, df_monthly_clim, df_citations, res_list); gc() # testing
+  # rm(filter_object, trend_dates, df_monthly, df_monthly_trend, df_monthly_clim, df_source, df_citations, res_list); gc() # testing
 }
 
 # Convenience plotting function

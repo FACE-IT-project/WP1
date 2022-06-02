@@ -15,6 +15,7 @@
 # Setup -------------------------------------------------------------------
 
 source("code/functions.R")
+library(ggpmisc)
 
 # Ice cover colours
 ice_cover_colours <- c(
@@ -215,7 +216,7 @@ clean_SST <- rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, p
          citation = case_when(type == "CCI" ~ "Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.",
                               type == "OISST" ~ "Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1",
                               TRUE ~ citation),
-         var_group = "SST") %>% 
+         var_group = "Sea temp") %>% 
   filter(depth >= 0)
 rm(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST); gc()
 
@@ -506,6 +507,9 @@ review_summary_plot(summary_glacier, "glacier")
 # Grab glacier values directly from EU or Svalbard products for certainty
 # Look for specific DOI in each site file
 
+## River discahrge --------------------------------------------------------
+
+
 
 ## Oxygen -----------------------------------------------------------------
 
@@ -517,11 +521,12 @@ as.vector(distinct(filter(nuup_GEM, var_type == "chem"), var_name))
 # oxy [1] is "Fractional saturation of oxygen in sea water" 
 # ncdump::NetCDF("/home/robert/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S/1841_RCM_464_QC.nc")
 # Contacted Johnna (2022-05-24) about the difference between corrected and uncorrected 02 in Young Sound
+# Confirmed with Johnna Holding (2022-06-01) that 'oxygen_corrected_umol_kg' are the better values to use
 # It is unclear what Oxygen a and b are: https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61
 kong_O2 <- review_filter_var(full_product_kong, "kong", "O2|ox|02", "pc|no|amph|tel|rhis")
 is_O2 <- review_filter_var(full_product_is, "is", "O2|ox|02", "tonnes|pc|no|tc|vmax")
 stor_O2 <- review_filter_var(full_product_stor, "stor", "O2|ox|02", "tonnes|pc|no|tc|fc")
-young_O2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "O2|ox|02", "no|pc|favella")
+young_O2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "O2|ox|02", "no|pc|favella|oxygen_umol_kg")
 disko_O2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "O2|ox|02", "pc|no|tc|fc") # a and b values are odd
 nuup_O2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "O2|ox|02", "pc|no|cox|myox")
 por_O2 <- review_filter_var(full_product_por, "por", "O2|ox|02", "pc") # No O2 data
@@ -532,9 +537,9 @@ clean_O2 <- rbind(kong_O2, is_O2, stor_O2, young_O2, disko_O2, nuup_O2, por_O2) 
   # create standardised names
   mutate(var_name = case_when(var_name %in% c("oxygen [µmol/l]") ~ "O2 [µmol/l]",
                               var_name %in% c("oxygen [μmol kg-1]", "oxygen_umol_kg [µmol kg-1]", 
-                                              "oxygen_umol_kg [µmol kg-1]", "oxygen [µmol/kg]") ~ "O2 [µmol/kg]",
+                                              "oxygen_umol_kg [µmol kg-1]", "oxygen [µmol/kg]",
+                                              "oxygen_corrected_umol_kg [µmol kg-1]") ~ "O2 [µmol/kg]",
                               var_name %in% c("oxygen_mmkg [mmol/kg]") ~ "O2 [mmol/kg]",
-                              var_name %in% c("oxygen_corrected_umol_kg [µmol kg-1]") ~ "O2 [µmol/kg; corrected]",
                               var_name %in% c("O2 sat [%]", "OXYS [1]", "oxygen_sat [%]", "oxygen [% sat]") ~ "O2 [% sat]",
                               var_name %in% c("diss_oxygen [mg/l]" ) ~ "O2 [mg/l]",
                               var_name %in% c("OXY [mol m-3]") ~ "O2 [mol/m^3]",
@@ -636,7 +641,7 @@ summary_nutrients <- review_summary(filter(clean_nutrients, depth >= 0, depth <=
 review_summary_plot(summary_nutrients, "nutrients")
 
 
-## ChlA --------------------------------------------------------------------
+## Chla --------------------------------------------------------------------
 
 # "For phytoplankton, clear symptoms of climate change, such as prolongation of the growing season, are evident and can be explained by the warming, but otherwise climate effects vary from species to species and area to area."
 # "A 15-year study (2000–2014) using FerryBox observations, covering the area between Helsinki (Gulf of Finland) and Travemünde (Mecklenburg Bight), confirmed that spring bloom intensity was mainly determined by winter nutrient concentration, while bloom timing and duration co-varied with meteorological conditions." 
@@ -655,7 +660,7 @@ disko_chla <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "
 nuup_chla <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "chl", "chlam|macu")
 por_chla <- review_filter_var(full_product_por, "por", "chl") # No ChlA data
 clean_chla <- rbind(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla) %>% 
-  mutate(var_group = "ChlA")
+  mutate(var_group = "Chla")
 rm(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla); gc()
 
 # Summary analyses
@@ -790,10 +795,10 @@ plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
 
 # NB: Check for N-ICE and remove if present
 all_ref <- bind_rows(summary_ice$citations, summary_snow$citations, summary_glacier$citations,
-                 summary_SST$citations, summary_air$citations, summary_sal$citations, summary_PAR$citations,
-                 summary_O2$citations, summary_pCO2$citations, summary_nutrients$citations, 
-                 summary_chla$citations, summary_biomass$citations, summary_sp_ass$citations, 
-                 summary_social$citations)
+                     summary_SST$citations, summary_air$citations, summary_sal$citations, summary_PAR$citations,
+                     summary_O2$citations, summary_pCO2$citations, summary_nutrients$citations, 
+                     summary_chla$citations, summary_biomass$citations, summary_sp_ass$citations, 
+                     summary_social$citations)
 save(all_ref, file = "data/analyses/all_ref.RData")
 
 
@@ -858,11 +863,12 @@ site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta
 # EU SST trends
 ## NB: This file is very large, only load if necessary
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/sst_EU_arctic.RData")
-# sst_EU_arctic_annual <- sst_EU_arctic %>% 
-#   mutate(year = lubridate::year(t)) %>% 
-#   group_by(lon, lat, year) %>% 
+# sst_EU_arctic_annual <- sst_EU_arctic %>%
+#   mutate(year = lubridate::year(t)) %>%
+#   filter(year <= 2021) %>% 
+#   group_by(lon, lat, year) %>%
 #   summarise(temp_annual = mean(temp, na.rm = T), .groups = "drop")
-# sst_EU_arctic_annual_trends <- plyr::ddply(dplyr::rename(sst_EU_arctic_annual, val = temp_annual), 
+# sst_EU_arctic_annual_trends <- plyr::ddply(dplyr::rename(sst_EU_arctic_annual, val = temp_annual),
 #                                            c("lon", "lat"), trend_calc, .parallel = T)
 # save(sst_EU_arctic_annual_trends, file = "data/analyses/sst_EU_arctic_annual_trends.RData")
 load("data/analyses/sst_EU_arctic_annual_trends.RData")
@@ -946,7 +952,6 @@ ggsave("figures/fig_1.png", fig_1, width = 30, height = 15)
 # This should concisely show how many datasets/points are available for each key drivers and site
 # But one should be cautious about focussing too much on the sites
 load("data/analyses/all_meta.RData")
-load("data/analyses/all_ref.RData") # NB: Must add data sources to this output
 
 # Filter out remote products
 all_meta_insitu <- filter(all_meta, type == "in situ") %>% 
@@ -958,13 +963,33 @@ all_meta_insitu <- filter(all_meta, type == "in situ") %>%
 
 # Create bar plot for each category
 fig_2_plot <- function(var_filter, var_title){
-  fig_2_panel <- ggplot(data = filter(all_meta_insitu, var_type == var_filter)) +
-    geom_boxplot(aes(x = as.factor(month), y = count_days_group, colour = var_group, fill = var_type), outlier.colour = NA) +
-    scale_fill_manual(values = driver_cat_colours, aesthetics = "fill") +
-    facet_wrap(~site, nrow = 1) + guides(fill = "none") +
-    labs(x = "Month", y = "Unique days of measurement", title = var_title,
-         colour = "Driver group")
-  return(fig_2_panel)
+  
+  # Calculate mean stats
+  df_mean <- filter(all_meta_insitu, var_type == var_filter) %>% 
+    mutate(month = as.factor(month),
+           var_group = as.factor(var_group)) %>% 
+    group_by(site, month, var_group) %>% 
+    summarise(mean_count_days_group = mean(count_days_group, na.rm = T),
+              sd_count_days_group = sd(count_days_group, na.rm = T), .groups = "drop")
+
+  # get all levels
+  df_full <- expand(df_mean, site, month, var_group) %>% 
+    left_join(df_mean, by = c("site", "month", "var_group")) %>% 
+    replace(is.na(.), 0)
+  
+  # Plot
+  fig_2_panel <- ggplot(data = df_full, aes(x = as.factor(month), y =  mean_count_days_group)) +
+    # geom_boxplot(aes(x = as.factor(month), y = mean_count_days_group, fill = var_group), outlier.colour = NA) +
+    # geom_point() +
+    geom_col(position = "dodge", colour = "black", aes(fill = var_group)) +
+    # geom_errorbar(position = dodge, 
+    #               aes(ymin = mean_count_days_group-sd_count_days_group, ymax = mean_count_days_group+sd_count_days_group)) +
+    # scale_fill_manual(values = driver_cat_colours, aesthetics = "fill") +
+    facet_wrap(~site, nrow = 1) + #guides(fill = "none") +
+    scale_y_continuous(limits = c(0, 31), expand = c(0, 0)) +
+    labs(x = "Month", y = "Unique days of measurement", 
+         title = var_title, fill = "Driver group")
+  fig_2_panel
 }
 fig_2_a <- fig_2_plot("cryo", "Cryosphere")
 fig_2_b <- fig_2_plot("phys", "Physical")
@@ -976,7 +1001,60 @@ fig_2_e <- fig_2_plot("soc", "Social")
 fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, fig_2_c, fig_2_d, fig_2_e, ncol = 1, labels = c("A)", "B)", "C)", "D)", "E)"))
 ggsave("figures/fig_2.png", width = 15, height = 15)
 
-# Create table of sources for each category/group
 
-# Final figure
+# Table 1 -----------------------------------------------------------------
+
+# Create table of sources for each category/group
+load("data/analyses/all_ref.RData") # NB: Must add data sources to this output
+
+# Pivot wider to get var_type
+all_ref_var_type <- all_ref %>% 
+  distinct() %>% 
+  mutate(var_type_count = 1) %>% 
+  pivot_wider(id_cols = c(type, URL, citation), names_from = var_type, values_from = var_type_count, values_fn = mean)
+
+# Combine
+all_ref_wide <- all_ref %>% 
+  left_join(all_ref_var_type, by = c("type", "URL", "citation")) %>% 
+  dplyr::select(-var_type) %>% distinct() %>% 
+  filter(type == "in situ") # Remove non in situ sources
+
+# Get summaries by site
+table_1_func <- function(site_name, site_long){
+  # site_col <- colnames(all_ref_wide)[which(colnames(all_ref_wide) == site_name)]
+  # df_sub <- all_ref_wide
+  site_name <- enquo(site_name)
+  df_ref <- all_ref_wide %>% 
+    filter(!is.na(!!site_name)) %>% 
+    dplyr::select(-type, -URL, -citation) %>% 
+    summarise_all(sum, na.rm = T) %>% 
+    mutate(Site = site_long) %>% 
+    dplyr::select(Site, !!site_name, cryo:soc, PANGAEA, NPDC, GEM, NMDC, NSIDC:`Port of Longyearbyen`)
+  colnames(df_ref)[2] <- "Total"
+  return(df_ref)
+}
+
+# Final table
+table_1_kong <- table_1_func(kong, "Kongsfjorden")
+table_1_is <- table_1_func(is, "Isfjorden")
+table_1_stor <- table_1_func(stor, "Storfjorden")
+table_1_young <- table_1_func(young, "Young Sound")
+table_1_disko <- table_1_func(disko, "Disko Bay")
+table_1_nuup <- table_1_func(nuup, "Nuup Kangerlua")
+table_1_por <- table_1_func(por, "Porsangerfjorden")
+table_1 <- rbind(table_1_kong, table_1_is, table_1_stor, table_1_young, table_1_disko, table_1_nuup, table_1_por) %>% 
+  mutate(Other = Reduce("+",.[12:23])) %>% 
+  dplyr::select(Site:NMDC, Other)
+write_csv(table_1, "data/analyses/table_1.csv")
+knitr::kable(table_1)
+table_1_plot <- ggplot() +
+  annotate(geom = "table", x = 0, y = 0, label = list(table_1)) +
+  theme_void()
+ggsave("figures/table_1.png", table_1_plot, width = 6.2, height = 1.55)
+
+# Some acronyms:
+# "NSIDC" = National Snow & Ice Data Center
+# "NMDC" = Norwegian Marine Data Centre
+# "NMI" = Norwegian Meteorological Institute
+# "NIRD" = National Infrastructure for Research Data
 
