@@ -1636,7 +1636,8 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
   
   # Monthly averages
   df_monthly <- filter_object %>%
-    filter(!is.na(date)) %>% # This needs to be attended to eventually
+    filter(!is.na(date), # This needs to be attended to eventually
+           !is.na(value)) %>% 
     group_by(var_name) %>% 
     mutate(date_round = lubridate::floor_date(date, "month"),
            median_value = median(value, na.rm = T),

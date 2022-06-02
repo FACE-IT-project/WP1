@@ -39,6 +39,7 @@ driver_cat_colours <- c(
 # Data --------------------------------------------------------------------
 
 # FACE-IT collected data
+load("~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData") # Some social data don't make it into the smaller files
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
@@ -758,26 +759,63 @@ summary_sp_ass <- clean_sp_ass %>%
 review_summary_plot(summary_sp_ass, "sp_ass")
 
 
-## Social ------------------------------------------------------------------
+## Tourism ----------------------------------------------------------------
 
-# See sea ice section for notes on curious variables
-kong_social <- filter(full_product_kong, var_type == "soc") %>% mutate(site = "kong")
-is_social <- filter(full_product_is, var_type == "soc") %>% mutate(site = "is")
-stor_social <- filter(full_product_stor, var_type == "soc") %>% mutate(site = "stor")
-young_social <- filter(rbind(full_product_young, young_GEM), var_type == "soc") %>% mutate(site = "young") # No social data
-disko_social <- filter(rbind(full_product_disko, disko_GEM), var_type == "soc") %>% mutate(site = "disko") # No social data
-nuup_social <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "soc") %>% mutate(site = "nuup") # No social data
-por_social <- filter(full_product_por, var_type == "soc") %>% mutate(site = "por") # No social data
-clean_social <- bind_rows(kong_social, is_social, stor_social, young_social, disko_social, nuup_social, por_social) %>% 
-  mutate(type = "in situ", var_group = "Social vars")
-rm(kong_social, is_social, stor_social, young_social, disko_social, nuup_social, por_social); gc()
+# Test check for all soc vars to make sure no desired vars are missed
+as.vector(distinct(filter(full_product_por, var_type == "soc"), var_name))
+as.vector(distinct(filter(nuup_GEM, var_type == "soc"), var_name))
+
+# Get tourism variables
+kong_tourism <- review_filter_var(full_product_kong, "kong", "Tourist")
+is_tourism <- review_filter_var(full_product_is, "is", "calls|Days in port|passengers") %>% 
+  bind_rows(review_filter_var(full_product_sval, "is", "Longyearbyen|arrival|guest night"))
+stor_tourism <- review_filter_var(full_product_stor, "stor", "touris") # No tourism data
+young_tourism <- review_filter_var(rbind(full_product_young, young_GEM), "young", "tour") # No tourism data
+disko_tourism <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "tour") # No tourism data
+nuup_tourism <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "tour") # No tourism data
+por_tourism <- review_filter_var(full_product_por, "por", "tour") # No tourism data
+clean_tourism <- rbind(kong_tourism, is_tourism, stor_tourism, young_tourism, disko_tourism, nuup_tourism, por_tourism) %>% 
+  mutate(var_group = "Tourism")
+rm(kong_tourism, is_tourism, stor_tourism, young_tourism, disko_tourism, nuup_tourism, por_tourism); gc()
 
 # Summary analyses
-summary_social <- review_summary(clean_social)
+summary_tourism <- review_summary(clean_tourism)
 
 # Plot results
-# NB: This is a bit pointless due to the number of different variables
-review_summary_plot(summary_social, "social")
+review_summary_plot(summary_tourism, "tourism")
+
+
+## Shipping ---------------------------------------------------------------
+
+# Test check for all soc vars to make sure no desired vars are missed
+as.vector(distinct(filter(full_product_is, var_type == "soc"), var_name))
+as.vector(distinct(filter(nuup_GEM, var_type == "soc"), var_name))
+
+# Get shipping variables
+kong_shipping <- review_filter_var(full_product_kong, "kong", "Vessels")
+is_shipping <- review_filter_var(full_product_is, "is", "trips|gross|berths|nautical|duration|fuel|power|emissions|tonnage") %>% 
+  bind_rows(review_filter_var(full_product_sval, "is", "Isfjorden"))
+stor_shipping <- review_filter_var(full_product_stor, "stor", "touris") %>%  # No shipping data
+  bind_rows(review_filter_var(full_product_sval, "stor", "Storfjorden"))
+young_shipping <- review_filter_var(rbind(full_product_young, young_GEM), "young", "berths") # No shipping data
+disko_shipping <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "berths") # No shipping data
+nuup_shipping <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "berths") # No shipping data
+por_shipping <- review_filter_var(full_product_por, "por", "berths") # No shipping data
+clean_shipping <- rbind(kong_shipping, is_shipping, stor_shipping, young_shipping, disko_shipping, nuup_shipping, por_shipping) %>% 
+  mutate(var_type = "soc", var_group = "shipping")
+rm(kong_shipping, is_shipping, stor_shipping, young_shipping, disko_shipping, nuup_shipping, por_shipping); gc()
+
+# Summary analyses
+summary_shipping <- review_summary(clean_shipping)
+
+# Plot results
+review_summary_plot(summary_shipping, "shipping")
+
+
+## Landings ----------------------------------------------------------------
+
+# Currently no landings data
+# Need to find this from government statistic/fisheries sites
 
 
 ## Save clean data ---------------------------------------------------------
@@ -786,7 +824,7 @@ clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR,
                    clean_sea_ice, clean_snow, clean_glacier,
                    clean_O2, clean_pCO2, clean_nutrients, #clean_pH, # pH shouldn't be necessary if we have pCO2
                    clean_chla, clean_biomass, clean_sp_ass,
-                   clean_social)
+                   clean_tourism, clean_shipping)
 plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
             df = clean_all, data_type = "clean", site_name = "all")
 
@@ -798,7 +836,7 @@ all_ref <- bind_rows(summary_ice$citations, summary_snow$citations, summary_glac
                      summary_SST$citations, summary_air$citations, summary_sal$citations, summary_PAR$citations,
                      summary_O2$citations, summary_pCO2$citations, summary_nutrients$citations, 
                      summary_chla$citations, summary_biomass$citations, summary_sp_ass$citations, 
-                     summary_social$citations)
+                     summary_tourism$citations, summary_shipping$citations)
 save(all_ref, file = "data/analyses/all_ref.RData")
 
 
@@ -809,13 +847,13 @@ all_meta <- rbind(summary_ice$monthly, summary_snow$monthly, summary_glacier$mon
                   summary_SST$monthly, summary_air$monthly, summary_sal$monthly, summary_PAR$monthly,
                   summary_O2$monthly, summary_pCO2$monthly, summary_nutrients$monthly, 
                   summary_chla$monthly, summary_biomass$monthly, summary_sp_ass$monthly, 
-                  summary_social$monthly)
+                  summary_tourism$monthly, summary_shipping$monthly)
 save(all_meta, file = "data/analyses/all_meta.RData")
 
 all_meta %>% 
   filter(!is.na(value_mean)) %>% 
   mutate(month = lubridate::month(date)) %>% 
-  ggplot(aes(x = as.factor(month), y = count_days)) +
+  ggplot(aes(x = as.factor(month), y = count_days_name)) +
   geom_boxplot(aes(fill = site), position = "dodge", outlier.colour = NA) +
   geom_jitter(aes(colour = log10(count))) +
   scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
