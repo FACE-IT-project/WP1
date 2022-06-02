@@ -169,6 +169,14 @@ pg_test_dl <- function(pg_doi){
   return(dl_single)
 }
 
+# Extract errors from large PANGAEA EU files
+pg_ref_extract <- function(pg_EU_file){
+  df <- data.table::fread(pg_EU_file, nThread = 15) %>% 
+    dplyr::select(date_accessed, URL, citation, Error) %>% 
+    distinct()
+  return(df)
+}
+
 
 # European Arctic ---------------------------------------------------------
 
@@ -337,6 +345,13 @@ MUR_dates <- seq(as.Date("2003-01-01"), as.Date("2021-12-31"), by = "day")[-c(66
 system.time(
 plyr::l_ply(MUR_dates, download_MUR_ALL, .parallel = T)
 ) # 2.4 hours
+
+
+# Re-load all PANGAEA files to extract error messages
+pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
+pg_EU_ref_meta <- map_dfr(pg_EU_files, pg_ref_extract)
+write_csv(pg_EU_ref_meta, "metadata/pg_EU_ref_meta.csv")
+rm(pg_EU_files, pg_EU_ref_meta); gc()
 
 
 # Kongsfjorden ------------------------------------------------------------
