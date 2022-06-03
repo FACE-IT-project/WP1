@@ -802,7 +802,7 @@ disko_shipping <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko
 nuup_shipping <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "berths") # No shipping data
 por_shipping <- review_filter_var(full_product_por, "por", "berths") # No shipping data
 clean_shipping <- rbind(kong_shipping, is_shipping, stor_shipping, young_shipping, disko_shipping, nuup_shipping, por_shipping) %>% 
-  mutate(var_type = "soc", var_group = "shipping")
+  mutate(var_type = "soc", var_group = "Shipping")
 rm(kong_shipping, is_shipping, stor_shipping, young_shipping, disko_shipping, nuup_shipping, por_shipping); gc()
 
 # Summary analyses
