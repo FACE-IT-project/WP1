@@ -12,6 +12,7 @@
 # https://cran.r-project.org/web/packages/powerjoin/readme/README.html
 # Or some other cleaning methods:
 # https://www.r-bloggers.com/2022/05/data-cleaning-in-r-2-r-packages-to-clean-and-validate-datasets/?utm_source=phpList&utm_medium=email&utm_campaign=R-bloggers-daily&utm_content=HTML
+# Consider only using 'child' datafiles to avoid repeat downloads
 
 # Libraries used in this script
 source("code/functions.R")
@@ -152,7 +153,7 @@ pg_full_search <- function(lookup_table = F, ...){
     pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
       filter(!grepl("video|photograph|image|station list|master tracks|aircraft|flight|
                     |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
-      filter(!grepl("sediment|soil")) %>% # It is unclear if these files should be filtered because they occasionally have a few useful data
+      filter(!grepl("sediment|soil", citation)) %>% # It is unclear if these files should be filtered because they occasionally have a few useful data
       filter(!grepl("ACLOUD|SOCAT", citation)) %>% 
       filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
   }

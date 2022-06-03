@@ -5,6 +5,7 @@
 *.xcf
 code/ny-alesund_cc_pf_rws.R
 metadata/pangaea_parameters.tab
+metadata/pg_EU_ref_meta.csv
 data/GLODAP_Arctic_carb_chem.csv
 data/pg_data
 data/model
