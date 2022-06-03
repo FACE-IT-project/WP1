@@ -527,7 +527,7 @@ as.vector(distinct(filter(nuup_GEM, var_type == "chem"), var_name))
 kong_O2 <- review_filter_var(full_product_kong, "kong", "O2|ox|02", "pc|no|amph|tel|rhis")
 is_O2 <- review_filter_var(full_product_is, "is", "O2|ox|02", "tonnes|pc|no|tc|vmax")
 stor_O2 <- review_filter_var(full_product_stor, "stor", "O2|ox|02", "tonnes|pc|no|tc|fc")
-young_O2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "O2|ox|02", "no|pc|favella|oxygen_umol_kg")
+young_O2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "O2|ox|02", "no|pc|favella|oxygen_umol_kg") # Commnt this out to run the example O2 figure below '|oxygen_umol_kg'
 disko_O2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "O2|ox|02", "pc|no|tc|fc") # a and b values are odd
 nuup_O2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "O2|ox|02", "pc|no|cox|myox")
 por_O2 <- review_filter_var(full_product_por, "por", "O2|ox|02", "pc") # No O2 data
@@ -558,8 +558,58 @@ summary_O2 <- review_summary(clean_O2)
 # Plot results
 review_summary_plot(summary_O2, "O2")
 
+# Example figure of Young Sound 02 issue for Mikael Sejr
+O2_dotplot <- young_O2 %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_point(aes(colour = citation), show.legend = F) +
+  scale_colour_brewer(palette = "Set1") +
+  scale_y_continuous(limits = c(0, 550), expand = c(0, 0)) +
+  labs(x = "Date", y = "O2 [various units]", 
+       title = "Time series' of Young Sound O2 data",
+       subtitle = "Showing all lon/lat coords as individual points") +
+  theme(legend.position = "bottom", legend.direction = "vertical",
+        panel.border = element_rect(fill = NA, colour = "black"))
+# O2_dotplot
+O2_dotplot_mean <- young_O2 %>%
+  group_by(citation, var_name, lon, lat) %>%
+  complete(date = seq.Date(min(date), max(date), by = "day")) %>%
+  group_by(citation, var_name, date) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>%
+  ggplot(aes(x = date, y = value)) +
+  geom_point(aes(colour = citation), show.legend = F) +
+  scale_colour_brewer(palette = "Set1") +
+  scale_y_continuous(limits = c(0, 550), expand = c(0, 0)) +
+  labs(x = "Date", y = "O2 [various units]", 
+       title = "Time series' of Young Sound O2 data",
+       subtitle = "Showing all lon/lat coords averaged into single points by date") +
+  theme(legend.position = "bottom", legend.direction = "vertical",
+        panel.border = element_rect(fill = NA, colour = "black"))
+# O2_dotplot_mean
+O2_boxplot <- young_O2 %>% 
+  ggplot(aes(x = citation, y = value)) +
+  geom_boxplot(aes(fill = citation, group = paste0(var_name, citation)), notch = T, show.legend = F) +
+  scale_colour_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Set1") +
+  scale_y_continuous(limits = c(0, 550), expand = c(0, 0)) +
+  labs(x = "Citation", y = "O2 [various units]", 
+       title = "Boxplot's of Young Sound O2 data",
+       subtitle = "Showing all lon/lat coords as individual data points") +
+  theme(legend.position = "bottom", legend.direction = "vertical",
+        axis.text.x = element_blank(),
+        panel.border = element_rect(fill = NA, colour = "black"))
+# O2_boxplot
+O2_legend <- ggplot(young_O2, aes(x = date, y = value)) +
+  geom_point(aes(colour = citation)) +
+  scale_colour_brewer(palette = "Set1") +
+  guides(colour = guide_legend(override.aes = list(size = 5, shape = 15)))
+O2_legend <- ggpubr::get_legend(O2_legend)
+O2_top <- ggpubr::ggarrange(O2_dotplot, O2_dotplot_mean, O2_boxplot, align = "v", ncol = 3, nrow = 1, labels = c("A)", "B)", "C)"))
+O2_multi <- ggpubr::ggarrange(O2_top, O2_legend, heights = c(5, 1), ncol = 1)
+O2_multi
+ggsave("~/Desktop/anlyses_output/O2_multi.png", O2_multi, height = 7, width = 20)
 
-## pCO2 --------------------------------------------------------------------
+
+## pCO2 -------------------------------------------------------------------
 
 # NB: For this and other chemistry variables see best practices sent by JP on Slack
 # Also see e-mail from Liqing Jiang
