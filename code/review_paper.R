@@ -865,8 +865,58 @@ ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 
 # Section 3 ---------------------------------------------------------------
 # Relationships between data analysed for Section 2
+# NB: Not necessary to run any of the above code
 
 # "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
+
+# Load all clean data
+clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
+
+# Convert species data to species count and combine
+clean_all_sp_count <- clean_all %>% 
+  filter(var_group == "Species", value != 0) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_group, site, type) %>% 
+  summarise(value = as.numeric(n()), .groups = "drop") %>% 
+  mutate(var_name = "sps_count")
+clean_all_sp <- clean_all %>% 
+  filter(var_group != "Species") %>% 
+  rbind(clean_all_sp_count)
+rm(clean_all, clean_all_sp_count); gc()
+
+# Create monthly means
+clean_all_monthly <- clean_all_sp %>% 
+  filter(!is.na(date)) %>% 
+  filter(depth <= 10 | is.na(depth)) %>% 
+  mutate(month_year = lubridate::floor_date(date, "month")) %>% 
+  group_by(var_group, var_name, site, month_year) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+
+# Wide format for correlations
+clean_all_wide <- clean_all_monthly %>% 
+  pivot_wider(id_cols = c(var_group, site, month_year), names_from = var_name, values_from = value)
+
+library(listr)
+
+# Coorelations
+clean_all_corr <- clean_all_wide %>% 
+  dplyr::select(-var_group, -month_year) %>%
+  # group_nest(site) %>% 
+  # mutate(cor = map(data, cor, use = "pairwise.complete.obs")) %>% 
+  # dplyr::select(-data) %>% 
+  # unnest(cor) #%>% 
+  mutate(site = as.numeric(as.factor(site))) %>% 
+  group_by(site) %>% 
+  summarise(cor = cor(.), .groups = "drop")
+  # janitor::remove_empty()
+rownames_to_column(clean_all_corr, var = "rowname")
+colnames(clean_all_corr) <- c("site", rownames(clean_all_corr))
+  # split(.$site) %>% 
+  # map(dplyr::select, -c(site)) %>% 
+  # map(cor) %>%
+  # list_extract()
+  # bind_rows(.id = NULL)
+  # group_by(site) %>% 
+  # summarise(cor = cor(.))
 
 
 # Section 4 ---------------------------------------------------------------
