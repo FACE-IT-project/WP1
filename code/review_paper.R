@@ -868,6 +868,7 @@ ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 # NB: Only necessary to run the `Setup` section
 
 # NB: Generally speaking, the number of variables needs to be reduced/combined
+# For some reason sea temperature is not being correlated with anything
 
 # "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
@@ -929,16 +930,16 @@ clean_all_corr_nuup <- cor(dplyr::select(filter(clean_all_wide, site == "nuup"),
 clean_all_corr_por <- cor(dplyr::select(filter(clean_all_wide, site == "por"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
 
 # Plot correlograms
-cor_plot_kong <- ggcorrplot(clean_all_corr_kong, title = "Kongsfjorden")
-cor_plot_is <- ggcorrplot(clean_all_corr_is, title = "Isfjorden")
-cor_plot_stor <- ggcorrplot(clean_all_corr_stor, title = "Storfjorden")
-cor_plot_young <- ggcorrplot(clean_all_corr_young, title = "Young Sound")
-cor_plot_disko <- ggcorrplot(clean_all_corr_disko, title = "Disko bay")
-cor_plot_nuup <- ggcorrplot(clean_all_corr_nuup, title = "Nuup Kangerlua")
-cor_plot_por <- ggcorrplot(clean_all_corr_por, title = "Porsangerfjorden")
+cor_plot_kong <- ggcorrplot(clean_all_corr_kong, title = "Kongsfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
+cor_plot_is <- ggcorrplot(clean_all_corr_is, title = "Isfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
+cor_plot_stor <- ggcorrplot(clean_all_corr_stor, title = "Storfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
+cor_plot_young <- ggcorrplot(clean_all_corr_young, title = "Young Sound") + theme(panel.background = element_rect(fill = NA, colour = "black"))
+cor_plot_disko <- ggcorrplot(clean_all_corr_disko, title = "Disko bay") + theme(panel.background = element_rect(fill = NA, colour = "black"))
+cor_plot_nuup <- ggcorrplot(clean_all_corr_nuup, title = "Nuup Kangerlua") + theme(panel.background = element_rect(fill = NA, colour = "black"))
+cor_plot_por <- ggcorrplot(clean_all_corr_por, title = "Porsangerfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
 
 # Arrange and save
-cor_plot_all <- ggpubr::ggarrange(cor_plot_kong, cor_plot_is, cor_plot_stor, cor_plot_young, cor_plot_disko, cor_plot_nuup, cor_plot_por)
+cor_plot_all <- ggpubr::ggarrange(cor_plot_kong, cor_plot_is, cor_plot_stor, cor_plot_young, cor_plot_disko, cor_plot_nuup, cor_plot_por) + theme_bw()
 ggsave("~/Desktop/anlyses_output/cor_plot_all.png", height = 20, width = 25)
 
 # Get count of cor sum per column
