@@ -865,26 +865,28 @@ ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 
 # Section 3 ---------------------------------------------------------------
 # Relationships between data analysed for Section 2
-# NB: Not necessary to run any of the above code
+# NB: Only necessary to run the `Setup` section
+
+# NB: Generally speaking, the number of variables needs to be reduced/combined
 
 # "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
 # Load all clean data
 clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
 
-# Convert species data to species count and combine
+# Combine some variables for better correlations
 clean_all_sp_count <- clean_all %>% 
   filter(var_group == "Species", value != 0) %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_group, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
   mutate(var_name = "sps_count")
-clean_all_sp <- clean_all %>% 
+clean_all_clean <- clean_all %>% 
   filter(var_group != "Species") %>% 
   rbind(clean_all_sp_count)
 rm(clean_all, clean_all_sp_count); gc()
 
 # Create monthly means
-clean_all_monthly <- clean_all_sp %>% 
+clean_all_monthly <- clean_all_clean %>% 
   filter(!is.na(date)) %>% 
   filter(depth <= 10 | is.na(depth)) %>% 
   mutate(month_year = lubridate::floor_date(date, "month")) %>% 
@@ -896,17 +898,18 @@ clean_all_wide <- clean_all_monthly %>%
   pivot_wider(id_cols = c(var_group, site, month_year), names_from = var_name, values_from = value)
 
 library(listr)
+library(ggcorrplot)
 
 # Coorelations
 clean_all_corr <- clean_all_wide %>% 
   dplyr::select(-var_group, -month_year) %>%
-  # group_nest(site) %>% 
-  # mutate(cor = map(data, cor, use = "pairwise.complete.obs")) %>% 
-  # dplyr::select(-data) %>% 
-  # unnest(cor) #%>% 
-  mutate(site = as.numeric(as.factor(site))) %>% 
-  group_by(site) %>% 
-  summarise(cor = cor(.), .groups = "drop")
+  group_nest(site) %>%
+  mutate(cor = map(data, cor, use = "na.or.complete")) %>%
+  dplyr::select(-data) %>%
+  unnest(cor) #%>%
+  # mutate(site = as.numeric(as.factor(site))) %>% 
+  # group_by(site) %>% 
+  # summarise(cor = cor(.), .groups = "drop")
   # janitor::remove_empty()
 rownames_to_column(clean_all_corr, var = "rowname")
 colnames(clean_all_corr) <- c("site", rownames(clean_all_corr))
@@ -917,6 +920,33 @@ colnames(clean_all_corr) <- c("site", rownames(clean_all_corr))
   # bind_rows(.id = NULL)
   # group_by(site) %>% 
   # summarise(cor = cor(.))
+clean_all_corr_kong <- cor(dplyr::select(filter(clean_all_wide, site == "kong"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
+clean_all_corr_is <- cor(dplyr::select(filter(clean_all_wide, site == "is"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
+clean_all_corr_stor <- cor(dplyr::select(filter(clean_all_wide, site == "stor"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
+clean_all_corr_young <- cor(dplyr::select(filter(clean_all_wide, site == "young"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
+clean_all_corr_disko <- cor(dplyr::select(filter(clean_all_wide, site == "disko"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
+clean_all_corr_nuup <- cor(dplyr::select(filter(clean_all_wide, site == "nuup"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
+clean_all_corr_por <- cor(dplyr::select(filter(clean_all_wide, site == "por"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
+
+# Plot correlograms
+cor_plot_kong <- ggcorrplot(clean_all_corr_kong, title = "Kongsfjorden")
+cor_plot_is <- ggcorrplot(clean_all_corr_is, title = "Isfjorden")
+cor_plot_stor <- ggcorrplot(clean_all_corr_stor, title = "Storfjorden")
+cor_plot_young <- ggcorrplot(clean_all_corr_young, title = "Young Sound")
+cor_plot_disko <- ggcorrplot(clean_all_corr_disko, title = "Disko bay")
+cor_plot_nuup <- ggcorrplot(clean_all_corr_nuup, title = "Nuup Kangerlua")
+cor_plot_por <- ggcorrplot(clean_all_corr_por, title = "Porsangerfjorden")
+
+# Arrange and save
+cor_plot_all <- ggpubr::ggarrange(cor_plot_kong, cor_plot_is, cor_plot_stor, cor_plot_young, cor_plot_disko, cor_plot_nuup, cor_plot_por)
+ggsave("~/Desktop/anlyses_output/cor_plot_all.png", height = 20, width = 25)
+
+# Get count of cor sum per column
+test1 <- clean_all_corr %>%
+  data.frame() %>% 
+  replace(is.na(.), 0) %>% 
+  summarise(across(everything(), ~ sum(.)))
+
 
 
 # Section 4 ---------------------------------------------------------------
