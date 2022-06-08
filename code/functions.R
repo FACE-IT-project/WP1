@@ -42,7 +42,7 @@ Sys.setenv(TZ = "UTC")
 Sys.setlocale("LC_TIME","en_GB.UTF-8")
 
 # Bounding boxes
-bbox_EU <- c(-60, 60, 63, 90)
+bbox_EU <- c(-60, 60, 60, 90)
 bbox_sval <- c(9, 30, 76, 81)
 bbox_kong <- c(11, 12.69, 78.86, 79.1)
 bbox_kong_wide <- c(9.5, 14.0, 78.0, 79.5)
@@ -1947,10 +1947,12 @@ ice_trend_grid_plot <- function(plot_title, pixel_res, check_conv = FALSE,
     coord_quickmap(expand = F,
                    xlim = c(coords[1]-lon_pad, coords[2]+lon_pad), 
                    ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
+    # theme_void() +
     theme(panel.border = element_rect(fill = NA, colour = "black"),
           panel.background = element_rect(fill = "black"),
-          plot.background = element_rect(fill = "white", colour = site_colours[plot_title]), # NB: requires site_colours in environment
+          plot.background = element_rect(fill = "white", colour = site_colours[plot_title], size = 3), # NB: requires site_colours in environment
           axis.text = element_blank(), axis.ticks = element_blank(), # Remove coords
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), # Remove axis lines
           legend.position = "bottom")
   # ice_plot
   if(check_conv){

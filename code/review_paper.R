@@ -964,9 +964,9 @@ test1 <- clean_all_corr %>%
   summarise(across(everything(), ~ sum(.)))
 
 
-
 # Section 4 ---------------------------------------------------------------
 # Future projections of data analysed for Section 2 and relationships from Section 3
+# NB: Only necessary to run the `Setup` section
 
 ## Introduce the future by talking about the whole Arctic
 # These data can be downloaded from the IPCC interactive website
@@ -984,8 +984,8 @@ test1 <- clean_all_corr %>%
 
 
 # Figure 1 ----------------------------------------------------------------
-
 # Map of the study area that also manages to show SST, ice cover, and any other well covered drivers 
+# NB: Only necessary to run the `Setup` section
 
 # EU bbox
 bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
@@ -1028,6 +1028,7 @@ site_colours <- c(
 load("data/analyses/sst_EU_arctic_annual_trends.RData")
 
 # Per pixels ice cover trends
+load("data/analyses/ice_4km_proc.RData")
 ice_4km_annual_prop <- ice_4km_proc %>% 
   filter(sea_ice_extent == 3,
          date <= "2021-12-31") %>% 
@@ -1051,101 +1052,109 @@ load("data/analyses/ice_4km_annual_trends.RData")
 ice_4km_annual_trends <- filter(ice_4km_annual_trends, trend < 10)
 
 # Convert ice data to an even grid for plotting
-ice_4km_annual_trends_grid <- plyr::ddply(ice_4km_annual_trends, c("site"), convert_even_grid, z_col = "trend", pixel_res = 0.04)
+# Not used
+# ice_4km_annual_trends_grid <- plyr::ddply(ice_4km_annual_trends, c("site"), convert_even_grid, z_col = "trend", pixel_res = 0.04)
 
 # Top panel: polar projection of SST trends
 fig_1_a <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
-  # geom_spatial_tile(data = filter(sst_EU_arctic_annual_trends, lat >= 63), 
-  #                   crs = 4326, colour = NA,
-  #                   aes(fill = trend*10, x = lon, y = lat)) +
-  # Add spatial polygon to reintroduce the land shapefiles
-  # geom_spatial_polygon(data = coastline_full_df, crs = 4326, fill = "grey70", colour = "black",
-  #                      aes(x = x, y = y, group = polygon_id)) +
-  # geom_spatial_point(data = site_points[-3,], size = 5, crs = 4326,
-  #                    aes(x = lon, y = lat), colour = "black") +
+  geom_spatial_tile(data = filter(sst_EU_arctic_annual_trends, lat >= 60),
+                    crs = 4326, colour = NA,
+                    aes(fill = trend*10, x = lon, y = lat)) +
+  geom_spatial_point(data = site_points, size = 5, crs = 4326,
+                     aes(x = lon, y = lat), colour = "black") +
   geom_spatial_point(data = site_points, size = 4, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
-  # annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
-  # scale_colour_brewer(palette = "Set1") +
-  scale_colour_manual(values = site_colours) +
-  scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
-  labs(title = "Region and study sites",
-       colour = "Site", fill = "Trend (°C/dec)",
-        x  = NULL, y = NULL) +
-  theme(panel.border = element_rect(colour = "black", fill = NA),
+  annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
+  scale_colour_manual(values = site_colours, guide = "none") +
+  scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red"), guide = "none") +
+  labs(colour = "Site", fill = "Trend (°C/dec)",
+       # title = "Region and study sites",
+       x  = NULL, y = NULL) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        panel.background = element_rect(fill = NA),
+        plot.background = element_rect(fill = "white", colour = "white"),
         # legend.position = c(0.948, 0.29),
         legend.position = "bottom",
+        axis.text = element_text(colour = "black"),
         # legend.margin = margin(10, 10, 10, 10),
         legend.box.margin = margin(10, 10, 10, 10),
         legend.box.background = element_rect(fill = "white", colour = "black"))
-# fig_1_a <- reorder_layers(map_full) # Put land back on top... doesn't work with the geoms
-# tmp <- sapply(fig_1_a$layers, function(k) !is.null(k$mapping$label)) # the layer with label mapping
-# fig_1_a$layers <- c(fig_1_a$layers[-which(tmp)], fig_1_a$layers[which(tmp)])
-# fig_1_a$layers <- fig_1_a$layers[c(2,1,3,4,5)] # Reorder land shape and SST rasters
+fig_1_a$layers <- fig_1_a$layers[c(2,1,3,4,5)] # Reorder land shape and SST rasters
 ggsave("~/Desktop/anlyses_output/fig_1_a.png", fig_1_a, width = 10, height = 7)
 
 # Side panels: ice cover trends by site (days of year of ice cover)
-(fig_1_b_kong <- ice_trend_grid_plot("Kongsfjorden", 0.03, check_conv = F))
+(fig_1_b_kong <- ice_trend_grid_plot("Kongsfjorden", 0.03, check_conv = F) + 
+    coord_quickmap(xlim = c(11.1, 12.6), ylim = c(78.89, 79.09), expand = F))
 (fig_1_b_is <- ice_trend_grid_plot("Isfjorden", 0.04, check_conv = F))
 (fig_1_b_stor <- ice_trend_grid_plot("Storfjorden", 0.04, check_conv = F))
 (fig_1_b_young <- ice_trend_grid_plot("Young Sound", 0.04, check_conv = F, lat_nudge = 0.025))
 (fig_1_b_disko <- ice_trend_grid_plot("Disko Bay", 0.05, check_conv = F))
-(fig_1_b_nuup <- ice_trend_grid_plot("Nuup Kangerlua", 0.05, check_conv = F))
-(fig_1_b_por <- ice_trend_grid_plot("Porsangerfjorden", 0.05, check_conv = F))
+(fig_1_b_nuup <- ice_trend_grid_plot("Nuup Kangerlua", 0.05, check_conv = F) + 
+    coord_quickmap(xlim = c(-53.0, -49.6), ylim = c(64.01, 64.80), expand = F))
+(fig_1_b_por <- ice_trend_grid_plot("Porsangerfjorden", 0.05, check_conv = F) + 
+    coord_quickmap(xlim = c(24.83, 26.63), ylim = c(70.02, 71.03), expand = F))
+
+# Get legends
+temp_legend <- filter(sst_EU_arctic_annual_trends, lat >= 60) %>% 
+  dplyr::select(trend) %>% distinct() %>% 
+  mutate(x = 1:n(), y = 1) %>% 
+  ggplot() + geom_point(aes(x = x, y = y, colour = trend*10)) +
+  scale_colour_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
+  labs(colour = "SST trend\n(°C/dec)") +
+  theme(legend.position = "bottom", legend.key.width = unit(3, "cm"),
+        legend.box.background = element_rect(fill = NA, colour = "black"))
+temp_legend <- ggpubr::get_legend(temp_legend)
+ice_legend <- ice_4km_annual_trends %>% 
+  dplyr::select(trend) %>% distinct() %>% 
+  mutate(x = 1:n(), y = 1) %>% 
+  ggplot() + geom_point(aes(x = x, y = y, colour = trend)) +
+  scale_fill_gradient2(low = "darkolivegreen", mid = "white", high = "deepskyblue", aesthetics = c("colour", "fill"),
+                       limits = c(min(ice_4km_annual_trends$trend), max(ice_4km_annual_trends$trend))) +
+  labs(colour = "Ice cover\n(days/year)") +
+  theme(legend.position = "bottom", legend.key.width = unit(3, "cm"),
+        legend.box.background = element_rect(fill = NA, colour = "black"))
+ice_legend <- ggpubr::get_legend(ice_legend)
+
+# Create base for layering plots
+base_df <- data.frame(x = c(-1, 0, 1), y = c(-1, 0, 1))
+fig_1_base <- ggplot(data = base_df, aes(x = x, y = y)) + 
+  geom_point(colour = "white") + 
+  scale_x_continuous(breaks = seq(-1, 1, by = 0.1)) +
+  scale_y_continuous(breaks = seq(-1, 1, by = 0.1)) +
+  theme_void()
 
 # Combine
-# fig_1 <- fig_1_a + annotation_custom(ggplotGrob(fig_1_b_kong), xmin  = 0, xmax = 200000, ymin = -2000000, ymax = 0)
-# fig_1 <- fig_1_a + insert_element()
-# "Kongsfjorden" = "tan1", 
-# "Isfjorden" = "sienna1", 
-# "Storfjorden" = "orange1", 
-# "Young Sound" = "darkseagreen1", 
-# "Disko Bay" = "seagreen1", 
-# "Nuup Kangerlua" = "palegreen1", 
-# "Porsangerfjorden" = "plum1"
-test_point <- tibble(grob = list(grid::circleGrob(r = 0.1)))
-fig_1_test <- fig_1_a + geom_grob(aes(x = 220000, y = -1180000, label = test_point$grob))
-fig_1_test
-base_df <- data.frame(x = c(-2, -1, 0, 1, 2), y = c(-2, -1, 0, 1, 2))
-fig_1_base <- ggplot(data = base_df, aes(x = x, y = y)) + theme_void()
 fig_1 <- fig_1_base +
-  geom_grob(aes(x = 0, y = 0, label = list(cowplot::as_grob(fig_1_a))))
-
-fig_1 <- fig_1_a + 
-  geom_grob(aes(x = 230000, y = -1190000, label = list(cowplot::as_grob(fig_1_b_kong))),
-                             nudge_x = -220000, nudge_y = 700000,
-                             segment.colour = "tan1") +
-  geom_grob(aes(x = 310000, y = -1250000, label = list(cowplot::as_grob(fig_1_b_is))),
-            nudge_x = 500000, nudge_y = 680000, vp.width = 0.3, vp.height = 0.3,
-            segment.colour = "sienna1")
-fig_1
-
-df <- tibble(x = 2, y = 15, grob = list(grid::circleGrob(r = 0.2)))
-
-# without nudging no segments are drawn
-ggplot(data = mtcars, aes(wt, mpg)) +
-  geom_point(aes(colour = factor(cyl))) +
-  geom_grob(data = df, aes(x, y, label = grob))
-
-# with nudging segments are drawn
-ggplot(data = mtcars, aes(wt, mpg)) +
-  geom_point(aes(colour = factor(cyl))) +
-  geom_grob(data = df, aes(x, y, label = grob),
-            nudge_x = 0.5,
-            segment.colour = "red")
-
-# with nudging plotting of segments can be disabled
-ggplot(data = mtcars, aes(wt, mpg)) +
-  geom_point(aes(colour = factor(cyl))) +
-  geom_grob(data = df, aes(x, y, label = grob),
-            add.segments = FALSE,
-            nudge_x = 0.5)
-
-# TODO: Change colour of points to be thematic with their location on a land mass (e.g. shades of green for greenland, blue for Svalbard, purple for norway)
-fig_1_b_left <- ggpubr::ggarrange(fig_1_b_young, fig_1_b_disko, fig_1_b_nuup, ncol = 1)
-fig_1_b_right <- ggpubr::ggarrange(fig_1_b_kong, fig_1_b_is, fig_1_b_stor, fig_1_b_por, ncol = 1)
-fig_1 <- ggpubr::ggarrange(fig_1_b_left, fig_1_a, fig_1_b_right, ncol = 3, widths = c(0.25, 1, 0.25))
-ggsave("figures/fig_1.png", fig_1, width = 30, height = 15)
+  # EU Arctic
+  geom_grob(aes(x = 0, y = 0, label = list(cowplot::as_grob(fig_1_a))), vp.width = 0.7, vp.height = 0.7, 
+            nudge_x = -0.033, add.segments = F) +
+  # Kongsfjorden
+  geom_grob(aes(x = 0.065, y = 0.16, label = list(cowplot::as_grob(fig_1_b_kong))),
+            nudge_x = -0.07, nudge_y = 0.55, segment.colour = "tan1") +
+  # Isfjorden
+  geom_grob(aes(x = 0.08, y = 0.15, label = list(cowplot::as_grob(fig_1_b_is))),
+            nudge_x = 0.35, nudge_y = 0.6, vp.width = 0.25, vp.height = 0.25, segment.colour = "sienna1") +
+  # Storfjorden
+  geom_grob(aes(x = 0.12, y = 0.15, label = list(cowplot::as_grob(fig_1_b_stor))),
+            nudge_x = 0.65, nudge_y = 0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "orange1") +
+  # Young Sound
+  geom_grob(aes(x = -0.15, y = 0.05, label = list(cowplot::as_grob(fig_1_b_young))),
+            nudge_x = -0.41, nudge_y = 0.53, vp.width = 0.20, vp.height = 0.20, segment.colour = "darkseagreen1") +
+  # Disko bay
+  geom_grob(aes(x = -0.45, y = 0.11, label = list(cowplot::as_grob(fig_1_b_disko))),
+            nudge_x = -0.41, nudge_y = -0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "seagreen1") +
+  # Nuup Kangerlua
+  geom_grob(aes(x = -0.55, y = -0.03, label = list(cowplot::as_grob(fig_1_b_nuup))),
+            nudge_x = -0.26, nudge_y = -0.4, vp.width = 0.25, vp.height = 0.25, segment.colour = "palegreen1") +
+  # Porsangerfjorden
+  geom_grob(aes(x = 0.23, y = -0.05, label = list(cowplot::as_grob(fig_1_b_por))),
+            nudge_x = 0.5, nudge_y = -0.46, vp.width = 0.3, vp.height = 0.3, segment.colour = "plum1") +
+  # Temperature legend
+  geom_grob(aes(x = -0.1, y = -0.74, label = list(cowplot::as_grob(temp_legend)))) +
+  # Ice legend
+  geom_grob(aes(x = 0.0, y = -0.94, label = list(cowplot::as_grob(ice_legend))))
+# fig_1
+ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 
 
 # Figure 2 ----------------------------------------------------------------
