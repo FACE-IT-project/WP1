@@ -58,14 +58,6 @@ load("~/pCloudDrive/restricted_data/GEM/young/young_GEM.RData")
 load("~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
 load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
 
-# Model data
-model_kong <- load_model("kongsfjorden_rcp")
-model_is <- load_model("isfjorden_rcp")
-model_stor <- load_model("storfjorden_rcp")
-model_young <- load_model("young_sound_rcp")
-model_por <- load_model("porsangerfjorden_rcp")
-model_trom <- load_model("tromso_rcp")
-
 # NOAA OISST extractions
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_kong.RData")
 sst_kong_bbox <- filter(sst_kong, between(lon, bbox_kong[1], bbox_kong[2]), between(lat, bbox_kong[3], bbox_kong[4]))
@@ -973,7 +965,6 @@ test1 <- clean_all_corr %>%
 # https://interactive-atlas.ipcc.ch
 # Based on the relationships elucidated in the previous section we can then look at any possibly useful projections into the future with the model data
 
-
 ## "It has also been suggested that the various drivers of climate change may contribute to increase blooms and toxicity of cyanobacteria in the Baltic Sea. 
 ## For instance, the intracellular toxin concentration of the cyanobacterium Dolichospermum sp. may increase with elevated temperature (+4∘C) (Brutemark et al., 2015; Wulff et al., 2018) and with decreased salinity (from 6 to 3) (Wulff et al., 2018)."
 ## "an increase in temperature from 16 to 18–20∘C led to an earlier peak of cyanobacteria, while the biomass of cyanobacteria, especially that of nitrogen-fixer Dolichospermum sp. declined (Berner et al., 2018)."
@@ -981,6 +972,38 @@ test1 <- clean_all_corr %>%
 ## "It has been projected that macroalgae will decline in hard bottoms and vascular plants increase in the more sheltered soft-bottom areas (Torn et al., 2020)."
 ## "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
 ## "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
+
+# Morten model data
+model_kong <- load_model("kongsfjorden_rcp")
+model_is <- load_model("isfjorden_rcp")
+model_stor <- load_model("storfjorden_rcp")
+model_young <- load_model("young_sound_rcp")
+model_por <- load_model("porsangerfjorden_rcp")
+model_trom <- load_model("tromso_rcp")
+
+# Convert data to even grid
+model_kong_even_grid <- model_kong %>% 
+  filter(date == "2020-01-31", land == 1) %>% 
+  dplyr::select(lon, lat, date, Temp) %>% 
+  distinct() %>%  
+  convert_even_grid(., "Temp", 0.1) %>% 
+  na.omit()
+
+# Plot raster
+coords <- bbox_kong
+coastline_full_df_sub <- coastline_full_df %>% 
+  filter(x >= coords[1]-10, x <= coords[2]+10,
+         y >= coords[3]-10, y <= coords[4]+10)
+ggplot(model_kong_even_grid, aes(x = lon, y = lat)) +
+  geom_raster(aes(fill = z)) +
+  geom_point(data = filter(model_kong, date == "2020-01-31", land == 1), size = 4, colour = "black") +
+  geom_point(data = filter(model_kong, date == "2020-01-31", land == 1), size = 3, aes(colour = Temp)) +
+  geom_polygon(data = coastline_full_df_sub, fill = "grey70", colour = "black",
+               aes(x = x, y = y, group = polygon_id)) + 
+  scale_colour_continuous(limits = range(model_kong_even_grid$z)) +
+  coord_quickmap(expand = T,
+                 xlim = c(coords[1]-1.5, coords[2]+1.5), 
+                 ylim = c(coords[3]-0.4, coords[4]+0.4))
 
 
 # Figure 1 ----------------------------------------------------------------
