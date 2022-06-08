@@ -159,6 +159,19 @@ extract_bathy <- function(bbox, site_name, product = "GEBCO"){
   write_csv(bathy_df, paste0("~/pCloudDrive/FACE-IT_data/maps/bathy_",site_name,".csv"))
 }
 
+# Function for loading raster files with utm coords and converting to lon/lat
+load_utm <- function(file_name){
+  ras_1 <- raster(file_name)
+  crs_1 <- ras_1@crs
+  utm1 <- as.data.frame(ras_1, xy = T)
+  coordinates(utm1) <- ~x+y 
+  proj4string(utm1) <- crs_1
+  utm2 <- spTransform(utm1, CRS("+proj=longlat +datum=WGS84"))
+  utm3 <- as.data.frame(utm2) %>% 
+    dplyr::rename(lon = x, lat = y) %>% 
+    dplyr::select(lon, lat, everything())
+}
+
 # Convert from one EPSG to another
 # This is the function to convert Polar Stereographic Coordinates to Lat-Lon
 # Adapted from a script that Bernard Gentili found here: https://github.com/jenseva/projected-data-demos
@@ -212,7 +225,7 @@ convert_epsg <- function(x, y, epsg1, epsg2 = "epsg:4326") {
 
 # Function for converting uneven lon/lat coords to an even grid for plotting
 # df <- filter(ice_4km_annual_trends, site == "kong")
-# z_col <- "trend"; pixel_res <- 1000
+# z_col <- "trend"; pixel_res <- 0.04
 convert_even_grid <- function(df, z_col, pixel_res){
   
   # Base info
@@ -223,10 +236,21 @@ convert_even_grid <- function(df, z_col, pixel_res){
   dlat <- diff(range(lat))
   dlon_meters <- floor(dlon * 1.e5 * cos(mean(lat) * pi / 180))
   dlat_meters <- floor(dlat * 1.e5)
-  dcell_meters <- pixel_res
+  dcell_meters <- pixel_res*100000 # I changed this as I am working with rough lon/lat degree values rather than metres
   nrows <- floor(dlat_meters / dcell_meters)
   ncols <- floor(dlon_meters / dcell_meters)
-  z_rasterized <- raster(nrows = nrows, ncols = ncols, xmn = min(lon), xmx = max(lon), ymn = min(lat), ymx = max(lat))
+  
+  # Get pixels from an even grid - Centres of pixels
+  lon_df <- data.frame(x = c(seq(-180, 0-pixel_res/2, by = pixel_res), seq(0+pixel_res/2, 180, by = pixel_res))) %>% 
+    filter(between(x, min(lon-pixel_res), max(lon+pixel_res)))
+  lat_df <- data.frame(y = c(seq(-90, 0-pixel_res/2, by = pixel_res), seq(0+pixel_res/2, 90, by = pixel_res))) %>% 
+    filter(between(y, min(lat-pixel_res), max(lat+pixel_res)))
+  full_grid <- expand.grid(lon_df$x, lat_df$y) %>% `colnames<-`(., c("x", "y"))
+  
+  # Create base raster
+  z_rasterized <- raster(nrows = nrows, ncols = ncols, 
+                         xmn = min(full_grid$x), xmx = max(full_grid$x), 
+                         ymn = min(full_grid$y), ymx = max(full_grid$y))
   z_rasterized <- rasterize(cbind(lon, lat), z_rasterized, z)
   
   # Info
@@ -470,6 +494,18 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
   return(map_res)
 }
 
+long_to_short_name <- function(long_name){
+  if(long_name == "Kongsfjorden") short_name <- "kong"
+  if(long_name == "Isfjorden") short_name <- "is"
+  if(long_name == "Inglefieldbukta") short_name <- "ingle"
+  if(long_name == "Storfjorden") short_name <- "stor"
+  if(long_name == "Young Sound") short_name <- "young"
+  if(long_name == "Disko Bay") short_name <- "disko"
+  if(long_name == "Nuup Kangerlua") short_name <- "nuup"
+  if(long_name == "Porsangerfjorden") short_name <- "por"
+  return(short_name)
+}
+
 # Function for smoother meta-data creation
 # Not currently used
 make_meta_data <- function(dat, type, data_name, file_name, URL, reference, note = NA){
@@ -559,19 +595,6 @@ make_meta_data <- function(dat, type, data_name, file_name, URL, reference, note
                     file_name, URL, reference,
                     note)
   return(res)
-}
-
-# Function for loading raster files with utm coords and converting to lon/lat
-load_utm <- function(file_name){
-  ras_1 <- raster(file_name)
-  crs_1 <- ras_1@crs
-  utm1 <- as.data.frame(ras_1, xy = T)
-  coordinates(utm1) <- ~x+y 
-  proj4string(utm1) <- crs_1
-  utm2 <- spTransform(utm1, CRS("+proj=longlat +datum=WGS84"))
-  utm3 <- as.data.frame(utm2) %>% 
-    dplyr::rename(lon = x, lat = y) %>% 
-    dplyr::select(lon, lat, everything())
 }
 
 # Function for loading individual variables from a difficult NetCDF CTD file
@@ -1882,14 +1905,28 @@ quick_plot_ice <- function(df, pixel_size = 5){
     theme(panel.background = element_blank())
 }
 
-# Function for converting ice data to an even grid before plotting
-# NB: This function expects lon/lat data not on an even grid
-ice_grid_plot <- function(df, pixel_res, coords, plot_title, lon_nudge = 0, lat_nudge = 0,
-                          z_col = "trend", check_conv = FALSE, lon_pad = 0, lat_pad = 0){
+# Function for converting uneven ice trend data to an even grid before plotting
+# plot_title <- "Kongsfjorden"; pixel_res <- 0.03; check_conv = FALSE;
+# lon_nudge = 0; lat_nudge = 0; lon_pad = 0; lat_pad = 0
+ice_trend_grid_plot <- function(plot_title, pixel_res, check_conv = FALSE, 
+                                lon_nudge = 0, lat_nudge = 0, lon_pad = 0, lat_pad = 0){
 
+  # Get site short name
+  short_name <- long_to_short_name(plot_title)
+  
+  # Prep data.frame
+  if(!exists("ice_4km_annual_trends")) load("data/analyses/ice_4km_annual_trends.RData")
+  ice_4km_annual_trends <- filter(ice_4km_annual_trends, trend < 10)
+  
+  # Get bbox from site name
+  coords <- bbox_from_name(plot_title)
+  
   # Convert to even grid
-  df_even <- convert_even_grid(df, z_col = z_col, pixel_res = pixel_res) %>% na.omit() %>% 
-    mutate(lon = lon+lon_nudge, lat = lat+lat_nudge) # The rasterizing tends to skew towards the top left corner
+  df <- filter(ice_4km_annual_trends, site == short_name)
+  df_even <- convert_even_grid(df, z_col = "trend", pixel_res = pixel_res) %>% na.omit() %>% 
+    mutate(lon = lon+lon_nudge, lat = lat+lat_nudge)
+  
+  # get pixels that change very little.. maybe better not to bother
   
   # Crop down 
   coastline_full_df_sub <- coastline_full_df %>% 
@@ -1898,27 +1935,31 @@ ice_grid_plot <- function(df, pixel_res, coords, plot_title, lon_nudge = 0, lat_
   
   # Plot
   ice_plot <- ggplot(data = df_even, aes(x = lon, y = lat)) +
-    geom_tile(aes(fill = z, x = lon, y = lat)) +
+    geom_tile(aes(fill = z, x = lon, y = lat), show.legend = F) +
+    geom_contour(aes(z = z), colour = "purple", breaks = 0, size = 0.3, show.legend = F) +
     geom_polygon(data = coastline_full_df_sub, fill = "grey70", colour = "black",
                  aes(x = x, y = y, group = polygon_id)) +  
     annotate("rect",  colour = "black", fill = NA, alpha = 0.1,
              xmin = coords[1], xmax = coords[2], ymin = coords[3], ymax = coords[4]) +
-    scale_fill_distiller(palette = "Blues", direction = -1) +
+    scale_fill_gradient2(low = "darkolivegreen", mid = "white", high = "deepskyblue", aesthetics = c("colour", "fill"),
+                         limits = c(min(ice_4km_annual_trends$trend), max(ice_4km_annual_trends$trend))) +
     labs(title = plot_title, fill = "Ice cover\ndays/year", x = NULL, y = NULL) +
     coord_quickmap(expand = F,
                    xlim = c(coords[1]-lon_pad, coords[2]+lon_pad), 
                    ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
     theme(panel.border = element_rect(fill = NA, colour = "black"),
           panel.background = element_rect(fill = "black"),
+          plot.background = element_rect(fill = "white", colour = site_colours[plot_title]), # NB: requires site_colours in environment
+          axis.text = element_blank(), axis.ticks = element_blank(), # Remove coords
           legend.position = "bottom")
+  # ice_plot
   if(check_conv){
     ice_plot <- ice_plot +
       geom_point(data = df, size = 4, colour = "black") +
-      geom_point(data = df, size = 3, aes(colour = trend)) +
-      scale_colour_distiller(palette = "Blues", direction = -1) +
-      labs(colour = "Original\ndata")
+      geom_point(data = df, size = 3, aes(colour = trend))
   }
   return(ice_plot)
+  # rm(plot_title, pixel_res, short_name, coords, df_even, coastline_full_df_sub, ice_plot, check_conv, lon_nudge, lat_nudge, lon_pad, lat_pad)
 }
 
 # Ice prop function

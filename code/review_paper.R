@@ -16,6 +16,8 @@
 
 source("code/functions.R")
 library(ggpmisc)
+library(listr) # For dealing with lists - not used
+library(ggcorrplot) # For correlograms
 
 # Ice cover colours
 ice_cover_colours <- c(
@@ -393,6 +395,7 @@ ice_4km_por_proc <- ice_4km_por %>%
 # Sea ice proportion cover change over time
 ice_4km_proc <- rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
                       ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc)
+save(ice_4km_proc, file = "data/analyses/ice_4km_proc.RData")
 ice_4km_prop <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
 # rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
 #    ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
@@ -867,10 +870,23 @@ ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
 # Relationships between data analysed for Section 2
 # NB: Only necessary to run the `Setup` section
 
-# NB: Generally speaking, the number of variables needs to be reduced/combined
+## Provide literature reviews on the relationships they have with each other as well as data analyses of these relationships
+# What is changing in the EU Arctic (setting the scene):
+#   "Boundary conditions"
+# e.g. Warming ocean, loss of sea ice, etc.
+# We then go through the key drivers and ask for each driver whether there are general results about Arctic fjords across all sites
+# Differences in some sites could be used as exceptions that prove the rule
+
+## Potential specific comparisons
+# Cloudiness and heat flux
+# Nutrients and biomass
+# Ice cover, freshwater input, and light
+# Temperature and sea ice
+
+## Generally speaking, the number of variables needs to be reduced/combined
 # For some reason sea temperature is not being correlated with anything
 
-# "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
+## "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
 # Load all clean data
 clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
@@ -894,12 +910,11 @@ clean_all_monthly <- clean_all_clean %>%
   group_by(var_group, var_name, site, month_year) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
+# NB: Create monthly clims and run correlations on those
+
 # Wide format for correlations
 clean_all_wide <- clean_all_monthly %>% 
   pivot_wider(id_cols = c(var_group, site, month_year), names_from = var_name, values_from = value)
-
-library(listr)
-library(ggcorrplot)
 
 # Coorelations
 clean_all_corr <- clean_all_wide %>% 
@@ -929,7 +944,7 @@ clean_all_corr_disko <- cor(dplyr::select(filter(clean_all_wide, site == "disko"
 clean_all_corr_nuup <- cor(dplyr::select(filter(clean_all_wide, site == "nuup"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
 clean_all_corr_por <- cor(dplyr::select(filter(clean_all_wide, site == "por"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
 
-# Plot correlograms
+# Plot
 cor_plot_kong <- ggcorrplot(clean_all_corr_kong, title = "Kongsfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
 cor_plot_is <- ggcorrplot(clean_all_corr_is, title = "Isfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
 cor_plot_stor <- ggcorrplot(clean_all_corr_stor, title = "Storfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
@@ -953,13 +968,19 @@ test1 <- clean_all_corr %>%
 # Section 4 ---------------------------------------------------------------
 # Future projections of data analysed for Section 2 and relationships from Section 3
 
-# "It has also been suggested that the various drivers of climate change may contribute to increase blooms and toxicity of cyanobacteria in the Baltic Sea. 
-# For instance, the intracellular toxin concentration of the cyanobacterium Dolichospermum sp. may increase with elevated temperature (+4∘C) (Brutemark et al., 2015; Wulff et al., 2018) and with decreased salinity (from 6 to 3) (Wulff et al., 2018)."
-# "an increase in temperature from 16 to 18–20∘C led to an earlier peak of cyanobacteria, while the biomass of cyanobacteria, especially that of nitrogen-fixer Dolichospermum sp. declined (Berner et al., 2018)."
-# "To sum up, a shift towards smaller-sized zooplankton and a stronger linkage between mesozooplankton and the microbial food web is probable in a warmer Baltic Sea."
-# "It has been projected that macroalgae will decline in hard bottoms and vascular plants increase in the more sheltered soft-bottom areas (Torn et al., 2020)."
-# "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
-# "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
+## Introduce the future by talking about the whole Arctic
+# These data can be downloaded from the IPCC interactive website
+# https://interactive-atlas.ipcc.ch
+# Based on the relationships elucidated in the previous section we can then look at any possibly useful projections into the future with the model data
+
+
+## "It has also been suggested that the various drivers of climate change may contribute to increase blooms and toxicity of cyanobacteria in the Baltic Sea. 
+## For instance, the intracellular toxin concentration of the cyanobacterium Dolichospermum sp. may increase with elevated temperature (+4∘C) (Brutemark et al., 2015; Wulff et al., 2018) and with decreased salinity (from 6 to 3) (Wulff et al., 2018)."
+## "an increase in temperature from 16 to 18–20∘C led to an earlier peak of cyanobacteria, while the biomass of cyanobacteria, especially that of nitrogen-fixer Dolichospermum sp. declined (Berner et al., 2018)."
+## "To sum up, a shift towards smaller-sized zooplankton and a stronger linkage between mesozooplankton and the microbial food web is probable in a warmer Baltic Sea."
+## "It has been projected that macroalgae will decline in hard bottoms and vascular plants increase in the more sheltered soft-bottom areas (Torn et al., 2020)."
+## "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
+## "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
 
 
 # Figure 1 ----------------------------------------------------------------
@@ -973,11 +994,25 @@ bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 coastline_Arctic <- filter(coastline_full_df, y > 50, x < 90, x > -90)
 
 # Study sites
-site_points <- data.frame(site = c("Kongsfjorden", "Isfjorden", "Inglefieldbukta", "Storfjorden", 
-                                   "Young Sound", "Disko Bay", "Nuup Kangerlua", 
-                                   "Porsangerfjorden"),
-                          lon = c(11.845, 14.365, 18.31, 19.88, -21.237, -52.555, -50.625, 25.75),
-                          lat = c(78.98, 78.235, 77.87, 77.78, 74.517, 69.36, 64.405, 70.6))
+site_points <- data.frame(site = factor(x = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
+                                              "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                              "Porsangerfjorden"),
+                                        levels = c("Kongsfjorden", "Isfjorden","Storfjorden", 
+                                                   "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                                   "Porsangerfjorden")),
+                          lon = c(11.845, 14.365, 19.88, -21.237, -52.555, -50.625, 25.75),
+                          lat = c(78.98, 78.235, 77.78, 74.517, 69.36, 64.405, 70.6))
+
+# Colour palette for sites
+site_colours <- c(
+  "Kongsfjorden" = "tan1", 
+  "Isfjorden" = "sienna1", 
+  "Storfjorden" = "orange1", 
+  "Young Sound" = "darkseagreen1", 
+  "Disko Bay" = "seagreen1", 
+  "Nuup Kangerlua" = "palegreen1", 
+  "Porsangerfjorden" = "plum1"
+)
 
 # EU SST trends
 ## NB: This file is very large, only load if necessary
@@ -998,8 +1033,7 @@ ice_4km_annual_prop <- ice_4km_proc %>%
          date <= "2021-12-31") %>% 
   mutate(sea_ice_extent = 1) %>% # Convert to binary yes/no
   group_by(site, lon, lat) %>% 
-  # complete(date = seq.Date(min(date), max(date), by = "day")) %>% 
-  complete(date = seq.Date(as.Date("2006-01-01"), as.Date("2021-12-31"), by = "day")) %>% # NB: Only works with 4km data time series
+  complete(date = seq.Date(as.Date("2006-01-01"), as.Date("2021-12-31"), by = "day")) %>%
   ungroup() %>% 
   replace(is.na(.), 0) %>% 
   mutate(year = lubridate::year(date)) %>% 
@@ -1017,22 +1051,23 @@ load("data/analyses/ice_4km_annual_trends.RData")
 ice_4km_annual_trends <- filter(ice_4km_annual_trends, trend < 10)
 
 # Convert ice data to an even grid for plotting
-ice_4km_annual_trends_grid <- plyr::ddply(ice_4km_annual_trends, c("site"), convert_even_grid, z_col = "trend", pixel_res = 4000)
+ice_4km_annual_trends_grid <- plyr::ddply(ice_4km_annual_trends, c("site"), convert_even_grid, z_col = "trend", pixel_res = 0.04)
 
 # Top panel: polar projection of SST trends
 fig_1_a <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
-  geom_spatial_tile(data = filter(sst_EU_arctic_annual_trends, lat >= 63), 
-                    crs = 4326, colour = NA,
-                    aes(fill = trend*10, x = lon, y = lat)) +
+  # geom_spatial_tile(data = filter(sst_EU_arctic_annual_trends, lat >= 63), 
+  #                   crs = 4326, colour = NA,
+  #                   aes(fill = trend*10, x = lon, y = lat)) +
   # Add spatial polygon to reintroduce the land shapefiles
   # geom_spatial_polygon(data = coastline_full_df, crs = 4326, fill = "grey70", colour = "black",
   #                      aes(x = x, y = y, group = polygon_id)) +
-  geom_spatial_point(data = site_points[-3,], size = 5, crs = 4326,
-                     aes(x = lon, y = lat), colour = "black") +
-  geom_spatial_point(data = site_points[-3,], size = 4, crs = 4326,
+  # geom_spatial_point(data = site_points[-3,], size = 5, crs = 4326,
+  #                    aes(x = lon, y = lat), colour = "black") +
+  geom_spatial_point(data = site_points, size = 4, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
-  annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
-  scale_colour_brewer(palette = "Set1") +
+  # annotation_spatial(bbox_EU_poly, fill = NA, colour = "black", alpha = 0.1) +
+  # scale_colour_brewer(palette = "Set1") +
+  scale_colour_manual(values = site_colours) +
   scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
   labs(title = "Region and study sites",
        colour = "Site", fill = "Trend (°C/dec)",
@@ -1046,19 +1081,67 @@ fig_1_a <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
 # fig_1_a <- reorder_layers(map_full) # Put land back on top... doesn't work with the geoms
 # tmp <- sapply(fig_1_a$layers, function(k) !is.null(k$mapping$label)) # the layer with label mapping
 # fig_1_a$layers <- c(fig_1_a$layers[-which(tmp)], fig_1_a$layers[which(tmp)])
-fig_1_a$layers <- fig_1_a$layers[c(2,1,3,4,5)] # Reorder land shape and SST rasters
+# fig_1_a$layers <- fig_1_a$layers[c(2,1,3,4,5)] # Reorder land shape and SST rasters
 ggsave("~/Desktop/anlyses_output/fig_1_a.png", fig_1_a, width = 10, height = 7)
 
 # Side panels: ice cover trends by site (days of year of ice cover)
-(fig_1_b_kong <- ice_grid_plot(filter(ice_4km_annual_trends, site == "kong"), 3000, bbox_kong, "Kongsfjorden", check_conv = F, lat_nudge = 0.01))
-(fig_1_b_is <- ice_grid_plot(filter(ice_4km_annual_trends, site == "is"), 4000, bbox_is, "Isfjorden", check_conv = F, lon_nudge = -0.01, lat_nudge = 0.02))
-(fig_1_b_stor <- ice_grid_plot(filter(ice_4km_annual_trends, site == "stor"), 4000, bbox_stor, "Storfjorden", check_conv = F, lat_nudge = 0.01, lon_nudge = -0.02))
-(fig_1_b_young <- ice_grid_plot(filter(ice_4km_annual_trends, site == "young"), 4000, bbox_young, "Young Sound", check_conv = F, lon_nudge = 0.01, lat_nudge = 0.02))
-(fig_1_b_disko <- ice_grid_plot(filter(ice_4km_annual_trends, site == "disko"), 5000, bbox_disko, "Disko Bay", check_conv = F))
-(fig_1_b_nuup <- ice_grid_plot(filter(ice_4km_annual_trends, site == "nuup"), 5000, bbox_nuup, "Nuup Kangerlua", check_conv = F, lon_nudge = -0.04))
-(fig_1_b_por <- ice_grid_plot(filter(ice_4km_annual_trends, site == "por"), 5000, bbox_por, "Porsangerfjorden", check_conv = F, lon_nudge = -0.04, lat_nudge = 0.0))
+(fig_1_b_kong <- ice_trend_grid_plot("Kongsfjorden", 0.03, check_conv = F))
+(fig_1_b_is <- ice_trend_grid_plot("Isfjorden", 0.04, check_conv = F))
+(fig_1_b_stor <- ice_trend_grid_plot("Storfjorden", 0.04, check_conv = F))
+(fig_1_b_young <- ice_trend_grid_plot("Young Sound", 0.04, check_conv = F, lat_nudge = 0.025))
+(fig_1_b_disko <- ice_trend_grid_plot("Disko Bay", 0.05, check_conv = F))
+(fig_1_b_nuup <- ice_trend_grid_plot("Nuup Kangerlua", 0.05, check_conv = F))
+(fig_1_b_por <- ice_trend_grid_plot("Porsangerfjorden", 0.05, check_conv = F))
 
 # Combine
+# fig_1 <- fig_1_a + annotation_custom(ggplotGrob(fig_1_b_kong), xmin  = 0, xmax = 200000, ymin = -2000000, ymax = 0)
+# fig_1 <- fig_1_a + insert_element()
+# "Kongsfjorden" = "tan1", 
+# "Isfjorden" = "sienna1", 
+# "Storfjorden" = "orange1", 
+# "Young Sound" = "darkseagreen1", 
+# "Disko Bay" = "seagreen1", 
+# "Nuup Kangerlua" = "palegreen1", 
+# "Porsangerfjorden" = "plum1"
+test_point <- tibble(grob = list(grid::circleGrob(r = 0.1)))
+fig_1_test <- fig_1_a + geom_grob(aes(x = 220000, y = -1180000, label = test_point$grob))
+fig_1_test
+base_df <- data.frame(x = c(-2, -1, 0, 1, 2), y = c(-2, -1, 0, 1, 2))
+fig_1_base <- ggplot(data = base_df, aes(x = x, y = y)) + theme_void()
+fig_1 <- fig_1_base +
+  geom_grob(aes(x = 0, y = 0, label = list(cowplot::as_grob(fig_1_a))))
+
+fig_1 <- fig_1_a + 
+  geom_grob(aes(x = 230000, y = -1190000, label = list(cowplot::as_grob(fig_1_b_kong))),
+                             nudge_x = -220000, nudge_y = 700000,
+                             segment.colour = "tan1") +
+  geom_grob(aes(x = 310000, y = -1250000, label = list(cowplot::as_grob(fig_1_b_is))),
+            nudge_x = 500000, nudge_y = 680000, vp.width = 0.3, vp.height = 0.3,
+            segment.colour = "sienna1")
+fig_1
+
+df <- tibble(x = 2, y = 15, grob = list(grid::circleGrob(r = 0.2)))
+
+# without nudging no segments are drawn
+ggplot(data = mtcars, aes(wt, mpg)) +
+  geom_point(aes(colour = factor(cyl))) +
+  geom_grob(data = df, aes(x, y, label = grob))
+
+# with nudging segments are drawn
+ggplot(data = mtcars, aes(wt, mpg)) +
+  geom_point(aes(colour = factor(cyl))) +
+  geom_grob(data = df, aes(x, y, label = grob),
+            nudge_x = 0.5,
+            segment.colour = "red")
+
+# with nudging plotting of segments can be disabled
+ggplot(data = mtcars, aes(wt, mpg)) +
+  geom_point(aes(colour = factor(cyl))) +
+  geom_grob(data = df, aes(x, y, label = grob),
+            add.segments = FALSE,
+            nudge_x = 0.5)
+
+# TODO: Change colour of points to be thematic with their location on a land mass (e.g. shades of green for greenland, blue for Svalbard, purple for norway)
 fig_1_b_left <- ggpubr::ggarrange(fig_1_b_young, fig_1_b_disko, fig_1_b_nuup, ncol = 1)
 fig_1_b_right <- ggpubr::ggarrange(fig_1_b_kong, fig_1_b_is, fig_1_b_stor, fig_1_b_por, ncol = 1)
 fig_1 <- ggpubr::ggarrange(fig_1_b_left, fig_1_a, fig_1_b_right, ncol = 3, widths = c(0.25, 1, 0.25))
