@@ -99,9 +99,12 @@ rm(pg_EU); gc()
 ## NB: These are restricted data so they are not added to 'full_product_EU'
 ## Site: https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html
 ## Citation: Arctic Region Discharge Data (2021). The Global Runoff Data Centre, 56068 Koblenz, Germany
+# lta_discharge = long-term average discharge, cubic metre per sec
+# r_vol_yr = mean annual volume, cubic kilometre
+# r_height_yr	= mean annual runoff depth, mm
 # EU_GRDC <- read_csv("~/pCloudDrive/restricted_data/GRDC/grdc_arctichycos_stations.csv")
 
-# CTD data from Ichtyo research
+# CTD data from Ichthyo research
 ## NB: Server was done when attempting to access these data on 2022-05-25
 # EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
 
@@ -1020,16 +1023,18 @@ kong_light_Inka_3 <- rbind(data.frame(date = klib$date, time = klib$time...2,
          date = as.Date(date, format = "%d/%m/%Y"),
          var_name = case_when(grepl("OBEN", var_name) ~ "PAR above canopy [µmol m-2 s-1]",
                               grepl("UNTEN", var_name) ~ "PAR below canopy [µmol m-2 s-1]",
-                              TRUE ~ "PAR [µmol m-2 s-1]"))
+                              TRUE ~ "PAR [µmol m-2 s-1]")) %>% 
+  filter(!is.na(time)) # Missing time is also 0 values
 kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
   mutate(note = case_when(grepl("above", var_name) ~ "Above canopy",
                               grepl("below", var_name) ~ "Below canopy",
                               TRUE ~ "No canopy"),
          `longitude [°E]` = 11.9872, `latitude [°N]` = 78.9958,
-         date = paste(date, time, sep = "T")) %>% 
+         date = paste(date, time, sep = "T")) %>% arrange(depth) %>% 
   dplyr::rename(`PAR [µmol m-2 s-1]` = value, `depth [m]` = depth, `date/time [UTC+0]` = date) %>% 
   dplyr::select(`longitude [°E]`, `latitude [°N]`, `date/time [UTC+0]`, `depth [m]`, `PAR [µmol m-2 s-1]`, note)
 # write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
+# kong_light_Inka_PG <- read_delim("~/Downloads/Kongsfjorden_Hansneset_PAR.tab", delim = "\t", skip = 20) # The published data
 kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
   mutate(lon = 11.9872, lat = 78.9958,
          var_name = case_when(var_name == "PAR [umol m-2 s-1]" ~ "PAR [µmol m-2 s-1]", TRUE ~ var_name),
@@ -1985,7 +1990,7 @@ young_GEM_qnet <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg
 young_GEM_river_dis <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Zackenberg_River_Hydrometric_data_Discharge_at_a_cross_section_of_the_river_m3_s.csv") %>% 
   dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
   filter(value != -9999) %>% 
-  mutate(var_type = "phys",
+  mutate(var_type = "cryo",
          var_name = "Q [m3/s]",
          lon = -20.57675, lat = 74.47069444, depth = NA,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/A308-6075",
@@ -2646,7 +2651,7 @@ nuup_GEM_air_temp_2m_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM
 nuup_GEM_Kingigtorssuaq <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Kingigtorssuaq_m3_s.csv") %>% 
   dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
   filter(value != -9999) %>% 
-  mutate(var_type = "phys",
+  mutate(var_type = "cryo",
          var_name = "Q [m3/s]",
          lon = -51.5795, lat = 64.138722, depth = NA,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VWS5-4688",
@@ -2659,7 +2664,7 @@ nuup_GEM_Kingigtorssuaq <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nu
 nuup_GEM_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Kobbefjord_m3_s.csv") %>% 
   dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
   filter(value != -9999) %>% 
-  mutate(var_type = "phys",
+  mutate(var_type = "cryo",
          var_name = "Q [m3/s]",
          lon = -51.38077775, lat = 64.133111, depth = NA,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/H2MR-PP28",
@@ -2672,7 +2677,7 @@ nuup_GEM_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_D
 nuup_GEM_Oriartorfik <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Oriartorfik_m3_s.csv") %>% 
   dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
   filter(value != -9999) %>% 
-  mutate(var_type = "phys",
+  mutate(var_type = "cryo",
          var_name = "Q [m3/s]",
          lon = -51.40661103, lat = 64.171861, depth = NA,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VHDT-PX65",
@@ -2685,7 +2690,7 @@ nuup_GEM_Oriartorfik <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
 nuup_GEM_Teqinngalip <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Teqinngalip_m3_s.csv") %>% 
   dplyr::rename(date = Date, value = `Q (m3/s)`) %>% 
   filter(value != -9999) %>% 
-  mutate(var_type = "phys",
+  mutate(var_type = "cryo",
          var_name = "Q [m3/s]",
          lon = -51.54838892, lat = 64.158611, depth = NA,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/DFVW-4R58",

@@ -1155,6 +1155,29 @@ load_CTD_DATEN <- function(file_name){
   return(df_res)
 }
 
+# Load GRDC river discharge files
+# NB: This requires a function as they have lon/lat values in the text headers
+load_GRDC <- function(file_name){
+  file_text <- str_split(read_file(file_name), "\r\n")
+  lat <- as.numeric(gsub("[^0-9.-]", "", file_text[[1]][13]))
+  lon <- as.numeric(gsub("[^0-9.-]", "", file_text[[1]][14]))
+  suppressWarnings(catch <- as.numeric(gsub("[^0-9.-]", "", file_text[[1]][15]))) # Missing catchment value warning
+  depth <- -as.numeric(gsub("[^0-9.-]", "", file_text[[1]][16]))
+  if(depth == 999) depth <- NA
+  suppressMessages(
+  res <- read_delim(file_name, skip = 36, delim = ";") %>% 
+    dplyr::rename(date = `YYYY-MM-DD`, `Q [m3/s]` = ` Value`) %>% 
+    mutate(lon = lon, lat = lat, depth = depth, catch = catch,
+           date = as.Date(date),
+           `Q [m3/s]` = as.numeric(`Q [m3/s]`),
+           `Q [m3/s]` = na_if(`Q [m3/s]`, -999)) %>% 
+    dplyr::select(lon, lat, catch, depth, date, `Q [m3/s]`)# %>% 
+    # mutate(file_name = file_name) # For testing
+  )
+  return(res)
+  # rm(file_name, file_text, lat, lon, catch, depth, res); gc()
+}
+
 # Convenience function to save site products as individual files
 # NB: This is designed to be multicored with the categories as the grouped variable
 save_category <- function(cat_sub, df, data_type, site_name){
@@ -1793,7 +1816,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = "Unique days with data points", x = "Month", fill = "Site", colour = "Count of\nindividual\ndata points\n[log10(n)]") +
     facet_grid(site+type~var_name) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_meta_box.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/analyses_output/",short_var,"_meta_box.png"), width = 20, height = 9)
   summary_list$monthly %>% 
     filter(!is.na(value_mean)) %>% 
     ggplot(aes(x = date, y = log10(count), colour = site)) +
@@ -1806,7 +1829,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
          fill = "Unique days\nof sampling", colour = "Site") +
     facet_grid(type~var_name) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_meta_ts.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/analyses_output/",short_var,"_meta_ts.png"), width = 20, height = 9)
   
   # Plot monthly values
   ggplot(summary_list$monthly, aes(x = date, y = value_mean, colour = site, linetype = type)) +
@@ -1820,7 +1843,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
     facet_wrap(~var_name, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_ts.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/analyses_output/",short_var,"_ts.png"), width = 20, height = 9)
   
   # Plot monthly values with the given date range filter
   filter(summary_list$monthly, date >= date_filter[1], date <= date_filter[2]) %>%
@@ -1833,7 +1856,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
     facet_wrap(~var_name, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/analyses_output/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 20, height = 9)
   
   ## Plot monthly clims
   # ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site, colour = type)) +
@@ -1857,7 +1880,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     labs(y = NULL, x = "Month", fill = "Site", colour = "Source") +
     facet_grid(site+type~var_name, scales = "free_y") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
-  ggsave(paste0("~/Desktop/anlyses_output/",short_var,"_clim_box.png"), width = 20, height = 9)
+  ggsave(paste0("~/Desktop/analyses_output/",short_var,"_clim_box.png"), width = 20, height = 9)
 }
 
 # Add depth data manually from PANGAEA files where this info is in the meta-data

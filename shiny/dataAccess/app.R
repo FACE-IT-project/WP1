@@ -372,7 +372,8 @@ server <- function(input, output, session) {
             df_cat <- purrr::map_dfr(file_list, data.table::fread) %>% # This should be improved to be site specific
                 filter(site == stringr::str_remove(input$selectSite, "_"),
                        # var_type %in% str_remove(input$selectCat, "_"),
-                       !grepl("g-e-m", URL),  # Remove GEM data
+                       !grepl("g-e-m", URL), # Remove GEM data
+                       !grepl("GRDC", URL), # Remove GRDC data
                        !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
             
             # Remove GRDC data

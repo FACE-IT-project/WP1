@@ -430,15 +430,15 @@ ggplot(ice_4km_prop, aes(x = date, y = mean_prop, colour = site)) +
                  label = paste0(trend,"/year\n p = ", p.value))) +
   scale_x_date(limits = c(as.Date("2000-09-01"), as.Date("2021-12-31")), expand = c(0, 0)) +
   labs(x = NULL, y = "Sea ice cover [proportion]", colour = "Site")
-ggsave("~/Desktop/anlyses_output/ice_prop_ts.png", height = 12, width = 20)
+ggsave("~/Desktop/analyses_output/ice_prop_ts.png", height = 12, width = 20)
 ggplot(ice_4km_prop, aes(x = as.factor(month), y = mean_prop, fill = site)) +
   geom_boxplot() + facet_wrap(~month, scales = "free_x") +
   labs(x = "Month", y = "Sea ice cover [proportion]", colour = "Site")
-ggsave("~/Desktop/anlyses_output/ice_prop_box_month.png", height = 6, width = 12)
+ggsave("~/Desktop/analyses_output/ice_prop_box_month.png", height = 6, width = 12)
 ggplot(ice_4km_prop, aes(x = as.factor(month), y = mean_prop, fill = site)) +
   geom_boxplot() + facet_wrap(~site, scales = "free_x") +
   labs(x = "Month", y = "Sea ice cover [proportion]", colour = "Site")
-ggsave("~/Desktop/anlyses_output/ice_prop_box_site.png", height = 9, width = 12)
+ggsave("~/Desktop/analyses_output/ice_prop_box_site.png", height = 9, width = 12)
 rm(ice_4km_prop, ice_4km_prop_long, ice_4km_trend, ice_4km_trend_long, ice_4km_stats); gc()
 
 # Calculate sea ice breakup and formation dates
@@ -503,11 +503,60 @@ review_summary_plot(summary_glacier, "glacier")
 # Grab glacier values directly from EU or Svalbard products for certainty
 # Look for specific DOI in each site file
 
-## River discahrge --------------------------------------------------------
+## River discharge --------------------------------------------------------
 
+# Pedro Duarte has contacted a colleague to get Kongsfjorden area river discharge data
+
+# GRDC river discharge data
+## NB: These are restricted data so they are not added to 'full_product_EU'
+# lta_discharge = long-term average discharge, cubic metre per sec
+# r_vol_yr = mean annual volume, cubic kilometre
+# r_height_yr	= mean annual runoff depth, mm
+EU_GRDC <- read_csv("~/pCloudDrive/restricted_data/GRDC/grdc_arctichycos_stations.csv")
+site_GRDC <- map_dfr(dir("~/pCloudDrive/restricted_data/GRDC", pattern = "Cmd.txt", full.names = T), load_GRDC)
+
+# Get all river discharge data from full/GEM products
+kong_river <- review_filter_var(full_product_kong, "kong", "river|disc|Q", "Disco|hetero|equ|AT|dhdt") # No river discharge data
+is_river <- review_filter_var(full_product_is, "is", "river|disc|Q", "equ|hPa|dhdt") # No river discharge data
+stor_river <- review_filter_var(full_product_stor, "stor", "river|disc|Q", "equ|AT|dhdt") # No river discharge data
+young_river <- review_filter_var(rbind(full_product_young, young_GEM), "young", "river|disc|Q", "coscin|Qnet")
+disko_river <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "river|disc|Q", "equ") # No river discharge data
+nuup_river <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "river|disc|Q", "equ|coscin|prot|psamm")
+por_river <- review_filter_var(full_product_por, "por", "river|disc|Q", "equ")# No river discharge data
+
+# Get river data from GRDC database
+FACE_IT_GRDC <- site_GRDC %>% 
+  mutate(site = case_when(lon >= bbox_kong[1] & lon <= bbox_kong[2] & lat >= bbox_kong[3] & lat <= bbox_kong[4] ~ "kong",
+                          lon >= bbox_is[1] & lon <= bbox_is[2] & lat >= bbox_is[3] & lat <= bbox_is[4] ~ "is",
+                          lon >= bbox_stor[1] & lon <= bbox_stor[2] & lat >= bbox_stor[3] & lat <= bbox_stor[4] ~ "stor",
+                          lon >= bbox_young[1] & lon <= bbox_young[2] & lat >= bbox_young[3] & lat <= bbox_young[4] ~ "young",
+                          lon >= bbox_disko[1] & lon <= bbox_disko[2] & lat >= bbox_disko[3] & lat <= bbox_disko[4] ~ "disko",
+                          lon >= bbox_nuup[1] & lon <= bbox_nuup[2] & lat >= bbox_nuup[3] & lat <= bbox_nuup[4] ~ "nuup",
+                          lon >= bbox_por[1] & lon <= bbox_por[2] & lat >= bbox_por[3] & lat <= bbox_por[4] ~ "por")) %>% 
+  filter(!is.na(site)) %>% 
+  pivot_longer(`Q [m3/s]`, names_to = "var_name") %>% 
+  mutate(var_type = "cryo", date_accessed = as.Date("2022-06-13"), type = "in situ",
+         URL = "https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html", 
+         citation = "Arctic Region Discharge Data (2021). The Global Runoff Data Centre, 56068 Koblenz, Germany") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value, site, type)
+
+# Combine all datasets and clean up
+clean_river <- rbind(kong_river, is_river, stor_river, young_river, disko_river, nuup_river, por_river, FACE_IT_GRDC) %>% 
+  mutate(var_group = "river")
+rm(kong_river, is_river, stor_river, young_river, disko_river, nuup_river, por_river, EU_GRDC, FACE_IT_GRDC); gc()
+
+# Summary analyses
+summary_river <- review_summary(clean_river)
+
+# Plot results
+review_summary_plot(summary_river, "river")
 
 
 ## Oxygen -----------------------------------------------------------------
+
+# NB: According to Mikael Sejr (via Slack) the older Young Sound O2 data that are much higher are 
+# due to sensor drift, but there's not much to be done for it.
+# Therefore these data should be marked as "raw sensor output"
 
 # Test check for all bio vars to make sure no glacier vars are missed
 as.vector(distinct(filter(full_product_is, var_type == "chem"), var_name))
@@ -816,7 +865,7 @@ review_summary_plot(summary_shipping, "shipping")
 ## Save clean data ---------------------------------------------------------
 
 clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR, 
-                   clean_sea_ice, clean_snow, clean_glacier,
+                   clean_sea_ice, clean_snow, clean_glacier, clean_river,
                    clean_O2, clean_pCO2, clean_nutrients, #clean_pH, # pH shouldn't be necessary if we have pCO2
                    clean_chla, clean_biomass, clean_sp_ass,
                    clean_tourism, clean_shipping)
@@ -827,7 +876,7 @@ plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
 ## References --------------------------------------------------------------
 
 # NB: Check for N-ICE and remove if present
-all_ref <- bind_rows(summary_ice$citations, summary_snow$citations, summary_glacier$citations,
+all_ref <- bind_rows(summary_ice$citations, summary_snow$citations, summary_glacier$citations, summary_river$citations,
                      summary_SST$citations, summary_air$citations, summary_sal$citations, summary_PAR$citations,
                      summary_O2$citations, summary_pCO2$citations, summary_nutrients$citations, 
                      summary_chla$citations, summary_biomass$citations, summary_sp_ass$citations, 
@@ -838,7 +887,7 @@ save(all_ref, file = "data/analyses/all_ref.RData")
 ## Summary -----------------------------------------------------------------
 
 # Combine analysed data
-all_meta <- rbind(summary_ice$monthly, summary_snow$monthly, summary_glacier$monthly,
+all_meta <- rbind(summary_ice$monthly, summary_snow$monthly, summary_glacier$monthly, summary_river$monthly,
                   summary_SST$monthly, summary_air$monthly, summary_sal$monthly, summary_PAR$monthly,
                   summary_O2$monthly, summary_pCO2$monthly, summary_nutrients$monthly, 
                   summary_chla$monthly, summary_biomass$monthly, summary_sp_ass$monthly, 
@@ -855,7 +904,7 @@ all_meta %>%
   labs(y = paste0("Unique days with data points"), x = "Month", fill = "Site", colour = "Count [log10(n)]") +
   facet_grid(site~var_group) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/anlyses_output/meta_meta_box.png", width = 16, height = 12)
+ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 
 
 # Section 3 ---------------------------------------------------------------
@@ -897,7 +946,7 @@ rm(clean_all, clean_all_sp_count); gc()
 # Create monthly means
 clean_all_monthly <- clean_all_clean %>% 
   filter(!is.na(date)) %>% 
-  filter(depth <= 10 | is.na(depth)) %>% 
+  # filter(depth <= 10 | is.na(depth)) %>% 
   mutate(month_year = lubridate::floor_date(date, "month")) %>% 
   group_by(var_group, var_name, site, month_year) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
@@ -947,7 +996,7 @@ cor_plot_por <- ggcorrplot(clean_all_corr_por, title = "Porsangerfjorden") + the
 
 # Arrange and save
 cor_plot_all <- ggpubr::ggarrange(cor_plot_kong, cor_plot_is, cor_plot_stor, cor_plot_young, cor_plot_disko, cor_plot_nuup, cor_plot_por) + theme_bw()
-ggsave("~/Desktop/anlyses_output/cor_plot_all.png", height = 20, width = 25)
+ggsave("~/Desktop/analyses_output/cor_plot_all.png", height = 20, width = 25)
 
 # Get count of cor sum per column
 test1 <- clean_all_corr %>%
