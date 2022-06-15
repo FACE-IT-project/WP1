@@ -869,6 +869,7 @@ clean_all <- rbind(clean_SST, clean_air, clean_sal, clean_PAR,
                    clean_O2, clean_pCO2, clean_nutrients, #clean_pH, # pH shouldn't be necessary if we have pCO2
                    clean_chla, clean_biomass, clean_sp_ass,
                    clean_tourism, clean_shipping)
+save(clean_all, file = "data/analyses/clean_all.RData")
 plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
             df = clean_all, data_type = "clean", site_name = "all")
 

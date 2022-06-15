@@ -21,3 +21,4 @@ shiny/test_data
 shiny/kongCTD/data_base.Rds
 shiny/dataAccess/full_data
 data/analyses/ice_4km_proc.RData
+data/analyses/clean_all.RData

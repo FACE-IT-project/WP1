@@ -233,7 +233,7 @@ EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE2
   filter(!is.na(value))
 
 # SOCAT data
-EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2021.rds") %>%  
+EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%  
   dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
                 depth = `sample_depth [m]`, value = `pCO2water_SST_wet [uatm]`) %>% 
   filter(lat >= 63, value >= 0) %>% 
