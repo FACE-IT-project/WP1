@@ -293,6 +293,9 @@ review_summary_plot(summary_sal, "sal")
 
 ## PAR --------------------------------------------------------------------
 
+# Contact Kai about what he would want done about spectrally resolved data
+# Also about UV, but first check what data exist
+
 # Get all PAR data
 kong_PAR <- review_filter_var(full_product_kong, "kong", "PAR", "Onc|Gym|Para|below|abys")
 is_PAR <- review_filter_var(full_product_is, "is", "PAR", "aeuch|eleg") # No PAR data
@@ -557,6 +560,7 @@ review_summary_plot(summary_river, "river")
 # NB: According to Mikael Sejr (via Slack) the older Young Sound O2 data that are much higher are 
 # due to sensor drift, but there's not much to be done for it.
 # Therefore these data should be marked as "raw sensor output"
+# Oxygen isotope data may be of interest to someone in FACE-IT
 
 # Test check for all bio vars to make sure no glacier vars are missed
 as.vector(distinct(filter(full_product_is, var_type == "chem"), var_name))
