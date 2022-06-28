@@ -3,23 +3,18 @@
 
 ### TODO: 
 ## General fixes
-# Fix upload button, it is broken - Currently waiting on more hard drive space on awipev-co2
-# Change upload_date metadata box so it can't be edited
 # Change column names to match NMDC terminology
 
 ## Graphical features
 # Time series by site/user of count of when and how much data were uploaded
 # Bar plot showing which users are in the lead w.r.t. data uploads
   # Do this by count of files, different days of upload, count of rows of data
-# Shorten boxes so that the web browser never wants to scroll down
 # Allow for colour to show on maps or time series for which sources have contributed the historic data
   # Numbers for colours, and then a lookup table with product name via join by number
 
 ## UI features
-# Rather show the count of the data and that it get's bigger when a user uploads something
-# Selectise the sensor owners etc. in the download tab
 # Create a NetCDF file format for saving data
-# Have a '6) Editing' tab that is password protected to go back and fix issues
+# Have a '4) Editing' tab that is password protected to go back and fix issues
   # Make this attached to the username so that users can only edit the data they uploaded
   # Have superusers too whose name == ALL
   # This requires the database to have a last edited column
@@ -308,7 +303,7 @@ ui <- dashboardPage(
                             "V6" = "V6", "V10" = "V10", "V12" = "V12")),
                     selected = "No name"),
                   fluidRow(column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
-                           column(4, shiny::numericInput("allLat", "Single latitude", value = NA, min = 78, max = 80)),
+                           column(4, shiny::numericInput("allLat", "Latitude", value = NA, min = 78, max = 80)),
                            column(4, shiny::textInput("allDataOwner", "Data owner"))),
                   fluidRow(column(4, shiny::textInput("allSensorOwner", "Sensor owner")),
                            column(4, shiny::textInput("allSensorBrand", "Sensor brand")),
@@ -413,6 +408,9 @@ ui <- dashboardPage(
                        box(width = 12, height = "800px", title = "Controls",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
 
+                           ## Data uploader
+                           uiOutput("selectUpUI"),
+                           
                            ## Data owner
                            uiOutput("selectDOUI"),
                            
@@ -433,6 +431,7 @@ ui <- dashboardPage(
 
                            ### Download
                            hr(),
+                           # br(),
                            fluidRow(column(width = 6, uiOutput("downloadFilterTypeUI")),
                                     column(width = 6, uiOutput("downloadFilterUI")))
                        )
@@ -1069,13 +1068,13 @@ server <- function(input, output, session) {
     req(input$file1, table$table1$file_name, df_time())
     df_meta_check <- df_time() %>% 
       dplyr::select(Data_owner, Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
-      mutate(Data_owner = case_when(is.na(Data_owner) ~ 0, TRUE ~ 1),
-             Sensor_owner = case_when(is.na(Sensor_owner) ~ 0, TRUE ~ 1),
-             Sensor_brand = case_when(is.na(Sensor_brand) ~ 0, TRUE ~ 1),
-             Sensor_number = case_when(is.na(Sensor_number) ~ 0, TRUE ~ 1),
-             Site = case_when(is.na(Site) ~ 0, TRUE ~ 1),
-             Lon = case_when(is.na(Lon) ~ 0, TRUE ~ 1),
-             Lat = case_when(is.na(Lat) ~ 0, TRUE ~ 1)) %>% 
+      mutate(Data_owner = case_when(is.na(Data_owner) ~ 1, TRUE ~ 0),
+             Sensor_owner = case_when(is.na(Sensor_owner) ~ 1, TRUE ~ 0),
+             Sensor_brand = case_when(is.na(Sensor_brand) ~ 1, TRUE ~ 0),
+             Sensor_number = case_when(is.na(Sensor_number) ~ 1, TRUE ~ 0),
+             Site = case_when(is.na(Site) ~ 1, TRUE ~ 0),
+             Lon = case_when(is.na(Lon) ~ 1, TRUE ~ 0),
+             Lat = case_when(is.na(Lat) ~ 1, TRUE ~ 0)) %>% 
       summarise_all(sum)
     return(df_meta_check)
   })
@@ -1085,41 +1084,26 @@ server <- function(input, output, session) {
     req(df_meta_check())
     df_meta_check <- df_meta_check()
     if(sum(df_meta_check) == 0){
-      meta_check_text <-  "All good, upload data to database"
+      meta_check_text <-  "All good. <br> Click to upload data to database. <br>"
     } else {
-      meta_check_text <- ""
-      # if(df_meta_check$Data_owner[1] > 0){
-      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Data_owner rows: ",df_meta_check$Data_owner[1])
-      # } 
-      # if(df_meta_check$Sensor_owner[1] > 0){
-      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Sensor_owner rows: ",df_meta_check$Sensor_owner[1])
-      # }
-      # if(df_meta_check$Sensor_brand[1] > 0){
-      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Sensor_brand rows: ",df_meta_check$Sensor_brand[1])
-      # }
-      # if(df_meta_check$Sensor_number[1] > 0){
-      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Sensor_number rows: ",df_meta_check$Sensor_number[1])
-      # }
-      if(df_meta_check$Site[1] > 0){
-        meta_check_text <- paste0(meta_check_text,"<br>", "Missing Site rows: ",df_meta_check$Site[1])
+      meta_check_text <- paste0("Add missing meta-data before uploading: <br>",
+                                "Data_owner: ",df_meta_check$Data_owner," rows <br>",
+                                "Sensor_owner: ",df_meta_check$Sensor_owner," rows <br>",
+                                "Sensor_brand: ",df_meta_check$Sensor_brand," rows <br>",
+                                "Site: ",df_meta_check$Site," rows <br>",
+                                "Lon: ",df_meta_check$Lon," rows <br>",
+                                "Lat: ",df_meta_check$Lat," rows")
       }
-      if(df_meta_check$Lon[1] > 0){
-        meta_check_text <- paste0(meta_check_text,"<br>", "Missing Lon rows: ",df_meta_check$Lon[1])
-      }
-      if(df_meta_check$Lat[1] > 0){
-        meta_check_text <- paste0(meta_check_text,"<br>", "Missing Lat rows: ",df_meta_check$Lat[1])
-      }
-    }
     return(meta_check_text)
   })
   
   # Reactive upload button
   output$uploadButton <- renderUI({
     req(df_meta_check())
-    if(sum(df_meta_check[1,]) == 0){
+    if(sum(df_meta_check()) == 0){
       actionButton("upload", "Upload", icon = icon("upload"))
     } else {
-      actionButton("uploadFail", "Missing", icon = icon("skull"))
+      # actionButton("uploadFail", "Missing meta-data", icon = icon("skull"))
     }
   })
   
@@ -1147,7 +1131,10 @@ server <- function(input, output, session) {
   
   # Show the newly expanded database
   output$dataBase <- DT::renderDataTable({
-    data_base_DT <- datatable(df_data_base(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
+    df_db_summary <- df_data_base() %>% 
+      group_by(Uploader, upload_date, Data_owner, Sensor_owner, Sensor_brand, Sensor_number, Site) %>% 
+      summarise(rows = n(), .groups = "drop")
+    data_base_DT <- datatable(df_db_summary, options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
     return(data_base_DT)
   })
   
@@ -1155,35 +1142,32 @@ server <- function(input, output, session) {
   ## Download server --------------------------------------------------------
 
   # Filter data
+  ## Subset by data uploaders
+  output$selectUpUI <- renderUI({
+    # req(input$selectSite)
+    selectizeInput('selectUp', 'Data uploader',
+                   choices = unique(df_data_base()$Uploader), multiple = T,
+                   selected = unique(df_data_base()$Uploader)#,
+                   # NB: If one wants to start with no values selected
+                   # options = list(
+                   #   placeholder = 'Select data uploader(s)',
+                   #   onInitialize = I('function() { this.setValue(""); }')
+                   # )
+    )
+  })
+  
   ## Subset by data owners
   output$selectDOUI <- renderUI({
-    # req(input$selectSite)
-    # selectizeInput('selectDO', 'Data owner',
-    #   choices = unique(df_data_base()$Data_owner), multiple = T,
-    #   # selected = unique(df_data_base()$Data_owner),
-    #   options = list(
-    #     placeholder = 'Select data owner(s)',
-    #     onInitialize = I('function() { this.setValue(""); }')
-    #   )
-    # )
-    selectInput("selectDO", "Data owner", multiple = T,
-                choices = unique(df_data_base()$Data_owner), 
-                selected = unique(df_data_base()$Data_owner))
+    selectizeInput('selectDO', 'Data owner',
+      choices = unique(df_data_base()$Data_owner), multiple = T,
+      selected = unique(df_data_base()$Data_owner))
   })
   
   ## Subset by sensor owner
   output$selectSOUI <- renderUI({
-    # req(df_data_base())
-    # selectizeInput('selectSO', 'Sensor owner',
-    #   choices = unique(df_data_base()$Sensor_owner), multiple = T,
-    #   options = list(
-    #     placeholder = 'Select sensor owner(s)',
-    #     onInitialize = I('function() { this.setValue(""); }')
-    #   )
-    # )
-    selectInput("selectSO", "Sensor owner", multiple = T,
-                choices = unique(df_data_base()$Sensor_owner), 
-                selected = unique(df_data_base()$Sensor_owner))
+    selectizeInput('selectSO', 'Sensor owner',
+      choices = unique(df_data_base()$Sensor_owner), multiple = T,
+      selected = unique(df_data_base()$Sensor_owner))
   })
   
   ## Lon
@@ -1225,11 +1209,12 @@ server <- function(input, output, session) {
   df_filter <- reactive({
     # req(input$selectSite)
     if(length(input$selectDO) == 0){
-      df_filter <- data.frame(warning = "Select at least one data owner from the drop down list.")
+      df_filter <- data.frame(Empty = "Please expand your search in the blue 'Controls' panel on the left.")
     } else if(length(input$selectDO) > 0){
       req(input$slideLon)
       df_filter <- df_data_base() %>%
-        filter(Data_owner %in% input$selectDO,
+        filter(Uploader %in% input$selectUp,
+               Data_owner %in% input$selectDO,
                Sensor_owner %in% input$selectSO,
                Lon >= input$slideLon[1], Lon <= input$slideLon[2],
                Lat >= input$slideLat[1], Lat <= input$slideLat[2],
@@ -1268,10 +1253,14 @@ server <- function(input, output, session) {
     req(input$plotXDL)
 
     df_filter <- df_filter()
-
-    ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
-      geom_point() + #geom_line() +
-      theme(panel.border = element_rect(colour = "black", size = 1, fill = NA))
+    
+    if(nrow(df_filter) == 1){
+      ts <- ggplot() + geom_blank()
+    } else{
+      ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
+        geom_point() + #geom_line() +
+        theme(panel.border = element_rect(colour = "black", size = 1, fill = NA))
+    }
     return(ts)
   })
   
