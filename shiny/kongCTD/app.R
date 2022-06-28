@@ -163,11 +163,11 @@ frame_base <- ggplot() +
 
 # login credentials
 credentials <- data.frame(
-  user = c("r", "Allison", "Clara", "Jean-Pierre", "shinymanager"), # mandatory
-  password = c("r", "R", "R", "Antibes", "12345"), # mandatory
+  user = c("r", "Allison", "Clara", "Jean-Pierre", "Philipp", "shinymanager"), # mandatory
+  password = c("r", "R", "R", "Antibes", "Argo", "12345"), # mandatory
   start = c("2019-04-15"), # optional (all others)
-  expire = c(NA, NA, NA, NA, "2023-12-31"),
-  admin = c(FALSE, FALSE, FALSE, FALSE, TRUE),
+  expire = c(NA, NA, NA, NA, NA, "2023-12-31"),
+  admin = c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
@@ -196,8 +196,7 @@ ui <- dashboardPage(
                 # The various menus
                 menuItem("1) Load file", tabName = "load", icon = icon("desktop"), selected = TRUE),
                 menuItem("2) Metadata", tabName = "meta", icon = icon("cog")),
-                menuItem("3) QC/Upload", tabName = "tidy", icon = icon("upload")),
-                # menuItem("4) Upload", tabName = "upload", icon = icon("upload")),
+                menuItem("3) QC/Upload", tabName = "QCup", icon = icon("upload")),
                 menuItem("4) Edit", tabName = "edit", icon = icon("shower")),
                 menuItem("5) Download", tabName = "download", icon = icon("download")),
                 menuItem("About", tabName = "about", icon = icon("question"))),
@@ -339,15 +338,15 @@ ui <- dashboardPage(
               )
       ),
 
-      ## Tidy menu ---------------------------------------------------------------
+      ## QC/Up menu --------------------------------------------------------------
 
-      tabItem(tabName = "tidy",
+      tabItem(tabName = "QCup",
 
               fluidRow(
 
                 column(width = 4,
 
-                       box(width = 12, height = "300px", title = "Controls",
+                       box(width = 12, height = "400px", title = "Controls",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
 
                            # h4("Choose column order to begin"),
@@ -361,73 +360,40 @@ ui <- dashboardPage(
                            fluidRow(
                              column(6, shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1)),
                              column(6, shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1)),
-                           ),
+                             ),
                            
-                           h4("Click to upload data to database"),
-                           actionButton("upload", "Upload", icon = icon("upload"))
-                       ),
+                           h4("Meta-data status:"),
+                           htmlOutput("uploadText"),
+                           uiOutput("uploadButton")
+                           ),
                        
                        # box(width = 12,
-                       #     height = "350px",
+                       #     height = "250px",
                        #     title = "Upload",
                        #     status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                       #     h3("Click to upload data to database"),
-                       #     actionButton("upload", "Upload", icon = icon("upload")))
+                       #     # h4("Click to upload data to database"),
+                       #     # actionButton("upload", "Upload", icon = icon("upload"))
+                       #     # uiOutput("uploadButton")
+                       #     ),
                 ),
 
                 # The data display
                 column(8,
                        
-                       box(width = 12, height = "500px", title = "Data",
+                       box(width = 12, height = "450px", title = "Data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
-                           DT::dataTableOutput("contents_tidy")
+                           DT::dataTableOutput("uploadedDT")
                        ),
                        
-                       box(width = 12, height = "350px", title = "Time series",
+                       box(width = 12, height = "400px", title = "Database",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
-                           fluidRow(
-                             column(2#,
-                                    # dropdownButton(
-                                    # h4("Axis controls:"),
-                                    # uiOutput("plotXUI"),
-                                    # uiOutput("plotYUI")
-                                    ),
-                             # circle = TRUE, status = "danger", icon = icon("gear"))),
-                             # column(10, plotOutput("tsPlot", height = "250px"))
-                           )
+                           DT::dataTableOutput("dataBase")
                        ),
                 )
 
               ),
 
       ),
-      
-      
-      ## Upload menu -------------------------------------------------------------
-
-      # tabItem(tabName = "upload",
-      #         fluidPage(
-      #           box(width = 2, 
-      #               # height = "730px", # Length when tips are shown
-      #               height = "550px",
-      #               title = "Upload",
-      #               status = "primary", solidHeader = TRUE, collapsible = FALSE,
-      #               h3("Click to upload data to database"),
-      #               actionButton("upload", "Upload", icon = icon("upload"))),
-      #           
-      #           # The uploaded data display
-      #           box(width = 5, height = "900px", title = "Current data",
-      #               status = "success", solidHeader = TRUE, collapsible = FALSE,
-      #               DT::dataTableOutput("uploadedDT")
-      #           ),
-      #           
-      #           # The database display
-      #           box(width = 5, height = "900px", title = "Database",
-      #               status = "success", solidHeader = TRUE, collapsible = FALSE,
-      #               DT::dataTableOutput("dataBase"))
-      #         )
-      # ),
-
       
 
       ## Edit menu ---------------------------------------------------------------
@@ -436,7 +402,7 @@ ui <- dashboardPage(
               
               fluidRow(h4("   No one here but us chickens."))),
       
-      ## Download menu ----------------------------------------------------------
+      ## Download menu -----------------------------------------------------------
 
       tabItem(tabName = "download",
 
@@ -474,7 +440,7 @@ ui <- dashboardPage(
 
                 # The data display
                 column(9,
-                       box(width = 12, height = "400px", title = "Data",
+                       box(width = 12, height = "450px", title = "Data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBaseFilter")),
                        box(width = 5, height = "400px", title = "Map",
@@ -902,18 +868,20 @@ server <- function(input, output, session) {
     # Extract meta-data for all uploaded files
     df_meta <- purrr::map_dfr(input$file1$datapath, file_meta_func) %>% 
       left_join(file_info_df(), by = "file_temp") %>% 
-      dplyr::select(file_name, everything(),  -file_temp)
+      mutate(upload_date = as.character(upload_date)) %>%  # For rHandsOnTable date formatting
+      dplyr::select(upload_date, file_name, everything(), -file_temp)
     
     # Exit
     return(df_meta)
   })
   
-  # Interactive metadatatable
+  # Interactive meta-datatable
   table <- reactiveValues()
   output$table1output <- renderRHandsontable({
     rhandsontable(file_meta_all(), stretchH = "all", useTypes = F) %>% 
       # hot_col("file_num", readOnly = TRUE) %>% 
       hot_col("file_name", readOnly = TRUE) %>% 
+      hot_col("upload_date", readOnly = TRUE) %>% 
       hot_col(col = "Sensor_number", strict = FALSE)})
   observeEvent(input$table1output, {
     df <- hot_to_r(input$table1output)
@@ -925,7 +893,7 @@ server <- function(input, output, session) {
   ## Site
   observeEvent(input$allSite, {
     table$table1$Site <- input$allSite
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Site), col = 2, session = session, table$table1$Site[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Site), col = 3, session = session, table$table1$Site[1])
     if(input$allSite == "Site 1"){
       shiny::updateNumericInput(inputId = "allLon", value = 12)
       shiny::updateNumericInput(inputId = "allLat", value = 78.95)
@@ -975,43 +943,45 @@ server <- function(input, output, session) {
   ## Longitude
   observeEvent(input$allLon, {
     table$table1$Lon <- input$allLon
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lon), col = 3, session = session, table$table1$Lon[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lon), col = 4, session = session, table$table1$Lon[1])
   })
   ## Latitude
   observeEvent(input$allLat, {
     table$table1$Lat <- input$allLat
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lat), col = 4, session = session, table$table1$Lat[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lat), col = 5, session = session, table$table1$Lat[1])
   })
   ## Data owner
   observeEvent(input$allDataOwner, {
     table$table1$Data_owner <- input$allDataOwner
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Data_owner), col = 5, session = session, table$table1$Data_owner[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Data_owner), col = 6, session = session, table$table1$Data_owner[1])
   })
   ## Sensor owner
   observeEvent(input$allSensorOwner, {
     table$table1$Sensor_owner <- input$allSensorOwner
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_owner), col = 6, session = session, table$table1$Sensor_owner[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_owner), col = 7, session = session, table$table1$Sensor_owner[1])
   })
   ## Sensor brand
   observeEvent(input$allSensorBrand, {
     table$table1$Sensor_brand <- input$allSensorBrand
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_brand), col = 7, session = session, table$table1$Sensor_brand[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_brand), col = 8, session = session, table$table1$Sensor_brand[1])
   })
   ## Sensor number
   observeEvent(input$allSensorNumber, {
     table$table1$Sensor_number <- input$allSensorNumber
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_number), col = 8, session = session, table$table1$Sensor_number[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_number), col = 9, session = session, table$table1$Sensor_number[1])
   })
   
   # Reactive data for datatable
   df_time <- reactive({
-    req(input$file1, table$table1, df_load())
+    req(input$file1, table$table1$file_name, df_load())
     df_meta <- as.data.frame(table$table1) %>%
-      mutate(file_name = as.character(file_name))
+      mutate(file_name = as.character(file_name)) %>% 
+      mutate(upload_date = as.Date(upload_date))
     df_time <- df_load() %>% 
       mutate(file_name = as.character(file_name)) %>%
-      left_join(df_meta, by = c("file_name", "upload_date")) #, "file_num")) %>% 
-    # dplyr::select(-file_num)
+      left_join(df_meta, by = c("file_name", "upload_date")) %>%  #, "file_num")) %>% 
+      dplyr::select(Uploader, upload_date, file_name, Data_owner, Sensor_owner, 
+                    Sensor_brand, Sensor_number, Site, Lon, Lat, everything())
     return(df_time)
   })
   
@@ -1065,36 +1035,8 @@ server <- function(input, output, session) {
   })
   
 
-  ## Tidy server -------------------------------------------------------------
-  
-  # output$selectColsUI <- renderUI({
-  #   req(input$file1)
-  #   req(is.data.frame(df_time()))
-  #   shiny::selectInput("selectCols", "Select column order", choices = colnames(df_time()), multiple = TRUE)
-  # })
-  # 
-  # output$plotXUI <- renderUI({
-  #   req(input$selectCols)
-  #   shiny::selectInput("plotX", "X axis", multiple = FALSE, 
-  #                      choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
-  # })
-  # 
-  # output$plotYUI <- renderUI({
-  #   req(input$selectCols)
-  #   shiny::selectInput("plotY", "Y axis", multiple = FALSE, 
-  #                      choices = colnames(df_tidy())[!colnames(df_tidy()) %in% c("lon", "lat")])
-  # })
-  # 
-  # output$tsPlot <- renderPlot({
-  #   req(input$plotX)
-  #   
-  #   df_tidy <- df_tidy()
-  #   
-  #   ts <- ggplot(data = df_tidy, aes_string(x = input$plotX, y = input$plotY)) +
-  #     geom_point() + geom_line()
-  #   return(ts)
-  # })
-  # 
+  ## QC/Up server -------------------------------------------------------------
+
   # df_tidy <- reactive({
   #   req(input$file1, input$selectCols)
   # 
@@ -1116,27 +1058,76 @@ server <- function(input, output, session) {
   #   # Exit
   #   return(df_tidy)
   # })
-  # 
-  # output$contents_tidy <- DT::renderDataTable({
-  #   req(input$file1)
-  #   req(input$selectCols)
-  #   df_tidy <- df_tidy()
-  #   df_tidy_DT <- datatable(df_tidy, options = list(pageLength = 10, scrollX = TRUE, scrollY = 300))
-  #   return(df_tidy_DT)
-  # })
-
-
-  ## Upload server -----------------------------------------------------------
 
   # Create reactive data_base object that recognizes uploads of new data
   data_base <- reactiveValues()
   data_base$df <- read_rds("data_base.Rds")
   
+  # Check that all necessary meta-data has been provided
+  # NB: Would be good to add group_by(file_name)
+  df_meta_check <- reactive({
+    req(input$file1, table$table1$file_name, df_time())
+    df_meta_check <- df_time() %>% 
+      dplyr::select(Data_owner, Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
+      mutate(Data_owner = case_when(is.na(Data_owner) ~ 0, TRUE ~ 1),
+             Sensor_owner = case_when(is.na(Sensor_owner) ~ 0, TRUE ~ 1),
+             Sensor_brand = case_when(is.na(Sensor_brand) ~ 0, TRUE ~ 1),
+             Sensor_number = case_when(is.na(Sensor_number) ~ 0, TRUE ~ 1),
+             Site = case_when(is.na(Site) ~ 0, TRUE ~ 1),
+             Lon = case_when(is.na(Lon) ~ 0, TRUE ~ 1),
+             Lat = case_when(is.na(Lat) ~ 0, TRUE ~ 1)) %>% 
+      summarise_all(sum)
+    return(df_meta_check)
+  })
+  
+  # Provide message for missing meta-data
+  output$uploadText <- renderText({
+    req(df_meta_check())
+    df_meta_check <- df_meta_check()
+    if(sum(df_meta_check) == 0){
+      meta_check_text <-  "All good, upload data to database"
+    } else {
+      meta_check_text <- ""
+      # if(df_meta_check$Data_owner[1] > 0){
+      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Data_owner rows: ",df_meta_check$Data_owner[1])
+      # } 
+      # if(df_meta_check$Sensor_owner[1] > 0){
+      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Sensor_owner rows: ",df_meta_check$Sensor_owner[1])
+      # }
+      # if(df_meta_check$Sensor_brand[1] > 0){
+      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Sensor_brand rows: ",df_meta_check$Sensor_brand[1])
+      # }
+      # if(df_meta_check$Sensor_number[1] > 0){
+      #   meta_check_text <- paste0(meta_check_text,"<br>", "Missing Sensor_number rows: ",df_meta_check$Sensor_number[1])
+      # }
+      if(df_meta_check$Site[1] > 0){
+        meta_check_text <- paste0(meta_check_text,"<br>", "Missing Site rows: ",df_meta_check$Site[1])
+      }
+      if(df_meta_check$Lon[1] > 0){
+        meta_check_text <- paste0(meta_check_text,"<br>", "Missing Lon rows: ",df_meta_check$Lon[1])
+      }
+      if(df_meta_check$Lat[1] > 0){
+        meta_check_text <- paste0(meta_check_text,"<br>", "Missing Lat rows: ",df_meta_check$Lat[1])
+      }
+    }
+    return(meta_check_text)
+  })
+  
+  # Reactive upload button
+  output$uploadButton <- renderUI({
+    req(df_meta_check())
+    if(sum(df_meta_check[1,]) == 0){
+      actionButton("upload", "Upload", icon = icon("upload"))
+    } else {
+      actionButton("uploadFail", "Missing", icon = icon("skull"))
+    }
+  })
+  
   # When the Upload button is clicked, save df_time()
   observeEvent(input$upload, {
     # saveData(df_time())
-    df_res <- bind_rows(data_base$df, df_time()) %>% distinct()
-    # write_rds(df_res, file = "data_base.Rds") # NB: Reactivate this line once the hard drive space has been increased to allow uploading
+    df_res <- bind_rows(df_time(), data_base$df) %>% distinct()
+    write_rds(df_res, file = "data_base.Rds", compress = "gz")
     data_base$df <- read_rds("data_base.Rds")
   })
   
@@ -1150,13 +1141,13 @@ server <- function(input, output, session) {
   output$uploadedDT <- DT::renderDataTable({
     req(input$file1, table$table1)
     df_time <- df_time()
-    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 700))
+    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
     return(df_time_DT)
   })
   
   # Show the newly expanded database
   output$dataBase <- DT::renderDataTable({
-    data_base_DT <- datatable(df_data_base(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 700))
+    data_base_DT <- datatable(df_data_base(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
     return(data_base_DT)
   })
   
@@ -1252,7 +1243,7 @@ server <- function(input, output, session) {
   
   # Show the filtered database
   output$dataBaseFilter <- DT::renderDataTable({
-    data_base_filter_DT <- datatable(df_filter(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
+    data_base_filter_DT <- datatable(df_filter(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
     return(data_base_filter_DT)
   })
   
@@ -1279,7 +1270,7 @@ server <- function(input, output, session) {
     df_filter <- df_filter()
 
     ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
-      geom_point() + geom_line() +
+      geom_point() + #geom_line() +
       theme(panel.border = element_rect(colour = "black", size = 1, fill = NA))
     return(ts)
   })
