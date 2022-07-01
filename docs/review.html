@@ -14,7 +14,7 @@
 
 <title>Review of past and future changes of key drivers</title>
 
-<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -39,7 +39,7 @@
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
-<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
 <!-- Add a small amount of space between sections. -->
 <style type="text/css">
 div.section {
@@ -68,6 +68,7 @@ if (window.hljs) {
   }
 }
 </script>
+
 
 
 
@@ -119,6 +120,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -344,7 +348,7 @@ div.tocify {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -356,29 +360,29 @@ div.tocify {
         <li>
   <a href="key_drivers.html">Key drivers</a>
 </li>
+<li>
+  <a href="metadatabase.html">Meta-database</a>
+</li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Data
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Analyses
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="metadatabase.html">Meta-database</a>
-    </li>
     <li>
       <a href="data_summary.html">Data summary</a>
     </li>
     <li>
       <a href="model_summary.html">Model summary</a>
     </li>
+    <li>
+      <a href="sst_summary.html">SST summary</a>
+    </li>
   </ul>
 </li>
-<li>
-  <a href="review.html">Review of drivers</a>
-</li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Talks
      
     <span class="caret"></span>
@@ -390,10 +394,13 @@ div.tocify {
     <li>
       <a href="2021_analysis.html">FACE-IT example analysis - 2021</a>
     </li>
+    <li>
+      <a href="2022_seminar.html">FACE-IT seminar - 2022</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Posters
      
     <span class="caret"></span>
@@ -429,16 +436,19 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Review of past and future changes of key drivers</h1>
+<h1 class="title toc-ignore">Review of past and future changes of key
+drivers</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">10 novembre 2021</h4>
+<h4 class="date">01 juillet 2022</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -447,7 +457,9 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -456,17 +468,27 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-11-10
+<strong>Last updated:</strong> 2022-07-01
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>WP1/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -475,107 +497,168 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210216code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210216)</code> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210216code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20210216)</code> </a>
 </p>
 </div>
-<div id="strongSeedstrongcodesetseed20210216code" class="panel-collapse collapse">
+<div id="strongSeedstrongcodesetseed20210216code"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20210216)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20210216)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
 </p>
 </div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
 </p>
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
 </p>
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treea7fef2bc3fcdb5179efd28a5a6beb632ad0494bftargetblanka7fef2ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/a7fef2bc3fcdb5179efd28a5a6beb632ad0494bf" target="_blank">a7fef2b</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedc4e6abd3eb4214441734a78f504369cd48b70ftargetblankedc4e6aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/FACE-IT-project/WP1/tree/edc4e6abd3eb4214441734a78f504369cd48b70f" target="_blank">edc4e6a</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treea7fef2bc3fcdb5179efd28a5a6beb632ad0494bftargetblanka7fef2ba" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedc4e6abd3eb4214441734a78f504369cd48b70ftargetblankedc4e6aa"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/a7fef2bc3fcdb5179efd28a5a6beb632ad0494bf" target="_blank">a7fef2b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/FACE-IT-project/WP1/tree/edc4e6abd3eb4214441734a78f504369cd48b70f" target="_blank">edc4e6a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    code/ny-alesund_cc_pf_rws.R
+    Ignored:    data/MUR/
+    Ignored:    data/analyses/clean_all.RData
+    Ignored:    data/analyses/ice_4km_proc.RData
     Ignored:    data/full_data/
     Ignored:    data/model/
     Ignored:    data/pg_data/
     Ignored:    data/restricted/
+    Ignored:    data/sst_CCI_sval.RData
+    Ignored:    data/sst_CCI_trom.RData
+    Ignored:    data/sst_gland.RData
+    Ignored:    data/sst_sval.RData
+    Ignored:    data/sst_trom.RData
     Ignored:    metadata/pangaea_parameters.tab
+    Ignored:    metadata/pg_EU_ref_meta.csv
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
+    Ignored:    shiny/dataAccess/full_data
+    Ignored:    shiny/kongCTD/data_base.Rds
+    Ignored:    shiny/test_data/
 
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -586,7 +669,11 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/review.Rmd</code>) and HTML (<code>docs/review.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/review.Rmd</code>) and HTML
+(<code>docs/review.html</code>) files. If you’ve configured a remote Git
+repository (see <code>?wflow_git_remote</code>), click on the hyperlinks
+in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -610,6 +697,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/a8bf4791fbb41533b270f5fb132e121c5430671c/analysis/review.Rmd" target="_blank">a8bf479</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2021-11-25
+</td>
+<td>
+Beginning to work on the review paper again
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/79b293259b53a850eb0bec7f5a366ad214c531d5/docs/review.html" target="_blank">79b2932</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2021-11-10
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -1251,8 +1372,29 @@ Re-built site.
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This document begins with a review of known drivers of change in the European Arctic before focusing in on each individual FACE-IT study site to discuss any differences from the broader Arctic. The following section (European Arctic) has a large table (Table 1) that lists all of the key drivers of change identified as important by the expert members of FACE-IT from the relevant fields of study. Each of the following sections for each region/study site contain a table of the meta-data for the files containing data related to the key drivers identified in the aforementioned table. Note that if a file contains data for more than one site, it will be listed in the meta-data tables for each relevant site. One may click on the links within the meta-data tables to go to the website where the data are hosted. There are also pop-ups that show what the file-names are as well as what the correct references for the use of the data.</p>
-<p>Areas of focus for the review: * Model data * In situ data * Validating important findings from other papers * Providing broad climatologies from model data and focussed climatologies from in situ data * A question is to what extent these different climatology strategies can be mixed * Broad summaries of in situ data are likely not to be useful * Most in situ analyses will likely need to be highly focussed * They will need to be driven by specific questions or relationships * The usefulness of the physical in situ data is not abundantly clear given the more complete models * The chemical and biological in situ data may be a more important area of focus</p>
+<p>This document begins with a review of known drivers of change in the
+European Arctic before focusing in on each individual FACE-IT study site
+to discuss any differences from the broader Arctic. The following
+section (European Arctic) has a large table (Table 1) that lists all of
+the key drivers of change identified as important by the expert members
+of FACE-IT from the relevant fields of study. Each of the following
+sections for each region/study site contain a table of the meta-data for
+the files containing data related to the key drivers identified in the
+aforementioned table. Note that if a file contains data for more than
+one site, it will be listed in the meta-data tables for each relevant
+site. One may click on the links within the meta-data tables to go to
+the website where the data are hosted. There are also pop-ups that show
+what the file-names are as well as what the correct references for the
+use of the data.</p>
+<p>Areas of focus for the review: * Model data * In situ data *
+Validating important findings from other papers * Providing broad
+climatologies from model data and focussed climatologies from in situ
+data * A question is to what extent these different climatology
+strategies can be mixed * Broad summaries of in situ data are likely not
+to be useful * Most in situ analyses will likely need to be highly
+focussed * They will need to be driven by specific questions or
+relationships * The chemical and biological in situ data will be an
+important area of focus</p>
 </div>
 <div id="european-arctic" class="section level1">
 <h1>European Arctic</h1>
@@ -1260,13 +1402,74 @@ Re-built site.
 <img src="assets/map_full.png" style="width:50.0%" />
 </center>
 <blockquote>
-<p>The decline in the floating sea ice cover in the Arctic is one of the most striking manifestations of climate change.<br />
+<p>The decline in the floating sea ice cover in the Arctic is one of the
+most striking manifestations of climate change.<br />
 <span class="citation">(Stroeve and Notz, 2018)</span></p>
 </blockquote>
-<p>Many physical processes are known to drive biodiversity in the Arctic. Unsurprisingly, the presence of sea ice is one of these controlling factors <span class="citation">(Pavlova et al., 2019)</span>. The cryosphere, of which sea ice is a part, is one of the defining characteristics of the Arctic that sets it apart from neighbouring climatic regions (e.g. boreal and cold temperate). It is therefore safe to assume that changes to the Arctic cryosphere will lead to fundamental changes in the biodiversity found there. The cryosphere itself however is not the primary driver of change in the Arctic. This is because changes in the cryosphere are themselves being driven by the changes in temperature that are in turn driven by the primary driver of climatic change that defines the anthropocene: increases in CO2 emissions from human activities. It is this relatively rapid increase in temperature that is having a profound effect on the Arctic cryosphere <span class="citation">(Meredith et al., 2019)</span>, and there is a robust linear relationship between increases in atmospheric CO2 and deceases in sea ice extent <span class="citation">(Stroeve and Notz, 2018)</span>. Therefore, as with almost any study of biodiversity, high-quality spatiotemporally complete temperature data are crucial. The longer the complete time series the better.</p>
-<p>There are however many more important variables to consider, such as photosynthetically available radiation (PAR), ultraviolet radiation (UVR), and turbidity <span class="citation">(Hop and Wiencke, 2019)</span>. Many of these important drivers are known from research conducted further south. Where datasets are easier to build, and time series are longer. For this reason one may find that the drivers of change in Arctic are more often inferred than they are ‘known.’ This is because historically there has been a paucity of data in the Arctic <span class="citation">(Bischof et al., 2019b)</span>. Many international projects, in coordination with many established Arctic research institutions, have been very busy to close this knowledge gap and the holes in our knowledge are being filled rapidly. FACE-IT is one of these projects that seeks to better understand biodiversity changes, while contributing to and drawing from this expanding body of knowledge.</p>
-<p>In addition to knowing what it is that may cause changes, it is necessary to identify the fonts of biodiversity that may be affected by these drivers. There are many taxa/species etc. that have been identified as important for monitoring throughout the Arctic. Foremost of these are the kelps, brown macroalgae that often function as ecosystem engineers along the cool temperate coastlines of the world or cooler <span class="citation">(Bischof et al., 2019a)</span>. The prevailing hypothesis is that as the Arctic warms, the retreating coastal sea ice and increased temperatures will be more hospitable to kelp forests, and everything that comes with them. But there’s a catch. As temperatures warm, glaciers melt more rapidly, releasing more runoff into coastal zones that increases turbidity <span class="citation">(Bischof et al., 2019a)</span>. This means that benthic organisms, like kelps, will not receive the levels of PAR that they would like, potentially inhibiting their growth. One benefit of this is that the kelps are exposed to lower levels of UVR, which may help them to some extent. More research and longer time series are required to say conclusively how this situation will play out. It will also differ between sites and so this issue is addressed again below where appropriate.</p>
-<p>Consider that even if global temperature rise is limited to 2°C, this will mean a +4°C increase in the Arctic <span class="citation">(Overland et al., 2019)</span>. Land ice melt is also projected to continue regardless of emission reductions due to internal lags, meaning that continued sea level rise throughout the century is a certainty. One must also keep in mind that the disproportionately larger surface heat fluxes into the Arctic may inhibit the stabilisation of the global climate even if an effective emissions reduction strategy is implemented <span class="citation">(Overland et al., 2019)</span>.</p>
+<p>Many physical processes are known to drive biodiversity in the
+Arctic. Unsurprisingly, the presence of sea ice is one of these
+controlling factors <span class="citation">(Pavlova et al.,
+2019)</span>. The cryosphere, of which sea ice is a part, is one of the
+defining characteristics of the Arctic that sets it apart from
+neighbouring climatic regions (e.g. boreal and cold temperate). It is
+therefore safe to assume that changes to the Arctic cryosphere will lead
+to fundamental changes in the biodiversity found there. The cryosphere
+itself however is not the primary driver of change in the Arctic. This
+is because changes in the cryosphere are themselves being driven by the
+changes in temperature that are in turn driven by the primary driver of
+climatic change that defines the anthropocene: increases in CO2
+emissions from human activities. It is this relatively rapid increase in
+temperature that is having a profound effect on the Arctic cryosphere
+<span class="citation">(Meredith et al., 2019)</span>, and there is a
+robust linear relationship between increases in atmospheric CO2 and
+deceases in sea ice extent <span class="citation">(Stroeve and Notz,
+2018)</span>. Therefore, as with almost any study of biodiversity,
+high-quality spatiotemporally complete temperature data are crucial. The
+longer the complete time series the better.</p>
+<p>There are however many more important variables to consider, such as
+photosynthetically available radiation (PAR), ultraviolet radiation
+(UVR), and turbidity <span class="citation">(Hop and Wiencke,
+2019)</span>. Many of these important drivers are known from research
+conducted further south. Where datasets are easier to build, and time
+series are longer. For this reason one may find that the drivers of
+change in Arctic are more often inferred than they are ‘known’. This is
+because historically there has been a paucity of data in the Arctic
+<span class="citation">(Bischof et al., 2019b)</span>. Many
+international projects, in coordination with many established Arctic
+research institutions, have been very busy to close this knowledge gap
+and the holes in our knowledge are being filled rapidly. FACE-IT is one
+of these projects that seeks to better understand biodiversity changes,
+while contributing to and drawing from this expanding body of
+knowledge.</p>
+<p>In addition to knowing what it is that may cause changes, it is
+necessary to identify the fonts of biodiversity that may be affected by
+these drivers. There are many taxa/species etc. that have been
+identified as important for monitoring throughout the Arctic. Foremost
+of these are the kelps, brown macroalgae that often function as
+ecosystem engineers along the cool temperate coastlines of the world or
+cooler <span class="citation">(Bischof et al., 2019a)</span>. The
+prevailing hypothesis is that as the Arctic warms, the retreating
+coastal sea ice and increased temperatures will be more hospitable to
+kelp forests, and everything that comes with them. But there’s a catch.
+As temperatures warm, glaciers melt more rapidly, releasing more run-off
+into coastal zones that increases turbidity <span
+class="citation">(Bischof et al., 2019a)</span>. This means that benthic
+organisms, like kelps, will not receive the levels of PAR that they
+would like, potentially inhibiting their growth. One benefit of this is
+that the kelps are exposed to lower levels of UVR, which may help them
+to some extent. More research and longer time series are required to say
+conclusively how this situation will play out. It will also differ
+between sites and so this issue is addressed again below where
+appropriate.</p>
+<p>Consider that even if global temperature rise is limited to +2°C,
+this will mean a +4°C increase in the Arctic <span
+class="citation">(Overland et al., 2019)</span>. Land ice melt is also
+projected to continue regardless of emission reductions due to internal
+lags, meaning that continued sea level rise throughout the century is a
+certainty. One must also keep in mind that the disproportionately larger
+surface heat fluxes into the Arctic may inhibit the stabilisation of the
+global climate even if an effective emissions reduction strategy is
+implemented <span class="citation">(Overland et al., 2019)</span>.</p>
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
@@ -1278,39 +1481,202 @@ Re-built site.
 <center>
 <img src="assets/map_kongsfjorden.png" style="width:50.0%" />
 </center>
-<p>Much of the solar magnetic radiation going towards earth is focussed around Ny Alesund. This can have a knock on effect to air temperature when there are strong auroras: up to 4°C! Unfortunately models currently capture this effect very poorly.</p>
-<p>Land terminating glaciers around Kongsfjorden have been retreating linearly over the last decades. Water terminating glaciers retreat less linearly as there are occasions when the water terminating edge may surge forward, making it look like the terminating edge has improved. This is generally due to a destabilisation of the glacier that means an overall decrease in the glacier mass balance. 2020 was a record breaking warm year that has led to record breaking melts. Smaller glaciers are more susceptible to the increase in melt driven by climate change as they have smaller areas to accumulate ice etc. during the cold period of the year.</p>
-<p>Up until 2007 the fjord tended to be frozen 100% until February <span class="citation">(Pavlova et al., 2019)</span>. Since 2007 the fjord has been having less and less surface freezing. This is in part due to Atlantic water encroachment. These waters are higher in aragonite and pH. These are also less turbid, allowing for more light for use with plankton etc. The plankton do respond to this with Atlantic species favoured in warmer years.</p>
-<p>As to the influence of light, this has been increasing both due to increased melt and less ice cover throughout the year, in addition to increases in tourism. Besides increases in light pollution, longer times and broader areas of exposed sea surface also allows for a greater accumulation of positive downward heat flux. Of the four heat flux terms, it appears that increases in long wave radiation (Q_lw) over time are the leading cause of change to the cryosphere (<span class="citation">Bischof et al. (2019b)</span>). Following this, short wave radiation (Q_sw) is also increasing at a worrying rate, due in part to a decrease in cloud cover over the summer months <span class="citation">(Bischof et al., 2019b)</span>.</p>
-<p>Because the higher trophic levels of Arctic ecosystems, including Kongsfjorden, are dominated by migratory species, such as sea birds, these will be less exposed to the build-up of contaminants in a given area. Such as those sources identified on Svalbard and around the Kongsfjorden area <span class="citation">(Granberg et al., 2017)</span>. However, lower trophic level populations have shown the capacity to adapt rapidly enough to changes in local contamination that they are still able to carry contaminants up the food web <span class="citation">(Bischof et al., 2019b)</span>.</p>
-<p>A large priority area of Kongsfjorden research moving forward must be the processes of exchange between the neighbouring fjords of Kongsfjorden and the Atlantic ocean <span class="citation">(Bischof et al., 2019b)</span>. Progressing from this regional analysis, the work being done in the other areas of western Svalbard should be upscaled so as to provide the basis across which modelling work could connect these areas into a single integrated region. The understanding of the effects of physical drivers on ecosystems, with a focus on primary and secondary producers, is a particularly important area of focus <span class="citation">(Bischof et al., 2019b)</span>. Ultimately, one of the main goals of identifying these drivers is to better enhanced the predictive capabilities of science in the region.</p>
-<p>A study conducted <em>in situ</em> compared biomass records from 2012-2014 against those from 1996-1998 and found that biomass had increased by 8.2 fold at the shallower depth of 2.5 m <span class="citation">(Bartsch et al., 2016)</span>. These findings are similar to other macroalgae research throughout the Arctic that show a general increase in biomass accompanied by a shift to shallower depths. The physical processes that explain these observations are that increasing coastal sea-ice leads to less ice scour at these shallow depths, while less PAR is penetrating to the deeper range of macroalgae <span class="citation">(Bartsch et al., 2016)</span>.</p>
-<p>The distribution, abundance, and species composition of pelagic macro zooplankton are very sensitive to oceanic changes. It was found that the warming occurring in the Kongsfjorden ecosystem is having a dramatic positive effect on the abundance of euphausiids and amphipods <span class="citation">(Dalpadado et al., 2016)</span>. This is of particular importance as these are key prey species for target fishery species such as capelin and polar cod. As the borealisation of the fjord continues it may alter the population dynamics of prey species so dramatically that the changes may be tracked in the by monitoring the diets of the local black-legged kittiwakes <span class="citation">(Vihtakari et al., 2018)</span>.</p>
+<p>Much of the solar magnetic radiation going towards earth is focussed
+around Ny Alesund. This can have a knock on effect to air temperature
+when there are strong auroras: up to 4°C! Unfortunately models currently
+capture this effect very poorly.</p>
+<p>Land terminating glaciers around Kongsfjorden have been retreating
+linearly over the last decades. Water terminating glaciers retreat less
+linearly as there are occasions when the water terminating edge may
+surge forward, making it look like the terminating edge has improved.
+This is generally due to a destabilisation of the glacier that means an
+overall decrease in the glacier mass balance. 2020 was a record breaking
+warm year that has led to record breaking melts. Smaller glaciers are
+more susceptible to the increase in melt driven by climate change as
+they have smaller areas to accumulate ice etc. during the cold period of
+the year.</p>
+<p>Up until 2007 the fjord tended to be frozen 100% until February <span
+class="citation">(Pavlova et al., 2019)</span>. Since 2007 the fjord has
+been having less and less surface freezing. This is in part due to
+Atlantic water encroachment. These waters are higher in aragonite and
+pH. These are also less turbid, allowing for more light for use with
+plankton etc. The plankton do respond to this with Atlantic species
+favoured in warmer years.</p>
+<p>As to the influence of light, this has been increasing both due to
+increased melt and less ice cover throughout the year, in addition to
+increases in tourism. Besides increases in light pollution, longer times
+and broader areas of exposed sea surface also allows for a greater
+accumulation of positive downward heat flux. Of the four heat flux
+terms, it appears that increases in long wave radiation (Q_lw) over time
+are the leading cause of change to the cryosphere (<span
+class="citation">Bischof et al. (2019b)</span>). Following this, short
+wave radiation (Q_sw) is also increasing at a worrying rate, due in part
+to a decrease in cloud cover over the summer months <span
+class="citation">(Bischof et al., 2019b)</span>.</p>
+<p>Because the higher trophic levels of Arctic ecosystems, including
+Kongsfjorden, are dominated by migratory species, such as sea birds,
+these will be less exposed to the build-up of contaminants in a given
+area. Such as those sources identified on Svalbard and around the
+Kongsfjorden area <span class="citation">(Granberg et al., 2017)</span>.
+However, lower trophic level populations have shown the capacity to
+adapt rapidly enough to changes in local contamination that they are
+still able to carry contaminants up the food web <span
+class="citation">(Bischof et al., 2019b)</span>.</p>
+<p>A large priority area of Kongsfjorden research moving forward must be
+the processes of exchange between the neighbouring fjords of
+Kongsfjorden and the Atlantic ocean <span class="citation">(Bischof et
+al., 2019b)</span>. Progressing from this regional analysis, the work
+being done in the other areas of western Svalbard should be upscaled so
+as to provide the basis across which modelling work could connect these
+areas into a single integrated region. The understanding of the effects
+of physical drivers on ecosystems, with a focus on primary and secondary
+producers, is a particularly important area of focus <span
+class="citation">(Bischof et al., 2019b)</span>. Ultimately, one of the
+main goals of identifying these drivers is to better enhanced the
+predictive capabilities of science in the region.</p>
+<p>A study conducted <em>in situ</em> compared biomass records from
+2012-2014 against those from 1996-1998 and found that biomass had
+increased by 8.2 fold at the shallower depth of 2.5 m <span
+class="citation">(Bartsch et al., 2016)</span>. These findings are
+similar to other macroalgae research throughout the Arctic that show a
+general increase in biomass accompanied by a shift to shallower depths.
+The physical processes that explain these observations are that
+increasing coastal sea-ice leads to less ice scour at these shallow
+depths, while less PAR is penetrating to the deeper range of macroalgae
+<span class="citation">(Bartsch et al., 2016)</span>.</p>
+<p>The distribution, abundance, and species composition of pelagic macro
+zooplankton are very sensitive to oceanic changes. It was found that the
+warming occurring in the Kongsfjorden ecosystem is having a dramatic
+positive effect on the abundance of euphausiids and amphipods <span
+class="citation">(Dalpadado et al., 2016)</span>. This is of particular
+importance as these are key prey species for target fishery species such
+as capelin and polar cod. As the borealisation of the fjord continues it
+may alter the population dynamics of prey species so dramatically that
+the changes may be tracked in the by monitoring the diets of the local
+black-legged kittiwakes <span class="citation">(Vihtakari et al.,
+2018)</span>.</p>
 </div>
 <div id="isfjorden" class="section level2">
 <h2>Isfjorden</h2>
 <center>
 <img src="assets/map_isfjorden.png" style="width:50.0%" />
 </center>
-<p>Changes to the abundance of euphausiids and amphipods have been noted in Isfjorden, but not to the same extent as Kongsfjorden <span class="citation">(Dalpadado et al., 2016)</span>. This is attributed primarily to the fact that the thermal regime of Isfjorden is not changing as rapidly as Kongsfjorden. Likely because Isfjorden does not experience as much encroachment from the Atlantic.</p>
-<p>Atlantic inflows of water in the late summer can create pelagic microbial communities more similar to periods of summer stratification <span class="citation">(Delpech et al., 2021)</span>. On the other end of the fjord, high riverine inputs can have a different effect on the expected microbial community for the time of year.</p>
-<p>Fast ice, e.g. sea-ice attached to the coast, has decreased significantly in the fjord <span class="citation">(Muckenhuber et al., 2016)</span>. The shift appears to have been most pronounce from 2006. Fast ice coverage correlates well with remotely sensed SST and and <em>in situ</em> air temperatures, meaning that these could perhaps be used as proxies where no ice cover data are available. As fast ice cover began to decrease more rapidly, there was an observed uptick in the heat content of the fjord in Autumn <span class="citation">(Muckenhuber et al., 2016)</span>. The authors allude to, without concluding that, changes in sea ice cover must have a discernible connection to changes in heat flux into the ocean. Likely in both strength and phenology.</p>
-<p>Atlantic Water (AW) has traditionally formed much of the bottom layer of the fjord in summer, but starting in 2006 a shift has begun in which AW is occupying much more of the water column <span class="citation">(Skogseth et al., 2020)</span>. In combination with the disappearance of fast ice, this is one of the main forces attributed to the increasing SST trend of 0.7°C/dec. <span class="citation">Skogseth et al. (2020)</span> therefore conclude that the increased AW advection is the main reason for the changing climate of Isfjorden. The advection of AW into the fjord, and therefore the warming that it causes, is largely dictated by the competition between the Spitsbergen Polar Current (Arctic Water) and the Spitsbergen Trough Current (AW). AS the borealisation of the Arctic continues, the advection of AW into the fjord is only likely to increase. These inflows of AW are driven largely by changes to the patterns of the wind stress field in the area <span class="citation">(Pavlov et al., 2013)</span>. Mean sea-level pressure (MSLP) data can be used as a proxy to determine changes in wind stress, and <span class="citation">Pavlov et al. (2013)</span> used ERA data to do so. This climate reanalysis product is freely available from CMEMS and is commonly used in climate science.</p>
-<p>For zooplankton communities in the fjord, seasonality is the largest predictive factor <span class="citation">(Vereide, 2019)</span>. This is however influenced by local scale perturbations in temperature, salinity, and light availability. Therefore, anything affecting these variables, such as runoff from glaciers and rivers, will also affect the zooplankton communities. As the Arctic warms, runoff will almost certainly increase, meaning that this will likely be a noteworthy driver of change. Accompanying these changes brought on by increased runoff are the changes to nutrient inflow from land to sea. Nutrient concentrations in rivers can be 12-fold higher than in the fjord <span class="citation">(McGovern et al., 2020)</span>. So as increased warming leads to increased melt leads to increased runoff leads to increased nutrient input, the biogeochemical properties of the fjord are projected to change apace with climate <span class="citation">(McGovern et al., 2020)</span>. One must remember however that with increased runoff comes increased turbidity, which may have a counteracting effect to nutrient input by preventing access to light at the surface. The effects of these fresh water plumes on coastal communities is very dramatic but also tends to be very localised <span class="citation">(McGovern et al., 2020)</span>. They can be captured with some fidelity using remotely sensed ocean colour data, but future studies should aim to use not only high spatial resolution data, but high temporal resolutions as well in order to better resolve seasonal changes driven by this phenomenon <span class="citation">(McGovern et al., 2020)</span>.</p>
-<p>In support of this line of reasoning, surveys of benthic macrofauna in the smaller adjoining fjords has shown that small scale local differences in physical variables have a much stronger relationship to local community structure than do any fjord-wide gradients <span class="citation">(Ugelstad, 2019)</span>. <span class="citation">Ugelstad (2019)</span> also found that species richness was higher in less disturbed environments. This implies that as the fjord continues to change, species that are able to persist at deeper depths (which will also be subject to less PAR) may have more time to adapt to the changing climate. Conversely, we also know that it is these deper areas that are experiencing increased amounts of AW inflow <span class="citation">(Skogseth et al., 2020)</span>. So with increased runoff into the surface waters, and a rising of AW from below, it appears that the comfortable historic ranges for species in the fjord and it’s adjoining systems are being pinched off.</p>
+<p>Changes to the abundance of euphausiids and amphipods have been noted
+in Isfjorden, but not to the same extent as Kongsfjorden <span
+class="citation">(Dalpadado et al., 2016)</span>. This is attributed
+primarily to the fact that the thermal regime of Isfjorden is not
+changing as rapidly as Kongsfjorden. Likely because Isfjorden does not
+experience as much encroachment from the Atlantic.</p>
+<p>Atlantic inflows of water in the late summer can create pelagic
+microbial communities more similar to periods of summer stratification
+<span class="citation">(Delpech et al., 2021)</span>. On the other end
+of the fjord, high riverine inputs can have a different effect on the
+expected microbial community for the time of year.</p>
+<p>Fast ice, e.g. sea-ice attached to the coast, has decreased
+significantly in the fjord <span class="citation">(Muckenhuber et al.,
+2016)</span>. The shift appears to have been most pronounce from 2006.
+Fast ice coverage correlates well with remotely sensed SST and and
+<em>in situ</em> air temperatures, meaning that these could perhaps be
+used as proxies where no ice cover data are available. As fast ice cover
+began to decrease more rapidly, there was an observed uptick in the heat
+content of the fjord in Autumn <span class="citation">(Muckenhuber et
+al., 2016)</span>. The authors allude to, without concluding that,
+changes in sea ice cover must have a discernible connection to changes
+in heat flux into the ocean. Likely in both strength and phenology.</p>
+<p>Atlantic Water (AW) has traditionally formed much of the bottom layer
+of the fjord in summer, but starting in 2006 a shift has begun in which
+AW is occupying much more of the water column <span
+class="citation">(Skogseth et al., 2020)</span>. In combination with the
+disappearance of fast ice, this is one of the main forces attributed to
+the increasing SST trend of 0.7°C/dec. <span class="citation">Skogseth
+et al. (2020)</span> therefore conclude that the increased AW advection
+is the main reason for the changing climate of Isfjorden. The advection
+of AW into the fjord, and therefore the warming that it causes, is
+largely dictated by the competition between the Spitsbergen Polar
+Current (Arctic Water) and the Spitsbergen Trough Current (AW). AS the
+borealisation of the Arctic continues, the advection of AW into the
+fjord is only likely to increase. These inflows of AW are driven largely
+by changes to the patterns of the wind stress field in the area <span
+class="citation">(Pavlov et al., 2013)</span>. Mean sea-level pressure
+(MSLP) data can be used as a proxy to determine changes in wind stress,
+and <span class="citation">Pavlov et al. (2013)</span> used ERA data to
+do so. This climate reanalysis product is freely available from CMEMS
+and is commonly used in climate science.</p>
+<p>For zooplankton communities in the fjord, seasonality is the largest
+predictive factor <span class="citation">(Vereide, 2019)</span>. This is
+however influenced by local scale perturbations in temperature,
+salinity, and light availability. Therefore, anything affecting these
+variables, such as runoff from glaciers and rivers, will also affect the
+zooplankton communities. As the Arctic warms, runoff will almost
+certainly increase, meaning that this will likely be a noteworthy driver
+of change. Accompanying these changes brought on by increased runoff are
+the changes to nutrient inflow from land to sea. Nutrient concentrations
+in rivers can be 12-fold higher than in the fjord <span
+class="citation">(McGovern et al., 2020)</span>. So as increased warming
+leads to increased melt leads to increased runoff leads to increased
+nutrient input, the biogeochemical properties of the fjord are projected
+to change apace with climate <span class="citation">(McGovern et al.,
+2020)</span>. One must remember however that with increased runoff comes
+increased turbidity, which may have a counteracting effect to nutrient
+input by preventing access to light at the surface. The effects of these
+fresh water plumes on coastal communities is very dramatic but also
+tends to be very localised <span class="citation">(McGovern et al.,
+2020)</span>. They can be captured with some fidelity using remotely
+sensed ocean colour data, but future studies should aim to use not only
+high spatial resolution data, but high temporal resolutions as well in
+order to better resolve seasonal changes driven by this phenomenon <span
+class="citation">(McGovern et al., 2020)</span>.</p>
+<p>In support of this line of reasoning, surveys of benthic macrofauna
+in the smaller adjoining fjords has shown that small scale local
+differences in physical variables have a much stronger relationship to
+local community structure than do any fjord-wide gradients <span
+class="citation">(Ugelstad, 2019)</span>. <span
+class="citation">Ugelstad (2019)</span> also found that species richness
+was higher in less disturbed environments. This implies that as the
+fjord continues to change, species that are able to persist at deeper
+depths (which will also be subject to less PAR) may have more time to
+adapt to the changing climate. Conversely, we also know that it is these
+deeper areas that are experiencing increased amounts of AW inflow <span
+class="citation">(Skogseth et al., 2020)</span>. So with increased
+runoff into the surface waters, and a rising of AW from below, it
+appears that the comfortable historic ranges for species in the fjord
+and it’s adjoining systems are being pinched off.</p>
 </div>
 <div id="storfjorden" class="section level2">
 <h2>Storfjorden</h2>
 <center>
 <img src="assets/map_storfjorden.png" style="width:50.0%" />
 </center>
-<p>It was decided to replace Inglefieldbukta, one of the original sites from the grant agreement, with the much larger surrounding area of Storfjorden. This was done as more data exist for this much larger area as well as an existing body of literature.</p>
-<p><strong>Text from Janne Soreide</strong> Here we should definitely expand the site area and I would like to also include parts of Storfjorden here – to make this site comparable to the areas studied in Kongsfjorden and Isfjorden + that there are quite a few data available from Storfjorden. UNIS has regular student cruises there every autumn where they do CTD transects. We may have the potential to send one person doing some more biology at these cruises. In addition, we have sampled plankton in Storfjorden occasionally when we have ships available in this region. See attached document with overview of “standard” CTD stations by UNIS. In the square drawn in the map below we cover the central Storfjorden. We will aim to also sample CTD from some of the stations further south – to keep track on inflow of Atlantic water, but for biology/ecosystem we will target the square drawn which is a quite big area but covers different “habitats” of interest i.e. glacier fronts, rocky shore, river deltas as well as the pelagic –both nearshore and deeper fjord. We have scattered biological data from the entire area, most data collected the last 3 years. BUT much less data than we have from Isfjorden. However, we aim again for a new cruise to Storfjorden next summer. <strong>End</strong></p>
+<p>It was decided to replace Inglefieldbukta, one of the original sites
+from the grant agreement, with the much larger surrounding area of
+Storfjorden. This was done as more data exist for this much larger area
+as well as an existing body of literature.</p>
+<p><strong>Text from Janne Soreide</strong> Here we should definitely
+expand the site area and I would like to also include parts of
+Storfjorden here – to make this site comparable to the areas studied in
+Kongsfjorden and Isfjorden + that there are quite a few data available
+from Storfjorden. UNIS has regular student cruises there every autumn
+where they do CTD transects. We may have the potential to send one
+person doing some more biology at these cruises. In addition, we have
+sampled plankton in Storfjorden occasionally when we have ships
+available in this region. See attached document with overview of
+“standard” CTD stations by UNIS. In the square drawn in the map below we
+cover the central Storfjorden. We will aim to also sample CTD from some
+of the stations further south – to keep track on inflow of Atlantic
+water, but for biology/ecosystem we will target the square drawn which
+is a quite big area but covers different “habitats” of interest
+i.e. glacier fronts, rocky shore, river deltas as well as the pelagic
+–both nearshore and deeper fjord. We have scattered biological data from
+the entire area, most data collected the last 3 years. BUT much less
+data than we have from Isfjorden. However, we aim again for a new cruise
+to Storfjorden next summer. <strong>End</strong></p>
 </div>
 </div>
 <div id="greenland" class="section level1">
 <h1>Greenland</h1>
-<p>See the EU Arctic figure above for where the Greenland sites are located. They are too spread out to be shown here in a single figure with any better precision than the full study area.</p>
+<p>See the EU Arctic figure above for where the Greenland sites are
+located. They are too spread out to be shown here in a single figure
+with any better precision than the full study area.</p>
 <div id="young-sound" class="section level2">
 <h2>Young Sound</h2>
 <center>
@@ -1337,76 +1703,159 @@ Re-built site.
 <center>
 <img src="assets/map_porsangerfjorden.png" style="width:50.0%" />
 </center>
-<p><strong>Text from Lars Asplin</strong> Porsangerfjorden is an atypical fjord and more a part of the coastal ocean than a fjord except for the innermost (and deeper) areas. Typically for all the Norwegian coast, the water exchange above sill level between fjord and coastal water is good. This is due to the stratified Norwegian Coastal Current that permits the generation of wind induced internal waves resulting in long-lasting currents in and out of the fjord, transporting water longitudinally. This usually occur several time a month.</p>
-<p>Dynamically, Porsangerfjord isn’t different form any other fjord. The similarities are with fjords of same shape (large size, large sill depth or no sill) and with a stratified coastal ocean which provides a lot of baroclinic forcing = good water exchange. Ecologically the Porsangerfjord or the fjords in the Arctic are less similar than fjords further south as to temperature and light conditions especially. <strong>End</strong></p>
+<p><strong>Text from Lars Asplin</strong> Porsangerfjorden is an
+atypical fjord and more a part of the coastal ocean than a fjord except
+for the innermost (and deeper) areas. Typically for all the Norwegian
+coast, the water exchange above sill level between fjord and coastal
+water is good. This is due to the stratified Norwegian Coastal Current
+that permits the generation of wind induced internal waves resulting in
+long-lasting currents in and out of the fjord, transporting water
+longitudinally. This usually occur several time a month.</p>
+<p>Dynamically, Porsangerfjorden isn’t different form any other fjord.
+The similarities are with fjords of same shape (large size, large sill
+depth or no sill) and with a stratified coastal ocean which provides a
+lot of baroclinic forcing = good water exchange. Ecologically the
+Porsangerfjorden or the fjords in the Arctic are less similar than
+fjords further south as to temperature and light conditions especially.
+<strong>End</strong></p>
+<p><span class="citation">Christiansen and Fevolden (2000)</span>: Polar
+cod (Boreogadus saida) first recorded in Porsangerfjorden in 1967. These
+may be a remnant population from the last interglacial period as it is
+unlikely given the current distribution of the species that it would
+cross the polar front in the Barents sea to reach down to the inner part
+of Porsangerfjorden.</p>
+<p><span class="citation">Cieszyńska and Stramska (2018)</span>: The
+rates of change in air temperature (AT) at the mouth (0.485°C/dec) and
+the head (0.416°C/dec) are significant. The interrannual AT range at the
+head is -8.4 to 12.6°C, and -2.5 to 10.1°C at the mouth. Strong wind
+events, reaching &gt; 12 m/sec, are more common at the mouth than the
+head, but nowhere shows any significant trends. Nor does total
+precipitation, which may vary up to 30% between years.</p>
 </div>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Bartsch2016" class="csl-entry">
-Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., et al. (2016). Changes in kelp forest biomass and depth distribution in kongsfjorden, svalbard, between 1996–1998 and 2012–2014 reflect arctic warming. <em>Polar Biology</em> 39, 2021–2036.
+Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop,
+H., et al. (2016). Changes in kelp forest biomass and depth distribution
+in kongsfjorden, svalbard, between 1996–1998 and 2012–2014 reflect
+arctic warming. <em>Polar Biology</em> 39, 2021–2036.
 </div>
 <div id="ref-Bischof2019kelps" class="csl-entry">
-Bischof, K., Buschbaum, C., Fredriksen, S., Gordillo, F. J., Heinrich, S., Jiménez, C., et al. (2019a). <span>“Kelps and environmental changes in kongsfjorden: Stress perception and responses,”</span> in <em>The ecosystem of kongsfjorden, svalbard</em> (Springer), 373–422.
+Bischof, K., Buschbaum, C., Fredriksen, S., Gordillo, F. J., Heinrich,
+S., Jiménez, C., et al. (2019a). <span>“Kelps and environmental changes
+in kongsfjorden: Stress perception and responses,”</span> in <em>The
+ecosystem of kongsfjorden, svalbard</em> (Springer), 373–422.
 </div>
 <div id="ref-Bischof2019kongsfjorden" class="csl-entry">
-Bischof, K., Convey, P., Duarte, P., Gattuso, J.-P., Granberg, M., Hop, H., et al. (2019b). <span>“Kongsfjorden as harbinger of the future arctic: Knowns, unknowns and research priorities,”</span> in <em>The ecosystem of kongsfjorden, svalbard</em> (Springer), 537–562.
+Bischof, K., Convey, P., Duarte, P., Gattuso, J.-P., Granberg, M., Hop,
+H., et al. (2019b). <span>“Kongsfjorden as harbinger of the future
+arctic: Knowns, unknowns and research priorities,”</span> in <em>The
+ecosystem of kongsfjorden, svalbard</em> (Springer), 537–562.
+</div>
+<div id="ref-Christiansen2000" class="csl-entry">
+Christiansen, J. S., and Fevolden, S.-E. (2000). The polar cod of
+porsangerfjorden, norway; revisited. <em>Sarsia</em> 85, 189–193.
+</div>
+<div id="ref-Cieszynska2018" class="csl-entry">
+Cieszyńska, A., and Stramska, M. (2018). Climate-related trends and
+meteorological conditions in the porsanger fjord, norway.
+<em>Oceanologia</em> 60, 344–366.
 </div>
 <div id="ref-Dalpadado2016" class="csl-entry">
-Dalpadado, P., Hop, H., Rønning, J., Pavlov, V., Sperfeld, E., Buchholz, F., et al. (2016). Distribution and abundance of euphausiids and pelagic amphipods in kongsfjorden, isfjorden and rijpfjorden (svalbard) and changes in their relative importance as key prey in a warming marine ecosystem. <em>Polar Biology</em> 39, 1765–1784.
+Dalpadado, P., Hop, H., Rønning, J., Pavlov, V., Sperfeld, E., Buchholz,
+F., et al. (2016). Distribution and abundance of euphausiids and pelagic
+amphipods in kongsfjorden, isfjorden and rijpfjorden (svalbard) and
+changes in their relative importance as key prey in a warming marine
+ecosystem. <em>Polar Biology</em> 39, 1765–1784.
 </div>
 <div id="ref-Delpech2021" class="csl-entry">
-Delpech, L.-M., Vonnahme, T. R., McGovern, M., Gradinger, R., Præbel, K., and Poste, A. E. (2021). Terrestrial inputs shape coastal bacterial and archaeal communities in a high arctic fjord (isfjorden, svalbard). <em>Frontiers in Microbiology</em> 12, 295.
+Delpech, L.-M., Vonnahme, T. R., McGovern, M., Gradinger, R., Præbel,
+K., and Poste, A. E. (2021). Terrestrial inputs shape coastal bacterial
+and archaeal communities in a high arctic fjord (isfjorden, svalbard).
+<em>Frontiers in Microbiology</em> 12, 295.
 </div>
 <div id="ref-Granberg2017" class="csl-entry">
-Granberg, M. E., Ask, A., and Gabrielsen, G. W. (2017). Local contamination in svalbard. <em>Overview and suggestions for remediation actions. Norsk Polarinstitutt.[S. l.]</em>.
+Granberg, M. E., Ask, A., and Gabrielsen, G. W. (2017). Local
+contamination in svalbard. <em>Overview and suggestions for remediation
+actions. Norsk Polarinstitutt.[S. l.]</em>.
 </div>
 <div id="ref-Hop2019" class="csl-entry">
-Hop, H., and Wiencke, C. (2019). <span>“The ecosystem of kongsfjorden, svalbard,”</span> in <em>The ecosystem of kongsfjorden, svalbard</em>, eds. H. Hop and C. Wiencke (Cham: Springer International Publishing), 1–20. doi:<a href="https://doi.org/10.1007/978-3-319-46425-1_1">10.1007/978-3-319-46425-1_1</a>.
+Hop, H., and Wiencke, C. (2019). <span>“The ecosystem of kongsfjorden,
+svalbard,”</span> in <em>The ecosystem of kongsfjorden, svalbard</em>,
+eds. H. Hop and C. Wiencke (Cham: Springer International Publishing),
+1–20. doi:<a
+href="https://doi.org/10.1007/978-3-319-46425-1_1">10.1007/978-3-319-46425-1_1</a>.
 </div>
 <div id="ref-Mcgovern2020" class="csl-entry">
-McGovern, M., Pavlov, A. K., Deininger, A., Granskog, M., Leu, E. S., Søreide, J., et al. (2020). Terrestrial inputs drive seasonality in organic matter and nutrient biogeochemistry in a high arctic fjord system (isfjorden, svalbard).
+McGovern, M., Pavlov, A. K., Deininger, A., Granskog, M., Leu, E. S.,
+Søreide, J., et al. (2020). Terrestrial inputs drive seasonality in
+organic matter and nutrient biogeochemistry in a high arctic fjord
+system (isfjorden, svalbard).
 </div>
 <div id="ref-Meredith2019" class="csl-entry">
-Meredith, M., Sommerkorn, M., Cassotta, S., Derksen, C., Ekaykin, A., Hollowed, A., et al. (2019). Polar regions. Chapter 3, IPCC special report on the ocean and cryosphere in a changing climate.
+Meredith, M., Sommerkorn, M., Cassotta, S., Derksen, C., Ekaykin, A.,
+Hollowed, A., et al. (2019). Polar regions. Chapter 3, IPCC special
+report on the ocean and cryosphere in a changing climate.
 </div>
 <div id="ref-Muckenhuber2016" class="csl-entry">
-Muckenhuber, S., Nilsen, F., Korosov, A., and Sandven, S. (2016). Sea ice cover in isfjorden and hornsund, svalbard (2000–2014) from remote sensing data. <em>The Cryosphere</em> 10, 149–158.
+Muckenhuber, S., Nilsen, F., Korosov, A., and Sandven, S. (2016). Sea
+ice cover in isfjorden and hornsund, svalbard (2000–2014) from remote
+sensing data. <em>The Cryosphere</em> 10, 149–158.
 </div>
 <div id="ref-Overland2019" class="csl-entry">
-Overland, J., Dunlea, E., Box, J. E., Corell, R., Forsius, M., Kattsov, V., et al. (2019). The urgency of arctic change. <em>Polar Science</em> 21, 6–13.
+Overland, J., Dunlea, E., Box, J. E., Corell, R., Forsius, M., Kattsov,
+V., et al. (2019). The urgency of arctic change. <em>Polar Science</em>
+21, 6–13.
 </div>
 <div id="ref-Pavlov2013" class="csl-entry">
-Pavlov, A. K., Tverberg, V., Ivanov, B. V., Nilsen, F., Falk-Petersen, S., and Granskog, M. A. (2013). Warming of atlantic water in two west spitsbergen fjords over the last century (1912–2009). <em>Polar Research</em> 32, 11206.
+Pavlov, A. K., Tverberg, V., Ivanov, B. V., Nilsen, F., Falk-Petersen,
+S., and Granskog, M. A. (2013). Warming of atlantic water in two west
+spitsbergen fjords over the last century (1912–2009). <em>Polar
+Research</em> 32, 11206.
 </div>
 <div id="ref-Pavlova2019" class="csl-entry">
-Pavlova, O., Gerland, S., and Hop, H. (2019). <span>“Changes in sea-ice extent and thickness in kongsfjorden, svalbard (2003–2016),”</span> in <em>The ecosystem of kongsfjorden, svalbard</em>, eds. H. Hop and C. Wiencke (Cham: Springer International Publishing), 105–136. doi:<a href="https://doi.org/10.1007/978-3-319-46425-1_4">10.1007/978-3-319-46425-1_4</a>.
+Pavlova, O., Gerland, S., and Hop, H. (2019). <span>“Changes in sea-ice
+extent and thickness in kongsfjorden, svalbard (2003–2016),”</span> in
+<em>The ecosystem of kongsfjorden, svalbard</em>, eds. H. Hop and C.
+Wiencke (Cham: Springer International Publishing), 105–136. doi:<a
+href="https://doi.org/10.1007/978-3-319-46425-1_4">10.1007/978-3-319-46425-1_4</a>.
 </div>
 <div id="ref-Skogseth2020" class="csl-entry">
-Skogseth, R., Olivier, L. L., Nilsen, F., Falck, E., Fraser, N., Tverberg, V., et al. (2020). Variability and decadal trends in the isfjorden (svalbard) ocean climate and circulation–an indicator for climate change in the european arctic. <em>Progress in Oceanography</em> 187, 102394.
+Skogseth, R., Olivier, L. L., Nilsen, F., Falck, E., Fraser, N.,
+Tverberg, V., et al. (2020). Variability and decadal trends in the
+isfjorden (svalbard) ocean climate and circulation–an indicator for
+climate change in the european arctic. <em>Progress in Oceanography</em>
+187, 102394.
 </div>
 <div id="ref-Stroeve2018" class="csl-entry">
-Stroeve, J., and Notz, D. (2018). Changing state of arctic sea ice across all seasons. <em>Environmental Research Letters</em> 13, 103001.
+Stroeve, J., and Notz, D. (2018). Changing state of arctic sea ice
+across all seasons. <em>Environmental Research Letters</em> 13, 103001.
 </div>
 <div id="ref-Ugelstad2019" class="csl-entry">
-Ugelstad, C. P. (2019). Riverine and glacier influence on infaunal benthic communities in isfjorden, svalbard.
+Ugelstad, C. P. (2019). Riverine and glacier influence on infaunal
+benthic communities in isfjorden, svalbard.
 </div>
 <div id="ref-Vereide2019" class="csl-entry">
-Vereide, E. H. (2019). Seasonal zooplankton community patterns along a gradient from land to sea in isfjorden, svalbard.
+Vereide, E. H. (2019). Seasonal zooplankton community patterns along a
+gradient from land to sea in isfjorden, svalbard.
 </div>
 <div id="ref-Vihtakari2018" class="csl-entry">
-Vihtakari, M., Welcker, J., Moe, B., Chastel, O., Tartu, S., Hop, H., et al. (2018). Black-legged kittiwakes as messengers of atlantification in the arctic. <em>Scientific Reports</em> 8, 1–11.
+Vihtakari, M., Welcker, J., Moe, B., Chastel, O., Tartu, S., Hop, H., et
+al. (2018). Black-legged kittiwakes as messengers of atlantification in
+the arctic. <em>Scientific Reports</em> 8, 1–11.
 </div>
 </div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.1.2 (2021-11-01)
+<pre><code>R version 4.2.0 (2022-04-22)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 18.04.6 LTS
 
@@ -1426,26 +1875,27 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] workflowr_1.6.2
+[1] workflowr_1.7.0
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.7       whisker_0.4      knitr_1.36       magrittr_2.0.1  
- [5] R6_2.5.1         rlang_0.4.12     fastmap_1.1.0    fansi_0.5.0     
- [9] stringr_1.4.0    tools_4.1.2      xfun_0.26        utf8_1.2.2      
-[13] git2r_0.28.0     jquerylib_0.1.4  htmltools_0.5.2  ellipsis_0.3.2  
-[17] rprojroot_2.0.2  yaml_2.2.1       digest_0.6.28    tibble_3.1.5    
-[21] lifecycle_1.0.1  crayon_1.4.1     later_1.3.0      sass_0.4.0      
-[25] vctrs_0.3.8      promises_1.2.0.1 fs_1.5.0         glue_1.4.2      
-[29] evaluate_0.14    rmarkdown_2.11   stringi_1.7.5    bslib_0.3.1     
-[33] compiler_4.1.2   pillar_1.6.4     jsonlite_1.7.2   httpuv_1.6.3    
-[37] pkgconfig_2.0.3 </code></pre>
+ [1] Rcpp_1.0.8.3     bslib_0.3.1      compiler_4.2.0   pillar_1.7.0    
+ [5] later_1.3.0      git2r_0.30.1     jquerylib_0.1.4  tools_4.2.0     
+ [9] getPass_0.2-2    digest_0.6.29    jsonlite_1.8.0   evaluate_0.15   
+[13] tibble_3.1.7     lifecycle_1.0.1  pkgconfig_2.0.3  rlang_1.0.3     
+[17] cli_3.3.0        rstudioapi_0.13  yaml_2.3.5       xfun_0.31       
+[21] fastmap_1.1.0    httr_1.4.3       stringr_1.4.0    knitr_1.39      
+[25] sass_0.4.1       fs_1.5.2         vctrs_0.4.1      rprojroot_2.0.3 
+[29] glue_1.6.2       R6_2.5.1         processx_3.6.1   fansi_1.0.3     
+[33] rmarkdown_2.14   callr_3.7.0      magrittr_2.0.3   whisker_0.4     
+[37] ps_1.7.1         promises_1.2.0.1 htmltools_0.5.2  ellipsis_0.3.2  
+[41] httpuv_1.6.5     utf8_1.2.2       stringi_1.7.6    crayon_1.5.1    </code></pre>
 </div>
 </div>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
 TeX fonts only; see
-http://docs.mathjax.org/en/latest/configuration.html.  This will make
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
 the presentation more consistent at the cost of the webpage sometimes
 taking slightly longer to load. Note that this only works because the
 footer is added to webpages before the MathJax javascript. -->
