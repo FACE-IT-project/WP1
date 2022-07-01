@@ -1,0 +1,378 @@
+---
+title: 'The Road to Marine Heatwaves'
+author: 'Robert W Schlegel'
+date: 2022-07-01
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+css: acid.css
+csl: frontiers.csl
+language: French
+bibliography: FACE-IT.bib
+---
+
+***
+
+<br>
+
+<center>
+![](assets/value.jpeg){ width=70% }  
+</center>
+
+<br>
+
+***
+
+<br>
+
+# Myself
+
+## Bachelor's in psychology
+
+- "Effect of abnormally small troop size on aggressive and prosocial behavior in patas monkeys, _Erythrocebus patas_"
+<center>
+![Wikipedia](assets/patas.jpeg){ width=100% }
+</center>
+
+<br>
+
+## Diving Instructor
+
+- Worked throughout Asia and Africa
+
+<center>
+![agoda](assets/thudu.jpg){ width=60% }
+</center>
+
+<br>
+
+## Master's degree
+
+- "The effects of the Cold Ridge variability on small pelagic transition and retention from the West coast to the South coast of South Africa"
+
+<center>
+![Henry Jager](assets/school-of-sardines-1.png){ width=100% }
+</center>
+
+<br>
+
+## PhD
+
+- "Coastal marine heatwaves: Understanding extreme forces"
+
+<center>
+![](assets/Fish Hoek_16.png){ width=100% }
+</center>
+
+<br>
+
+## Postdoc
+
+- "Drivers of Marine Heatwaves in the Northwest Atlantic: the role of air-sea interaction during onset and decline"
+
+<center>
+![](assets/synoptic_gsl_39.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+<br>
+
+# Marine heatwaves (MHWs)
+
+## What are they?
+
+* "A prolonged discrete anomalously warm water event that can be described by its duration, intensity, rate of evolution, and spatial extent." [@Hobday2016]
+* Temperature at a location exceeds the 90th percentile for a given calendar day, for 5+ days, with no more than a 2 day gap 
+
+<br>
+
+## Why should we care?
+
+* MHWs are increasing in duration and intensity globally [@Oliver2018]
+* We already know of many MHWs that have had dire consequences
+* These events provide snapshots of the future ocean
+
+![](assets/oliver_2019_fig4.jpg){ width=100% }
+[@Oliver2019]
+
+![](assets/oliver_2019_fig3.jpg){ width=100% }
+[@Oliver2019]
+
+<br>
+
+***
+
+<br>
+
+# Detecting MHWs {.tabset .tabset-fade .tabset-pills} 
+
+## Time series {-}
+
+<center>
+![](assets/WA_ts_base_1.png){ width=100% }
+</center>  
+
+<br>
+
+***
+
+## Day-of-year {-}
+
+<center>
+![](assets/WA_ts_clim_1.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+## 11-day {-}
+
+<center>
+![](assets/WA_ts_clim_2.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+## 31-day {-}
+
+<center>
+![](assets/WA_ts_clim_3.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+## TS+clim {-}
+
+<center>
+![](assets/WA_ts_base_2.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+## Events {-}
+
+<center>
+![](assets/WA_ts_base_3.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+<br>
+
+# Quantifying MHWs {.tabset .tabset-fade .tabset-pills}
+
+## Single {-}
+
+<center>
+![](assets/WA_flame_1.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+## Anatomy {-}
+
+<center>
+![](assets/WA_flame_2.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+## Categories {-}
+
+<center>
+![](assets/WA_flame_3.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+<br>
+
+## Global {.tabset -}
+
+### Global {-}
+
+![](assets/OISST_cat_historic_1982-2011.png){ width=100% }
+
+<br>
+
+***
+
+<br>
+
+### Med {-}
+
+![](assets/MHW_cat_historic.png){ width=100% }
+
+<br>
+
+***
+
+## 1985 {.tabset -}
+
+### Global {-}
+
+![](assets/OISST_cat_summary_1982-2011_1985.png){ width=100% }
+
+<br>
+
+***
+
+<br>
+
+### Med {-}
+
+![](assets/MHW_cat_summary_1985.png){ width=100% }
+
+<br>
+
+***
+
+## 2016 {.tabset -}
+
+### Global {-}
+
+![](assets/OISST_cat_summary_1982-2011_2016.png){ width=100% }
+
+<br>
+
+***
+
+<br>
+
+### Med {-}
+
+![](assets/MHW_cat_summary_2016.png){ width=100% }
+
+<br>
+
+***
+
+<br>
+
+# Resources for MHWs
+
+<br>
+
+- International Working Group
+
+<center>
+![](assets/working_group_screen_shot.png){ width=90% }  
+marineheatwaves.org
+</center>
+
+<br>
+
+- TMedNet
+
+<center>
+![](assets/TMedNet_screenshot.png){ width=70% }  
+t-mednet.org
+</center>
+
+<br>
+
+* Programming languages
+  * Python: <https://github.com/ecjoliver/marineHeatWaves>
+  * R: <https://robwschlegel.github.io/heatwaveR/index.html>
+  * MATLAB: <https://github.com/ZijieZhaoMMHW/m_mhw1.0>
+
+<br>
+
+* Database
+  * Marine Heatwave Tracker: (http://www.marineheatwaves.org/tracker)
+  * Download MHW results: climatologies, event metrics, and categories
+
+<center>
+![](assets/tracker_screenshot_2022-07-01.png){ width=100% }  
+</center>
+
+<br>
+
+***
+
+<br>
+
+# FACE-IT {.tabset .tabset-fade .tabset-pills}
+
+## Objectives {-}
+
+<br>
+FACE-IT  
+  
+> "The overarching objective of FACE-IT is to enable adaptive co-management of social-ecological fjord systems in the Arctic in the face of rapid cryosphere and biodiversity changes."
+
+<br>
+
+Work Package (WP) 1  
+  
+> (1) Compile data on key potential drivers of changes in coastal biodiversity  
+> (2) Make the project data openly accessible  
+
+***
+
+## Study sites {-}
+
+![](assets/map_full.png){ width=100% } 
+
+<br>
+
+***
+
+<br>
+
+## Field work {-}
+
+![](assets/IMG-20210706-WA0008.jpg){ width=100% } 
+
+<br>
+
+***
+
+<br>
+
+## Wild life {-}
+
+![](assets/IMG-20210712-WA0001~2.jpg){ width=100% } 
+
+<br>
+
+***
+
+<br>
+
+# Acknowledgements
+
+<br>
+
+
+<br>
+
+<center>  
+![](assets/FACE-IT_h2020.png){ width=100% }
+</center>
+
+<br>
+
+***
+
+<br>
+
+# References
