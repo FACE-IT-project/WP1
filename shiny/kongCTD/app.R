@@ -13,6 +13,7 @@
   # Numbers for colours, and then a lookup table with product name via join by number
 
 ## UI features
+# Popup when data are uploaded saying how much new data has been uploaded
 # Create a NetCDF file format for saving data
 # Have a '4) Editing' tab that is password protected to go back and fix issues
   # Make this attached to the username so that users can only edit the data they uploaded
@@ -34,6 +35,7 @@
 
 ## QC
 # Consider looking at the Argo standards for CTD QC - Look into the R Argo package
+  # This is unfortunately not possible to use
 # For starters would have a raw or QC flag to add to the data
 # Any changes should be communicated via a metadata output
 
@@ -163,13 +165,17 @@ credentials <- data.frame(
   password = c("r", "R", "R", "Antibes", "Argo", "12345"), # mandatory
   start = c("2019-04-15"), # optional (all others)
   expire = c(NA, NA, NA, NA, NA, "2023-12-31"),
-  admin = c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
+  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, TRUE),
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
 
 # Increase file upload size limit
 options(shiny.maxRequestSize = 50*1024^2)
+
+# Rounding functions
+floor_dec <- function(x, level=1) round(x - 5*10^(-level-1), level)
+ceiling_dec <- function(x, level=1) round(x + 5*10^(-level-1), level)
 
 
 # UI ----------------------------------------------------------------------
@@ -190,11 +196,11 @@ ui <- dashboardPage(
     sidebarMenu(id = "mainMenu",
                 
                 # The various menus
-                menuItem("1) Load file", tabName = "load", icon = icon("desktop"), selected = TRUE),
+                menuItem("1) Load file(s)", tabName = "load", icon = icon("desktop"), selected = TRUE),
                 menuItem("2) Metadata", tabName = "meta", icon = icon("cog")),
                 menuItem("3) QC/Upload", tabName = "QCup", icon = icon("upload")),
                 menuItem("4) Edit", tabName = "edit", icon = icon("shower")),
-                menuItem("5) Download", tabName = "download", icon = icon("download")),
+                menuItem("Download", tabName = "download", icon = icon("download")),
                 menuItem("About", tabName = "about", icon = icon("question"))),
                 
                 # The reactive controls based on the primary option chosen
@@ -228,13 +234,13 @@ ui <- dashboardPage(
               
               box(width = 3,
                   # height = "730px", # Length when tips are shown
-                  height = "550px",
+                  height = "650px",
                   title = "File format",
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
                   # Select a file
                   # h4("Load file to begin"),
-                  fileInput("file1", "Choose CSV/TXT File",
+                  fileInput("file1", "Select CTD file(s) to upload (.csv or .txt)",
                             multiple = TRUE,
                             # accept = c("text/csv",
                             #            "text/comma-separated-values,text/plain",
@@ -248,9 +254,13 @@ ui <- dashboardPage(
                   # Horizontal line
                   tags$hr(),
                   
+                  # Addvice text
+                  h6("Once data have been uploaded, check dataframe to the right."),
+                  h6("If data are not correctly parsed into columns, use the following options."),
+                  
                   # Select header and skip rows
                   fluidRow(
-                    column(6, h5(tags$b("Header")), uiOutput("headerUI")),
+                    column(6, h5(tags$b("File includes header")), uiOutput("headerUI")),
                     column(6, uiOutput("skipUI"))
                   ),
                   
@@ -278,7 +288,7 @@ ui <- dashboardPage(
               ),
               
               # The data display
-              box(width = 9, height = "850px", title = "Data",
+              box(width = 9, height = "850px", title = "Data preview",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contents_load"))
       ),
@@ -289,48 +299,53 @@ ui <- dashboardPage(
       tabItem(tabName = "meta",
 
               # The single metadata inputs
-              box(width = 4, height = "300px", title = "Fill all values", 
-                  status = "danger", solidHeader = TRUE, collapsible = FALSE,
+              box(width = 4, height = "375px", title = "Metadata: Fill values here that apply to all files", 
+                  status = "info", solidHeader = TRUE, collapsible = FALSE,
                   # selectizeInput('x1', 'X1', choices = list(
                   #   Eastern = c(`New York` = 'NY', `New Jersey` = 'NJ'),
                   #   Western = c(`California` = 'CA', `Washington` = 'WA')
                   # ), multiple = TRUE)
-                  selectizeInput("allSite", "Site", choices = list(
-                    New = c("No name" = "No name"),
-                    AWI = c("Site 1" = "Site 1"),
-                    SAMS = c("Site 2" = "Site 2"),
-                    NPI = c("Kb0" = "Kb0", "Kb1" = "Kb1", "Kb2" = "Kb2", "Kb3" = "Kb3", "Kb4" = "Kb4", 
-                            "Kb5" = "Kb5", "Kb6" = "Kb6", "Kb7" = "Kb7", "Kb8" = "Kb8",
-                            "V6" = "V6", "V10" = "V10", "V12" = "V12")),
-                    selected = "No name"),
-                  fluidRow(column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
-                           column(4, shiny::numericInput("allLat", "Latitude", value = NA, min = 78, max = 80)),
-                           column(4, shiny::textInput("allDataOwner", "Data owner"))),
-                  fluidRow(column(4, shiny::textInput("allSensorOwner", "Sensor owner")),
-                           column(4, shiny::textInput("allSensorBrand", "Sensor brand")),
-                           column(4, shiny::textInput("allSensorNumber", "Sensor number")))),
+                  h6(tags$b("Location:"), "Select a standard site or fill latitude/longitude."),
+                  fluidRow(column(4, selectizeInput("allSite", "Site", 
+                                                    choices = list(New = c("No name" = "No name"),
+                                                                   AWI = c("Site 1" = "Site 1"),
+                                                                   SAMS = c("Site 2" = "Site 2"),
+                                                                   NPI = c("Kb0" = "Kb0", "Kb1" = "Kb1", "Kb2" = "Kb2", "Kb3" = "Kb3", 
+                                                                           "Kb4" = "Kb4", "Kb5" = "Kb5", "Kb6" = "Kb6", "Kb7" = "Kb7", 
+                                                                           "Kb8" = "Kb8", "V6" = "V6", "V10" = "V10", "V12" = "V12")),
+                                                    selected = "No name")),
+                           column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
+                           column(4, shiny::numericInput("allLat", "Latitude", value = NA, min = 78, max = 80))),
+                  h6(tags$b("Reference:"), "Provide information on the ownership of the data."),
+                  fluidRow(column(4, shiny::textInput("allDataOwnerPerson", "Person")),
+                           column(4, shiny::textInput("allDataOwnerInstitute", "Institute")),
+                           column(4, shiny::textInput("allDOI", "DOI"))),
+                  h6(tags$b("Sensor:"), "Complete ID info not detected during upload."),
+                  fluidRow(column(4, shiny::textInput("allSensorOwner", "Owner")),
+                           column(4, shiny::textInput("allSensorBrand", "Brand")),
+                           column(4, shiny::textInput("allSensorNumber", "Number")))),
               
               # The interactive table
-              box(width = 8, height = "300px", 
-                  title = "Fill individual values", style = 'height:250px;overflow-y: scroll;',
+              box(width = 8, height = "375px", 
+                  title = "Metadata: Fill file-specific values here", style = 'height:250px;overflow-y: scroll;',
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   rHandsontableOutput("table1output")
               ),
               
               # The data display
-              box(width = 8, height = "550px", title = "Data",
+              box(width = 8, height = "480px", title = "Data preview",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contentsTime")
                   ),
               
               # The map display
-              box(width = 4, height = "550px", title = "Map",
+              box(width = 4, height = "480px", title = "Map",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                  h4("Location of CTD cast"),
+                  h4("Check location of CTD cast"),
                   h5("Red border = no lon/lat"),
                   h5("Yellow border = lon/lat not in the fjord region"),
                   h5("Green border = lon/lat within fjord region"),
-                  plotOutput("mapPlot", height = "350px")
+                  plotOutput("mapPlot", height = "300px")
               )
       ),
 
@@ -376,44 +391,49 @@ ui <- dashboardPage(
                 # The data display
                 column(8,
                        
-                       box(width = 12, height = "450px", title = "Data",
+                       box(width = 12, height = "450px", title = "Preview of data to be uploaded",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("uploadedDT")
-                       ),
+                           ),
                        
-                       box(width = 12, height = "400px", title = "Database",
+                       box(width = 12, height = "400px", title = "Summary of data in Database",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBase")
-                       ),
-                )
-
+                           ),
+                       )
+                ),
               ),
-
-      ),
       
 
       ## Edit menu ---------------------------------------------------------------
 
       tabItem(tabName = "edit",
               
-              fluidRow(h4("   No one here but us chickens."))),
+              fluidRow(h4("   No one here but us chickens.")),
+              img(src = "CTD_cast1.png", align = "center", width = "1000px")),
       
       ## Download menu -----------------------------------------------------------
 
       tabItem(tabName = "download",
-
+              
               fluidRow(
-
+                
                 column(width = 3,
-
-                       box(width = 12, height = "800px", title = "Controls",
+                       
+                       box(width = 12, height = "870px", title = "Download from database",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
-
+                           
+                           # Message
+                           h6("Download all data, or subset using the filters below."),
+                           
                            ## Data uploader
                            uiOutput("selectUpUI"),
                            
-                           ## Data owner
-                           uiOutput("selectDOUI"),
+                           ## Data owner (person)
+                           uiOutput("selectDOPUI"),
+                           
+                           ## Data owner (institute)
+                           uiOutput("selectDOInUI"),
                            
                            ## Sensor owner
                            uiOutput("selectSOUI"),
@@ -429,7 +449,7 @@ ui <- dashboardPage(
                            
                            ### Date
                            uiOutput("slideDateUI"),
-
+                           
                            ### Download
                            hr(),
                            # br(),
@@ -437,21 +457,14 @@ ui <- dashboardPage(
                                     column(width = 6, uiOutput("downloadFilterUI")))
                        )
                 ),
-
+                
                 # The data display
                 column(9,
-                       box(width = 12, height = "450px", title = "Data",
-                           status = "success", solidHeader = TRUE, collapsible = FALSE,
-                           DT::dataTableOutput("dataBaseFilter")),
-                       box(width = 5, height = "400px", title = "Map",
-                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                           # h4("Location of data"),
-                           # h5("Red border = no lon/lat"),
-                           # h5("Yellow border = lon/lat not in the fjord region"),
-                           # h5("Green border = lon/lat within fjord region")#,
-                           plotOutput("mapDL", height = "330px")),
-                       box(width = 7, height = "400px", title = "Time series",
+                       box(width = 12, height = "450px", title = "Data selected from database",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
+                           DT::dataTableOutput("dataBaseFilter")),
+                       box(width = 7, height = "400px", title = "Time series of selected data",
+                           status = "success", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
                              # column(2,
                              #        dropdownButton(
@@ -462,15 +475,16 @@ ui <- dashboardPage(
                              column(2, h4("Axis controls:")),
                              column(4, uiOutput("plotXUIDL")),
                              column(4, uiOutput("plotYUIDL")),
-                           column(12, plotOutput("tsPlot", height = "250px"))
-                       )
+                             column(12, plotOutput("tsPlot", height = "250px")))),
+                       box(width = 5, height = "400px", title = "Map of selected data",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                           # h4("Location of data"),
+                           # h5("Red border = no lon/lat"),
+                           # h5("Yellow border = lon/lat not in the fjord region"),
+                           # h5("Green border = lon/lat within fjord region")#,
+                           plotOutput("mapDL", height = "330px"))
                 )
               )
-                       
-                              
-              # ),
-
-      )
       ),
       
       
@@ -479,23 +493,34 @@ ui <- dashboardPage(
       tabItem(tabName = "about", 
               fluidPage(
                 column(12,
+                       img(src = "Portal process visualization.png", align = "center", width = "1000px"),
+                       # img(src = "CTD_cast1.png", align = "center", width = "1000px"),
                        h2(tags$b("About")),
-                       p("The purpose of this app is to provide a platform through which users may upload their CTD 
-                       data collected in or around Kongsfjorden."),
-                       h3(tags$b("Prepare your data")),
-                       tags$ul(
-                         tags$li("You can upload the raw files exported from the CTD, but do not use versions where you have manually changed the file or added additional text."),
-                         tags$li("Datasets can be uploaded as multiple individual txt or csv files per profile."),
-                         tags$li("It is easiest to upload your data sorted by station ID (if you use those) or lat long location."),
-                         tags$li("If you want to upload data from different stations in one go, make sure you have the lat long data for each profile available (you can copy past that data into the app)."),
-                         tags$li("In one upload session, only files from the same device brand and data structure can be uploaded."),
-                       ),
-                       h3(tags$b("General layout")),
-                       tags$ul(
-                         tags$li("After logging in, you will see the first page of the app ( ‘1) Upload’ )."),
-                         tags$li("On the left, you can navigate between the different pages. To move to the next step of your data upload, you need to click on the next tab once you are finished with the current one."),
-                         tags$li("You can move back and forth between the different tabs without losing or having to save your data in between.")
-                       ),
+                       p("The Kongsfjorden CTD portal is developed out of a common desire by marine researchers working in Kongsfjorden, by Ny-Ålesund, Svalbard, 
+                         to safeguard and collect the numerous CTD profiles collected by diverse researchers in the fjord. As a natural laboratory of Arctic change, 
+                         with many international research efforts focused on understanding the area, archiving of data is of utmost importance. 
+                         This portal allows for easy storage, standardization, and use of CTD data from Kongsfjorden, with a pipeline for annual, 
+                         open access publishing of the data to a trusted, well-established open-data-publisher, where all contributors are co-authors."),
+                       # h3(tags$b("General layout")),
+                       # tags$ul(
+                       #   tags$li("After logging in, you will see the first page of the app ( ‘1) Upload’ )."),
+                       #   tags$li("On the left, you can navigate between the different pages. To move to the next step of your data upload, you need to click on the next tab once you are finished with the current one."),
+                       #   tags$li("You can move back and forth between the different tabs without losing or having to save your data in between.")
+                       # ),
+                       # h3(tags$b("Prepare your data")),
+                       # tags$ul(
+                       #   tags$li("You can upload the raw files exported from the CTD, but do not use versions where you have manually changed the file or added additional text."),
+                       #   tags$li("Datasets can be uploaded as multiple individual txt or csv files per profile."),
+                       #   tags$li("It is easiest to upload your data sorted by station ID (if you use those) or lat long location."),
+                       #   tags$li("If you want to upload data from different stations in one go, make sure you have the lat long data for each profile available (you can copy past that data into the app)."),
+                       #   tags$li("In one upload session, only files from the same device brand and data structure can be uploaded."),
+                       # ),
+                       h3(tags$b("Create user account")),
+                       # tags$ul(
+                         # tags$li(
+                           p("Please contact the administrator to have a new user account created. Provide them with your name and e-mail, as well as your desired username and password."
+                       # )
+                         ),
                        h3(tags$b("Data publishing")),
                        tags$ul(
                          tags$li("If your data has already been published, please add the DOI [DOI field still needs to be implemented] of the primary data publication when uploading the data (see 'Instructions')."),
@@ -505,16 +530,12 @@ ui <- dashboardPage(
                          tags$li("In case you want your data to be published via the automated pipeline provided by the app, leave the DOI field empty."),
                          tags$li("The data will be published together with the other data from that year with all data providers and/or data owners as coauthors [yet to be determined]."),
                          tags$li("The order of the author list will be dictated by the number of provided datasets [yet to be determined].")
-                       ),
-                       h3(tags$b("Create user account")),
-                       tags$ul(
-                         tags$li("Please contact the administrator to have a new user account created. Provide them with your name and e-mail, as well as your desired username and password.")
                          ),
                        h3(tags$b("Acknowledgments")),
-                       tags$ul(
-                         tags$li("This app was created as part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
-                         img(src = "FACE-IT_h2020.png", align = "left")
-                       )
+                       p("This portal was created out of the Kongsfjorden System Flagship, 
+                         and developed by Robert Schlegel as a part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
+                       img(src = "Ny-Ålesund logo_with Flagship_2.png", align = "center", width = "1000px"),
+                       img(src = "FACE-IT_h2020.png", align = "center", width = "600px")
                 )
               )
       )
@@ -589,7 +610,7 @@ server <- function(input, output, session) {
   # Reactive UI for file schema
   ## NB: These could potentially be moved to the UI and rather updated via observations as done in the meta section
   output$schemaUI <- renderUI({
-    selectInput("schema", "File schema", choices = c("None", "Alt_S", "SAIV", "RBR", "Sea-Bird", "Sea-Bird O2", "Sea & Sun"), 
+    selectInput("schema", "CTD type", choices = c("None", "Alt_S", "SAIV", "RBR", "Sea-Bird", "Sea-Bird O2", "Sea & Sun"), 
                 selected = upload_opts$schema)
   })
   
@@ -603,12 +624,12 @@ server <- function(input, output, session) {
   
   # Reactive UI for number of rows to skip
   output$skipUI <- renderUI({
-    numericInput("skip", "Skip rows", value = upload_opts$skip, min = 0, step = 1)
+    numericInput("skip", "# of rows to skip", value = upload_opts$skip, min = 0, step = 1)
   })
   
   # Reactive UI for column separator options
   output$sepUI <- renderUI({
-    shinyWidgets::prettyRadioButtons("sep", "Separator",
+    shinyWidgets::prettyRadioButtons("sep", "Column separator",
                                      choiceNames = c("None", "Comma", "Semicolon", "Tab"),
                                      choiceValues = c("", ",", ";", "\t"),
                                      selected = upload_opts$sep)
@@ -616,7 +637,7 @@ server <- function(input, output, session) {
   
   # Reactive UI for decimal options
   output$decUI <- renderUI({
-    shinyWidgets::prettyRadioButtons("dec", "Decimal",
+    shinyWidgets::prettyRadioButtons("dec", "Decimal mark",
                                      choiceNames = c("Full stop", "Comma"),
                                      choiceValues = c(".", ","),
                                      selected = upload_opts$dec)
@@ -835,7 +856,9 @@ server <- function(input, output, session) {
                               Site = as.character(NA),
                               Lon = as.numeric(NA),
                               Lat = as.numeric(NA),
-                              Data_owner = as.character(NA),
+                              Owner_person = as.character(NA),
+                              Owner_institute = as.character(NA),
+                              DOI = as.character(NA),
                               Sensor_owner = "Kings Bay",
                               Sensor_brand = "SAIV",
                               Sensor_number = as.character(gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15))),
@@ -848,7 +871,9 @@ server <- function(input, output, session) {
                               Site = as.character(NA),
                               Lon = as.numeric(NA),
                               Lat = as.numeric(NA),
-                              Data_owner = as.character(NA),
+                              Owner_person = as.character(NA),
+                              Owner_institute = as.character(NA),
+                              DOI = as.character(NA),
                               Sensor_owner = as.character(NA),
                               Sensor_brand = "RBR",
                               Sensor_number = as.character(mini_df_1$...4))
@@ -857,7 +882,9 @@ server <- function(input, output, session) {
                               Site = as.character(NA),
                               Lon = as.numeric(NA),
                               Lat = as.numeric(NA),
-                              Data_owner = as.character(NA),
+                              Owner_person = as.character(NA),
+                              Owner_institute = as.character(NA),
+                              DOI = as.character(NA),
                               Sensor_owner = as.character(NA),
                               Sensor_brand = as.character(NA),
                               Sensor_number = as.character(NA))
@@ -950,25 +977,35 @@ server <- function(input, output, session) {
     table$table1$Lat <- input$allLat
     rhandsontable::set_data("table1output", row = 1:length(table$table1$Lat), col = 5, session = session, table$table1$Lat[1])
   })
-  ## Data owner
-  observeEvent(input$allDataOwner, {
-    table$table1$Data_owner <- input$allDataOwner
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Data_owner), col = 6, session = session, table$table1$Data_owner[1])
+  ## Data owner (person)
+  observeEvent(input$allDataOwnerPerson, {
+    table$table1$Owner_person <- input$allDataOwnerPerson
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Owner_person), col = 6, session = session, table$table1$Owner_person[1])
+  })
+  ## Data owner (institute)
+  observeEvent(input$allDataOwnerInstitute, {
+    table$table1$Owner_institute <- input$allDataOwnerInstitute
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Owner_institute), col = 7, session = session, table$table1$Owner_institute[1])
+  })
+  ## Data owner (institute)
+  observeEvent(input$allDOI, {
+    table$table1$DOI <- input$allDOI
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$DOI), col = 8, session = session, table$table1$DOI[1])
   })
   ## Sensor owner
   observeEvent(input$allSensorOwner, {
     table$table1$Sensor_owner <- input$allSensorOwner
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_owner), col = 7, session = session, table$table1$Sensor_owner[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_owner), col = 9, session = session, table$table1$Sensor_owner[1])
   })
   ## Sensor brand
   observeEvent(input$allSensorBrand, {
     table$table1$Sensor_brand <- input$allSensorBrand
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_brand), col = 8, session = session, table$table1$Sensor_brand[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_brand), col = 10, session = session, table$table1$Sensor_brand[1])
   })
   ## Sensor number
   observeEvent(input$allSensorNumber, {
     table$table1$Sensor_number <- input$allSensorNumber
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_number), col = 9, session = session, table$table1$Sensor_number[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_number), col = 11, session = session, table$table1$Sensor_number[1])
   })
   
   # Reactive data for datatable
@@ -980,15 +1017,15 @@ server <- function(input, output, session) {
     df_time <- df_load() %>% 
       mutate(file_name = as.character(file_name)) %>%
       left_join(df_meta, by = c("file_name", "upload_date")) %>%  #, "file_num")) %>% 
-      dplyr::select(Uploader, upload_date, file_name, Data_owner, Sensor_owner, 
-                    Sensor_brand, Sensor_number, Site, Lon, Lat, everything())
+      dplyr::select(Uploader, upload_date, file_name, Owner_person, Owner_institute, DOI,
+                    Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat, everything())
     return(df_time)
   })
   
   output$contentsTime <- DT::renderDataTable({
     req(input$file1, table$table1)
     df_time <- df_time()
-    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 350))
+    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 300))
     return(df_time_DT)
   })
 
@@ -1068,8 +1105,10 @@ server <- function(input, output, session) {
   df_meta_check <- reactive({
     req(input$file1, table$table1$file_name, df_time())
     df_meta_check <- df_time() %>% 
-      dplyr::select(Data_owner, Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
-      mutate(Data_owner = case_when(is.na(Data_owner) ~ 1, TRUE ~ 0),
+      dplyr::select(Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
+      mutate(Owner_person = case_when(is.na(Owner_person) ~ 1, TRUE ~ 0),
+             Owner_institute = case_when(is.na(Owner_institute) ~ 1, TRUE ~ 0),
+             # DOI = case_when(is.na(DOI) ~ 1, TRUE ~ 0), # Not required
              Sensor_owner = case_when(is.na(Sensor_owner) ~ 1, TRUE ~ 0),
              Sensor_brand = case_when(is.na(Sensor_brand) ~ 1, TRUE ~ 0),
              Sensor_number = case_when(is.na(Sensor_number) ~ 1, TRUE ~ 0),
@@ -1088,7 +1127,9 @@ server <- function(input, output, session) {
       meta_check_text <-  "All good. <br> Click to upload data to database. <br>"
     } else {
       meta_check_text <- paste0("Add missing meta-data before uploading: <br>",
-                                "Data_owner: ",df_meta_check$Data_owner," rows <br>",
+                                "Owner_person: ",df_meta_check$Owner_person," rows <br>",
+                                "Owner_institute: ",df_meta_check$Owner_institute," rows <br>",
+                                "DOI: Not required <br>",
                                 "Sensor_owner: ",df_meta_check$Sensor_owner," rows <br>",
                                 "Sensor_brand: ",df_meta_check$Sensor_brand," rows <br>",
                                 "Site: ",df_meta_check$Site," rows <br>",
@@ -1133,7 +1174,7 @@ server <- function(input, output, session) {
   # Show the newly expanded database
   output$dataBase <- DT::renderDataTable({
     df_db_summary <- df_data_base() %>% 
-      group_by(Uploader, upload_date, Data_owner, Sensor_owner, Sensor_brand, Sensor_number, Site) %>% 
+      group_by(Uploader, upload_date, Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, Site) %>% 
       summarise(rows = n(), .groups = "drop")
     data_base_DT <- datatable(df_db_summary, options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
     return(data_base_DT)
@@ -1157,11 +1198,18 @@ server <- function(input, output, session) {
     )
   })
   
-  ## Subset by data owners
-  output$selectDOUI <- renderUI({
-    selectizeInput('selectDO', 'Data owner',
-      choices = unique(df_data_base()$Data_owner), multiple = T,
-      selected = unique(df_data_base()$Data_owner))
+  ## Subset by data owners (person)
+  output$selectDOPUI <- renderUI({
+    selectizeInput('selectDOP', 'Data owner (person)',
+      choices = unique(df_data_base()$Owner_person), multiple = T,
+      selected = unique(df_data_base()$Owner_person))
+  })
+  
+  ## Subset by data owners (person)
+  output$selectDOInUI <- renderUI({
+    selectizeInput('selectDOIn', 'Data owner (institute)',
+                   choices = unique(df_data_base()$Owner_institute), multiple = T,
+                   selected = unique(df_data_base()$Owner_institute))
   })
   
   ## Subset by sensor owner
@@ -1174,22 +1222,22 @@ server <- function(input, output, session) {
   ## Lon
   output$slideLonUI <- renderUI({
     # req(input$selectVar)
-    shiny::sliderInput("slideLon", "Longitude range", value = range(df_data_base()$Lon, na.rm = T),
-                       min = min(df_data_base()$Lon, na.rm = T), max = max(df_data_base()$Lon, na.rm = T))
+    min_lon <- floor_dec(min(df_data_base()$Lon), 2); max_lon <- ceiling_dec(max(df_data_base()$Lon), 2)
+    shiny::sliderInput("slideLon", "Longitude range", value = c(min_lon, max_lon), min = min_lon, max = max_lon)
   })
   
   # Lat
   output$slideLatUI <- renderUI({
     # req(input$selectVar)
-    shiny::sliderInput("slideLat", "Latitude range", value = range(df_data_base()$Lat, na.rm = T),
-                       min = min(df_data_base()$Lat, na.rm = T), max = max(df_data_base()$Lat, na.rm = T))
+    min_lat <- floor_dec(min(df_data_base()$Lat), 2); max_lat <- ceiling_dec(max(df_data_base()$Lat), 2)
+    shiny::sliderInput("slideLat", "Latitude range", value = c(min_lat, max_lat), min = min_lat, max = max_lat)
   })
   
   # Depth
   output$slideDepthUI <- renderUI({
     # req(input$selectVar)
-    shiny::sliderInput("slideDepth", "Depth range", value = range(df_data_base()$Depth, na.rm = T),
-                       min = min(df_data_base()$Depth, na.rm = T), max = max(df_data_base()$Depth, na.rm = T))
+    max_depth <- ceiling(max(df_data_base()$Depth))
+    shiny::sliderInput("slideDepth", "Depth range", value = c(0, max_depth), min = 0, max = max_depth)
   })
   
   # Date
@@ -1209,13 +1257,14 @@ server <- function(input, output, session) {
   # Filter by smaller details 
   df_filter <- reactive({
     # req(input$selectSite)
-    if(length(input$selectDO) == 0){
+    if(length(input$selectDOP) == 0){
       df_filter <- data.frame(Empty = "Please expand your search in the blue 'Controls' panel on the left.")
-    } else if(length(input$selectDO) > 0){
+    } else if(length(input$selectDOP) > 0){
       req(input$slideLon)
       df_filter <- df_data_base() %>%
         filter(Uploader %in% input$selectUp,
-               Data_owner %in% input$selectDO,
+               Owner_person %in% input$selectDOP,
+               Owner_institute %in% input$selectDOIn,
                Sensor_owner %in% input$selectSO,
                Lon >= input$slideLon[1], Lon <= input$slideLon[2],
                Lat >= input$slideLat[1], Lat <= input$slideLat[2],
@@ -1336,11 +1385,11 @@ server <- function(input, output, session) {
       session = session,
       title = "Instructions",
       text = tags$span(
-        "The Kongsfjorden CTD data upload app is laid out as a dashboard with a ",tags$em("side bar"),
-        " on the left and additional controls and plots in the ",tags$em("body"),
+        "The Kongsfjorden CTD data portal is laid out on a dashboard with a ",tags$em("side bar"),
+        " on the left and additional controls and plots in the ",tags$em("body"),".",
         # tags$h3(icon("bars"),"Side bar", style = "color: skyblue;"),
-        
-        tags$h3(icon("desktop"),tags$b("1. Load file")),  
+        # img(src = "Portal process visualization.png", align = "center", width = "800px"),
+        tags$h3(icon("desktop"),tags$b("1. Load file(s)")),  
         tags$ul(style = "text-align: justify;",
           tags$li("In the blue box ('File format') you can identify the files you want to upload and in which format they are"),
           tags$ul(
@@ -1408,7 +1457,7 @@ server <- function(input, output, session) {
         
         tags$h3(icon("question"),tags$b("About")),
         tags$ul(style = "text-align: justify;",
-          tags$li("This tab contains more specific information about the app"),
+          tags$li("This tab contains more specific information and acknowledgments for the portal."),
           ), 
         
         tags$h3(icon("address-book"),"Contact", style = "color: royalblue;"),
