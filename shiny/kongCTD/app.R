@@ -77,6 +77,7 @@ library(ggplot2)
 library(lubridate)
 library(stringr)
 library(rhandsontable)
+library(rdrop2)
 # library(argoFloats)
 # library(ggraph)
 # library(plotly)
@@ -169,6 +170,10 @@ credentials <- data.frame(
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
+
+# Load robert.schlegel@imev-mer.fr dropbox credentials
+load("dropboxtoken.Rda")
+drop_acc(dtoken = token)
 
 # Increase file upload size limit
 options(shiny.maxRequestSize = 50*1024^2)
@@ -760,9 +765,11 @@ server <- function(input, output, session) {
         } else if("Press" %in% colnames(df)){
           df <- df %>% 
             dplyr::rename(Salinity = `Sal.`, Conductivity = `Cond.`, Temperature = Temp,
-                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Pressure = Press) %>% 
+                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, 
+                          # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
+                          Depth = Press) %>% 
             mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
-            dplyr::select(file_temp, date_time, Pressure, Salinity:Density)
+            dplyr::select(file_temp, date_time, Depth, Salinity:Density)
         } else {
           df <- df %>% 
             dplyr::rename(Conductivity = `Cond.`, Temperature = Temp,
@@ -1098,7 +1105,9 @@ server <- function(input, output, session) {
 
   # Create reactive data_base object that recognizes uploads of new data
   data_base <- reactiveValues()
+  # drop_download("KongCTD/data_base.Rds", overwrite = TRUE)
   data_base$df <- read_rds("data_base.Rds")
+  # df <- read_rds(db_file)
   
   # Check that all necessary meta-data has been provided
   # NB: Would be good to add group_by(file_name)
@@ -1154,6 +1163,9 @@ server <- function(input, output, session) {
     # saveData(df_time())
     df_res <- bind_rows(df_time(), data_base$df) %>% distinct()
     write_rds(df_res, file = "data_base.Rds", compress = "gz")
+    # drop_upload(write_rds(df_res, file = "data_base.Rds", compress = "gz"), path = "KongCTD")
+    # drop_upload('data_base.Rds', path = "KongCTD")
+    # drop_download("KongCTD/data_base.Rds", overwrite = TRUE)
     data_base$df <- read_rds("data_base.Rds")
   })
   
@@ -1222,21 +1234,21 @@ server <- function(input, output, session) {
   ## Lon
   output$slideLonUI <- renderUI({
     # req(input$selectVar)
-    min_lon <- floor_dec(min(df_data_base()$Lon), 2); max_lon <- ceiling_dec(max(df_data_base()$Lon), 2)
+    min_lon <- floor_dec(min(as.numeric(df_data_base()$Lon), na.rm = T), 2); max_lon <- ceiling_dec(max(df_data_base()$Lon), 2)
     shiny::sliderInput("slideLon", "Longitude range", value = c(min_lon, max_lon), min = min_lon, max = max_lon)
   })
   
   # Lat
   output$slideLatUI <- renderUI({
     # req(input$selectVar)
-    min_lat <- floor_dec(min(df_data_base()$Lat), 2); max_lat <- ceiling_dec(max(df_data_base()$Lat), 2)
+    min_lat <- floor_dec(min(as.numeric(df_data_base()$Lat), na.rm = T), 2); max_lat <- ceiling_dec(max(df_data_base()$Lat), 2)
     shiny::sliderInput("slideLat", "Latitude range", value = c(min_lat, max_lat), min = min_lat, max = max_lat)
   })
   
   # Depth
   output$slideDepthUI <- renderUI({
     # req(input$selectVar)
-    max_depth <- ceiling(max(df_data_base()$Depth))
+    max_depth <- ceiling(max(as.numeric(df_data_base()$Depth), na.rm = T))
     shiny::sliderInput("slideDepth", "Depth range", value = c(0, max_depth), min = 0, max = max_depth)
   })
   
