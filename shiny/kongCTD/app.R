@@ -1106,7 +1106,7 @@ server <- function(input, output, session) {
   # Create reactive data_base object that recognizes uploads of new data
   data_base <- reactiveValues()
   # drop_download("KongCTD/data_base.Rds", overwrite = TRUE)
-  data_base$df <- read_rds("data_base.Rds")
+  data_base$df <- read_rds("data/data_base.Rds")
   # df <- read_rds(db_file)
   
   # Check that all necessary meta-data has been provided
@@ -1162,11 +1162,11 @@ server <- function(input, output, session) {
   observeEvent(input$upload, {
     # saveData(df_time())
     df_res <- bind_rows(df_time(), data_base$df) %>% distinct()
-    write_rds(df_res, file = "data_base.Rds", compress = "gz")
+    write_rds(df_res, file = "data/data_base.Rds", compress = "gz")
     # drop_upload(write_rds(df_res, file = "data_base.Rds", compress = "gz"), path = "KongCTD")
     # drop_upload('data_base.Rds', path = "KongCTD")
     # drop_download("KongCTD/data_base.Rds", overwrite = TRUE)
-    data_base$df <- read_rds("data_base.Rds")
+    data_base$df <- read_rds("data/data_base.Rds")
   })
   
   # Reactive data for datatable
