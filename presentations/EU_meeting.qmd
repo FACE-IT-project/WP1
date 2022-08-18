@@ -1,0 +1,15 @@
+---
+title: "FACE-IT WP1"
+format: revealjs
+editor: visual
+---
+
+- Show that we made all of our deliverables
+- Show that we are on track for future deliverables
+- Show that WP1 is the best
+- Showcase interactive app
+- Talk about the hackathon
+- Discuss completeness of the data compilation
+  - Two big caveats being harvesting cruise and species presence data from PANGAEA
+- Discuss the documenting of FACE-IT data and publications
+- Discuss the difficulties in that process
