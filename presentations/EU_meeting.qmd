@@ -1,15 +1,43 @@
 ---
 title: "FACE-IT WP1"
-format: revealjs
+format: 
+  revealjs:
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
 editor: visual
 ---
 
-- Show that we made all of our deliverables
-- Show that we are on track for future deliverables
-- Show that WP1 is the best
-- Showcase interactive app
-- Talk about the hackathon
-- Discuss completeness of the data compilation
-  - Two big caveats being harvesting cruise and species presence data from PANGAEA
-- Discuss the documenting of FACE-IT data and publications
-- Discuss the difficulties in that process
+## Completed deliverables
+
+-   D8.1 (6 months): [Data management plan](https://face-it-project.github.io/WP1/DMP_FACE-IT_initial.pdf)(DMP)
+-   D1.1 (6 months): [Report on key drivers of changes in Arctic biodiversity](https://face-it-project.github.io/WP1/key_drivers.html)
+-   D1.2 (12 months): [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html)
+
+## Upcoming deliverables {.scrollable}
+
+-   D1.3 (24 months): Review article on drivers of change in fjords
+    -   Split into two papers
+        -   Review paper (\~90% complete)
+        -   Data paper (\~50% complete)
+-   D8.3 (30 months): Update on Data management plan
+    -   Few changes have been needed from the original
+-   D1.4 (40 months): Compilation of social science data
+    -   Still pending completion of collection (\~1 year)
+-   D1.5 (42 months): Final data compilation
+    -   Effectively complete, but ongoing process
+
+## Data compilation
+
+-   Documentation of the data collection, combination, and analysis in Data Paper (D1.3)
+-   Nearly all identified data have been sourced and compiled
+-   Thousands of additional datasets have been harvested from PANGAEA
+    -   Exception of research cruise and species presence data
+-   Compiling [FACE-IT member datasets](https://zenodo.org/communities/face-it/search?page=1&size=20) and uploading to PANGAEA
+-   A user interface ([UI](193.50.85.104:4949/dataAccess/)) is available to FACE-IT members
+
+## Other WP1 activities
+
+-   Developing portal for collection of [CTD data](193.50.85.104:4949/kongCTD/) in Kongsfjorden
+-   Represented FACE-IT for [Hack the Arctic](https://hackthearctic.com/) hackathon
+    -   Finished #2 place with a data portal for [trends around Svalbard](https://robert-schlegel.shinyapps.io/svalbard/)
