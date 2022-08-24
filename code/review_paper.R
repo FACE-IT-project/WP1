@@ -136,7 +136,7 @@ rp_fig_2_rim <- ggplot(coords_CO2, aes(x = x1, y = y1)) +
   scale_y_continuous(limits = c(-5, 5)) +
   scale_x_continuous(limits = c(0, 14)) +
   # scale_fill_manual(aesthetics = c("colour", "fill"), 
-  scale_fill_manual(values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080", "grey40")) +
+  scale_fill_manual(values = c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080", "grey40")) +
   # scale_alpha_identity() +
   theme_void() +
   theme(legend.position = "none") + 
@@ -144,7 +144,7 @@ rp_fig_2_rim <- ggplot(coords_CO2, aes(x = x1, y = y1)) +
 rp_fig_2_rim
 
 # Standard arrow function
-gg_arrow <- function(x, xend, y, yend, colour1, colour2, size1 = 2, size2 = 0.5, ...){
+gg_arrow <- function(x, xend, y, yend, colour1, colour2, size1 = 3, size2 = 1, ...){
   df = data.frame(z = 1) # Dummy data.frame to break free from base plot
   return(list(geom_curve(data = df, aes(x = x, xend = xend, y = y, yend = yend),
                            size = size1, colour = colour1,
@@ -155,35 +155,74 @@ gg_arrow <- function(x, xend, y, yend, colour1, colour2, size1 = 2, size2 = 0.5,
 
 }
 
+# Standard ball function
+gg_ball <- function(x, y, fill, label){
+  return(list(geom_point(data = data.frame(x = x, y = y), aes(x, y), shape = 21, size = 20, colour = "grey50", fill = fill),
+              annotate("text", x = x, y = y, label = label)))
+}
+
 # Add rim figure to base plot to remove polar coordinate system
 rp_fig_2_plot <- rp_fig_2_base +
   ## Rim plot
   geom_grob(aes(x = 0, y = 0, label = list(cowplot::as_grob(rp_fig_2_rim))), vp.width = 1.23, vp.height = 1.23, add.segments = F) +
   
   ## emissions arrows
-  # geom_segment()
+  gg_arrow(0.9, 0.78, 0.05, 0.0, "white", "#F6EA7C", angle = 0) +
+  gg_arrow(0.1, 0.2, -0.85, -0.75, "white", "#F6EA7C", angle = 0) +
   
   ## Cryosphere arrows
   # sea ice arrows
-  gg_arrow(0.15, 0.4, 0.62, -0.5, "black", "mintcream") +
+  gg_arrow(0.15, 0.4, 0.62, -0.5, "black", "violet") +
+  gg_arrow(0.15, 0.65, 0.62, 0.05, "black", "violet") +
   # GMB arrows
+  gg_arrow(0.4, 0.58, 0.5, 0.25, "black", "violet") +
+  gg_arrow(0.5, 0.55, 0.6, 0.65, "black", "violet", angle = 0) +
   # discharge arrows
+  gg_arrow(0.6, 0.45, 0.2, -0.45, "black", "violet") +
+  gg_arrow(0.6, 0.6, 0.2, -0.2, "black", "violet") +
+  gg_arrow(0.6, 0.62, 0.2, 0.1, "white", "violet", curvature = 1.3) +
+  gg_arrow(0.6, -0.15, 0.2, -0.64, "white", "violet") +
   
   ## Physics arrows
+  # sea water temperature
+  # salinity
+  gg_arrow(0.55, -0.55, -0.35, -0.35, "white", "skyblue") +
+  # light
+  gg_arrow(0.35, -0.4, -0.55, -0.5, "white", "skyblue") +
   
   ## Chemistry arrows
-  
+  # carbonate system
+  gg_arrow(-0.49, -0.53, -0.6, -0.67, "black", "#A2ED84", angle = 0) +
+  # nutrients
+
   ## Biology arrows
-  
+  # primary production
+  gg_arrow(-0.49, -0.53, -0.6, -0.67, "black", "#A2ED84", angle = 0) +
+  # biomass
+  # species richness
+
   ## Social arrows
-  
+  # governance
+  # tourism
+  # fisheries
+
   ## AW inflow
-  geom_point(data = data.frame(x = 0.3, y = -0.1), aes(x, y), shape = 21, size = 20, colour = "grey50", fill = "skyblue") +
-  annotate("text", x = 0.3, y = -0.1, label = "AW\ninflow") +
-  # geom_label(data = data.frame(x = 0.3, y = -0.1), aes(x, y, label = "AW\ninflow"), 
-  #            size = 6, colour = "black", fill = "skyblue") +
+  gg_arrow(0.3, 0.64, -0.1, 0.0, "white", "skyblue") +
+  gg_arrow(0.3, 0.6, -0.1, -0.27, "white", "skyblue") +
+  gg_arrow(0.3, 0.22, -0.1, 0.6, "black", "skyblue", curvature = -0.5) +
+  gg_ball(0.3, -0.1, "skyblue", "AW\ninflow") +
+
+  ## Precipitation
+  gg_arrow(0.2, 0.6, 0.1, 0.22, "white", "skyblue", curvature = -0.2) +
+  gg_arrow(0.2, 0.6, 0.1, -0.28, "black", "skyblue", curvature = -0.3) +
+  gg_ball(0.2, 0.1, "skyblue", "precip.") +
+  
+  ## Cloudiness
+  gg_arrow(0.15, 0.45, -0.05, -0.47, "black", "skyblue") +
+  gg_ball(0.15, -0.05, "skyblue", "cloud") +
+  
   # Other
-  labs(x = NULL, y = NULL) #+ theme_void()
+  labs(x = NULL, y = NULL) #+ theme_void() + theme(panel.background = element_rect(fill = "grey50"))
 rp_fig_2_plot
 
 # Add legends
