@@ -125,7 +125,7 @@ rp_fig_2_rim <- ggplot(coords_CO2, aes(x = x1, y = y1)) +
                 upright = TRUE) +
   geom_textpath(data = data.frame(x1 = seq(0, 14, length = 700),
                                   y1 = rep(2.25, 700),
-                                  label = rep(c("sea ice", "glacier mass\nbalance", "glacial/riverine\ndischarge",
+                                  label = rep(c("sea ice", "glacier mass\nbalance", "glacial + riverine\ndischarge",
                                                 "sea water\ntemperature", "salinity", "light",
                                                 "carbonate\nsystem", "nutrients",
                                                 "primary\nproduction", "biomass", "species\nrichness",
@@ -144,23 +144,53 @@ rp_fig_2_rim <- ggplot(coords_CO2, aes(x = x1, y = y1)) +
 rp_fig_2_rim
 
 # Standard arrow function
-# NB: Doesn't work with the grob situation below...
-geom_arrow <- function(x, xend, y, yend, ...){
-  geom_curve(aes(x = x, xend = xend, y = y, yend = yend), lineend = "round", arrow = arrow(length = unit(0.03, "npc")))
+gg_arrow <- function(x, xend, y, yend, colour1, colour2, size1 = 2, size2 = 0.5, ...){
+  df = data.frame(z = 1) # Dummy data.frame to break free from base plot
+  return(list(geom_curve(data = df, aes(x = x, xend = xend, y = y, yend = yend),
+                           size = size1, colour = colour1,
+                           lineend = "round", arrow = arrow(length = unit(0.03, "npc")), ...),
+              geom_curve(data = df, aes(x = x, xend = xend, y = y, yend = yend),
+                           size = size2, colour = colour2,
+                           lineend = "round", arrow = arrow(length = unit(0.03, "npc")), ...)))
+
 }
 
 # Add rim figure to base plot to remove polar coordinate system
-rp_fig_2 <- rp_fig_2_base +
-  # Rim plot
+rp_fig_2_plot <- rp_fig_2_base +
+  ## Rim plot
   geom_grob(aes(x = 0, y = 0, label = list(cowplot::as_grob(rp_fig_2_rim))), vp.width = 1.23, vp.height = 1.23, add.segments = F) +
-  # Sea ice arrows
-  # geom_curve(aes(x = 0.12, xend = 0.32, y = 0.51, yend = -0.41), lineend = "round", arrow = arrow(length = unit(0.03, "npc"))) +
-  geom_arrow(0.12, 0.32, 0.51, -0.41) +
-  labs(x = NULL, y = NULL)
-rp_fig_2
+  
+  ## emissions arrows
+  # geom_segment()
+  
+  ## Cryosphere arrows
+  # sea ice arrows
+  gg_arrow(0.15, 0.4, 0.62, -0.5, "black", "mintcream") +
+  # GMB arrows
+  # discharge arrows
+  
+  ## Physics arrows
+  
+  ## Chemistry arrows
+  
+  ## Biology arrows
+  
+  ## Social arrows
+  
+  ## AW inflow
+  geom_point(data = data.frame(x = 0.3, y = -0.1), aes(x, y), shape = 21, size = 20, colour = "grey50", fill = "skyblue") +
+  annotate("text", x = 0.3, y = -0.1, label = "AW\ninflow") +
+  # geom_label(data = data.frame(x = 0.3, y = -0.1), aes(x, y, label = "AW\ninflow"), 
+  #            size = 6, colour = "black", fill = "skyblue") +
+  # Other
+  labs(x = NULL, y = NULL) #+ theme_void()
+rp_fig_2_plot
 
-# Save
-ggsave("figures/rp_fig_2.png", rp_fig_2, width = 15, height = 15)
+# Add legends
+
+# Combine and save
+
+ggsave("figures/rp_fig_2.png", rp_fig_2_plot, width = 10, height = 10)
 
 
 # Table 1 -----------------------------------------------------------------
