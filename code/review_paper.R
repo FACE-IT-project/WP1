@@ -6,6 +6,8 @@
 
 source("code/functions.R")
 library(geomtextpath)
+library(ggpmisc)
+library(ggpattern)
 
 # Ice cover colours
 ice_cover_colours <- c(
@@ -78,42 +80,86 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 # Figure 2 ----------------------------------------------------------------
 # Flow chart showing interactions of all key drivers
 
-df <- data.frame(x1 = c(seq(0, 10/6 * pi, pi/3),
-                        seq(0, 10/6 * pi, 2*pi/3)),
-                 y1 = c(rep(2, 6), rep(-1, 3)),
-                 x2 = c(seq(0, 10/6 * pi, pi/3)  + pi/3,
-                        seq(0, 10/6 * pi, 2*pi/3) + 2*pi/3),
-                 y2 = c(rep(4, 6), rep(2, 3)),
-                 group = letters[c(1:6, (1:3) * 2)],
-                 alpha = c(rep(1, 6), rep(0.4, 3)))
+# Create base for layering plots
+base_df <- data.frame(x = c(-1, 0, 1), y = c(-1, 0, 1))
+rp_fig_2_base <- ggplot(data = base_df, aes(x = x, y = y)) + 
+  geom_point(colour = "grey50") + 
+  scale_x_continuous(breaks = seq(-1, 1, by = 0.1)) +
+  scale_y_continuous(breaks = seq(-1, 1, by = 0.1)) +
+  coord_equal(expand = F) +
+  # theme_void() +
+  theme(panel.background = element_rect(fill = "grey50"))
+rp_fig_2_base
 
-p <- ggplot(df, aes(x1, y1)) +
-  geom_rect(aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, fill = group,
-                alpha = alpha),
-            color = "white", size = 2) +
-  geom_textpath(data = data.frame(x1 = seq(0, 2 * pi, length = 300),
-                                  y1 = rep(0.5, 300),
-                                  label = rep(c("stats", "effects", "polar"), each = 100)),
-                aes(label = label), linetype = 0, size = 8,
+# Coordinate data.frames for rectangles to be drawn on polar plot
+coords_CO2 <- data.frame(x1 = 0,
+                         y1 = 3.5,
+                         x2 = 14,
+                         y2 = 5,
+                         group = letters[6],
+                         alpha = 0.4)
+# coords_temp_pH <- data.frame() # Not adding this at the moment
+coords_drivers <- data.frame(x1 = seq(0, 13),
+                             y1 = rep(1.5, 14),
+                             x2 = seq(0, 13)+1,
+                             y2 = rep(3, 14),
+                             group = letters[c(rep(1, 3), rep(2, 3), rep(3, 2), rep(4, 3), rep(5, 3))],
+                             alpha = rep(0.9, 14))
+
+rp_fig_2_rim <- ggplot(coords_CO2, aes(x = x1, y = y1)) +
+  # Rectangles
+  geom_rect_pattern(aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, alpha = alpha), 
+                    size = 2, colour = NA, pattern = "circle", pattern_colour = "yellow",
+                    pattern_density = 0.3) +
+  # geom_rect(data = coords_temp_pH,
+  #           aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, fill = group, alpha = alpha), 
+  #           size = 2, colour = "black") +
+  geom_rect(data = coords_drivers,
+            aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, fill = group, alpha = alpha), 
+            size = 2, colour = "grey50") +
+  # Text
+  geom_textpath(data = data.frame(x1 = seq(0, 14, length = 700),
+                                  y1 = rep(4.25, 700),
+                                  label = "anthropogenic CO2 emissions"),
+                aes(label = label), linetype = 0, size = 5.6, color = "black",
                 upright = TRUE) +
-  geom_textpath(data = data.frame(x1 = seq(0, 2 * pi, length = 300),
-                                  y1 = rep(3, 300),
-                                  label = rep(c("density", "smooth", "unique", "organic",
-                                                "easy to use", "automatic"), 
+  geom_textpath(data = data.frame(x1 = seq(0, 14, length = 700),
+                                  y1 = rep(2.25, 700),
+                                  label = rep(c("sea ice", "glacier mass\nbalance", "glacial/riverine\ndischarge",
+                                                "sea water\ntemperature", "salinity", "light",
+                                                "carbonate\nsystem", "nutrients",
+                                                "primary\nproduction", "biomass", "species\nrichness",
+                                                "governance", "tourism", "fisheries"),
                                               each = 50)),
-                aes(label = label), linetype = 0, size = 4.6, color = "white",
+                aes(label = label), linetype = 0, linewidth = 3.6, color = "black",
                 upright = TRUE) +
-  scale_y_continuous(limits = c(-5, 4)) +
-  scale_x_continuous(limits = c(0, 2*pi)) +
-  scale_fill_manual(values = c("deepskyblue3", "deepskyblue4",
-                               "green3", "green4","tomato", "tomato2")) +
-  scale_alpha_identity() +
+  scale_y_continuous(limits = c(-5, 5)) +
+  scale_x_continuous(limits = c(0, 14)) +
+  # scale_fill_manual(aesthetics = c("colour", "fill"), 
+  scale_fill_manual(values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080", "grey40")) +
+  # scale_alpha_identity() +
   theme_void() +
-  theme(legend.position = "none") 
-p
+  theme(legend.position = "none") + 
+  coord_polar()
+rp_fig_2_rim
 
+# Standard arrow function
+# NB: Doesn't work with the grob situation below...
+geom_arrow <- function(x, xend, y, yend, ...){
+  geom_curve(aes(x = x, xend = xend, y = y, yend = yend), lineend = "round", arrow = arrow(length = unit(0.03, "npc")))
+}
 
-# Combine
+# Add rim figure to base plot to remove polar coordinate system
+rp_fig_2 <- rp_fig_2_base +
+  # Rim plot
+  geom_grob(aes(x = 0, y = 0, label = list(cowplot::as_grob(rp_fig_2_rim))), vp.width = 1.23, vp.height = 1.23, add.segments = F) +
+  # Sea ice arrows
+  # geom_curve(aes(x = 0.12, xend = 0.32, y = 0.51, yend = -0.41), lineend = "round", arrow = arrow(length = unit(0.03, "npc"))) +
+  geom_arrow(0.12, 0.32, 0.51, -0.41) +
+  labs(x = NULL, y = NULL)
+rp_fig_2
+
+# Save
 ggsave("figures/rp_fig_2.png", rp_fig_2, width = 15, height = 15)
 
 
