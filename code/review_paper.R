@@ -275,6 +275,10 @@ rp_fig_2_plot
 
 ggsave("figures/rp_fig_2.png", rp_fig_2_plot, width = 10, height = 10)
 
+# Attempt interactivity
+# NB: Doesn't work because plotly doesn't know about grobs and curves
+plotly::ggplotly(rp_fig_2_plot)
+
 
 # Table 1 -----------------------------------------------------------------
 
