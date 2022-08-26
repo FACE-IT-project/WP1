@@ -5,9 +5,12 @@ format:
     # slide-number: true
     # show-slide-number: print
     preview-links: true
+    theme: sky
+    self-contained: true
 editor: visual
 ---
-
+<!-- Add names to title slide -->
+<!-- Add top parts of manuscripts (title journal etc) for slides with empty space -->
 ## Completed deliverables
 
 -   D8.1 (6 months): [Data management plan](https://face-it-project.github.io/WP1/DMP_FACE-IT_initial.pdf)(DMP)
@@ -16,28 +19,32 @@ editor: visual
 
 ## Upcoming deliverables {.scrollable}
 
+<!-- Note that this has been accepted for submission with dates established -->
+<!-- Split into two slides -->
 -   D1.3 (24 months): Review article on drivers of change in fjords
     -   Split into two papers
         -   Review paper (\~90% complete)
         -   Data paper (\~50% complete)
 -   D8.3 (30 months): Update on Data management plan
-    -   Few changes have been needed from the original
+    -   Little change will be needed from the original
 -   D1.4 (40 months): Compilation of social science data
     -   Still pending completion of collection (\~1 year)
 -   D1.5 (42 months): Final data compilation
-    -   Effectively complete, but ongoing process
+    -   Data published on Zenodo will be published on PANGAEA
+    -   Compiling [FACE-IT member datasets](https://zenodo.org/communities/face-it/search?page=1&size=20) and uploading to PANGAEA
+    -   As research projects finish they will be compiled
 
-## Data compilation
+## Data collection
 
--   Documentation of the data collection, combination, and analysis in Data Paper (D1.3)
+-   Documentation of the data collection, combination, and analysis in data paper (D1.3)
 -   Nearly all identified data have been sourced and compiled
 -   Thousands of additional datasets have been harvested from PANGAEA
     -   Exception of research cruise and species presence data
--   Compiling [FACE-IT member datasets](https://zenodo.org/communities/face-it/search?page=1&size=20) and uploading to PANGAEA
--   A user interface ([UI](193.50.85.104:4949/dataAccess/)) is available to FACE-IT members
+-   A user interface ([UI](https://193.50.85.104:4949/dataAccess/)) is available to FACE-IT members
 
 ## Other WP1 activities
 
 -   Developing portal for collection of [CTD data](193.50.85.104:4949/kongCTD/) in Kongsfjorden
+    -   Part of the Kongsfjorden flagship (Add logo)
 -   Represented FACE-IT for [Hack the Arctic](https://hackthearctic.com/) hackathon
     -   Finished #2 place with a data portal for [trends around Svalbard](https://robert-schlegel.shinyapps.io/svalbard/)
