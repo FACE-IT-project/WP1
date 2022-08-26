@@ -80,6 +80,50 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 # Figure 2 ----------------------------------------------------------------
 # Flow chart showing interactions of all key drivers
 
+
+# Load network nodes and edges
+# NB: These were created by hand by RWS based on the text of the review paper
+nodes <- read_csv("data/figures/rp_fig_2_nodes.csv") %>% 
+  slice(1:14)
+edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>% 
+  filter(!from %in% c("s15", "s16"),
+         !to %in% c("s15", "s16"))
+
+# Create network
+library(igraph)
+net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
+
+# Generate colors based on media type:
+cat_colours <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
+V(net)$colour <- cat_colours[V(net)$cat_num]
+
+# Network charts
+library(ggraph)
+# Layout options:
+# ‘star’, ‘circle’, ‘grid’, ‘sphere’, ‘kk’, ‘fr’, ‘mds’, ‘lgl’, 
+ggraph(net) +
+  geom_edge_link() +   # add edges to the plot
+  geom_node_point()    # add nodes to the plot
+ggraph(net, layout="lgl") +
+  geom_edge_fan(color="gray50", width=0.8, alpha=1.0) + 
+  geom_node_point(color=V(net)$colour, size=8) +
+  theme_void()
+ggraph(net, layout = 'linear') + 
+  geom_edge_arc(color = "orange", width=0.7) +
+  geom_node_point(size=5, color="gray50") +
+  theme_void()
+ggraph(net, layout="lgl") +
+  geom_edge_link(aes(color = from_sign)) +           # colors by edge type 
+  geom_node_point(fill=V(net)$colour, shape = 21, size=8) +  # size by audience size  
+  theme_void()
+ggraph(net,  layout = 'circle') +
+  geom_edge_link(aes(color = from_sign)) +     
+  geom_edge_arc(color="gray", strength=0.3, arrow = arrow(length = unit(0.07, "npc"))) +            
+  # geom_node_point(color="orange") +
+  geom_node_point(fill=V(net)$colour, shape = 21, size=8) +  # size by audience size  
+  geom_node_text(aes(label = driver), size=3, color="gray50", repel=T) +
+  theme_void()
+
 # Create base for layering plots
 base_df <- data.frame(x = c(-1, 0, 1), y = c(-1, 0, 1))
 rp_fig_2_base <- ggplot(data = base_df, aes(x = x, y = y)) + 

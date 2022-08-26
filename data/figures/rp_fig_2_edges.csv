@@ -1,0 +1,7 @@
+from,to,from_sign,to_sign
+s01,s06,negative,positive
+s01,s04,negative,positive
+s02,s03,negative,positive
+s02,s15,negative,positive
+s02,s04,positive,positive
+s02,s05,positive,negative
