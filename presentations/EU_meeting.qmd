@@ -1,50 +1,90 @@
 ---
-title: "FACE-IT WP1"
+# title: "FACE-IT WP1"
+# author: Jean-Pierre Gattuso (Lead)  Robert Schlegel (Data scientist)
+# institute: Sorbonne Université
+# date: September 9th, 2022
 format: 
   revealjs:
+    logo: FACE-IT_Logo_900.png
     # slide-number: true
     # show-slide-number: print
     preview-links: true
-    theme: sky
+    theme: FACE-IT.scss
     self-contained: true
 editor: visual
 ---
-<!-- Add names to title slide -->
-<!-- Add top parts of manuscripts (title journal etc) for slides with empty space -->
+
+# FACE-IT WP1 {background-color="#008980" style="text-align: center"}
+
+</br>
+
+:::: {.columns}
+
+::: {.column width="50%" style="text-align: center"}
+Jean-Pierre Gattuso </br> - Lead -  
+:::
+
+::: {.column width="50%" style="text-align: center"}
+_Robert Schlegel  </br>  - Data scientist -_
+:::
+
+::::
+
+</br>
+</br>
+
+September 9th, 2022
+
 ## Completed deliverables
 
 -   D8.1 (6 months): [Data management plan](https://face-it-project.github.io/WP1/DMP_FACE-IT_initial.pdf)(DMP)
 -   D1.1 (6 months): [Report on key drivers of changes in Arctic biodiversity](https://face-it-project.github.io/WP1/key_drivers.html)
 -   D1.2 (12 months): [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html)
 
-## Upcoming deliverables {.scrollable}
+## Upcoming deliverables
 
-<!-- Note that this has been accepted for submission with dates established -->
-<!-- Split into two slides -->
+<!-- Add top parts of manuscripts (title journal etc) for slides with empty space -->
+
+::: {.panel-tabset}
+
+### Review
+
 -   D1.3 (24 months): Review article on drivers of change in fjords
-    -   Split into two papers
+    -   Two papers for submission end of October
         -   Review paper (\~90% complete)
+            -  Submission to Coastal Futures
         -   Data paper (\~50% complete)
--   D8.3 (30 months): Update on Data management plan
+            -  Planned submission to ESSD
+          
+### Management
+
+-   D8.3 (30 months): Update on DMP
     -   Little change will be needed from the original
--   D1.4 (40 months): Compilation of social science data
-    -   Still pending completion of collection (\~1 year)
+-   D1.4 (40 months): Compile social science data
+    -   Pending completion of collection (\~+1 year)
+    
+### Compilation
+
 -   D1.5 (42 months): Final data compilation
-    -   Data published on Zenodo will be published on PANGAEA
     -   Compiling [FACE-IT member datasets](https://zenodo.org/communities/face-it/search?page=1&size=20) and uploading to PANGAEA
+    -   Data on Zenodo will be published on PANGAEA
     -   As research projects finish they will be compiled
+
+:::
 
 ## Data collection
 
 -   Documentation of the data collection, combination, and analysis in data paper (D1.3)
--   Nearly all identified data have been sourced and compiled
+-   Nearly all identified data have been compiled
 -   Thousands of additional datasets have been harvested from PANGAEA
     -   Exception of research cruise and species presence data
--   A user interface ([UI](https://193.50.85.104:4949/dataAccess/)) is available to FACE-IT members
+-   User interface ([UI](https://193.50.85.104:4949/dataAccess/)) for FACE-IT members
 
 ## Other WP1 activities
 
+![](Symbol_Kongsfjorden.svg){.absolute top=140 right=140 width="120" height="150"}
+
 -   Developing portal for collection of [CTD data](193.50.85.104:4949/kongCTD/) in Kongsfjorden
-    -   Part of the Kongsfjorden flagship (Add logo)
+    -   Part of the Kongsfjorden flagship
 -   Represented FACE-IT for [Hack the Arctic](https://hackthearctic.com/) hackathon
-    -   Finished #2 place with a data portal for [trends around Svalbard](https://robert-schlegel.shinyapps.io/svalbard/)
+    -   Finished #2 with a [data portal](https://robert-schlegel.shinyapps.io/svalbard/) for trends around Svalbard
