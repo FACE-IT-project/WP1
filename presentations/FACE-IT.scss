@@ -1,12 +1,7 @@
 /*-- scss:defaults --*/
 
-@font-face {
-  font-family: 'Raleway';
-  src: url('@Raleway-VariableFont_wght.ttf') format('ttf');
-};
-
 // fonts
-$font-family-sans-serif: Raleway, sans-serif !default;
+$font-family-sans-serif: "Raleway", sans-serif !default;
 
 // colors
 $body-bg: #fff !default;
