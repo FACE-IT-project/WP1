@@ -5,7 +5,7 @@
 # date: September 9th, 2022
 format: 
   revealjs:
-    logo: FACE-IT_Logo_900.png
+    logo: ../logo/FACE-IT_Logo_900.png
     # slide-number: true
     # show-slide-number: print
     preview-links: true
@@ -15,25 +15,36 @@ editor: visual
 ---
 
 # FACE-IT WP1 {background-color="#008980" style="text-align: center"}
+18 month summary
+<!-- Increase border to show some FACE-IT colour -->
 
 </br>
 
 :::: {.columns}
 
-::: {style="text-align: center"}
-Jean-Pierre Gattuso </br> - Lead -  
+::: {.column style="text-align: center"}
+Jean-Pierre Gattuso </br> - Lead -
 :::
 
-::: {style="text-align: center"}
-_Robert Schlegel  </br>  - Data scientist -_
+::: {.column style="text-align: center"}
+*Robert Schlegel* </br> - Data scientist -
 :::
 
 ::::
 
-</br>
+
+<!-- September 9th, 2022 -->
+
 </br>
 
-September 9th, 2022
+![](../logo/Logo_Sorbonne University.png){width="130"}
+![](../logo/Logo_University of Bremen.png){width="130"}
+![](../logo/Logo_Greenland Institute of Natural Resources.png){width="80"}
+![](../logo/Logo_The University Centre in Svalbard.png){width="110"}
+![](../logo/Logo_Norgegian Polar Institute.png){width="90"}
+![](../logo/Logo_Norwegian Institute of Marine Research.png){width="80"}
+![](../logo/Logo_Alfred Wegener Institute.png){width="130"}
+![](../logo/Logo_Xiamen University.png){width="160"}
 
 ## Objectives
 
@@ -41,52 +52,90 @@ September 9th, 2022
 
 ## Completed deliverables
 
--   D8.1 (6 months): [Data management plan](https://face-it-project.github.io/WP1/DMP_FACE-IT_initial.pdf)(DMP)
+::: panel-tabset
+
+### D8.1
+
+-   D8.1 (6 months): [Data management plan](https://face-it-project.github.io/WP1/DMP_FACE-IT_initial.pdf) (DMP)
+
+### D1.1
+
 -   D1.1 (6 months): [Report on key drivers of changes in Arctic biodiversity](https://face-it-project.github.io/WP1/key_drivers.html)
+
+### D1.2
 -   D1.2 (12 months): [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html)
+
+```{r key-drivers-table, eval=TRUE}
+# Libraries
+library(tidyverse)
+library(kableExtra)
+
+## Cryosphere
+cryo_vars <- data.frame(Category = "Cryosphere", Drivers = "Sea ice, glacier mass balance, glacial/river discharge")
+
+## Physical
+phys_vars <- data.frame(Category = "Physical", Drivers = "Sea temperature, salinity, light")
+
+## Chemistry
+chem_vars <- data.frame(Category = "Physical", Drivers = "Carbonate system, nutrients")
+
+## Biology
+bio_vars <- data.frame(Category = "Biology", Drivers = "Primary production, biomass, species richness")
+
+## Social
+soc_vars <- data.frame(Category = "Social", Drivers = "Policy, tourism, fisheries")
+
+# Combine and print
+knitr::kable(rbind(cryo_vars, phys_vars, chem_vars, bio_vars, soc_vars), 
+             caption = "Table 1: The key drivers of changes on Arctic fjord and adjacent coastal systems as identified by the experts in FACE-IT for the relevant fields. The drivers have been separated into the following categories for convenience: Cryosphere, Physics, Chemistry, Biology, Social.") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  row_spec(1, background = "mintcream") %>% # Cryosphere
+  row_spec(2, color = "black", background = "skyblue") %>% # Physical
+  row_spec(3, background = "#F6EA7C") %>% # Chemistry
+  row_spec(4, background = "#A2ED84") %>% # Biology
+  row_spec(5, background = "#F48080") # Social
+```
 
 ## Upcoming deliverables
 
 <!-- Add top parts of manuscripts (title journal etc) for slides with empty space -->
 
-::: {.panel-tabset}
+::: panel-tabset
 
 ### Review
 
 -   D1.3 (24 months): Review article on drivers of change in fjords
     -   Two papers for submission end of October
         -   Review paper (\~90% complete)
-            -  Submission to Coastal Futures
+            -   Submission to Coastal Futures
         -   Data paper (\~50% complete)
-            -  Planned submission to ESSD
-          
+            -   Planned submission to ESSD
+
 ### Management
 
 -   D8.3 (30 months): Update on DMP
     -   Little change will be needed from the original
 -   D1.4 (40 months): Compile social science data
     -   Pending completion of collection (\~+1 year)
-    
+
 ### Compilation
 
 -   D1.5 (42 months): Final data compilation
     -   Compiling [FACE-IT member datasets](https://zenodo.org/communities/face-it/search?page=1&size=20) and uploading to PANGAEA
     -   Data on Zenodo will be published on PANGAEA
     -   As research projects finish they will be compiled
-
 :::
 
 ## Data collection
 
 -   Documentation of the data collection, combination, and analysis in data paper (D1.3)
 -   Nearly all identified data have been compiled
--   Thousands of additional datasets have been harvested from PANGAEA
-    <!-- -   Exception of research cruise and species presence data -->
+-   Thousands of additional datasets have been harvested from PANGAEA <!-- -   Exception of research cruise and species presence data -->
 -   User interface ([UI](https://193.50.85.104:4949/dataAccess/)) for FACE-IT members
 
 ## Other WP1 activities
 
-![](Symbol_Kongsfjorden.svg){.absolute top=140 right=140 width="120" height="150"}
+![](../logo/Symbol_Kongsfjorden.svg){.absolute top="140" right="140" width="120" height="150"}
 
 -   Developing portal for collection of [CTD data](193.50.85.104:4949/kongCTD/) in Kongsfjorden
     -   Part of the Kongsfjorden flagship
