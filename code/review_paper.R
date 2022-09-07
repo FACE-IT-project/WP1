@@ -111,34 +111,38 @@ V(net)$trend_colour <- trend_colours[V(net)$trend_num]
 ## Network charts
 # Layout options:
 # ‘star’, ‘circle’, ‘grid’, ‘sphere’, ‘kk’, ‘fr’, ‘mds’, ‘lgl’, 
-ggraph(net) +
-  geom_edge_link() +   # add edges to the plot
-  geom_node_point()    # add nodes to the plot
-ggraph(net, layout = "lgl") +
-  geom_edge_fan(color = "gray50", width = 0.8, alpha = 1.0) + 
-  geom_node_point(color = V(net)$cat_colour, size = 8) +
-  theme_void()
+# Consistent results: circle, star, kk, mds
+
+# Linear network
 ggraph(net, layout = "linear") + 
-  geom_edge_arc(color = "orange", width = 0.7) +
-  geom_node_point(size = 5, color = "gray50") +
-  theme_void()
-ggraph(net, layout = "lgl") +
-  geom_node_point(fill = V(net)$cat_colour, colour = V(net)$trend_colour, 
+  geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
+                  shape = 21, size = 8, stroke = 2) +
+  geom_edge_arc(aes(color = relationship), 
+                arrow = arrow(length = unit(0.03, "npc"), type = "closed")) +
+  geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
+  scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
+  theme_void() + theme(plot.background = element_rect(fill = "white", colour = "black"))
+ggsave("~/Desktop/network_linear.png", height = 5, width = 6)
+
+# Web network
+ggraph(net, layout = "mds") + # kk OR mds
+  geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
                   shape = 21, size = 8, stroke = 2) + # size by audience size  
   geom_edge_link(aes(color = relationship), 
-                 arrow = arrow(length = unit(0.03, "npc"), type = "open", ends = "last")) +   
+                 arrow = arrow(length = unit(0.03, "npc"), type = "closed")) +   
   geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
-  theme_void()
+  scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
+  theme_void() + theme(plot.background = element_rect(fill = "white", colour = "black"))
+ggsave("~/Desktop/network_web.png", height = 5, width = 6)
+
+# Circle network
 ggraph(net,  layout = "circle") +
-  # geom_edge_arc(color = "gray", strength = 0.3, arrow = arrow(length = unit(0.07, "npc"))) +            
-  # geom_node_point(color="orange") +
-  geom_node_point(fill = V(net)$cat_colour, colour = V(net)$trend_colour, 
+  geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
                   shape = 21, size = 8, stroke = 2) + # size by audience size  
   geom_edge_link(aes(colour = relationship), show.legend = T,
-                 arrow = arrow(length = unit(0.03, "npc"), type = "closed", ends = "last")) +     
+                 arrow = arrow(length = unit(0.03, "npc"), type = "closed")) +     
   geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
-  ggraph::scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
-  # scale_colour_manual(values = c("black", "green", "yellow"), aesthetics = c("colour", "fill")) + # Doesn't work
+  scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
   theme_void() + theme(plot.background = element_rect(fill = "white", colour = "black"))
 ggsave("~/Desktop/network_circle.png", height = 5, width = 6)
 
