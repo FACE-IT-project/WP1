@@ -99,7 +99,7 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
-print(net, e=TRUE, v=TRUE)
+# print(net, e=TRUE, v=TRUE)
 
 # Generate colors based on media type:
 cat_colours <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
@@ -136,7 +136,7 @@ ggraph(net, layout = "mds") + # kk OR mds
 ggsave("~/Desktop/network_web.png", height = 5, width = 6)
 
 # Circle network
-ggraph(net,  layout = "circle") +
+np <- ggraph(net,  layout = "circle") +
   geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
                   shape = 21, size = 8, stroke = 2) + # size by audience size  
   geom_edge_link(aes(colour = relationship), show.legend = T,
@@ -148,6 +148,111 @@ ggsave("~/Desktop/network_circle.png", height = 5, width = 6)
 
 # Combine and save
 ggsave("figures/rp_fig_2.png", rp_fig_2_plot, width = 10, height = 10)
+
+### Interactive networks
+# https://kateto.net/network-visualization
+
+## visNetwork
+library(visNetwork)
+
+# Base example
+visNetwork(nodes, edges, width="100%", height="400px")
+
+# Prep for more complexity
+vis.nodes <- nodes
+vis.links <- edges
+
+# Change dot aesthetics
+vis.nodes$shape  <- "dot"  
+vis.nodes$shadow <- TRUE # Nodes will drop shadow
+vis.nodes$title  <- vis.nodes$category # Text on click
+vis.nodes$label  <- vis.nodes$driver # Node label
+# vis.nodes$size   <- vis.nodes$audience.size # Node size
+vis.nodes$borderWidth <- 2 # Node border width
+
+# Change click aesthetics
+vis.nodes$color.background <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")[nodes$cat_num]
+vis.nodes$color.border <- c("blue", "purple", "red")[nodes$trend_num]
+vis.nodes$color.highlight.background <- "orange"
+vis.nodes$color.highlight.border <- vis.nodes$color.border
+
+# Change line aesthetics
+# vis.links$width <- 1+links$weight/8 # line width
+# vis.links$color <- "gray"    # line color  
+vis.links$arrows <- "middle" # arrows: 'from', 'to', or 'middle'
+vis.links$smooth <- FALSE    # should the edges be curved?
+vis.links$shadow <- FALSE    # edge shadow
+
+# Assign to object
+visnet <- visNetwork(vis.nodes, vis.links)
+
+# Visualise
+visnet
+
+# More options
+visOptions(visnet, highlightNearest = TRUE, selectedBy = "category")
+
+## threejs
+# NB: Must be visualised in a web browser, not RStudio
+library(threejs)
+
+# Set base
+net.js <- net
+graph_attr(net.js, "layout") <- NULL 
+
+# Visualise
+graphjs(net.js, main = "Arctic Fjords", bg = "gray10", showLabels = T, stroke = F, 
+        curvature = 0.1, attraction = 0.9, repulsion = 0.8, opacity = 0.9)
+
+## networkD3
+library(networkD3)
+
+# Convert node IDs
+# This somehow gets messed up...
+links.d3 <- data.frame(from=as.numeric(factor(edges$from))-1, 
+                       to=as.numeric(factor(edges$to))-1 )
+# nodes.d3 <- cbind(idn = factor(nodes$category, levels = unique(nodes$category)), nodes)
+nodes.d3 <- cbind(idn = nodes$driver, nodes)
+
+# Visualise
+forceNetwork(Links = links.d3, Nodes = nodes.d3, Source = "from", Target = "to",
+             NodeID = "idn", Group = "category", linkWidth = 1,
+             linkColour = "#afafaf", fontSize = 12, zoom = T, legend = T,
+             # Nodesize = 7, # Column number where sizes are stored
+             opacity = 0.8, charge = -300,
+             width = 500, height = 500)
+
+# With arrows ... needs work
+forceNetwork(Links = links.d3, Nodes = nodes.d3, Source = "from",
+             Target = "to", 
+             Value = "from",
+             NodeID = "idn",
+             Group = "category", opacity = 0.4, arrows = TRUE)
+
+## ndtv
+# NB: With more work this could allow for describing the relationships with popup notes
+library(ndtv)
+
+# Create base
+net3 <- network(edges[c(-3, -22, -25),], # Remove parallels
+                vertex.attr = nodes, matrix.type = "edgelist", 
+                loops = T, multiple = F, ignore.eval = F)
+
+# Prep plotting
+par(mar = c(0,0,0,0))
+
+# Plot
+render.d3movie(net3, usearrows = F, displaylabels = F, bg = "#111111", 
+               vertex.border = "#ffffff", 
+               # vertex.col =  net3 %v% "col",
+               # vertex.cex = (net3 %v% "audience.size")/8, 
+               # edge.lwd = (net3 %e% "weight")/3, 
+               edge.col = '#55555599',
+               vertex.tooltip = paste("<b>Name:</b>", (net3 %v% 'driver') , "<br>",
+                                      "<b>Type:</b>", (net3 %v% 'category')),
+               edge.tooltip = paste("<b>Edge type:</b>", (net3 %e% 'note'), "<br>", 
+                                    "<b>Edge weight:</b>", (net3 %e% "note" ) ),
+               launchBrowser=F, filename="test_net.html" )  
 
 
 # Table 1 -----------------------------------------------------------------

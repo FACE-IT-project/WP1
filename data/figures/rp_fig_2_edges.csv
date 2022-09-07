@@ -1,5 +1,5 @@
 from,to,from_sign,to_sign,relationship,note
-s01,s06,decrease,increase,negative,
+s01,s06,decrease,increase,negative,Decreasing sea ice allows for more light penetration
 s01,s12,decrease,both,complex,
 s01,s06,decrease,increase,negative,
 s01,s11,decrease,both,complex,
