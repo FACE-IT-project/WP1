@@ -4,12 +4,12 @@
 
 # Setup -------------------------------------------------------------------
 
+# library(ggraph) # Loaded in functions.R where an internal function is overwritten
 source("code/functions.R")
 library(geomtextpath)
 library(ggpmisc)
 library(ggpattern)
 library(igraph) # Create network
-library(ggraph) # Network charts
 
 # Ice cover colours
 ice_cover_colours <- c(
@@ -29,16 +29,23 @@ driver_cat_colours <- c(
   "soc" = "#F48080"
 )
 
+# Manually change arrow drawing behaviour
+# Go here to see what needs to be copy-pasted
+# https://stackoverflow.com/questions/58227181/how-to-draw-an-arrowhead-in-the-middle-of-an-edge-in-ggraph
+# This is not a great solution...
+# trace(ggraph:::cappedPathGrob, edit = TRUE)
+
 
 # Data --------------------------------------------------------------------
 
 # Load network nodes and edges
 # NB: These were created by hand by RWS based on the text of the review paper
 nodes <- read_csv("data/figures/rp_fig_2_nodes.csv") %>% 
-  slice(1:14)
+  filter(level == "key")
 edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>% 
-  filter(!from %in% c("s15", "s16"),
-         !to %in% c("s15", "s16"))
+  filter(!from %in% c("s15", "s16", "s17", "s18", "s19"),
+         !to %in% c("s15", "s16", "s17", "s18", "s19")) %>%  # Could put these as smaller networks in the appendix
+  mutate(relationship = base::factor(x = relationship, levels = c("positive", "negative", "complex")))
 #
 
 # Figure 1 ----------------------------------------------------------------
@@ -92,10 +99,14 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
+print(net, e=TRUE, v=TRUE)
 
 # Generate colors based on media type:
 cat_colours <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
-V(net)$colour <- cat_colours[V(net)$cat_num]
+trend_colours <- c("blue", "purple", "red")
+V(net)$cat_colour <- cat_colours[V(net)$cat_num]
+V(net)$trend_colour <- trend_colours[V(net)$trend_num]
+# V(net)$rel_fac <- base::factor(x = V(net)$relationship, levels = c("positive", "negative", "both"))
 
 ## Network charts
 # Layout options:
@@ -105,178 +116,34 @@ ggraph(net) +
   geom_node_point()    # add nodes to the plot
 ggraph(net, layout = "lgl") +
   geom_edge_fan(color = "gray50", width = 0.8, alpha = 1.0) + 
-  geom_node_point(color = V(net)$colour, size = 8) +
+  geom_node_point(color = V(net)$cat_colour, size = 8) +
   theme_void()
 ggraph(net, layout = "linear") + 
   geom_edge_arc(color = "orange", width = 0.7) +
   geom_node_point(size = 5, color = "gray50") +
   theme_void()
 ggraph(net, layout = "lgl") +
-  geom_edge_link(aes(color = from_sign)) + # colors by edge type 
-  geom_node_point(fill = V(net)$colour, shape = 21, size = 8) +  # size by audience size  
+  geom_node_point(fill = V(net)$cat_colour, colour = V(net)$trend_colour, 
+                  shape = 21, size = 8, stroke = 2) + # size by audience size  
+  geom_edge_link(aes(color = relationship), 
+                 arrow = arrow(length = unit(0.03, "npc"), type = "open", ends = "last")) +   
+  geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
   theme_void()
 ggraph(net,  layout = "circle") +
-  geom_edge_link(aes(color = from_sign)) +     
-  geom_edge_arc(color = "gray", strength = 0.3, arrow = arrow(length = unit(0.07, "npc"))) +            
+  # geom_edge_arc(color = "gray", strength = 0.3, arrow = arrow(length = unit(0.07, "npc"))) +            
   # geom_node_point(color="orange") +
-  geom_node_point(fill = V(net)$colour, shape = 21, size = 8) + # size by audience size  
-  geom_node_text(aes(label = driver), size = 3, color = "gray50", repel = T) +
-  theme_void()
-
-# Create base for layering plots
-base_df <- data.frame(x = c(-1, 0, 1), y = c(-1, 0, 1))
-rp_fig_2_base <- ggplot(data = base_df, aes(x = x, y = y)) + 
-  geom_point(colour = "grey50") + 
-  scale_x_continuous(breaks = seq(-1, 1, by = 0.1)) +
-  scale_y_continuous(breaks = seq(-1, 1, by = 0.1)) +
-  coord_equal(expand = F) +
-  # theme_void() +
-  theme(panel.background = element_rect(fill = "grey50"))
-rp_fig_2_base
-
-# Coordinate data.frames for rectangles to be drawn on polar plot
-coords_CO2 <- data.frame(x1 = 0,
-                         y1 = 3.5,
-                         x2 = 14,
-                         y2 = 5,
-                         group = letters[6],
-                         alpha = 0.4)
-# coords_temp_pH <- data.frame() # Not adding this at the moment
-coords_drivers <- data.frame(x1 = seq(0, 13),
-                             y1 = rep(1.5, 14),
-                             x2 = seq(0, 13)+1,
-                             y2 = rep(3, 14),
-                             group = letters[c(rep(1, 3), rep(2, 3), rep(3, 2), rep(4, 3), rep(5, 3))],
-                             alpha = rep(0.9, 14))
-
-rp_fig_2_rim <- ggplot(coords_CO2, aes(x = x1, y = y1)) +
-  # Rectangles
-  geom_rect_pattern(aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, alpha = alpha), 
-                    size = 2, colour = NA, pattern = "circle", pattern_colour = "yellow",
-                    pattern_density = 0.3) +
-  # geom_rect(data = coords_temp_pH,
-  #           aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, fill = group, alpha = alpha), 
-  #           size = 2, colour = "black") +
-  geom_rect(data = coords_drivers,
-            aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, fill = group, alpha = alpha), 
-            size = 2, colour = "grey50") +
-  # Text
-  geom_textpath(data = data.frame(x1 = seq(0, 14, length = 700),
-                                  y1 = rep(4.25, 700),
-                                  label = "anthropogenic CO2 emissions"),
-                aes(label = label), linetype = 0, size = 5.6, color = "black",
-                upright = TRUE) +
-  geom_textpath(data = data.frame(x1 = seq(0, 14, length = 700),
-                                  y1 = rep(2.25, 700),
-                                  label = rep(c("sea ice", "glacier mass\nbalance", "glacial + riverine\ndischarge",
-                                                "sea water\ntemperature", "salinity", "light",
-                                                "carbonate\nsystem", "nutrients",
-                                                "primary\nproduction", "biomass", "species\nrichness",
-                                                "governance", "tourism", "fisheries"),
-                                              each = 50)),
-                aes(label = label), linetype = 0, linewidth = 3.6, color = "black",
-                upright = TRUE) +
-  scale_y_continuous(limits = c(-5, 5)) +
-  scale_x_continuous(limits = c(0, 14)) +
-  # scale_fill_manual(aesthetics = c("colour", "fill"), 
-  scale_fill_manual(values = c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080", "grey40")) +
-  # scale_alpha_identity() +
-  theme_void() +
-  theme(legend.position = "none") + 
-  coord_polar()
-rp_fig_2_rim
-
-# Standard arrow function
-gg_arrow <- function(x, xend, y, yend, colour1, colour2, size1 = 3, size2 = 1, ...){
-  df = data.frame(z = 1) # Dummy data.frame to break free from base plot
-  return(list(geom_curve(data = df, aes(x = x, xend = xend, y = y, yend = yend),
-                           size = size1, colour = colour1,
-                           lineend = "round", arrow = arrow(length = unit(0.03, "npc")), ...),
-              geom_curve(data = df, aes(x = x, xend = xend, y = y, yend = yend),
-                           size = size2, colour = colour2,
-                           lineend = "round", arrow = arrow(length = unit(0.03, "npc")), ...)))
-
-}
-
-# Standard ball function
-gg_ball <- function(x, y, fill, label){
-  return(list(geom_point(data = data.frame(x = x, y = y), aes(x, y), shape = 21, size = 20, colour = "grey50", fill = fill),
-              annotate("text", x = x, y = y, label = label)))
-}
-
-# Add rim figure to base plot to remove polar coordinate system
-rp_fig_2_plot <- rp_fig_2_base +
-  ## Rim plot
-  geom_grob(aes(x = 0, y = 0, label = list(cowplot::as_grob(rp_fig_2_rim))), vp.width = 1.23, vp.height = 1.23, add.segments = F) +
-  
-  ## emissions arrows
-  gg_arrow(0.9, 0.78, 0.05, 0.0, "white", "#F6EA7C", angle = 0) +
-  gg_arrow(0.1, 0.2, -0.85, -0.75, "white", "#F6EA7C", angle = 0) +
-  
-  ## Cryosphere arrows
-  # sea ice arrows
-  gg_arrow(0.15, 0.4, 0.62, -0.5, "black", "violet") +
-  gg_arrow(0.15, 0.65, 0.62, 0.05, "black", "violet") +
-  # GMB arrows
-  gg_arrow(0.4, 0.58, 0.5, 0.25, "black", "violet") +
-  gg_arrow(0.5, 0.55, 0.6, 0.65, "black", "violet", angle = 0) +
-  # discharge arrows
-  gg_arrow(0.6, 0.45, 0.2, -0.45, "black", "violet") +
-  gg_arrow(0.6, 0.6, 0.2, -0.2, "black", "violet") +
-  gg_arrow(0.6, 0.62, 0.2, 0.1, "white", "violet", curvature = 1.3) +
-  gg_arrow(0.6, -0.15, 0.2, -0.64, "white", "violet") +
-  
-  ## Physics arrows
-  # sea water temperature
-  # salinity
-  gg_arrow(0.55, -0.55, -0.35, -0.35, "white", "skyblue") +
-  # light
-  gg_arrow(0.35, -0.4, -0.55, -0.5, "white", "skyblue") +
-  
-  ## Chemistry arrows
-  # carbonate system
-  gg_arrow(-0.49, -0.53, -0.6, -0.67, "black", "#A2ED84", angle = 0) +
-  # nutrients
-
-  ## Biology arrows
-  # primary production
-  gg_arrow(-0.49, -0.53, -0.6, -0.67, "black", "#A2ED84", angle = 0) +
-  # biomass
-  # species richness
-
-  ## Social arrows
-  # governance
-  # tourism
-  # fisheries
-
-  ## AW inflow
-  gg_arrow(0.3, 0.64, -0.1, 0.0, "white", "skyblue") +
-  gg_arrow(0.3, 0.6, -0.1, -0.27, "white", "skyblue") +
-  gg_arrow(0.3, 0.22, -0.1, 0.6, "black", "skyblue", curvature = -0.5) +
-  gg_ball(0.3, -0.1, "skyblue", "AW\ninflow") +
-
-  ## Precipitation
-  gg_arrow(0.2, 0.6, 0.1, 0.22, "white", "skyblue", curvature = -0.2) +
-  gg_arrow(0.2, 0.6, 0.1, -0.28, "black", "skyblue", curvature = -0.3) +
-  gg_ball(0.2, 0.1, "skyblue", "precip.") +
-  
-  ## Cloudiness
-  gg_arrow(0.15, 0.45, -0.05, -0.47, "black", "skyblue") +
-  gg_ball(0.15, -0.05, "skyblue", "cloud") +
-  
-  # Other
-  labs(x = NULL, y = NULL) #+ theme_void() + theme(panel.background = element_rect(fill = "grey50"))
-rp_fig_2_plot
-
-# Add legends
+  geom_node_point(fill = V(net)$cat_colour, colour = V(net)$trend_colour, 
+                  shape = 21, size = 8, stroke = 2) + # size by audience size  
+  geom_edge_link(aes(colour = relationship), show.legend = T,
+                 arrow = arrow(length = unit(0.03, "npc"), type = "closed", ends = "last")) +     
+  geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
+  ggraph::scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
+  # scale_colour_manual(values = c("black", "green", "yellow"), aesthetics = c("colour", "fill")) + # Doesn't work
+  theme_void() + theme(plot.background = element_rect(fill = "white", colour = "black"))
+ggsave("~/Desktop/network_circle.png", height = 5, width = 6)
 
 # Combine and save
-
 ggsave("figures/rp_fig_2.png", rp_fig_2_plot, width = 10, height = 10)
-
-# Attempt interactivity
-# NB: Doesn't work because plotly doesn't know about grobs and curves
-plotly::ggplotly(rp_fig_2_plot)
 
 
 # Table 1 -----------------------------------------------------------------
