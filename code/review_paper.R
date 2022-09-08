@@ -29,12 +29,6 @@ driver_cat_colours <- c(
   "soc" = "#F48080"
 )
 
-# Manually change arrow drawing behaviour
-# Go here to see what needs to be copy-pasted
-# https://stackoverflow.com/questions/58227181/how-to-draw-an-arrowhead-in-the-middle-of-an-edge-in-ggraph
-# This is not a great solution...
-# trace(ggraph:::cappedPathGrob, edit = TRUE)
-
 
 # Data --------------------------------------------------------------------
 
@@ -45,7 +39,10 @@ nodes <- read_csv("data/figures/rp_fig_2_nodes.csv") %>%
 edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>% 
   filter(!from %in% c("s15", "s16", "s17", "s18", "s19"),
          !to %in% c("s15", "s16", "s17", "s18", "s19")) %>%  # Could put these as smaller networks in the appendix
-  mutate(relationship = base::factor(x = relationship, levels = c("positive", "negative", "complex")))
+  mutate(relationship = base::factor(x = relationship, levels = c("positive", "negative", "complex")),
+         from_num = case_when(from_sign == "decrease" ~ 1, from_sign == "complex" ~ 2, from_sign == "increase" ~ 3),
+         to_num = case_when(to_sign == "decrease" ~ 1, to_sign == "complex" ~ 2, to_sign == "increase" ~ 3),
+         rel_num = case_when(relationship == "decrease" ~ 1, relationship == "complex" ~ 2, relationship == "increase" ~ 3))
 #
 
 # Figure 1 ----------------------------------------------------------------
@@ -108,6 +105,19 @@ V(net)$cat_colour <- cat_colours[V(net)$cat_num]
 V(net)$trend_colour <- trend_colours[V(net)$trend_num]
 # V(net)$rel_fac <- base::factor(x = V(net)$relationship, levels = c("positive", "negative", "both"))
 
+
+## Heatmap
+netm <- get.adjacency(net, attr = "to_num", sparse = F)
+colnames(netm) <- V(net)$driver
+rownames(netm) <- V(net)$driver
+
+palf <- colorRampPalette(c("white", "blue", "purple", "red")) 
+heatmap(netm, Rowv = NA, Colv = NA, col = palf(4), 
+        symm = T, # Flip the axes so that x-axis relates the direction of effect
+        scale = "none", margins = c(10,10), revC = T,
+        ColSideColors = trend_colours[nodes$trend_num],
+        RowSideColors = trend_colours[nodes$trend_num])
+
 ## Network charts
 # Layout options:
 # ‘star’, ‘circle’, ‘grid’, ‘sphere’, ‘kk’, ‘fr’, ‘mds’, ‘lgl’, 
@@ -136,10 +146,10 @@ ggraph(net, layout = "mds") + # kk OR mds
 ggsave("~/Desktop/network_web.png", height = 5, width = 6)
 
 # Circle network
-np <- ggraph(net,  layout = "circle") +
+ggraph(net,  layout = "circle") +
   geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
                   shape = 21, size = 8, stroke = 2) + # size by audience size  
-  geom_edge_link(aes(colour = relationship), show.legend = T,
+  geom_edge_link(aes(colour = to_sign), show.legend = T,
                  arrow = arrow(length = unit(0.03, "npc"), type = "closed")) +     
   geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
   scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +

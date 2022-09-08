@@ -4,13 +4,13 @@ s02,glacier mass balance,cryosphere,1,decrease,1,key
 s03,glacial + riverine discharge,cryosphere,1,increase,3,key
 s04,sea water temperature,physics,2,increase,3,key
 s05,salinity,physics,2,decrease,1,key
-s06,light,physics,2,unclear,2,key
+s06,light,physics,2,complex,2,key
 s07,carbonate system,chemistry,3,increase,3,key
 s08,nutrients,chemistry,3,increase,3,key
 s09,primary production,biology,4,increase,3,key
 s10,biomass,biology,4,increase,3,key
-s11,species richness,biology,4,unclear,2,key
-s12,governance,social,5,unclear,2,key
+s11,species richness,biology,4,complex,2,key
+s12,governance,social,5,complex,2,key
 s13,tourism,social,5,increase,3,key
 s14,fisheries,social,5,increase,3,key
 s15,anthropogenic CO2 emissions,chemistry,3,increase,3,external
