@@ -56,23 +56,12 @@ V(net)$trend_colour <- trend_colours[V(net)$trend_num]
 
 # Circle network
 panel_a <- ggraph(net, layout = "circle") +
-  # The connecting lines - to be drawn under nodes
-  geom_edge_fan(aes(colour = to_sign), width = 2, #show.legend = F, 
+  geom_edge_fan(aes(colour = to_sign), width = 2, alpha = 0.8,
                  arrow = arrow(length = unit(0.025, "npc"), type = "closed")) +
-  # The nodes - i.e. the 14 drivers
-  # geom_node_point(aes(fill = category), colour = V(net)$trend_colour,
   geom_node_point(aes(fill = category, colour = trend),
-                  shape = 21, size = 12, stroke = 3) + # size by audience size
-  # Upper right labels
-  geom_node_label(aes(label = driver), size = 4, color = "black", #alpha = 0.1,
+                  shape = 21, size = 16, stroke = 3) +
+  geom_node_label(aes(label = driver), size = 4, color = "black", alpha = 0.8,
                   label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines")) +
-  # Upper labels
-  # geom_node_label(aes(label = driver), size = 4, color = "black", repel = T, segment.colour = NA) +
-  # Upper left labels
-  # Bottom left labels
-  # Bottom labels
-  # Bottom right labels
-  
   scale_edge_colour_manual("Trend/\nImpact", 
                            breaks = c("increase", "decrease", "complex"),
                            values = c("purple", "blue", "red")) +
@@ -82,12 +71,12 @@ panel_a <- ggraph(net, layout = "circle") +
   scale_fill_manual("Category", 
                     breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
                     values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
-  # scale_edge_size(range = c(5, 5)) +
-  # guides(colour = guide_legend(override.aes = list(shape = 0, size = 3))) +
   theme_void() +
-  theme(plot.background = element_rect(fill = "grey90", colour = "black"))
+  theme(plot.background = element_rect(fill = "grey90", colour = "black"),
+        legend.title = element_text(size = 13),
+        legend.text = element_text(size = 11))
 panel_a
-ggsave("~/Desktop/panel_a.png", width = 10, height = 9)
+ggsave("~/Desktop/panel_a.png", width = 12, height = 9)
 
 
 # Panel B -----------------------------------------------------------------
