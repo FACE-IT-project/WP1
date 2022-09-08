@@ -1286,7 +1286,8 @@ fig_2_d <- fig_2_plot("bio", "Eco/biology")
 fig_2_e <- fig_2_plot("soc", "Social")
 
 # Combine
-fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, fig_2_c, fig_2_d, fig_2_e, ncol = 1, labels = c("A)", "B)", "C)", "D)", "E)"))
+fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, fig_2_c, fig_2_d, fig_2_e, 
+                           ncol = 1, labels = c("A)", "B)", "C)", "D)", "E)"))
 ggsave("figures/fig_2.png", width = 15, height = 15)
 
 
