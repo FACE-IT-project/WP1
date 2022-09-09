@@ -57,15 +57,15 @@ V(net)$name
 
 # Dataframe to manually place individual labels
 net_label_coords <- data.frame(label = nodes$driver[1:14],
-                               x = c(1.02, 0.96, 0.68, # Cryosphere
+                               x = c(1.07, 1.02, 0.83, # Cryosphere
                                      0.23, -0.22, -0.63, # Physics
-                                     -0.9, -1.0, # Chemistry
+                                     -0.92, -1.0, # Chemistry
                                      -0.95, -0.63, -0.225, # Biology
                                      0.225, 0.63, 0.91), # Social
                                y = c(0.088, 0.523, 0.87, # Cryosphere
                                      1.062, 1.062, 0.872, # Physics
                                      0.52, 0.09, # Chemistry
-                                     -0.523, -0.87, -1.063, # Biology
+                                     -0.52, -0.87, -1.063, # Biology
                                      -1.063, -0.871, -0.523)) # Social
 
 # Circle network
@@ -89,20 +89,20 @@ panel_a <- ggraph(net, layout = "circle") +
                     breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
                     values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
   scale_x_continuous(limits = c(-1.2, 1.2)) +
-  guides(colour = guide_legend(order = 1, label.position = "left", override.aes = list(shape = 15, size = 16)),
+  guides(colour = guide_legend(order = 1, label.position = "right", override.aes = list(shape = 15, size = 16)),
   # guides(colour = guide_legend(order = 1),
          # edge_colour = guide_legend(order = 2, override.aes = list(edge_colour_shape = 15)),
-         fill = guide_legend(order = 3)) +
+         fill = guide_legend(order = 3, label.position = "left", override.aes = list(stroke = 2))) +
   theme_void() +
   theme(plot.background = element_rect(fill = "grey90", colour = NA),
-        # plot.margin = margin(t = 20, r = 170, b = 20, l = 20, unit = "pt")
-        # legend.position = c(1.09, 0.27),
+        plot.margin = margin(t = -10, r = 170, b = -10, l = -20, unit = "pt"),
+        legend.position = c(1.08, 0.5),
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 15),
         legend.background = element_rect(fill = "white", colour = "black"),
-        legend.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt"))
+        legend.margin = margin(t = 10, r = 20, b = 10, l = 20, unit = "pt"))
 # panel_a
-ggsave("~/Desktop/panel_a.png", width = 16, height = 12)
+ggsave("~/Desktop/panel_a.png", panel_a, width = 16, height = 14)
 
 
 # Panel B -----------------------------------------------------------------
@@ -159,49 +159,57 @@ panel_b_data <- data_meta %>%
 # Plot the data
 panel_b <- ggplot(panel_b_data) +
   geom_segment(aes(x = min_date, xend = max_date, y = driver, yend = driver),
-               colour = "black", size =  7.2) +
+               colour = "black", size =  11) +
   geom_point(aes(x = min_date, y = driver, fill = category), 
-             shape = 21, size = 10, stroke = 0.9, show.legend = F) +
+             shape = 21, size = 14, stroke = 1.2, show.legend = F) +
   geom_point(aes(x = max_date, y = driver, fill = category), 
-             shape = 21, size = 10, stroke = 0.9, show.legend = F) +
+             shape = 21, size = 14, stroke = 1.2, show.legend = F) +
   geom_segment(aes(x = min_date, xend = max_date, y = driver, yend = driver, colour = category), 
-               size = 6, show.legend = F) +
-  geom_label(aes(label = paste0("Datasets: ",data_sets,"\nData points: ",data_points),
-                 x = as.Date("1995-12-31"), y = driver, hjust = "right"), alpha = 0.8) +
+               size = 9, show.legend = F) +
+  # geom_text(aes(label = driver, x = ))
+  geom_label(aes(label = paste0(driver,"\nDatasets: ",data_sets,"\nData points: ",data_points),
+                 x = as.Date("2024-12-31"), y = driver, hjust = "right"), alpha = 1, size = 6,
+             label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines")) +
   scale_y_discrete(limits = rev, position = "right") +
-  scale_x_date(limits = c(as.Date("1871-01-01"), as.Date("2024-12-31")),
+  scale_x_date(limits = c(as.Date("1871-01-01"), as.Date("2070-12-31")),
                # date_breaks = "20 years",
                date_labels = "%Y",
                breaks = seq(as.Date("1877-01-01"), as.Date("2021-01-01"), length = 7),
-               # labels = lu,
                expand = c(0, 0)) +
   scale_colour_manual("Category", aesthetics = c("colour", "fill"),
                       breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
                       values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
   labs(x = NULL, y = NULL) +
-  theme(axis.text.y = element_text(angle = -40, vjust = -0.03), 
+  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+        axis.text.y = element_blank(), 
         # axis.line = element_line(colour = "black"), 
-        plot.background = element_rect(fill = "grey90", colour = NA),
+        plot.margin = margin(t = 10, r = -20, b = 10, l = 20, unit = "pt"),
         panel.grid = element_line(colour = "black"),
         panel.grid.major.y = element_line(colour = NA),
         panel.grid.minor.x = element_line(colour = NA),
         panel.border = element_rect(colour = NA, fill = NA),
         panel.background = element_rect(fill = NA, colour = NA),
         axis.ticks.y = element_blank(),
-        axis.text = element_text(size = 10))
-panel_b
-ggsave("~/Desktop/panel_b.png", width = 16, height = 12)
+        axis.text = element_text(size = 15))
+# panel_b
+ggsave("~/Desktop/panel_b.png", panel_b, width = 16, height = 14)
 
 
 # Final -------------------------------------------------------------------
 
 # Combine
-fig_1 <- ggpubr::ggarrange(panel_a, panel_b, ncol = 2, labels = c("A)", "B)"))
+fig_1 <- ggpubr::ggarrange(panel_a, panel_b, ncol = 2, widths = c(1, 1),
+                           labels = c("A)", "B)"), font.label = list(size = 22))
 
 # Save
-ggsave("figures/LOV_fig_1.png", width = 30, height = 12)
+ggsave("figures/LOV_fig_1.png", fig_1, width = 32, height = 14)
 
 # Text
-# Figure XX: The two primary objectives of WP1: A) A) understanding the relationships between the key drivers of change 
-# in socio-ecological Arctic fjords systems, and B) managing & analysing of the corresponding data.
+# Figure XX: The two primary objectives of WP1: A) understanding the relationships between the key drivers of change 
+# in socio-ecological Arctic fjords systems and B) managing & analysing the corresponding data.
+# A) The trend in the change of each driver (i.e. increasing, decreasing, or complex) 
+# is shown via the coloured borders of the labelled nodes. 
+# The impacts that the drivers have on each other are shown with coloured arrows.
+# B) The date range of data collected for each of the drivers. 
+# Note that there are no datasets/points currently available for governance.
 
