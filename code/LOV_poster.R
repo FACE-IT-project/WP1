@@ -208,7 +208,7 @@ ggsave("figures/LOV_fig_1.png", fig_1, width = 32, height = 14)
 # Figure XX: The two primary objectives of WP1: A) understanding the relationships between the key drivers of change 
 # in socio-ecological Arctic fjords systems and B) managing & analysing the corresponding data.
 # A) The trend in the change of each driver (i.e. increasing, decreasing, or complex) 
-# is shown via the coloured borders of the labelled nodes. 
+# is shown via the coloured borders of the labelled circles. 
 # The impacts that the drivers have on each other are shown with coloured arrows.
 # B) The date range of data collected for each of the drivers. 
 # Note that there are no datasets/points currently available for governance.
