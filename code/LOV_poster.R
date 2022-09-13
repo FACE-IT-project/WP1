@@ -93,42 +93,50 @@ panel_a_data <- data_meta %>%
                                             "seawater temperature", "salinity", "light",
                                             "carbonate system", "nutrients",
                                             "primary production", "biomass", "species richness",
-                                            "governance", "tourism", "fisheries")))#,
+                                            "governance", "tourism", "fisheries")),
+         data_points_log10 = log10(data_points))
          # data_points = scales::comma(data_points))
 
 # Plot the data
-panel_a <- ggplot(panel_a_data, aes(y = driver, x = log10(data_points))) +
-  geom_segment(aes(y = driver, yend = driver, x = 0, xend = log10(data_points)),
+panel_a <- ggplot(panel_a_data, aes(x = data_points_log10, y = driver)) +
+  geom_point(aes(x = 0, y = driver), alpha = 0) + # Keep governance driver in the y axis
+  geom_segment(data = panel_a_data[-14,],
+               aes(x = -0.01, xend = data_points_log10, y = driver, yend = driver),
                colour = "black", size =  11) +
-  geom_point(aes(x = min_date, y = driver, fill = category), 
+  geom_point(data = panel_a_data[-14,], 
+             aes(x = data_points_log10, y = driver, fill = category), 
              shape = 21, size = 14, stroke = 1.2, show.legend = F) +
-  geom_point(aes(x = max_date, y = driver, fill = category), 
-             shape = 21, size = 14, stroke = 1.2, show.legend = F) +
-  geom_segment(aes(x = min_date, xend = max_date, y = driver, yend = driver, colour = category), 
+  # geom_point(aes(x = max_date, y = driver, fill = category), 
+  #            shape = 21, size = 14, stroke = 1.2, show.legend = F) +
+  geom_segment(data = panel_a_data[-14,],
+               aes(x = 0, xend = data_points_log10, y = driver, yend = driver, colour = category), 
                size = 9, show.legend = F) +
-  geom_label(aes(label = paste0(driver,"\nDatasets: ",data_sets,"\nData points: ",data_points),
-                 x = as.Date("2024-12-31"), y = driver, hjust = "right"), alpha = 1, size = 6,
-             label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines")) +
-  scale_y_discrete(limits = rev, position = "right") +
-  scale_x_date(limits = c(as.Date("1871-01-01"), as.Date("2070-12-31")),
-               date_labels = "%Y",
-               breaks = seq(as.Date("1877-01-01"), as.Date("2021-01-01"), length = 7),
-               expand = c(0, 0)) +
+  # geom_label(aes(label = paste0(driver,"\nDatasets: ",data_sets,"\nData points: ",data_points),
+  #                x = as.Date("2024-12-31"), y = driver, hjust = "right"), alpha = 1, size = 6,
+  #            label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines")) +
+  scale_y_discrete(limits = rev, position = "left") +
+  scale_x_continuous(limits = c(-0.02, 6.8),
+                     breaks = seq(1, 6, 1),
+                     labels = c("10", "100", "1,000", "10,000", "100,000", "1,000,000"),
+                     expand = c(0, 0)) +
   scale_colour_manual("Category", aesthetics = c("colour", "fill"),
                       breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
                       values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
-  labs(x = NULL, y = NULL) +
+  labs(x = "Data points [log10]", y = NULL) +
   theme(plot.background = element_rect(fill = "grey90", colour = NA),
-        axis.text.y = element_blank(),
-        plot.margin = margin(t = 10, r = -20, b = 10, l = 20, unit = "pt"),
+        # axis.text.y = element_blank(),
+        plot.margin = margin(t = 10, r = 0, b = 10, l = 50, unit = "pt"),
         panel.grid = element_line(colour = "black"),
         panel.grid.major.y = element_line(colour = NA),
         panel.grid.minor.x = element_line(colour = NA),
+        panel.grid.major.x = element_line(colour = "black"),
         panel.border = element_rect(colour = NA, fill = NA),
         panel.background = element_rect(fill = NA, colour = NA),
         axis.ticks.y = element_blank(),
-        axis.text = element_text(size = 15))
-# panel_a
+        axis.title.x = element_text(size = 16),
+        axis.text = element_text(size = 15, colour = "black"),
+        axis.text.y = element_text())
+panel_a
 ggsave("~/Desktop/panel_a.png", panel_b, width = 16, height = 14)
 
 
