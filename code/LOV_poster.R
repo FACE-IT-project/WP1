@@ -9,6 +9,7 @@ source("code/functions.R")
 library(geomtextpath)
 library(ggpmisc)
 library(ggpattern)
+library(ggtext)
 library(igraph) # Create network
 
 # Ice cover colours
@@ -94,28 +95,37 @@ panel_a_data <- data_meta %>%
                                             "carbonate system", "nutrients",
                                             "primary production", "biomass", "species richness",
                                             "governance", "tourism", "fisheries")),
+         driver_num = as.numeric(driver),
          data_points_log10 = log10(data_points))
          # data_points = scales::comma(data_points))
 
+# Labels for categories
+panel_a_labels <- panel_a_data %>% 
+  arrange(driver_num) %>% 
+  slice(2, 5, 7, 10, 13) %>% 
+  mutate(y_num = c(2, 5, 7.5, 10, 13))
+
 # Plot the data
-panel_a <- ggplot(panel_a_data, aes(x = data_points_log10, y = driver)) +
-  geom_point(aes(x = 0, y = driver), alpha = 0) + # Keep governance driver in the y axis
+panel_a <- ggplot(panel_a_data, aes(x = data_points_log10, y = driver_num)) +
+  geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
   geom_segment(data = panel_a_data[-14,],
-               aes(x = -0.01, xend = data_points_log10, y = driver, yend = driver),
-               colour = "black", size =  11) +
+               aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+               colour = "black", size =  13) +
   geom_point(data = panel_a_data[-14,], 
-             aes(x = data_points_log10, y = driver, fill = category), 
-             shape = 21, size = 14, stroke = 1.2, show.legend = F) +
+             aes(x = data_points_log10, y = driver_num, fill = category), 
+             shape = 21, size = 14, stroke = 0.8, show.legend = F) +
+  # annotate("label", x = 5.2, y = "glacier mass balance", label = "Cryosphere", size = 10, fontface = "bold", angle = 310) +
+  # annotate("text", x = 5, y = "glacier mass balance", label = "{", size = 30, angle = 220, xnudge = 0.1) +
   # geom_point(aes(x = max_date, y = driver, fill = category), 
   #            shape = 21, size = 14, stroke = 1.2, show.legend = F) +
   geom_segment(data = panel_a_data[-14,],
-               aes(x = 0, xend = data_points_log10, y = driver, yend = driver, colour = category), 
-               size = 9, show.legend = F) +
-  # geom_label(aes(label = paste0(driver,"\nDatasets: ",data_sets,"\nData points: ",data_points),
-  #                x = as.Date("2024-12-31"), y = driver, hjust = "right"), alpha = 1, size = 6,
-  #            label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines")) +
-  scale_y_discrete(limits = rev, position = "left") +
-  scale_x_continuous(limits = c(-0.02, 6.8),
+               aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+               size = 12, show.legend = F) +
+  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
+  geom_richtext(data = panel_a_labels, aes(x = -0.15, y = y_num, label = category, fill = category), angle = 90,
+                size = 9, label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines"), show.legend = F) +
+  scale_y_reverse() +
+  scale_x_continuous(limits = c(-0.3, 6.8),
                      breaks = seq(1, 6, 1),
                      labels = c("10", "100", "1,000", "10,000", "100,000", "1,000,000"),
                      expand = c(0, 0)) +
@@ -125,35 +135,37 @@ panel_a <- ggplot(panel_a_data, aes(x = data_points_log10, y = driver)) +
   labs(x = "Data points [log10]", y = NULL) +
   theme(plot.background = element_rect(fill = "grey90", colour = NA),
         # axis.text.y = element_blank(),
-        plot.margin = margin(t = 10, r = 0, b = 10, l = 50, unit = "pt"),
+        plot.margin = margin(t = 10, r = 0, b = 10, l = 0, unit = "pt"),
         panel.grid = element_line(colour = "black"),
         panel.grid.major.y = element_line(colour = NA),
+        panel.grid.minor.y = element_line(colour = NA),
         panel.grid.minor.x = element_line(colour = NA),
         panel.grid.major.x = element_line(colour = "black"),
         panel.border = element_rect(colour = NA, fill = NA),
         panel.background = element_rect(fill = NA, colour = NA),
         axis.ticks.y = element_blank(),
-        axis.title.x = element_text(size = 16),
-        axis.text = element_text(size = 15, colour = "black"),
-        axis.text.y = element_text())
-panel_a
-ggsave("~/Desktop/panel_a.png", panel_b, width = 16, height = 14)
+        axis.title.x = element_text(size = 20),
+        axis.text = element_text(size = 18, colour = "black"),
+        # axis.text.y = element_text(angle = 45))
+        axis.text.y = element_blank())
+# panel_a
+ggsave("~/Desktop/panel_a.png", panel_a, width = 14, height = 12)
 
 
-# Panel B -----------------------------------------------------------------
 
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
 
 # Generate colors based on category:
-cat_colours <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
-trend_colours <- c("blue", "purple", "red")
-V(net)$cat_colour <- cat_colours[V(net)$cat_num]
-V(net)$trend_colour <- trend_colours[V(net)$trend_num]
-V(net)$name
+# cat_colours <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
+# trend_colours <- c("blue", "purple", "red")
+# V(net)$cat_colour <- cat_colours[V(net)$cat_num]
+# V(net)$trend_colour <- trend_colours[V(net)$trend_num]
+# V(net)$name
 
 # Dataframe to manually place individual labels
 net_label_coords <- data.frame(label = nodes$driver[1:14],
+                               category = nodes$category[1:14],
                                x = c(1.07, 1.02, 0.83, # Cryosphere
                                      0.23, -0.22, -0.63, # Physics
                                      -0.92, -1.0, # Chemistry
@@ -173,7 +185,8 @@ panel_b <- ggraph(net, layout = "circle") +
                   shape = 21, size = 16, stroke = 3) +
   # geom_node_label(aes(label = driver), size = 4, color = "black", alpha = 0.8,
   #                 label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines")) +
-  geom_label(data = net_label_coords, aes(label = label, x = x, y = y), size = 6, color = "black",
+  geom_label(data = net_label_coords, aes(label = label, x = x, y = y, fill = category), 
+             size = 6, color = "black", show.legend = F,
              label.padding = unit(0.3, "lines"), label.size = unit(0.7, "lines")) +
   scale_edge_colour_manual("Trend/\nImpact", 
                            breaks = c("increase", "decrease", "complex"),
@@ -181,6 +194,7 @@ panel_b <- ggraph(net, layout = "circle") +
                            guide_legend(order = 2, override.aes = list(shape = 15, size = 16))) +
   scale_colour_manual("Trend or impact\nfor driver",
                       breaks = c("increase", "decrease", "complex"),
+                      labels = c("increse", "decreae", "both"),
                       values = c("red", "blue", "purple")) +
   scale_fill_manual("Category", 
                     breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
@@ -189,17 +203,18 @@ panel_b <- ggraph(net, layout = "circle") +
   guides(colour = guide_legend(order = 1, label.position = "right", override.aes = list(shape = 15, size = 16)),
   # guides(colour = guide_legend(order = 1),
          # edge_colour = guide_legend(order = 2, override.aes = list(edge_colour_shape = 15)),
-         fill = guide_legend(order = 3, label.position = "left", override.aes = list(stroke = 2))) +
+         # fill = guide_legend(order = 3, label.position = "left", override.aes = list(stroke = 2))) +
+        fill = "none") +
   theme_void() +
   theme(plot.background = element_rect(fill = "grey90", colour = NA),
-        plot.margin = margin(t = -10, r = 170, b = -10, l = -20, unit = "pt"),
-        legend.position = c(1.08, 0.5),
+        plot.margin = margin(t = -10, r = 0, b = -10, l = -20, unit = "pt"),
+        legend.position = c(0.95, 0.15),
         legend.title = element_text(size = 16),
         legend.text = element_text(size = 15),
         legend.background = element_rect(fill = "white", colour = "black"),
         legend.margin = margin(t = 10, r = 20, b = 10, l = 20, unit = "pt"))
-# panel_b
-ggsave("~/Desktop/panel_a.png", panel_a, width = 16, height = 14)
+panel_b
+ggsave("~/Desktop/panel_b.png", panel_b, width = 14, height = 12)
 
 
 # Final -------------------------------------------------------------------
