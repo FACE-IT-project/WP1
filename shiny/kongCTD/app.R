@@ -54,6 +54,8 @@
 # May want to implement a database of meta-data per file, as well as the raw data
   # Via a look-up table one could then avoid having extra columns with the raw data
 # Add historic data to backend to allow users to see how their newly updated data fit into the historic data
+# Use consistent variable names via:
+# https://www.earthdata.nasa.gov/learn/find-data/idn/gcmd-keywords
 
 ## Next steps
 # Fix several key issues

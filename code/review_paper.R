@@ -94,6 +94,10 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 # Figure 2 ----------------------------------------------------------------
 # Flow chart showing interactions of all key drivers
 
+# If the network figure is used, the blog should be cited in the acknowledgements.
+# https://kateto.net/network-visualization
+# Ognyanova, K. (2021) Network visualization with R. Retrieved from www.kateto.net/network-visualization.
+
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
 # print(net, e=TRUE, v=TRUE)
