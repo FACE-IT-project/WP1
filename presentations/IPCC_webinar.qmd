@@ -1,0 +1,30 @@
+---
+title: "Primary drivers of change in EU Arctic fjord socio-ecological systems"
+format: revealjs
+editor: visual
+---
+
+<!-- General info about talk -->
+<!-- Presentations are branded as “lightning talks” – so they need to be short and concise. 
+You have a total of 10 minutes each, including Q&A time (so really you should aim for 8 minutes total). -->
+<!-- Please also remember the overall thread through the webinar, which is about filling gaps in the IPCC reports.
+So it would be good for you to refer to the latest IPCC report and how your work is filling important gaps -->
+<!-- https://www.ipcc.ch/report/ar6/wg2/downloads/report/IPCC_AR6_WGII_CCP6.pdf -->
+<!-- Finally, if you are presenting work from ECOTIP and FACE-IT (which I assume is the case), please make sure to include the EU logo and the “financed under.. by grant #)” - we are expecting a lot of EU Commission staff on the webinar -->
+
+## Outline
+
+-   Categories of socio-ecological Arctic fjord systems
+  -   Drivers within those categories
+    -   Variables within those drivers
+-   What data are available for all of these
+  -   Sites, dates, depths, etc. as reasonable/interesting
+  -   Show using barplots or something like that
+  -   Maybe need a map of the study sites
+  -   Could show total collected datasets and data points as bar plot with datasets going back out the negative x axis and data points along the positive axis. Then relabel everything accordingly.
+  -   If using plotly then rollover tool tips could be used in an intriguing way
+-   How do all of these drivers relate
+  -   Network plot
+  -   Make a fully documented interactive plot
+  
+  
