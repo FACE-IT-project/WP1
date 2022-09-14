@@ -292,9 +292,17 @@ ui <- dashboardPage(
               # The data display
               box(width = 9, 
                   # height = "850px", 
-                  title = "Data preview",
+                  title = "Uploaded data preview",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
-                  DT::dataTableOutput("contents_load"))
+                  DT::dataTableOutput("contents_load")),
+              
+              # The QC display
+              box(width = 9, 
+                  # height = "850px", 
+                  title = "QC flag report",
+                  status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                  h6(tags$b("Flags:"), "0 = no problem, 1 = impossible value, 2 = above surface, 3 = upcast"),
+                  DT::dataTableOutput("contents_load_QC"))
       ),
       
 
@@ -322,7 +330,7 @@ ui <- dashboardPage(
                                                     selected = "No name")),
                            column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
                            column(4, shiny::numericInput("allLat", "Latitude", value = NA, min = 78, max = 80))),
-                  h6(tags$b("Reference:"), "Provide information on the ownership of the data."),
+                  h6(tags$b("Owner:"), "Provide information on the ownership of the data."),
                   fluidRow(column(4, shiny::textInput("allDataOwnerPerson", "Person")),
                            column(4, shiny::textInput("allDataOwnerInstitute", "Institute")),
                            column(4, shiny::textInput("allDOI", "DOI"))),
@@ -375,20 +383,21 @@ ui <- dashboardPage(
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
 
                            # h4("Choose column order to begin"),
-                           h4("This will contain controls for choosing QC level"),
-                           h5("QC is currently planned to be based on the ARGO standards"),
+                           # h4("This will contain controls for choosing QC level"),
+                           # h5("QC is currently planned to be based on the ARGO standards"),
 
                            # Combine date and time columns
-                           uiOutput("selectColsUI"),
+                           # uiOutput("selectColsUI"),
 
                            # Filter head and tail of df
-                           fluidRow(
-                             column(6, shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1)),
-                             column(6, shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1)),
-                             ),
+                           # fluidRow(
+                           #   column(6, shiny::numericInput("sliceHead", "Remove first n rows", value = 0, min = 0, step = 1)),
+                           #   column(6, shiny::numericInput("sliceTail", "Remove last n rows", value = 0, min = 0, step = 1)),
+                           #   ),
                            
-                           h4("Meta-data status:"),
-                           htmlOutput("uploadText"),
+                           h4("Upload status:"),
+                           # htmlOutput("uploadText"),
+                           # tableOutput("uploadText"),
                            uiOutput("uploadButton")
                            ),
                        
@@ -405,17 +414,24 @@ ui <- dashboardPage(
                 # The data display
                 column(8,
                        
+                       # box(width = 12, 
+                       #     # height = "450px", 
+                       #     title = "Preview of data to be uploaded",
+                       #     status = "success", solidHeader = TRUE, collapsible = FALSE,
+                       #     DT::dataTableOutput("uploadedDT")
+                       #     ),
+                       
                        box(width = 12, 
                            # height = "450px", 
-                           title = "Preview of data to be uploaded",
-                           status = "success", solidHeader = TRUE, collapsible = FALSE,
-                           DT::dataTableOutput("uploadedDT")
-                           ),
+                           title = "QC flags and missing meta-data",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                           DT::dataTableOutput("metaCheck")
+                       ),
                        
                        box(width = 12, 
                            # height = "400px", 
                            title = "Summary of data in Database",
-                           status = "danger", solidHeader = TRUE, collapsible = FALSE,
+                           status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBase")
                            ),
                        )
@@ -813,7 +829,9 @@ server <- function(input, output, session) {
           mutate(Temperature = as.numeric(Temperature)) %>%
           filter(!is.na(Temperature)) %>% 
           mutate(date_time = dmy_hms(paste0(date, time))) %>%
-          dplyr::select(file_temp, date_time, Pressure, Temperature, Salinity, Conductivity)
+          # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
+          rename(Depth = Pressure) %>% 
+          dplyr::select(file_temp, date_time, Depth, Temperature, Salinity, Conductivity)
         )
       } else if(input$schema == "Sea-Bird O2"){
         suppressWarnings( # Forcing numeric temperatures causes warning
@@ -823,7 +841,9 @@ server <- function(input, output, session) {
             mutate(Temperature = as.numeric(Temperature)) %>%
             filter(!is.na(Temperature)) %>% 
             mutate(date_time = dmy_hms(paste0(date, time))) %>%
-            dplyr::select(file_temp, date_time, Pressure, Temperature, Salinity, Conductivity, Oxygen, Sound_velocity)
+            # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
+            rename(Depth = Pressure) %>% 
+            dplyr::select(file_temp, date_time, Depth, Temperature, Salinity, Conductivity, Oxygen, Sound_velocity)
         )
       } else if(input$schema == "Sea & Sun"){
           df <- df %>% 
@@ -835,7 +855,9 @@ server <- function(input, output, session) {
                    Pressure = as.numeric(Pressure),
                    Salinity = as.numeric(Salinity),
                    Conductivity = as.numeric(Conductivity)) %>%
-            dplyr::select(file_temp, date_time, Pressure, Temperature, Salinity, Conductivity)
+            # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
+            rename(Depth = Pressure) %>% 
+            dplyr::select(file_temp, date_time, Depth, Temperature, Salinity, Conductivity)
       }
       
       return(df)
@@ -861,12 +883,31 @@ server <- function(input, output, session) {
       df_mdepth <- df_flag[df_flag$Depth == max(df_flag$Depth, na.rm = T),]
       df_flag <- mutate(df_flag, flag = case_when(Depth > 400 ~ 1, 
                                                   Depth <= 0 ~ 2,
-                                                  date_time > df_mdepth$date_time ~ 3,
+                                                  date_time > df_mdepth$date_time & flag == 0 ~ 3,
                                                   TRUE ~ flag))
     }
 
     # Exit
+    # df_flag <- df_flag %>% dplyr::select()
     return(df_flag)
+  })
+  
+  # Reactive data flag data.frame
+  df_QC_flags <- reactive({
+    req(input$file1)
+    df_rows <- df_load() %>% 
+      group_by(file_name) %>% 
+      summarise(total_rows = n(), .groups = "drop")
+    df_QC_flags <- df_load() %>% 
+      group_by(file_name, flag) %>%
+      summarise(flag_count = n(), .groups = "drop") %>% 
+      right_join(data.frame(flag = 0:3), by = "flag") %>% 
+      pivot_wider(names_from = "flag", values_from = "flag_count") %>% 
+      left_join(df_rows, by = "file_name") %>% 
+      dplyr::select(file_name, total_rows, `0`, `1`, `2`, `3`) %>% 
+      replace_na(list(`0` = 0, `1` = 0, `2` = 0, `3` = 0)) %>% 
+      filter(!is.na(file_name))
+    return(df_QC_flags)
   })
   
   # Table showing the uploaded file
@@ -875,12 +916,20 @@ server <- function(input, output, session) {
     df_load <- df_load()
     # file_info_df <- file_info_df()
     df_load_DT <- datatable(df_load, 
-                            options = list(pageLength = 20, scrollX = TRUE, scrollY = 650))
+                            options = list(pageLength = 100, scrollX = TRUE, scrollY = 300))
     return(df_load_DT)
   })
   
   # Flagged data summary
-  # DataTable here
+  output$contents_load_QC <- DT::renderDataTable({
+    req(input$file1)
+    
+    df_QC_flags <- df_QC_flags()
+    
+    df_load_QC_DT <- datatable(df_QC_flags, 
+                               options = list(pageLength = 10, scrollX = TRUE, scrollY = 100))
+    return(df_load_QC_DT)
+  })
   
 
   ## Meta server -------------------------------------------------------------
@@ -1071,6 +1120,7 @@ server <- function(input, output, session) {
     return(df_time)
   })
   
+  # Data table showing meta-data added to base data
   output$contentsTime <- DT::renderDataTable({
     req(input$file1, table$table1)
     df_time <- df_time()
@@ -1078,6 +1128,7 @@ server <- function(input, output, session) {
     return(df_time_DT)
   })
 
+  # Map of data location
   output$mapPlot <- renderPlot({
     req(input$file1, table$table1)
     
@@ -1123,28 +1174,6 @@ server <- function(input, output, session) {
 
   ## QC/Up server -------------------------------------------------------------
 
-  # df_tidy <- reactive({
-  #   req(input$file1, input$selectCols)
-  # 
-  #   df_tidy <- df_time()
-  # 
-  #   # Set column order
-  #   df_tidy <- df_tidy %>%
-  #     dplyr::select(input$selectCols)
-  # 
-  #   # Remove top and bottom of time series
-  #   if(input$sliceHead > 0){
-  #     df_tidy <- df_tidy[-seq_len(input$sliceHead),]
-  #   }
-  #   if(input$sliceTail > 0){
-  #     tail_front <- nrow(df_tidy)-input$sliceTail+1
-  #     df_tidy <- df_tidy[-seq(tail_front, nrow(df_tidy)),]
-  #   }
-  # 
-  #   # Exit
-  #   return(df_tidy)
-  # })
-
   # Create reactive data_base object that recognizes uploads of new data
   data_base <- reactiveValues()
   # drop_download("KongCTD/data_base.Rds", overwrite = TRUE)
@@ -1152,50 +1181,32 @@ server <- function(input, output, session) {
   # df <- read_rds(db_file)
   
   # Check that all necessary meta-data has been provided
-  # NB: Would be good to add group_by(file_name)
   df_meta_check <- reactive({
     req(input$file1, table$table1$file_name, df_time())
     df_meta_check <- df_time() %>% 
-      dplyr::select(Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
+      dplyr::select(file_name, Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
       mutate(Owner_person = case_when(is.na(Owner_person) ~ 1, TRUE ~ 0),
              Owner_institute = case_when(is.na(Owner_institute) ~ 1, TRUE ~ 0),
              # DOI = case_when(is.na(DOI) ~ 1, TRUE ~ 0), # Not required
              Sensor_owner = case_when(is.na(Sensor_owner) ~ 1, TRUE ~ 0),
              Sensor_brand = case_when(is.na(Sensor_brand) ~ 1, TRUE ~ 0),
              Sensor_number = case_when(is.na(Sensor_number) ~ 1, TRUE ~ 0),
-             Site = case_when(is.na(Site) ~ 1, TRUE ~ 0),
+             # Site = case_when(is.na(Site) ~ 1, TRUE ~ 0), # Not necessarily required...
              Lon = case_when(is.na(Lon) ~ 1, TRUE ~ 0),
              Lat = case_when(is.na(Lat) ~ 1, TRUE ~ 0)) %>% 
+      group_by(file_name) %>%
       summarise_all(sum)
     return(df_meta_check)
-  })
-  
-  # Provide message for missing meta-data
-  output$uploadText <- renderText({
-    req(df_meta_check())
-    df_meta_check <- df_meta_check()
-    if(sum(df_meta_check) == 0){
-      meta_check_text <-  "All good. <br> Click to upload data to database. <br>"
-    } else {
-      meta_check_text <- paste0("Add missing meta-data before uploading: <br>",
-                                "Owner_person: ",df_meta_check$Owner_person," rows <br>",
-                                "Owner_institute: ",df_meta_check$Owner_institute," rows <br>",
-                                "DOI: Not required <br>",
-                                "Sensor_owner: ",df_meta_check$Sensor_owner," rows <br>",
-                                "Sensor_brand: ",df_meta_check$Sensor_brand," rows <br>",
-                                "Site: ",df_meta_check$Site," rows <br>",
-                                "Lon: ",df_meta_check$Lon," rows <br>",
-                                "Lat: ",df_meta_check$Lat," rows")
-      }
-    return(meta_check_text)
   })
   
   # Reactive upload button
   output$uploadButton <- renderUI({
     req(df_meta_check())
-    if(sum(df_meta_check()) == 0){
+    if(sum(select(df_meta_check(), -file_name)) == 0){
+      h6("All good, ready for upload!")
       actionButton("upload", "Upload", icon = icon("upload"))
     } else {
+      h6("Ensure there are no missing meta-data before upload button will appear.")
       # actionButton("uploadFail", "Missing meta-data", icon = icon("skull"))
     }
   })
@@ -1217,11 +1228,37 @@ server <- function(input, output, session) {
     return(df_data_base)
   })
   
+  # Provide message for missing meta-data
+  output$metaCheck <- DT::renderDataTable({
+    req(input$file1, table$table1, df_meta_check())
+    df_meta_check <- df_meta_check()
+    df_QC_flags <- df_QC_flags()
+    df_meta <- left_join(df_QC_flags, df_meta_check, by = "file_name")
+    meta_group_cols <- htmltools::withTags(table(
+      class = 'display',
+      thead(
+        # Define the grouping of your df
+        tr(
+          th(colspan = 2, 'File'),
+          th(colspan = 4, 'QC flags'),
+          th(colspan = 8, 'Meta-data')
+        ),
+        # Repeat column names 8 times
+        tr(colnames(df_meta)
+        )
+      )
+    ))
+    df_meta_DT <- datatable(df_meta, 
+                            # container = meta_group_cols,
+                            options = list(pageLength = 10, scrollX = TRUE, scrollY = 250))
+    return(df_meta_DT)
+  })
+  
   # Show the uploaded data
   output$uploadedDT <- DT::renderDataTable({
     req(input$file1, table$table1)
     df_time <- df_time()
-    df_time_DT <- datatable(df_time, options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
+    df_time_DT <- datatable(df_time, options = list(pageLength = 100, scrollX = TRUE, scrollY = 250))
     return(df_time_DT)
   })
   
@@ -1230,7 +1267,7 @@ server <- function(input, output, session) {
     df_db_summary <- df_data_base() %>% 
       group_by(Uploader, upload_date, Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, Site) %>% 
       summarise(rows = n(), .groups = "drop")
-    data_base_DT <- datatable(df_db_summary, options = list(pageLength = 20, scrollX = TRUE, scrollY = 200))
+    data_base_DT <- datatable(df_db_summary, options = list(pageLength = 10, scrollX = TRUE, scrollY = 200))
     return(data_base_DT)
   })
   
