@@ -846,9 +846,27 @@ server <- function(input, output, session) {
       left_join(file_info_df(), by = "file_temp") %>% 
       mutate(Uploader = reactiveValuesToList(res_auth)[[1]]) %>% 
       dplyr::select(Uploader, upload_date, file_name, everything(), -file_temp)
-    
+
+    # Flag data
+    ## Flags: 0 = none, 1 = impossible, 2 = surface, 3 = upcast
+    df_flag <- df_load
+    df_flag$flag <- 0
+    if("Temperature" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Temperature < -1.8 | Temperature > 15 ~ 1, TRUE ~ flag))
+    if("Salinity" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Salinity < 0 | Salinity > 38 ~ 1, TRUE ~ flag))
+    if("Fluorescence_ugChla_l" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Fluorescence_ugChla_l < 0 | Fluorescence_ugChla_l > 50 ~ 1, TRUE ~ flag))
+    if("Depth" %in% colnames(df_flag)){ # NB: Intentionally last
+      df_mdepth <- df_flag[df_flag$Depth == max(df_flag$Depth, na.rm = T),]
+      df_flag <- mutate(df_flag, flag = case_when(Depth > 400 ~ 1, 
+                                                  Depth <= 0 ~ 2,
+                                                  date_time > df_mdepth$date_time ~ 3,
+                                                  TRUE ~ flag))
+    }
+
     # Exit
-    return(df_load)
+    return(df_flag)
   })
   
   # Table showing the uploaded file
@@ -860,6 +878,9 @@ server <- function(input, output, session) {
                             options = list(pageLength = 20, scrollX = TRUE, scrollY = 650))
     return(df_load_DT)
   })
+  
+  # Flagged data summary
+  # DataTable here
   
 
   ## Meta server -------------------------------------------------------------
