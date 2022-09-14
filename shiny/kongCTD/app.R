@@ -74,7 +74,6 @@ library(ggplot2)
 library(lubridate)
 library(stringr)
 library(rhandsontable)
-library(rdrop2)
 
 
 # Data --------------------------------------------------------------------
@@ -161,10 +160,6 @@ credentials <- data.frame(
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
-
-# Load robert.schlegel@imev-mer.fr dropbox credentials
-load("dropboxtoken.Rda")
-drop_acc(dtoken = token)
 
 # Increase file upload size limit
 options(shiny.maxRequestSize = 50*1024^2)
@@ -384,12 +379,12 @@ ui <- dashboardPage(
                 # The data display
                 column(8,
                        
-                       # box(width = 12, 
-                       #     # height = "450px", 
-                       #     title = "Preview of data to be uploaded",
-                       #     status = "success", solidHeader = TRUE, collapsible = FALSE,
-                       #     DT::dataTableOutput("uploadedDT")
-                       #     ),
+                       box(width = 12,
+                           # height = "450px",
+                           title = "Preview of data to be uploaded",
+                           status = "success", solidHeader = TRUE, collapsible = FALSE,
+                           DT::dataTableOutput("uploadedDT")
+                           ),
                        
                        box(width = 12, 
                            # height = "450px", 
@@ -403,7 +398,7 @@ ui <- dashboardPage(
                            # height = "400px", 
                            title = "Meta-database",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
-                           DT::dataTableOutput("dataBase")
+                           DT::dataTableOutput("metaDataBase")
                            ),
                        )
                 ),
@@ -1118,15 +1113,20 @@ server <- function(input, output, session) {
 
   ## QC/Up server -------------------------------------------------------------
 
-  # Create reactive data_base object that recognizes uploads of new data
+  # Create reactive data_base and meta_data_base objects that recognize uploads of new data
   data_base <- reactiveValues()
-  # drop_download("KongCTD/data_base.Rds", overwrite = TRUE)
   data_base$df <- read_rds("data/data_base.Rds")
-  # df <- read_rds(db_file)
+  meta_data_base <- reactiveValues()
+  # meta_data_base$df <- data.frame(Uploader = NA, upload_date = NA, file_name = NA, total_rows = NA,
+  #                                 `0` = NA, `1` = NA, `2` = NA, `3` = NA, embargo = NA,
+  #                                 Owner_person = NA, Owner_institute = NA, DOI = NA, Sensor_owner = NA, 
+  #                                 Sensor_brand = NA, Sensor_number = NA, Site = NA, Lon = NA, Lat = NA)
+  # write_rds(df, "data/meta_data_base.Rds")
+  meta_data_base$df <- read_rds("data/meta_data_base.Rds")
   
   # Final df filtered by QC flags
   df_final <- reactive({
-    req(input$file1, table$table1$file_name, df_time())
+    req(input$file1, df_time())
     df_final <- df_time() %>% 
       filter(!flag %in% input$qc_flag_filter)
     return(df_final)
@@ -1134,9 +1134,12 @@ server <- function(input, output, session) {
   
   # Reactive data flag data.frame
   df_QC_flags <- reactive({
-    req(input$file1, df_final())
+    req(df_final())
+    embargo <- "No"
+    if(input$embargo) embargo <- as.character(Sys.Date()+730)
     df_rows <- df_final() %>% 
-      group_by(file_name) %>% 
+      mutate(embargo = embargo) %>% 
+      group_by(file_name, embargo) %>% 
       summarise(total_rows = n(), .groups = "drop")
     df_QC_flags <- df_final() %>% 
       group_by(file_name, flag) %>%
@@ -1144,7 +1147,7 @@ server <- function(input, output, session) {
       right_join(data.frame(flag = 0:3), by = "flag") %>% 
       pivot_wider(names_from = "flag", values_from = "flag_count") %>% 
       left_join(df_rows, by = "file_name") %>% 
-      dplyr::select(file_name, total_rows, `0`, `1`, `2`, `3`) %>% 
+      dplyr::select(file_name, embargo, total_rows, `0`, `1`, `2`, `3`) %>%
       replace_na(list(`0` = 0, `1` = 0, `2` = 0, `3` = 0)) %>% 
       filter(!is.na(file_name))
     return(df_QC_flags)
@@ -1152,9 +1155,7 @@ server <- function(input, output, session) {
   
   # Check that all necessary meta-data has been provided
   df_meta_check <- reactive({
-    req(input$file1, table$table1$file_name, df_final())
-    
-    # The rest
+    req(df_final())
     df_meta_check <- df_final() %>% 
       dplyr::select(file_name, Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Lon, Lat) %>% 
       mutate(Owner_person = case_when(is.na(Owner_person) ~ 1, TRUE ~ 0),
@@ -1169,61 +1170,47 @@ server <- function(input, output, session) {
       group_by(file_name) %>%
       summarise_all(sum) %>% 
       ungroup()
-
-      # Exit
     return(df_meta_check)
   })
   
-  # Reactive upload button
-  output$uploadButton <- renderUI({
-    req(df_meta_check())
-    if(sum(select(df_meta_check(), -file_name)) == 0){
-      h6("All good, ready for upload!")
-      actionButton("upload", "Upload", icon = icon("upload"))
-    } else {
-      h6("Ensure there are no missing meta-data before upload button will appear.")
-      # actionButton("uploadFail", "Missing meta-data", icon = icon("skull"))
-    }
+  # Final meta-database entry
+  df_meta_final <- reactive({
+    req(df_final(), df_QC_flags())
+    df_meta_final <- df_final() %>% 
+      group_by(Uploader, upload_date, file_name, Owner_person, Owner_institute, DOI, 
+               Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
+      summarise(rows_n = n(), .groups = "drop") %>% 
+      left_join(df_QC_flags(), by = "file_name") %>% 
+      dplyr::select(Uploader, upload_date, file_name, total_rows, `0`, `1`, `2`, `3`, embargo, everything(), -rows_n)
+    return(df_meta_final)
   })
   
-  # When the Upload button is clicked, save df_final()
-  observeEvent(input$upload, {
-    # saveData(df_time())
-    df_res <- bind_rows(df_final(), data_base$df) %>% distinct()
-    write_rds(df_res, file = "data/data_base.Rds", compress = "gz")
-    # drop_upload(write_rds(df_res, file = "data_base.Rds", compress = "gz"), path = "KongCTD")
-    # drop_upload('data_base.Rds', path = "KongCTD")
-    # drop_download("KongCTD/data_base.Rds", overwrite = TRUE)
-    data_base$df <- read_rds("data/data_base.Rds")
-  })
-  
-  # Reactive data for datatable
+  # Reactive database as.data.frame
   df_data_base <- reactive({
     df_data_base <- as.data.frame(data_base$df)
     return(df_data_base)
   })
   
+  # Reactive database as.data.frame
+  df_meta_data_base <- reactive({
+    df_meta_data_base <- as.data.frame(meta_data_base$df)
+    return(df_meta_data_base)
+  })
+  
   # Create table for missing meta-data and QC flags
   output$metaCheck <- DT::renderDataTable({
-    req(input$file1, table$table1, df_meta_check())
-    
-    # Embargo info
-    embargo <- "No"
-    if(input$embargo) embargo <- as.character(Sys.Date()+730)
-    
+    req(input$file1, df_QC_flags(), df_meta_check())
     df_QC_flags <- df_QC_flags()
     df_meta_check <- df_meta_check()
-    df_meta <- left_join(df_QC_flags, df_meta_check, by = "file_name") %>% 
-      mutate(embargo = embargo) %>% 
-      dplyr::select(file_name, embargo, everything())
+    df_meta <- left_join(df_QC_flags, df_meta_check, by = "file_name")
     meta_group_cols <- htmltools::withTags(table(
       class = 'display',
       thead(
-        # Define the grouping of your df
+        # Define the grouping of the df
         tr(th(colspan = 3, 'Files'),
           th(colspan = 4, 'QC flags'),
           th(colspan = 7, 'Meta-data')),
-        # Repeat column names 8 times
+        # Repeat column names
         tr(lapply(colnames(df_meta), th)))
     ))
     
@@ -1246,18 +1233,40 @@ server <- function(input, output, session) {
   ## NB: Not currently used
   output$uploadedDT <- DT::renderDataTable({
     req(input$file1, table$table1)
-    df_final <- df_final()
+    df_final <- df_meta_final() # NB: CAUTION this is intentionally wrong
     df_final_DT <- datatable(df_final, options = list(pageLength = 100, scrollX = TRUE, scrollY = 250))
     return(df_final_DT)
   })
   
   # Show the newly expanded database
-  output$dataBase <- DT::renderDataTable({
-    df_db_summary <- df_data_base() %>% 
-      group_by(Uploader, upload_date, Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, Site) %>% 
-      summarise(rows = n(), .groups = "drop")
-    data_base_DT <- datatable(df_db_summary, options = list(pageLength = 10, scrollX = TRUE, scrollY = 300))
-    return(data_base_DT)
+  output$metaDataBase <- DT::renderDataTable({
+    mdb_DT <- datatable(df_meta_data_base(), rownames = F, options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
+    return(mdb_DT)
+  })
+  
+  # Reactive upload button
+  output$uploadButton <- renderUI({
+    req(df_meta_check())
+    if(sum(select(df_meta_check(), -file_name)) == 0){
+      h6("All good, ready for upload!")
+      actionButton("upload", "Upload", icon = icon("upload"))
+    } else {
+      h6("Ensure there are no missing meta-data before upload button will appear.")
+      # actionButton("uploadFail", "Missing meta-data", icon = icon("skull"))
+    }
+  })
+  
+  # When the Upload button is clicked, save df_final()
+  observeEvent(input$upload, {
+    # Save meta-data
+    df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
+    write_rds(df_meta_res, file = "data/meta_data_base.Rds", compress = "gz")
+    meta_data_base$df <- read_rds("data/meta_data_base.Rds")
+    
+    # Save raw data
+    df_data_res <- bind_rows(df_final(), data_base$df) %>% distinct()
+    write_rds(df_data_res, file = "data/data_base.Rds", compress = "gz")
+    data_base$df <- read_rds("data/data_base.Rds")
   })
   
   
