@@ -409,8 +409,19 @@ ui <- dashboardPage(
 
       tabItem(tabName = "edit",
               
-              fluidRow(h4("   No one here but us chickens.")),
-              img(src = "CTD_cast1.png", align = "center", width = "1000px")),
+              # The interactive table
+              box(width = 12, 
+                  # height = "375px",
+                  title = "Edit meta-data values here", 
+                  # style = 'height:250px;overflow-y: scroll;',
+                  status = "primary", solidHeader = TRUE, collapsible = FALSE,
+                  h6("Don't forget to save the changes!"),
+                  rHandsontableOutput("table2output"),
+                  br(),
+                  actionBttn("saveEdit", "Save changes", style = "gradient", 
+                             icon = icon("save"), color = "success", block = T)
+              )
+              ),
       
       ## Download menu -----------------------------------------------------------
 
@@ -1267,6 +1278,42 @@ server <- function(input, output, session) {
     df_data_res <- bind_rows(df_final(), data_base$df) %>% distinct()
     write_rds(df_data_res, file = "data/data_base.Rds", compress = "gz")
     data_base$df <- read_rds("data/data_base.Rds")
+  })
+  
+
+  ## Edit server ------------------------------------------------------------
+
+  df_meta_user <- reactive({
+    df_meta_user <- df_meta_data_base() %>% 
+      filter(Uploader == reactiveValuesToList(res_auth)[[1]])
+  })
+
+  output$table2output <- renderRHandsontable({
+    rhandsontable(df_meta_user(), stretchH = "all", useTypes = F) %>% 
+      hot_col("Uploader", readOnly = TRUE) %>% 
+      hot_col("upload_date", readOnly = TRUE) %>% 
+      hot_col("file_name", readOnly = TRUE) %>% 
+      hot_col("total_rows", readOnly = TRUE) %>% 
+      hot_col("0", readOnly = TRUE) %>% 
+      hot_col("1", readOnly = TRUE) %>% 
+      hot_col("2", readOnly = TRUE) %>% 
+      hot_col("3", readOnly = TRUE) %>% 
+      hot_col(col = "Sensor_number", strict = FALSE)})
+  observeEvent(input$table2output, {
+    df <- hot_to_r(input$table2output)
+    df <- as.data.frame(df)
+    table$table2 <- df
+  }, ignoreInit = TRUE, ignoreNULL = TRUE)
+  
+  # When the Upload button is clicked, save df_final()
+  observeEvent(input$saveEdit, {
+    # Save meta-data
+    df_meta_res <- meta_data_base$df %>% 
+      filter(Uploader != reactiveValuesToList(res_auth)[[1]]) %>% 
+      bind_rows(table$table2) %>% distinct()
+    # df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
+    write_rds(df_meta_res, file = "data/meta_data_base.Rds", compress = "gz")
+    meta_data_base$df <- read_rds("data/meta_data_base.Rds")
   })
   
   
