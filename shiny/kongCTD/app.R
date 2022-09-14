@@ -3,7 +3,6 @@
 
 ### TODO: 
 ## General fixes
-# Change column names to match NMDC terminology
 
 ## Graphical features
 # Time series by site/user of count of when and how much data were uploaded
@@ -25,7 +24,6 @@
   # Or have a flag column with numbers that show what the issue is
 # It would be useful for a user that the settings could be saved in between uploads:
 # https://discindo.org/post/2022-05-09-building-a-multi-session-shiny-application-with-brochure/
-# Prevent uploading if not all boxes are filled except for Site
 
 ## Documentation
 # Spruce up the landing page with some nice pictures of the fjord
@@ -58,10 +56,7 @@
 # https://www.earthdata.nasa.gov/learn/find-data/idn/gcmd-keywords
 
 ## Next steps
-# Fix several key issues
-# Identify five test subjects to stress test the app
-# Before being public we need a final decision on how the data are published
-# We need a timeline for all of these steps
+# Give demo at flagship meeting on Sep 27 at 11:30
   
 
 # Libraries ---------------------------------------------------------------
@@ -181,13 +176,13 @@ drop_acc(dtoken = token)
 options(shiny.maxRequestSize = 50*1024^2)
 
 # Rounding functions
-floor_dec <- function(x, level=1) round(x - 5*10^(-level-1), level)
-ceiling_dec <- function(x, level=1) round(x + 5*10^(-level-1), level)
+floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
+ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
 
 
 # UI ----------------------------------------------------------------------
 
-# Define UI for application that draws a histogram
+# Define UI
 ui <- dashboardPage(
 
   # The app title
@@ -204,7 +199,7 @@ ui <- dashboardPage(
                 
                 # The various menus
                 menuItem("1) Load file(s)", tabName = "load", icon = icon("desktop"), selected = TRUE),
-                menuItem("2) Metadata", tabName = "meta", icon = icon("cog")),
+                menuItem("2) Metadata", tabName = "meta", icon = icon("cog", verify_fa = FALSE)),
                 menuItem("3) QC/Upload", tabName = "QCup", icon = icon("upload")),
                 menuItem("4) Edit", tabName = "edit", icon = icon("shower")),
                 menuItem("Download", tabName = "download", icon = icon("download")),
@@ -241,7 +236,7 @@ ui <- dashboardPage(
               
               box(width = 3,
                   # height = "730px", # Length when tips are shown
-                  height = "650px",
+                  # height = "650px",
                   title = "File format",
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
@@ -295,7 +290,9 @@ ui <- dashboardPage(
               ),
               
               # The data display
-              box(width = 9, height = "850px", title = "Data preview",
+              box(width = 9, 
+                  # height = "850px", 
+                  title = "Data preview",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contents_load"))
       ),
@@ -306,7 +303,9 @@ ui <- dashboardPage(
       tabItem(tabName = "meta",
 
               # The single metadata inputs
-              box(width = 4, height = "375px", title = "Metadata: Fill values here that apply to all files", 
+              box(width = 4, 
+                  height = "375px",
+                  title = "Metadata: Fill values here that apply to all files",
                   status = "info", solidHeader = TRUE, collapsible = FALSE,
                   # selectizeInput('x1', 'X1', choices = list(
                   #   Eastern = c(`New York` = 'NY', `New Jersey` = 'NJ'),
@@ -333,20 +332,26 @@ ui <- dashboardPage(
                            column(4, shiny::textInput("allSensorNumber", "Number")))),
               
               # The interactive table
-              box(width = 8, height = "375px", 
-                  title = "Metadata: Fill file-specific values here", style = 'height:250px;overflow-y: scroll;',
+              box(width = 8, 
+                  height = "375px",
+                  title = "Metadata: Fill file-specific values here", 
+                  style = 'height:250px;overflow-y: scroll;',
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   rHandsontableOutput("table1output")
               ),
               
               # The data display
-              box(width = 8, height = "480px", title = "Data preview",
+              box(width = 8, 
+                  height = "480px",
+                  title = "Data preview",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contentsTime")
                   ),
               
               # The map display
-              box(width = 4, height = "480px", title = "Map",
+              box(width = 4, 
+                  height = "480px",
+                  title = "Map",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
                   h4("Check location of CTD cast"),
                   h5("Red border = no lon/lat"),
@@ -364,7 +369,9 @@ ui <- dashboardPage(
 
                 column(width = 4,
 
-                       box(width = 12, height = "400px", title = "Controls",
+                       box(width = 12, 
+                           # height = "400px", 
+                           title = "Controls",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
 
                            # h4("Choose column order to begin"),
@@ -398,12 +405,16 @@ ui <- dashboardPage(
                 # The data display
                 column(8,
                        
-                       box(width = 12, height = "450px", title = "Preview of data to be uploaded",
+                       box(width = 12, 
+                           # height = "450px", 
+                           title = "Preview of data to be uploaded",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("uploadedDT")
                            ),
                        
-                       box(width = 12, height = "400px", title = "Summary of data in Database",
+                       box(width = 12, 
+                           # height = "400px", 
+                           title = "Summary of data in Database",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBase")
                            ),
@@ -427,7 +438,9 @@ ui <- dashboardPage(
                 
                 column(width = 3,
                        
-                       box(width = 12, height = "870px", title = "Download from database",
+                       box(width = 12, 
+                           # height = "870px", 
+                           title = "Download from database",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
                            
                            # Message
@@ -467,10 +480,14 @@ ui <- dashboardPage(
                 
                 # The data display
                 column(9,
-                       box(width = 12, height = "450px", title = "Data selected from database",
+                       box(width = 12, 
+                           # height = "450px", 
+                           title = "Data selected from database",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBaseFilter")),
-                       box(width = 7, height = "400px", title = "Time series of selected data",
+                       box(width = 7, 
+                           # height = "400px", 
+                           title = "Time series of selected data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
                              # column(2,
@@ -483,7 +500,9 @@ ui <- dashboardPage(
                              column(4, uiOutput("plotXUIDL")),
                              column(4, uiOutput("plotYUIDL")),
                              column(12, plotOutput("tsPlot", height = "250px")))),
-                       box(width = 5, height = "400px", title = "Map of selected data",
+                       box(width = 5, 
+                           # height = "400px", 
+                           title = "Map of selected data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            # h4("Location of data"),
                            # h5("Red border = no lon/lat"),
