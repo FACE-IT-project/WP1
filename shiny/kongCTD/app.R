@@ -75,11 +75,6 @@ library(lubridate)
 library(stringr)
 library(rhandsontable)
 library(rdrop2)
-# library(argoFloats)
-# library(ggraph)
-# library(plotly)
-# library(see)
-# library(ggtext)
 
 
 # Data --------------------------------------------------------------------
@@ -155,7 +150,6 @@ frame_base <- ggplot() +
   theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
         axis.text = element_text(size = 12, colour = "black"),
         axis.ticks = element_line(colour = "black"))
-# frame_base
 
 # login credentials
 credentials <- data.frame(
@@ -235,8 +229,6 @@ ui <- dashboardPage(
       tabItem(tabName = "load",
               
               box(width = 3,
-                  # height = "730px", # Length when tips are shown
-                  # height = "650px",
                   title = "File format",
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
@@ -248,7 +240,6 @@ ui <- dashboardPage(
                             #            "text/comma-separated-values,text/plain",
                             #            ".csv"),
                             placeholder = "Choose one or more files to begin"),
-                  # uiOutput("fileNameUI"),
                   
                   # Select file schema
                   uiOutput("schemaUI"),
@@ -315,10 +306,6 @@ ui <- dashboardPage(
                   height = "375px",
                   title = "Metadata: Fill values here that apply to all files",
                   status = "info", solidHeader = TRUE, collapsible = FALSE,
-                  # selectizeInput('x1', 'X1', choices = list(
-                  #   Eastern = c(`New York` = 'NY', `New Jersey` = 'NJ'),
-                  #   Western = c(`California` = 'CA', `Washington` = 'WA')
-                  # ), multiple = TRUE)
                   h6(tags$b("Location:"), "Select a standard site or fill latitude/longitude."),
                   fluidRow(column(4, selectizeInput("allSite", "Site", 
                                                     choices = list(New = c("No name" = "No name"),
@@ -387,8 +374,7 @@ ui <- dashboardPage(
                                        choices = c("1", "2", "3"), selected = c("1", "2"), multiple = T),
                            
                            h4("Upload status:"),
-                           # htmlOutput("uploadText"),
-                           # tableOutput("uploadText"),
+                           shinyWidgets::prettyCheckbox("embargo", "Emargo data"),
                            uiOutput("uploadButton")
                            ),
                 ),
@@ -489,12 +475,6 @@ ui <- dashboardPage(
                            title = "Time series of selected data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
-                             # column(2,
-                             #        dropdownButton(
-                             #          h4("Axis controls:"),
-                             #          uiOutput("plotXUIDL"),
-                             #          uiOutput("plotYUIDL")),
-                             #        circle = TRUE, status = "danger", icon = icon("gear")),
                              column(2, h4("Axis controls:")),
                              column(4, uiOutput("plotXUIDL")),
                              column(4, uiOutput("plotYUIDL")),
@@ -503,10 +483,6 @@ ui <- dashboardPage(
                            # height = "400px", 
                            title = "Map of selected data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                           # h4("Location of data"),
-                           # h5("Red border = no lon/lat"),
-                           # h5("Yellow border = lon/lat not in the fjord region"),
-                           # h5("Green border = lon/lat within fjord region")#,
                            plotOutput("mapDL", height = "330px"))
                 )
               )
@@ -556,6 +532,8 @@ ui <- dashboardPage(
                          tags$li("The data will be published together with the other data from that year with all data providers and/or data owners as coauthors [yet to be determined]."),
                          tags$li("The order of the author list will be dictated by the number of provided datasets [yet to be determined].")
                          ),
+                       h3(tags$b("Download the full user manual")),
+                       downloadButton("manFile", "Kong_portal_manual.docx"),
                        h3(tags$b("Acknowledgments")),
                        p("This portal was created out of the Kongsfjorden System Flagship, 
                          and developed by Robert Schlegel as a part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
@@ -593,14 +571,6 @@ server <- function(input, output, session) {
 
   ## Load server -------------------------------------------------------------
 
-  # Text output of uploaded file name
-  # output$fileNameUI <- renderUI({
-  #   req(input$file1)
-  #   # print(input$file1$name)
-  #   print(upload_opts$sep, upload_opts$skip, 
-  #         upload_opts$dec, upload_opts$encoding)
-  # })
-  
   # Reactive category filters
   upload_opts <- reactiveValues(schema = "None",
                                 header = TRUE,
@@ -910,10 +880,6 @@ server <- function(input, output, session) {
 
   ## Meta server -------------------------------------------------------------
 
-  ## NB: date_time is currently created automagically in the load step
-  ## For future iterations of the app I should created a red/green light that shows if date_time has been created
-  ## And that must be accompanied by a red light = shown (green light = hidden) UI that allows users to create date_time
-  
   # Create dataframe of file temp names and their metadata taken from the file headers
   file_meta_all <- reactive({
     req(input$file1)
@@ -1285,7 +1251,6 @@ server <- function(input, output, session) {
   # Filter data
   ## Subset by data uploaders
   output$selectUpUI <- renderUI({
-    # req(input$selectSite)
     selectizeInput('selectUp', 'Data uploader',
                    choices = unique(df_data_base()$Uploader), multiple = T,
                    selected = unique(df_data_base()$Uploader)#,
@@ -1475,6 +1440,15 @@ server <- function(input, output, session) {
       }
     }
   )
+  
+  # Download manual from about section
+  output$manFile <- downloadHandler(
+    filename = "Kong_portal_manual.docx",  # desired file name on client 
+    content = function(con) {
+      file.copy("www/Kong_CTD_portal_manual.docx", con)
+    }
+  )
+  
   
 
   ## Instructions ------------------------------------------------------------
