@@ -373,8 +373,10 @@ ui <- dashboardPage(
                            selectInput("qc_flag_filter", label = "Filter QC flag", 
                                        choices = c("1", "2", "3"), selected = c("1", "2"), multiple = T),
                            
+                           h4("Embargo data?"),
+                           shinyWidgets::prettyCheckbox("embargo", "yes"),
+                           
                            h4("Upload status:"),
-                           shinyWidgets::prettyCheckbox("embargo", "Emargo data"),
                            uiOutput("uploadButton")
                            ),
                 ),
@@ -391,7 +393,7 @@ ui <- dashboardPage(
                        
                        box(width = 12, 
                            # height = "450px", 
-                           title = "Data to upload: QC flags and missing meta-data",
+                           title = "QC flags and missing meta-data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            h6(tags$b("Flags:"), "0 = no problem, 1 = impossible value, 2 = above surface, 3 = upcast"),
                            DT::dataTableOutput("metaCheck")
@@ -399,7 +401,7 @@ ui <- dashboardPage(
                        
                        box(width = 12, 
                            # height = "400px", 
-                           title = "Summary of data in Database",
+                           title = "Meta-database",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBase")
                            ),
@@ -1151,6 +1153,8 @@ server <- function(input, output, session) {
   # Check that all necessary meta-data has been provided
   df_meta_check <- reactive({
     req(input$file1, table$table1$file_name, df_final())
+    
+    # The rest
     df_meta_check <- df_final() %>% 
       dplyr::select(file_name, Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Lon, Lat) %>% 
       mutate(Owner_person = case_when(is.na(Owner_person) ~ 1, TRUE ~ 0),
@@ -1163,7 +1167,10 @@ server <- function(input, output, session) {
              Lon = case_when(is.na(Lon) ~ 1, TRUE ~ 0),
              Lat = case_when(is.na(Lat) ~ 1, TRUE ~ 0)) %>% 
       group_by(file_name) %>%
-      summarise_all(sum)
+      summarise_all(sum) %>% 
+      ungroup()
+
+      # Exit
     return(df_meta_check)
   })
   
@@ -1179,10 +1186,10 @@ server <- function(input, output, session) {
     }
   })
   
-  # When the Upload button is clicked, save df_time()
+  # When the Upload button is clicked, save df_final()
   observeEvent(input$upload, {
     # saveData(df_time())
-    df_res <- bind_rows(df_time(), data_base$df) %>% distinct()
+    df_res <- bind_rows(df_final(), data_base$df) %>% distinct()
     write_rds(df_res, file = "data/data_base.Rds", compress = "gz")
     # drop_upload(write_rds(df_res, file = "data_base.Rds", compress = "gz"), path = "KongCTD")
     # drop_upload('data_base.Rds', path = "KongCTD")
@@ -1196,17 +1203,24 @@ server <- function(input, output, session) {
     return(df_data_base)
   })
   
-  # Provide message for missing meta-data
+  # Create table for missing meta-data and QC flags
   output$metaCheck <- DT::renderDataTable({
     req(input$file1, table$table1, df_meta_check())
-    df_meta_check <- df_meta_check()
+    
+    # Embargo info
+    embargo <- "No"
+    if(input$embargo) embargo <- as.character(Sys.Date()+730)
+    
     df_QC_flags <- df_QC_flags()
-    df_meta <- left_join(df_QC_flags, df_meta_check, by = "file_name")
+    df_meta_check <- df_meta_check()
+    df_meta <- left_join(df_QC_flags, df_meta_check, by = "file_name") %>% 
+      mutate(embargo = embargo) %>% 
+      dplyr::select(file_name, embargo, everything())
     meta_group_cols <- htmltools::withTags(table(
       class = 'display',
       thead(
         # Define the grouping of your df
-        tr(th(colspan = 2, 'Files'),
+        tr(th(colspan = 3, 'Files'),
           th(colspan = 4, 'QC flags'),
           th(colspan = 7, 'Meta-data')),
         # Repeat column names 8 times
@@ -1223,12 +1237,13 @@ server <- function(input, output, session) {
     # The datatable
     df_meta_DT <- datatable(df_meta, 
                             container = meta_group_cols, rownames = F,
-                            options = list(pageLength = 10, scrollX = TRUE, scrollY = 250,
+                            options = list(pageLength = 10, scrollX = TRUE, scrollY = 150,
                                            headerCallback = JS(headjs)))
     return(df_meta_DT)
   })
   
   # Show the uploaded data
+  ## NB: Not currently used
   output$uploadedDT <- DT::renderDataTable({
     req(input$file1, table$table1)
     df_final <- df_final()
@@ -1241,7 +1256,7 @@ server <- function(input, output, session) {
     df_db_summary <- df_data_base() %>% 
       group_by(Uploader, upload_date, Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, Site) %>% 
       summarise(rows = n(), .groups = "drop")
-    data_base_DT <- datatable(df_db_summary, options = list(pageLength = 10, scrollX = TRUE, scrollY = 200))
+    data_base_DT <- datatable(df_db_summary, options = list(pageLength = 10, scrollX = TRUE, scrollY = 300))
     return(data_base_DT)
   })
   
