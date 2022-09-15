@@ -19,6 +19,7 @@ data/sst_trom.RData
 data/sst_CCI_trom.RData
 shiny/test_data
 shiny/kongCTD/data/data_base.Rds
+shiny/kongCTD/data/meta_data_base.Rds
 shiny/dataAccess/full_data
 data/analyses/ice_4km_proc.RData
 data/analyses/clean_all.RData

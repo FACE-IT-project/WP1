@@ -453,8 +453,12 @@ ui <- dashboardPage(
                            ## Sensor owner
                            uiOutput("selectSOUI"),
                            
-                           ## QC flags
-                           uiOutput("selectQCUI"),
+                           fluidRow(
+                             ## QC flags
+                             column(uiOutput("selectQCUI"), width = 6),
+                             ## Embargo data
+                             column(uiOutput("selectEmUI"), width = 6)
+                           ),
                            
                            ### Lon
                            uiOutput("slideLonUI"),
@@ -491,7 +495,7 @@ ui <- dashboardPage(
                              column(2, h4("Axis controls:")),
                              column(4, uiOutput("plotXUIDL")),
                              column(4, uiOutput("plotYUIDL"))),
-                             h6("Red dots show embargoed data"),
+                             # h6("Red dots show embargoed data"),
                              column(12, plotOutput("tsPlot", height = "250px"))),
                        box(width = 5, 
                            # height = "400px", 
@@ -1336,8 +1340,8 @@ server <- function(input, output, session) {
   ## Subset by data uploaders
   output$selectUpUI <- renderUI({
     selectizeInput('selectUp', 'Data uploader',
-                   choices = unique(df_data_base()$Uploader), multiple = T,
-                   selected = unique(df_data_base()$Uploader)#,
+                   choices = unique(df_meta_data_base()$Uploader), multiple = T,
+                   selected = unique(df_meta_data_base()$Uploader)#,
                    # NB: If one wants to start with no values selected
                    # options = list(
                    #   placeholder = 'Select data uploader(s)',
@@ -1349,8 +1353,8 @@ server <- function(input, output, session) {
   ## Subset by data owners (person)
   output$selectDOPUI <- renderUI({
     selectizeInput('selectDOP', 'Data owner (person)',
-      choices = unique(df_data_base()$Owner_person), multiple = T,
-      selected = unique(df_data_base()$Owner_person))
+      choices = unique(df_meta_data_base()$Owner_person), multiple = T,
+      selected = unique(df_meta_data_base()$Owner_person))
   })
   
   ## Subset by data owners (institute) # NB: Not needed
@@ -1363,28 +1367,37 @@ server <- function(input, output, session) {
   ## Subset by sensor owner
   output$selectSOUI <- renderUI({
     selectizeInput('selectSO', 'Sensor owner',
-      choices = unique(df_data_base()$Sensor_owner), multiple = T,
-      selected = unique(df_data_base()$Sensor_owner))
+      choices = unique(df_meta_data_base()$Sensor_owner), multiple = T,
+      selected = unique(df_meta_data_base()$Sensor_owner))
   })
   
   ## Subset by QC flags
   output$selectQCUI <- renderUI({
-    selectizeInput('selectQC', 'Filter out QC flag',
+    selectizeInput('selectQC', 'Remove flag(s)',
                    choices = seq(1, 3, 1), multiple = T,
                    selected = c(1, 2))
+  })
+  
+  ## Completely remove embargoed data
+  output$selectEmUI <- renderUI({
+    selectizeInput('selectEm', 'Remove embargoed',
+                   choices = c("Yes", "No"), multiple = F,
+                   selected = "No")
   })
   
   ## Lon
   output$slideLonUI <- renderUI({
     # req(input$selectVar)
-    min_lon <- floor_dec(min(as.numeric(df_data_base()$Lon), na.rm = T), 2); max_lon <- ceiling_dec(max(df_data_base()$Lon), 2)
+    min_lon <- floor_dec(min(as.numeric(df_meta_data_base()$Lon), na.rm = T), 2)
+    max_lon <- ceiling_dec(max(as.numeric(df_meta_data_base()$Lon), na.rm = T), 2)
     shiny::sliderInput("slideLon", "Longitude range", value = c(min_lon, max_lon), min = min_lon, max = max_lon)
   })
   
   # Lat
   output$slideLatUI <- renderUI({
     # req(input$selectVar)
-    min_lat <- floor_dec(min(as.numeric(df_data_base()$Lat), na.rm = T), 2); max_lat <- ceiling_dec(max(df_data_base()$Lat), 2)
+    min_lat <- floor_dec(min(as.numeric(df_meta_data_base()$Lat), na.rm = T), 2)
+    max_lat <- ceiling_dec(max(as.numeric(df_meta_data_base()$Lat), na.rm = T), 2)
     shiny::sliderInput("slideLat", "Latitude range", value = c(min_lat, max_lat), min = min_lat, max = max_lat)
   })
   
@@ -1398,26 +1411,32 @@ server <- function(input, output, session) {
   # Date
   output$slideDateUI <- renderUI({
     # req(input$selectVar)
-    shiny::sliderInput("slideDate", "Date range", value = range(as.Date(df_data_base()$date_time), na.rm = T),
-                       min = min(as.Date(df_data_base()$date_time), na.rm = T), max = max(as.Date(df_data_base()$date_time), na.rm = T))
+    shiny::sliderInput("slideDate", "Date range", 
+                       value = range(as.Date(df_data_base()$date_time), na.rm = T),
+                       min = min(as.Date(df_data_base()$date_time), na.rm = T), 
+                       max = max(as.Date(df_data_base()$date_time), na.rm = T))
   })
   
   # Reactive download type button
   output$downloadFilterTypeUI <- renderUI({
     # req(input$selectVar)
-    radioButtons("downloadFilterType", "File type", choices = c(".csv", ".Rds"), 
+    radioButtons("downloadFilterType", "File type", 
+                 choices = c(".csv", ".Rds"), 
                  selected = ".csv", inline = T)
   })
   
   # Filter by smaller details 
   df_filter <- reactive({
-    # req(input$selectSite)
+    # req(input$selectEm)
     if(length(input$selectDOP) == 0){
-      df_filter <- data.frame(Empty = "Please expand your search in the blue 'Controls' panel on the left.")
+      df_filter <- data.frame(Empty = "Please expand your search in the blue 'Controls' panel to the left.")
     } else if(length(input$selectDOP) > 0){
       req(input$slideLon)
       df_filter <- df_data_base() %>%
         left_join(df_meta_data_base()) %>% # Let it sort itself out, by = "file_name") %>%  # NB
+        dplyr::select(Uploader, upload_date, file_name, embargo, total_rows, `0`, `1`, `2`, `3`,
+                      Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, 
+                      Site, Lon, Lat, everything(), -Data_owner) %>% 
         filter(Uploader %in% input$selectUp,
                Owner_person %in% input$selectDOP,
                # Owner_institute %in% input$selectDOIn, # NB: Not needed
@@ -1427,6 +1446,9 @@ server <- function(input, output, session) {
                Lat >= input$slideLat[1], Lat <= input$slideLat[2],
                Depth >= input$slideDepth[1], Depth <= input$slideDepth[2],
                date_time >= as.POSIXct(input$slideDate[1]-1), date_time <= as.POSIXct(input$slideDate[2]+1))
+      if(input$selectEm == "Yes"){
+        df_filter <- filter(df_filter, embargo == "No")
+      }
     } else {
       df_filter <- data.frame(warning = "Something has gone wrong :(")
     }
@@ -1435,9 +1457,8 @@ server <- function(input, output, session) {
   
   # Show the filtered database
   output$dataBaseFilter <- DT::renderDataTable({
-    # df_embargo <- df_filter() %>% # Currently allowing emargoed data to be viewed
-    #   filter(embargo == "No")
-    data_base_filter_DT <- datatable(df_filter(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
+    data_base_filter_DT <- datatable(df_filter(), rownames = F, 
+                                     options = list(pageLength = 100, scrollX = TRUE, scrollY = 250))
     return(data_base_filter_DT)
   })
   
@@ -1462,18 +1483,20 @@ server <- function(input, output, session) {
     req(input$plotXDL)
 
     df_filter <- df_filter()
-    
-    df_embargoed <- df_filter %>% 
-      filter(embargo != "No")
-    
+
     if(nrow(df_filter) == 1){
       ts <- ggplot() + geom_blank()
     } else{
       ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
         geom_point() + #geom_line() +
-        geom_point(data = df_embargoed, colour = "red") +
         theme(panel.border = element_rect(colour = "black", size = 1, fill = NA))
     }
+    
+    if(input$selectEm == "No"){
+      df_embargoed <- df_filter %>% filter(embargo != "No")
+      ts <- ts + geom_point(data = df_embargoed, colour = "red")
+    }
+    
     return(ts)
   })
   
@@ -1522,7 +1545,6 @@ server <- function(input, output, session) {
   
   # Reactive download button
   output$downloadFilterUI <- renderUI({
-    # req(input$selectVar)
     downloadButton("downloadFilter", "Download data")
   })
   
@@ -1532,12 +1554,19 @@ server <- function(input, output, session) {
       paste0("Kong_CTD_data",input$downloadFilterType[1])
     },
     content <- function(file) {
-      df_embargo <- df_filter() %>%
+      df_filter <- df_filter()
+      df_embargo <- df_filter %>%
         filter(embargo == "No")
+      df_note <- df_filter %>%
+        filter(embargo != "No") %>% 
+        dplyr::select(Uploader, upload_date, file_name, embargo, total_rows, `0`, `1`, `2`, `3`,
+                      Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, 
+                      Site, Lon, Lat) %>% unique()
+      df_em_note <- bind_rows(df_note, df_embargo)
       if(input$downloadFilterType == ".Rds"){
-        saveRDS(df_embargo, file = file)
+        saveRDS(df_em_note, file = file)
       } else if(input$downloadFilterType == ".csv"){
-        readr::write_csv(df_embargo, file)
+        readr::write_csv(df_em_note, file)
       }
     }
   )
