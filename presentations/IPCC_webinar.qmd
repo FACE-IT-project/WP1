@@ -27,4 +27,8 @@ So it would be good for you to refer to the latest IPCC report and how your work
   -   Network plot
   -   Make a fully documented interactive plot
   
+  ## Notes
+  
+  -   Arctic warming faster than almost anywhere
+  
   
