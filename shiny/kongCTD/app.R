@@ -447,11 +447,14 @@ ui <- dashboardPage(
                            ## Data owner (person)
                            uiOutput("selectDOPUI"),
                            
-                           ## Data owner (institute)
-                           uiOutput("selectDOInUI"),
+                           ## Data owner (institute) # Not needed
+                           # uiOutput("selectDOInUI"),
                            
                            ## Sensor owner
                            uiOutput("selectSOUI"),
+                           
+                           ## QC flags
+                           uiOutput("selectQCUI"),
                            
                            ### Lon
                            uiOutput("slideLonUI"),
@@ -487,8 +490,9 @@ ui <- dashboardPage(
                            fluidRow(
                              column(2, h4("Axis controls:")),
                              column(4, uiOutput("plotXUIDL")),
-                             column(4, uiOutput("plotYUIDL")),
-                             column(12, plotOutput("tsPlot", height = "250px")))),
+                             column(4, uiOutput("plotYUIDL"))),
+                             h6("Red dots show embargoed data"),
+                             column(12, plotOutput("tsPlot", height = "250px"))),
                        box(width = 5, 
                            # height = "400px", 
                            title = "Map of selected data",
@@ -1349,18 +1353,25 @@ server <- function(input, output, session) {
       selected = unique(df_data_base()$Owner_person))
   })
   
-  ## Subset by data owners (person)
-  output$selectDOInUI <- renderUI({
-    selectizeInput('selectDOIn', 'Data owner (institute)',
-                   choices = unique(df_data_base()$Owner_institute), multiple = T,
-                   selected = unique(df_data_base()$Owner_institute))
-  })
+  ## Subset by data owners (institute) # NB: Not needed
+  # output$selectDOInUI <- renderUI({
+  #   selectizeInput('selectDOIn', 'Data owner (institute)',
+  #                  choices = unique(df_data_base()$Owner_institute), multiple = T,
+  #                  selected = unique(df_data_base()$Owner_institute))
+  # })
   
   ## Subset by sensor owner
   output$selectSOUI <- renderUI({
     selectizeInput('selectSO', 'Sensor owner',
       choices = unique(df_data_base()$Sensor_owner), multiple = T,
       selected = unique(df_data_base()$Sensor_owner))
+  })
+  
+  ## Subset by QC flags
+  output$selectQCUI <- renderUI({
+    selectizeInput('selectQC', 'Filter out QC flag',
+                   choices = seq(1, 3, 1), multiple = T,
+                   selected = c(1, 2))
   })
   
   ## Lon
@@ -1406,9 +1417,11 @@ server <- function(input, output, session) {
     } else if(length(input$selectDOP) > 0){
       req(input$slideLon)
       df_filter <- df_data_base() %>%
+        left_join(df_meta_data_base()) %>% # Let it sort itself out, by = "file_name") %>%  # NB
         filter(Uploader %in% input$selectUp,
                Owner_person %in% input$selectDOP,
-               Owner_institute %in% input$selectDOIn,
+               # Owner_institute %in% input$selectDOIn, # NB: Not needed
+               !flag %in% input$selectQC,
                Sensor_owner %in% input$selectSO,
                Lon >= input$slideLon[1], Lon <= input$slideLon[2],
                Lat >= input$slideLat[1], Lat <= input$slideLat[2],
@@ -1422,6 +1435,8 @@ server <- function(input, output, session) {
   
   # Show the filtered database
   output$dataBaseFilter <- DT::renderDataTable({
+    # df_embargo <- df_filter() %>% # Currently allowing emargoed data to be viewed
+    #   filter(embargo == "No")
     data_base_filter_DT <- datatable(df_filter(), options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
     return(data_base_filter_DT)
   })
@@ -1448,11 +1463,15 @@ server <- function(input, output, session) {
 
     df_filter <- df_filter()
     
+    df_embargoed <- df_filter %>% 
+      filter(embargo != "No")
+    
     if(nrow(df_filter) == 1){
       ts <- ggplot() + geom_blank()
     } else{
       ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
         geom_point() + #geom_line() +
+        geom_point(data = df_embargoed, colour = "red") +
         theme(panel.border = element_rect(colour = "black", size = 1, fill = NA))
     }
     return(ts)
@@ -1513,10 +1532,12 @@ server <- function(input, output, session) {
       paste0("Kong_CTD_data",input$downloadFilterType[1])
     },
     content <- function(file) {
+      df_embargo <- df_filter() %>%
+        filter(embargo == "No")
       if(input$downloadFilterType == ".Rds"){
-        saveRDS(df_filter(), file = file)
+        saveRDS(df_embargo, file = file)
       } else if(input$downloadFilterType == ".csv"){
-        readr::write_csv(df_filter(), file)
+        readr::write_csv(df_embargo, file)
       }
     }
   )
