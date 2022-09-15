@@ -57,7 +57,8 @@
 
 ## Next steps
 # Give demo at flagship meeting on Sep 27 at 11:30
-  
+# Somehow create an edit date log for whenever a user editsdata
+
 
 # Libraries ---------------------------------------------------------------
 
@@ -287,7 +288,7 @@ ui <- dashboardPage(
                   # height = "850px", 
                   title = "QC flag report",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                  h6(tags$b("Flags:"), "0 = no problem, 1 = impossible value, 2 = above surface, 3 = upcast"),
+                  h6(tags$b("Flags:"), "0 = no problem, 1 = implausible value, 2 = above surface, 3 = upcast"),
                   DT::dataTableOutput("contents_load_QC"))
       ),
       
@@ -361,14 +362,15 @@ ui <- dashboardPage(
 
                        box(width = 12, 
                            # height = "400px", 
-                           title = "Controls",
+                           title = "Final steps",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
 
-                           h4("Remove data with QC flags?"),
-                           selectInput("qc_flag_filter", label = "Filter QC flag", 
+                           h4("Remove data with the following QC flag(s)?"),
+                           selectInput("qc_flag_filter", label = "", 
                                        choices = c("1", "2", "3"), selected = c("1", "2"), multiple = T),
                            
-                           h4("Embargo data?"),
+                           h4("Embargo data for two years?"),
+                           h6("Data will not be published within two years from today."),
                            shinyWidgets::prettyCheckbox("embargo", "yes"),
                            
                            h4("Upload status:"),
@@ -379,24 +381,24 @@ ui <- dashboardPage(
                 # The data display
                 column(8,
                        
-                       box(width = 12,
-                           # height = "450px",
-                           title = "Preview of data to be uploaded",
-                           status = "success", solidHeader = TRUE, collapsible = FALSE,
-                           DT::dataTableOutput("uploadedDT")
-                           ),
+                       # box(width = 12,
+                       #     # height = "450px",
+                       #     title = "Preview of data to be uploaded",
+                       #     status = "success", solidHeader = TRUE, collapsible = FALSE,
+                       #     DT::dataTableOutput("uploadedDT")
+                       #     ),
                        
                        box(width = 12, 
                            # height = "450px", 
-                           title = "QC flags and missing meta-data",
+                           title = "QC flags and missing meta-data in data to be uploaded",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                           h6(tags$b("Flags:"), "0 = no problem, 1 = impossible value, 2 = above surface, 3 = upcast"),
+                           h6(tags$b("Flags:"), "0 = no problem, 1 = implausible value, 2 = above surface, 3 = upcast"),
                            DT::dataTableOutput("metaCheck")
                        ),
                        
                        box(width = 12, 
                            # height = "400px", 
-                           title = "Meta-database",
+                           title = "Meta-data for full database",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("metaDataBase")
                            ),
@@ -499,6 +501,7 @@ ui <- dashboardPage(
       
       ## App explanation ---------------------------------------------------------
       
+      # TODO: Add text saying what the implausible value ranges are.
       tabItem(tabName = "about", 
               fluidPage(
                 column(12,
@@ -822,7 +825,7 @@ server <- function(input, output, session) {
       }
       
       # Flag data
-      ## Flags: 0 = none, 1 = impossible, 2 = surface, 3 = upcast
+      ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
       df_flag <- df
       df_flag$flag <- 0
       if("Temperature" %in% colnames(df_flag)) 
@@ -1220,7 +1223,7 @@ server <- function(input, output, session) {
         # Define the grouping of the df
         tr(th(colspan = 3, 'Files'),
           th(colspan = 4, 'QC flags'),
-          th(colspan = 7, 'Meta-data')),
+          th(colspan = 7, 'Missing meta-data')),
         # Repeat column names
         tr(lapply(colnames(df_meta), th)))
     ))
@@ -1319,6 +1322,12 @@ server <- function(input, output, session) {
   
   ## Download server --------------------------------------------------------
 
+  # TODO: Add ability to filter by QC flags
+  # Also prevent users from downloading embargoed raw data, but still allow downloading meta-data
+  # SO filter on the full data, but only show unemargoed data in the table, TS, and map
+  # Rather merge all of the meta-data into the raw data and provide one full file for download
+  # Don't need Data owner (institute) filter
+  
   # Filter data
   ## Subset by data uploaders
   output$selectUpUI <- renderUI({
