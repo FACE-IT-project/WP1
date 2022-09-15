@@ -509,7 +509,6 @@ ui <- dashboardPage(
       
       ## App explanation ---------------------------------------------------------
       
-      # TODO: Add text saying what the implausible value ranges are.
       tabItem(tabName = "about", 
               fluidPage(
                 column(12,
@@ -535,10 +534,28 @@ ui <- dashboardPage(
                        #   tags$li("If you want to upload data from different stations in one go, make sure you have the lat long data for each profile available (you can copy past that data into the app)."),
                        #   tags$li("In one upload session, only files from the same device brand and data structure can be uploaded."),
                        # ),
+                       h3(tags$b("Quality control (QC) flags")),
+                       p("No data are removed during the upload process, but suspicious data are flagged and the user 
+                         is encouraged to remove flags 1 and 2. The QC flags are:"),
+                       tags$ul(
+                         tags$li("0 = Everything appears correct"),
+                         tags$li("1 = The data value is implausabile for the given variable"),
+                         tags$li("2 = The data are not underwater"),
+                         tags$li("3 = The data are from the upcast of the CTD sample"),
+                       ),
+                       p("The ranges for implausible data (QC flag 1) are:"),
+                       tags$ul(
+                         tags$li("Temperature: -1.8°C to 15°C"),
+                         tags$li("Salinity: 0 to 38"),
+                         tags$li("Chla: 0 to 50 µg L-1"),
+                         tags$li("Depth: 0 to 400 m"),
+                         tags$li("Turbidity: not yet implemented"),
+                       ),
                        h3(tags$b("Create user account")),
                        # tags$ul(
                          # tags$li(
-                           p("Please contact the administrator to have a new user account created. Provide them with your name and e-mail, as well as your desired username and password."
+                           p("Please contact the administrator to have a new user account created. 
+                             Provide them with your name and e-mail, as well as your desired username and password."
                        # )
                          ),
                        h3(tags$b("Data publishing")),
@@ -1139,11 +1156,6 @@ server <- function(input, output, session) {
   data_base <- reactiveValues()
   data_base$df <- read_rds("data/data_base.Rds")
   meta_data_base <- reactiveValues()
-  # meta_data_base$df <- data.frame(Uploader = NA, upload_date = NA, file_name = NA, total_rows = NA,
-  #                                 `0` = NA, `1` = NA, `2` = NA, `3` = NA, embargo = NA,
-  #                                 Owner_person = NA, Owner_institute = NA, DOI = NA, Sensor_owner = NA, 
-  #                                 Sensor_brand = NA, Sensor_number = NA, Site = NA, Lon = NA, Lat = NA)
-  # write_rds(df, "data/meta_data_base.Rds")
   meta_data_base$df <- read_rds("data/meta_data_base.Rds")
   
   # Final df filtered by QC flags
@@ -1295,8 +1307,12 @@ server <- function(input, output, session) {
   ## Edit server ------------------------------------------------------------
 
   df_meta_user <- reactive({
-    df_meta_user <- df_meta_data_base() %>% 
-      filter(Uploader == reactiveValuesToList(res_auth)[[1]])
+    if(reactiveValuesToList(res_auth)[[1]] == "r"){
+      df_meta_user <- df_meta_data_base()
+    } else {
+      df_meta_user <- df_meta_data_base() %>% 
+        filter(Uploader == reactiveValuesToList(res_auth)[[1]])
+    }
   })
 
   output$table2output <- renderRHandsontable({
@@ -1329,12 +1345,6 @@ server <- function(input, output, session) {
   
   
   ## Download server --------------------------------------------------------
-
-  # TODO: Add ability to filter by QC flags
-  # Also prevent users from downloading embargoed raw data, but still allow downloading meta-data
-  # SO filter on the full data, but only show unemargoed data in the table, TS, and map
-  # Rather merge all of the meta-data into the raw data and provide one full file for download
-  # Don't need Data owner (institute) filter
   
   # Filter data
   ## Subset by data uploaders
@@ -1433,7 +1443,9 @@ server <- function(input, output, session) {
     } else if(length(input$selectDOP) > 0){
       req(input$slideLon)
       df_filter <- df_data_base() %>%
-        left_join(df_meta_data_base()) %>% # Let it sort itself out, by = "file_name") %>%  # NB
+        left_join(df_meta_data_base(), 
+                  by = c("Uploader", "upload_date", "file_name", "Owner_person", "Owner_institute", "DOI", 
+                         "Sensor_owner", "Sensor_brand", "Sensor_number", "Site", "Lon", "Lat")) %>% 
         dplyr::select(Uploader, upload_date, file_name, embargo, total_rows, `0`, `1`, `2`, `3`,
                       Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, 
                       Site, Lon, Lat, everything(), -Data_owner) %>% 
