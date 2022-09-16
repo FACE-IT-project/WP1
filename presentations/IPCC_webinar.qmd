@@ -26,9 +26,32 @@ So it would be good for you to refer to the latest IPCC report and how your work
 -   How do all of these drivers relate
   -   Network plot
   -   Make a fully documented interactive plot
+
+## Fjord definition
+
   
-  ## Notes
-  
-  -   Arctic warming faster than almost anywhere
-  
-  
+## Notes
+
+-   AR6 WP1 C9 (Ocean, Crosphere and Sea Level Change) quotes:
+-   "The Atlantic Meridional Overturning Circulation (AMOC) will very likely decline over the 21st century for all SSP scenarios. There is medium confidence that the decline will not involve an abrupt collapse before 2100."
+-   "permafrost volume in the top 3 m will decrease by up to 90% compared to 1995–2014 [3 to 5°C warming]"
+-   "Most CMIP6 models do not capture the observed spatial distribution of sea ice thickness realistically"
+
+-   AR6 WP2 CCP6 (Polar regions) quotes:
+-   Arctic warming faster than almost anywhere
+-   "Arctic permafrost thaw is projected to impact most infrastructure by the middle of this century, impacting millions of people and their economies, and costing billions in damages (high confidence)."
+-   "Adaptations to manage climate change impacts and risks in polar regions are urgently needed (very high confidence), but implementation is uneven (high confidence), limits to adaptation are high and maladaptation is probable (high confidence).
+- "Polar zones will continue to contract and diminish in extent under climate change, and local adaptations will be insufficient to achieve long-term resilience of polar systems (medium confidence). 
+-   "Reactive management strategies will not succeed in reducing risks in polar regions given the rapid change and increasing potential for extreme events (high confidence)."
+- "These changes are causing a suite of direct and cascading risks for all polar ecosystems with larger effects to date in the Arctic than the Antarctic (high confidence), due to larger and regionally more consistent physical change."
+
+## Ideas
+
+-   Animate blobs that show the categories as they are introduced
+  -   Categories then drivers
+-   Could show just one slide per driver
+  -   Show a picture or a figure summarising the data
+-   Point out that the key differences between the Arctic broadly and fjords specifically are:
+  -   Glacier state: Marine vs land terminating
+  -   Potential decrease to light means the trend in PP and up is not the same as the open Arctic
+
