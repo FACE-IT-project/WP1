@@ -1,8 +1,19 @@
 ---
-title: "Primary drivers of change in EU Arctic fjord socio-ecological systems"
-format: revealjs
+# title: "Primary drivers of change in EU Arctic fjord socio-ecological systems"
+format: 
+  revealjs:
+    logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
 editor: visual
 ---
+
+# {background-color="#008980" style="text-align: center"}
+
 
 <!-- General info about talk -->
 <!-- Presentations are branded as “lightning talks” – so they need to be short and concise. 
@@ -12,27 +23,124 @@ So it would be good for you to refer to the latest IPCC report and how your work
 <!-- https://www.ipcc.ch/report/ar6/wg2/downloads/report/IPCC_AR6_WGII_CCP6.pdf -->
 <!-- Finally, if you are presenting work from ECOTIP and FACE-IT (which I assume is the case), please make sure to include the EU logo and the “financed under.. by grant #)” - we are expecting a lot of EU Commission staff on the webinar -->
 
-## Outline
+<!-- Primary drivers of change in EU Arctic fjord socio-ecological systems {.bigger} -->
+<!-- <span style="size:10">Primary drivers of change in EU Arctic fjord socio-ecological systems </span> -->
+<font size="24">Primary drivers of change in EU Arctic fjord socio-ecological systems</font>
+<br>
 
--   Categories of socio-ecological Arctic fjord systems
-  -   Drivers within those categories
-    -   Variables within those drivers
--   What data are available for all of these
-  -   Sites, dates, depths, etc. as reasonable/interesting
-  -   Show using barplots or something like that
-  -   Maybe need a map of the study sites
-  -   Could show total collected datasets and data points as bar plot with datasets going back out the negative x axis and data points along the positive axis. Then relabel everything accordingly.
-  -   If using plotly then rollover tool tips could be used in an intriguing way
--   How do all of these drivers relate
-  -   Network plot
-  -   Make a fully documented interactive plot
+</br>
 
-## Fjord definition
+::: columns
+::: {.column style="text-align: center"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width="450"}
+<br>
+<font size="18">Work package one (WP1)</font>
+:::
 
+::: {.column style="text-align: center"}
+<br>
+![](../logo/h2020.png){width="550"} 
+<br>
+<font size="18">Financed under grant #869154</font>
+:::
+:::
+
+<!-- ## Outline -->
+
+<!-- -   Categories of socio-ecological Arctic fjord systems -->
+<!--   -   Drivers within those categories -->
+<!--     -   Variables within those drivers -->
+<!-- -   The sign of change for each -->
+<!-- -   If using plotly then rollover tool tips could be used in an intriguing way -->
+<!-- -   How do all of these drivers relate -->
+<!--   -   Network plot -->
+<!--   -   Make a fully documented interactive plot -->
+
+## Why fjords? {background-image="kong_landscape.jpg" background-color="black"}
+
+::: {.fragment .fade-right}
+Important socio-ecological systems whose climate impacts may differ from broader Arctic
+:::
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+::: {.fragment .fade-left}
+<div style="text-align: right"> Range of fjords throughout the EU Arctic provide "natural laboratory" </div>
+:::
+
+
+## Why key drivers?
+
+
+## Categories of drivers
+
+<!-- Unmerge from central ball to background of each key point -->
+
+-   Cryosphere <span style="color:red">red</span>
+-   Physics
+-   Chemistry
+-   Biology
+-   Social
+
+## Cryosphere
+
+-   Sea ice
+-   Glacier mass balance
+-   Glacial + riverine discharge
+
+## Physics
+
+-   Seawater temperature
+-   Salinity
+-   Light
+
+## Chemistry
+
+-   Carbonate system
+-   Nutrients
+
+## Biology
+
+-   Primary production
+-   Biomass
+-   Species richness
+
+## Social
+
+-   Governance
+-   Tourism
+-   Fisheries
+
+## Interactions
+
+## 
+
+Thank you for listening!
+
+::: columns
+::: {.column style="text-align: center"}
+![](../logo/profile.jpeg){width="300"}
+<br>
+Robert Schlegel
+:::
+
+::: {.column style="text-align: center"}
+<br>
+![](../logo/Logo_Sorbonne University.png){width="500"} 
+<br>
+LOV, Sorbonne Université – CNRS, France
+:::
+:::
   
 ## Notes
 
--   AR6 WP1 C9 (Ocean, Crosphere and Sea Level Change) quotes:
+-   AR6 WP1 C9 (Ocean, Cryosphere and Sea Level Change) quotes:
 -   "The Atlantic Meridional Overturning Circulation (AMOC) will very likely decline over the 21st century for all SSP scenarios. There is medium confidence that the decline will not involve an abrupt collapse before 2100."
 -   "permafrost volume in the top 3 m will decrease by up to 90% compared to 1995–2014 [3 to 5°C warming]"
 -   "Most CMIP6 models do not capture the observed spatial distribution of sea ice thickness realistically"
@@ -44,6 +152,7 @@ So it would be good for you to refer to the latest IPCC report and how your work
 - "Polar zones will continue to contract and diminish in extent under climate change, and local adaptations will be insufficient to achieve long-term resilience of polar systems (medium confidence). 
 -   "Reactive management strategies will not succeed in reducing risks in polar regions given the rapid change and increasing potential for extreme events (high confidence)."
 - "These changes are causing a suite of direct and cascading risks for all polar ecosystems with larger effects to date in the Arctic than the Antarctic (high confidence), due to larger and regionally more consistent physical change."
+-   "By 2050, 69% of fundamental human infrastructure in the Arctic is projected to be at risk under an RCP4.5 scenario, including more than 1200 settlements and 36,000 buildings, leaving 4,000,000 people living in areas with high potential for thaw."
 
 ## Ideas
 
