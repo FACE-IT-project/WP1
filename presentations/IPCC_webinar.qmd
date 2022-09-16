@@ -2,7 +2,7 @@
 # title: "Primary drivers of change in EU Arctic fjord socio-ecological systems"
 format: 
   revealjs:
-    logo: ../logo/FACE-IT_Logo_900.png
+    # logo: ../logo/FACE-IT_Logo_900.png
     # slide-number: true
     # show-slide-number: print
     preview-links: true
@@ -59,7 +59,7 @@ So it would be good for you to refer to the latest IPCC report and how your work
 ## Why fjords? {background-image="kong_landscape.jpg" background-color="black"}
 
 ::: {.fragment .fade-right}
-Important socio-ecological systems whose climate impacts may differ from broader Arctic
+Important socio-ecological systems whose climate impacts may differ from IPCC AR6
 :::
 
 </br>
@@ -74,52 +74,204 @@ Important socio-ecological systems whose climate impacts may differ from broader
 <div style="text-align: right"> Range of fjords throughout the EU Arctic provide "natural laboratory" </div>
 :::
 
+## Socio-ecological systems? {auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg" visibility="uncounted"}
 
-## Why key drivers?
+::: {.r-stack}
+::: {data-id="box1" style="background: #F48080; width: 550px; height: 550px; border-radius: 200px;"}
+:::
 
+::: {data-id="box2" style="background: #A2ED84; width: 450px; height: 450px; border-radius: 200px;"}
+:::
 
-## Categories of drivers
+::: {data-id="box3" style="background: #F6EA7C; width: 350px; height: 350px; border-radius: 200px;"}
+:::
 
-<!-- Unmerge from central ball to background of each key point -->
+::: {data-id="box4" style="background: skyblue; width: 250px; height: 250px; border-radius: 200px;"}
+:::
 
--   Cryosphere <span style="color:red">red</span>
--   Physics
--   Chemistry
--   Biology
--   Social
+::: {data-id="box5" style="background: mintcream; width: 150px; height: 150px; border-radius: 200px;"}
+:::
+:::
+
+## Socio-ecological systems? {auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg" visibility="uncounted"}
+
+::: {.r-hstack}
+::: {data-id="box1" auto-animate-delay="0" style="background: #F48080; width: 400px; height: 100px; margin: 10px;" .absolute top="540" left="220"}
+:::
+
+::: {data-id="box2" auto-animate-delay="0.1" style="background: #A2ED84; width: 400px; height: 100px; margin: 10px;" .absolute top="430" left="170"}
+:::
+
+::: {data-id="box3" auto-animate-delay="0.2" style="background: #F6EA7C; width: 400px; height: 100px; margin: 10px;" .absolute top="320" left="120"}
+:::
+
+::: {data-id="box4" auto-animate-delay="0.2" style="background: skyblue; width: 400px; height: 100px; margin: 10px;" .absolute top="210" left="70"}
+:::
+
+::: {data-id="box5" auto-animate-delay="0.4" style="background: mintcream; width: 400px; height: 100px; margin: 10px;" .absolute top="100" left="20"}
+:::
+:::
+
+::: {.fragment .absolute top="125" left="100"}
+__Cryosphere__
+:::
+
+::: {.fragment .absolute top="235" left="190"}
+__Physics__
+:::
+
+::: {.fragment .absolute top="345" left="220"}
+__Chemistry__
+:::
+
+::: {.fragment .absolute top="455" left="290"}
+__Biology__
+:::
+
+::: {.fragment .absolute top="565" left="360"}
+__Social__
+:::
+
+<!-- ## Categories of drivers -->
+
+<!-- -   Cryosphere -->
+<!-- -   Physics -->
+<!-- -   Chemistry -->
+<!-- -   Biology -->
+<!-- -   Social -->
 
 ## Cryosphere
 
--   Sea ice
--   Glacier mass balance
--   Glacial + riverine discharge
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-blue}
+__Sea ice__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-blue}
+__Glacier mass balance__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Glacial + riverine discharge__
+:::
+:::
 
 ## Physics
 
--   Seawater temperature
--   Salinity
--   Light
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Seawater temperature__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-blue}
+__Salinity__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-green}
+__Light__
+:::
+:::
 
 ## Chemistry
 
--   Carbonate system
--   Nutrients
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Carbonate system__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Nutrients__
+:::
+:::
+
 
 ## Biology
 
--   Primary production
--   Biomass
--   Species richness
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Primary production__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Biomass__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-green}
+__Species richness__
+:::
+:::
 
 ## Social
 
--   Governance
--   Tourism
--   Fisheries
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-green}
+__Governance__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Tourism__
+:::
+:::
+
+<br>
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+__Fisheries__
+:::
+:::
+
+## State of knowledge
+
+-   LOV panel A
 
 ## Interactions
 
-## 
+-   LOV panel B
+
+## {background-color="#008980"}
 
 Thank you for listening!
 
@@ -138,29 +290,29 @@ LOV, Sorbonne Université – CNRS, France
 :::
 :::
   
-## Notes
+<!-- ## Notes -->
 
--   AR6 WP1 C9 (Ocean, Cryosphere and Sea Level Change) quotes:
--   "The Atlantic Meridional Overturning Circulation (AMOC) will very likely decline over the 21st century for all SSP scenarios. There is medium confidence that the decline will not involve an abrupt collapse before 2100."
--   "permafrost volume in the top 3 m will decrease by up to 90% compared to 1995–2014 [3 to 5°C warming]"
--   "Most CMIP6 models do not capture the observed spatial distribution of sea ice thickness realistically"
+<!-- -   AR6 WP1 C9 (Ocean, Cryosphere and Sea Level Change) quotes: -->
+<!-- -   "The Atlantic Meridional Overturning Circulation (AMOC) will very likely decline over the 21st century for all SSP scenarios. There is medium confidence that the decline will not involve an abrupt collapse before 2100." -->
+<!-- -   "permafrost volume in the top 3 m will decrease by up to 90% compared to 1995–2014 [3 to 5°C warming]" -->
+<!-- -   "Most CMIP6 models do not capture the observed spatial distribution of sea ice thickness realistically" -->
 
--   AR6 WP2 CCP6 (Polar regions) quotes:
--   Arctic warming faster than almost anywhere
--   "Arctic permafrost thaw is projected to impact most infrastructure by the middle of this century, impacting millions of people and their economies, and costing billions in damages (high confidence)."
--   "Adaptations to manage climate change impacts and risks in polar regions are urgently needed (very high confidence), but implementation is uneven (high confidence), limits to adaptation are high and maladaptation is probable (high confidence).
-- "Polar zones will continue to contract and diminish in extent under climate change, and local adaptations will be insufficient to achieve long-term resilience of polar systems (medium confidence). 
--   "Reactive management strategies will not succeed in reducing risks in polar regions given the rapid change and increasing potential for extreme events (high confidence)."
-- "These changes are causing a suite of direct and cascading risks for all polar ecosystems with larger effects to date in the Arctic than the Antarctic (high confidence), due to larger and regionally more consistent physical change."
--   "By 2050, 69% of fundamental human infrastructure in the Arctic is projected to be at risk under an RCP4.5 scenario, including more than 1200 settlements and 36,000 buildings, leaving 4,000,000 people living in areas with high potential for thaw."
+<!-- -   AR6 WP2 CCP6 (Polar regions) quotes: -->
+<!-- -   Arctic warming faster than almost anywhere -->
+<!-- -   "Arctic permafrost thaw is projected to impact most infrastructure by the middle of this century, impacting millions of people and their economies, and costing billions in damages (high confidence)." -->
+<!-- -   "Adaptations to manage climate change impacts and risks in polar regions are urgently needed (very high confidence), but implementation is uneven (high confidence), limits to adaptation are high and maladaptation is probable (high confidence). -->
+<!-- - "Polar zones will continue to contract and diminish in extent under climate change, and local adaptations will be insufficient to achieve long-term resilience of polar systems (medium confidence).  -->
+<!-- -   "Reactive management strategies will not succeed in reducing risks in polar regions given the rapid change and increasing potential for extreme events (high confidence)." -->
+<!-- - "These changes are causing a suite of direct and cascading risks for all polar ecosystems with larger effects to date in the Arctic than the Antarctic (high confidence), due to larger and regionally more consistent physical change." -->
+<!-- -   "By 2050, 69% of fundamental human infrastructure in the Arctic is projected to be at risk under an RCP4.5 scenario, including more than 1200 settlements and 36,000 buildings, leaving 4,000,000 people living in areas with high potential for thaw." -->
 
-## Ideas
+<!-- ## Ideas -->
 
--   Animate blobs that show the categories as they are introduced
-  -   Categories then drivers
--   Could show just one slide per driver
-  -   Show a picture or a figure summarising the data
--   Point out that the key differences between the Arctic broadly and fjords specifically are:
-  -   Glacier state: Marine vs land terminating
-  -   Potential decrease to light means the trend in PP and up is not the same as the open Arctic
+<!-- -   Animate blobs that show the categories as they are introduced -->
+<!--   -   Categories then drivers -->
+<!-- -   Could show just one slide per driver -->
+<!--   -   Show a picture or a figure summarising the data -->
+<!-- -   Point out that the key differences between the Arctic broadly and fjords specifically are: -->
+<!--   -   Glacier state: Marine vs land terminating -->
+<!--   -   Potential decrease to light means the trend in PP and up is not the same as the open Arctic -->
 
