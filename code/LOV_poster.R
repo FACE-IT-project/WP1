@@ -148,7 +148,7 @@ panel_a <- ggplot(panel_a_data, aes(x = data_points_log10, y = driver_num)) +
         # axis.text.y = element_text(angle = 45))
         axis.text.y = element_blank())
 # panel_a
-ggsave("~/Desktop/panel_a.png", panel_a, width = 14, height = 12)
+ggsave("figures/LOV_fig_1A.png", panel_a, width = 14, height = 12)
 
 
 # Panel B -----------------------------------------------------------------
@@ -202,7 +202,7 @@ panel_b <- ggraph(net, layout = "circle") +
         legend.background = element_rect(fill = "white", colour = "black"),
         legend.margin = margin(t = 10, r = 15, b = 10, l = 10, unit = "pt"))
 # panel_b
-ggsave("~/Desktop/panel_b.png", panel_b, width = 14, height = 12)
+ggsave("figures/LOV_fig_1B.png", panel_b, width = 14, height = 12)
 
 
 # Final -------------------------------------------------------------------
@@ -223,3 +223,221 @@ ggsave("figures/LOV_fig_1.png", fig_1, width = 28, height = 12)
 # via the coloured borders of the labelled circles. 
 # The impacts that the drivers have on each other are shown with coloured arrows.
 
+
+# Bits and pieces ---------------------------------------------------------
+
+# Cryosphere panel A
+kd_cryo <- filter(panel_a_data, category == "cryosphere") %>% 
+  ggplot(aes(x = data_points_log10, y = driver_num)) +
+  geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
+  geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+               colour = "black", size =  13) +
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+             shape = 21, size = 16, stroke = 0.8, show.legend = F) +
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+               size = 12, show.legend = F) +
+  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 2, label = category, fill = category),
+                angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
+                label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
+                label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
+  scale_y_continuous(limits = c(4, 0), trans = "reverse") +
+  scale_x_continuous(limits = c(-0.4, 6.8),
+                     breaks = seq(1, 6, 1),
+                     labels = c("10", "100", "1,000", "10,000", "100,000", "1,000,000"),
+                     expand = c(0, 0)) +
+  scale_colour_manual("Category", aesthetics = c("colour", "fill"),
+                      breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
+                      values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  labs(x = "Data points [log10]", y = NULL) +
+  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+        # axis.text.y = element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid = element_line(colour = "black"),
+        panel.grid.major.y = element_line(colour = NA),
+        panel.grid.minor.y = element_line(colour = NA),
+        panel.grid.minor.x = element_line(colour = NA),
+        panel.grid.major.x = element_line(colour = "black"),
+        panel.border = element_rect(colour = NA, fill = NA),
+        panel.background = element_rect(fill = NA, colour = NA),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 20),
+        axis.text = element_text(size = 18, colour = "black"),
+        # axis.text.y = element_text(angle = 45))
+        axis.text.y = element_blank())
+kd_cryo
+ggsave("presentations/kd_cryo.png", kd_cryo, height = 3, width = 12)
+
+# Physics panel A
+kd_phys <- filter(panel_a_data, category == "physics") %>% 
+  ggplot(aes(x = data_points_log10, y = driver_num)) +
+  geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
+  geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+               colour = "black", size =  13) +
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+             shape = 21, size = 16, stroke = 0.8, show.legend = F) +
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+               size = 12, show.legend = F) +
+  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 5, label = category, fill = category),
+                angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
+                label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
+                label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
+  scale_y_continuous(limits = c(7, 3), trans = "reverse") +
+  scale_x_continuous(limits = c(-0.4, 6.8),
+                     breaks = seq(1, 6, 1),
+                     labels = c("10", "100", "1,000", "10,000", "100,000", "1,000,000"),
+                     expand = c(0, 0)) +
+  scale_colour_manual("Category", aesthetics = c("colour", "fill"),
+                      breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
+                      values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  labs(x = "Data points [log10]", y = NULL) +
+  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+        # axis.text.y = element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid = element_line(colour = "black"),
+        panel.grid.major.y = element_line(colour = NA),
+        panel.grid.minor.y = element_line(colour = NA),
+        panel.grid.minor.x = element_line(colour = NA),
+        panel.grid.major.x = element_line(colour = "black"),
+        panel.border = element_rect(colour = NA, fill = NA),
+        panel.background = element_rect(fill = NA, colour = NA),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 20),
+        axis.text = element_text(size = 18, colour = "black"),
+        # axis.text.y = element_text(angle = 45))
+        axis.text.y = element_blank())
+kd_phys
+ggsave("presentations/kd_phys.png", kd_phys, height = 3, width = 12)
+
+# Chemistry panel A
+kd_chem <- filter(panel_a_data, category == "chemistry") %>% 
+  ggplot(aes(x = data_points_log10, y = driver_num)) +
+  geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
+  geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+               colour = "black", size =  13) +
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+             shape = 21, size = 16, stroke = 0.8, show.legend = F) +
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+               size = 12, show.legend = F) +
+  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 7.5, label = category, fill = category),
+                angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
+                label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
+                label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
+  scale_y_continuous(limits = c(9, 6), trans = "reverse") +
+  scale_x_continuous(limits = c(-0.4, 6.8),
+                     breaks = seq(1, 6, 1),
+                     labels = c("10", "100", "1,000", "10,000", "100,000", "1,000,000"),
+                     expand = c(0, 0)) +
+  scale_colour_manual("Category", aesthetics = c("colour", "fill"),
+                      breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
+                      values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  labs(x = "Data points [log10]", y = NULL) +
+  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+        # axis.text.y = element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid = element_line(colour = "black"),
+        panel.grid.major.y = element_line(colour = NA),
+        panel.grid.minor.y = element_line(colour = NA),
+        panel.grid.minor.x = element_line(colour = NA),
+        panel.grid.major.x = element_line(colour = "black"),
+        panel.border = element_rect(colour = NA, fill = NA),
+        panel.background = element_rect(fill = NA, colour = NA),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 20),
+        axis.text = element_text(size = 18, colour = "black"),
+        # axis.text.y = element_text(angle = 45))
+        axis.text.y = element_blank())
+kd_chem
+ggsave("presentations/kd_chem.png", kd_chem, height = 3, width = 12)
+
+# Biology panel A
+kd_bio <- filter(panel_a_data, category == "biology") %>% 
+  ggplot(aes(x = data_points_log10, y = driver_num)) +
+  geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
+  geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+               colour = "black", size =  13) +
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+             shape = 21, size = 16, stroke = 0.8, show.legend = F) +
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+               size = 12, show.legend = F) +
+  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 10, label = category, fill = category),
+                angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
+                label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
+                label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
+  scale_y_continuous(limits = c(12, 8), trans = "reverse") +
+  scale_x_continuous(limits = c(-0.4, 6.8),
+                     breaks = seq(1, 6, 1),
+                     labels = c("10", "100", "1,000", "10,000", "100,000", "1,000,000"),
+                     expand = c(0, 0)) +
+  scale_colour_manual("Category", aesthetics = c("colour", "fill"),
+                      breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
+                      values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  labs(x = "Data points [log10]", y = NULL) +
+  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+        # axis.text.y = element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid = element_line(colour = "black"),
+        panel.grid.major.y = element_line(colour = NA),
+        panel.grid.minor.y = element_line(colour = NA),
+        panel.grid.minor.x = element_line(colour = NA),
+        panel.grid.major.x = element_line(colour = "black"),
+        panel.border = element_rect(colour = NA, fill = NA),
+        panel.background = element_rect(fill = NA, colour = NA),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 20),
+        axis.text = element_text(size = 18, colour = "black"),
+        # axis.text.y = element_text(angle = 45))
+        axis.text.y = element_blank())
+kd_bio
+ggsave("presentations/kd_bio.png", kd_bio, height = 3, width = 12)
+
+# Social panel A
+kd_soc <- filter(panel_a_data, category == "social") %>% 
+  ggplot(aes(x = data_points_log10, y = driver_num)) +
+  geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
+  geom_segment(data = filter(panel_a_data, driver %in% c("tourism", "fisheries")),
+               aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+               colour = "black", size =  13) +
+  geom_point(data = filter(panel_a_data, driver %in% c("tourism", "fisheries")), 
+             aes(x = data_points_log10, y = driver_num, fill = category), 
+             shape = 21, size = 16, stroke = 0.8, show.legend = F) +
+  geom_segment(data = filter(panel_a_data, driver %in% c("tourism", "fisheries")),
+               aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+               size = 12, show.legend = F) +
+  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 13, label = category, fill = category),
+                angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
+                label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
+                label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
+  scale_y_continuous(limits = c(15, 11), trans = "reverse") +
+  scale_x_continuous(limits = c(-0.4, 6.8),
+                     breaks = seq(1, 6, 1),
+                     labels = c("10", "100", "1,000", "10,000", "100,000", "1,000,000"),
+                     expand = c(0, 0)) +
+  scale_colour_manual("Category", aesthetics = c("colour", "fill"),
+                      breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
+                      values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  labs(x = "Data points [log10]", y = NULL) +
+  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+        # axis.text.y = element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+        panel.grid = element_line(colour = "black"),
+        panel.grid.major.y = element_line(colour = NA),
+        panel.grid.minor.y = element_line(colour = NA),
+        panel.grid.minor.x = element_line(colour = NA),
+        panel.grid.major.x = element_line(colour = "black"),
+        panel.border = element_rect(colour = NA, fill = NA),
+        panel.background = element_rect(fill = NA, colour = NA),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 20),
+        axis.text = element_text(size = 18, colour = "black"),
+        # axis.text.y = element_text(angle = 45))
+        axis.text.y = element_blank())
+kd_soc
+ggsave("presentations/kd_soc.png", kd_soc, height = 3, width = 12)
+
+# Full panel A at a longer aspect ratio
+ggsave("presentations/kd_full.png", panel_a, height = 11, width = 12)

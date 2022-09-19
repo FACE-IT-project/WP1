@@ -92,7 +92,7 @@ Important socio-ecological systems whose climate impacts may differ from IPCC AR
 :::
 :::
 
-## Socio-ecological systems? {auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg" visibility="uncounted"}
+## Socio-ecological systems? {visibility="uncounted" auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg"}
 
 ::: {.r-hstack}
 ::: {data-id="box1" auto-animate-delay="0" style="background: #F48080; width: 400px; height: 100px; margin: 10px;" .absolute top="540" left="220"}
@@ -142,150 +142,41 @@ __Social__
 :::
 :::
 
-<!-- ## Categories of drivers -->
+## {background-color="#e5e5e5" transition="fade"}
 
-<!-- -   Cryosphere -->
-<!-- -   Physics -->
-<!-- -   Chemistry -->
-<!-- -   Biology -->
-<!-- -   Social -->
+![](kd_cryo.png){.absolute top="200" left="50"}
 
-## Cryosphere
+## {background-color="#e5e5e5" transition="fade"}
 
-<br>
+![](kd_phys.png){.absolute top="200" left="50"}
 
-::: {.fragment .fade-in}
-::: {.fragment .highlight-blue}
-__Sea ice__
-:::
-:::
+## {background-color="#e5e5e5" transition="fade"}
 
-<br>
+![](kd_chem.png){.absolute top="200" left="50"}
 
-::: {.fragment .fade-in}
-::: {.fragment .highlight-blue}
-__Glacier mass balance__
-:::
-:::
+## {background-color="#e5e5e5" transition="fade"}
 
-<br>
+![](kd_bio.png){.absolute top="200" left="50"}
 
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Glacial + riverine discharge__
-:::
-:::
+## {background-color="#e5e5e5" transition="fade"}
 
-## Physics
+![](kd_soc.png){.absolute top="200" left="50"}
 
-<br>
+## {background-color="#e5e5e5" transition="fade"}
 
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Seawater temperature__
-:::
-:::
+![](kd_full.png){.absolute top="0" left="100"}
 
-<br>
+## {background-color="#e5e5e5" transition="fade"}
 
-::: {.fragment .fade-in}
-::: {.fragment .highlight-blue}
-__Salinity__
-:::
-:::
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-green}
-__Light__
-:::
-:::
-
-## Chemistry
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Carbonate system__
-:::
-:::
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Nutrients__
-:::
-:::
-
-
-## Biology
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Primary production__
-:::
-:::
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Biomass__
-:::
-:::
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-green}
-__Species richness__
-:::
-:::
-
-## Social
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-green}
-__Governance__
-:::
-:::
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Tourism__
-:::
-:::
-
-<br>
-
-::: {.fragment .fade-in}
-::: {.fragment .highlight-red}
-__Fisheries__
-:::
-:::
-
-## State of knowledge
-
--   LOV panel A
-
-## Interactions
-
--   LOV panel B
+![](../figures/LOV_fig_1B.png){.absolute top="0" left="100"}
 
 ## Takeaway
 
+::: incremental
 -   As the planet warms the cryosphere will melt
 -   Removes one entire category of the socio-ecological system
 -   Will no longer be "Arctic"
+:::
 
 ## {background-color="#008980"}
 
