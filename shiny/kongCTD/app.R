@@ -153,11 +153,11 @@ frame_base <- ggplot() +
 
 # login credentials
 credentials <- data.frame(
-  user = c("r", "Allison", "Clara", "Anette", "Jean-Pierre", "Philipp", "shinymanager"), # mandatory
-  password = c("r", "R", "R", "R", "Antibes", "Argo", "12345"), # mandatory
+  user = c("r", "Allison", "Clara", "Anette", "Marine", "Jean-Pierre", "Philipp", "shinymanager"), # mandatory
+  password = c("r", "R", "R", "R", "kb", "Antibes", "Argo", "12345"), # mandatory
   start = c("2019-04-15"), # optional (all others)
-  expire = c(NA, NA, NA, NA, NA, NA, "2023-12-31"),
-  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
+  expire = c(NA, NA, NA, NA, NA, NA, NA, "2023-12-31"),
+  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
