@@ -121,7 +121,8 @@ panel_a <- ggplot(panel_a_data, aes(x = data_points_log10, y = driver_num)) +
                 aes(x = -0.2, y = y_num, label = category, fill = category),
                 angle = 90, size = 9, show.legend = F, label.r = unit(1, "lines"),
                 label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
-                label.padding = unit(c(0.5, 1.5, 0.5, 0.5), "lines")) + # Note that ggarrange messes this up
+                # label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) + # Note that ggarrange messes this up
+                label.padding = unit(c(0.5, 1.5, 0.5, 0.5), "lines")) + # So there are different lines for different uses
   scale_y_reverse() +
   scale_x_continuous(limits = c(-0.4, 6.8),
                      breaks = seq(1, 6, 1),

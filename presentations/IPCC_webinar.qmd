@@ -14,7 +14,6 @@ editor: visual
 
 # {background-color="#008980" style="text-align: center"}
 
-
 <!-- General info about talk -->
 <!-- Presentations are branded as “lightning talks” – so they need to be short and concise. 
 You have a total of 10 minutes each, including Q&A time (so really you should aim for 8 minutes total). -->
@@ -71,7 +70,7 @@ Important socio-ecological systems whose climate impacts may differ from IPCC AR
 </br>
 
 ::: {.fragment .fade-left}
-<div style="text-align: right"> Range of fjords throughout the EU Arctic provide "natural laboratory" </div>
+<div style="text-align: right"> Range of fjords throughout the EU Arctic provides "natural laboratory" </div>
 :::
 
 ## Socio-ecological systems? {auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg" visibility="uncounted"}
@@ -130,6 +129,17 @@ __Biology__
 
 ::: {.fragment .absolute top="565" left="360"}
 __Social__
+:::
+
+::: columns
+::: {.column style="text-align: center"}
+:::
+
+::: {.column style="text-align: center"}
+::: {.fragment .fade-down style="background: black; width: 450px; height: 250px; border-radius: 100px;" .absolute top="250" right="-20"}
+<span style="color:white">Key drivers determined by literature __and__ available data</span>
+:::
+:::
 :::
 
 <!-- ## Categories of drivers -->
@@ -270,6 +280,12 @@ __Fisheries__
 ## Interactions
 
 -   LOV panel B
+
+## Takeaway
+
+-   As the planet warms the cryosphere will melt
+-   Removes one entire category of the socio-ecological system
+-   Will no longer be "Arctic"
 
 ## {background-color="#008980"}
 

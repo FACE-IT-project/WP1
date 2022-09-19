@@ -407,14 +407,13 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
         -   Review paper (\~90% complete)
             -   Submission to Coastal Futures
         -   Data paper (\~70% complete)
-            -   Earth System Science Data
+            -   Planned submission to ESSD
 
 ### D8.3
 
 -   Update on DMP (30 months)
     -   Very few updates are needed
     -   Data publication pipeline has changed
-        -   zenodo -> PANGAEA
 
 ### D1.4
 
@@ -426,11 +425,9 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 ### D1.5
 
 -   Final data compilation (42 months)
-    -   [1 dataset](https://doi.pangaea.de/10.1594/PANGAEA.945341) published on PANGAEA
-    -   [3 datasets](https://zenodo.org/communities/face-it/search?page=1&size=20&q=&file_type=txt&file_type=csv&file_type=xls&file_type=xlsx) on FACE-IT zenodo group to publish on PANGAEA
-    -   More published as projects finish
-    -   Midway compilation + final compilation
-    
+    -   Compiling [FACE-IT member datasets](https://zenodo.org/communities/face-it/search?page=1&size=20) and uploading to PANGAEA
+    -   Data on Zenodo will be published on PANGAEA
+    -   As research projects finish they will be compiled
 :::
 
 ## Data collection
