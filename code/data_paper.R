@@ -924,15 +924,13 @@ ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 # Differences in some sites could be used as exceptions that prove the rule
 
 ## Potential specific comparisons
-# Cloudiness and heat flux
-# Nutrients and biomass
-# Ice cover, freshwater input, and light
-# Temperature and sea ice
+# Look at network plot for relationships
 
 ## Generally speaking, the number of variables needs to be reduced/combined
 # For some reason sea temperature is not being correlated with anything
 
-## "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
+## "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, 
+# while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
 # Load all clean data
 clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
@@ -1003,11 +1001,68 @@ cor_plot_por <- ggcorrplot(clean_all_corr_por, title = "Porsangerfjorden") + the
 cor_plot_all <- ggpubr::ggarrange(cor_plot_kong, cor_plot_is, cor_plot_stor, cor_plot_young, cor_plot_disko, cor_plot_nuup, cor_plot_por) + theme_bw()
 ggsave("~/Desktop/analyses_output/cor_plot_all.png", height = 20, width = 25)
 
-# Get count of cor sum per column
-test1 <- clean_all_corr %>%
-  data.frame() %>% 
-  replace(is.na(.), 0) %>% 
-  summarise(across(everything(), ~ sum(.)))
+### Relationships from the network analysis - created via the review paper
+## TODO: Create function that can make these comparisons
+# It should take the names of the two drivers to start
+# But there are situations where multiple variables exist within one driver, which requires some thought...
+  # Potentially just compare all variables within the drivers against all other. Easy peasy.
+# Once isolated, monthly values from similar depths over similar times should be compared
+# Output: linear model stats, correlation,amount of overlap (time, depth, etc.)
+# We also want to see which sites have what relationships, and if there are any obvious outliers
+# This iis one of the main points that will feed bakc into the review paper
+
+## Load network nodes and edges
+# NB: These were created by hand by RWS based on the text of the review paper
+nodes <- read_csv("data/figures/rp_fig_2_nodes.csv") %>% 
+  filter(level == "key")
+edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>% 
+  filter(!from %in% c("s15", "s16", "s17", "s18", "s19"),
+         !to %in% c("s15", "s16", "s17", "s18", "s19")) %>%  # Could put these as smaller networks in the appendix
+  mutate(from_num = case_when(from_sign == "decrease" ~ 1, from_sign == "complex" ~ 2, from_sign == "increase" ~ 3),
+         to_num = case_when(to_sign == "decrease" ~ 1, to_sign == "complex" ~ 2, to_sign == "increase" ~ 3))
+
+## Cryosphere
+# sea ice -> sea temp
+# sea ice -> light
+# sea ice -> biomass
+# sea ice -> spp richness
+# sea ice -> governance
+# gmb -> discharge
+# gmb -> spp richness
+# discharge -> sea temp
+# discharge -> salinity
+# dischare -> light
+# discharge -> carb system
+# discharge -> nutrients
+
+## Physics
+# sea temp -> sea ice
+# sea temp -> spp richness
+# sea temp -> biomass
+# sea temp -> PP
+# salinity -> spp richness
+# salinity -> biomass
+# light -> spp richness
+# light -> biomass
+# light -> PP
+
+## Chemistry
+# carb system -> spp richness
+# nutrients -> PP
+
+## Biology
+# PP -> biomass
+# biomass -> spp richness
+
+## Social
+# governance -> tourism
+# governance -> fisheries
+# tourism -> nutrients
+# tourism -> light
+# fisheries -> biomass
+# fisheries -> spp richness
+
+## Summary of data available per month/season for sites
 
 
 # Section 4 ---------------------------------------------------------------

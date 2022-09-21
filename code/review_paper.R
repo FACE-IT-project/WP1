@@ -34,15 +34,12 @@ driver_cat_colours <- c(
 
 # Load network nodes and edges
 # NB: These were created by hand by RWS based on the text of the review paper
-nodes <- read_csv("data/figures/rp_fig_2_nodes.csv") %>% 
-  filter(level == "key")
+nodes <- read_csv("data/figures/rp_fig_2_nodes.csv") %>% filter(level == "key")
 edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>% 
   filter(!from %in% c("s15", "s16", "s17", "s18", "s19"),
          !to %in% c("s15", "s16", "s17", "s18", "s19")) %>%  # Could put these as smaller networks in the appendix
-  mutate(relationship = base::factor(x = relationship, levels = c("positive", "negative", "complex")),
-         from_num = case_when(from_sign == "decrease" ~ 1, from_sign == "complex" ~ 2, from_sign == "increase" ~ 3),
-         to_num = case_when(to_sign == "decrease" ~ 1, to_sign == "complex" ~ 2, to_sign == "increase" ~ 3),
-         rel_num = case_when(relationship == "decrease" ~ 1, relationship == "complex" ~ 2, relationship == "increase" ~ 3))
+  mutate(from_num = case_when(from_sign == "decrease" ~ 1, from_sign == "complex" ~ 2, from_sign == "increase" ~ 3),
+         to_num = case_when(to_sign == "decrease" ~ 1, to_sign == "complex" ~ 2, to_sign == "increase" ~ 3))
 #
 
 # Figure 1 ----------------------------------------------------------------
@@ -103,7 +100,8 @@ net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
 # print(net, e=TRUE, v=TRUE)
 
 # Generate colors based on media type:
-cat_colours <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
+# Cryosphere can be either "mintcream" or "violet"
+cat_colours <- c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
 trend_colours <- c("blue", "purple", "red")
 V(net)$cat_colour <- cat_colours[V(net)$cat_num]
 V(net)$trend_colour <- trend_colours[V(net)$trend_num]
@@ -248,25 +246,51 @@ forceNetwork(Links = links.d3, Nodes = nodes.d3, Source = "from",
 library(ndtv)
 
 # Create base
-net3 <- network(edges[c(-3, -22, -25),], # Remove parallels
+net3 <- network(edges,#[c(-3, -22, -25),], # Remove parallels
                 vertex.attr = nodes, matrix.type = "edgelist", 
                 loops = T, multiple = F, ignore.eval = F)
 
-# Prep plotting
-par(mar = c(0,0,0,0))
+# Force dynamic (i.e. animated) network
+# net3 <- networkDynamic(net3)
+
+# Attempt at creating preset coordinates
+# NB: Neither currently work
+nodes_coords <- matrix(data = c(c(1, 2, 3, 4, 5, 6, 7, 7, 6, 5, 4, 3, 2, 1),
+                                c(4, 5, 6, 7, 7, 6, 5, 4, 3, 2 , 1, 1, 2, 3)),
+                       nrow = 14, ncol = 2)
+nodes_coords <- matrix(data = c(c(0, 0.1, 0.2, 0.3, 0.4, 0.5 , 0.6, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0),
+                                c(0.3, 0.4, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0, 0, 0.1, 0.2)),
+                       nrow = 14, ncol = 2)
 
 # Plot
-render.d3movie(net3, usearrows = F, displaylabels = F, bg = "#111111", 
-               vertex.border = "#ffffff", 
-               # vertex.col =  net3 %v% "col",
-               # vertex.cex = (net3 %v% "audience.size")/8, 
-               # edge.lwd = (net3 %e% "weight")/3, 
-               edge.col = '#55555599',
-               vertex.tooltip = paste("<b>Name:</b>", (net3 %v% 'driver') , "<br>",
-                                      "<b>Type:</b>", (net3 %v% 'category')),
-               edge.tooltip = paste("<b>Edge type:</b>", (net3 %e% 'note'), "<br>", 
-                                    "<b>Edge weight:</b>", (net3 %e% "note" ) ),
-               launchBrowser=F, filename="test_net.html" )  
+render.d3movie(net3,
+               # render.par = list(initial.coords = nodes_coords),
+               render.par = list(initial.coords = 1),
+               usearrows = T, 
+               displaylabels = T, 
+               label = (net3 %v% 'driver'),
+               # label.col = (net3 %e% "cat_colour"),
+               label.col = "black",
+               label.cex = 2,
+               main = "Relationships of key drivers within Arctic fjord socio-ecologicals systems",
+               xlab = "Double click on a node to highlight all relationships.",
+               bg = "grey90", 
+               vertex.col = cat_colours[(net3 %v% "cat_num")],
+               # vertex.col = "white",
+               vertex.border = "black",
+               # vertex.sides = 7,
+               # vertex.rot = 90, # Rotation of ploygons
+               vertex.cex = 4,
+               vertex.lwd = 4,
+               edge.lwd = 8,
+               edge.col = "grey30",
+               vertex.tooltip = paste("<b>Category:</b>", (net3 %v% 'category') , "<br>",
+                                      "<b>Driver:</b>", (net3 %v% 'driver')),
+               edge.tooltip = paste((net3 %e% 'note')),
+               # edge.tooltip = paste("<b>Edge type:</b>", (net3 %e% 'note'), "<br>", 
+               #                      "<b>Edge weight:</b>", (net3 %e% "note" ) ),
+               # output.mode = "htmlWidget", # Can be used in shiny app
+               launchBrowser = T, filename = "docs/driver_network.html")  
 
 
 # Table 1 -----------------------------------------------------------------
