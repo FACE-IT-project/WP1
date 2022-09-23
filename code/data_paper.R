@@ -954,52 +954,12 @@ clean_all_monthly <- clean_all_clean %>%
   group_by(var_group, var_name, site, month_year) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
-# NB: Create monthly clims and run correlations on those
+# TODO: Create monthly clims
 
-# Wide format for correlations
+# Wide format
 clean_all_wide <- clean_all_monthly %>% 
   pivot_wider(id_cols = c(var_group, site, month_year), names_from = var_name, values_from = value)
 
-# Coorelations
-clean_all_corr <- clean_all_wide %>% 
-  dplyr::select(-var_group, -month_year) %>%
-  group_nest(site) %>%
-  mutate(cor = map(data, cor, use = "na.or.complete")) %>%
-  dplyr::select(-data) %>%
-  unnest(cor) #%>%
-# mutate(site = as.numeric(as.factor(site))) %>% 
-# group_by(site) %>% 
-# summarise(cor = cor(.), .groups = "drop")
-# janitor::remove_empty()
-rownames_to_column(clean_all_corr, var = "rowname")
-colnames(clean_all_corr) <- c("site", rownames(clean_all_corr))
-# split(.$site) %>% 
-# map(dplyr::select, -c(site)) %>% 
-# map(cor) %>%
-# list_extract()
-# bind_rows(.id = NULL)
-# group_by(site) %>% 
-# summarise(cor = cor(.))
-clean_all_corr_kong <- cor(dplyr::select(filter(clean_all_wide, site == "kong"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
-clean_all_corr_is <- cor(dplyr::select(filter(clean_all_wide, site == "is"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
-clean_all_corr_stor <- cor(dplyr::select(filter(clean_all_wide, site == "stor"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
-clean_all_corr_young <- cor(dplyr::select(filter(clean_all_wide, site == "young"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
-clean_all_corr_disko <- cor(dplyr::select(filter(clean_all_wide, site == "disko"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
-clean_all_corr_nuup <- cor(dplyr::select(filter(clean_all_wide, site == "nuup"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
-clean_all_corr_por <- cor(dplyr::select(filter(clean_all_wide, site == "por"), -var_group, -month_year, -site), use = "pairwise.complete.obs")
-
-# Plot
-cor_plot_kong <- ggcorrplot(clean_all_corr_kong, title = "Kongsfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
-cor_plot_is <- ggcorrplot(clean_all_corr_is, title = "Isfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
-cor_plot_stor <- ggcorrplot(clean_all_corr_stor, title = "Storfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
-cor_plot_young <- ggcorrplot(clean_all_corr_young, title = "Young Sound") + theme(panel.background = element_rect(fill = NA, colour = "black"))
-cor_plot_disko <- ggcorrplot(clean_all_corr_disko, title = "Disko bay") + theme(panel.background = element_rect(fill = NA, colour = "black"))
-cor_plot_nuup <- ggcorrplot(clean_all_corr_nuup, title = "Nuup Kangerlua") + theme(panel.background = element_rect(fill = NA, colour = "black"))
-cor_plot_por <- ggcorrplot(clean_all_corr_por, title = "Porsangerfjorden") + theme(panel.background = element_rect(fill = NA, colour = "black"))
-
-# Arrange and save
-cor_plot_all <- ggpubr::ggarrange(cor_plot_kong, cor_plot_is, cor_plot_stor, cor_plot_young, cor_plot_disko, cor_plot_nuup, cor_plot_por) + theme_bw()
-ggsave("~/Desktop/analyses_output/cor_plot_all.png", height = 20, width = 25)
 
 ### Relationships from the network analysis - created via the review paper
 ## TODO: Create function that can make these comparisons
@@ -1009,20 +969,13 @@ ggsave("~/Desktop/analyses_output/cor_plot_all.png", height = 20, width = 25)
 # Once isolated, monthly values from similar depths over similar times should be compared
 # Output: linear model stats, correlation,amount of overlap (time, depth, etc.)
 # We also want to see which sites have what relationships, and if there are any obvious outliers
-# This iis one of the main points that will feed bakc into the review paper
-
-## Load network nodes and edges
-# NB: These were created by hand by RWS based on the text of the review paper
-nodes <- read_csv("data/figures/rp_fig_2_nodes.csv") %>% 
-  filter(level == "key")
-edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>% 
-  filter(!from %in% c("s15", "s16", "s17", "s18", "s19"),
-         !to %in% c("s15", "s16", "s17", "s18", "s19")) %>%  # Could put these as smaller networks in the appendix
-  mutate(from_num = case_when(from_sign == "decrease" ~ 1, from_sign == "complex" ~ 2, from_sign == "increase" ~ 3),
-         to_num = case_when(to_sign == "decrease" ~ 1, to_sign == "complex" ~ 2, to_sign == "increase" ~ 3))
+# This is one of the main points that will feed back into the review paper
 
 ## Cryosphere
 # sea ice -> sea temp
+# Filter out the chosen drivers
+
+
 # sea ice -> light
 # sea ice -> biomass
 # sea ice -> spp richness
