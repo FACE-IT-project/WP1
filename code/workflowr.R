@@ -12,15 +12,15 @@ options(workflowr.sysgit = "")
 
 # Run this to re-compile the entire project
 system.time(
-  workflowr::wflow_publish(files = c("analysis/index.Rmd",
-                                     "analysis/key_drivers.Rmd",
-                                     "analysis/metadatabase.Rmd",
-                                     "analysis/data_summary.Rmd",
-                                     "analysis/model_summary.Rmd",
-                                     "analysis/sst_summary.Rmd",
-                                     "analysis/2021_analysis.Rmd",
-                                     "analysis/2021_summary.Rmd",
-                                     "analysis/2022_seminar.Rmd"
+  workflowr::wflow_publish(files = c("analysis/index.Rmd"#,
+                                     # "analysis/key_drivers.Rmd",
+                                     # "analysis/metadatabase.Rmd",
+                                     # "analysis/data_summary.Rmd",
+                                     # "analysis/model_summary.Rmd",
+                                     # "analysis/sst_summary.Rmd",
+                                     # "analysis/2021_analysis.Rmd",
+                                     # "analysis/2021_summary.Rmd",
+                                     # "analysis/2022_seminar.Rmd"
   ),
   message = "Re-built site.")
 ) # 15 seconds

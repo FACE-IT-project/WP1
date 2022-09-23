@@ -28,9 +28,9 @@ navbar:
     - text: "FACE-IT seminar - 2022"
       href: 2022_seminar.html
     - text: "FACE-IT 18 month review - 2022"
-      href: 2022_review.html
+      href: 2022_review_blank.Rhtml
     - text: "Mind the gap - 2022"
-      href: 2022_IPCC_webinar.html
+      href: 2022_IPCC_webinar_blank.Rhtml
   - text: "Posters"
     menu:
     - text: "Svalbard Science Conference - 2021"
