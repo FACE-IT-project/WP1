@@ -649,6 +649,9 @@ system.time(
   pg_kong_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_kong)
 ) # 70 seconds
 
+# TODO: Load kong file specifically and append all data rows with NA for lon/lat as we know they are associated with the site by name
+# And are probably relevant but cover a broad area i.e. are a survey of the fjord more broadly and are useful for broad comparisons
+
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
 # pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.909130")
