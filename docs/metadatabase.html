@@ -11,10 +11,11 @@
 
 <meta name="author" content="Robert Schlegel" />
 
+<meta name="date" content="2022-09-23" />
 
 <title>Meta-database: environmental and societal drivers of change in Arctic fjord ecosystems</title>
 
-<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -38,7 +39,7 @@
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="site_libs/datatables-binding-0.22/datatables.js"></script>
+<script src="site_libs/datatables-binding-0.24/datatables.js"></script>
 <link href="site_libs/dt-core-1.11.3/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="site_libs/dt-core-1.11.3/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="site_libs/dt-core-1.11.3/js/jquery.dataTables.min.js"></script>
@@ -188,11 +189,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -405,6 +410,12 @@ div.tocify {
     <li>
       <a href="2022_seminar.html">FACE-IT seminar - 2022</a>
     </li>
+    <li>
+      <a href="2022_review_blank.html">FACE-IT 18 month review - 2022</a>
+    </li>
+    <li>
+      <a href="2022_IPCC_webinar_blank.html">Mind the gap - 2022</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -444,16 +455,19 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Meta-database: environmental and societal drivers of change in Arctic fjord ecosystems</h1>
+<h1 class="title toc-ignore">Meta-database: environmental and societal
+drivers of change in Arctic fjord ecosystems</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">27 mai 2022</h4>
+<h4 class="date">23 September 2022</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -462,7 +476,9 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -471,17 +487,27 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-05-27
+<strong>Last updated:</strong> 2022-09-23
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>WP1/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -490,91 +516,138 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210216code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210216)</code> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210216code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20210216)</code> </a>
 </p>
 </div>
-<div id="strongSeedstrongcodesetseed20210216code" class="panel-collapse collapse">
+<div id="strongSeedstrongcodesetseed20210216code"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20210216)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20210216)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
 </p>
 </div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
 </p>
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
 </p>
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedd484953b2e5b54bbb03ed56069c1c0d29f127atargetblankedd4849a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/FACE-IT-project/WP1/tree/edd484953b2e5b54bbb03ed56069c1c0d29f127a" target="_blank">edd4849</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedd484953b2e5b54bbb03ed56069c1c0d29f127atargetblankedd4849a"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/FACE-IT-project/WP1/tree/edd484953b2e5b54bbb03ed56069c1c0d29f127a" target="_blank">edd4849</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
@@ -582,6 +655,8 @@ Ignored files:
     Ignored:    .Rproj.user/
     Ignored:    code/ny-alesund_cc_pf_rws.R
     Ignored:    data/MUR/
+    Ignored:    data/analyses/clean_all.RData
+    Ignored:    data/analyses/ice_4km_proc.RData
     Ignored:    data/full_data/
     Ignored:    data/model/
     Ignored:    data/pg_data/
@@ -592,14 +667,17 @@ Ignored files:
     Ignored:    data/sst_sval.RData
     Ignored:    data/sst_trom.RData
     Ignored:    metadata/pangaea_parameters.tab
+    Ignored:    metadata/pg_EU_ref_meta.csv
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
     Ignored:    shiny/dataAccess/full_data
-    Ignored:    shiny/kongCTD/data_base.Rds
+    Ignored:    shiny/kongCTD/data/data_base.Rds
     Ignored:    shiny/test_data/
 
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -610,7 +688,12 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/metadatabase.Rmd</code>) and HTML (<code>docs/metadatabase.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/metadatabase.Rmd</code>) and HTML
+(<code>docs/metadatabase.html</code>) files. If you’ve configured a
+remote Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -634,6 +717,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/8a8fd0b51ec94fb19d65be729fca3c04bb8285ef/docs/metadatabase.html" target="_blank">8a8fd0b</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2022-05-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -733,7 +833,8 @@ Robert
 2022-05-10
 </td>
 <td>
-Added Svalbard glacier mass balance data from recent Nature publication to meta-database. Still need to add it to database.
+Added Svalbard glacier mass balance data from recent Nature publication
+to meta-database. Still need to add it to database.
 </td>
 </tr>
 <tr>
@@ -750,7 +851,8 @@ Robert
 2022-05-10
 </td>
 <td>
-Added Svalbard glacier mass balance data from recent Nature publication to meta-database. Still need to add it to database.
+Added Svalbard glacier mass balance data from recent Nature publication
+to meta-database. Still need to add it to database.
 </td>
 </tr>
 <tr>
@@ -1345,7 +1447,8 @@ Robert
 2022-01-18
 </td>
 <td>
-Code for uploading and processing SOCAT and GLODAP data for inclussion in site specific products
+Code for uploading and processing SOCAT and GLODAP data for inclussion
+in site specific products
 </td>
 </tr>
 <tr>
@@ -1804,7 +1907,8 @@ Robert
 2021-10-21
 </td>
 <td>
-Finished adding D3.1 datasets to database and expanded on Kongsfjorden ship arrival data by ship type
+Finished adding D3.1 datasets to database and expanded on Kongsfjorden
+ship arrival data by ship type
 </td>
 </tr>
 <tr>
@@ -2433,7 +2537,8 @@ Robert
 2021-09-23
 </td>
 <td>
-All datasets referred to in the Google Sheet are now listed in the meta-database
+All datasets referred to in the Google Sheet are now listed in the
+meta-database
 </td>
 </tr>
 <tr>
@@ -2450,7 +2555,8 @@ Robert
 2021-09-23
 </td>
 <td>
-All datasets referred to in the Google Sheet are now listed in the meta-database
+All datasets referred to in the Google Sheet are now listed in the
+meta-database
 </td>
 </tr>
 <tr>
@@ -2773,7 +2879,8 @@ Robert
 2021-08-05
 </td>
 <td>
-Finished first round of all full site products and updated meta-database accordingly
+Finished first round of all full site products and updated meta-database
+accordingly
 </td>
 </tr>
 <tr>
@@ -2790,7 +2897,8 @@ Robert
 2021-08-05
 </td>
 <td>
-Finished first round of all full site products and updated meta-database accordingly
+Finished first round of all full site products and updated meta-database
+accordingly
 </td>
 </tr>
 <tr>
@@ -3776,7 +3884,8 @@ robwschlegel
 2021-03-18
 </td>
 <td>
-Added the full table of drivers determined to be important for the EU Arctic
+Added the full table of drivers determined to be important for the EU
+Arctic
 </td>
 </tr>
 <tr>
@@ -3793,7 +3902,8 @@ robwschlegel
 2021-03-18
 </td>
 <td>
-Added the full table of drivers determined to be important for the EU Arctic
+Added the full table of drivers determined to be important for the EU
+Arctic
 </td>
 </tr>
 <tr>
@@ -4320,7 +4430,8 @@ robwschlegel
 2021-03-02
 </td>
 <td>
-Moving away from a single smart meta-data functions towards more user input
+Moving away from a single smart meta-data functions towards more user
+input
 </td>
 </tr>
 <tr>
@@ -4862,39 +4973,97 @@ The metadatabase Rmd file
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>The interactive tables found below contain the meta-database of the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites (<a href="https://face-it-project.github.io/WP1/key_drivers.html">D1.1</a>). These tables may be searched for key words. One may also click at the top of each column to order the rows in ascending/descending order. Datasets that are restricted to a single FACE-IT study site (e.g. mooring data from Kongsfjorden) are listed in the corresponding meta-datatable below and one may jump to these tables quickly using the table of contents (TOC) on the left. Datasets that encompass the entire European Arctic are listed in their own meta-datatable rather than being listed repeatedly in the tables for individual sites. The same applies for Svalbard. Nearly all of the datasets listed here were collected through some means of <em>in situ</em> sampling however, for some important drivers (e.g. sea ice cover) gridded data from remotely sampled or modelled datasets were sourced and are listed in the meta-datatables for each site.</p>
-<p>This website was created for D1.2 for the Horizon2020 project <a href="https://www.face-it-project.eu/">FACE-IT</a>. The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites (<a href="https://face-it-project.github.io/WP1/review.html">D1.3</a>).</p>
+<p>The interactive tables found below contain the meta-database of the
+datasets identified to contain the key drivers of change in fjord and
+adjacent coastal socio-ecological systems of the seven FACE-IT study
+sites (<a
+href="https://face-it-project.github.io/WP1/key_drivers.html">D1.1</a>).
+These tables may be searched for key words. One may also click at the
+top of each column to order the rows in ascending/descending order.
+Datasets that are restricted to a single FACE-IT study site
+(e.g. mooring data from Kongsfjorden) are listed in the corresponding
+meta-datatable below and one may jump to these tables quickly using the
+table of contents (TOC) on the left. Datasets that encompass the entire
+European Arctic are listed in their own meta-datatable rather than being
+listed repeatedly in the tables for individual sites. The same applies
+for Svalbard. Nearly all of the datasets listed here were collected
+through some means of <em>in situ</em> sampling however, for some
+important drivers (e.g. sea ice cover) gridded data from remotely
+sampled or modelled datasets were sourced and are listed in the
+meta-datatables for each site.</p>
+<p>This website was created for D1.2 for the Horizon2020 project <a
+href="https://www.face-it-project.eu/">FACE-IT</a>. The datasets
+identified within this document will be used for the completion of a
+review article on past and future changes of key drivers in and around
+the FACE-IT study sites (<a
+href="https://face-it-project.github.io/WP1/review.html">D1.3</a>).</p>
 <div id="column-definitions" class="section level2">
 <h2>Column definitions</h2>
 <p>The interactive tables found below contain the following columns:</p>
 <ul>
-<li>Type: The method of data collection/creation (e.g. CTD casts or modelled data)
+<li>Type: The method of data collection/creation (e.g. CTD casts or
+modelled data)
 <ul>
-<li>Datasets marked as ‘PANGAEA’ are the combined output of a data query to that database</li>
-<li>Datasets marked as ‘FACE-IT’ are a combination of all data from all collected sources
+<li>Datasets marked as ‘PANGAEA’ are the combined output of a data query
+to that database</li>
+<li>Datasets marked as ‘FACE-IT’ are a combination of all data from all
+collected sources
 <ul>
-<li>This includes datasets from the EU Arctic and Svalbard meta-datatables (when applicable) as well as the PANGAEA data</li>
+<li>This includes datasets from the EU Arctic and Svalbard
+meta-datatables (when applicable) as well as the PANGAEA data</li>
 </ul></li>
 </ul></li>
-<li>Driver: The list of <a href="https://face-it-project.github.io/WP1/key_drivers.html">drivers</a> found within the dataset</li>
+<li>Driver: The list of <a
+href="https://face-it-project.github.io/WP1/key_drivers.html">drivers</a>
+found within the dataset</li>
 <li>Date: The years over which the data were collected</li>
-<li>Source: A clickable link to the website were the data file may be downloaded</li>
-<li>Citation: A clickable pop-up window that provides the citation for the dataset</li>
+<li>Source: A clickable link to the website were the data file may be
+downloaded</li>
+<li>Citation: A clickable pop-up window that provides the citation for
+the dataset</li>
 <li>Notes: Any additional comments may be found here</li>
 </ul>
 </div>
 <div id="data-access" class="section level2">
 <h2>Data access</h2>
-<p>Many of the datasets listed below are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: <a href="https://marine.copernicus.eu/">Copernicus</a>, <a href="https://www.emodnet.eu/en">EMODnet</a>, and <a href="https://www.ncei.noaa.gov/">NOAA</a>. Site specific datasets can be accessed via: <a href="https://data.npolar.no/home/">NPDC</a>, <a href="https://arcticdata.io/">NSF</a>, <a href="https://openpolar.no/">openpolar</a>, <a href="https://pangaea.de/">PANGAEA</a>, and <a href="https://sios-svalbard.org/metadata_search">SIOS</a>. Data for drivers pertaining more to policy may be found at: <a href="https://intaros.nersc.no/">INTAROS</a> and <a href="https://www.arcticobserving.org/">SAON</a>. The data portals for national statistics and other social drivers are: <a href="https://stat.gl/dialog/topmain.asp?lang=da&amp;subject=Fiskeri%20og%20fangst&amp;sc=FI">Grønlands statistik</a>, <a href="https://ais-public.kystverket.no/ais-download/">kystverket</a>, <a href="https://www.ssb.no/">SSB</a>, and <a href="https://statistikknett.no/">statistikknett</a>.</p>
-<p>The non-embargoed data that have been collected for FACE-IT may be explored and downloaded via a <a href="http://193.50.85.104:4949/dataAccess/">data access app</a>. The data in this app are populated by the datasets listed in the meta-database tables below as having the type ‘FACE-IT.’</p>
+<p>Many of the datasets listed below are available from multiple
+established data sources. Large gridded data sets for most physical
+drivers at the Arctic scale can be accessed via: <a
+href="https://marine.copernicus.eu/">Copernicus</a>, <a
+href="https://www.emodnet.eu/en">EMODnet</a>, and <a
+href="https://www.ncei.noaa.gov/">NOAA</a>. Site specific datasets can
+be accessed via: <a href="https://data.npolar.no/home/">NPDC</a>, <a
+href="https://arcticdata.io/">NSF</a>, <a
+href="https://openpolar.no/">openpolar</a>, <a
+href="https://pangaea.de/">PANGAEA</a>, and <a
+href="https://sios-svalbard.org/metadata_search">SIOS</a>. Data for
+drivers pertaining more to policy may be found at: <a
+href="https://intaros.nersc.no/">INTAROS</a> and <a
+href="https://www.arcticobserving.org/">SAON</a>. The data portals for
+national statistics and other social drivers are: <a
+href="https://stat.gl/dialog/topmain.asp?lang=da&amp;subject=Fiskeri%20og%20fangst&amp;sc=FI">Grønlands
+statistik</a>, <a
+href="https://ais-public.kystverket.no/ais-download/">kystverket</a>, <a
+href="https://www.ssb.no/">SSB</a>, and <a
+href="https://statistikknett.no/">statistikknett</a>.</p>
+<p>The non-embargoed data that have been collected for FACE-IT may be
+explored and downloaded via a <a
+href="http://193.50.85.104:4949/dataAccess/">data access app</a>. The
+data in this app are populated by the datasets listed in the
+meta-database tables below as having the type ‘FACE-IT’.</p>
 </div>
 </div>
 <div id="european-arctic" class="section level1">
 <h1>European Arctic</h1>
-<p>This section contains meta-data for pan-Arctic data files. All data within these files that overlap with one or more of the FACE-IT study sites may also be found in the aggregated datasets for the corresponding site(s).</p>
+<p>This section contains meta-data for pan-Arctic data files. All data
+within these files that overlap with one or more of the FACE-IT study
+sites may also be found in the aggregated datasets for the corresponding
+site(s).</p>
 <center>
 <p><img src="assets/map_full.png" style="width:70.0%" /></p>
-Figure 1: FACE-IT study sites throughout the EU Arctic. The light green bounding box (appears here as a triangle due to polar projection) shows the spatial range within which data were considered for collection.
+Figure 1: FACE-IT study sites throughout the EU Arctic. The light green
+bounding box (appears here as a triangle due to polar projection) shows
+the spatial range within which data were considered for collection.
 </center>
 <p><br></p>
 <!-- _NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._ -->
@@ -4906,10 +5075,17 @@ Figure 1: FACE-IT study sites throughout the EU Arctic. The light green bounding
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
-<p>While not a study site itself, there are a lot of studies and datasets that focus on Svalbard broadly, rather than individual study sites within this region. Therefore this geographical region has it’s own meta-data table. The data within these Svalbard datasets that overlap with any of the individual study sites have been extracted and added to those amalgamated datasets.</p>
+<p>While not a study site itself, there are a lot of studies and
+datasets that focus on Svalbard broadly, rather than individual study
+sites within this region. Therefore this geographical region has it’s
+own meta-data table. The data within these Svalbard datasets that
+overlap with any of the individual study sites have been extracted and
+added to those amalgamated datasets.</p>
 <center>
 <p><img src="assets/map_svalbard.png" style="width:70.0%" /></p>
-Figure 2: Map of Svalbard showing the location of the three FACE-IT study sites located on the archipelago. The light green bounding box shows the range within which trans-Svalbard data were collected.
+Figure 2: Map of Svalbard showing the location of the three FACE-IT
+study sites located on the archipelago. The light green bounding box
+shows the range within which trans-Svalbard data were collected.
 </center>
 <p><br></p>
 <!-- <div style="margin-left: -200px;"> -->
@@ -4921,7 +5097,8 @@ Figure 2: Map of Svalbard showing the location of the three FACE-IT study sites 
 <h2>Kongsfjorden</h2>
 <center>
 <p><img src="assets/map_kongsfjorden.png" style="width:60.0%" /></p>
-Figure 3: The bathymetry around Kongsfjorden. The green bounding box shows the area within which data were sourced.
+Figure 3: The bathymetry around Kongsfjorden. The green bounding box
+shows the area within which data were sourced.
 </center>
 <p><br></p>
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
@@ -4935,7 +5112,8 @@ Figure 3: The bathymetry around Kongsfjorden. The green bounding box shows the a
 <h2>Isfjorden</h2>
 <center>
 <p><img src="assets/map_isfjorden.png" style="width:70.0%" /></p>
-Figure 4: The bathymetry around Isfjorden. The green bounding box shows the area within which data were sourced.
+Figure 4: The bathymetry around Isfjorden. The green bounding box shows
+the area within which data were sourced.
 </center>
 <p><br></p>
 <div id="htmlwidget-84dfdef171f084f09719" style="width:100%;height:auto;" class="datatables html-widget"></div>
@@ -4944,10 +5122,14 @@ Figure 4: The bathymetry around Isfjorden. The green bounding box shows the area
 </div>
 <div id="storfjorden" class="section level2">
 <h2>Storfjorden</h2>
-<p>Data for Inglefieldbukta on the data portals identified in D1.1 are incredibly scarce. There are however several time series for the larger Storfjorden complex and so after the 2021 annual meeting it was decided to expand the Inglefieldbukta site to Storfjorden.</p>
+<p>Data for Inglefieldbukta on the data portals identified in D1.1 are
+incredibly scarce. There are however several time series for the larger
+Storfjorden complex and so after the 2021 annual meeting it was decided
+to expand the Inglefieldbukta site to Storfjorden.</p>
 <center>
 <p><img src="assets/map_storfjorden.png" style="width:60.0%" /></p>
-Figure 5: The bathymetry around Storfjorden. The green bounding box shows the area within which data were sourced.
+Figure 5: The bathymetry around Storfjorden. The green bounding box
+shows the area within which data were sourced.
 </center>
 <p><br></p>
 <div id="htmlwidget-1623fa19f12d2f625563" style="width:100%;height:auto;" class="datatables html-widget"></div>
@@ -4957,13 +5139,21 @@ Figure 5: The bathymetry around Storfjorden. The green bounding box shows the ar
 </div>
 <div id="greenland" class="section level1">
 <h1>Greenland</h1>
-<p>See the EU Arctic figure above for where the Greenland sites are located. They are too spread out to be shown here in a single figure with any better precision than the full study area.</p>
-<p>Please note that all GEM files must be downloaded directly from the URLs provided. Under the agreement between FACE-IT and GEM they are not to be hosted on the FACE-IT pCloud folder. This is primarily so that GEM can track the individual downloads of their files and for what purpose they were downloaded. This also requires that users of the data read a user agreement file.</p>
+<p>See the EU Arctic figure above for where the Greenland sites are
+located. They are too spread out to be shown here in a single figure
+with any better precision than the full study area.</p>
+<p>Please note that all GEM files must be downloaded directly from the
+URLs provided. Under the agreement between FACE-IT and GEM they are not
+to be hosted on the FACE-IT pCloud folder. This is primarily so that GEM
+can track the individual downloads of their files and for what purpose
+they were downloaded. This also requires that users of the data read a
+user agreement file.</p>
 <div id="young-sound" class="section level2">
 <h2>Young Sound</h2>
 <center>
 <p><img src="assets/map_young_sound.png" style="width:70.0%" /></p>
-Figure 6: The bathymetry around Young Sound (Zackenberg). The green bounding box shows the area within which data were sourced.
+Figure 6: The bathymetry around Young Sound (Zackenberg). The green
+bounding box shows the area within which data were sourced.
 </center>
 <p><br></p>
 <div id="htmlwidget-14a2a035d1f128498eff" style="width:100%;height:auto;" class="datatables html-widget"></div>
@@ -4974,7 +5164,8 @@ Figure 6: The bathymetry around Young Sound (Zackenberg). The green bounding box
 <h2>Disko Bay</h2>
 <center>
 <p><img src="assets/map_disko_bay.png" style="width:50.0%" /></p>
-Figure 7: The bathymetry around Disko Bay. The green bounding box shows the area within which data were sourced.
+Figure 7: The bathymetry around Disko Bay. The green bounding box shows
+the area within which data were sourced.
 </center>
 <p><br></p>
 <div id="htmlwidget-df11ecfa868004b574d0" style="width:100%;height:auto;" class="datatables html-widget"></div>
@@ -4985,7 +5176,8 @@ Figure 7: The bathymetry around Disko Bay. The green bounding box shows the area
 <h2>Nuup Kangerlua</h2>
 <center>
 <p><img src="assets/map_nuup_kangerlua.png" style="width:70.0%" /></p>
-Figure 8: The bathymetry around Nuup Kangerlua (Nuuk). The green bounding box shows the area within which data were sourced.
+Figure 8: The bathymetry around Nuup Kangerlua (Nuuk). The green
+bounding box shows the area within which data were sourced.
 </center>
 <p><br></p>
 <div id="htmlwidget-85ac0d53e4c5fbf02455" style="width:100%;height:auto;" class="datatables html-widget"></div>
@@ -4999,7 +5191,8 @@ Figure 8: The bathymetry around Nuup Kangerlua (Nuuk). The green bounding box sh
 <h2>Porsangerfjorden</h2>
 <center>
 <p><img src="assets/map_porsangerfjorden.png" style="width:50.0%" /></p>
-Figure 9: The bathymetry around Porsangerfjorden. The green bounding box shows the area within which data were sourced.
+Figure 9: The bathymetry around Porsangerfjorden. The green bounding box
+shows the area within which data were sourced.
 </center>
 <p><br></p>
 <div id="htmlwidget-6977c8be14882212ccf8" style="width:100%;height:auto;" class="datatables html-widget"></div>
@@ -5015,11 +5208,12 @@ Figure 9: The bathymetry around Porsangerfjorden. The green bounding box shows t
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.2.0 (2022-04-22)
+<pre><code>R version 4.2.1 (2022-06-23)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 18.04.6 LTS
 
@@ -5029,41 +5223,48 @@ LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=en_GB.UTF-8    
- [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=en_GB.UTF-8   
- [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C                 
+ [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8    
+ [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+ [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
+[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] kableExtra_1.3.4 DT_0.22          tidync_0.2.4     forcats_0.5.1   
- [5] stringr_1.4.0    dplyr_1.0.9      purrr_0.3.4      readr_2.1.2     
- [9] tidyr_1.2.0      tibble_3.1.6     ggplot2_3.3.5    tidyverse_1.3.1 
-[13] workflowr_1.7.0 
+ [1] kableExtra_1.3.4   DT_0.24            tidync_0.2.4       forcats_0.5.2     
+ [5] stringr_1.4.1      dplyr_1.0.9        purrr_0.3.4        readr_2.1.2       
+ [9] tidyr_1.2.0        tibble_3.1.8       ggplot2_3.3.6.9000 tidyverse_1.3.2   
+[13] workflowr_1.7.0   
 
 loaded via a namespace (and not attached):
- [1] httr_1.4.2        sass_0.4.1        jsonlite_1.8.0    viridisLite_0.4.0
- [5] modelr_0.1.8      bslib_0.3.1       assertthat_0.2.1  getPass_0.2-2    
- [9] cellranger_1.1.0  yaml_2.3.5        pillar_1.7.0      backports_1.4.1  
-[13] glue_1.6.2        digest_0.6.29     promises_1.2.0.1  rvest_1.0.2      
-[17] colorspace_2.0-3  htmltools_0.5.2   httpuv_1.6.5      pkgconfig_2.0.3  
-[21] broom_0.8.0       haven_2.5.0       webshot_0.5.3     scales_1.2.0     
-[25] processx_3.5.3    svglite_2.1.0     whisker_0.4       later_1.3.0      
-[29] tzdb_0.3.0        git2r_0.30.1      generics_0.1.2    ellipsis_0.3.2   
-[33] withr_2.5.0       cli_3.3.0         magrittr_2.0.3    crayon_1.5.1     
-[37] readxl_1.4.0      evaluate_0.15     ps_1.7.0          fs_1.5.2         
-[41] ncdf4_1.19        fansi_1.0.3       xml2_1.3.3        tools_4.2.0      
-[45] hms_1.1.1         lifecycle_1.0.1   munsell_0.5.0     reprex_2.0.1     
-[49] callr_3.7.0       compiler_4.2.0    jquerylib_0.1.4   RNetCDF_2.5-2    
-[53] systemfonts_1.0.4 rlang_1.0.2       grid_4.2.0        rstudioapi_0.13  
-[57] htmlwidgets_1.5.4 crosstalk_1.2.0   rmarkdown_2.14    gtable_0.3.0     
-[61] DBI_1.1.2         R6_2.5.1          ncmeta_0.3.0      lubridate_1.8.0  
-[65] knitr_1.39        fastmap_1.1.0     utf8_1.2.2        rprojroot_2.0.3  
-[69] stringi_1.7.6     Rcpp_1.0.8.3      vctrs_0.4.1       dbplyr_2.1.1     
-[73] tidyselect_1.1.2  xfun_0.30        </code></pre>
+ [1] httr_1.4.4          sass_0.4.2          viridisLite_0.4.1  
+ [4] jsonlite_1.8.0      modelr_0.1.9        bslib_0.4.0        
+ [7] assertthat_0.2.1    getPass_0.2-2       googlesheets4_1.0.1
+[10] cellranger_1.1.0    yaml_2.3.5          pillar_1.8.1       
+[13] backports_1.4.1     glue_1.6.2          digest_0.6.29      
+[16] promises_1.2.0.1    rvest_1.0.3         colorspace_2.0-3   
+[19] htmltools_0.5.3     httpuv_1.6.5        pkgconfig_2.0.3    
+[22] broom_1.0.0         haven_2.5.1         webshot_0.5.3      
+[25] scales_1.2.1        svglite_2.1.0       processx_3.7.0     
+[28] whisker_0.4         later_1.3.0         tzdb_0.3.0         
+[31] git2r_0.30.1        googledrive_2.0.0   generics_0.1.3     
+[34] ellipsis_0.3.2      cachem_1.0.6        withr_2.5.0        
+[37] cli_3.3.0           magrittr_2.0.3      crayon_1.5.1       
+[40] readxl_1.4.1        evaluate_0.16       ps_1.7.1           
+[43] fs_1.5.2            ncdf4_1.19          fansi_1.0.3        
+[46] xml2_1.3.3          tools_4.2.1         hms_1.1.2          
+[49] gargle_1.2.0        lifecycle_1.0.1     munsell_0.5.0      
+[52] reprex_2.0.2        callr_3.7.2         compiler_4.2.1     
+[55] jquerylib_0.1.4     RNetCDF_2.6-1       systemfonts_1.0.4  
+[58] rlang_1.0.4         grid_4.2.1          rstudioapi_0.14    
+[61] htmlwidgets_1.5.4   crosstalk_1.2.0     rmarkdown_2.16     
+[64] gtable_0.3.0        DBI_1.1.3           R6_2.5.1           
+[67] ncmeta_0.3.0        lubridate_1.8.0     knitr_1.40         
+[70] fastmap_1.1.0       utf8_1.2.2          rprojroot_2.0.3    
+[73] stringi_1.7.8       Rcpp_1.0.9          vctrs_0.4.1        
+[76] dbplyr_2.2.1        tidyselect_1.1.2    xfun_0.32          </code></pre>
 </div>
 </div>
 

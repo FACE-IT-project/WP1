@@ -95,6 +95,9 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 # https://kateto.net/network-visualization
 # Ognyanova, K. (2021) Network visualization with R. Retrieved from www.kateto.net/network-visualization.
 
+# TODO: Fix discharge and carbonate system relationship
+# Carbonate system should be split into pCO2 and total alkalinity (TA)
+
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
 # print(net, e=TRUE, v=TRUE)

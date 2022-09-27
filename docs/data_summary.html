@@ -11,10 +11,11 @@
 
 <meta name="author" content="Robert Schlegel" />
 
+<meta name="date" content="2022-09-23" />
 
 <title>Summary of WP1 data products for FACE-IT study sites</title>
 
-<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -157,11 +158,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -374,6 +379,12 @@ div.tocify {
     <li>
       <a href="2022_seminar.html">FACE-IT seminar - 2022</a>
     </li>
+    <li>
+      <a href="2022_review_blank.html">FACE-IT 18 month review - 2022</a>
+    </li>
+    <li>
+      <a href="2022_IPCC_webinar_blank.html">Mind the gap - 2022</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -413,16 +424,19 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Summary of WP1 data products for FACE-IT study sites</h1>
+<h1 class="title toc-ignore">Summary of WP1 data products for FACE-IT
+study sites</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">27 mai 2022</h4>
+<h4 class="date">23 September 2022</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -431,7 +445,9 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -440,17 +456,27 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-05-27
+<strong>Last updated:</strong> 2022-09-23
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>WP1/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -459,91 +485,138 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210216code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210216)</code> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210216code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20210216)</code> </a>
 </p>
 </div>
-<div id="strongSeedstrongcodesetseed20210216code" class="panel-collapse collapse">
+<div id="strongSeedstrongcodesetseed20210216code"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20210216)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20210216)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
 </p>
 </div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
 </p>
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
 </p>
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedd484953b2e5b54bbb03ed56069c1c0d29f127atargetblankedd4849a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/FACE-IT-project/WP1/tree/edd484953b2e5b54bbb03ed56069c1c0d29f127a" target="_blank">edd4849</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedd484953b2e5b54bbb03ed56069c1c0d29f127atargetblankedd4849a"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/FACE-IT-project/WP1/tree/edd484953b2e5b54bbb03ed56069c1c0d29f127a" target="_blank">edd4849</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
@@ -551,6 +624,8 @@ Ignored files:
     Ignored:    .Rproj.user/
     Ignored:    code/ny-alesund_cc_pf_rws.R
     Ignored:    data/MUR/
+    Ignored:    data/analyses/clean_all.RData
+    Ignored:    data/analyses/ice_4km_proc.RData
     Ignored:    data/full_data/
     Ignored:    data/model/
     Ignored:    data/pg_data/
@@ -561,14 +636,17 @@ Ignored files:
     Ignored:    data/sst_sval.RData
     Ignored:    data/sst_trom.RData
     Ignored:    metadata/pangaea_parameters.tab
+    Ignored:    metadata/pg_EU_ref_meta.csv
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
     Ignored:    shiny/dataAccess/full_data
-    Ignored:    shiny/kongCTD/data_base.Rds
+    Ignored:    shiny/kongCTD/data/data_base.Rds
     Ignored:    shiny/test_data/
 
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -579,7 +657,12 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/data_summary.Rmd</code>) and HTML (<code>docs/data_summary.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/data_summary.Rmd</code>) and HTML
+(<code>docs/data_summary.html</code>) files. If you’ve configured a
+remote Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -603,6 +686,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/8a8fd0b51ec94fb19d65be729fca3c04bb8285ef/docs/data_summary.html" target="_blank">8a8fd0b</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2022-05-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -872,7 +972,8 @@ Robert
 2021-11-09
 </td>
 <td>
-Data analysis and model analysis now performed in a script and figures are saved for more rapid access
+Data analysis and model analysis now performed in a script and figures
+are saved for more rapid access
 </td>
 </tr>
 <tr>
@@ -889,7 +990,8 @@ Robert
 2021-11-09
 </td>
 <td>
-Data analysis and model analysis now performed in a script and figures are saved for more rapid access
+Data analysis and model analysis now performed in a script and figures
+are saved for more rapid access
 </td>
 </tr>
 <tr>
@@ -1380,7 +1482,13 @@ Re-built site.
 </center>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This document contains a summary of the data products produced for WP1 of the FACE-IT project. These data are available to all FACE-IT members via password protected pCloud access. These data are also used in the <a href="https://face-it-project.github.io/WP1/review.html">meta-analysis review</a> of the key drivers of change to arctic fjord ecosystems, which is a 24 month (October, 2022) deliverable.</p>
+<p>This document contains a summary of the data products produced for
+WP1 of the FACE-IT project. These data are available to all FACE-IT
+members via password protected pCloud access. These data are also used
+in the <a
+href="https://face-it-project.github.io/WP1/review.html">meta-analysis
+review</a> of the key drivers of change to arctic fjord ecosystems,
+which is a 24 month (October, 2022) deliverable.</p>
 <!-- # European Arctic -->
 </div>
 <div id="svalbard" class="section level1">
@@ -1390,17 +1498,44 @@ Re-built site.
 <p>High level summary of data available for Kongsfjorden.</p>
 <div class="figure">
 <img src="assets/summary_kong.png" alt="" />
-<p class="caption"><strong>Figure 1:</strong> High level overview of the data available for Kongsfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no social data for Kongsfjorden). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are.</p>
+<p class="caption"><strong>Figure 1:</strong> High level overview of the
+data available for Kongsfjorden. The acronyms for the variable groups
+seen throughout the figure are: bio = biology, chem = chemistry, cryo =
+cryosphere, phys = physical, soc = social (currently there are no social
+data for Kongsfjorden). A) Metadata showing the range of values
+available within the data. B) Spatial summary of data available per ~1
+km grouping. C) Temporal summary of available data. D) Summmary of data
+available by depth. Note that all of the data summaries are log10
+transformed. For C) and D) the log10 transformation is applied before
+the data are stacked by category, which gives the impression that there
+are much more data are than there are.</p>
 </div>
-<p>Monthly average values for temperature and salinity data. These are taken as illustrative figures for the data that are likely available per month as they are generally the two most highly sampled variables in marine science.</p>
+<p>Monthly average values for temperature and salinity data. These are
+taken as illustrative figures for the data that are likely available per
+month as they are generally the two most highly sampled variables in
+marine science.</p>
 <div class="figure">
 <img src="assets/clim_kong.png" alt="" />
-<p class="caption"><strong>Figure 2:</strong> Monthly climatologies for data at Kongsfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Kongsfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Kongsfjorden. Note the much higher salinity for February and how most of the values are much lower than would be assumed. Probably due to a different sort of salinity calculation being used. D) Spatial surface (0 to 10 m) salinity climatologies.</p>
+<p class="caption"><strong>Figure 2:</strong> Monthly climatologies for
+data at Kongsfjorden. The entire range of data was used for the
+climatology period. A) Temperature climatolgies at depths for all of
+Kongsfjorden. B) Spatial surface (0 to 10 m) temperature climatologies.
+C) Salinity climatologies at depth for all of Kongsfjorden. Note the
+much higher salinity for February and how most of the values are much
+lower than would be assumed. Probably due to a different sort of
+salinity calculation being used. D) Spatial surface (0 to 10 m) salinity
+climatologies.</p>
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/trend_kong.png" alt="" />
-<p class="caption"><strong>Figure 3:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. There also appear to be two different types of salinity measurements. A long record of values close to 20 and a more recent addition of higher values around 32-35. One assumes that the lower values are measures of runoff and not proper ocean water.</p>
+<p class="caption"><strong>Figure 3:</strong> Trends in A) temperature
+and B) salinity at different depth groups. The average annual values for
+all data are shown as diamonds, and the annual trends for these values
+are shown as coloured lines. There also appear to be two different types
+of salinity measurements. A long record of values close to 20 and a more
+recent addition of higher values around 32-35. One assumes that the
+lower values are measures of runoff and not proper ocean water.</p>
 </div>
 </div>
 <div id="isfjorden" class="section level2">
@@ -1408,35 +1543,77 @@ Re-built site.
 <p>High level summary of data available for Isfjorden.</p>
 <div class="figure">
 <img src="assets/summary_is.png" alt="" />
-<p class="caption"><strong>Figure 4:</strong> High level overview of the data available for Isfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no social data for Isfjorden). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are some important moorings outside of this bounding box that <em>are</em> included in the data counts. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are.</p>
+<p class="caption"><strong>Figure 4:</strong> High level overview of the
+data available for Isfjorden. The acronyms for the variable groups seen
+throughout the figure are: bio = biology, chem = chemistry, cryo =
+cryosphere, phys = physical, soc = social (currently there are no social
+data for Isfjorden). A) Metadata showing the range of values available
+within the data. B) Spatial summary of data available per ~1 km
+grouping. Note that there are some important moorings outside of this
+bounding box that <em>are</em> included in the data counts. C) Temporal
+summary of available data. D) Summmary of data available by depth. Note
+that all of the data summaries are log10 transformed. For C) and D) the
+log10 transformation is applied before the data are stacked by category,
+which gives the impression that there are much more data are than there
+are.</p>
 </div>
 <p>Monthly average values for temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/clim_is.png" alt="" />
-<p class="caption"><strong>Figure 5:</strong> Monthly climatologies for data at Isfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Isfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Isfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Isfjorden within the bounding box.</p>
+<p class="caption"><strong>Figure 5:</strong> Monthly climatologies for
+data at Isfjorden. The entire range of data was used for the climatology
+period. A) Temperature climatolgies at depths for all of Isfjorden. B)
+Spatial surface (0 to 10 m) temperature climatologies. C) Salinity
+climatologies at depth for all of Isfjorden. D) Spatial surface (0 to 10
+m) salinity climatologies. Note that there are no surface salinity
+values for Isfjorden within the bounding box.</p>
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/trend_is.png" alt="" />
-<p class="caption"><strong>Figure 6:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently many salinity data points for Isfjorden.</p>
+<p class="caption"><strong>Figure 6:</strong> Trends in A) temperature
+and B) salinity at different depth groups. The average annual values for
+all data are shown as diamonds, and the annual trends for these values
+are shown as coloured lines. Note that there are not currently many
+salinity data points for Isfjorden.</p>
 </div>
 </div>
 <div id="storfjorden" class="section level2">
 <h2>Storfjorden</h2>
-<p>High level summary of data available for Storfjorden. This replaces the original site of Inglefieldbukta.</p>
+<p>High level summary of data available for Storfjorden. This replaces
+the original site of Inglefieldbukta.</p>
 <div class="figure">
 <img src="assets/summary_stor.png" alt="" />
-<p class="caption"><strong>Figure 7:</strong> High level overview of the data available for Storfjorden The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are only physical data for Inglefieldbukta). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note that there are only two pixels because there are almost no data. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed.</p>
+<p class="caption"><strong>Figure 7:</strong> High level overview of the
+data available for Storfjorden The acronyms for the variable groups seen
+throughout the figure are: bio = biology, chem = chemistry, cryo =
+cryosphere, phys = physical, soc = social (currently there are only
+physical data for Inglefieldbukta). A) Metadata showing the range of
+values available within the data. B) Spatial summary of data available
+per ~1 km grouping. Note that there are only two pixels because there
+are almost no data. C) Temporal summary of available data. D) Summmary
+of data available by depth. Note that all of the data summaries are
+log10 transformed.</p>
 </div>
 <p>Monthly average values for temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/clim_stor.png" alt="" />
-<p class="caption"><strong>Figure 8:</strong> Monthly climatologies for data at Storfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Storfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Storfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Storfjorden within the bounding box.</p>
+<p class="caption"><strong>Figure 8:</strong> Monthly climatologies for
+data at Storfjorden. The entire range of data was used for the
+climatology period. A) Temperature climatolgies at depths for all of
+Storfjorden. B) Spatial surface (0 to 10 m) temperature climatologies.
+C) Salinity climatologies at depth for all of Storfjorden. D) Spatial
+surface (0 to 10 m) salinity climatologies. Note that there are no
+surface salinity values for Storfjorden within the bounding box.</p>
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/trend_stor.png" alt="" />
-<p class="caption"><strong>Figure 9:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not currently any salinity data points for Storfjorden.</p>
+<p class="caption"><strong>Figure 9:</strong> Trends in A) temperature
+and B) salinity at different depth groups. The average annual values for
+all data are shown as diamonds, and the annual trends for these values
+are shown as coloured lines. Note that there are not currently any
+salinity data points for Storfjorden.</p>
 </div>
 </div>
 </div>
@@ -1447,7 +1624,17 @@ Re-built site.
 <p>High level summary of data available for Young Sound.</p>
 <div class="figure">
 <img src="assets/summary_young.png" alt="" />
-<p class="caption"><strong>Figure 10:</strong> High level overview of the data available for Young Sound. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are only cryo and phys data for Young Sound). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are.</p>
+<p class="caption"><strong>Figure 10:</strong> High level overview of
+the data available for Young Sound. The acronyms for the variable groups
+seen throughout the figure are: bio = biology, chem = chemistry, cryo =
+cryosphere, phys = physical, soc = social (currently there are only cryo
+and phys data for Young Sound). A) Metadata showing the range of values
+available within the data. B) Spatial summary of data available per ~1
+km grouping. C) Temporal summary of available data. D) Summmary of data
+available by depth. Note that all of the data summaries are log10
+transformed. For C) and D) the log10 transformation is applied before
+the data are stacked by category, which gives the impression that there
+are much more data are than there are.</p>
 </div>
 <p>Monthly average values for temperature and salinity data.</p>
 <div class="figure" style="text-align: center">
@@ -1543,12 +1730,28 @@ Robert
 <p>High level summary of data available for Disko Bay.</p>
 <div class="figure">
 <img src="assets/summary_disko.png" alt="" />
-<p class="caption"><strong>Figure 13:</strong> High level overview of the data available for Disko Bay. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently there are no bio or soc data for Disko Bay). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~10 km grouping. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are.</p>
+<p class="caption"><strong>Figure 13:</strong> High level overview of
+the data available for Disko Bay. The acronyms for the variable groups
+seen throughout the figure are: bio = biology, chem = chemistry, cryo =
+cryosphere, phys = physical, soc = social (currently there are no bio or
+soc data for Disko Bay). A) Metadata showing the range of values
+available within the data. B) Spatial summary of data available per ~10
+km grouping. C) Temporal summary of available data. D) Summmary of data
+available by depth. Note that all of the data summaries are log10
+transformed. For C) and D) the log10 transformation is applied before
+the data are stacked by category, which gives the impression that there
+are much more data are than there are.</p>
 </div>
 <p>Monthly average values for temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/clim_disko.png" alt="" />
-<p class="caption"><strong>Figure 14:</strong> Monthly climatologies for data at Disko Bay. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Disko Bay. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Disko Bay. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no salinity values for Disko Bay and almost no temperature values.</p>
+<p class="caption"><strong>Figure 14:</strong> Monthly climatologies for
+data at Disko Bay. The entire range of data was used for the climatology
+period. A) Temperature climatolgies at depths for all of Disko Bay. B)
+Spatial surface (0 to 10 m) temperature climatologies. C) Salinity
+climatologies at depth for all of Disko Bay. D) Spatial surface (0 to 10
+m) salinity climatologies. Note that there are no salinity values for
+Disko Bay and almost no temperature values.</p>
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure" style="text-align: center">
@@ -1600,17 +1803,38 @@ Robert
 <p>High level summary of data available for Nuup Kangerlua.</p>
 <div class="figure">
 <img src="assets/summary_nuup.png" alt="" />
-<p class="caption"><strong>Figure 16:</strong> High level overview of the data available for Nuup Kangerlua. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently only chem and phys data are available). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~1 km grouping. Note how almost all of the data are from outside of the fjord. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are.</p>
+<p class="caption"><strong>Figure 16:</strong> High level overview of
+the data available for Nuup Kangerlua. The acronyms for the variable
+groups seen throughout the figure are: bio = biology, chem = chemistry,
+cryo = cryosphere, phys = physical, soc = social (currently only chem
+and phys data are available). A) Metadata showing the range of values
+available within the data. B) Spatial summary of data available per ~1
+km grouping. Note how almost all of the data are from outside of the
+fjord. C) Temporal summary of available data. D) Summmary of data
+available by depth. Note that all of the data summaries are log10
+transformed. For C) and D) the log10 transformation is applied before
+the data are stacked by category, which gives the impression that there
+are much more data are than there are.</p>
 </div>
 <p>Monthly average values for temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/clim_nuup.png" alt="" />
-<p class="caption"><strong>Figure 17:</strong> Monthly climatologies for data at Nuup Kangerlua. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Nuup Kangerlua. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Nuup Kangerlua. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no salinity values for Nuup Kangerlua and sparse temperature values.</p>
+<p class="caption"><strong>Figure 17:</strong> Monthly climatologies for
+data at Nuup Kangerlua. The entire range of data was used for the
+climatology period. A) Temperature climatolgies at depths for all of
+Nuup Kangerlua. B) Spatial surface (0 to 10 m) temperature
+climatologies. C) Salinity climatologies at depth for all of Nuup
+Kangerlua. D) Spatial surface (0 to 10 m) salinity climatologies. Note
+that there are no salinity values for Nuup Kangerlua and sparse
+temperature values.</p>
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/trend_nuup.png" alt="" />
-<p class="caption"><strong>Figure 18:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are no salinity data.</p>
+<p class="caption"><strong>Figure 18:</strong> Trends in A) temperature
+and B) salinity at different depth groups. The average annual values for
+all data are shown as diamonds, and the annual trends for these values
+are shown as coloured lines. Note that there are no salinity data.</p>
 </div>
 </div>
 </div>
@@ -1621,17 +1845,39 @@ Robert
 <p>High level summary of data available for Porsangerfjorden.</p>
 <div class="figure">
 <img src="assets/summary_por.png" alt="" />
-<p class="caption"><strong>Figure 19:</strong> High level overview of the data available for Porsangerfjorden. The acronyms for the variable groups seen throughout the figure are: bio = biology, chem = chemistry, cryo = cryosphere, phys = physical, soc = social (currently only chem and phys data are available). A) Metadata showing the range of values available within the data. B) Spatial summary of data available per ~10 km grouping. Note how a lot of data are from outside of the fjord. C) Temporal summary of available data. D) Summmary of data available by depth. Note that all of the data summaries are log10 transformed. For C) and D) the log10 transformation is applied before the data are stacked by category, which gives the impression that there are much more data are than there are.</p>
+<p class="caption"><strong>Figure 19:</strong> High level overview of
+the data available for Porsangerfjorden. The acronyms for the variable
+groups seen throughout the figure are: bio = biology, chem = chemistry,
+cryo = cryosphere, phys = physical, soc = social (currently only chem
+and phys data are available). A) Metadata showing the range of values
+available within the data. B) Spatial summary of data available per ~10
+km grouping. Note how a lot of data are from outside of the fjord. C)
+Temporal summary of available data. D) Summmary of data available by
+depth. Note that all of the data summaries are log10 transformed. For C)
+and D) the log10 transformation is applied before the data are stacked
+by category, which gives the impression that there are much more data
+are than there are.</p>
 </div>
 <p>Monthly average values for temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/clim_por.png" alt="" />
-<p class="caption"><strong>Figure 20:</strong> Monthly climatologies for data at Porsangerfjorden. The entire range of data was used for the climatology period. A) Temperature climatolgies at depths for all of Porsangerfjorden. B) Spatial surface (0 to 10 m) temperature climatologies. C) Salinity climatologies at depth for all of Porsangerfjorden. D) Spatial surface (0 to 10 m) salinity climatologies. Note that there are no surface salinity values for Porsangerfjorden and the salinity values are questionable.</p>
+<p class="caption"><strong>Figure 20:</strong> Monthly climatologies for
+data at Porsangerfjorden. The entire range of data was used for the
+climatology period. A) Temperature climatolgies at depths for all of
+Porsangerfjorden. B) Spatial surface (0 to 10 m) temperature
+climatologies. C) Salinity climatologies at depth for all of
+Porsangerfjorden. D) Spatial surface (0 to 10 m) salinity climatologies.
+Note that there are no surface salinity values for Porsangerfjorden and
+the salinity values are questionable.</p>
 </div>
 <p>Trends in temperature and salinity data.</p>
 <div class="figure">
 <img src="assets/trend_por.png" alt="" />
-<p class="caption"><strong>Figure 21:</strong> Trends in A) temperature and B) salinity at different depth groups. The average annual values for all data are shown as diamonds, and the annual trends for these values are shown as coloured lines. Note that there are not enough salinity data to calculate trends.</p>
+<p class="caption"><strong>Figure 21:</strong> Trends in A) temperature
+and B) salinity at different depth groups. The average annual values for
+all data are shown as diamonds, and the annual trends for these values
+are shown as coloured lines. Note that there are not enough salinity
+data to calculate trends.</p>
 </div>
 </div>
 </div>
@@ -1640,11 +1886,12 @@ Robert
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.2.0 (2022-04-22)
+<pre><code>R version 4.2.1 (2022-06-23)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 18.04.6 LTS
 
@@ -1654,38 +1901,45 @@ LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=en_GB.UTF-8    
- [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=en_GB.UTF-8   
- [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C                 
+ [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8    
+ [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+ [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
+[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] forcats_0.5.1   stringr_1.4.0   dplyr_1.0.9     purrr_0.3.4    
- [5] readr_2.1.2     tidyr_1.2.0     tibble_3.1.6    ggplot2_3.3.5  
- [9] tidyverse_1.3.1 workflowr_1.7.0
+ [1] forcats_0.5.2      stringr_1.4.1      dplyr_1.0.9        purrr_0.3.4       
+ [5] readr_2.1.2        tidyr_1.2.0        tibble_3.1.8       ggplot2_3.3.6.9000
+ [9] tidyverse_1.3.2    workflowr_1.7.0   
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.8.3     lubridate_1.8.0  getPass_0.2-2    ps_1.7.0        
- [5] assertthat_0.2.1 rprojroot_2.0.3  digest_0.6.29    utf8_1.2.2      
- [9] R6_2.5.1         cellranger_1.1.0 backports_1.4.1  reprex_2.0.1    
-[13] evaluate_0.15    highr_0.9        httr_1.4.2       pillar_1.7.0    
-[17] rlang_1.0.2      readxl_1.4.0     rstudioapi_0.13  whisker_0.4     
-[21] callr_3.7.0      jquerylib_0.1.4  rmarkdown_2.14   labeling_0.4.2  
-[25] munsell_0.5.0    broom_0.8.0      compiler_4.2.0   httpuv_1.6.5    
-[29] modelr_0.1.8     xfun_0.30        pkgconfig_2.0.3  htmltools_0.5.2 
-[33] tidyselect_1.1.2 fansi_1.0.3      withr_2.5.0      crayon_1.5.1    
-[37] tzdb_0.3.0       dbplyr_2.1.1     later_1.3.0      grid_4.2.0      
-[41] jsonlite_1.8.0   gtable_0.3.0     lifecycle_1.0.1  DBI_1.1.2       
-[45] git2r_0.30.1     magrittr_2.0.3   scales_1.2.0     cli_3.3.0       
-[49] stringi_1.7.6    farver_2.1.0     fs_1.5.2         promises_1.2.0.1
-[53] xml2_1.3.3       bslib_0.3.1      ellipsis_0.3.2   generics_0.1.2  
-[57] vctrs_0.4.1      tools_4.2.0      glue_1.6.2       hms_1.1.1       
-[61] processx_3.5.3   fastmap_1.1.0    yaml_2.3.5       colorspace_2.0-3
-[65] rvest_1.0.2      knitr_1.39       haven_2.5.0      sass_0.4.1      </code></pre>
+ [1] Rcpp_1.0.9          lubridate_1.8.0     getPass_0.2-2      
+ [4] ps_1.7.1            assertthat_0.2.1    rprojroot_2.0.3    
+ [7] digest_0.6.29       utf8_1.2.2          R6_2.5.1           
+[10] cellranger_1.1.0    backports_1.4.1     reprex_2.0.2       
+[13] evaluate_0.16       highr_0.9           httr_1.4.4         
+[16] pillar_1.8.1        rlang_1.0.4         readxl_1.4.1       
+[19] googlesheets4_1.0.1 rstudioapi_0.14     whisker_0.4        
+[22] callr_3.7.2         jquerylib_0.1.4     rmarkdown_2.16     
+[25] labeling_0.4.2      googledrive_2.0.0   munsell_0.5.0      
+[28] broom_1.0.0         compiler_4.2.1      httpuv_1.6.5       
+[31] modelr_0.1.9        xfun_0.32           pkgconfig_2.0.3    
+[34] htmltools_0.5.3     tidyselect_1.1.2    fansi_1.0.3        
+[37] crayon_1.5.1        withr_2.5.0         tzdb_0.3.0         
+[40] dbplyr_2.2.1        later_1.3.0         grid_4.2.1         
+[43] jsonlite_1.8.0      gtable_0.3.0        lifecycle_1.0.1    
+[46] DBI_1.1.3           git2r_0.30.1        magrittr_2.0.3     
+[49] scales_1.2.1        cli_3.3.0           stringi_1.7.8      
+[52] cachem_1.0.6        farver_2.1.1        fs_1.5.2           
+[55] promises_1.2.0.1    xml2_1.3.3          bslib_0.4.0        
+[58] ellipsis_0.3.2      generics_0.1.3      vctrs_0.4.1        
+[61] tools_4.2.1         glue_1.6.2          hms_1.1.2          
+[64] processx_3.7.0      fastmap_1.1.0       yaml_2.3.5         
+[67] colorspace_2.0-3    gargle_1.2.0        rvest_1.0.3        
+[70] knitr_1.40          haven_2.5.1         sass_0.4.2         </code></pre>
 </div>
 </div>
 

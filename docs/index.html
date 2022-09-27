@@ -13,7 +13,7 @@
 
 <title>index.knit.md</title>
 
-<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -153,11 +153,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -297,6 +301,12 @@ $(document).ready(function () {
     <li>
       <a href="2022_seminar.html">FACE-IT seminar - 2022</a>
     </li>
+    <li>
+      <a href="2022_review_blank.html">FACE-IT 18 month review - 2022</a>
+    </li>
+    <li>
+      <a href="2022_IPCC_webinar_blank.html">Mind the gap - 2022</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -342,7 +352,9 @@ $(document).ready(function () {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -351,7 +363,9 @@ $(document).ready(function () {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -360,17 +374,27 @@ $(document).ready(function () {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-05-27
+<strong>Last updated:</strong> 2022-09-23
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>WP1/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>WP1/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -379,31 +403,54 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedd484953b2e5b54bbb03ed56069c1c0d29f127atargetblankedd4849a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/FACE-IT-project/WP1/tree/edd484953b2e5b54bbb03ed56069c1c0d29f127a" target="_blank">edd4849</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46937ad6da9c0b4a98318fb1142649aca5cd360dtargetblank46937ada" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeedd484953b2e5b54bbb03ed56069c1c0d29f127atargetblankedd4849a"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/FACE-IT-project/WP1/tree/46937ad6da9c0b4a98318fb1142649aca5cd360d" target="_blank">46937ad</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/FACE-IT-project/WP1/tree/edd484953b2e5b54bbb03ed56069c1c0d29f127a" target="_blank">edd4849</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
@@ -411,6 +458,8 @@ Ignored files:
     Ignored:    .Rproj.user/
     Ignored:    code/ny-alesund_cc_pf_rws.R
     Ignored:    data/MUR/
+    Ignored:    data/analyses/clean_all.RData
+    Ignored:    data/analyses/ice_4km_proc.RData
     Ignored:    data/full_data/
     Ignored:    data/model/
     Ignored:    data/pg_data/
@@ -421,14 +470,17 @@ Ignored files:
     Ignored:    data/sst_sval.RData
     Ignored:    data/sst_trom.RData
     Ignored:    metadata/pangaea_parameters.tab
+    Ignored:    metadata/pg_EU_ref_meta.csv
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
     Ignored:    shiny/dataAccess/full_data
-    Ignored:    shiny/kongCTD/data_base.Rds
+    Ignored:    shiny/kongCTD/data/data_base.Rds
     Ignored:    shiny/test_data/
 
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -439,7 +491,11 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML (<code>docs/index.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML
+(<code>docs/index.html</code>) files. If you’ve configured a remote Git
+repository (see <code>?wflow_git_remote</code>), click on the hyperlinks
+in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -463,6 +519,91 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/3214d7f06e4d9425942422906aad33c8437a7c36/docs/index.html" target="_blank">3214d7f</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/110a5e34427bcf8b73d7fdb3ae937a7fb4664152/docs/index.html" target="_blank">110a5e3</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/6b15d77f0b8701e10ae0b7993b7a844cfa5c90b3/docs/index.html" target="_blank">6b15d77</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/99b3de349ea9b4d8e382e012efea1ca5b747ef9e/docs/index.html" target="_blank">99b3de3</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/8a8fd0b51ec94fb19d65be729fca3c04bb8285ef/docs/index.html" target="_blank">8a8fd0b</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2022-05-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -1972,16 +2113,66 @@ Start workflowr project.
 <img src="assets/h2020_grant.png" style="width:100.0%" />
 </center>
 <p><br></p>
-<p>Welcome to the GitHub pages site for work package one (WP1) of <a href="https://www.face-it-project.eu/">FACE-IT</a>. This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement # 869154. The primary purpose of this site is to provide a convenient user interface for the summaries of the drivers of change in the European Arctic as well as the meta-database for the data needed by the various work packages (WPs) in the FACE-IT project. As analyses are completed to understand the drivers of change at the FACE-IT study sites they will be added to this site.</p>
-<p>The primary objective of WP1 is to identify and analyse the major drivers of changing coastal marine biodiversity in the Arctic. It also aims at managing and disseminating the data and analyses both within and outside the consortium. The key drivers identified in WP1 will form the operative base for all WPs. Both external, mostly abiotic, drivers (acting at large-scale and emphasized by the Paris Agreement; e.g. temperature, underwater light, salinity, ocean pH, sea level, invasive species) and internal drivers (acting at the scale of a study site; cryosphere changes such as sea ice and glacier retreat, ecological processes, local management) are considered. Whenever possible, historical and projected changes are assessed. Importantly, some of the variables which are considered are drivers as well as responses to other drivers (e.g. biodiversity). Also considered are indirect drivers (tourism, fishing and hunting) of biodiversity changes and their interaction with direct drivers.</p>
-<p>Please use the tabs at the top of the site to navigate. To see a summary of the key drivers click the “Key drivers” tab. Clicking on the “Meta-database” tab will go to the page that contains the meta-database for the key drivers of change at the FACE-IT study sites. A more in depth review of these drivers may be found by clicking the “Review of drivers” tab. The “Analyses” tabs contains discrete analyses performed on data in the Arctic that may be of interest to FACE-IT members and the broader public (currently inactive). To see the raw code used for the workflow/pipeline of these analyses please follow the link in the top right of this page to the <code>source code</code> repository. Once there the raw workflow code may be found in the <code>code/</code> folder in various scripts, and the markdown files for the analyses may be found in the <code>analysis</code> folder. The functions etc. utilised throughout the code base may be found in the <code>code/functions.R</code> script. The code used to create the figures and tables may be found in the <code>code/visualising.R</code> script. Please note that not all of the objects used in these scripts are saved in the GitHub repo as many of them are far too large. For these larger files one will need to request access to the FACE-IT pCloud folder. Or one may search the meta-database tables for links to where the original data may be downloaded.</p>
+<p>Welcome to the GitHub pages site for work package one (WP1) of <a
+href="https://www.face-it-project.eu/">FACE-IT</a>. This project has
+received funding from the European Union’s Horizon 2020 research and
+innovation programme under grant agreement # 869154. The primary purpose
+of this site is to provide a convenient user interface for the summaries
+of the drivers of change in the European Arctic as well as the
+meta-database for the data needed by the various work packages (WPs) in
+the FACE-IT project. As analyses are completed to understand the drivers
+of change at the FACE-IT study sites they will be added to this
+site.</p>
+<p>The primary objective of WP1 is to identify and analyse the major
+drivers of changing coastal marine biodiversity in the Arctic. It also
+aims at managing and disseminating the data and analyses both within and
+outside the consortium. The key drivers identified in WP1 will form the
+operative base for all WPs. Both external, mostly abiotic, drivers
+(acting at large-scale and emphasized by the Paris Agreement;
+e.g. temperature, underwater light, salinity, ocean pH, sea level,
+invasive species) and internal drivers (acting at the scale of a study
+site; cryosphere changes such as sea ice and glacier retreat, ecological
+processes, local management) are considered. Whenever possible,
+historical and projected changes are assessed. Importantly, some of the
+variables which are considered are drivers as well as responses to other
+drivers (e.g. biodiversity). Also considered are indirect drivers
+(tourism, fishing and hunting) of biodiversity changes and their
+interaction with direct drivers.</p>
+<p>Please use the tabs at the top of the site to navigate. To see a
+summary of the key drivers click the “Key drivers” tab. Clicking on the
+“Meta-database” tab will go to the page that contains the meta-database
+for the key drivers of change at the FACE-IT study sites. A more in
+depth review of these drivers may be found by clicking the “Review of
+drivers” tab. The “Analyses” tabs contains discrete analyses performed
+on data in the Arctic that may be of interest to FACE-IT members and the
+broader public (currently inactive). To see the raw code used for the
+workflow/pipeline of these analyses please follow the link in the top
+right of this page to the <code>source code</code> repository. Once
+there the raw workflow code may be found in the <code>code/</code>
+folder in various scripts, and the markdown files for the analyses may
+be found in the <code>analysis</code> folder. The functions etc.
+utilised throughout the code base may be found in the
+<code>code/functions.R</code> script. The code used to create the
+figures and tables may be found in the <code>code/visualising.R</code>
+script. Please note that not all of the objects used in these scripts
+are saved in the GitHub repo as many of them are far too large. For
+these larger files one will need to request access to the FACE-IT pCloud
+folder. Or one may search the meta-database tables for links to where
+the original data may be downloaded.</p>
 <!-- Add text better explaining the sections and sub-sections and why they have been organised thus. -->
 <!-- Also need to better address social drivers. Write about this up front here. -->
 <p>A short summary of the FACE-IT project:</p>
 <blockquote>
-<p>Glacier fronts and sea ice systems are hotspots of biodiversity. Their retreat will pose threats to Arctic coastal ecosystem function and eventually local livelihoods. The Arctic is a harbinger of the consequences of multiple global and regional environmental change on ecosystems and livelihoods: The overarching objective of FACE-IT is to enable adaptive co-management of social-ecological fjord systems in the Arctic in the face of rapid cryosphere and biodiversity changes.</p>
+<p>Glacier fronts and sea ice systems are hotspots of biodiversity.
+Their retreat will pose threats to Arctic coastal ecosystem function and
+eventually local livelihoods. The Arctic is a harbinger of the
+consequences of multiple global and regional environmental change on
+ecosystems and livelihoods: The overarching objective of FACE-IT is to
+enable adaptive co-management of social-ecological fjord systems in the
+Arctic in the face of rapid cryosphere and biodiversity changes.</p>
 </blockquote>
-<p>Learn more at the <a href="https://www.face-it-project.eu/">official website</a>.</p>
+<p>Learn more at the <a href="https://www.face-it-project.eu/">official
+website</a>.</p>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using

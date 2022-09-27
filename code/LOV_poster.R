@@ -185,7 +185,7 @@ panel_b <- ggraph(net, layout = "circle") +
                            values = c("purple", "blue", "red")) +
   scale_colour_manual("Driver trends\nand impacts",
                       breaks = c("increase", "decrease", "complex"),
-                      labels = c("increse", "decrease", "both"),
+                      labels = c("increase", "decrease", "both"),
                       values = c("red", "blue", "purple")) +
   scale_fill_manual("Category", 
                     breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
@@ -208,7 +208,7 @@ ggsave("figures/LOV_fig_1B.png", panel_b, width = 14, height = 12)
 # Final -------------------------------------------------------------------
 
 # Combine
-fig_11 <- ggpubr::ggarrange(panel_a, panel_b, ncol = 2,
+fig_1 <- ggpubr::ggarrange(panel_a, panel_b, ncol = 2,
                            labels = c("A)", "B)"), font.label = list(size = 24))
 
 # Save
