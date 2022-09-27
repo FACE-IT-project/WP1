@@ -833,7 +833,7 @@ summary_tourism <- review_summary(clean_tourism)
 review_summary_plot(summary_tourism, "tourism")
 
 
-## Shipping ---------------------------------------------------------------
+## Fisheries ---------------------------------------------------------------
 
 # Test check for all soc vars to make sure no desired vars are missed
 as.vector(distinct(filter(full_product_is, var_type == "soc"), var_name))
@@ -860,7 +860,6 @@ summary_shipping <- review_summary(clean_shipping)
 review_summary_plot(summary_shipping, "shipping")
 
 
-## Landings ----------------------------------------------------------------
 
 # Currently no landings data
 # Need to find this from government statistic/fisheries sites
@@ -934,6 +933,7 @@ ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 
 # Load all clean data
 clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
+load("data/analyses/clean_all.RData")
 
 # Combine some variables for better correlations
 clean_all_sp_count <- clean_all %>% 
