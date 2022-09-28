@@ -2037,17 +2037,22 @@ trend_calc <- function(df){
 # Calculate linear models on all possible driver comparisons for two given drivers
 lm_all <- function(df_idx, df_main){
   df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
+  if(nrow(df_sub) < 3) return()
+  df_join <- df_main %>% 
+    filter(driver != df_sub$driver[1]) %>% 
+    right_join(df_sub, by = c("site", "date")) %>% 
+    filter(!is.na(value.x), !is.na(value.y))
+  if(nrow(df_join) < 3) return()
   suppressWarnings(
-  df_compare <- df_main %>% 
-    left_join(df_sub, by = c("site", "date")) %>% 
-    filter(!is.na(value.x), !is.na(value.y)) %>% 
-    nest_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>%
-    mutate(mod = list(lm(value.x ~ value.y, data = data, ))) %>%
-    summarise(broom::glance(mod), .groups = "drop") %>% 
-    dplyr::select(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y, adj.r.squared, p.value, nobs) %>% 
-    filter(!is.na(adj.r.squared), !is.na(p.value)) %>% 
-    mutate(adj.r.squared = round(adj.r.squared, 4), p.value = round(p.value, 4))
+    df_compare <- df_join %>% 
+      nest_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>%
+      mutate(mod = list(lm(value.x ~ value.y, data = data, ))) %>%
+      summarise(broom::glance(mod), .groups = "drop") %>% 
+      dplyr::select(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y, adj.r.squared, p.value, nobs) %>% 
+      filter(!is.na(adj.r.squared), !is.na(p.value)) %>% 
+      mutate(adj.r.squared = round(adj.r.squared, 4), p.value = round(p.value, 4))
   )
+  rm(df_sub, df_join); gc()
   return(df_compare)
 }
 
@@ -2074,7 +2079,8 @@ driver2_lm <- function(driver1, driver2){
     filter(!is.na(value)); gc()
   
   # The list of possible variables to compare
-  df_var <- df_mean_month_depth %>% dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
+  df_var <- df_mean_month_depth %>% filter(driver == driver1) %>% 
+    dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
   
   # Brute force
   df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth)

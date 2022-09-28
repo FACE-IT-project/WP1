@@ -134,6 +134,9 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 
 ### Sea ice ----------------------------------------------------------------
 
+# TODO: Look into sea ice variables with depths below the surface
+# Check if ablation [m w.e.] should be a land or surface value
+
 # Collect all ice related data
 # https://doi.org/10.1594/PANGAEA.935267; bi [code] = ice of land origin, ci [code] = sea ice concentration, zi [code] = ice situation
 # https://doi.org/10.1594/PANGAEA.269605; t [°C] = temperature ice/snow
