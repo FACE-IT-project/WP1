@@ -159,7 +159,7 @@ disko_sea_ice <- filter(rbind(full_product_disko, disko_GEM), var_type == "cryo"
 nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), var_type == "cryo") %>% mutate(site = "nuup") %>% slice(0) # No sea ice data
 por_sea_ice <- filter(full_product_por, var_type == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "por")
 clean_sea_ice <- rbind(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice) %>% 
-  mutate(type = "in situ", var_group = "Ice vars")
+  mutate(type = "in situ", var_group = "Sea ice")
 rm(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice); gc()
 
 # Figures
@@ -502,6 +502,8 @@ review_summary_plot(summary_light, "par")
 
 ### pCO2 -------------------------------------------------------------------
 
+# TODO: Also get pH, TA, CaCO3
+
 # NB: For this and other chemistry variables see best practices sent by JP on Slack
 # Also see e-mail from Liqing Jiang
 
@@ -842,11 +844,11 @@ load("data/analyses/clean_all.RData")
 # Combine some variables for better correlations
 clean_all_sp_count <- clean_all %>% 
   filter(driver == "Species", value != 0) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type) %>% 
+  group_by(date_accessed, URL, citation, type, site, category, driver, lon, lat, date, depth) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
   mutate(variable = "sps_count")
 clean_all_clean <- clean_all %>% 
-  filter(var_group != "Species") %>% 
+  filter(driver != "Species") %>% 
   rbind(clean_all_sp_count)
 rm(clean_all, clean_all_sp_count); gc()
 
@@ -855,12 +857,12 @@ clean_all_monthly <- clean_all_clean %>%
   filter(!is.na(date)) %>% 
   # filter(depth <= 10 | is.na(depth)) %>% 
   mutate(month_year = lubridate::floor_date(date, "month")) %>% 
-  group_by(var_group, var_name, site, month_year) %>% 
+  group_by(site, category, driver, variable, month_year) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Wide format
 clean_all_wide <- clean_all_monthly %>% 
-  pivot_wider(id_cols = c(var_group, site, month_year), names_from = var_name, values_from = value)
+  pivot_wider(id_cols = c(site, category, driver, month_year), names_from = variable, values_from = value)
 
 
 ### Relationships from the network analysis - created via the review paper
@@ -874,58 +876,59 @@ clean_all_wide <- clean_all_monthly %>%
 # This is one of the main points that will feed back into the review paper
 
 # The drivers
-unique(clean_all_clean$var_group)
+unique(clean_all_clean$driver)
 
 ## Cryosphere
 # sea ice -> sea temp
 # Filter out the chosen drivers
 ice_temp <- clean_all_clean %>% 
-  filter(var_group %in% c("Ice vars", "Sea temp"))
+  filter(driver %in% c("Ice vars", "Sea temp"))
 # List variables
-unique(ice_temp$var_name)
+unique(ice_temp$variable)
 # Meta-data by variable and site
 # References per variable
 ice_temp_ref <- ice_temp %>% 
-  dplyr::select(site, var_name, citation) %>% 
+  dplyr::select(site, variable, citation) %>% 
   distinct() %>% 
-  group_by(site, var_name) %>% 
+  group_by(site, variable) %>% 
   summarise(n_ref = n(), .groups = "drop")
 # Availability by month - proportion
 ice_temp_month <- ice_temp %>% 
-  dplyr::select(site, var_name, date) %>% 
+  dplyr::select(site, variable, date) %>% 
   distinct() %>% 
   mutate(month = month(date)) %>% 
   filter(!is.na(month)) %>% 
-  group_by(site, var_name, month) %>% 
+  group_by(site, variable, month) %>% 
   summarise(n_month = n(), .groups = "drop") %>% 
-  group_by(site, var_name) %>% 
+  group_by(site, variable) %>% 
   mutate(sum_month = sum(n_month, na.rm = T),
          prop_month = n_month/sum_month)
 # Availability at depth
 ice_temp_depth <- ice_temp %>% 
-  dplyr::select(site, var_name, depth) %>% 
+  dplyr::select(site, variable, depth) %>% 
   distinct() %>% 
   mutate(depth = round(depth, -1)) %>% 
   # filter(!is.na(depth)) %>% # May want to convert NA to 0 as these are almost always on-the-surface values
-  group_by(site, var_name, depth) %>% 
+  group_by(site, variable, depth) %>% 
   summarise(n_depth = n(), .groups = "drop") %>% 
-  group_by(site, var_name) %>% 
+  group_by(site, variable) %>% 
   mutate(sum_depth = sum(n_depth, na.rm = T),
          prop_depth = n_depth/sum_depth)
 # Availability over time
 ice_temp_date <- ice_temp %>% 
-  dplyr::select(site, var_name, date) %>% 
+  dplyr::select(site, variable, date) %>% 
   filter(!is.na(date)) %>%
   distinct() %>% 
   mutate(year = year(date)) %>%
-  group_by(site, var_name, year) %>% 
+  group_by(site, variable, year) %>% 
   summarise(n_year = n(), .groups = "drop") %>% 
-  group_by(site, var_name) %>% 
+  group_by(site, variable) %>% 
   mutate(sum_year = sum(n_year, na.rm = T),
          prop_year = round(n_year/sum_year, 4))
 # Changes over time by depth
+## By monthly and by annually
 ice_temp_depth_change <- ice_temp %>% 
-  dplyr::select(site, var_name, date, depth, value) %>% 
+  dplyr::select(site, variable, date, depth, value) %>% 
   filter(!is.na(date)) %>%
   distinct() %>% 
   mutate(year = year(date),
@@ -935,12 +938,12 @@ ice_temp_depth_change <- ice_temp %>%
                            depth <= 50 ~ "10 to 50",
                            depth <= 200 ~ "50 to 200",
                            depth > 200 ~ "+200")) %>%
-  group_by(site, var_name, year, depth) %>% 
+  group_by(site, variable, year, depth) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
   filter(!is.na(value))
 # Monthly climatologies by depth
 ice_temp_depth_clim <- ice_temp %>% 
-  dplyr::select(site, var_name, date, depth, value) %>% 
+  dplyr::select(site, variable, date, depth, value) %>% 
   filter(!is.na(date)) %>%
   distinct() %>% 
   mutate(month = month(date),
@@ -950,12 +953,51 @@ ice_temp_depth_clim <- ice_temp %>%
                            depth <= 50 ~ "10 to 50",
                            depth <= 200 ~ "50 to 200",
                            depth > 200 ~ "+200")) %>%
-  group_by(site, var_name, month, depth) %>% 
+  group_by(site, variable, month, depth) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
   filter(!is.na(value))
 # Relationships cross-wise between drivers - monthly averages
+## First get monthly averages per site, depth etc.
+## Then get the names of every variable in driver 1
+## Use plyr::ldply() to then run grouped lm() on all variables between drivers
+## Depth may be a bit tricky because not all depths are comparable
+## So rather just hit all of them
+## Also create an index column that allows for comparison of a given variable to itself
 # n() of compared data points
 # Years of comparison
+
+df_mean_month_depth <- ice_temp %>% 
+  dplyr::select(type, site, driver, variable, date, depth, value) %>% 
+  filter(!is.na(date)) %>%
+  distinct() %>% 
+  mutate(date = lubridate::round_date(date, unit = "month"),
+         depth = case_when(depth < 0 ~ "land",
+                           is.na(depth) ~ "surface",
+                           depth <= 10 ~ "0 to 10",
+                           depth <= 50 ~ "10 to 50",
+                           depth <= 200 ~ "50 to 200",
+                           depth > 200 ~ "+200")) %>%
+  group_by(type, site, driver, variable, date, depth) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(value))
+gc()
+
+df_var <- df_mean_month_depth %>% dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
+lm_all <- function(df_idx, df_main){
+  df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
+  df_compare <- df_main %>% 
+    left_join(df_sub, by = c("site", "date")) %>% 
+    filter(!is.na(value.x), !is.na(value.y)) %>% 
+    nest_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>%
+    mutate(mod = list(lm(value.x ~ value.y, data = data, ))) %>%
+    summarise(broom::glance(mod), .groups = "drop") %>% 
+    dplyr::select(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y, adj.r.squared, p.value, nobs) %>% 
+    mutate(adj.r.squared = round(adj.r.squared, 4), p.value = round(p.value, 4))
+  return(df_compare)
+}
+df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth)
+
+
 
 # sea ice -> light
 # sea ice -> biomass
