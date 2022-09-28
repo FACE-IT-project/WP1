@@ -100,149 +100,57 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
-# print(net, e=TRUE, v=TRUE)
 
-# Generate colors based on media type:
-# Cryosphere can be either "mintcream" or "violet"
-cat_colours <- c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")
-trend_colours <- c("blue", "purple", "red")
-V(net)$cat_colour <- cat_colours[V(net)$cat_num]
-V(net)$trend_colour <- trend_colours[V(net)$trend_num]
-# V(net)$rel_fac <- base::factor(x = V(net)$relationship, levels = c("positive", "negative", "both"))
-
-
-## Heatmap
-netm <- get.adjacency(net, attr = "to_num", sparse = F)
-colnames(netm) <- V(net)$driver
-rownames(netm) <- V(net)$driver
-
-palf <- colorRampPalette(c("white", "blue", "purple", "red")) 
-heatmap(netm, Rowv = NA, Colv = NA, col = palf(4), 
-        symm = T, # Flip the axes so that x-axis relates the direction of effect
-        scale = "none", margins = c(10,10), revC = T,
-        ColSideColors = trend_colours[nodes$trend_num],
-        RowSideColors = trend_colours[nodes$trend_num])
-
-## Network charts
-# Layout options:
-# ‘star’, ‘circle’, ‘grid’, ‘sphere’, ‘kk’, ‘fr’, ‘mds’, ‘lgl’, 
-# Consistent results: circle, star, kk, mds
-
-# Linear network
-ggraph(net, layout = "linear") + 
-  geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
-                  shape = 21, size = 8, stroke = 2) +
-  geom_edge_arc(aes(color = relationship), 
-                arrow = arrow(length = unit(0.03, "npc"), type = "closed")) +
-  geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
-  scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
-  theme_void() + theme(plot.background = element_rect(fill = "white", colour = "black"))
-ggsave("~/Desktop/network_linear.png", height = 5, width = 6)
-
-# Web network
-ggraph(net, layout = "mds") + # kk OR mds
-  geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
-                  shape = 21, size = 8, stroke = 2) + # size by audience size  
-  geom_edge_link(aes(color = relationship), 
-                 arrow = arrow(length = unit(0.03, "npc"), type = "closed")) +   
-  geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
-  scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
-  theme_void() + theme(plot.background = element_rect(fill = "white", colour = "black"))
-ggsave("~/Desktop/network_web.png", height = 5, width = 6)
+# Dataframe to manually place individual labels
+net_label_coords <- data.frame(label = nodes$driver[1:14],
+                               category = nodes$category[1:14],
+                               x = c(1.07, 0.98, 0.85, # Cryosphere
+                                     0.23, -0.22, -0.63, # Physics
+                                     -0.92, -1.0, # Chemistry
+                                     -0.95, -0.63, -0.225, # Biology
+                                     0.225, 0.63, 0.91), # Social
+                               y = c(0.088, 0.523, 0.87, # Cryosphere
+                                     1.062, 1.062, 0.872, # Physics
+                                     0.52, 0.09, # Chemistry
+                                     -0.52, -0.87, -1.063, # Biology
+                                     -1.063, -0.871, -0.523)) # Social
 
 # Circle network
-ggraph(net,  layout = "circle") +
-  geom_node_point(aes(fill = category), colour = V(net)$trend_colour, 
-                  shape = 21, size = 8, stroke = 2) + # size by audience size  
-  geom_edge_link(aes(colour = to_sign), show.legend = T,
-                 arrow = arrow(length = unit(0.03, "npc"), type = "closed")) +     
-  geom_node_label(aes(label = driver), size = 3, color = "black", repel = T, segment.colour = NA) +
-  scale_edge_colour_manual("Trend/\nRelationship", values = c("purple", "blue", "red")) +
-  theme_void() + theme(plot.background = element_rect(fill = "white", colour = "black"))
-ggsave("~/Desktop/network_circle.png", height = 5, width = 6)
+rp_fig_2_plot <- ggraph(net, layout = "circle") +
+  geom_edge_fan(aes(colour = to_sign), width = 2, alpha = 0.8, show.legend = F,
+                arrow = arrow(length = unit(0.025, "npc"), type = "closed")) +
+  geom_node_point(aes(fill = category, colour = trend),
+                  shape = 21, size = 16, stroke = 3) +
+  geom_label(data = net_label_coords, aes(label = label, x = x, y = y, fill = category), 
+             size = 7, color = "black", show.legend = F,
+             label.padding = unit(0.4, "lines"), label.size = unit(0.7, "lines")) +
+  scale_edge_colour_manual("Trend/\nImpact", 
+                           breaks = c("increase", "decrease", "complex"),
+                           values = c("purple", "blue", "red")) +
+  scale_colour_manual("Driver trends\nand impacts",
+                      breaks = c("increase", "decrease", "complex"),
+                      labels = c("increase", "decrease", "both"),
+                      values = c("red", "blue", "purple")) +
+  scale_fill_manual("Category", 
+                    breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
+                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  scale_x_reverse(limits = c(1.2, -1.2)) +
+  guides(colour = guide_legend(order = 1, label.position = "right", override.aes = list(shape = 15, size = 16)),
+         fill = "none") +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+        plot.margin = margin(t = -10, r = -10, b = -10, l = 0, unit = "pt"),
+        legend.position = c(0.908, 0.136),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        legend.background = element_rect(fill = "white", colour = "black"),
+        legend.margin = margin(t = 10, r = 15, b = 10, l = 10, unit = "pt"))
 
 # Combine and save
 ggsave("figures/rp_fig_2.png", rp_fig_2_plot, width = 10, height = 10)
 
 ### Interactive networks
 # https://kateto.net/network-visualization
-
-## visNetwork
-library(visNetwork)
-
-# Base example
-visNetwork(nodes, edges, width="100%", height="400px")
-
-# Prep for more complexity
-vis.nodes <- nodes
-vis.links <- edges
-
-# Change dot aesthetics
-vis.nodes$shape  <- "dot"  
-vis.nodes$shadow <- TRUE # Nodes will drop shadow
-vis.nodes$title  <- vis.nodes$category # Text on click
-vis.nodes$label  <- vis.nodes$driver # Node label
-# vis.nodes$size   <- vis.nodes$audience.size # Node size
-vis.nodes$borderWidth <- 2 # Node border width
-
-# Change click aesthetics
-vis.nodes$color.background <- c("violet", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")[nodes$cat_num]
-vis.nodes$color.border <- c("blue", "purple", "red")[nodes$trend_num]
-vis.nodes$color.highlight.background <- "orange"
-vis.nodes$color.highlight.border <- vis.nodes$color.border
-
-# Change line aesthetics
-# vis.links$width <- 1+links$weight/8 # line width
-# vis.links$color <- "gray"    # line color  
-vis.links$arrows <- "middle" # arrows: 'from', 'to', or 'middle'
-vis.links$smooth <- FALSE    # should the edges be curved?
-vis.links$shadow <- FALSE    # edge shadow
-
-# Assign to object
-visnet <- visNetwork(vis.nodes, vis.links)
-
-# Visualise
-visnet
-
-# More options
-visOptions(visnet, highlightNearest = TRUE, selectedBy = "category")
-
-## threejs
-# NB: Must be visualised in a web browser, not RStudio
-library(threejs)
-
-# Set base
-net.js <- net
-graph_attr(net.js, "layout") <- NULL 
-
-# Visualise
-graphjs(net.js, main = "Arctic Fjords", bg = "gray10", showLabels = T, stroke = F, 
-        curvature = 0.1, attraction = 0.9, repulsion = 0.8, opacity = 0.9)
-
-## networkD3
-library(networkD3)
-
-# Convert node IDs
-# This somehow gets messed up...
-links.d3 <- data.frame(from=as.numeric(factor(edges$from))-1, 
-                       to=as.numeric(factor(edges$to))-1 )
-# nodes.d3 <- cbind(idn = factor(nodes$category, levels = unique(nodes$category)), nodes)
-nodes.d3 <- cbind(idn = nodes$driver, nodes)
-
-# Visualise
-forceNetwork(Links = links.d3, Nodes = nodes.d3, Source = "from", Target = "to",
-             NodeID = "idn", Group = "category", linkWidth = 1,
-             linkColour = "#afafaf", fontSize = 12, zoom = T, legend = T,
-             # Nodesize = 7, # Column number where sizes are stored
-             opacity = 0.8, charge = -300,
-             width = 500, height = 500)
-
-# With arrows ... needs work
-forceNetwork(Links = links.d3, Nodes = nodes.d3, Source = "from",
-             Target = "to", 
-             Value = "from",
-             NodeID = "idn",
-             Group = "category", opacity = 0.4, arrows = TRUE)
 
 ## ndtv
 # NB: With more work this could allow for describing the relationships with popup notes

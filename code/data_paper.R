@@ -292,7 +292,7 @@ review_summary_plot(summary_glacier, "glacier")
 # Look for specific DOI in each site file
 
 
-### Glacier + river discharge ----------------------------------------------
+### Discharge ---------------------------------------------------------------
 
 # Pedro Duarte has contacted a colleague to get Kongsfjorden area river discharge data
 
@@ -305,13 +305,13 @@ EU_GRDC <- read_csv("~/pCloudDrive/restricted_data/GRDC/grdc_arctichycos_station
 site_GRDC <- map_dfr(dir("~/pCloudDrive/restricted_data/GRDC", pattern = "Cmd.txt", full.names = T), load_GRDC)
 
 # Get all river discharge data from full/GEM products
-kong_river <- review_filter_var(full_product_kong, "kong", "river|disc|Q", "Disco|hetero|equ|AT|dhdt") # No river discharge data
-is_river <- review_filter_var(full_product_is, "is", "river|disc|Q", "equ|hPa|dhdt") # No river discharge data
-stor_river <- review_filter_var(full_product_stor, "stor", "river|disc|Q", "equ|AT|dhdt") # No river discharge data
-young_river <- review_filter_var(rbind(full_product_young, young_GEM), "young", "river|disc|Q", "coscin|Qnet")
-disko_river <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "river|disc|Q", "equ") # No river discharge data
-nuup_river <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "river|disc|Q", "equ|coscin|prot|psamm")
-por_river <- review_filter_var(full_product_por, "por", "river|disc|Q", "equ")# No river discharge data
+kong_discharge <- review_filter_var(full_product_kong, "kong", "river|disc|Q", "Disco|hetero|equ|AT|dhdt") # No discharge data
+is_discharge <- review_filter_var(full_product_is, "is", "river|disc|Q", "equ|hPa|dhdt") # No discharge data
+stor_discharge <- review_filter_var(full_product_stor, "stor", "river|disc|Q", "equ|AT|dhdt") # No discharge data
+young_discharge <- review_filter_var(rbind(full_product_young, young_GEM), "young", "river|disc|Q", "coscin|Qnet")
+disko_discharge <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "river|disc|Q", "equ") # No discharge data
+nuup_discharge <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "river|disc|Q", "equ|coscin|prot|psamm")
+por_discharge <- review_filter_var(full_product_por, "por", "river|disc|Q", "equ")# No discharge data
 
 # Get river data from GRDC database
 FACE_IT_GRDC <- site_GRDC %>% 
@@ -330,15 +330,15 @@ FACE_IT_GRDC <- site_GRDC %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value, site, type)
 
 # Combine all datasets and clean up
-clean_river <- rbind(kong_river, is_river, stor_river, young_river, disko_river, nuup_river, por_river, FACE_IT_GRDC) %>% 
+clean_discharge <- rbind(kong_discharge, is_discharge, stor_discharge, young_discharge, disko_discharge, nuup_discharge, por_discharge, FACE_IT_GRDC) %>% 
   mutate(var_group = "river")
-rm(kong_river, is_river, stor_river, young_river, disko_river, nuup_river, por_river, EU_GRDC, FACE_IT_GRDC); gc()
+rm(kong_discharge, is_discharge, stor_discharge, young_discharge, disko_discharge, nuup_discharge, por_discharge, EU_GRDC, FACE_IT_GRDC); gc()
 
 # Summary analyses
-summary_river <- review_summary(clean_river)
+summary_discharge <- review_summary(clean_discharge)
 
 # Plot results
-review_summary_plot(summary_river, "river")
+review_summary_plot(summary_discharge, "river")
 
 
 ## Physics ----------------------------------------------------------------
@@ -618,7 +618,7 @@ review_summary_plot(summary_chla, "chla")
 
 # Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
 
-# Test check for all bio vars to make sure no glacier vars are missed
+# Test check for all bio vars to make sure no biomass vars are missed
 as.vector(distinct(filter(full_product_kong, var_type == "bio"), var_name))
 as.vector(distinct(filter(nuup_GEM, var_type == "bio"), var_name))
 
@@ -662,7 +662,7 @@ review_summary_plot(summary_biomass, "biomass")
 # "Other studies did not find any explanation for the observed changes in the biovolumes of different taxa, e.g. decrease in diatoms and increase in certain dinoflagellate taxa, 
 #  and concluded that phytoplankton community in the Baltic Sea is not in a steady state (Olli et al., 2011), or noted that stochastic dynamics at local scales confound any commonalities between phytoplankton groups (Griffiths et al., 2020)."
 
-# Test check for all bio vars to make sure no glacier vars are missed
+# Test check for all bio vars to make sure no species assemblage vars are missed
 as.vector(distinct(filter(full_product_is, var_type == "bio"), var_name))
 as.vector(distinct(filter(nuup_GEM, var_type == "bio"), var_name))
 
@@ -706,9 +706,13 @@ review_summary_plot(summary_sp_ass, "sp_ass")
 
 # NB: Currently no governance data exist
 
+# Just create an empty slice for each site
+disko_govern <- filter(rbind(full_product_disko, disko_GEM), var_type == "soc") %>% mutate(site = "disko") %>% slice(0)
+
+
 ### Tourism ----------------------------------------------------------------
 
-# Test check for all soc vars to make sure no desired vars are missed
+# Test check for all soc vars to make sure no desired tourism vars are missed
 as.vector(distinct(filter(full_product_por, var_type == "soc"), var_name))
 as.vector(distinct(filter(nuup_GEM, var_type == "soc"), var_name))
 
@@ -736,7 +740,7 @@ review_summary_plot(summary_tourism, "tourism")
 
 # NB: Ship traffic is included here as it is mostly due to industry and not tourism
 
-# Test check for all soc vars to make sure no desired vars are missed
+# Test check for all soc vars to make sure no desired fisheries vars are missed
 as.vector(distinct(filter(full_product_is, var_type == "soc"), var_name))
 as.vector(distinct(filter(nuup_GEM, var_type == "soc"), var_name))
 
@@ -767,13 +771,16 @@ review_summary_plot(summary_shipping, "shipping")
 
 ## Save clean data ---------------------------------------------------------
 
+# Combine and change columns to match final standard
 clean_all <- rbind(clean_sea_ice, clean_glacier, clean_discharge,
                    clean_SST, clean_sal, clean_light,
                    clean_pCO2, clean_TA, clean_nutrients,
                    clean_PP, clean_biomass, clean_sp_ass,
-                   clean_governance, clean_tourism, clean_fisheries)
+                   clean_governance, clean_tourism, clean_fisheries) %>% 
+  dplyr::rename(category = var_type, driver = var_group, variable = var_name) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 save(clean_all, file = "data/analyses/clean_all.RData")
-plyr::l_ply(unique(clean_all$var_type), save_category, .parallel = T,
+plyr::l_ply(unique(clean_all$category), save_category, .parallel = T,
             df = clean_all, data_type = "clean", site_name = "all")
 
 
@@ -825,22 +832,19 @@ ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 ## Potential specific comparisons
 # Look at network plot for relationships
 
-## Generally speaking, the number of variables needs to be reduced/combined
-# For some reason sea temperature is not being correlated with anything
-
-## "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, 
+# "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, 
 # while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
 # Load all clean data
-clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
+# clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
 load("data/analyses/clean_all.RData")
 
 # Combine some variables for better correlations
 clean_all_sp_count <- clean_all %>% 
-  filter(var_group == "Species", value != 0) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_group, site, type) %>% 
+  filter(driver == "Species", value != 0) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
-  mutate(var_name = "sps_count")
+  mutate(variable = "sps_count")
 clean_all_clean <- clean_all %>% 
   filter(var_group != "Species") %>% 
   rbind(clean_all_sp_count)

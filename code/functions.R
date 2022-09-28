@@ -1182,7 +1182,7 @@ load_GRDC <- function(file_name){
 # Convenience function to save site products as individual files
 # NB: This is designed to be multicored with the categories as the grouped variable
 save_category <- function(cat_sub, df, data_type, site_name){
-  sub_df <- filter(df, var_type == cat_sub)
+  sub_df <- filter(df, category == cat_sub)
   system.time(data.table::fwrite(sub_df, paste0("data/full_data/",data_type,"_",cat_sub,"_",site_name,".csv")))
   rm(sub_df); gc()
 }
@@ -1648,7 +1648,7 @@ download_MUR_ALL <- function(file_date){
 review_filter_var <- function(full_product, site_name, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL, atmos = F){
   
   # NB: Repetitive, but much faster depth filtering
-  # Disabled for now for clean data pieline to dataAccess app
+  # Disabled for now for clean data pipeline to dataAccess app
   # if(atmos){
   #   df_depth <- full_product %>% filter(depth <= 0) %>%
   #     bind_rows(add_depth(filter(full_product, is.na(lon)))) %>% filter(is.na(depth) | depth <= 0)
