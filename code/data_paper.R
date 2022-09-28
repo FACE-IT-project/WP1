@@ -127,6 +127,7 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 # Solid colour for in situ data, dashed line for NOAA, dotted for CCI
 # Also produce summary stats
 ## Mean, median, min, max, skewness, kurtosis
+## Summary of data available per month/season for sites
 
 
 ## Cryosphere --------------------------------------------------------------
@@ -260,6 +261,83 @@ rm(ice_4km_prop, ice_4km_prop_long, ice_4km_trend, ice_4km_trend_long, ice_4km_s
 # Calculate sea ice breakup and formation dates
 ## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
 ## Consider calculating open water days
+
+# More summary ideas
+# Filter out the chosen drivers
+sea_ice_df <- filter(clean_all_clean, driver == "Ice vars")
+# List variables
+unique(ice_vars$variable)
+# Meta-data by variable and site
+# References per variable
+ice_ref <- ice_temp %>% 
+  dplyr::select(site, variable, citation) %>% 
+  distinct() %>% 
+  group_by(site, variable) %>% 
+  summarise(n_ref = n(), .groups = "drop")
+# Availability by month - proportion
+ice_temp_month <- ice_temp %>% 
+  dplyr::select(site, variable, date) %>% 
+  distinct() %>% 
+  mutate(month = month(date)) %>% 
+  filter(!is.na(month)) %>% 
+  group_by(site, variable, month) %>% 
+  summarise(n_month = n(), .groups = "drop") %>% 
+  group_by(site, variable) %>% 
+  mutate(sum_month = sum(n_month, na.rm = T),
+         prop_month = n_month/sum_month)
+# Availability at depth
+ice_temp_depth <- ice_temp %>% 
+  dplyr::select(site, variable, depth) %>% 
+  distinct() %>% 
+  mutate(depth = round(depth, -1)) %>% 
+  # filter(!is.na(depth)) %>% # May want to convert NA to 0 as these are almost always on-the-surface values
+  group_by(site, variable, depth) %>% 
+  summarise(n_depth = n(), .groups = "drop") %>% 
+  group_by(site, variable) %>% 
+  mutate(sum_depth = sum(n_depth, na.rm = T),
+         prop_depth = n_depth/sum_depth)
+# Availability over time
+ice_temp_date <- ice_temp %>% 
+  dplyr::select(site, variable, date) %>% 
+  filter(!is.na(date)) %>%
+  distinct() %>% 
+  mutate(year = year(date)) %>%
+  group_by(site, variable, year) %>% 
+  summarise(n_year = n(), .groups = "drop") %>% 
+  group_by(site, variable) %>% 
+  mutate(sum_year = sum(n_year, na.rm = T),
+         prop_year = round(n_year/sum_year, 4))
+# Changes over time by depth
+## By monthly and by annually
+ice_temp_depth_change <- ice_temp %>% 
+  dplyr::select(site, variable, date, depth, value) %>% 
+  filter(!is.na(date)) %>%
+  distinct() %>% 
+  mutate(year = year(date),
+         depth = case_when(depth < 0 ~ "land",
+                           is.na(depth) ~ "surface",
+                           depth <= 10 ~ "0 to 10",
+                           depth <= 50 ~ "10 to 50",
+                           depth <= 200 ~ "50 to 200",
+                           depth > 200 ~ "+200")) %>%
+  group_by(site, variable, year, depth) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(value))
+# Monthly climatologies by depth
+ice_temp_depth_clim <- ice_temp %>% 
+  dplyr::select(site, variable, date, depth, value) %>% 
+  filter(!is.na(date)) %>%
+  distinct() %>% 
+  mutate(month = month(date),
+         depth = case_when(depth < 0 ~ "land",
+                           is.na(depth) ~ "surface",
+                           depth <= 10 ~ "0 to 10",
+                           depth <= 50 ~ "10 to 50",
+                           depth <= 200 ~ "50 to 200",
+                           depth > 200 ~ "+200")) %>%
+  group_by(site, variable, month, depth) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(value))
 
 
 ### Glacier -----------------------------------------------------------------
@@ -650,7 +728,7 @@ summary_biomass <- review_summary(clean_biomass)
 review_summary_plot(summary_biomass, "biomass")
 
 
-### Species assemblage ------------------------------------------------------
+### Species richness ------------------------------------------------------
 
 # For the time being it may be easier to convert these values to the more basic count of simply phytoplankton or zooplankton
 # This would then allow for a more simple summary of the meta/data but requires knowledge of the genus per species etc.
@@ -663,6 +741,8 @@ review_summary_plot(summary_biomass, "biomass")
 # "It has also been suggested that in the future climate higher temperatures and less ice will cause an earlier bloom of both diatoms and dinoflagellates, with increased dinoflagellate dominance (Hjerne et al., 2019)."
 # "Other studies did not find any explanation for the observed changes in the biovolumes of different taxa, e.g. decrease in diatoms and increase in certain dinoflagellate taxa, 
 #  and concluded that phytoplankton community in the Baltic Sea is not in a steady state (Olli et al., 2011), or noted that stochastic dynamics at local scales confound any commonalities between phytoplankton groups (Griffiths et al., 2020)."
+# "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, 
+# while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
 # Test check for all bio vars to make sure no species assemblage vars are missed
 as.vector(distinct(filter(full_product_is, var_type == "bio"), var_name))
@@ -830,219 +910,76 @@ ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 # e.g. Warming ocean, loss of sea ice, etc.
 # We then go through the key drivers and ask for each driver whether there are general results about Arctic fjords across all sites
 # Differences in some sites could be used as exceptions that prove the rule
-
-## Potential specific comparisons
-# Look at network plot for relationships
-
-# "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, 
-# while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
+# Specific comparisons taken from network plot for relationships
 
 # Load all clean data
 # clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
 load("data/analyses/clean_all.RData")
 
 # Combine some variables for better correlations
-clean_all_sp_count <- clean_all %>% 
+clean_all_spp_count <- clean_all %>% 
   filter(driver == "Species", value != 0) %>% 
   group_by(date_accessed, URL, citation, type, site, category, driver, lon, lat, date, depth) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
-  mutate(variable = "sps_count")
+  mutate(variable = "Spp count")
 clean_all_clean <- clean_all %>% 
   filter(driver != "Species") %>% 
-  rbind(clean_all_sp_count)
-rm(clean_all, clean_all_sp_count); gc()
-
-# Create monthly means
-clean_all_monthly <- clean_all_clean %>% 
-  filter(!is.na(date)) %>% 
-  # filter(depth <= 10 | is.na(depth)) %>% 
-  mutate(month_year = lubridate::floor_date(date, "month")) %>% 
-  group_by(site, category, driver, variable, month_year) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop")
-
-# Wide format
-clean_all_wide <- clean_all_monthly %>% 
-  pivot_wider(id_cols = c(site, category, driver, month_year), names_from = variable, values_from = value)
-
+  rbind(clean_all_spp_count)
+rm(clean_all, clean_all_spp_count); gc()
 
 ### Relationships from the network analysis - created via the review paper
-## TODO: Create function that can make these comparisons
-# It should take the names of the two drivers to start
-# But there are situations where multiple variables exist within one driver, which requires some thought...
-  # Potentially just compare all variables within the drivers against all other. Easy peasy.
-# Once isolated, monthly values from similar depths over similar times should be compared
-# Output: linear model stats, correlation, amount of overlap (time, depth, etc.)
-# We also want to see which sites have what relationships, and if there are any obvious outliers
+# We want to see which sites have what relationships, and if there are any obvious outliers
 # This is one of the main points that will feed back into the review paper
 
-# The drivers
+#List of drivers
 unique(clean_all_clean$driver)
 
 ## Cryosphere
-# sea ice -> sea temp
-# Filter out the chosen drivers
-ice_temp <- clean_all_clean %>% 
-  filter(driver %in% c("Ice vars", "Sea temp"))
-# List variables
-unique(ice_temp$variable)
-# Meta-data by variable and site
-# References per variable
-ice_temp_ref <- ice_temp %>% 
-  dplyr::select(site, variable, citation) %>% 
-  distinct() %>% 
-  group_by(site, variable) %>% 
-  summarise(n_ref = n(), .groups = "drop")
-# Availability by month - proportion
-ice_temp_month <- ice_temp %>% 
-  dplyr::select(site, variable, date) %>% 
-  distinct() %>% 
-  mutate(month = month(date)) %>% 
-  filter(!is.na(month)) %>% 
-  group_by(site, variable, month) %>% 
-  summarise(n_month = n(), .groups = "drop") %>% 
-  group_by(site, variable) %>% 
-  mutate(sum_month = sum(n_month, na.rm = T),
-         prop_month = n_month/sum_month)
-# Availability at depth
-ice_temp_depth <- ice_temp %>% 
-  dplyr::select(site, variable, depth) %>% 
-  distinct() %>% 
-  mutate(depth = round(depth, -1)) %>% 
-  # filter(!is.na(depth)) %>% # May want to convert NA to 0 as these are almost always on-the-surface values
-  group_by(site, variable, depth) %>% 
-  summarise(n_depth = n(), .groups = "drop") %>% 
-  group_by(site, variable) %>% 
-  mutate(sum_depth = sum(n_depth, na.rm = T),
-         prop_depth = n_depth/sum_depth)
-# Availability over time
-ice_temp_date <- ice_temp %>% 
-  dplyr::select(site, variable, date) %>% 
-  filter(!is.na(date)) %>%
-  distinct() %>% 
-  mutate(year = year(date)) %>%
-  group_by(site, variable, year) %>% 
-  summarise(n_year = n(), .groups = "drop") %>% 
-  group_by(site, variable) %>% 
-  mutate(sum_year = sum(n_year, na.rm = T),
-         prop_year = round(n_year/sum_year, 4))
-# Changes over time by depth
-## By monthly and by annually
-ice_temp_depth_change <- ice_temp %>% 
-  dplyr::select(site, variable, date, depth, value) %>% 
-  filter(!is.na(date)) %>%
-  distinct() %>% 
-  mutate(year = year(date),
-         depth = case_when(depth < 0 ~ "land",
-                           is.na(depth) ~ "surface",
-                           depth <= 10 ~ "0 to 10",
-                           depth <= 50 ~ "10 to 50",
-                           depth <= 200 ~ "50 to 200",
-                           depth > 200 ~ "+200")) %>%
-  group_by(site, variable, year, depth) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  filter(!is.na(value))
-# Monthly climatologies by depth
-ice_temp_depth_clim <- ice_temp %>% 
-  dplyr::select(site, variable, date, depth, value) %>% 
-  filter(!is.na(date)) %>%
-  distinct() %>% 
-  mutate(month = month(date),
-         depth = case_when(depth < 0 ~ "land",
-                           is.na(depth) ~ "surface",
-                           depth <= 10 ~ "0 to 10",
-                           depth <= 50 ~ "10 to 50",
-                           depth <= 200 ~ "50 to 200",
-                           depth > 200 ~ "+200")) %>%
-  group_by(site, variable, month, depth) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  filter(!is.na(value))
-# Relationships cross-wise between drivers - monthly averages
-## First get monthly averages per site, depth etc.
-## Then get the names of every variable in driver 1
-## Use plyr::ldply() to then run grouped lm() on all variables between drivers
-## Depth may be a bit tricky because not all depths are comparable
-## So rather just hit all of them
-## Also create an index column that allows for comparison of a given variable to itself
-# n() of compared data points
-# Years of comparison
-
-df_mean_month_depth <- ice_temp %>% 
-  dplyr::select(type, site, driver, variable, date, depth, value) %>% 
-  filter(!is.na(date)) %>%
-  distinct() %>% 
-  mutate(date = lubridate::round_date(date, unit = "month"),
-         depth = case_when(depth < 0 ~ "land",
-                           is.na(depth) ~ "surface",
-                           depth <= 10 ~ "0 to 10",
-                           depth <= 50 ~ "10 to 50",
-                           depth <= 200 ~ "50 to 200",
-                           depth > 200 ~ "+200")) %>%
-  group_by(type, site, driver, variable, date, depth) %>%
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  filter(!is.na(value))
-gc()
-
-df_var <- df_mean_month_depth %>% dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
-lm_all <- function(df_idx, df_main){
-  df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
-  df_compare <- df_main %>% 
-    left_join(df_sub, by = c("site", "date")) %>% 
-    filter(!is.na(value.x), !is.na(value.y)) %>% 
-    nest_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>%
-    mutate(mod = list(lm(value.x ~ value.y, data = data, ))) %>%
-    summarise(broom::glance(mod), .groups = "drop") %>% 
-    dplyr::select(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y, adj.r.squared, p.value, nobs) %>% 
-    mutate(adj.r.squared = round(adj.r.squared, 4), p.value = round(p.value, 4))
-  return(df_compare)
-}
-df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth)
-
-
-
-# sea ice -> light
-# sea ice -> biomass
-# sea ice -> spp richness
-# sea ice -> governance
-# gmb -> discharge
-# gmb -> spp richness
-# discharge -> sea temp
-# discharge -> salinity
-# dischare -> light
-# discharge -> carb system
-# discharge -> nutrients
+ice_temp <- driver2_lm("Ice vars", "Sea temp") # sea ice -> sea temp
+ice_light <- driver2_lm("Ice vars", "PAR") # sea ice -> light
+ice_biomass <- driver2_lm("Ice vars", "Biomass") # sea ice -> biomass
+ice_spp <- driver2_lm("Ice vars", "Species") # sea ice -> spp richness
+ice_gov <- driver2_lm("Ice vars", "Governance") # sea ice -> governance
+gmb_discharge <- driver2_lm("Glacier vars", "river") # gmb -> discharge
+gmb_spp <- driver2_lm("Glacier vars", "Species") # gmb -> spp richness
+discharge_temp <- driver2_lm("river", "Sea temp") # discharge -> sea temp
+discharge_sal <- driver2_lm("river", "Salinity") # discharge -> salinity
+discharge_light <- driver2_lm("river", "PAR") # discharge -> light
+discharge_carb <- driver2_lm("river", "pCO2") # discharge -> carb system
+discharge_nut <- driver2_lm("river", "Nutrients") # discharge -> nutrients
 
 ## Physics
-# sea temp -> sea ice
-# sea temp -> spp richness
-# sea temp -> biomass
-# sea temp -> PP
-# salinity -> spp richness
-# salinity -> biomass
-# light -> spp richness
-# light -> biomass
-# light -> PP
+temp_ice <- driver2_lm("Sea temp", "Ice vars") # sea temp -> sea ice
+temp_spp <- driver2_lm("Sea temp", "Species") # sea temp -> spp richness
+temp_biomass <- driver2_lm("Sea temp", "Biomass") # sea temp -> biomass
+temp_PP <- driver2_lm("Sea temp", "Chla") # sea temp -> PP
+sal_spp <- driver2_lm("Salinity", "Species") # salinity -> spp richness
+sal_biomass <- driver2_lm("Salinity", "Biomass") # salinity -> biomass
+light_spp <- driver2_lm("PAR", "Species") # light -> spp richness
+light_biomass <- driver2_lm("PAR", "Biomass") # light -> biomass
+light_PP <- driver2_lm("PAR", "Chla") # light -> PP
 
 ## Chemistry
-# carb system -> spp richness
-# nutrients -> PP
+carb_spp <- driver2_lm("pCO2", "Species") # carb system -> spp richness
+nut_PP <- driver2_lm("Nutrients", "Chla") # nutrients -> PP
 
 ## Biology
-# PP -> biomass
-# biomass -> spp richness
+PP_biomass <- driver2_lm("Chla", "Biomass") # PP -> biomass
+biomass_spp <- driver2_lm("Biomass", "Species") # biomass -> spp richness
 
 ## Social
-# governance -> tourism
-# governance -> fisheries
-# tourism -> nutrients
-# tourism -> light
-# fisheries -> biomass
-# fisheries -> spp richness
+gov_tour <- driver2_lm("Governance", "Tourism") # governance -> tourism
+gov_fish <- driver2_lm("Governance", "Shipping") # governance -> fisheries
+tour_nut <- driver2_lm("Tourism", "Nutrients") # tourism -> nutrients
+tour_light <- driver2_lm("Tourism", "PAR") # tourism -> light
+fish_biomass <- driver2_lm("Shipping", "Biomass") # fisheries -> biomass
+fish_spp <- driver2_lm("Shipping", "Species") # fisheries -> spp richness
 
-## Summary of data available per month/season for sites
+# Look across sites for differences in r2 values for variables that are shared between sites
 
 
 # Section 5 ---------------------------------------------------------------
-# Future projections of data analysed for Section 2 and relationships from Section 3
+# Future projections of data analysed for Section 3 and relationships from Section 4
 # NB: Only necessary to run the `Setup` section
 
 ## Introduce the future by talking about the whole Arctic

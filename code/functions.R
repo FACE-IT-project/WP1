@@ -2034,6 +2034,54 @@ trend_calc <- function(df){
   return(res)
 }
 
+# Calculate linear models on all possible driver comparisons for two given drivers
+lm_all <- function(df_idx, df_main){
+  df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
+  suppressWarnings(
+  df_compare <- df_main %>% 
+    left_join(df_sub, by = c("site", "date")) %>% 
+    filter(!is.na(value.x), !is.na(value.y)) %>% 
+    nest_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>%
+    mutate(mod = list(lm(value.x ~ value.y, data = data, ))) %>%
+    summarise(broom::glance(mod), .groups = "drop") %>% 
+    dplyr::select(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y, adj.r.squared, p.value, nobs) %>% 
+    filter(!is.na(adj.r.squared), !is.na(p.value)) %>% 
+    mutate(adj.r.squared = round(adj.r.squared, 4), p.value = round(p.value, 4))
+  )
+  return(df_compare)
+}
+
+# Find all possible linear model comparisons for two given drivers
+driver2_lm <- function(driver1, driver2){
+  
+  # Filter out only the two drivers in question
+  df_driver <- clean_all_clean %>% 
+    filter(driver %in% c(driver1, driver2))
+  
+  # Get monthly means by depth across entire site
+  df_mean_month_depth <- df_driver %>% 
+    dplyr::select(type, site, driver, variable, date, depth, value) %>% 
+    filter(!is.na(date)) %>% distinct() %>% 
+    mutate(date = lubridate::round_date(date, unit = "month"),
+           depth = case_when(depth < 0 ~ "land",
+                             is.na(depth) ~ "surface",
+                             depth <= 10 ~ "0 to 10",
+                             depth <= 50 ~ "10 to 50",
+                             depth <= 200 ~ "50 to 200",
+                             depth > 200 ~ "+200")) %>%
+    group_by(type, site, driver, variable, date, depth) %>%
+    summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+    filter(!is.na(value)); gc()
+  
+  # The list of possible variables to compare
+  df_var <- df_mean_month_depth %>% dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
+  
+  # Brute force
+  df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth)
+  rm(df_driver, df_mean_month_depth, df_var); gc()
+  return(df_lm)
+}
+
 # Network arrows grob
 # This changes the arrow heads from the end to the middle
 # NB: This overrides the default behaviour
