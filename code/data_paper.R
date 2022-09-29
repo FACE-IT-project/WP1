@@ -17,8 +17,10 @@
 source("code/functions.R")
 library(ggpmisc)
 library(listr) # For dealing with lists - not used
+# library(ggplotify) # For working with complex data visuals
 library(ggcorrplot) # For correlograms
 library(ggalluvial) # For alluvial plot
+library(treemapify) # For gridded tree map
 
 # Ice cover colours
 ice_cover_colours <- c(
@@ -1214,6 +1216,8 @@ ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 # Because this plot doubles up datasets at the caetgory and driver level
 # Perhaps add labels saying the total next to the text label
 
+# TODO: Go through clean_all_freq to find errors in data management
+
 # Create frequency data.frame of datasets for category -> driver -> variable
 clean_all_freq <- clean_all_clean %>% 
   filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
@@ -1227,54 +1231,34 @@ clean_all_freq <- clean_all_clean %>%
          variable = factor(variable)) %>% 
   ungroup()
 
+# Alluvial plot
 ggplot(clean_all_freq,
        aes(y = freq, axis1 = category, axis2 = driver, axis3 = variable)) +
   geom_alluvium(aes(fill = category)) +
   geom_stratum(aes(fill = category)) +
-  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum)), min.y = 20) +
   # scale_x_discrete(limits = c("Gender", "Dept"), expand = c(.05, .05)) +
-  scale_fill_brewer(type = "qual", palette = "Set1") +
+  scale_fill_manual("Category", 
+                    breaks = c("cryo", "phys", "chem", "bio", "soc"),
+                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
   ggtitle("Count of datasets within reported data product")
 
-data(vaccinations)
-vaccinations <- transform(vaccinations,
-                          response = factor(response, rev(levels(response))))
-ggplot(vaccinations,
-       aes(x = survey, stratum = response, alluvium = subject,
-           y = freq, fill = response, label = response)) +
-  scale_x_discrete(expand = c(0.1, 0.1)) +
-  geom_flow() +
-  geom_stratum(alpha = 0.5) +
-  geom_text(stat = "stratum", size = 3) +
-  theme(legend.position = "none") +
-  ggtitle("vaccination survey responses at three points in time")
-
-ggplot(as.data.frame(UCBAdmissions),
-       aes(y = Freq, axis1 = Gender, axis2 = Dept)) +
-  geom_alluvium(aes(fill = Admit), width = 1/12) +
-  geom_stratum(width = 1/12, fill = "black", color = "grey") +
-  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
-  scale_x_discrete(limits = c("Gender", "Dept"), expand = c(.05, .05)) +
-  scale_fill_brewer(type = "qual", palette = "Set1") +
-  ggtitle("UC Berkeley admissions and rejections, by sex and department")
-
-ggplot(as.data.frame(HairEyeColor),
-       aes(y = Freq,
-           axis1 = Hair, axis2 = Eye, axis3 = Sex)) +
-  geom_alluvium(aes(fill = Eye),
-                width = 1/8, knot.pos = 0, reverse = FALSE) +
-  scale_fill_manual(values = c(Brown = "#70493D", Hazel = "#E2AC76",
-                               Green = "#3F752B", Blue = "#81B0E4")) +
-  guides(fill = FALSE) +
-  geom_stratum(alpha = .25, width = 1/8, reverse = FALSE) +
-  geom_text(stat = "stratum", aes(label = after_stat(stratum)),
-            reverse = FALSE) +
-  scale_x_continuous(breaks = 1:3, labels = c("Hair", "Eye", "Sex")) +
-  coord_flip() +
-  ggtitle("Eye colors of 592 subjects, by sex and hair color")
+# Tree map
+ggplot(clean_all_freq, aes(area = freq, group = category, subgroup = driver, subgroup2 = variable)) +
+  geom_treemap(aes(fill = category)) +
+  geom_treemap_subgroup2_border() +
+  geom_treemap_subgroup_border() +
+  # geom_treemap_text(aes(label = category), place = "bottom") + # Labels each small box
+  geom_treemap_subgroup_text(aes(label = driver), place = "top") +
+  geom_treemap_subgroup2_text(aes(label = variable), place = "bottom") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual("Category",
+                    breaks = c("cryo", "phys", "chem", "bio", "soc"),
+                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080"))
 
 
-# Figure 2 ----------------------------------------------------------------
+# Figure 3 ----------------------------------------------------------------
 
 # Metadata figure showing the coverage of the key drivers
 # This should concisely show how many datasets/points are available for each key drivers and site
