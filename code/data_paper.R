@@ -892,6 +892,7 @@ all_meta <- rbind(summary_ice$monthly, summary_snow$monthly, summary_glacier$mon
                   summary_chla$monthly, summary_biomass$monthly, summary_sp_ass$monthly, 
                   summary_tourism$monthly, summary_shipping$monthly)
 save(all_meta, file = "data/analyses/all_meta.RData")
+# load("data/analyses/all_meta.RData")
 
 all_meta %>% 
   filter(!is.na(value_mean)) %>% 
@@ -904,6 +905,14 @@ all_meta %>%
   facet_grid(site~var_group) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
 ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
+
+
+annual_temp <- MUR_data %>%
+  mutate(year = lubridate::year(t)) %>% 
+  group_by(lon, lat, year) %>%
+  summarise(annual_minn_temp = min(temp, na.rm = T),
+            annual_mean_temp = mean(temp, na.rm = T),
+            annual_max_temp = max(temp, na.rm = T), .groups = "drop")
 
 
 # Section 4 ---------------------------------------------------------------
@@ -1221,8 +1230,10 @@ ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 # Create frequency data.frame of datasets for category -> driver -> variable
 clean_all_freq <- clean_all_clean %>% 
   filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
+  # Deactivate this to get the count of data points not datasets
   dplyr::select(citation, category, driver, variable) %>% 
   distinct() %>% 
+  #
   group_by(category, driver, variable) %>% 
   summarise(freq = n(), .groups = "drop") %>% 
   mutate(category = factor(category, levels = c("cryo", "phys", "chem", "bio", "soc"))) %>% 
@@ -1267,30 +1278,40 @@ load("data/analyses/all_meta.RData")
 
 # Filter out remote products
 all_meta_insitu <- filter(all_meta, type == "in situ") %>% 
+  filter(!var_group %in% c("Air temp", "O2", "Snow vars")) %>% 
   mutate(month = lubridate::month(date), 
+         season = case_when(month %in% 1:3 ~ "Winter", 
+                            month %in% 4:6 ~ "Spring",
+                            month %in% 7:9 ~ "Summer",
+                            month %in% 10:12 ~ "Autumn"),
          site = factor(site, levels = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
                        labels = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
                                   "Young Sound", "Disko Bay", "Nuup Kangelrua",
                                   "Porsangerfjorden")))
 
 # Create bar plot for each category
-fig_2_plot <- function(var_filter, var_title){
+fig_3_plot <- function(var_filter, var_title){
   
   # Calculate mean stats
   df_mean <- filter(all_meta_insitu, var_type == var_filter) %>% 
-    mutate(month = as.factor(month),
-           var_group = as.factor(var_group)) %>% 
-    group_by(site, month, var_group) %>% 
+    mutate(month = factor(month),
+           var_group = factor(var_group),
+           season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn"))) %>% 
+    group_by(site, season, month, var_group) %>% 
     summarise(mean_count_days_group = mean(count_days_group, na.rm = T),
-              sd_count_days_group = sd(count_days_group, na.rm = T), .groups = "drop")
+              sd_count_days_group = sd(count_days_group, na.rm = T), .groups = "drop") %>% 
+    group_by(site, season, var_group) %>% 
+    summarise(sum_season_count_days_group = sum(mean_count_days_group, na.rm = T),
+              prop_count = sum_season_count_days_group/92, .groups = "drop") # Make the proportion value more accurate if we use this
   
   # get all levels
-  df_full <- expand(df_mean, site, month, var_group) %>% 
-    left_join(df_mean, by = c("site", "month", "var_group")) %>% 
+  df_full <- expand(df_mean, site, season, var_group) %>% 
+    left_join(df_mean, by = c("site", "season", "var_group")) %>% 
+    mutate(season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn"))) %>% 
     replace(is.na(.), 0)
   
   # Plot
-  fig_2_panel <- ggplot(data = df_full, aes(x = as.factor(month), y =  mean_count_days_group)) +
+  fig_3_panel <- ggplot(data = df_full, aes(x = season, y =  prop_count)) +
     # geom_boxplot(aes(x = as.factor(month), y = mean_count_days_group, fill = var_group), outlier.colour = NA) +
     # geom_point() +
     geom_col(position = "dodge", colour = "black", aes(fill = var_group)) +
@@ -1298,21 +1319,26 @@ fig_2_plot <- function(var_filter, var_title){
     #               aes(ymin = mean_count_days_group-sd_count_days_group, ymax = mean_count_days_group+sd_count_days_group)) +
     # scale_fill_manual(values = driver_cat_colours, aesthetics = "fill") +
     facet_wrap(~site, nrow = 1) + #guides(fill = "none") +
-    scale_y_continuous(limits = c(0, 31), expand = c(0, 0)) +
-    labs(x = "Month", y = "Unique days of measurement", 
-         title = var_title, fill = "Driver group")
-  fig_2_panel
+    scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    labs(x = "Season", y = "Proportion of seasonal coverage", 
+         title = var_title, fill = "Category")
+  fig_3_panel
 }
-fig_2_a <- fig_2_plot("cryo", "Cryosphere")
-fig_2_b <- fig_2_plot("phys", "Physical")
-fig_2_c <- fig_2_plot("chem", "Chemistry")
-fig_2_d <- fig_2_plot("bio", "Eco/biology")
-fig_2_e <- fig_2_plot("soc", "Social")
+fig_3_a <- fig_3_plot("cryo", "Cryosphere")
+fig_3_b <- fig_3_plot("phys", "Physical")
+fig_3_c <- fig_3_plot("chem", "Chemistry")
+fig_3_d <- fig_3_plot("bio", "Eco/biology")
+fig_3_e <- fig_3_plot("soc", "Social")
 
 # Combine
-fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, fig_2_c, fig_2_d, fig_2_e, 
+fig_3 <- ggpubr::ggarrange(fig_3_a, fig_3_b, fig_3_c, fig_3_d, fig_3_e, 
                            ncol = 1, labels = c("A)", "B)", "C)", "D)", "E)"))
-ggsave("figures/fig_2.png", width = 15, height = 15)
+ggsave("figures/dp_fig_3.png", width = 15, height = 15)
+
+
+# Figure 4 ----------------------------------------------------------------
+# Somehow show the relationships between drivers 
+# Importance is to show difference between sites
 
 
 # Table 1 -----------------------------------------------------------------
