@@ -1228,16 +1228,17 @@ ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 
 # Create frequency data.frame of datasets for category -> driver -> variable
 data_point_freq <- clean_all_clean %>% 
-  filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
+  filter(!driver %in% c("Air temp", "O2", "Snow vars"),
+         type == "in situ") %>% 
   group_by(category, driver, variable) %>% 
   summarise(freq = n(), .groups = "drop")
 data_set_freq <- clean_all_clean %>% 
-  filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
+  filter(!driver %in% c("Air temp", "O2", "Snow vars"),
+         type == "in situ") %>% 
   dplyr::select(citation, category, driver, variable) %>%
   distinct() %>%
   group_by(category, driver, variable) %>% 
   summarise(freq = n(), .groups = "drop")
-
 
 # Tree map of datasets
 fig_2_a <- ggplot(data_set_freq, 
@@ -1287,62 +1288,53 @@ load("data/analyses/all_meta.RData")
 
 # Filter out remote products
 all_meta_insitu <- filter(all_meta, type == "in situ") %>% 
-  filter(!var_group %in% c("Air temp", "O2", "Snow vars")) %>% 
+  dplyr::rename(category = var_type, driver = var_group, variable = var_name) %>% 
+  filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
   mutate(month = lubridate::month(date), 
          season = case_when(month %in% 1:3 ~ "Winter", 
                             month %in% 4:6 ~ "Spring",
                             month %in% 7:9 ~ "Summer",
                             month %in% 10:12 ~ "Autumn"),
+         season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn")),
          site = factor(site, levels = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
                        labels = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
                                   "Young Sound", "Disko Bay", "Nuup Kangelrua",
                                   "Porsangerfjorden")))
 
-# Create bar plot for each category
-fig_3_plot <- function(var_filter, var_title){
-  
-  # Calculate mean stats
-  df_mean <- filter(all_meta_insitu, var_type == var_filter) %>% 
-    mutate(month = factor(month),
-           var_group = factor(var_group),
-           season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn"))) %>% 
-    group_by(site, season, month, var_group) %>% 
-    summarise(mean_count_days_group = mean(count_days_group, na.rm = T),
-              sd_count_days_group = sd(count_days_group, na.rm = T), .groups = "drop") %>% 
-    group_by(site, season, var_group) %>% 
-    summarise(sum_season_count_days_group = sum(mean_count_days_group, na.rm = T),
-              prop_count = sum_season_count_days_group/92, .groups = "drop") # Make the proportion value more accurate if we use this
-  
-  # get all levels
-  df_full <- expand(df_mean, site, season, var_group) %>% 
-    left_join(df_mean, by = c("site", "season", "var_group")) %>% 
-    mutate(season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn"))) %>% 
-    replace(is.na(.), 0)
-  
-  # Plot
-  fig_3_panel <- ggplot(data = df_full, aes(x = season, y =  prop_count)) +
-    # geom_boxplot(aes(x = as.factor(month), y = mean_count_days_group, fill = var_group), outlier.colour = NA) +
-    # geom_point() +
-    geom_col(position = "dodge", colour = "black", aes(fill = var_group)) +
-    # geom_errorbar(position = dodge, 
-    #               aes(ymin = mean_count_days_group-sd_count_days_group, ymax = mean_count_days_group+sd_count_days_group)) +
-    # scale_fill_manual(values = driver_cat_colours, aesthetics = "fill") +
-    facet_wrap(~site, nrow = 1) + #guides(fill = "none") +
-    scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
-    labs(x = "Season", y = "Proportion of seasonal coverage", 
-         title = var_title, fill = "Category")
-  fig_3_panel
-}
-fig_3_a <- fig_3_plot("cryo", "Cryosphere")
-fig_3_b <- fig_3_plot("phys", "Physical")
-fig_3_c <- fig_3_plot("chem", "Chemistry")
-fig_3_d <- fig_3_plot("bio", "Eco/biology")
-fig_3_e <- fig_3_plot("soc", "Social")
+# Calculate mean stats
+all_meta_mean <- all_meta_insitu %>% 
+  group_by(season, month, category, driver) %>% 
+  summarise(mean_count_days_group = mean(count_days_group, na.rm = T),
+            sd_count_days_group = sd(count_days_group, na.rm = T), .groups = "drop") %>% 
+  group_by(season, category, driver) %>% 
+  summarise(sum_season_count_days_group = sum(mean_count_days_group, na.rm = T),
+            prop_count = sum_season_count_days_group/92, .groups = "drop") # Make the proportion value more accurate if we use this
 
-# Combine and save
-fig_3 <- ggpubr::ggarrange(fig_3_a, fig_3_b, fig_3_c, fig_3_d, fig_3_e, 
-                           ncol = 1, labels = c("A)", "B)", "C)", "D)", "E)"))
-ggsave("figures/dp_fig_3.png", fig_3, width = 15, height = 15)
+# Expand all levels
+all_meta_full <- expand(all_meta_mean, season, category, driver) %>% 
+  left_join(all_meta_mean, by = c("season", "category", "driver")) %>% 
+  mutate(season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn")),
+         driver = factor(driver, levels = c("Ice vars", "Glacier vars", "river", # NB: These need to be updated to final standard
+                                            "Sea temp", "Salinity", "PAR",
+                                            "pCO2", "Nutrients",
+                                            "Chla", "Biomass", "Species",      
+                                            "Tourism", "Shipping"))) %>%
+  replace(is.na(.), 0)
+
+# Plot
+fig_3 <- ggplot(data = all_meta_full, aes(x = driver, y = prop_count)) +
+  geom_col(position = "stack", colour = "black", aes(fill = category)) +
+  facet_wrap(~season, ncol = 1) + #guides(fill = "none") +
+  scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+  labs(x = "Driver", y = "Proportion of seasonal coverage") +
+  scale_fill_manual("Category",
+                    breaks = c("cryo", "phys", "chem", "bio", "soc"),
+                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 0.9))
+# fig_3_panel
+
+# Save
+ggsave("figures/dp_fig_3.png", fig_3, width = 7, height = 6)
 
 
 # Figure 4 ----------------------------------------------------------------
