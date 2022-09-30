@@ -1341,6 +1341,31 @@ ggsave("figures/dp_fig_3.png", fig_3, width = 7, height = 6)
 # Show how data availability over time by driver (not variable) has changed by site
 # Time series plots with linear lines
 # One plot per driver with site shown as colours in stacked barplot
+# NB: Uses all_meta_insitu from Figure 3
+
+# Simple annual presence of drivers by site
+all_meta_annual <- all_meta_insitu %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  group_by(site, year, category, driver) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  mutate(presence = 1,
+         driver = factor(driver, levels = c("Ice vars", "Glacier vars", "river", # NB: These need to be updated to final standard
+                                            "Sea temp", "Salinity", "PAR",
+                                            "pCO2", "Nutrients",
+                                            "Chla", "Biomass", "Species",      
+                                            "Tourism", "Shipping")))
+
+# Stacked barplots of drvier presence in a given year
+fig_4 <- ggplot(data = all_meta_annual, aes(x = year, y = presence)) +
+  geom_col(position = "stack", aes(fill = site)) +
+  facet_wrap(~driver, ncol = 1) +
+  labs(fill = "Site") +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "bottom")
+
+# Save
+ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 12)
 
 
 # Figure 5 ----------------------------------------------------------------
