@@ -17,7 +17,7 @@
 source("code/functions.R")
 library(ggpmisc)
 library(listr) # For dealing with lists - not used
-# library(ggplotify) # For working with complex data visuals
+library(ggplotify) # For working with complex data visuals
 library(ggcorrplot) # For correlograms
 library(ggalluvial) # For alluvial plot
 library(treemapify) # For gridded tree map
@@ -1231,8 +1231,8 @@ ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 clean_all_freq <- clean_all_clean %>% 
   filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
   # Deactivate this to get the count of data points not datasets
-  dplyr::select(citation, category, driver, variable) %>% 
-  distinct() %>% 
+  dplyr::select(citation, category, driver, variable) %>%
+  distinct() %>%
   #
   group_by(category, driver, variable) %>% 
   summarise(freq = n(), .groups = "drop") %>% 
@@ -1246,8 +1246,8 @@ clean_all_freq <- clean_all_clean %>%
 ggplot(clean_all_freq,
        aes(y = freq, axis1 = category, axis2 = driver, axis3 = variable)) +
   geom_alluvium(aes(fill = category)) +
-  geom_stratum(aes(fill = category)) +
-  geom_label(stat = "stratum", aes(label = after_stat(stratum)), min.y = 20) +
+  # geom_stratum(aes(fill = category)) +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum)))+#, min.y = 20) +
   # scale_x_discrete(limits = c("Gender", "Dept"), expand = c(.05, .05)) +
   scale_fill_manual("Category", 
                     breaks = c("cryo", "phys", "chem", "bio", "soc"),
@@ -1255,6 +1255,7 @@ ggplot(clean_all_freq,
   ggtitle("Count of datasets within reported data product")
 
 # Tree map
+# TODO: Show panel a and b which are datasets and datapoints to show difference in balance
 ggplot(clean_all_freq, aes(area = freq, group = category, subgroup = driver, subgroup2 = variable)) +
   geom_treemap(aes(fill = category)) +
   geom_treemap_subgroup2_border() +
@@ -1270,11 +1271,12 @@ ggplot(clean_all_freq, aes(area = freq, group = category, subgroup = driver, sub
 
 
 # Figure 3 ----------------------------------------------------------------
-
 # Metadata figure showing the coverage of the key drivers
 # This should concisely show how many datasets/points are available for each key drivers and site
 # But one should be cautious about focussing too much on the sites
 load("data/analyses/all_meta.RData")
+
+# TODO: Rather show this globally to reduce complexity
 
 # Filter out remote products
 all_meta_insitu <- filter(all_meta, type == "in situ") %>% 
@@ -1337,8 +1339,20 @@ ggsave("figures/dp_fig_3.png", width = 15, height = 15)
 
 
 # Figure 4 ----------------------------------------------------------------
+# Show how data availability over time by driver (not variable) has changed by site
+# Time series plots with linear lines
+# One plot per driver with site shown as colours in stacked barplot
+
+
+# Figure 5 ----------------------------------------------------------------
 # Somehow show the relationships between drivers 
 # Importance is to show difference between sites
+# Heatmap or corplot: https://jhrcook.github.io/ggasym/index.html
+
+
+# Figure 6 ----------------------------------------------------------------
+# Show the differences in R2 etc between sites
+# Heatmap of differences
 
 
 # Table 1 -----------------------------------------------------------------
