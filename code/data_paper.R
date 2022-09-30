@@ -1218,56 +1218,60 @@ ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 
 
 # Figure 2 ----------------------------------------------------------------
-# Alluvial plot showing the categories, drivers, and variables
+# Square treemap plots showing count of datasets and count of data points
 # NB: Must run Setup and the beginning of Section 4 to get necessary objects
 
 # TODO: Need a note in the legend of the plot saying what the actual total of datasets is
 # Because this plot doubles up datasets at the caetgory and driver level
-# Perhaps add labels saying the total next to the text label
 
 # TODO: Go through clean_all_freq to find errors in data management
 
 # Create frequency data.frame of datasets for category -> driver -> variable
-clean_all_freq <- clean_all_clean %>% 
+data_point_freq <- clean_all_clean %>% 
   filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
-  # Deactivate this to get the count of data points not datasets
+  group_by(category, driver, variable) %>% 
+  summarise(freq = n(), .groups = "drop")
+data_set_freq <- clean_all_clean %>% 
+  filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
   dplyr::select(citation, category, driver, variable) %>%
   distinct() %>%
-  #
   group_by(category, driver, variable) %>% 
-  summarise(freq = n(), .groups = "drop") %>% 
-  mutate(category = factor(category, levels = c("cryo", "phys", "chem", "bio", "soc"))) %>% 
-  group_by(category, driver, variable) %>% 
-  mutate(driver = factor(driver),
-         variable = factor(variable)) %>% 
-  ungroup()
+  summarise(freq = n(), .groups = "drop")
 
-# Alluvial plot
-ggplot(clean_all_freq,
-       aes(y = freq, axis1 = category, axis2 = driver, axis3 = variable)) +
-  geom_alluvium(aes(fill = category)) +
-  # geom_stratum(aes(fill = category)) +
-  geom_label(stat = "stratum", aes(label = after_stat(stratum)))+#, min.y = 20) +
-  # scale_x_discrete(limits = c("Gender", "Dept"), expand = c(.05, .05)) +
-  scale_fill_manual("Category", 
-                    breaks = c("cryo", "phys", "chem", "bio", "soc"),
-                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
-  ggtitle("Count of datasets within reported data product")
 
-# Tree map
-# TODO: Show panel a and b which are datasets and datapoints to show difference in balance
-ggplot(clean_all_freq, aes(area = freq, group = category, subgroup = driver, subgroup2 = variable)) +
+# Tree map of datasets
+fig_2_a <- ggplot(data_set_freq, 
+       aes(area = freq, group = category, subgroup = driver, subgroup2 = variable)) +
   geom_treemap(aes(fill = category)) +
   geom_treemap_subgroup2_border() +
   geom_treemap_subgroup_border() +
-  # geom_treemap_text(aes(label = category), place = "bottom") + # Labels each small box
   geom_treemap_subgroup_text(aes(label = driver), place = "top") +
-  geom_treemap_subgroup2_text(aes(label = variable), place = "bottom") +
+  # geom_treemap_subgroup2_text(aes(label = variable), place = "bottom") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual("Category",
                     breaks = c("cryo", "phys", "chem", "bio", "soc"),
                     values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080"))
+
+# Tree map of data points
+fig_2_b <- ggplot(data_point_freq, 
+                 aes(area = freq, group = category, subgroup = driver, subgroup2 = variable)) +
+  geom_treemap(aes(fill = category)) +
+  geom_treemap_subgroup2_border() +
+  geom_treemap_subgroup_border() +
+  geom_treemap_subgroup_text(aes(label = driver), place = "top") +
+  # geom_treemap_subgroup2_text(aes(label = variable), place = "bottom") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual("Category",
+                    breaks = c("cryo", "phys", "chem", "bio", "soc"),
+                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080"))
+
+
+# Combine and save
+fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b,
+                           ncol = 1, labels = c("A)", "B)"), legend = "left", common.legend = T)
+ggsave("figures/dp_fig_2.png", fig_2, width = 7, height = 12)
 
 
 # Figure 3 ----------------------------------------------------------------
@@ -1277,6 +1281,9 @@ ggplot(clean_all_freq, aes(area = freq, group = category, subgroup = driver, sub
 load("data/analyses/all_meta.RData")
 
 # TODO: Rather show this globally to reduce complexity
+# Facet by season
+# x-axis is driver
+# fill is category
 
 # Filter out remote products
 all_meta_insitu <- filter(all_meta, type == "in situ") %>% 
@@ -1332,10 +1339,10 @@ fig_3_c <- fig_3_plot("chem", "Chemistry")
 fig_3_d <- fig_3_plot("bio", "Eco/biology")
 fig_3_e <- fig_3_plot("soc", "Social")
 
-# Combine
+# Combine and save
 fig_3 <- ggpubr::ggarrange(fig_3_a, fig_3_b, fig_3_c, fig_3_d, fig_3_e, 
                            ncol = 1, labels = c("A)", "B)", "C)", "D)", "E)"))
-ggsave("figures/dp_fig_3.png", width = 15, height = 15)
+ggsave("figures/dp_fig_3.png", fig_3, width = 15, height = 15)
 
 
 # Figure 4 ----------------------------------------------------------------
