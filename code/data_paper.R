@@ -20,6 +20,7 @@ library(listr) # For dealing with lists - not used
 library(ggplotify) # For working with complex data visuals
 library(ggcorrplot) # For correlograms
 library(ggalluvial) # For alluvial plot
+library(ggasym) # For correlation plots with multiple colour bars
 library(treemapify) # For gridded tree map
 
 # Ice cover colours
@@ -932,22 +933,91 @@ annual_temp <- MUR_data %>%
 load("data/analyses/clean_all.RData")
 
 # Combine some variables for better correlations
+## NB: This should be done earlier in the data management process and is done here as a temporary fix
+## This is part of the normal evolution of a workflow
+clean_all_cryo <- clean_all %>% 
+  filter(category == "cryo", value != 0) %>% 
+  filter(variable != "sal") %>% # Investigate these weird values
+  filter(!str_detect(variable, "cover Jan|cover Feb|cover Mar|cover Apr|cover May|cover Jun|
+                     |cover Jul|cover Aug|cover Sep|cover Oct|cover Nov|cover Dec|
+                     |end date|start date|Snow|snow|
+                     |_1936|_1990|_2010")) # Add these back in if possible
+clean_all_phys <- clean_all %>% 
+  filter(category == "phys", value != 0, variable != "TTT [°C]") # Simply need to remove air temperature
+clean_all_chem <- clean_all %>% 
+  filter(category == "chem", value != 0, driver != "O2") %>% # Need to remove O2
+  mutate(variable = case_when(variable %in% c("pco2 [uatm]", "pCO2water_SST_wet [µatm]",
+                                              "pCO2water_SST_wet [uatm]", "pco2_calc [uatm]") ~ "pCO2 [µatm]", # This is not correct to do. See e-mail.
+                              variable %in% c("[NO3]- [µmol/l]", "NO3 [µg-at/l]", "NO3 [µmol/kg]") ~ "NO3 [µmol/l]", # Incorrect to do
+                              variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol/l]", # Incorrect to do
+                              variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol/l]", # Incorrect to do
+                              variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol/l]", # Incorrect to do
+                              variable == "nitrate+nitrite [µmol/l]" ~ "NO3+NO2 [µmol/l]",
+                              TRUE ~ variable)) # Need to better standardise names
+clean_all_bio <- clean_all %>% 
+  filter(category == "bio", driver != "Species", value != 0) %>% 
+  filter(variable != "pCO2") %>% # Remove these values as they are for terrestrial lichen
+  mutate(variable = case_when(str_detect(variable, "Avg g dw") ~ "A. nodosum [Avg g dw]", 
+                              str_detect(variable, "segment") ~ as.character(NA),
+                              str_detect(variable, "cm/year") ~ "S. latissima [cm/year]",
+                              str_detect(variable, "g C/year") ~ "S. latissima [g C/year]",
+                              TRUE ~ variable)) %>% 
+  filter(!is.na(variable)) %>% 
+  group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 clean_all_spp_count <- clean_all %>% 
   filter(driver == "Species", value != 0) %>% 
   group_by(date_accessed, URL, citation, type, site, category, driver, lon, lat, date, depth) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
   mutate(variable = "Spp count")
-clean_all_clean <- clean_all %>% 
-  filter(driver != "Species") %>% 
-  rbind(clean_all_spp_count)
-rm(clean_all, clean_all_spp_count); gc()
+clean_all_soc <- clean_all %>% 
+  filter(category == "soc", value != 0) %>% 
+  mutate(driver = case_when(driver == "Shipping" ~ "Fisheries", # Need to fix this above
+                            TRUE ~ driver),
+         variable = case_when(variable %in% c("Calls [Cruise boats (overseas)]", "Calls [Tourist boats (expedition cruise)]",
+                                              "Calls [Day trip boats (local boats)]", "Calls [Day trip boats (12 PAX RIB mm)]",
+                                              "Calls [Pleasure boats (Sail charter engine)]") ~ "Calls - tourism [n]",
+                              variable %in% c("Calls [Cargo boats]", "Calls [Teaching / research]",
+                                              "Calls [Fishing boats]", "Calls [Navy / Coast Guard]",
+                                              "Calls [Polar / Nordsyssel]", "Calls [Pilot boat]",
+                                              "Calls [Other vessels]") ~ "Calls - commercial [n]",
+                              str_detect(variable, "Passengers") ~ "Passengers [n]",
+                              str_detect(variable, "arrival") ~ "Arrivals [n]",
+                              str_detect(variable, "Days in port") ~ "Days in port - tourism [count]",
+                              str_detect(variable, "pop ") ~ "Population [n]",
+                              str_detect(variable, "guest night ") ~ "Guest nights [n]",
+                              str_detect(variable, "Vessels ") ~ "Vessels [n]",
+                              TRUE ~ variable)) %>% 
+  group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
+  # Remove some unwanted ship values like duration in the fjord
+  filter(!str_detect(variable, "Duration|duration|Fuel|gross weight|Month trips|emissions|
+                     |Number of trips pr year|Average speed|Power|Total fuel|Tonnage|
+                     |Month Trips|Number of ships")) %>% # These are annual values 
+  # Remove Isfjorden/Storfjorden label and select sum rather than mean values
+  mutate(variable = case_when(str_detect(variable, "CO2 emissions \\(tonnes\\)") ~ "CO2 emissions total [tonnes]",
+                              str_detect(variable, "Nautical miles|nautical miles") ~ "Nautical miles",
+                              str_detect(variable, "Number of ships") ~ "Number of ships [n]",
+                              str_detect(variable, "mean") ~ as.character(NA),
+                              str_detect(variable, "; sum") ~ gsub("; sum", "", variable),
+                              TRUE ~ variable)) %>% 
+  filter(!is.na(variable))
+clean_all_clean <- clean_all_cryo %>% 
+  rbind(clean_all_phys) %>% 
+  rbind(clean_all_chem) %>%
+  rbind(clean_all_bio) %>% 
+  rbind(clean_all_spp_count) %>% 
+  rbind(clean_all_soc)
+# rm(clean_all, clean_all_spp_count); gc()
 
 ### Relationships from the network analysis - created via the review paper
 # We want to see which sites have what relationships, and if there are any obvious outliers
 # This is one of the main points that will feed back into the review paper
 
-#List of drivers
+#List of drivers and variables
 unique(clean_all_clean$driver)
+unique(clean_all_clean$variable)
+table(clean_all_clean$driver, clean_all_clean$variable)
 
 ## Cryosphere
 ice_temp <- driver2_lm("Ice vars", "Sea temp") # sea ice -> sea temp
@@ -983,14 +1053,77 @@ PP_biomass <- driver2_lm("Chla", "Biomass") # PP -> biomass
 biomass_spp <- driver2_lm("Biomass", "Species") # biomass -> spp richness
 
 ## Social
-gov_tour <- driver2_lm("Governance", "Tourism") # governance -> tourism
-gov_fish <- driver2_lm("Governance", "Shipping") # governance -> fisheries
+# gov_tour <- driver2_lm("Governance", "Tourism") # governance -> tourism # No governance data
+# gov_fish <- driver2_lm("Governance", "Shipping") # governance -> fisheries # No governance data
 tour_nut <- driver2_lm("Tourism", "Nutrients") # tourism -> nutrients
 tour_light <- driver2_lm("Tourism", "PAR") # tourism -> light
-fish_biomass <- driver2_lm("Shipping", "Biomass") # fisheries -> biomass
-fish_spp <- driver2_lm("Shipping", "Species") # fisheries -> spp richness
+fish_biomass <- driver2_lm("Fisheries", "Biomass") # fisheries -> biomass
+fish_spp <- driver2_lm("Fisheries", "Species") # fisheries -> spp richness
 
 # Look across sites for differences in r2 values for variables that are shared between sites
+driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_discharge, gmb_spp, 
+                    discharge_temp, discharge_sal,discharge_light, discharge_carb, discharge_nut,
+                    temp_ice, temp_spp, temp_biomass, temp_PP, sal_spp, sal_biomass, light_spp, light_biomass, light_PP,
+                    carb_spp, nut_PP, PP_biomass, biomass_spp,
+                    tour_nut, tour_light, fish_biomass, fish_spp)
+
+# Quick fix for plotting
+driver_all_asym <- asymmetrize(driver_all, variable.y, variable.x) %>% 
+  mutate(nobs = replace_na(nobs, 0))
+
+# Visualise one site
+filter(driver_all, site == "kong") %>% 
+  asymmetrize(variable.y, variable.x) %>% 
+  # mutate(nobs = replace_na(nobs, 0)) %>% # Weird behaviour...
+  ggplot(aes(x = variable.y, y = variable.x)) +
+  geom_asymmat(aes(fill_tl = adj.r.squared, fill_br = p.value, fill_diag = nobs)) +
+  scale_fill_tl_gradient2(low = "blue", mid = "white", high = "red") +
+  scale_fill_br_gradient(low = "black", high = "white") +
+  scale_fill_diag_gradient(low = "yellow", high = "orange3") +
+  # facet_wrap(~depth.y)
+  # facet_grid(depth.y~site)
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+# Beefy asymetry plot of all sites at once - not terribly helpful other than to show the lack of relationships
+ggplot(driver_all_asym, aes(x = variable.y, y = variable.x)) +
+  geom_asymmat(aes(fill_tl = adj.r.squared, fill_br = p.value, fill_diag = nobs)) +
+  scale_fill_tl_gradient(low = "lightpink", high = "tomato") +
+  scale_fill_br_gradient(low = "lightblue1", high = "dodgerblue") +
+  scale_fill_diag_gradient(low = "yellow", high = "orange3") +
+  # facet_wrap(~site, nrow = 2)
+  facet_grid(depth.y~site)
+
+# Get count of comparisons by site to see which can be made across most sites
+driver_all_site_count <- driver_all %>% 
+  group_by(type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  filter(count >= 2)
+
+# Filter out combos with only one site available
+driver_all_filter <- driver_all %>% 
+  right_join(driver_all_site_count)
+
+# Heatmap of relationships by site
+# These are possibly of interest
+# unique(driver_all_filter$driver.y)
+driver_all_filter %>% 
+  filter(driver.y == "Nutrients") %>% 
+  unite(variable_x_y, c(variable.x, variable.y)) %>%
+  ggplot(aes(x = variable_x_y, y = site)) +
+  # unite(variable_depth_x_y, c(variable.x, depth.x, variable.y, depth.y)) %>%
+  # ggplot(aes(x = variable_depth_x_y, y = site)) +
+  geom_tile(aes(fill = adj.r.squared)) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+  # facet_wrap(~count, scales = "free_x") +
+  # facet_grid(count~driver.y, scales = "free_x") +
+  # facet_grid(~driver.y, scales = "free_x") +
+  facet_grid(depth.x~depth.y, scales = "free_x") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# TODO: Look into the positive relationship between sea ice cover and SST
+# TODO: Look into very deep PAR data
+# TODO: Look into dichotomy of Q and ablation for disko vs young
+# TODO: Look into differences between PAR and CHla/Spp count for nuup vs young
 
 
 # Section 5 ---------------------------------------------------------------
@@ -1267,7 +1400,6 @@ fig_2_b <- ggplot(data_point_freq,
   scale_fill_manual("Category",
                     breaks = c("cryo", "phys", "chem", "bio", "soc"),
                     values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080"))
-
 
 # Combine and save
 fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b,
