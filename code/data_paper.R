@@ -1108,12 +1108,15 @@ driver_all_filter <- driver_all %>%
 # These are possibly of interest
 unique(driver_all_filter$driver.y)
 driver_all_filter %>% 
-  filter(driver.y == "Sea temp") %>% 
+  filter(driver.y == "Sea temp") %>%
+  filter(variable.x != "PAR [µmol m-2 s-1]") %>% # Investigate why these values are so high
+  filter(variable.x != "NO2 [µmol/l]") %>%  # Investigate why these values are so low
   unite(variable_x_y, c(variable.x, variable.y)) %>%
   ggplot(aes(x = variable_x_y, y = site)) +
   # unite(variable_depth_x_y, c(variable.x, depth.x, variable.y, depth.y)) %>%
   # ggplot(aes(x = variable_depth_x_y, y = site)) +
   geom_tile(aes(fill = slope)) +
+  # geom_tile(aes(fill = rsq)) +
   scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
   # facet_wrap(~count, scales = "free_x") +
   # facet_grid(count~driver.y, scales = "free_x") +
@@ -1185,6 +1188,7 @@ model_por <- load_model("porsangerfjorden_rcp")
 model_trom <- load_model("tromso_rcp")
 
 # Convert data to even grid
+# NB: Not necessary to create spatial average of entire fjord
 model_kong_even_grid <- model_kong %>% 
   filter(date == "2020-01-31", land == 1) %>% 
   dplyr::select(lon, lat, date, Temp) %>% 
@@ -1208,6 +1212,13 @@ ggplot(model_kong_even_grid, aes(x = lon, y = lat)) +
                  xlim = c(coords[1]-1.5, coords[2]+1.5), 
                  ylim = c(coords[3]-0.4, coords[4]+0.4))
 
+# Rather we just subset the pixels to those within the bounding box ofr each site
+
+# Join to all driver relationships
+driver_all
+
+# Join to driver relationships that exist across 3+ sites
+driver_all_filter
 
 # Figure 1 ----------------------------------------------------------------
 # Map of the study area that also manages to show SST, ice cover, and any other well covered drivers 
