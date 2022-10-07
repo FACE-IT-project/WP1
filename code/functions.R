@@ -2038,22 +2038,34 @@ trend_calc <- function(df){
 lm_all <- function(df_idx, df_main){
   df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
   if(nrow(df_sub) < 3) return()
+  df_ghost <- df_sub %>% 
+    filter(date >= as.Date("1982-01-01"), date <= "2020-12-31") %>% 
+    # mutate(value = seq(0.1, n()/10, by = 0.1)) %>% 
+    mutate(value = 1:n()) %>% 
+    dplyr::select(-var_index)
   df_join <- df_main %>% 
     filter(driver != df_sub$driver[1]) %>% 
+    rbind(df_ghost) %>% 
     right_join(df_sub, by = c("site", "date")) %>% 
     filter(!is.na(value.x), !is.na(value.y))
   if(nrow(df_join) < 3) return()
-  suppressWarnings(
-    df_compare <- df_join %>% 
-      nest_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>%
-      mutate(mod = list(lm(value.x ~ value.y, data = data))) %>%
-      summarise(broom::glance(mod), .groups = "drop") %>% 
-      dplyr::select(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y, adj.r.squared, p.value, nobs) %>% 
-      filter(!is.na(adj.r.squared), !is.na(p.value)) %>% 
-      mutate(adj.r.squared = round(adj.r.squared, 4), p.value = round(p.value, 4))
-  )
-  rm(df_sub, df_join); gc()
-  return(df_compare)
+  # suppressWarnings(
+  df_lm <- df_join %>% 
+    group_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>% 
+    do(mod = lm(value.y ~ value.x, data = .)) %>% ungroup()
+  df_res <- df_lm %>% 
+    mutate(tidy = map(mod, broom::tidy),
+           glance = map(mod, broom::glance),
+           # augment = map(mod, broom::augment), # Not needed, but good to know
+           slope = tidy %>% map_dbl(function(x) round(x$estimate[2], 4)),
+           rsq = glance %>% map_dbl(function(x) round(x$r.squared[1], 4)),
+           pval = tidy %>% map_dbl(function(x) round(x$p.value[2], 4)),
+           nobs = glance %>% map_dbl(function(x) round(x$nobs[1], 4))) %>% 
+    dplyr::select(-mod, -glance, -tidy) %>%
+    filter(!is.na(rsq), !is.na(slope), !is.na(pval))
+  # )
+  rm(df_sub, df_ghost, df_join, df_lm); gc()
+  return(df_res)
 }
 
 # Find all possible linear model comparisons for two given drivers
@@ -2083,7 +2095,8 @@ driver2_lm <- function(driver1, driver2){
     dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
   
   # Brute force
-  df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth)
+  df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth, .parallel = TRUE) %>% 
+    dplyr::select(-var_index)
   rm(df_driver, df_mean_month_depth, df_var); gc()
   return(df_lm)
 }

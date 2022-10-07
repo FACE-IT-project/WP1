@@ -140,6 +140,7 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 
 # TODO: Look into sea ice variables with depths below the surface
 # Check if ablation [m w.e.] should be a land or surface value
+# Force sea ice cover proportion values of 0 to remain in the data.frame
 
 # Collect all ice related data
 # https://doi.org/10.1594/PANGAEA.935267; bi [code] = ice of land origin, ci [code] = sea ice concentration, zi [code] = ice situation
@@ -1076,17 +1077,17 @@ filter(driver_all, site == "kong") %>%
   asymmetrize(variable.y, variable.x) %>% 
   # mutate(nobs = replace_na(nobs, 0)) %>% # Weird behaviour...
   ggplot(aes(x = variable.y, y = variable.x)) +
-  geom_asymmat(aes(fill_tl = adj.r.squared, fill_br = p.value, fill_diag = nobs)) +
+  geom_asymmat(aes(fill_tl = rsq, fill_br = pval, fill_diag = slope), na.rm = TRUE) +
   scale_fill_tl_gradient2(low = "blue", mid = "white", high = "red") +
   scale_fill_br_gradient(low = "black", high = "white") +
-  scale_fill_diag_gradient(low = "yellow", high = "orange3") +
-  # facet_wrap(~depth.y)
-  # facet_grid(depth.y~site)
+  scale_fill_diag_gradient2(low = "blue", mid = "white", high = "red") +
+  facet_wrap(~depth.y) +
+  # facet_grid(depth.y~site) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
 
 # Beefy asymetry plot of all sites at once - not terribly helpful other than to show the lack of relationships
 ggplot(driver_all_asym, aes(x = variable.y, y = variable.x)) +
-  geom_asymmat(aes(fill_tl = adj.r.squared, fill_br = p.value, fill_diag = nobs)) +
+  geom_asymmat(aes(fill_tl = rsq, fill_br = pval, fill_diag = slope)) +
   scale_fill_tl_gradient(low = "lightpink", high = "tomato") +
   scale_fill_br_gradient(low = "lightblue1", high = "dodgerblue") +
   scale_fill_diag_gradient(low = "yellow", high = "orange3") +
@@ -1097,7 +1098,7 @@ ggplot(driver_all_asym, aes(x = variable.y, y = variable.x)) +
 driver_all_site_count <- driver_all %>% 
   group_by(type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>% 
   summarise(count = n(), .groups = "drop") %>% 
-  filter(count >= 2)
+  filter(count >= 3)
 
 # Filter out combos with only one site available
 driver_all_filter <- driver_all %>% 
@@ -1105,14 +1106,14 @@ driver_all_filter <- driver_all %>%
 
 # Heatmap of relationships by site
 # These are possibly of interest
-# unique(driver_all_filter$driver.y)
+unique(driver_all_filter$driver.y)
 driver_all_filter %>% 
   filter(driver.y == "Sea temp") %>% 
   unite(variable_x_y, c(variable.x, variable.y)) %>%
   ggplot(aes(x = variable_x_y, y = site)) +
   # unite(variable_depth_x_y, c(variable.x, depth.x, variable.y, depth.y)) %>%
   # ggplot(aes(x = variable_depth_x_y, y = site)) +
-  geom_tile(aes(fill = adj.r.squared)) +
+  geom_tile(aes(fill = slope)) +
   scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
   # facet_wrap(~count, scales = "free_x") +
   # facet_grid(count~driver.y, scales = "free_x") +
@@ -1167,6 +1168,13 @@ ggplot(data = df_3, aes(x = value.x, y = value.y)) +
 ## "It has been projected that macroalgae will decline in hard bottoms and vascular plants increase in the more sheltered soft-bottom areas (Torn et al., 2020)."
 ## "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
 ## "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
+
+# TODO: Get linear relationships for variables consistent across sites
+# Then multiple those linear trends by the future projections in the model
+# With a bit of table joining help, this could be done in an automated fashion
+# One must code the model variables to similar present day data at similar depths
+# One then takes the projected increases by 2100 at different RCP at multiplies them
+# by the historic relationships
 
 # Morten model data
 model_kong <- load_model("kongsfjorden_rcp")
