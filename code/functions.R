@@ -2046,7 +2046,7 @@ lm_all <- function(df_idx, df_main){
   suppressWarnings(
     df_compare <- df_join %>% 
       nest_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>%
-      mutate(mod = list(lm(value.x ~ value.y, data = data, ))) %>%
+      mutate(mod = list(lm(value.x ~ value.y, data = data))) %>%
       summarise(broom::glance(mod), .groups = "drop") %>% 
       dplyr::select(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y, adj.r.squared, p.value, nobs) %>% 
       filter(!is.na(adj.r.squared), !is.na(p.value)) %>% 

@@ -1107,7 +1107,7 @@ driver_all_filter <- driver_all %>%
 # These are possibly of interest
 # unique(driver_all_filter$driver.y)
 driver_all_filter %>% 
-  filter(driver.y == "Nutrients") %>% 
+  filter(driver.y == "Sea temp") %>% 
   unite(variable_x_y, c(variable.x, variable.y)) %>%
   ggplot(aes(x = variable_x_y, y = site)) +
   # unite(variable_depth_x_y, c(variable.x, depth.x, variable.y, depth.y)) %>%
@@ -1120,10 +1120,35 @@ driver_all_filter %>%
   facet_grid(depth.x~depth.y, scales = "free_x") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-# TODO: Look into the positive relationship between sea ice cover and SST
 # TODO: Look into very deep PAR data
 # TODO: Look into dichotomy of Q and ablation for disko vs young
-# TODO: Look into differences between PAR and CHla/Spp count for nuup vs young
+# TODO: Look into differences between PAR and Chla/Spp count for nuup vs young
+
+# Get monthly means by depth across entire site
+df_mean_month_depth <- clean_all_clean %>% 
+  dplyr::select(type, site, driver, variable, date, depth, value) %>% 
+  filter(!is.na(date)) %>% distinct() %>% 
+  mutate(date = lubridate::round_date(date, unit = "month"),
+         depth = case_when(depth < 0 ~ "land",
+                           is.na(depth) ~ "surface",
+                           depth <= 10 ~ "0 to 10",
+                           depth <= 50 ~ "10 to 50",
+                           depth <= 200 ~ "50 to 200",
+                           depth > 200 ~ "+200")) %>%
+  group_by(type, site, driver, variable, date, depth) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(value)); gc()
+
+# Get two specific datasets to compare
+unique(clean_all_clean$variable)
+df_1 <- df_mean_month_depth %>% 
+  filter(variable == "temp [°C]", depth == "0 to 10", site == "stor", type == "in situ")
+df_2 <- df_mean_month_depth %>% 
+  filter(variable == "sea ice cover [proportion]", depth == "surface", site == "stor")
+df_3 <- left_join(df_1, df_2, by = c("site", "date")) %>% filter(!is.na(value.x), !is.na(value.y))
+broom::glance(lm(value.x ~ value.y, data = df_3))
+ggplot(data = df_3, aes(x = value.x, y = value.y)) +
+  geom_point() + geom_smooth(method = "lm")
 
 
 # Section 5 ---------------------------------------------------------------
