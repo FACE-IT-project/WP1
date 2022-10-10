@@ -1585,6 +1585,45 @@ model_summary <- function(model_product, site_name){
   return(plot_all)
 }
 
+# Function for creating spatial average of model cells within a bbox
+# Produces a range of useful stats
+model_bbox_stats <- function(model_product, bbox){
+  
+  # Mean stats by bbox
+  model_bbox_mean <- model_product %>% 
+    mutate(depth = case_when(depth <= 10 ~ "0 to 10",
+                             depth <= 50 ~ "10 to 50",
+                             depth <= 200 ~ "50 to 200")) %>% # Convert to depth categories matching site averages
+    filter(land == 1, 
+           lon >= bbox[1], lon <= bbox[2],
+           lat >= bbox[3], lat <= bbox[4]) %>% # Filter within bbox
+    dplyr::select(-Udir, -USpeed, -Oxy) %>% # No longer checking these variables
+    pivot_longer(cols = Salt:pco2w, names_to = "variable") %>% 
+    group_by(proj, date, depth, variable) %>% 
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
+  
+  # Linear models
+  model_bbox_lm <- model_bbox_mean %>% 
+    group_by(proj, depth, variable) %>% 
+    do(mod = lm(value ~ date, data = .)) %>% ungroup()
+  
+  # Get linear model stats
+  model_bbox_res <- model_bbox_lm %>% 
+    mutate(tidy = map(mod, broom::tidy),
+           glance = map(mod, broom::glance),
+           # augment = map(mod, broom::augment), # Not needed, but good to know
+           slope = tidy %>% map_dbl(function(x) round(x$estimate[2]*3652.5, 4)), # From daily to decadal trend
+           rsq = glance %>% map_dbl(function(x) round(x$r.squared[1], 4)),
+           pval = tidy %>% map_dbl(function(x) round(x$p.value[2], 4)),
+           nobs = glance %>% map_dbl(function(x) round(x$nobs[1], 4))) %>% 
+    dplyr::select(-mod, -glance, -tidy, -nobs) %>%
+    filter(!is.na(rsq), !is.na(slope), !is.na(pval))
+  
+  # Return and exit
+  rm(model_bbox_mean, model_bbox_lm); gc()
+  return(model_bbox_res)
+}
+
 # Convenience wrapper for creating hi-res gridded coordinates
 grid_MUR <- function(bbox_coords){
   bbox_grid <- expand.grid(seq(bbox_coords[1], bbox_coords[2], by = 0.01),
@@ -2034,26 +2073,10 @@ trend_calc <- function(df){
   return(res)
 }
 
-# Calculate linear models on all possible driver comparisons for two given drivers
-lm_all <- function(df_idx, df_main){
-  df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
-  if(nrow(df_sub) < 3) return()
-  df_ghost <- df_sub %>% 
-    filter(date >= as.Date("1982-01-01"), date <= "2020-12-31") %>% 
-    # mutate(value = seq(0.1, n()/10, by = 0.1)) %>% 
-    mutate(value = 1:n()) %>% 
-    dplyr::select(-var_index)
-  df_join <- df_main %>% 
-    filter(driver != df_sub$driver[1]) %>% 
-    rbind(df_ghost) %>% 
-    right_join(df_sub, by = c("site", "date")) %>% 
-    filter(!is.na(value.x), !is.na(value.y))
-  if(nrow(df_join) < 3) return()
-  # suppressWarnings(
-  df_lm <- df_join %>% 
-    group_by(site, type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>% 
-    do(mod = lm(value.y ~ value.x, data = .)) %>% ungroup()
-  df_res <- df_lm %>% 
+# Calculate linear models and output a tidy tibble
+lm_tidy <- function(df, x_var, y_var){
+  df_lm <- df %>% 
+    do(mod = lm(as.formula(paste0(y_var," ~ ",x_var)), data = .)) %>% ungroup() %>% 
     mutate(tidy = map(mod, broom::tidy),
            glance = map(mod, broom::glance),
            # augment = map(mod, broom::augment), # Not needed, but good to know
@@ -2063,8 +2086,42 @@ lm_all <- function(df_idx, df_main){
            nobs = glance %>% map_dbl(function(x) round(x$nobs[1], 4))) %>% 
     dplyr::select(-mod, -glance, -tidy) %>%
     filter(!is.na(rsq), !is.na(slope), !is.na(pval))
+  return(df_lm)
+}
+
+# Calculate linear models on all possible driver comparisons for two given drivers
+lm_all <- function(df_idx, df_main){
+  df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
+  # if(nrow(df_sub) < 3) return()
+  # df_ghost <- df_sub %>%
+  #   filter(date >= as.Date("1982-01-01"), date <= "2020-12-31") %>%
+  #   # mutate(value = seq(0.1, n()/10, by = 0.1)) %>%
+  #   mutate(value = 1:n()) %>%
+  #   dplyr::select(-var_index)
+  df_filter <- df_main %>% 
+    filter(driver != df_sub$driver[1])# %>% 
+    # rbind(df_ghost) 
+  df_join <- df_sub %>% 
+    # filter(driver != df_sub$driver[1]) %>% 
+    # rbind(df_ghost) %>% 
+    left_join(df_filter, by = c("site", "date"), suffix = c("", "_y")) %>% 
+    filter(!is.na(value), !is.na(value_y))
+  if(nrow(df_join) < 3) return()
+  # suppressWarnings(
+  df_sub_lm <- df_sub %>%
+    filter(date >= as.Date("1982-01-01"), date <= "2020-12-31") %>% 
+    group_by(site, type, category, driver, variable, depth) %>% 
+    mutate(date_idx = 1:n(),
+           min_date = min(date, na.rm = T),
+           max_date = max(date, na.rm = T)) %>% 
+    group_by(site, type, category, driver, variable, depth, min_date, max_date) %>% 
+    lm_tidy(df = ., x_var = "date_idx", y_var = "value")
+  df_res <- df_join %>% 
+    group_by(site, type, type_y, category, category_y, driver, driver_y, variable, variable_y, depth, depth_y) %>% 
+    lm_tidy(df = ., x_var = "value", y_var = "value_y") %>% 
+    bind_rows(df_sub_lm)
   # )
-  rm(df_sub, df_ghost, df_join, df_lm); gc()
+  rm(df_sub, df_filter, df_join, df_sub_lm); gc()
   return(df_res)
 }
 
@@ -2077,7 +2134,7 @@ driver2_lm <- function(driver1, driver2){
   
   # Get monthly means by depth across entire site
   df_mean_month_depth <- df_driver %>% 
-    dplyr::select(type, site, driver, variable, date, depth, value) %>% 
+    dplyr::select(type, site, category, driver, variable, date, depth, value) %>% 
     filter(!is.na(date)) %>% distinct() %>% 
     mutate(date = lubridate::round_date(date, unit = "month"),
            depth = case_when(depth < 0 ~ "land",
@@ -2086,7 +2143,7 @@ driver2_lm <- function(driver1, driver2){
                              depth <= 50 ~ "10 to 50",
                              depth <= 200 ~ "50 to 200",
                              depth > 200 ~ "+200")) %>%
-    group_by(type, site, driver, variable, date, depth) %>%
+    group_by(type, site, category, driver, variable, date, depth) %>%
     summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
     filter(!is.na(value)); gc()
   

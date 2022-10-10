@@ -1127,6 +1127,7 @@ driver_all_filter %>%
 # TODO: Look into very deep PAR data
 # TODO: Look into dichotomy of Q and ablation for disko vs young
 # TODO: Look into differences between PAR and Chla/Spp count for nuup vs young
+# TODO: Look into funny relationship between Open water [annual days] and temp [°C] in Young Sound
 
 # Get monthly means by depth across entire site
 df_mean_month_depth <- clean_all_clean %>% 
@@ -1172,13 +1173,6 @@ ggplot(data = df_3, aes(x = value.x, y = value.y)) +
 ## "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
 ## "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
 
-# TODO: Get linear relationships for variables consistent across sites
-# Then multiple those linear trends by the future projections in the model
-# With a bit of table joining help, this could be done in an automated fashion
-# One must code the model variables to similar present day data at similar depths
-# One then takes the projected increases by 2100 at different RCP at multiplies them
-# by the historic relationships
-
 # Morten model data
 model_kong <- load_model("kongsfjorden_rcp")
 model_is <- load_model("isfjorden_rcp")
@@ -1212,13 +1206,22 @@ ggplot(model_kong_even_grid, aes(x = lon, y = lat)) +
                  xlim = c(coords[1]-1.5, coords[2]+1.5), 
                  ylim = c(coords[3]-0.4, coords[4]+0.4))
 
-# Rather we just subset the pixels to those within the bounding box ofr each site
+# TODO: Get linear relationships for variables consistent across sites
+# Then multiply those linear trends by the future projections in the model
+# With a bit of table joining help, this could be done in an automated fashion
+# One must code the model variables to similar present day data at similar depths
+# One then takes the projected increases by 2100 at different RCP and multiplies them
+# by the historic relationships
+
+# Rather we just subset the pixels to those within the bounding box of each site
+model_kong_stats <- model_bbox_stats(model_kong, bbox_kong)
 
 # Join to all driver relationships
 driver_all
 
 # Join to driver relationships that exist across 3+ sites
 driver_all_filter
+
 
 # Figure 1 ----------------------------------------------------------------
 # Map of the study area that also manages to show SST, ice cover, and any other well covered drivers 
