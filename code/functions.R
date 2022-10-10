@@ -1611,7 +1611,6 @@ model_bbox_stats <- function(model_product, bbox){
   model_bbox_res <- model_bbox_lm %>% 
     mutate(tidy = map(mod, broom::tidy),
            glance = map(mod, broom::glance),
-           # augment = map(mod, broom::augment), # Not needed, but good to know
            slope = tidy %>% map_dbl(function(x) round(x$estimate[2]*3652.5, 4)), # From daily to decadal trend
            rsq = glance %>% map_dbl(function(x) round(x$r.squared[1], 4)),
            pval = tidy %>% map_dbl(function(x) round(x$p.value[2], 4)),
@@ -2092,35 +2091,31 @@ lm_tidy <- function(df, x_var, y_var){
 # Calculate linear models on all possible driver comparisons for two given drivers
 lm_all <- function(df_idx, df_main){
   df_sub <- df_main %>% right_join(df_idx, by = c("type", "driver", "variable", "depth"))
-  # if(nrow(df_sub) < 3) return()
-  # df_ghost <- df_sub %>%
-  #   filter(date >= as.Date("1982-01-01"), date <= "2020-12-31") %>%
-  #   # mutate(value = seq(0.1, n()/10, by = 0.1)) %>%
-  #   mutate(value = 1:n()) %>%
-  #   dplyr::select(-var_index)
+  if(nrow(df_sub) < 3) return()
   df_filter <- df_main %>% 
-    filter(driver != df_sub$driver[1])# %>% 
-    # rbind(df_ghost) 
-  df_join <- df_sub %>% 
-    # filter(driver != df_sub$driver[1]) %>% 
-    # rbind(df_ghost) %>% 
+    filter(driver != df_sub$driver[1])
+  df_join <- df_sub %>%
     left_join(df_filter, by = c("site", "date"), suffix = c("", "_y")) %>% 
     filter(!is.na(value), !is.na(value_y))
   if(nrow(df_join) < 3) return()
-  # suppressWarnings(
   df_sub_lm <- df_sub %>%
     filter(date >= as.Date("1982-01-01"), date <= "2020-12-31") %>% 
     group_by(site, type, category, driver, variable, depth) %>% 
     mutate(date_idx = 1:n(),
            min_date = min(date, na.rm = T),
+           mean_val = mean(value, na.rm = T),
            max_date = max(date, na.rm = T)) %>% 
-    group_by(site, type, category, driver, variable, depth, min_date, max_date) %>% 
+    group_by(site, type, category, driver, variable, depth, min_date, mean_val, max_date) %>% 
     lm_tidy(df = ., x_var = "date_idx", y_var = "value")
   df_res <- df_join %>% 
     group_by(site, type, type_y, category, category_y, driver, driver_y, variable, variable_y, depth, depth_y) %>% 
+    mutate(min_date = min(date, na.rm = T),
+           mean_val = mean(value_y, na.rm = T),
+           max_date = max(date, na.rm = T)) %>% 
+    group_by(site, type, type_y, category, category_y, driver, driver_y, variable, variable_y, depth, depth_y,
+             min_date, mean_val, max_date) %>% 
     lm_tidy(df = ., x_var = "value", y_var = "value_y") %>% 
     bind_rows(df_sub_lm)
-  # )
   rm(df_sub, df_filter, df_join, df_sub_lm); gc()
   return(df_res)
 }
@@ -2131,6 +2126,10 @@ driver2_lm <- function(driver1, driver2){
   # Filter out only the two drivers in question
   df_driver <- clean_all_clean %>% 
     filter(driver %in% c(driver1, driver2))
+  
+  # If no variables exist for driver  (e.g. governance) return nothing
+  if(nrow(filter(clean_all_clean, driver == driver1)) == 0) return()
+  if(nrow(filter(clean_all_clean, driver == driver2)) == 0) return()
   
   # Get monthly means by depth across entire site
   df_mean_month_depth <- df_driver %>% 
@@ -2151,9 +2150,11 @@ driver2_lm <- function(driver1, driver2){
   df_var <- df_mean_month_depth %>% filter(driver == driver1) %>% 
     dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
   
-  # Brute force
-  df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth, .parallel = TRUE) %>% 
-    dplyr::select(-var_index)
+  # get all stats
+  df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth, .parallel = TRUE)
+  
+  # Clean up and exit
+  if(nrow(df_lm) > 0) df_lm <- dplyr::select(df_lm, -var_index)
   rm(df_driver, df_mean_month_depth, df_var); gc()
   return(df_lm)
 }

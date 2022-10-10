@@ -1054,8 +1054,8 @@ PP_biomass <- driver2_lm("Chla", "Biomass") # PP -> biomass
 biomass_spp <- driver2_lm("Biomass", "Species") # biomass -> spp richness
 
 ## Social
-# gov_tour <- driver2_lm("Governance", "Tourism") # governance -> tourism # No governance data
-# gov_fish <- driver2_lm("Governance", "Shipping") # governance -> fisheries # No governance data
+gov_tour <- driver2_lm("Governance", "Tourism") # governance -> tourism # No governance data
+gov_fish <- driver2_lm("Governance", "Shipping") # governance -> fisheries # No governance data
 tour_nut <- driver2_lm("Tourism", "Nutrients") # tourism -> nutrients
 tour_light <- driver2_lm("Tourism", "PAR") # tourism -> light
 fish_biomass <- driver2_lm("Fisheries", "Biomass") # fisheries -> biomass
@@ -1063,42 +1063,43 @@ fish_spp <- driver2_lm("Fisheries", "Species") # fisheries -> spp richness
 
 # Look across sites for differences in r2 values for variables that are shared between sites
 driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_discharge, gmb_spp, 
-                    discharge_temp, discharge_sal,discharge_light, discharge_carb, discharge_nut,
+                    discharge_temp, discharge_sal, discharge_light, discharge_carb, discharge_nut,
                     temp_ice, temp_spp, temp_biomass, temp_PP, sal_spp, sal_biomass, light_spp, light_biomass, light_PP,
-                    carb_spp, nut_PP, PP_biomass, biomass_spp,
-                    tour_nut, tour_light, fish_biomass, fish_spp)
+                    carb_spp, nut_PP, 
+                    PP_biomass, biomass_spp,
+                    gov_tour, gov_fish, tour_nut, tour_light, fish_biomass, fish_spp)
 
 # Quick fix for plotting
-driver_all_asym <- asymmetrize(driver_all, variable.y, variable.x) %>% 
+driver_all_asym <- asymmetrize(driver_all, variable, variable_y) %>% 
   mutate(nobs = replace_na(nobs, 0))
 
 # Visualise one site
 filter(driver_all, site == "kong") %>% 
-  asymmetrize(variable.y, variable.x) %>% 
+  asymmetrize(variable, variable_y) %>% 
   # mutate(nobs = replace_na(nobs, 0)) %>% # Weird behaviour...
-  ggplot(aes(x = variable.y, y = variable.x)) +
+  ggplot(aes(x = variable, y = variable_y)) +
   geom_asymmat(aes(fill_tl = rsq, fill_br = pval, fill_diag = slope), na.rm = TRUE) +
   scale_fill_tl_gradient2(low = "blue", mid = "white", high = "red") +
   scale_fill_br_gradient(low = "black", high = "white") +
   scale_fill_diag_gradient2(low = "blue", mid = "white", high = "red") +
-  facet_wrap(~depth.y) +
+  facet_wrap(~depth) +
   # facet_grid(depth.y~site) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
 
 # Beefy asymetry plot of all sites at once - not terribly helpful other than to show the lack of relationships
-ggplot(driver_all_asym, aes(x = variable.y, y = variable.x)) +
+ggplot(driver_all_asym, aes(x = variable, y = variable_y)) +
   geom_asymmat(aes(fill_tl = rsq, fill_br = pval, fill_diag = slope)) +
   scale_fill_tl_gradient(low = "lightpink", high = "tomato") +
   scale_fill_br_gradient(low = "lightblue1", high = "dodgerblue") +
   scale_fill_diag_gradient(low = "yellow", high = "orange3") +
   # facet_wrap(~site, nrow = 2)
-  facet_grid(depth.y~site)
+  facet_grid(depth~site)
 
 # Get count of comparisons by site to see which can be made across most sites
 driver_all_site_count <- driver_all %>% 
-  group_by(type.x, type.y, driver.x, driver.y, variable.x, variable.y, depth.x, depth.y) %>% 
+  group_by(type, type_y, driver, driver_y, variable, variable_y, depth, depth_y) %>% 
   summarise(count = n(), .groups = "drop") %>% 
-  filter(count >= 3)
+  filter(count >= 3, !is.na(type_y))
 
 # Filter out combos with only one site available
 driver_all_filter <- driver_all %>% 
@@ -1106,12 +1107,13 @@ driver_all_filter <- driver_all %>%
 
 # Heatmap of relationships by site
 # These are possibly of interest
-unique(driver_all_filter$driver.y)
+unique(driver_all_filter$driver)
+unique(driver_all_filter$driver_y)
 driver_all_filter %>% 
-  filter(driver.y == "Sea temp") %>%
-  filter(variable.x != "PAR [µmol m-2 s-1]") %>% # Investigate why these values are so high
-  filter(variable.x != "NO2 [µmol/l]") %>%  # Investigate why these values are so low
-  unite(variable_x_y, c(variable.x, variable.y)) %>%
+  filter(driver == "Sea temp") %>%
+  filter(variable_y != "PAR [µmol m-2 s-1]") %>% # Investigate why these values are so high
+  filter(variable_y != "NO2 [µmol/l]") %>%  # Investigate why these values are so low
+  unite(variable_x_y, c(variable, variable_y)) %>%
   ggplot(aes(x = variable_x_y, y = site)) +
   # unite(variable_depth_x_y, c(variable.x, depth.x, variable.y, depth.y)) %>%
   # ggplot(aes(x = variable_depth_x_y, y = site)) +
@@ -1121,13 +1123,14 @@ driver_all_filter %>%
   # facet_wrap(~count, scales = "free_x") +
   # facet_grid(count~driver.y, scales = "free_x") +
   # facet_grid(~driver.y, scales = "free_x") +
-  facet_grid(depth.x~depth.y, scales = "free_x") +
+  facet_grid(depth~depth_y, scales = "free_x") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 # TODO: Look into very deep PAR data
 # TODO: Look into dichotomy of Q and ablation for disko vs young
 # TODO: Look into differences between PAR and Chla/Spp count for nuup vs young
 # TODO: Look into funny relationship between Open water [annual days] and temp [°C] in Young Sound
+# TODO: Massive negative relationship between temp and Spp count at Young sound
 
 # Get monthly means by depth across entire site
 df_mean_month_depth <- clean_all_clean %>% 
