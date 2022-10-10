@@ -269,15 +269,15 @@ convert_even_grid <- function(df, z_col, pixel_res){
 # Convenience function for getting bbox from site name
 bbox_from_name <- function(site_name){
   # get correct bounding box
-  if(site_name == "Kongsfjorden") bbox_name <- bbox_kong
-  if(site_name == "Isfjorden") bbox_name <- bbox_is
-  if(site_name == "Inglefieldbukta") bbox_name <- bbox_ingle
-  if(site_name == "Storfjorden") bbox_name <- bbox_stor
-  if(site_name == "Young Sound") bbox_name <- bbox_young
-  if(site_name == "Disko Bay") bbox_name <- bbox_disko
-  if(site_name == "Nuup Kangerlua") bbox_name <- bbox_nuup
-  if(site_name == "Porsangerfjorden") bbox_name <- bbox_por
-  # This has potentially been coded to allow an error here
+  if(site_name %in% c("kong", "Kongsfjorden")) bbox_name <- bbox_kong
+  if(site_name %in% c("is", "Isfjorden")) bbox_name <- bbox_is
+  if(site_name %in% c("ingle", "Inglefieldbukta")) bbox_name <- bbox_ingle
+  if(site_name %in% c("stor", "Storfjorden")) bbox_name <- bbox_stor
+  if(site_name %in% c("young", "Young Sound")) bbox_name <- bbox_young
+  if(site_name %in% c("disko", "Disko Bay")) bbox_name <- bbox_disko
+  if(site_name %in% c("nuup", "Nuup Kangerlua")) bbox_name <- bbox_nuup
+  if(site_name %in% c("por", "Porsangerfjorden")) bbox_name <- bbox_por
+  # This has been coded to allow an error here
   return(bbox_name)
 }
 
@@ -1587,11 +1587,15 @@ model_summary <- function(model_product, site_name){
 
 # Function for creating spatial average of model cells within a bbox
 # Produces a range of useful stats
-model_bbox_stats <- function(model_product, bbox){
+model_bbox_stats <- function(model_product, site_abv){
+  
+  # Get correct bounding box
+  bbox <- bbox_from_name(site_abv)
   
   # Mean stats by bbox
   model_bbox_mean <- model_product %>% 
-    mutate(depth = case_when(depth <= 10 ~ "0 to 10",
+    mutate(site = site_abv,
+           depth = case_when(depth <= 10 ~ "0 to 10",
                              depth <= 50 ~ "10 to 50",
                              depth <= 200 ~ "50 to 200")) %>% # Convert to depth categories matching site averages
     filter(land == 1, 
@@ -1599,28 +1603,34 @@ model_bbox_stats <- function(model_product, bbox){
            lat >= bbox[3], lat <= bbox[4]) %>% # Filter within bbox
     dplyr::select(-Udir, -USpeed, -Oxy) %>% # No longer checking these variables
     pivot_longer(cols = Salt:pco2w, names_to = "variable") %>% 
-    group_by(proj, date, depth, variable) %>% 
+    group_by(site, proj, date, depth, variable) %>% 
     summarise(value = mean(value, na.rm = T), .groups = "drop")
   
   # Linear models
   model_bbox_lm <- model_bbox_mean %>% 
-    group_by(proj, depth, variable) %>% 
-    do(mod = lm(value ~ date, data = .)) %>% ungroup()
-  
-  # Get linear model stats
-  model_bbox_res <- model_bbox_lm %>% 
-    mutate(tidy = map(mod, broom::tidy),
-           glance = map(mod, broom::glance),
-           slope = tidy %>% map_dbl(function(x) round(x$estimate[2]*3652.5, 4)), # From daily to decadal trend
-           rsq = glance %>% map_dbl(function(x) round(x$r.squared[1], 4)),
-           pval = tidy %>% map_dbl(function(x) round(x$p.value[2], 4)),
-           nobs = glance %>% map_dbl(function(x) round(x$nobs[1], 4))) %>% 
-    dplyr::select(-mod, -glance, -tidy, -nobs) %>%
-    filter(!is.na(rsq), !is.na(slope), !is.na(pval))
+    group_by(site, proj, depth, variable) %>% 
+    lm_tidy(df = ., x_var = "date", y_var = "value") %>% ungroup() %>% 
+    mutate(slope = round(slope*3652.5, 4)) %>%  # From daily to decadal trend)
+    dplyr::select(-nobs) %>% 
+    # For all lm stats
+    # pivot_longer(cols = slope:pval) %>% 
+    # unite(proj, name, sep = " ", col = "proj_name") %>% 
+    # pivot_wider(names_from = proj_name, values_from = value) %>% 
+    # For just the slope
+    dplyr::select(-rsq, -pval) %>% 
+    pivot_wider(names_from = proj, values_from = slope) %>% 
+    #
+    mutate(variable = case_when(variable == "Nit" ~ "NO3 [µmol/l]",
+                                variable == "pco2w" ~ "pCO2 [µatm]",
+                                variable == "Pho" ~ "PO4 [µmol/l]",
+                                variable == "Salt" ~ "sal",
+                                variable == "Sil" ~ "SiO4 [µmol/l]",
+                                variable == "Temp" ~ "temp [°C]" ,
+                                TRUE ~ variable))
   
   # Return and exit
-  rm(model_bbox_mean, model_bbox_lm); gc()
-  return(model_bbox_res)
+  rm(model_bbox_mean); gc()
+  return(model_bbox_lm)
 }
 
 # Convenience wrapper for creating hi-res gridded coordinates
@@ -2079,7 +2089,8 @@ lm_tidy <- function(df, x_var, y_var){
     mutate(tidy = map(mod, broom::tidy),
            glance = map(mod, broom::glance),
            # augment = map(mod, broom::augment), # Not needed, but good to know
-           slope = tidy %>% map_dbl(function(x) round(x$estimate[2], 4)),
+           # slope = tidy %>% map_dbl(function(x) round(x$estimate[2], 4)),
+           slope = tidy %>% map_dbl(function(x) x$estimate[2]), # Better not to round so it is more useful
            rsq = glance %>% map_dbl(function(x) round(x$r.squared[1], 4)),
            pval = tidy %>% map_dbl(function(x) round(x$p.value[2], 4)),
            nobs = glance %>% map_dbl(function(x) round(x$nobs[1], 4))) %>% 

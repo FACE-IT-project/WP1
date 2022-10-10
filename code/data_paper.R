@@ -1067,7 +1067,7 @@ driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_disc
                     temp_ice, temp_spp, temp_biomass, temp_PP, sal_spp, sal_biomass, light_spp, light_biomass, light_PP,
                     carb_spp, nut_PP, 
                     PP_biomass, biomass_spp,
-                    gov_tour, gov_fish, tour_nut, tour_light, fish_biomass, fish_spp)
+                    gov_tour, gov_fish, tour_nut, tour_light, fish_biomass, fish_spp) %>% distinct()
 
 # Quick fix for plotting
 driver_all_asym <- asymmetrize(driver_all, variable, variable_y) %>% 
@@ -1177,12 +1177,13 @@ ggplot(data = df_3, aes(x = value.x, y = value.y)) +
 ## "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
 
 # Morten model data
+## NB: Nit = Nitrate 
 model_kong <- load_model("kongsfjorden_rcp")
 model_is <- load_model("isfjorden_rcp")
 model_stor <- load_model("storfjorden_rcp")
 model_young <- load_model("young_sound_rcp")
 model_por <- load_model("porsangerfjorden_rcp")
-model_trom <- load_model("tromso_rcp")
+# model_trom <- load_model("tromso_rcp")
 
 # Convert data to even grid
 # NB: Not necessary to create spatial average of entire fjord
@@ -1217,13 +1218,55 @@ ggplot(model_kong_even_grid, aes(x = lon, y = lat)) +
 # by the historic relationships
 
 # Rather we just subset the pixels to those within the bounding box of each site
-model_kong_stats <- model_bbox_stats(model_kong, bbox_kong)
+model_kong_stats <- model_bbox_stats(model_kong, "kong")
+model_is_stats <- model_bbox_stats(model_is, "is")
+model_stor_stats <- model_bbox_stats(model_stor, "stor")
+model_young_stats <- model_bbox_stats(model_young, "young")
+model_por_stats <- model_bbox_stats(model_por, "por")
+model_ALL_stats <- rbind(model_kong_stats, model_is_stats, model_stor_stats,
+                        model_young_stats, model_por_stats)
+rm(model_kong_stats, model_is_stats, model_stor_stats,
+   model_young_stats, model_por_stats); gc()
 
-# Join to all driver relationships
-driver_all
+# Get historic slopes as these tend to be higher than RCP 8.5
+historic_trend <- driver_all %>% 
+  filter(is.na(variable_y)) %>% 
+  mutate(hist_trend = slope*120) %>% 
+  dplyr::select(site, type, category, driver, variable, depth, hist_trend)
 
-# Join to driver relationships that exist across 3+ sites
-driver_all_filter
+# Get the product of the historic relationship between drivers and the projected change in the independent driver
+future_stats <- driver_all %>% 
+  filter(!is.na(variable_y)) %>% 
+  left_join(model_ALL_stats, by = c("site", "variable", "depth")) %>% 
+  left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth")) %>% 
+  filter(!is.na(`RCP 2.6`)) %>% 
+  mutate(change_hist = slope*(hist_trend*8),
+         change_2.6 = slope*(`RCP 2.6`*8),
+         change_4.5 = slope*(`RCP 4.5`*8),
+         change_8.5 = slope*(`RCP 8.5`*8)) %>% 
+  mutate(mean_hist = mean_val+change_hist,
+         mean_2.6 = mean_val+change_2.6,
+         mean_4.5 = mean_val+change_4.5,
+         mean_8.5 = mean_val+change_8.5)
+
+# Boxplots to explore results
+future_stats %>% 
+  dplyr::select(site:depth_y, mean_val, mean_hist:mean_8.5) %>% 
+  pivot_longer(cols = mean_val:mean_8.5) %>% 
+  mutate(name = factor(name, levels = c("mean_val", "mean_hist", "mean_2.6", "mean_4.5", "mean_8.5"))) %>% 
+  # QC
+  mutate(value = case_when(variable_y == "sea ice cover [proportion]" & value < -1 ~ as.numeric(NA), 
+                           variable_y == "Chla [µg/l]" & value < -3 ~ as.numeric(NA),
+                           variable_y == "Chla [µg/l]" & value > 3 ~ as.numeric(NA),
+                           TRUE ~ value)) %>% 
+  #
+  ggplot(aes(x = name, y = value)) +
+  geom_boxplot(aes(fill = variable), outlier.colour = NA) +
+  geom_jitter(aes(colour = site)) +
+  facet_wrap(~variable_y, scales = "free_y") +
+  scale_fill_brewer("Driver", palette = "Dark2") +
+  # facet_grid(depth~variable_y, scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 30))
 
 
 # Figure 1 ----------------------------------------------------------------
