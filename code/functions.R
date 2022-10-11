@@ -1693,7 +1693,7 @@ download_MUR_ALL <- function(file_date){
 }
 
 # Convenience function for filtering variables for analyses
-review_filter_var <- function(full_product, site_name, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL, atmos = F){
+review_filter_var <- function(full_product, var_keep, var_remove = NULL, var_precise = NULL, cit_filter = NULL, atmos = F){
   
   # NB: Repetitive, but much faster depth filtering
   # Disabled for now for clean data pipeline to dataAccess app
@@ -1708,7 +1708,7 @@ review_filter_var <- function(full_product, site_name, var_keep, var_remove = NU
   # res_df <- df_depth %>% #filter(!is.na(date)) %>%
   res_df <- full_product %>%
     filter(grepl(var_keep, variable, ignore.case = T)) %>% 
-    mutate(site = site_name, type = "in situ")
+    mutate(type = "in situ")
   if(!is.null(var_remove)) res_df <- res_df %>% filter(!grepl(var_remove, variable, ignore.case = T))
   if(!is.null(var_precise)) res_df <- res_df %>% filter(!variable %in% var_precise)
   if(!is.null(cit_filter)) res_df <- res_df %>% filter(!grepl(cit_filter, citation, ignore.case = T))
@@ -1738,9 +1738,9 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
            median_value = median(value, na.rm = T),
            # Filter low salinity values. 24 based on the base data before filtering.
            value = case_when(median_value > 30 & value < 24 ~ as.numeric(NA), TRUE ~ value)) %>% 
-    group_by(site, type, var_group, date_round) %>%
+    group_by(site, type, driver, date_round) %>%
     mutate(count_days_group = length(unique(date))) %>% 
-    group_by(site, type, category, var_group, variable, date_round, count_days_group) %>%
+    group_by(site, type, category, driver, variable, date_round, count_days_group) %>%
     summarise(value_mean = round(mean(value, na.rm = T), 2),
               value_median = round(median(value, na.rm = T), 2),
               value_min = round(min(value, na.rm = T), 2),
@@ -1748,7 +1748,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
               count = n(), 
               count_days_name = length(unique(date)), .groups = "drop") %>%
     dplyr::rename(date = date_round) %>% 
-    group_by(site, type, category, var_group, variable) %>% 
+    group_by(site, type, category, driver, variable) %>% 
     complete(date = seq(min(date), max(date), by = "month")) %>% 
     ungroup()
   

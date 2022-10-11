@@ -141,6 +141,7 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 # TODO: Look into sea ice variables with depths below the surface
 # Check if ablation [m w.e.] should be a land or surface value
 # Force sea ice cover proportion values of 0 to remain in the data.frame
+# Convert this piece of the pipeline to use review_filter_var()
 
 # Collect all ice related data
 # https://doi.org/10.1594/PANGAEA.935267; bi [code] = ice of land origin, ci [code] = sea ice concentration, zi [code] = ice situation
@@ -152,24 +153,24 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 # https://doi.org/10.1594/PANGAEA.908494; SIC d [months/a] = Sea ice cover duration NB: This file is a good candidate for checking pipeline errors
 # https://doi.org/10.1594/PANGAEA.815951; Glac w [km] = Glacier width
 # https://doi.org/10.1594/PANGAEA.59224; IRD [arbitrary units] = Ice rafted debris, general
-kong_sea_ice <- filter(full_product_kong, category == "cryo", variable == "ice cover [%]") %>% mutate(site = "kong") # Sea ice percent cover of inner fjord
-is_sea_ice <- filter(full_product_is, category == "cryo",
+sea_ice_kong <- filter(full_product_kong, category == "cryo", variable == "ice cover [%]") # Sea ice percent cover of inner fjord
+sea_ice_is <- filter(full_product_is, category == "cryo",
                      URL != "https://doi.org/10.1594/PANGAEA.57721", # Glacial maximum ice sheet extension
-                     variable %in% c("EsEs acc [cm]", "Ice extent")) %>% mutate(site = "is") # Sea ice extent and ice accretion
-stor_sea_ice <- filter(full_product_stor, category == "cryo",
+                     variable %in% c("EsEs acc [cm]", "Ice extent")) # Sea ice extent and ice accretion
+sea_ice_stor <- filter(full_product_stor, category == "cryo",
                        URL != "https://doi.org/10.1594/PANGAEA.57721",
                        variable %in% c("Ice conc [tenths]", "Ice cov [%]", "Ice extent", 
                                        "IP [km**3/day]", "EsEs [m]")) %>% mutate(site = "stor") # Sea ice percent cover and thickness
-young_sea_ice <- filter(rbind(full_product_young, young_GEM), category == "cryo",
+sea_ice_young <- filter(rbind(full_product_young, young_GEM), category == "cryo",
                         !grepl("snow", variable),
                         !grepl("Hynek, Bernhard; Binder, Daniel;", citation),
-                        !grepl("Hynek, Bernhard; Weyss, Gernot;", citation)) %>% mutate(site = "young") # A lot of GEM data
-disko_sea_ice <- filter(rbind(full_product_disko, disko_GEM), category == "cryo") %>% mutate(site = "disko") %>% slice(0) # No sea ice data
-nuup_sea_ice <- filter(rbind(full_product_nuup, nuup_GEM), category == "cryo") %>% mutate(site = "nuup") %>% slice(0) # No sea ice data
-por_sea_ice <- filter(full_product_por, category == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721") %>% mutate(site = "por")
-clean_sea_ice <- rbind(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice) %>% 
-  mutate(type = "in situ", driver = "Sea ice")
-rm(kong_sea_ice, is_sea_ice, stor_sea_ice, young_sea_ice, disko_sea_ice, nuup_sea_ice, por_sea_ice); gc()
+                        !grepl("Hynek, Bernhard; Weyss, Gernot;", citation)) # A lot of GEM data
+sea_ice_disko <- filter(rbind(full_product_disko, disko_GEM), category == "cryo") %>% slice(0) # No sea ice data
+sea_ice_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "cryo") %>% slice(0) # No sea ice data
+sea_ice_por <- filter(full_product_por, category == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721")
+clean_sea_ice <- rbind(sea_ice_kong, sea_ice_is, sea_ice_stor, sea_ice_young, sea_ice_disko, sea_ice_nuup, sea_ice_por) %>% 
+  mutate(type = "in situ", driver = "sea ice")
+rm(sea_ice_kong, sea_ice_is, sea_ice_stor, sea_ice_young, sea_ice_disko, sea_ice_nuup, sea_ice_por); gc()
 
 # Figures
 ## Need custom figures per site
@@ -214,9 +215,9 @@ ice_4km_proc <- rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice
                       ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc)
 save(ice_4km_proc, file = "data/analyses/ice_4km_proc.RData")
 ice_4km_prop <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
-# rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
-#    ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
-#    ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc); gc()
+rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
+   ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
+   ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc); gc()
 
 # Calculate trends
 ice_4km_trend <- plyr::ddply(dplyr::rename(ice_4km_prop, val = mean_prop), c("site", "month"), trend_calc, .parallel = T)
@@ -236,14 +237,16 @@ ice_4km_trend_long <- ice_4km_trend %>%
 ice_4km_stats <- bind_rows(ice_4km_prop_long, ice_4km_trend_long) %>% 
   mutate(type = "remote",
          category = "cryo",
-         driver = "Ice vars",
+         driver = "sea ice",
          date_accessed = as.Date("2022-04-26"),
          URL = "https://doi.org/10.7265/N5GT5K3K",
          citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.")
+
+# Bind together
 clean_sea_ice <- bind_rows(clean_sea_ice, ice_4km_stats)
 
 # Analyses
-summary_ice <- review_summary(clean_sea_ice)
+summary_sea_ice <- review_summary(clean_sea_ice)
 
 # Proportion figures
 ice_4km_trend$x <- as.Date("2003-06-01")
@@ -272,7 +275,7 @@ rm(ice_4km_prop, ice_4km_prop_long, ice_4km_trend, ice_4km_trend_long, ice_4km_s
 
 # More summary ideas
 # Filter out the chosen drivers
-sea_ice_df <- filter(clean_all_clean, driver == "Ice vars")
+sea_ice_df <- filter(clean_all_clean, driver == "sea ice")
 # List variables
 unique(ice_vars$variable)
 # Meta-data by variable and site
@@ -330,7 +333,7 @@ ice_temp_depth_change <- ice_temp %>%
                            depth > 200 ~ "+200")) %>%
   group_by(site, variable, year, depth) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  filter(!is.na(value))
+  filter(!is.na(value))review_filter_var
 # Monthly climatologies by depth
 ice_temp_depth_clim <- ice_temp %>% 
   dplyr::select(site, variable, date, depth, value) %>% 
@@ -357,16 +360,16 @@ as.vector(distinct(filter(full_product_stor, category == "cryo"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "cryo"), variable))
 
 # Get all glacier variables
-kong_glacier <- review_filter_var(full_product_kong, "kong", "balance|glacier|area|volume|slope")
-is_glacier <- review_filter_var(full_product_is, "is", "balance|glacier|area|volume|slope")
-stor_glacier <- review_filter_var(full_product_stor, "stor", "balance|glacier|area|volume|slope")
-young_glacier <- review_filter_var(rbind(full_product_young, young_GEM), "young", "balance|glacier|ablation")
-disko_glacier <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "balance|glacier|ablation")
-nuup_glacier <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "glac", "poro")
-por_glacier <- review_filter_var(full_product_por, "por", "balance|glac") # No glacier data
-clean_glacier <- rbind(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier) %>% 
-  mutate(driver = "Glacier vars")
-rm(kong_glacier, is_glacier, stor_glacier, young_glacier, disko_glacier, nuup_glacier, por_glacier); gc()
+glacier_kong <- review_filter_var(full_product_kong, "balance|glacier|area|volume|slope")
+glacier_is <- review_filter_var(full_product_is, "balance|glacier|area|volume|slope")
+glacier_stor <- review_filter_var(full_product_stor, "balance|glacier|area|volume|slope")
+glacier_young <- review_filter_var(rbind(full_product_young, young_GEM), "balance|glacier|ablation")
+glacier_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "balance|glacier|ablation")
+glacier_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "glac", "poro")
+glacier_por <- review_filter_var(full_product_por, "balance|glac") # No glacier data
+clean_glacier <- rbind(glacier_kong, glacier_is, glacier_stor, glacier_young, glacier_disko, glacier_nuup, glacier_por) %>% 
+  mutate(driver = "glacier")
+rm(glacier_kong, glacier_is, glacier_stor, glacier_young, glacier_disko, glacier_nuup, glacier_por); gc()
 
 # Summary analyses
 summary_glacier <- review_summary(clean_glacier)
@@ -378,7 +381,7 @@ review_summary_plot(summary_glacier, "glacier")
 # Look for specific DOI in each site file
 
 
-### Discharge ---------------------------------------------------------------
+### Runoff ------------------------------------------------------------------
 
 # Pedro Duarte has contacted a colleague to get Kongsfjorden area river discharge data
 
@@ -391,13 +394,13 @@ EU_GRDC <- read_csv("~/pCloudDrive/restricted_data/GRDC/grdc_arctichycos_station
 site_GRDC <- map_dfr(dir("~/pCloudDrive/restricted_data/GRDC", pattern = "Cmd.txt", full.names = T), load_GRDC)
 
 # Get all river discharge data from full/GEM products
-kong_discharge <- review_filter_var(full_product_kong, "kong", "river|disc|Q", "Disco|hetero|equ|AT|dhdt") # No discharge data
-is_discharge <- review_filter_var(full_product_is, "is", "river|disc|Q", "equ|hPa|dhdt") # No discharge data
-stor_discharge <- review_filter_var(full_product_stor, "stor", "river|disc|Q", "equ|AT|dhdt") # No discharge data
-young_discharge <- review_filter_var(rbind(full_product_young, young_GEM), "young", "river|disc|Q", "coscin|Qnet")
-disko_discharge <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "river|disc|Q", "equ") # No discharge data
-nuup_discharge <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "river|disc|Q", "equ|coscin|prot|psamm")
-por_discharge <- review_filter_var(full_product_por, "por", "river|disc|Q", "equ")# No discharge data
+kong_runoff <- review_filter_var(full_product_kong, "river|disc|Q|run", "Disco|hetero|equ|AT|dhdt") # No discharge data
+is_runoff <- review_filter_var(full_product_is, "river|disc|Q|run", "equ|hPa|dhdt") # No discharge data
+stor_runoff <- review_filter_var(full_product_stor, "river|disc|Q|run", "equ|AT|dhdt") # No discharge data
+young_runoff <- review_filter_var(rbind(full_product_young, young_GEM), "river|disc|Q|run", "coscin|Qnet")
+disko_runoff <- review_filter_var(rbind(full_product_disko, disko_GEM), "river|disc|Q|run", "equ") # No discharge data
+nuup_runoff <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "river|disc|Q|run", "equ|coscin|prot|psamm")
+por_runoff <- review_filter_var(full_product_por, "river|disc|Q|run", "equ")# No discharge data
 
 # Get river data from GRDC database
 FACE_IT_GRDC <- site_GRDC %>% 
@@ -416,20 +419,20 @@ FACE_IT_GRDC <- site_GRDC %>%
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site, type)
 
 # Combine all datasets and clean up
-clean_discharge <- rbind(kong_discharge, is_discharge, stor_discharge, young_discharge, disko_discharge, nuup_discharge, por_discharge, FACE_IT_GRDC) %>% 
-  mutate(driver = "river")
-rm(kong_discharge, is_discharge, stor_discharge, young_discharge, disko_discharge, nuup_discharge, por_discharge, EU_GRDC, FACE_IT_GRDC); gc()
+clean_runoff <- rbind(kong_runoff, is_runoff, stor_runoff, young_runoff, disko_runoff, nuup_runoff, por_runoff, FACE_IT_GRDC) %>% 
+  mutate(driver = "runoff")
+rm(kong_runoff, is_runoff, stor_runoff, young_runoff, disko_runoff, nuup_runoff, por_runoff, EU_GRDC, FACE_IT_GRDC); gc()
 
 # Summary analyses
-summary_discharge <- review_summary(clean_discharge)
+summary_runoff <- review_summary(clean_runoff)
 
 # Plot results
-review_summary_plot(summary_discharge, "river")
+review_summary_plot(summary_runoff, "runoff")
 
 
 ## Physics ----------------------------------------------------------------
 
-### Seawater temperature ---------------------------------------------------
+### Sea temp ----------------------------------------------------------------
 
 # Remove air, CO2, and pH related temperature values
 # TTT is air temperature from cruise data on PANGAEA. e.g. https://doi.pangaea.de/10.1594/PANGAEA.326679
@@ -444,62 +447,62 @@ review_summary_plot(summary_discharge, "river")
 # Removing tpot (Potential temperature) is a potentially controversial decision...
 # t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
 # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
-kong_OISST <- sst_kong_bbox %>% dplyr::rename(date = t) %>% 
+OISST_kong <- sst_kong_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-kong_CCI <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
+CCI_kong <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-kong_SST <- review_filter_var(full_product_kong, "kong", "temp|°C",
-                              "air|co2|ph_|pHint_|TTT|MAAT|MAGT|MAT|
-                              |SST sum|SST win|Temp min|Temp max|Temp interp|
-                              |tequ|tpot|T intern") %>%
-  bind_rows(kong_OISST, kong_CCI) %>% mutate(site = "kong")
-is_OISST <- sst_is_bbox %>% dplyr::rename(date = t) %>% 
+sea_temp_kong <- review_filter_var(full_product_kong, "temp|°C",
+                                   "air|co2|ph_|pHint_|TTT|MAAT|MAGT|MAT|mean_|
+                                   |SST sum|SST win|Temp min|Temp max|Temp interp|
+                                   |tequ|tpot|T intern") %>%
+  bind_rows(OISST_kong, CCI_kong) %>% mutate(site = "kong")
+OISST_is <- sst_is_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-is_CCI <- sst_CCI_is_bbox %>% dplyr::rename(date = t) %>%  
+CCI_is <- sst_CCI_is_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-is_SST <- review_filter_var(full_product_is, "is", "temp|°C", 
-                            "SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT|
-                            |T sum|T win|SST anomaly|theta", c("t [°C]", "SST (1-12) [°C]")) %>% # Can re-add if annual values
-  bind_rows(is_OISST, is_CCI) %>% mutate(site = "is")
-stor_OISST <- sst_stor_bbox %>% dplyr::rename(date = t) %>% 
+sea_temp_is <- review_filter_var(full_product_is, "temp|°C", 
+                                 "SST sum|SST win|TTT|MAT|MAGT|MAAT|Tpot|Tequ|air|T intern|T tech|T cal|pHT|
+                                 |T sum|T win|SST anomaly|theta|mean_", c("t [°C]", "SST (1-12) [°C]")) %>% # Can re-add if annual values
+  bind_rows(OISST_is, CCI_is) %>% mutate(site = "is")
+OISST_stor <- sst_stor_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-stor_CCI <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%  
+CCI_stor <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-stor_SST <- review_filter_var(full_product_stor, "stor", "temp|°C", "Tpot|Tequ|theta|fco2|Tmax|TTT|
-                              |SST anomaly", c("t [°C]", "SST (1-12) [°C]")) %>% 
-  bind_rows(stor_OISST, stor_CCI) %>% mutate(site = "stor")
-young_OISST <- sst_young_bbox %>% dplyr::rename(date = t) %>% 
+sea_temp_stor <- review_filter_var(full_product_stor, "stor", "Tpot|Tequ|theta|fco2|Tmax|TTT|
+                                   |SST anomaly", c("t [°C]", "SST (1-12) [°C]")) %>% 
+  bind_rows(OISST_stor, CCI_stor) %>% mutate(site = "stor")
+OISST_young <- sst_young_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-young_CCI <- sst_CCI_young_bbox %>% dplyr::rename(date = t) %>%  
+CCI_young <- sst_CCI_young_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-young_SST <- review_filter_var(rbind(full_product_young, young_GEM), "young", "temp|°C", 
-                               "Tpot|Tequ|theta|fco2|pot_temp|SST sum|SST win|MAGT|MAAT|TTT") %>% 
-  bind_rows(young_OISST, young_CCI) %>% mutate(site = "young")
-disko_OISST <- sst_disko_bbox %>% dplyr::rename(date = t) %>% 
+sea_temp_young <- review_filter_var(rbind(full_product_young, young_GEM), "temp|°C", 
+                                    "Tpot|Tequ|theta|fco2|pot_temp|SST sum|SST win|MAGT|MAAT|TTT") %>% 
+  bind_rows(OISST_young, CCI_young) %>% mutate(site = "young")
+OISST_disko <- sst_disko_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-disko_CCI <- sst_CCI_disko_bbox %>% dplyr::rename(date = t) %>%  
+CCI_disko <- sst_CCI_disko_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-disko_SST <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "temp|°C", 
-                               "Tequ|potential|theta|fco2|SST sum|SST win|TTT|SST anomaly|ice_", "SST (1-12) [°C]") %>% 
-  bind_rows(disko_OISST, disko_CCI) %>% mutate(site = "disko")
-nuup_OISST <- sst_nuup_bbox %>% dplyr::rename(date = t) %>% 
+sea_temp_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "temp|°C", 
+                                    "Tequ|potential|theta|fco2|SST sum|SST win|TTT|SST anomaly|ice_", "SST (1-12) [°C]") %>% 
+  bind_rows(OISST_disko, CCI_disko) %>% mutate(site = "disko")
+OISST_nuup <- sst_nuup_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-nuup_CCI <- sst_CCI_nuup_bbox %>% dplyr::rename(date = t) %>%  
+CCI_nuup <- sst_CCI_nuup_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-nuup_SST <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "temp|°C", 
-                              "Tequ|T tech|Tpot|SST sum|SST win|TTT") %>% 
-  bind_rows(nuup_OISST, nuup_CCI) %>% mutate(site = "nuup")
-por_OISST <- sst_por_bbox %>% dplyr::rename(date = t) %>% 
+sea_temp_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "temp|°C", 
+                                   "Tequ|T tech|Tpot|SST sum|SST win|TTT") %>% 
+  bind_rows(OISST_nuup, CCI_nuup) %>% mutate(site = "nuup")
+OISST_por <- sst_por_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
-por_CCI <- sst_CCI_por_bbox %>% dplyr::rename(date = t) %>%  
+CCI_por <- sst_CCI_por_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-por_SST <- review_filter_var(full_product_por, "por", "temp|°C", 
-                             "Tequ|Tpot|TTT|wet bulb|SST anomaly|T air|MAAT", "SST (1-12) [°C]") %>% 
-  bind_rows(por_OISST, por_CCI) %>% mutate(site = "por")
+sea_temp_por <- review_filter_var(full_product_por, "temp|°C", 
+                                  "Tequ|Tpot|TTT|wet bulb|SST anomaly|T air|MAAT", "SST (1-12) [°C]") %>% 
+  bind_rows(OISST_por, CCI_por) %>% mutate(site = "por")
 # review_filter_check(por_SST)
 
 # Combined cleaned data
-clean_SST <- rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST) %>% 
+clean_sea_temp <- rbind(sea_temp_kong, sea_temp_is, sea_temp_stor, sea_temp_young, sea_temp_disko, sea_temp_nuup, sea_temp_por) %>% 
   mutate(variable = "temp [°C]", category = "phys",
          depth = case_when(is.na(depth) & type %in% c("OISST", "CCI") ~ 0, TRUE ~ depth),
          date_accessed = as.Date(date_accessed),
@@ -514,14 +517,15 @@ clean_SST <- rbind(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, p
                               TRUE ~ citation),
          driver = "sea temp") %>% 
   filter(depth >= 0)
-rm(kong_SST, is_SST, stor_SST, young_SST, disko_SST, nuup_SST, por_SST); gc()
+rm(sea_temp_kong, sea_temp_is, sea_temp_stor, sea_temp_young, sea_temp_disko, sea_temp_nuup, sea_temp_por); gc()
 
 # Summary analyses
-summary_SST <- review_summary(filter(clean_SST, depth >= 0, depth <= 10))
+summary_sea_temp <- review_summary(filter(clean_sea_temp, depth >= 0, depth <= 10))
 
 # Plot results
 # NB: The apparent cooling trend from in situ data is due to the lack of winter temperatures from pre-satellite era data
-review_summary_plot(summary_SST, "temp")
+# TODO: Figure out why this is breaking
+review_summary_plot(summary_sea_temp, "sea temp")
 
 ## Plot showing spatial difference between temperature products
 ### This may not work well across all sites
@@ -538,17 +542,17 @@ review_summary_plot(summary_SST, "temp")
 # Remove overly processed variables
 # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
 # Remove glacial drainage land stations
-kong_sal <- review_filter_var(full_product_kong, "kong", "sal|PSU|s_", "interp|ph|oxy|ws",
+sal_kong <- review_filter_var(full_product_kong, "sal|PSU|s_", "interp|ph|oxy|ws|mass_",
                               cit_filter = "land station|drainage|meltwater")
-is_sal <- review_filter_var(full_product_is, "is", "sal|PSU", "interp|mg/l")
-stor_sal <- review_filter_var(full_product_stor, "stor", "sal|PSU", "interp|acu|ent")
-young_sal <- review_filter_var(rbind(full_product_young, young_GEM), "young", "sal|PSU", "sal interp|acu|ent")
-disko_sal <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "sal|PSU", "sal interp")
-nuup_sal <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "sal|PSU", "sal interp|acu|ent")
-por_sal <- review_filter_var(full_product_por, "por", "sal|PSU", "Sal interp")
-clean_sal <- rbind(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal) %>%
-  mutate(variable = "sal", driver = "Salinity")
-rm(kong_sal, is_sal, stor_sal, young_sal, disko_sal, nuup_sal, por_sal); gc()
+sal_is <- review_filter_var(full_product_is, "sal|PSU", "interp|mg/l")
+sal_stor <- review_filter_var(full_product_stor, "sal|PSU", "interp|acu|ent")
+sal_young <- review_filter_var(rbind(full_product_young, young_GEM), "sal|PSU", "sal interp|acu|ent")
+sal_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "sal|PSU", "sal interp")
+sal_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "sal|PSU", "sal interp|acu|ent")
+sal_por <- review_filter_var(full_product_por, "sal|PSU", "Sal interp")
+clean_sal <- rbind(sal_kong, sal_is, sal_stor, sal_young, sal_disko, sal_nuup, sal_por) %>%
+  mutate(variable = "sal", driver = "salinity")
+rm(sal_kong, sal_is, sal_stor, sal_young, sal_disko, sal_nuup, sal_por); gc()
 
 # Summary analyses
 summary_sal <- review_summary(filter(clean_sal, depth >= 0, depth <= 10))
@@ -559,57 +563,58 @@ review_summary_plot(summary_sal, "sal")
 
 ### Light ------------------------------------------------------------------
 
-# TODO: Add filtering for UV data as well
-
-# Get all PAR data
-kong_light <- review_filter_var(full_product_kong, "kong", "PAR", "Onc|Gym|Para|below|abys")
-is_light <- review_filter_var(full_product_is, "is", "PAR", "aeuch|eleg") # No PAR data
-stor_light <- review_filter_var(full_product_stor, "stor", "PAR") # No PAR data
-young_light <- review_filter_var(rbind(full_product_young, young_GEM), "young", "PAR", "vella|tinn")
+# Get all PAR+UV data
+light_kong <- review_filter_var(full_product_kong, "PAR|UV", "Onc|Gym|Para|below|abys|harp|chae|ostr|clio|cirr|biva")
+light_is <- review_filter_var(full_product_is, "PAR|UV", "aeuch|eleg|UVEL") # No PAR data
+light_stor <- review_filter_var(full_product_stor, "PAR|UV") # No PAR data
+light_young <- review_filter_var(rbind(full_product_young, young_GEM),  "PAR|UV", "vella|tinn")
 ## NB: It is unclear if these values should be divided by 10 or not
 ## It is also unclear what the time dimension is for the data
-disko_light <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "PAR", "milli") %>% filter(value > 0)
+light_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "PAR|UV", "milli") %>% filter(value > 0)
 ## NB: Some of these values are also very high
-nuup_light <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "PAR", "trip|vella|sulc|lip|lib|parv")
-por_tate(driver = "light")
-light <- review_filter_var(full_product_por, "por", "PAR") # No PAR data
-clean_light <- rbind(kong_light, is_light, stor_light, young_light, disko_light, nuup_light, por_light) %>% 
-  # mutate(variable = "PAR [µmol m-2 s-1]", driver = "light")
-  murm(kong_light, is_light, stor_light, young_light, disko_light, nuup_light, por_light); gc()
+light_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "PAR|UV", "trip|vella|sulc|lip|lib|parv")
+light_por <- review_filter_var(full_product_por, "PAR|UV") # No PAR data
+clean_light <- rbind(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por) %>% 
+  mutate(variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
+                              str_detect(variable, "UVA") ~ "UV-A [W*m^2]",
+                              str_detect(variable, "UVB") ~ "UV-B [W*m^2]",
+                              TRUE ~ variable), driver = "light")
+rm(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por); gc()
 
 # Summary analyses
 summary_light <- review_summary(filter(clean_light, depth >= 0, depth <= 10))
 
 # Plot results
-review_summary_plot(summary_light, "par")
+review_summary_plot(summary_light, "light")
 
 
 ## Chemistry ---------------------------------------------------------------
 
-### pCO2 -------------------------------------------------------------------
-
-# TODO: Also get pH, TA, CaCO3
+### Carb -------------------------------------------------------------------
 
 # NB: For this and other chemistry variables see best practices sent by JP on Slack
 # Also see e-mail from Liqing Jiang
 
 # Keep pCO2_calc as a separate variable because they can't be taken as absolutely the same
-# Same foe PCO2water_SST_wet
+# Same for PCO2water_SST_wet
 # Can use SeaCarb to transform fco2 to pCO2
-
+unique(filter(full_product_kong, category == "chem")$variable)
 # Get all pCO2 data
 # Note that there are duplicates from GLODAP and the underlying files downloaded via PANGAEA
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
 # which is something that the GLODAP product requests that we do.
-kong_pCO2 <- review_filter_var(full_product_kong, "kong", "CO2")
-is_pCO2 <- review_filter_var(full_product_is, "is", "CO2", "emissions|tco2")
+carb_kong <- review_filter_var(full_product_kong, "CO2|pH|TA|Alk|CaCO3|calc|carb|diox", 
+                               "Precip|Aeti|Agla|Amph|Aphe|Cten|Dimo|Echi|Euk|Euph|Facet|Gaet|Megan|Parae|
+                               |Paras|Pleur|Polyc|Pseudo|Sabine|Scaph|Scyph|Siphon|Spino|Thys|Typh|Crypto|
+                               |Flagel|Hetero|Algiro|Phaeo|Thal|Dino|Cilio|Chloro|Alex|")
+is_pCO2 <- review_filter_var(full_product_is, "CO2|pH|TA|Alk|CaCO3|calc|carb|diox", "emissions|tco2|calls")
 stor_pCO2 <- review_filter_var(full_product_stor, "stor", "CO2", "emissions|tco2|fco2")
 young_pCO2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "CO2") # No pCO2 data
 disko_pCO2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "CO2", "fco2|tco2")
 nuup_pCO2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "CO2")
 por_pCO2 <- review_filter_var(full_product_por, "por", "CO2")
 clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2) %>% 
-  mutate(driver = "pCO2")
+  mutate(driver = "carb")
 rm(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2); gc()
 
 # Summary analyses
@@ -902,7 +907,6 @@ all_meta %>%
   facet_grid(site~driver) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
 ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
-
 
 annual_temp <- MUR_data %>%
   mutate(year = lubridate::year(t)) %>% 

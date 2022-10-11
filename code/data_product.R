@@ -2208,7 +2208,7 @@ rm(disko_CTD_ChlA_var); gc()
 # TODO: Consider using the greenlandic name, rather than Disko Bay
 full_product_disko <- rbind(dplyr::select(pg_disko_ALL, -site), disko_CTD_ChlA) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_disko[1], lon <= bbox_disko[2], lat >= bbox_disko[3], lat <= bbox_disko[4])) %>% 
-  rbind(filter(dplyr::select(full_product_EU, -site), grepl("Disko", citation))) %>% distinct() %>% mutate("disko")
+  rbind(filter(dplyr::select(full_product_EU, -site), grepl("Disko", citation))) %>% distinct() %>% mutate(site = "disko")
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
