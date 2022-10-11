@@ -592,39 +592,49 @@ review_summary_plot(summary_light, "light")
 
 ### Carb -------------------------------------------------------------------
 
+# TODO: Sort out the variable conversions etc.
+
 # NB: For this and other chemistry variables see best practices sent by JP on Slack
 # Also see e-mail from Liqing Jiang
+
+# Check all variables in a product
+unique(filter(full_product_kong, category == "chem")$variable)
 
 # Keep pCO2_calc as a separate variable because they can't be taken as absolutely the same
 # Same for PCO2water_SST_wet
 # Can use SeaCarb to transform fco2 to pCO2
-unique(filter(full_product_kong, category == "chem")$variable)
 # Get all pCO2 data
 # Note that there are duplicates from GLODAP and the underlying files downloaded via PANGAEA
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
 # which is something that the GLODAP product requests that we do.
-carb_kong <- review_filter_var(full_product_kong, "CO2|pH|TA|Alk|CaCO3|calc|carb|diox", 
-                               "Precip|Aeti|Agla|Amph|Aphe|Cten|Dimo|Echi|Euk|Euph|Facet|Gaet|Megan|Parae|
-                               |Paras|Pleur|Polyc|Pseudo|Sabine|Scaph|Scyph|Siphon|Spino|Thys|Typh|Crypto|
-                               |Flagel|Hetero|Algiro|Phaeo|Thal|Dino|Cilio|Chloro|Alex|")
-is_pCO2 <- review_filter_var(full_product_is, "CO2|pH|TA|Alk|CaCO3|calc|carb|diox", "emissions|tco2|calls")
-stor_pCO2 <- review_filter_var(full_product_stor, "stor", "CO2", "emissions|tco2|fco2")
-young_pCO2 <- review_filter_var(rbind(full_product_young, young_GEM), "young", "CO2") # No pCO2 data
-disko_pCO2 <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "CO2", "fco2|tco2")
-nuup_pCO2 <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "CO2")
-por_pCO2 <- review_filter_var(full_product_por, "por", "CO2")
-clean_pCO2 <- rbind(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2) %>% 
+carb_kong <- review_filter_var(filter(full_product_kong, category == "chem"), 
+                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "at/l|O2 sat")
+carb_is <- review_filter_var(filter(full_product_is, category == "chem"),
+                             "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|PO4|NO2|NO3|nitrate|silicate|phosphate|tco2")
+carb_stor <- review_filter_var(filter(full_product_stor, category == "chem"), 
+                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|nitrate|silicate|phosphate|tco2|fco2")
+carb_young <- review_filter_var(filter(rbind(full_product_young, young_GEM), category == "chem"), 
+                                "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "nitrate")
+carb_disko <- review_filter_var(filter(rbind(full_product_disko, disko_GEM), category == "chem"), 
+                                "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "oxygen|nitrate|silicate|phosphate|tco2|fco2")
+carb_nuup <- review_filter_var(filter(rbind(full_product_nuup, nuup_GEM), category == "chem"), 
+                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "nitrate")
+carb_por <- review_filter_var(filter(full_product_por, category == "chem"), 
+                              "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2")
+clean_carb <- rbind(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por) %>% 
   mutate(driver = "carb")
-rm(kong_pCO2, is_pCO2, stor_pCO2, young_pCO2, disko_pCO2, nuup_pCO2, por_pCO2); gc()
+rm(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por); gc()
 
 # Summary analyses
-summary_pCO2 <- review_summary(filter(clean_pCO2, depth >= 0, depth <= 10))
+summary_carb <- review_summary(filter(clean_carb, depth >= 0, depth <= 10))
 
 # Plot results
-review_summary_plot(summary_pCO2, "pCO2")
+review_summary_plot(summary_carb, "carb")
 
 
 ### Nutrients ---------------------------------------------------------------
+
+# TODO: Establish common variable names here
 
 # "The associated increase in N:P ratio may contribute to maintaining the “vicious circle of eutrophication”. "
 # "An increase of riverine dissolved organic matter (DOM) may also decrease primary production, but the relative importance of this process in different sea areas is not well known."
@@ -642,27 +652,25 @@ review_summary_plot(summary_pCO2, "pCO2")
 # - PO4 vs [PO4]3-
 
 # Get all nutrient data
-kong_nutrients <- review_filter_var(full_product_kong, "kong", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "stddev|stephos", 
-                                    var_precise = c("[NO3]- + [NO2]- [µmol/l]", "PO4 biog [%]"))
-is_nutrients <- review_filter_var(full_product_is, "is", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", var_precise = "PO4 biog [%]")
-stor_nutrients <- review_filter_var(full_product_stor, "stor", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
-                                    var_precise = "NO3 pen depth [mm]")
-young_nutrients <- review_filter_var(rbind(full_product_young, young_GEM), "young", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", 
-                                     "nitracline", "NO2_NO3 [µmol/l]")
-disko_nutrients <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
-                                     var_precise = "[NO3]- + [NO2]- [µmol/l]")
-nuup_nutrients <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4",
-                                    "chlam", var_precise = "[NO3]- + [NO2]- [µmol/l]")
-por_nutrients <- review_filter_var(full_product_por, "por", "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4") # No nutrient data
-clean_nutrients <- rbind(kong_nutrients, is_nutrients, stor_nutrients, young_nutrients, disko_nutrients, nuup_nutrients, por_nutrients) %>% 
+nutrients_kong <- review_filter_var(full_product_kong, "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "stddev|stephos")
+nutrients_is <- review_filter_var(full_product_is, "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4")
+nutrients_stor <- review_filter_var(full_product_stor, "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4")
+nutrients_young <- review_filter_var(rbind(full_product_young, young_GEM), 
+                                     "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "nitracline")
+nutrients_disko <- review_filter_var(rbind(full_product_disko, disko_GEM),
+                                     "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4")
+nutrients_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), 
+                                    "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "chlam")
+nutrients_por <- review_filter_var(full_product_por, "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4")
+clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por) %>% 
   # Change GLODAP variable to match PANGAEA standard 
   mutate(variable = case_when(variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol/l]",   
                               variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol/l]",   
                               variable == "silicate [μmol kg-1]" ~ "SiO4 [µmol/l]",
                               variable == "phosphate [μmol kg-1]" ~ "PO4 [µmol/l]",
                               TRUE ~ variable),
-         driver = "Nutrients"); unique(clean_nutrients$variable)
-rm(kong_nutrients, is_nutrients, stor_nutrients, young_nutrients, disko_nutrients, nuup_nutrients, por_nutrients); gc()
+         driver = "nutrients"); unique(clean_nutrients$variable)
+rm(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por); gc()
 
 # Summary analyses
 summary_nutrients <- review_summary(filter(clean_nutrients, depth >= 0, depth <= 10))
