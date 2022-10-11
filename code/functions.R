@@ -670,17 +670,17 @@ load_is_mooring <- function(file_name){
     cbind(hyper_tibble(activate(tidync(file_name), "D2"))) %>%  
     mutate(date = as.Date(as.POSIXct(TIME*86400, origin = "1950-01-01", tz = "UTC")), .keep = "unused") %>% 
     dplyr::rename(lon = LONGITUDE, lat = LATITUDE, depth = MPRES) %>% 
-    pivot_longer(cols = c(-"depth", -"STATION", -"lat", -"lon", -"FDEP", -"date"), names_to = "var_name", values_to = "value") %>% 
+    pivot_longer(cols = c(-"depth", -"STATION", -"lat", -"lon", -"FDEP", -"date"), names_to = "variable", values_to = "value") %>% 
     filter(!is.na(value)) %>% 
-    left_join(is_units, by = c("var_name" = "name")) %>% 
+    left_join(is_units, by = c("variable" = "name")) %>% 
     mutate(units = case_when(units == "degree_Celsius" ~ "°C", TRUE ~ units),
-           var_type = case_when(var_name %in% c("OXY", "OXYS") ~ "chem", TRUE ~ "phys"),
-           var_name = paste0(var_name, " [", units,"]"),
+           category = case_when(variable %in% c("OXY", "OXYS") ~ "chem", TRUE ~ "phys"),
+           variable = paste0(variable, " [", units,"]"),
            depth = round(depth, 2),
            date_accessed = as.Date("2021-04-15"),
            URL = is_ref_info$URL[is_ref_info$short_name == file_short], 
            citation = is_ref_info$citation[is_ref_info$short_name == file_short]) %>% 
-    group_by(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name) %>% 
+    group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
     summarise(value = round(mean(value, na.rm = T), 5), .groups = "drop")
   return(res)
 }
@@ -729,21 +729,21 @@ load_GFI <- function(file_name){
   res <- hyper_tibble(tidync(file_name)) %>% 
     cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
     mutate(date = as.Date(as.POSIXct(time*86400, origin = GFI_start)), .keep = "unused") %>% 
-    pivot_longer(c(GFI_units$name), names_to = "var_name", values_to = "value") %>% 
+    pivot_longer(c(GFI_units$name), names_to = "variable", values_to = "value") %>% 
     filter(!is.na(value)) %>% 
-    group_by(lon, lat, date, depth, var_name) %>% 
-    summarise(value = case_when(var_name == "dir" ~ as.numeric(round(mean.circular(circular(value, units = "degrees")))),
+    group_by(lon, lat, date, depth, variable) %>% 
+    summarise(value = case_when(variable == "dir" ~ as.numeric(round(mean.circular(circular(value, units = "degrees")))),
                                 TRUE ~ round(mean(value, na.rm = T), 3)), .groups = "drop") %>% 
     distinct() %>% 
-    mutate(value = case_when(var_name == "dir" & value < 0 ~ value + 360, TRUE ~ value)) %>% 
+    mutate(value = case_when(variable == "dir" & value < 0 ~ value + 360, TRUE ~ value)) %>% 
     replace(is.na(.), NA) %>% 
-    left_join(GFI_units, by = c("var_name" = "name")) %>% 
+    left_join(GFI_units, by = c("variable" = "name")) %>% 
     mutate(URL = FTP_URL,
            citation = GFI_citation,
-           var_type = case_when(var_name %in% c("oxy") ~ "chem", TRUE ~ "phys"),
+           category = case_when(variable %in% c("oxy") ~ "chem", TRUE ~ "phys"),
            units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
-           var_name = paste0(var_name, " [", units,"]")) %>% 
-    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+           variable = paste0(variable, " [", units,"]")) %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value)
   )
   return(res)
 }
@@ -824,21 +824,21 @@ load_SAMS <- function(file_name){
   # Process data
   res <- res_base %>% 
     mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01")), .keep = "unused") %>% 
-    pivot_longer(c(SAMS_units$name), names_to = "var_name", values_to = "value") %>% 
+    pivot_longer(c(SAMS_units$name), names_to = "variable", values_to = "value") %>% 
     filter(!is.na(value)) %>% 
     dplyr::rename(lon = longitude, lat = latitude) %>% 
-    group_by(lon, lat, date, var_name) %>% 
+    group_by(lon, lat, date, variable) %>% 
     summarise(depth = round(mean(depth, na.rm = T), 2), # The mooring moves very slightly up and down over a day
               value = round(mean(value, na.rm = T), 4), .groups = "drop") %>% 
     distinct() %>% 
     replace(is.na(.), NA) %>% 
-    left_join(SAMS_units, by = c("var_name" = "name")) %>% 
+    left_join(SAMS_units, by = c("variable" = "name")) %>% 
     mutate(URL = SAMS_URL,
            citation = SAMS_ref,
            units = case_when(units == "degrees_Celsius" ~ "°C", TRUE ~ units),
-           var_type = case_when(var_name %in% c("fluo_V", "fluo") ~ "bio", TRUE ~ "phys"),
-           var_name = paste0(var_name, " [", units,"]")) %>% 
-    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+           category = case_when(variable %in% c("fluo_V", "fluo") ~ "bio", TRUE ~ "phys"),
+           variable = paste0(variable, " [", units,"]")) %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value)
   return(res)
 }
 
@@ -866,11 +866,11 @@ load_met_NetCDF <- function(file_name){
     # mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
     mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
     # NB: COlumn order differs between files so need to rather state which columns not to melt
-    pivot_longer(cols = c(-date, -time), names_to = "var_name", values_to = "value") %>% 
-    mutate(value = case_when(var_name == "air_temperature_2m" & value > 500 ~ 1000001,
-                             var_name == "air_temperature_2m" & value < 10 ~ 1000001, TRUE ~ value)) %>% 
+    pivot_longer(cols = c(-date, -time), names_to = "variable", values_to = "value") %>% 
+    mutate(value = case_when(variable == "air_temperature_2m" & value > 500 ~ 1000001,
+                             variable == "air_temperature_2m" & value < 10 ~ 1000001, TRUE ~ value)) %>% 
     filter(value <= 1000000, value >= -100000) %>% # Remove dodgy value
-    pivot_wider(names_from = var_name, values_from = value) %>% 
+    pivot_wider(names_from = variable, values_from = value) %>% 
     group_by(date) %>% 
     summarise(air_temperature_2m = mean(air_temperature_2m, na.rm = T),
               air_pressure_at_sea_level = mean(air_pressure_at_sea_level, na.rm = T),
@@ -881,29 +881,29 @@ load_met_NetCDF <- function(file_name){
               wind_from_direction_10m = as.numeric(round(mean.circular(circular(wind_from_direction_10m, units = "degrees"), na.rm = T)))) %>% 
     cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
     dplyr::rename(lon = longitude, lat = latitude) %>% 
-    pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "var_name", values_to = "value") %>% 
+    pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "variable", values_to = "value") %>% 
     filter(!is.na(value)) %>% 
     mutate(URL = met_URL,
            citation = ref_text, depth = NA,
-           units = case_when(var_name == "relative_humidity" ~ "1",
-                             var_name == "surface_air_pressure_2m" ~ "Pa",
-                             var_name == "air_temperature_2m" ~ "K",
-                             var_name == "wind_from_direction_10m" ~ "°",
-                             var_name == "wind_speed_10m" ~ "m s-1",
-                             var_name == "air_pressure_at_sea_level" ~ "Pa",
-                             var_name == "air_pressure_at_sea_level_qnh" ~ "hPa"),
-           depth = case_when(var_name == "surface_air_pressure_2m" ~ -2,
-                             var_name == "air_temperature_2m" ~ -2,
-                             var_name == "wind_from_direction_10m" ~ -10,
-                             var_name == "wind_speed_10m" ~ -10,
-                             var_name == "air_pressure_at_sea_level" ~ 0,
-                             var_name == "air_pressure_at_sea_level_qnh" ~ 0),
-           var_name = paste0(var_name," [", units,"]"),
-           var_type = "phys") %>% 
+           units = case_when(variable == "relative_humidity" ~ "1",
+                             variable == "surface_air_pressure_2m" ~ "Pa",
+                             variable == "air_temperature_2m" ~ "K",
+                             variable == "wind_from_direction_10m" ~ "°",
+                             variable == "wind_speed_10m" ~ "m s-1",
+                             variable == "air_pressure_at_sea_level" ~ "Pa",
+                             variable == "air_pressure_at_sea_level_qnh" ~ "hPa"),
+           depth = case_when(variable == "surface_air_pressure_2m" ~ -2,
+                             variable == "air_temperature_2m" ~ -2,
+                             variable == "wind_from_direction_10m" ~ -10,
+                             variable == "wind_speed_10m" ~ -10,
+                             variable == "air_pressure_at_sea_level" ~ 0,
+                             variable == "air_pressure_at_sea_level_qnh" ~ 0),
+           variable = paste0(variable," [", units,"]"),
+           category = "phys") %>% 
     # Convert K to C
-    mutate(value = case_when(grepl("air_temperature_2m", var_name) ~ value - 273.15, TRUE ~ value),
-           var_name = case_when(grepl("air_temperature_2m", var_name) ~ "TTT [°C]", TRUE ~ var_name)) %>% 
-    dplyr::select(URL, citation, lon, lat, date, depth, var_type, var_name, value)
+    mutate(value = case_when(grepl("air_temperature_2m", variable) ~ value - 273.15, TRUE ~ value),
+           variable = case_when(grepl("air_temperature_2m", variable) ~ "TTT [°C]", TRUE ~ variable)) %>% 
+    dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value)
   )
   return(res)
 }
@@ -1034,13 +1034,13 @@ load_nor_hydro <- function(year_choice, date_accessed){
     filter(sal != -9999,
            lon >= bbox_por[1], lon <= bbox_por[2],
            lat >= bbox_por[3], lat <= bbox_por[4]) %>% 
-    pivot_longer(all_of(col_pivot), names_to = "var_name", values_to = "value") %>% 
-    mutate(date_accessed = date_accessed, var_type = "phys",
-           var_name = case_when(var_name == "temp" ~ "temp [°C]", 
-                                var_name == "sal" ~ "sal [PSU]",
-                                var_name == "dens" ~ "dens [kg/m3]"),
+    pivot_longer(all_of(col_pivot), names_to = "variable", values_to = "value") %>% 
+    mutate(date_accessed = date_accessed, category = "phys",
+           variable = case_when(variable == "temp" ~ "temp [°C]", 
+                                variable == "sal" ~ "sal [PSU]",
+                                variable == "dens" ~ "dens [kg/m3]"),
            depth = as.numeric(depth)) %>% 
-    dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, var_type, var_name, value) %>% 
+    dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
     distinct()
   # print(paste0("Loaded ",lubridate::year(min(res_raw$date)),": ", nrow(res)," rows"))
   return(res)
@@ -1192,7 +1192,7 @@ data_summary_plot <- function(full_product, site_name){
   
   # Tweaks for consistent plotting
   full_product <-  full_product %>% 
-    mutate(var_type = as.factor(var_type),
+    mutate(category = as.factor(category),
            year = lubridate::year(date))
   
   # get correct bounding box
@@ -1208,7 +1208,7 @@ data_summary_plot <- function(full_product, site_name){
   }
   
   # Table of meta-stats
-  meta_table <- data.frame(table(full_product$var_type)) %>% 
+  meta_table <- data.frame(table(full_product$category)) %>% 
     pivot_wider(names_from = Var1, values_from = Freq) %>% 
     mutate(files = length(unique(full_product$citation)),
            lon = paste0(round(min(full_product$lon, na.rm = T), 2), " to ", round(max(full_product$lon, na.rm = T), 2)), 
@@ -1254,11 +1254,11 @@ data_summary_plot <- function(full_product, site_name){
   # Count of data over time
   plot_time <- full_product %>% 
     mutate(year = lubridate::year(date)) %>%
-    group_by(year, var_type) %>% 
+    group_by(year, category) %>% 
     dplyr::summarise(count = n(), .groups = "drop") %>% 
     ggplot() +
-    # geom_col(aes(x = year, y = count, fill = var_type)) +
-    geom_col(aes(x = year, y = log10(count), fill = var_type), width = 1, show.legend = F) +
+    # geom_col(aes(x = year, y = count, fill = category)) +
+    geom_col(aes(x = year, y = log10(count), fill = category), width = 1, show.legend = F) +
     coord_cartesian(expand = F) +
     scale_fill_manual(values = CatColAbr) +
     labs(x = NULL, fill = "Variable", y = "Count\n(log10)",
@@ -1272,14 +1272,14 @@ data_summary_plot <- function(full_product, site_name){
     # filter(!is.na(depth)) %>% 
     mutate(depth = ifelse(is.na(depth), 0, depth)) %>%
     mutate(depth = round(depth, -1)) %>%
-    group_by(depth, var_type) %>% 
+    group_by(depth, category) %>% 
     dplyr::summarise(count = n(), .groups = "drop") %>% 
     ggplot() +
-    geom_col(aes(x = depth, y = log10(count), fill = var_type), show.legend = F) +
+    geom_col(aes(x = depth, y = log10(count), fill = category), show.legend = F) +
     scale_x_reverse() +
     coord_flip(expand = F) +
     scale_fill_manual(values = CatColAbr) +
-    # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
+    # guides(fill = guide_legend(nrow = length(unique(full_product$category)))) +
     labs(x = NULL, fill = "Variable", y = "Count (log10)",
          title = "Count of data at\ndepth (10 m bins)") +
     theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "bottom")
@@ -1288,12 +1288,12 @@ data_summary_plot <- function(full_product, site_name){
   # Plot legend for categories
   plot_blank <- full_product %>% 
     mutate(year = lubridate::year(date)) %>%
-    group_by(year, var_type) %>% 
+    group_by(year, category) %>% 
     dplyr::summarise(count = n(), .groups = "drop") %>% 
     ggplot() +
-    geom_col(aes(x = year, y = count, fill = var_type), width = 1) +
+    geom_col(aes(x = year, y = count, fill = category), width = 1) +
     scale_fill_manual(values = CatColAbr) +
-    guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
+    guides(fill = guide_legend(nrow = length(unique(full_product$category)))) +
     labs(fill = "Variable Type")
   plot_legend <- ggpubr::get_legend(plot_blank)
   
@@ -1311,7 +1311,7 @@ data_summary_plot <- function(full_product, site_name){
 data_clim_plot <- function(full_product, site_name){
   
   # Create factors for more consistent plotting
-  full_product$var_type <- as.factor(full_product$var_type)
+  full_product$category <- as.factor(full_product$category)
   
   # get correct bounding box
   bbox_plot <- bbox_from_name(site_name)
@@ -1342,9 +1342,9 @@ data_clim_plot <- function(full_product, site_name){
                                  TRUE ~ as.character(NA)),
            depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", "50 - 200 m", 
                                                     "200 - 1000 m", "1000 - 2000 m", "2000+ m")),
-           var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
-                               grepl("sal", var_name, ignore.case = F) ~ "sal",
-                               grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
+           var_cat = case_when(grepl("°C", variable, ignore.case = F) ~ "temp",
+                               grepl("sal", variable, ignore.case = F) ~ "sal",
+                               grepl("cndc", variable, ignore.case = F) ~ "sal")) %>% 
     filter(!is.na(depth_cat), !is.na(var_cat), !is.na(month)) %>% 
     group_by(lon, lat, month, depth_cat, var_cat) %>% 
     summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
@@ -1438,7 +1438,7 @@ data_clim_plot <- function(full_product, site_name){
 data_trend_plot <- function(full_product, site_name){
   
   # Create factors for more consistent plotting
-  full_product$var_type <- as.factor(full_product$var_type)
+  full_product$category <- as.factor(full_product$category)
   
   # get correct bounding box
   bbox_plot <- bbox_from_name(site_name)
@@ -1469,9 +1469,9 @@ data_trend_plot <- function(full_product, site_name){
                                  TRUE ~ as.character(NA)),
            depth_cat = factor(depth_cat, levels = c("0 - 10 m", "10 - 50 m", "50 - 200 m", 
                                                     "200 - 1000 m", "1000 - 2000 m", "2000+ m")),
-           var_cat = case_when(grepl("°C", var_name, ignore.case = F) ~ "temp",
-                               grepl("sal", var_name, ignore.case = F) ~ "sal",
-                               grepl("cndc", var_name, ignore.case = F) ~ "sal")) %>% 
+           var_cat = case_when(grepl("°C", variable, ignore.case = F) ~ "temp",
+                               grepl("sal", variable, ignore.case = F) ~ "sal",
+                               grepl("cndc", variable, ignore.case = F) ~ "sal")) %>% 
     filter(!is.na(depth_cat), !is.na(var_cat), !is.na(year)) %>% 
     group_by(lon, lat, year, depth_cat, var_cat) %>% 
     summarise(value = mean(value, na.rm = T), .groups = "drop") %>%
@@ -1707,19 +1707,19 @@ review_filter_var <- function(full_product, site_name, var_keep, var_remove = NU
   # }
   # res_df <- df_depth %>% #filter(!is.na(date)) %>%
   res_df <- full_product %>%
-    filter(grepl(var_keep, var_name, ignore.case = T)) %>% 
+    filter(grepl(var_keep, variable, ignore.case = T)) %>% 
     mutate(site = site_name, type = "in situ")
-  if(!is.null(var_remove)) res_df <- res_df %>% filter(!grepl(var_remove, var_name, ignore.case = T))
-  if(!is.null(var_precise)) res_df <- res_df %>% filter(!var_name %in% var_precise)
+  if(!is.null(var_remove)) res_df <- res_df %>% filter(!grepl(var_remove, variable, ignore.case = T))
+  if(!is.null(var_precise)) res_df <- res_df %>% filter(!variable %in% var_precise)
   if(!is.null(cit_filter)) res_df <- res_df %>% filter(!grepl(cit_filter, citation, ignore.case = T))
   # res_df <- add_depth(res_df)
-  print(unique(res_df$var_name))
+  print(unique(res_df$variable))
   return(res_df)
 }
 
 # Functions for checking filter_vars output
 review_filter_check <- function(filter_object, check_var = NULL, check_cit = NULL){
-  if(!is.null(check_var[1])) print(unique(filter_object$citation[filter_object$var_name == check_var]))
+  if(!is.null(check_var[1])) print(unique(filter_object$citation[filter_object$variable == check_var]))
   if(!is.null(check_cit[1])){
     citation_check <- filter_object[grepl(check_cit, filter_object$citation, ignore.case = T),]
     return(citation_check)
@@ -1733,14 +1733,14 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
   df_monthly <- filter_object %>%
     filter(!is.na(date), # This needs to be attended to eventually
            !is.na(value)) %>% 
-    group_by(var_name) %>% 
+    group_by(variable) %>% 
     mutate(date_round = lubridate::floor_date(date, "month"),
            median_value = median(value, na.rm = T),
            # Filter low salinity values. 24 based on the base data before filtering.
            value = case_when(median_value > 30 & value < 24 ~ as.numeric(NA), TRUE ~ value)) %>% 
     group_by(site, type, var_group, date_round) %>%
     mutate(count_days_group = length(unique(date))) %>% 
-    group_by(site, type, var_type, var_group, var_name, date_round, count_days_group) %>%
+    group_by(site, type, category, var_group, variable, date_round, count_days_group) %>%
     summarise(value_mean = round(mean(value, na.rm = T), 2),
               value_median = round(median(value, na.rm = T), 2),
               value_min = round(min(value, na.rm = T), 2),
@@ -1748,13 +1748,13 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
               count = n(), 
               count_days_name = length(unique(date)), .groups = "drop") %>%
     dplyr::rename(date = date_round) %>% 
-    group_by(site, type, var_type, var_group, var_name) %>% 
+    group_by(site, type, category, var_group, variable) %>% 
     complete(date = seq(min(date), max(date), by = "month")) %>% 
     ungroup()
   
   # Summary data
   df_monthly_summary <- df_monthly %>% 
-    group_by(site, type, var_name) %>%
+    group_by(site, type, variable) %>%
     summarise(date_min = min(date),
               date_max = max(date),
               value_mean_min = min(value_mean, na.rm = T),
@@ -1764,21 +1764,21 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
   # Trends
   df_monthly_trend <- df_monthly %>% 
     filter(between(date, as.Date(trend_dates[1]), as.Date(trend_dates[2]))) %>%
-    group_by(site, type, var_name) %>%
+    group_by(site, type, variable) %>%
     mutate(row_idx = 1:n()) %>%
     do(fit_site = broom::tidy(lm(value_mean ~ row_idx, data = .))) %>% 
     unnest(fit_site) %>% 
     filter(term == "row_idx") %>% 
     mutate(dec_trend = round(estimate*120, 4), 
            p.value = round(p.value, 4)) %>% 
-    dplyr::select(site, type, var_name, dec_trend, p.value) %>% 
-    left_join(df_monthly_summary, by = c("site", "type", "var_name"))
+    dplyr::select(site, type, variable, dec_trend, p.value) %>% 
+    left_join(df_monthly_summary, by = c("site", "type", "variable"))
   
   # Monthly climatologies
   df_monthly_clim <- df_monthly %>% 
     filter(!is.na(value_mean)) %>% 
     mutate(month = lubridate::month(date)) %>% 
-    group_by(site, type, var_name, month) %>% 
+    group_by(site, type, variable, month) %>% 
     summarise(value_clim = mean(value_mean, na.rm = T),
               count = n(), .groups = "drop")
  
@@ -1806,7 +1806,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
                               grepl("File provided by", URL) ~ "Author",
                               TRUE ~ URL)) %>% 
     table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = source, values_from = Freq)
-  df_citations <- filter_object %>% dplyr::select(type, var_type, site, URL, citation) %>% distinct() %>% 
+  df_citations <- filter_object %>% dplyr::select(type, category, site, URL, citation) %>% distinct() %>% 
     table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = site, values_from = Freq) %>% 
     left_join(df_source, by = c("type", "URL", "citation"))
   
@@ -1824,8 +1824,8 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
   
   # Create x/y coords for labels
   label_df_full <- summary_list$trend %>% 
-    arrange(var_name, site, type) %>%
-    group_by(var_name) %>%
+    arrange(variable, site, type) %>%
+    group_by(variable) %>%
     mutate(x = base::rep(seq(from = min(date_min), to = max(date_max), 
                              length.out = length(unique(site))+1)[2:(length(unique(site))+1)], 
                          each = length(unique(type))),
@@ -1835,8 +1835,8 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                          each = length(unique(site)))) %>% 
     ungroup()
   label_df_sub <- summary_list$trend %>% 
-    arrange(var_name, site, type) %>%
-    group_by(var_name) %>%
+    arrange(variable, site, type) %>%
+    group_by(variable) %>%
     mutate(x = base::rep(seq(from = date_filter[1], to = date_filter[2],
                              length.out = length(unique(site))+1)[2:(length(unique(site))+1)], 
                          each = length(unique(type))),
@@ -1846,11 +1846,11 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                          each = length(unique(site)))) %>% 
     ungroup()
   label_key_full <- label_df_full %>% 
-    group_by(var_name) %>% 
+    group_by(variable) %>% 
     summarise(x = min(date_min), y = unique(y),
               label = unique(type), site = "label", type = "in situ", .groups = "drop")
   label_key_sub <- label_df_sub %>% 
-    group_by(var_name) %>% 
+    group_by(variable) %>% 
     summarise(x = date_filter[1], y = unique(y),
               label = unique(type), site = "label", type = "in situ", .groups = "drop")
   
@@ -1863,7 +1863,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     geom_jitter(aes(colour = log10(count))) +
     scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
     labs(y = "Unique days with data points", x = "Month", fill = "Site", colour = "Count of\nindividual\ndata points\n[log10(n)]") +
-    facet_grid(site+type~var_name) +
+    facet_grid(site+type~variable) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/analyses_output/",short_var,"_meta_box.png"), width = 20, height = 9)
   summary_list$monthly %>% 
@@ -1876,7 +1876,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     scale_fill_viridis_c() + #scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
     labs(y = "Count [log10(n)] of daily data points", x = NULL, 
          fill = "Unique days\nof sampling", colour = "Site") +
-    facet_grid(type~var_name) +
+    facet_grid(type~variable) +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/analyses_output/",short_var,"_meta_ts.png"), width = 20, height = 9)
   
@@ -1890,7 +1890,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                    label = paste0(dec_trend,"/dec\n p = ", p.value))) +
     geom_label(data = label_key_full, aes(x = x, y = y, label = label), colour = "black") +
     labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
-    facet_wrap(~var_name, scales = "free") +
+    facet_wrap(~variable, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/analyses_output/",short_var,"_ts.png"), width = 20, height = 9)
   
@@ -1903,7 +1903,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
                    label = paste0(dec_trend,"/dec\n p = ", p.value))) +
     geom_label(data = label_key_sub, aes(x = x, y = y, label = label), colour = "black") +
     labs(y = NULL, x = NULL, colour = "Site", linetype = "Source") +
-    facet_wrap(~var_name, scales = "free") +
+    facet_wrap(~variable, scales = "free") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/analyses_output/",short_var,"_ts_",year(date_filter[1]),"-",year(date_filter[2]),".png"), width = 20, height = 9)
   
@@ -1911,14 +1911,14 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
   # ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site, colour = type)) +
   #   geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
   #   labs(y = NULL, x = "Month", fill = "Site", colour = "Source") +
-  #   facet_grid(site~var_name, scales = "free_y") +
+  #   facet_grid(site~variable, scales = "free_y") +
   #   theme(panel.border = element_rect(colour = "black", fill = NA))#,
   #         # legend.position = c(0.63, 0.12), legend.direction = "horizontal")
   # ggsave(paste0("~/Desktop/",short_var,"_clim_site.png"), width = 16, height = 9)
   # ggplot(summary_list$clim, aes(x = as.factor(month), y = value_clim, fill = site)) +
   #   geom_col(position = "dodge") + scale_colour_viridis_d() +#scale_colour_viridis_c()
   #   labs(y = NULL, x = "Month", fill = "Site") +
-  #   facet_grid(var_name~type, scales = "free_y") +
+  #   facet_grid(variable~type, scales = "free_y") +
   #   theme(panel.border = element_rect(colour = "black", fill = NA))
   # ggsave(paste0("~/Desktop/",short_var,"_clim_type.png"), width = 9, height = 16)
   summary_list$monthly %>% 
@@ -1927,7 +1927,7 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     ggplot(aes(x = as.factor(month), y = value_mean, fill = site)) +
     geom_boxplot() +
     labs(y = NULL, x = "Month", fill = "Site", colour = "Source") +
-    facet_grid(site+type~var_name, scales = "free_y") +
+    facet_grid(site+type~variable, scales = "free_y") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/analyses_output/",short_var,"_clim_box.png"), width = 20, height = 9)
 }
@@ -1939,13 +1939,13 @@ add_depth <- function(df){
                              URL == "https://doi.org/10.1594/PANGAEA.930028" ~ 310.6,
                              URL == "https://doi.org/10.1594/PANGAEA.873568" ~ -5,
                              URL == "https://doi.org/10.1594/PANGAEA.873568" ~ -5,
-                             grepl("Schmithüsen, Holger; Raeke, Andreas", citation) & var_name == "TTT [°C]" ~ -25,
-                             grepl("Schmithüsen, Holger; Rohleder, Christian", citation) & var_name == "TTT [°C]" ~ -25,
+                             grepl("Schmithüsen, Holger; Raeke, Andreas", citation) & variable == "TTT [°C]" ~ -25,
+                             grepl("Schmithüsen, Holger; Rohleder, Christian", citation) & variable == "TTT [°C]" ~ -25,
                              grepl("Matishov, Gennady G; Zuyev, Aleksey N; Golubev", citation) ~ 0,
-                             grepl("Schmithüsen, Holger (*)", citation) & var_name == "Temp [°C]" ~ 5,
-                             grepl("Schmithüsen, Holger (*)", citation) & var_name == "TTT [°C]" ~ -29,
-                             grepl("König-Langlo, Gert (*)", citation) & var_name == "Temp [°C]" ~ 0,
-                             grepl("König-Langlo, Gert (*)", citation) & var_name == "TTT [°C]" ~ -25,
+                             grepl("Schmithüsen, Holger (*)", citation) & variable == "Temp [°C]" ~ 5,
+                             grepl("Schmithüsen, Holger (*)", citation) & variable == "TTT [°C]" ~ -29,
+                             grepl("König-Langlo, Gert (*)", citation) & variable == "Temp [°C]" ~ 0,
+                             grepl("König-Langlo, Gert (*)", citation) & variable == "TTT [°C]" ~ -25,
                              # Basically anything by Golubev et al. is very old data with no depth values
                              # But I found one entry that has the depth/altitude listed as 0, so I'm going with that
                              grepl("PANGAEA", URL) & grepl("Golubev", citation) & is.na(depth) ~ 0,

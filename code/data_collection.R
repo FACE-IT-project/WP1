@@ -56,6 +56,7 @@ pg_meta_print <- function(pg_doi){
 }
 
 # Function for extracting info from PANGAEA data
+# TODO: Decide if we need to have lon/lat coordinates
 pg_dl_prep <- function(pg_dl){
   
   # Prep for error reporting

@@ -76,13 +76,15 @@ query_ice <- query_params("ice",
                           |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova") 
 # Glacier
 query_glacier <- query_params("glacier|glacial", "Foraminifera|glacialis")
+# River discharge (river, discharge)
+query_river <- query_params("river|discharge", "Diatoms|smoke|glacier|Dust|pixel|Riversideite", "#|±")
 # Snow cover
 query_snow <- query_params("snow")
 # Permafrost
 query_permafrost <- query_params("permafrost")
 # Combined
-query_Cryosphere <- rbind(query_ice, query_glacier, query_snow, query_permafrost)
-rm(query_ice, query_glacier, query_snow, query_permafrost); gc()
+query_Cryosphere <- rbind(query_ice, query_glacier, query_river, query_snow, query_permafrost)
+rm(query_ice, query_glacier, query_river, query_snow, query_permafrost); gc()
 
 
 ## Physical
@@ -109,8 +111,6 @@ query_heatflux <- query_params("heatflux|heat-flux|heat flux|latent|sensible|
 query_light_extinction <- query_params("extinction", "aerosol|foraminifera|Delta")
 # Mixed layer depth (mixed, MLD)
 query_MLD <- query_params("mixed layer|mixed-layer|mixedlayer", "Foraminifera|Illite|clay|smectite")
-# River discharge (river, discharge)
-query_river <- query_params("river|discharge", "Diatoms|smoke|glacier|Dust|pixel|Riversideite", "#|±")
 # Salinity (sal, psu)
 query_salinity <- query_params("salinity", "Diatoms|Dinoflagellate|Radium|Snow|Treatment", "±")
 # Sea level pressure (slp)
@@ -130,9 +130,9 @@ query_wind <- query_params("wind|speed|direction",
                            |Growing|ice |ice-|sperm|pixel|Plastic|polen|Predator|prey|Ship|snow|swim|swell|
                            |temperature|Tidal|Towing|wave", "±")
 # combined
-query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
+query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, 
                         query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind)
-rm(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_river, 
+rm(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, 
    query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind); gc()
 
 
