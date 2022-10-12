@@ -179,7 +179,7 @@ rm(sea_ice_kong, sea_ice_is, sea_ice_stor, sea_ice_young, sea_ice_disko, sea_ice
 ggplot(clean_sea_ice, aes(x = date, y = value, colour = site)) +
   geom_point() + geom_line() + 
   facet_wrap(~variable, scales = "free_y")
-ggsave("~/Desktop/anlyses_output/ice_var_ts.png", width = 20, height = 16)
+ggsave("~/Desktop/analyses_output/ice_var_ts.png", width = 20, height = 16)
 
 ## Not a lot of common sea ice data between sites
 ## The gridded data sea ice cover will be the best comparison between sites
@@ -468,8 +468,8 @@ OISST_stor <- sst_stor_bbox %>% dplyr::rename(date = t) %>%
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 CCI_stor <- sst_CCI_stor_bbox %>% dplyr::rename(date = t) %>%  
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "CCI")
-sea_temp_stor <- review_filter_var(full_product_stor, "stor", "Tpot|Tequ|theta|fco2|Tmax|TTT|
-                                   |SST anomaly", c("t [°C]", "SST (1-12) [°C]")) %>% 
+sea_temp_stor <- review_filter_var(full_product_stor, "temp|°C", "Tpot|Tequ|theta|fco2|Tmax|TTT|SST anomaly|mean_", 
+                                   var_precise = c("t [°C]", "SST (1-12) [°C]")) %>% 
   bind_rows(OISST_stor, CCI_stor) %>% mutate(site = "stor")
 OISST_young <- sst_young_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
@@ -524,7 +524,6 @@ summary_sea_temp <- review_summary(filter(clean_sea_temp, depth >= 0, depth <= 1
 
 # Plot results
 # NB: The apparent cooling trend from in situ data is due to the lack of winter temperatures from pre-satellite era data
-# TODO: Figure out why this is breaking
 review_summary_plot(summary_sea_temp, "sea temp")
 
 ## Plot showing spatial difference between temperature products
@@ -594,8 +593,10 @@ review_summary_plot(summary_light, "light")
 
 # TODO: Sort out the variable conversions etc.
 
-# NB: For this and other chemistry variables see best practices sent by JP on Slack
-# Also see e-mail from Liqing Jiang
+# From Liqing Jiang:
+# I like the idea of adding the carbon parameter pair used to conduct the CO2 system calculation to the variable name. 
+# After all, they could have different associated uncertainties. 
+# For data submission purposes, please feel free to use these new names as you suggested. 
 
 # Check all variables in a product
 unique(filter(full_product_kong, category == "chem")$variable)
@@ -608,7 +609,7 @@ unique(filter(full_product_kong, category == "chem")$variable)
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
 # which is something that the GLODAP product requests that we do.
 carb_kong <- review_filter_var(filter(full_product_kong, category == "chem"), 
-                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "at/l|O2 sat")
+                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|PO4|NO2|NO3|NH4")
 carb_is <- review_filter_var(filter(full_product_is, category == "chem"),
                              "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|PO4|NO2|NO3|nitrate|silicate|phosphate|tco2")
 carb_stor <- review_filter_var(filter(full_product_stor, category == "chem"), 
@@ -620,7 +621,7 @@ carb_disko <- review_filter_var(filter(rbind(full_product_disko, disko_GEM), cat
 carb_nuup <- review_filter_var(filter(rbind(full_product_nuup, nuup_GEM), category == "chem"), 
                                "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "nitrate")
 carb_por <- review_filter_var(filter(full_product_por, category == "chem"), 
-                              "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2")
+                              "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat")
 clean_carb <- rbind(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por) %>% 
   mutate(driver = "carb")
 rm(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por); gc()
