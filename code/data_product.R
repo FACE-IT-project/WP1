@@ -764,8 +764,8 @@ kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankto
   left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_sampling_meta.csv"), by = c("id")) %>% 
   left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv"), by = c("sps" = "id")) %>% 
   dplyr::rename(lon = longitude, lat = latitude) %>% 
-  mutate(value = value*biomass_conv, # Need to check that this conversion is correct
-         variable = case_when(!is.na(stage) ~ paste0(species," (",stage,")"), TRUE ~ species),
+  mutate(variable = case_when(!is.na(stage) ~ paste0(species," (",stage,")"), TRUE ~ species),
+         # value = value*biomass_conv, # This changes the values from ind/m3 to something else see Hop et al. 2019
          variable = paste0(variable, " [ind/m3]"),
          category = "bio",
          date_accessed = as.Date("2021-02-11"),

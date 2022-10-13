@@ -733,7 +733,8 @@ review_summary_plot(summary_pp, "pp")
 
 ### Biomass -----------------------------------------------------------------
 
-# Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
+# TODO: Re-run Kong product to get ind/ms rather than biomass
+# TODO: Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
 
 # Test check for all bio vars to make sure no biomass vars are missed
 as.vector(distinct(filter(full_product_kong, category == "bio"), variable))
@@ -744,27 +745,33 @@ biomass_kong <- filter(full_product_kong, category == "bio",
                        !grepl("biogeochemistry|Norstore", citation, ignore.case = T))
 biomass_is <- filter(full_product_is, category == "bio",
                      !grepl("Domaschke|Norstore", citation, ignore.case = T)) # NB: Domaschke should be removed earlier in PG pipeline
-biomass_stor <- filter(full_product_stor, category == "bio")# No biomass data
+biomass_stor <- filter(full_product_stor, category == "bio")# No bio data
 biomass_young <- filter(rbind(full_product_young, young_GEM), category == "bio",
-                        !grepl("Species Composition", citation),
-                        grepl("pp_", variable, ignore.case = T)) # "pp_" may be too restrictive
-biomass_disko <- filter(rbind(full_product_disko, disko_GEM), category == "bio")  %>% slice(0) # No biomass data
+                        grepl("Phytoplankton", citation, ignore.case = T)) # This is perhaps rather just species richness data
+biomass_disko <- filter(rbind(full_product_disko, disko_GEM), category == "bio") %>% slice(0) # No biomass data
 biomass_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
-                       !grepl("Species Composition", citation),
-                       !grepl("fluor|Chl a", variable)) # Should filter some of the tip growth data
+                       !grepl("CTD|Primary|Chlorophyll", citation))
 biomass_por <- filter(full_product_por, category == "bio") # No bio data
-clean_biomass <- rbind(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass) %>% 
+clean_biomass <- rbind(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por) %>% 
   mutate(type = "in situ", driver = "biomass")
-rm(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass); gc()
+# unique(clean_biomass$variable)
+rm(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por); gc()
 
 # Summary analyses
 summary_biomass <- review_summary(clean_biomass)
 
 # Plot results
+# NB: This doesn;t run because there are too many variables
+# Still considering how to merge them
 review_summary_plot(summary_biomass, "biomass")
 
 
 ### Species richness ------------------------------------------------------
+
+# TODO: This is perhaps just a derivative of biomass in that we take whatever species have presence/amount data
+# and we simplify that to a presence absence binary (i.e. 1|0)
+# So then is this really a different driver, or is it all biomass?
+# Or rather is biomass encroaching on species richness?
 
 # "Several modelling studies project a decrease of phytoplankton bloom in spring and an increase in cyanobacteria blooms in summer."
 # "However, uncertainties remain because some field studies claim that cyanobacteria have not increased and some experimental studies show that responses of cyanobacteria to temperature, salinity and pH vary from species to species. "
@@ -782,22 +789,22 @@ as.vector(distinct(filter(full_product_is, category == "bio"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "bio"), variable))
 
 # Get all species variables
-kong_sp_ass <- filter(full_product_kong, category == "bio") %>% 
+kong_sp_ass <- filter(full_product_kong, category == "bio") %>%
   filter(!grepl("Temperature, salinity, light", citation),
          !grepl("Marine biogeochemistry", citation)) %>% mutate(site = "kong")
-is_sp_ass <- filter(full_product_is, category == "bio") %>% 
+is_sp_ass <- filter(full_product_is, category == "bio") %>%
   filter(!variable %in% c("P CO2 upt Vmax [µmol/kg/s]", "Chlorophyll A - 10um [µg/l]",
-                          "Chlorophyll A - GFF [µg/l]", "Phaeophytin - 10um [µg/l]", 
+                          "Chlorophyll A - GFF [µg/l]", "Phaeophytin - 10um [µg/l]",
                           "Phaeophytin - GFF [µg/l]")) %>% mutate(site = "is")
 stor_sp_ass <- filter(full_product_stor, category == "bio") %>% mutate(site = "stor") # No bio data
-young_sp_ass <- filter(rbind(full_product_young, young_GEM), category == "bio") %>% 
+young_sp_ass <- filter(rbind(full_product_young, young_GEM), category == "bio") %>%
   filter(grepl("Phytoplankton", citation)) %>% mutate(site = "young")
 disko_sp_ass <- filter(rbind(full_product_disko, disko_GEM), category == "bio") %>% mutate(site = "disko") %>% slice(0) # No species data
 nuup_sp_ass <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
                       grepl("Species Composition", citation)) %>% mutate(site = "nuup")
 por_sp_ass <- filter(full_product_por, category == "bio") %>% mutate(site = "por") # No bio data
-clean_sp_ass <- rbind(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass) %>% 
-  mutate(type = "in situ", driver = "Species")
+clean_sp_ass <- rbind(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass) %>%
+  mutate(type = "in situ", driver = "spp rich")
 rm(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass); gc()
 
 # Summary analyses
@@ -991,10 +998,10 @@ clean_all_bio <- clean_all %>%
   group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 clean_all_spp_count <- clean_all %>% 
-  filter(driver == "Species", value != 0) %>% 
+  filter(driver == "spp rich", value != 0) %>% 
   group_by(date_accessed, URL, citation, type, site, category, driver, lon, lat, date, depth) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
-  mutate(variable = "Spp count")
+  mutate(variable = "spp count")
 clean_all_soc <- clean_all %>% 
   filter(category == "soc", value != 0) %>% 
   mutate(driver = case_when(driver == "Shipping" ~ "Fisheries", # Need to fix this above
