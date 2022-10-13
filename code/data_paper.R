@@ -753,11 +753,13 @@ biomass_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
                        !grepl("CTD|Primary|Chlorophyll", citation))
 biomass_por <- filter(full_product_por, category == "bio") # No bio data
 clean_biomass <- rbind(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por) %>% 
+  filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]")) %>% 
   mutate(type = "in situ", driver = "biomass")
 # unique(clean_biomass$variable)
 rm(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por); gc()
 
 # Summary analyses
+# TODO: Need to fix this for final summary stats
 summary_biomass <- review_summary(clean_biomass)
 
 # Plot results
@@ -789,24 +791,47 @@ as.vector(distinct(filter(full_product_is, category == "bio"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "bio"), variable))
 
 # Get all species variables
-kong_sp_ass <- filter(full_product_kong, category == "bio") %>%
-  filter(!grepl("Temperature, salinity, light", citation),
-         !grepl("Marine biogeochemistry", citation)) %>% mutate(site = "kong")
-is_sp_ass <- filter(full_product_is, category == "bio") %>%
-  filter(!variable %in% c("P CO2 upt Vmax [µmol/kg/s]", "Chlorophyll A - 10um [µg/l]",
-                          "Chlorophyll A - GFF [µg/l]", "Phaeophytin - 10um [µg/l]",
-                          "Phaeophytin - GFF [µg/l]")) %>% mutate(site = "is")
-stor_sp_ass <- filter(full_product_stor, category == "bio") %>% mutate(site = "stor") # No bio data
-young_sp_ass <- filter(rbind(full_product_young, young_GEM), category == "bio") %>%
-  filter(grepl("Phytoplankton", citation)) %>% mutate(site = "young")
-disko_sp_ass <- filter(rbind(full_product_disko, disko_GEM), category == "bio") %>% mutate(site = "disko") %>% slice(0) # No species data
-nuup_sp_ass <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
-                      grepl("Species Composition", citation)) %>% mutate(site = "nuup")
-por_sp_ass <- filter(full_product_por, category == "bio") %>% mutate(site = "por") # No bio data
-clean_sp_ass <- rbind(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass) %>%
-  mutate(type = "in situ", driver = "spp rich")
-rm(kong_sp_ass, is_sp_ass, stor_sp_ass, young_sp_ass, disko_sp_ass, nuup_sp_ass, por_sp_ass); gc()
+# This is done by taking the biomass data and counting the different variables on a given day
+# This requires a bit of cleaning up of the variable names first
+clean_spp_rich <- clean_biomass %>% 
+  filter(value > 0) %>% 
+         # Fix sp. and spp.
+  mutate(variable = str_replace(variable, " sp ", " sp. "),
+         variable = str_replace(variable, " spp ", " spp. "),
+         # Remove anything after unknown species
+         # variable = gsub("\\.sp. *", "sp.", variable),
+         # variable = gsub("\\.spp. *", "spp.", variable),
+         # Remove life stages
+         variable = str_replace(variable, " \\(CI\\)| \\(CII\\)| \\(CIII\\)| \\(CIV\\)| \\(CV\\)|
+                                | \\(CI-CIII\\)| \\(CI-CV\\)", ""),
+         # Remove units
+         variable = str_replace(variable, " \\[ind\\/m3\\]", ""),
+         variable = str_replace(variable, " \\[\\%\\]", ""),
+         variable = str_replace(variable, " \\[cells\\/l]", ""),
+         variable = str_replace(variable, " \\[individuals\\/m3\\]", ""),
+         # Remove other specifications
+         variable = str_replace(variable, " \\(veliger\\)| \\(AF\\)| \\(cypris\\)| \\(nauplii\\)|
+                                | \\(AF/AM\\)| \\(furcilia\\)| \\(AM\\)| \\(calyptopis\\)| \\(larvae\\)|
+                                | \\(secondary larvae\\)| \\(trochophora\\)| \\(metatrochophora\\)|
+                                | \\(mitraria\\)| \\(adult\\)| \\(zoea\\)| \\(megalopa\\)| \\(pilidium\\)|
+                                | \\(veliger \\(incl. Margarites and Velutina\\)\\)| cyst| > 10um|
+                                | 3-7um| < 10um|  5-10um|  Non det. 5-10um| >7um| ~3um| 10-20um|
+                                | non det.| non det| Non det.| 1| 2| 3| 4| 5| 30-40um| 20-30um|
+                                |0-30um|0-40um|
+                                |cf. E. tubulosus", ""),
 
+         # Fix double spacing
+         variable = str_replace(variable, "  ", " "))
+unique(clean_spp_rich$variable)[1:120]
+# "Pennate 5-10um"
+# "Cell 7 domek" 
+# "Gyrodinium sp.0-40um"
+# "Gyrodinium sp.0-30um"
+# "Gymnodinium sp.0-30um"
+test_df <- filter(clean_biomass, variable == "Stenosemella sp. [%]") %>% 
+  mutate(variable = str_replace(variable, "sp.", "sp"))
+  # mutate(variable = case_when(grepl("sp.", variable) ~ str_replace(variable, "sp.")))
+  
 # Summary analyses
 # Need to think about how these analyses should proceed
 # One idea is to extract or focus on specific species
