@@ -796,55 +796,75 @@ as.vector(distinct(filter(nuup_GEM, category == "bio"), variable))
 clean_spp_rich <- clean_biomass %>% 
   filter(value > 0) %>% 
          # Fix sp. and spp.
-  mutate(variable = str_replace(variable, " sp ", " sp. "),
-         variable = str_replace(variable, " spp ", " spp. "),
-         # Remove anything after unknown species
-         # variable = gsub("\\.sp. *", "sp.", variable),
-         # variable = gsub("\\.spp. *", "spp.", variable),
+  mutate(variable = str_replace(variable, " sp | spp | spp. ", " sp. "),
+         # variable = str_replace(variable, " spp ", " spp. "),
          # Remove life stages
          variable = str_replace(variable, " \\(CI\\)| \\(CII\\)| \\(CIII\\)| \\(CIV\\)| \\(CV\\)|
-                                | \\(CI-CIII\\)| \\(CI-CV\\)", ""),
+                                | \\(CI-CIII\\)| \\(CI-CV\\)|
+                                | - AF| - AM| - CI| - CII| - CIII| - CIV| - CV", ""),
+         variable = str_replace(variable, "-CIII|-CV|\\/AM", ""),
+         variable = str_replace(variable, "longiremisI|longiremisII|longiremisV", "longiremis"),
+         variable = str_replace(variable, " - juvenile| - cypris| - facetotecta| - nauplii| - adult|
+                                | - zoea| - veliger| - parasitic nauplii| - larvae| - ova| - medusae|
+                                | - megalopa| - pilidium| non.det| not det.", ""),
          # Remove units
          variable = str_replace(variable, " \\[ind\\/m3\\]", ""),
          variable = str_replace(variable, " \\[\\%\\]", ""),
          variable = str_replace(variable, " \\[cells\\/l]", ""),
          variable = str_replace(variable, " \\[individuals\\/m3\\]", ""),
+         variable = str_replace(variable, " 30-40um| 40-50um| 50-60um| 70-80um", ""),
          # Remove other specifications
          variable = str_replace(variable, " \\(veliger\\)| \\(AF\\)| \\(cypris\\)| \\(nauplii\\)|
                                 | \\(AF/AM\\)| \\(furcilia\\)| \\(AM\\)| \\(calyptopis\\)| \\(larvae\\)|
-                                | \\(secondary larvae\\)| \\(trochophora\\)| \\(metatrochophora\\)|
+                                | \\(secondary larvae\\)| \\(trochophora\\)| \\(metatrochophora\\)| \\(medusae\\)|
                                 | \\(mitraria\\)| \\(adult\\)| \\(zoea\\)| \\(megalopa\\)| \\(pilidium\\)|
-                                | \\(veliger \\(incl. Margarites and Velutina\\)\\)| cyst| > 10um|
-                                | 3-7um| < 10um|  5-10um|  Non det. 5-10um| >7um| ~3um| 10-20um|
-                                | non det.| non det| Non det.| 1| 2| 3| 4| 5| 30-40um| 20-30um|
-                                |0-30um|0-40um|
-                                |cf. E. tubulosus", ""),
-
+                                | \\(veliger \\(incl. Margarites and Velutina\\)\\)| \\(coxiella form\\)| \\(GG6\\)|
+                                |cyst| > 10um| 3-7um| < 10um|  5-10um|  Non det. 5-10um| >7um| ~3um| 10-20um|
+                                | non det.| non det| Non det.| indet.| 1| 2| 3| 4| 5| 30-40um| 20-30um|
+                                |0-30um|0-40um| indet.0-50um| cf. normanii| cf. Cerinula - larvae| - larvae", ""),
          # Fix double spacing
-         variable = str_replace(variable, "  ", " "))
-unique(clean_spp_rich$variable)[1:120]
-# "Pennate 5-10um"
-# "Cell 7 domek" 
-# "Gyrodinium sp.0-40um"
-# "Gyrodinium sp.0-30um"
-# "Gymnodinium sp.0-30um"
-test_df <- filter(clean_biomass, variable == "Stenosemella sp. [%]") %>% 
-  mutate(variable = str_replace(variable, "sp.", "sp"))
-  # mutate(variable = case_when(grepl("sp.", variable) ~ str_replace(variable, "sp.")))
-  
-# Summary analyses
-# Need to think about how these analyses should proceed
-# One idea is to extract or focus on specific species
-# Rather converting them to count data in order to apply the same analyses as for the other variables
-summary_sp_ass <- clean_sp_ass %>% 
-  filter(value != 0) %>% 
+         variable = str_replace(variable, "  ", " "),
+         variable = str_replace(variable, "finmarchicusI|finmarchicusII|finmarchicusV", "finmarchicus"),
+         variable = str_replace(variable, "glacialisI|glacialisII|glacialisV", "glacialis"),
+         variable = str_replace(variable, "; lt|; gte|;0 gte|; gt", ""),
+         variable = str_replace(variable, "sp.0-40um|sp.0-30um", "sp."),
+         variable = str_replace(variable, "sp.3", 'sp.')) %>% 
+  mutate(variable = case_when(str_detect(variable, "A. nodosum") ~ "A. nodosum", 
+                              str_detect(variable, "S. latissima") ~ "S. latissima", 
+                              str_detect(variable, "CiliophoraNon") ~ "Ciliophora",
+                              str_detect(variable, "Calanus finmarchicus") ~ "Calanus finmarchicus",
+                              str_detect(variable, "Calanus glacialis") ~ "Calanus glacialis",
+                              str_detect(variable, "Calanus hyperboreus") ~ "Calanus hyperboreus",
+                              str_detect(variable, "Metridia longa") ~ "Metridia longa",
+                              str_detect(variable, "Metridia lucens") ~ "Metridia lucens",
+                              str_detect(variable, "Neoscolecithrix farrani") ~ "Neoscolecithrix farrani",
+                              str_detect(variable, "Navicula sp") ~ "Navicula sp.",
+                              str_detect(variable, "Nitzschia sp.") ~ "Nitzschia sp.",
+                              str_detect(variable, "Pennate.") ~ "Pennate diatoms",
+                              str_detect(variable, "Pseudocalanus minutus") ~ "Pseudocalanus minutus",
+                              str_detect(variable, "Pseudocalanus acuspes") ~ "Pseudocalanus acuspes",
+                              str_detect(variable, "Pseudocalanus sp.") ~ "Pseudocalanus sp.",
+                              str_detect(variable, "Scolecithricella minor") ~ "Scolecithricella minor",
+                              TRUE ~ variable)) %>% 
+  mutate(variable = case_when(variable == "Acartia longiremisI" ~ "Acartia longiremis", 
+                              variable == "AetideidaeV" ~ "Aetideidae", 
+                              TRUE ~ variable)) %>% 
+  # Remove unidentified things
+  mutate(variable = case_when(variable %in% c("Centric diatoms not determined", "centric diatoms not determined",
+                                              "Cell 7 domek", "Centric diatoms not det.") ~ as.character(NA),
+                              TRUE ~ variable)) %>% 
+  filter(!is.na(variable)) %>% arrange(variable) %>%
+  # From here the species are combined into counts - the names are therefore lost
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
-  mutate(variable = "sps_count") %>% 
-  review_summary()
+  mutate(variable = "spp rich")
+  # unique(clean_spp_rich$variable)
+
+# Summary analyses
+summary_spp_rich <- review_summary(clean_spp_rich)
 
 # Plot results
-review_summary_plot(summary_sp_ass, "sp_ass")
+review_summary_plot(summary_spp_rich, "spp rich")
 
 
 ## Social ------------------------------------------------------------------
@@ -852,29 +872,43 @@ review_summary_plot(summary_sp_ass, "sp_ass")
 ### Governance --------------------------------------------------------------
 
 # NB: Currently no governance data exist
+gov_kong <- review_filter_var(full_product_kong, "gov") %>% slice(0)
+gov_is <- review_filter_var(full_product_is, "gov")
+gov_stor <- review_filter_var(full_product_stor, "gov")
+gov_young <- review_filter_var(full_product_young, "gov")
+gov_disko <- review_filter_var(full_product_disko, "gov")
+gov_nuup <- review_filter_var(full_product_nuup, "gov")
+gov_por <- review_filter_var(full_product_por, "gov")
+clean_gov <- rbind(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por)
+rm(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por); gc()
 
-# Just create an empty slice for each site
-disko_govern <- filter(rbind(full_product_disko, disko_GEM), category == "soc") %>% mutate(site = "disko") %>% slice(0)
+# Summary analyses
+# NB: Won't work without data
+# summary_gov <- review_summary(clean_gov)
+
+# Plot results
+# NB: Won't work without data
+# review_summary_plot(summary_gov, "gov")
 
 
 ### Tourism ----------------------------------------------------------------
 
 # Test check for all soc vars to make sure no desired tourism vars are missed
-as.vector(distinct(filter(full_product_por, category == "soc"), variable))
+as.vector(distinct(filter(full_product_young, category == "soc"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "soc"), variable))
 
 # Get tourism variables
-kong_tourism <- review_filter_var(full_product_kong, "kong", "Tourist")
-is_tourism <- review_filter_var(full_product_is, "is", "calls|Days in port|passengers") %>% 
-  bind_rows(review_filter_var(full_product_sval, "is", "Longyearbyen|arrival|guest night"))
-stor_tourism <- review_filter_var(full_product_stor, "stor", "touris") # No tourism data
-young_tourism <- review_filter_var(rbind(full_product_young, young_GEM), "young", "tour") # No tourism data
-disko_tourism <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "tour") # No tourism data
-nuup_tourism <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "tour") # No tourism data
-por_tourism <- review_filter_var(full_product_por, "por", "tour") # No tourism data
-clean_tourism <- rbind(kong_tourism, is_tourism, stor_tourism, young_tourism, disko_tourism, nuup_tourism, por_tourism) %>% 
+tourism_kong <- review_filter_var(full_product_kong, "Tourist|Passenger")
+tourism_is <- review_filter_var(full_product_is, "Tourist|Calls|Cruise|Pleasure", 
+                                "Cargo|Teaching|Fishing|Navy|Polar|Pilot|Other")
+tourism_stor <- review_filter_var(full_product_stor, "tour") # No social data
+tourism_young <- review_filter_var(rbind(full_product_young, young_GEM), "tour") # No tourism data
+tourism_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "tour") # No tourism data
+tourism_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "tour") # No tourism data
+tourism_por <- review_filter_var(full_product_por, "tour") # No tourism data
+clean_tourism <- rbind(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por) %>% 
   mutate(driver = "Tourism")
-rm(kong_tourism, is_tourism, stor_tourism, young_tourism, disko_tourism, nuup_tourism, por_tourism); gc()
+rm(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por); gc()
 
 # Summary analyses
 summary_tourism <- review_summary(clean_tourism)
@@ -887,29 +921,31 @@ review_summary_plot(summary_tourism, "tourism")
 
 # NB: Ship traffic is included here as it is mostly due to industry and not tourism
 
+# TODO: Look into why there aren't Storfjorden shipping data
+# It may be in a Isfjorden AIS file and the site name is getting overwritten at some step
+
 # Test check for all soc vars to make sure no desired fisheries vars are missed
-as.vector(distinct(filter(full_product_is, category == "soc"), variable))
+as.vector(distinct(filter(full_product_por, category == "soc"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "soc"), variable))
 
 # Get shipping variables
-kong_shipping <- review_filter_var(full_product_kong, "kong", "Vessels")
-is_shipping <- review_filter_var(full_product_is, "is", "trips|gross|berths|nautical|duration|fuel|power|emissions|tonnage") %>% 
-  bind_rows(review_filter_var(full_product_sval, "is", "Isfjorden"))
-stor_shipping <- review_filter_var(full_product_stor, "stor", "touris") %>%  # No shipping data
-  bind_rows(review_filter_var(full_product_sval, "stor", "Storfjorden"))
-young_shipping <- review_filter_var(rbind(full_product_young, young_GEM), "young", "berths") # No shipping data
-disko_shipping <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "berths") # No shipping data
-nuup_shipping <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "berths") # No shipping data
-por_shipping <- review_filter_var(full_product_por, "por", "berths") # No shipping data
-clean_shipping <- rbind(kong_shipping, is_shipping, stor_shipping, young_shipping, disko_shipping, nuup_shipping, por_shipping) %>% 
-  mutate(category = "soc", driver = "Shipping")
-rm(kong_shipping, is_shipping, stor_shipping, young_shipping, disko_shipping, nuup_shipping, por_shipping); gc()
+fisheries_kong <- review_filter_var(full_product_kong, "Vessels", "Passenger|Pleasure")
+fisheries_is <- review_filter_var(full_product_is, "trips|gross|berths|nautical|duration|fuel|power|emissions|tonnage|calls",
+                                 "Cruise|Tourist|Day trip|Pleasure")
+fisheries_stor <- review_filter_var(full_product_stor, "trip")
+fisheries_young <- review_filter_var(rbind(full_product_young, young_GEM), "trips") # No social data
+fisheries_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "trips") # No social data
+fisheries_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "trips") # No social data
+fisheries_por <- review_filter_var(full_product_por, "trips") # No social data
+clean_fisheries <- rbind(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por) %>% 
+  mutate(driver = "fisheries")
+rm(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por); gc()
 
 # Summary analyses
-summary_shipping <- review_summary(clean_shipping)
+summary_fisheries <- review_summary(clean_fisheries)
 
 # Plot results
-review_summary_plot(summary_shipping, "shipping")
+review_summary_plot(summary_fisheries, "fisheries")
 
 
 # Currently no landings data
@@ -919,12 +955,11 @@ review_summary_plot(summary_shipping, "shipping")
 ## Save clean data ---------------------------------------------------------
 
 # Combine and change columns to match final standard
-clean_all <- rbind(clean_sea_ice, clean_glacier, clean_discharge,
-                   clean_SST, clean_sal, clean_light,
-                   clean_pCO2, clean_TA, clean_nutrients,
-                   clean_PP, clean_biomass, clean_sp_ass,
-                   clean_governance, clean_tourism, clean_fisheries) %>% 
-  dplyr::rename(category = category, driver = driver, variable = variable) %>% 
+clean_all <- rbind(clean_sea_ice, clean_glacier, clean_runoff,
+                   clean_sea_temp, clean_sal, clean_light,
+                   clean_carb, clean_nutrients,
+                   clean_pp, clean_biomass, clean_spp_rich,
+                   clean_gov, clean_tourism, clean_fisheries) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 save(clean_all, file = "data/analyses/clean_all.RData")
 plyr::l_ply(unique(clean_all$category), save_category, .parallel = T,
@@ -934,22 +969,28 @@ plyr::l_ply(unique(clean_all$category), save_category, .parallel = T,
 ## References --------------------------------------------------------------
 
 # NB: Check for N-ICE and remove if present
-all_ref <- bind_rows(summary_ice$citations, summary_snow$citations, summary_glacier$citations, summary_river$citations,
-                     summary_SST$citations, summary_air$citations, summary_sal$citations, summary_PAR$citations,
-                     summary_O2$citations, summary_pCO2$citations, summary_nutrients$citations, 
-                     summary_chla$citations, summary_biomass$citations, summary_sp_ass$citations, 
-                     summary_tourism$citations, summary_shipping$citations)
+all_ref <- bind_rows(summary_sea_ice$citations,summary_glacier$citations, summary_runoff$citations,
+                     summary_sea_temp$citations, summary_sal$citations, summary_light$citations,
+                     summary_carb$citations, summary_nutrients$citations, 
+                     summary_pp$citations, 
+                     # summary_biomass$citations, # Needs fixing due to many small variables
+                     summary_spp_rich$citations, 
+                     # summary_gov$citations, # Currently no data
+                     summary_tourism$citations, summary_fisheries$citations)
 save(all_ref, file = "data/analyses/all_ref.RData")
 
 
 ## Summary -----------------------------------------------------------------
 
 # Combine analysed data
-all_meta <- rbind(summary_ice$monthly, summary_snow$monthly, summary_glacier$monthly, summary_river$monthly,
-                  summary_SST$monthly, summary_air$monthly, summary_sal$monthly, summary_PAR$monthly,
-                  summary_O2$monthly, summary_pCO2$monthly, summary_nutrients$monthly, 
-                  summary_chla$monthly, summary_biomass$monthly, summary_sp_ass$monthly, 
-                  summary_tourism$monthly, summary_shipping$monthly)
+all_meta <- rbind(summary_sea_ice$monthly, summary_glacier$monthly, summary_runoff$monthly,
+                  summary_sea_temp$monthly, summary_sal$monthly, summary_light$monthly,
+                  summary_carb$monthly, summary_nutrients$monthly, 
+                  summary_pp$monthly, 
+                  # summary_biomass$monthly, # See above
+                  summary_spp_rich$monthly, 
+                  # summary_gov$monthly
+                  summary_tourism$monthly, summary_fisheries$monthly)
 save(all_meta, file = "data/analyses/all_meta.RData")
 # load("data/analyses/all_meta.RData")
 
@@ -965,12 +1006,12 @@ all_meta %>%
   theme(panel.border = element_rect(colour = "black", fill = NA))
 ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 
-annual_temp <- MUR_data %>%
-  mutate(year = lubridate::year(t)) %>% 
-  group_by(lon, lat, year) %>%
-  summarise(annual_minn_temp = min(temp, na.rm = T),
-            annual_mean_temp = mean(temp, na.rm = T),
-            annual_max_temp = max(temp, na.rm = T), .groups = "drop")
+# annual_temp <- MUR_data %>%
+#   mutate(year = lubridate::year(t)) %>% 
+#   group_by(lon, lat, year) %>%
+#   summarise(annual_minn_temp = min(temp, na.rm = T),
+#             annual_mean_temp = mean(temp, na.rm = T),
+#             annual_max_temp = max(temp, na.rm = T), .groups = "drop")
 
 
 # Section 4 ---------------------------------------------------------------
