@@ -437,7 +437,8 @@ pg_is_name_2 <- pg_full_search(query = "isfjorden") %>% # 0 files
 pg_is_name_3 <- pg_full_search(query = "longyearbyen") %>% # 689 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi, !doi %in% pg_is_name_1$doi, !doi %in% pg_is_name_2$doi)
 pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3) %>% 
-  filter(!doi %in% c("10.1594/PANGAEA.909130")) %>% # Wide file with no date values
+  filter(!doi %in% c("10.1594/PANGAEA.909130", # Wide file with no date values
+                     "10.1594/PANGAEA.847626", "10.1594/PANGAEA.847627")) %>% # Lichen experiment datasets
   arrange(citation) %>% distinct()
 rm(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3); gc()
 

@@ -623,7 +623,16 @@ carb_nuup <- review_filter_var(filter(rbind(full_product_nuup, nuup_GEM), catego
 carb_por <- review_filter_var(filter(full_product_por, category == "chem"), 
                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat")
 clean_carb <- rbind(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por) %>% 
-  mutate(driver = "carb")
+  mutate(value = case_when(variable == "AT [mmol(eq)/l]" ~ value*1000, TRUE ~ value), # Convert to µmol/l
+         variable = case_when(str_detect(variable, "ph|pH") ~ "pH",
+                              variable %in% c("AT [mmol(eq)/l]", "AT [µmol/kg]", "EP TA [µmol/kg]",
+                                              "talk [μmol kg-1]") ~ "TA [µmol/kg]", # NB: This may be incorrect to do.
+                              variable %in% c("pco2 [uatm]", "pCO2water_SST_wet [µatm]",
+                                              "pCO2water_SST_wet [uatm]", "pco2_calc [uatm]") ~ "pCO2 [µatm]", # This is not correct to do.
+                              TRUE ~ variable),
+         driver = "carb")
+# unique(clean_carb$variable[str_detect(clean_carb$variable, "ph|pH")]) # Double check that only pH values are screened this way
+# unique(clean_carb$variable)
 rm(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por); gc()
 
 # Summary analyses
@@ -634,8 +643,6 @@ review_summary_plot(summary_carb, "carb")
 
 
 ### Nutrients ---------------------------------------------------------------
-
-# TODO: Establish common variable names here
 
 # "The associated increase in N:P ratio may contribute to maintaining the “vicious circle of eutrophication”. "
 # "An increase of riverine dissolved organic matter (DOM) may also decrease primary production, but the relative importance of this process in different sea areas is not well known."
@@ -664,13 +671,22 @@ nutrients_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM),
                                     "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "chlam")
 nutrients_por <- review_filter_var(full_product_por, "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4")
 clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por) %>% 
-  # Change GLODAP variable to match PANGAEA standard 
+        # Change GLODAP variable to match PANGAEA standard 
   mutate(variable = case_when(variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol/l]",   
                               variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol/l]",   
                               variable == "silicate [μmol kg-1]" ~ "SiO4 [µmol/l]",
                               variable == "phosphate [μmol kg-1]" ~ "PO4 [µmol/l]",
                               TRUE ~ variable),
-         driver = "nutrients"); unique(clean_nutrients$variable)
+         # Convert other variable names to a single standard
+         variable = case_when(variable %in% c("[NO3]- [µmol/l]", "NO3 [µg-at/l]", "NO3 [µmol/kg]") ~ "NO3 [µmol/l]", # Possible units issue
+                              variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol/l]",
+                              variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol/l]",
+                              variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol/l]",
+                              variable %in% c("nitrate+nitrite [µmol/l]", "[NO3]- + [NO2]- [µmol/l]",
+                                              "NO2_NO3 [µmol/l]") ~ "NO3+NO2 [µmol/l]",
+                              TRUE ~ variable),
+         driver = "nutrients")
+unique(clean_nutrients$variable)
 rm(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por); gc()
 
 # Summary analyses
@@ -684,6 +700,9 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 ### Primary production ------------------------------------------------------
 
+# TODO: Merge variables where possible
+# TODO: also include 'flu'
+
 # "For phytoplankton, clear symptoms of climate change, such as prolongation of the growing season, are evident and can be explained by the warming, but otherwise climate effects vary from species to species and area to area."
 # "A 15-year study (2000–2014) using FerryBox observations, covering the area between Helsinki (Gulf of Finland) and Travemünde (Mecklenburg Bight), confirmed that spring bloom intensity was mainly determined by winter nutrient concentration, while bloom timing and duration co-varied with meteorological conditions." 
 # "The authors conclude that the bloom magnitude has been affected by the reduction of nutrient loading from land, while bloom phenology can also be modified by global climate change affecting seasonal oceanographic and biogeochemical processes (Groetsch et al., 2016)."
@@ -693,22 +712,23 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 # Collect all ChlA data
 # https://zenodo.org/record/5572041#.YW_Lc5uxU5m: chl_flu [µg chl m-3] = chlorophyll a calculated from fluorescence profile
-kong_chla <- review_filter_var(full_product_kong, "kong", "chl", "phyceae|dinium|monas")
-is_chla <- review_filter_var(full_product_is, "is", "chl")
-stor_chla <- review_filter_var(full_product_stor, "stor", "chl") # No ChlA data
-young_chla <- review_filter_var(rbind(full_product_young, young_GEM), "young", "chl", "alpha|pm_|pp_|_frac|max|TOTAL")
-disko_chla <- review_filter_var(rbind(full_product_disko, disko_GEM), "disko", "chl")
-nuup_chla <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "nuup", "chl", "chlam|macu")
-por_chla <- review_filter_var(full_product_por, "por", "chl") # No ChlA data
-clean_chla <- rbind(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla) %>% 
-  mutate(driver = "Chla")
-rm(kong_chla, is_chla, stor_chla, young_chla, disko_chla, nuup_chla, por_chla); gc()
+pp_kong <- review_filter_var(full_product_kong, "chl|pp|prim|prod", "sp|spp|hPa|ppt|phyceae|append|scripp")
+pp_is <- review_filter_var(full_product_is, "chl|pp|prim|prod", "hPa|spp")
+pp_stor <- review_filter_var(full_product_stor, "chl|pp|prim|prod", "hPa|ppt") # No PP data
+pp_young <- review_filter_var(rbind(full_product_young, young_GEM), "chl|pp|prim|prod", "dippl|scripp|max") # Lot's of different variables
+pp_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "chl|pp|prim|prod", "hPa")
+pp_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "chl|pp|prim|prod", "hPa|chlamy|individ|nodos")
+pp_por <- review_filter_var(full_product_por, "chl|pp|prim|prod", "hPa") # No PP data
+clean_pp <- rbind(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por) %>% 
+  mutate(driver = "prim prod")
+# unique(clean_pp$variable)
+rm(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por); gc()
 
 # Summary analyses
-summary_chla <- review_summary(filter(clean_chla, depth >= 0, depth <= 10))
+summary_pp <- review_summary(filter(clean_pp, depth >= 0, depth <= 10))
 
 # Plot results
-review_summary_plot(summary_chla, "chla")
+review_summary_plot(summary_pp, "pp")
 
 
 ### Biomass -----------------------------------------------------------------
@@ -720,22 +740,21 @@ as.vector(distinct(filter(full_product_kong, category == "bio"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "bio"), variable))
 
 # Get all biomass variables
-kong_biomass <- filter(full_product_kong, category == "bio",
-                       !grepl("zooplankton|phytoplankton", citation, ignore.case = T)) %>%
-  mutate(site = "kong") %>% slice(0) # No biomass data
-is_biomass <- filter(full_product_is, category == "bio",
-                     variable == "P CO2 upt Vmax [µmol/kg/s]") %>% mutate(site = "is")
-stor_biomass <- filter(full_product_stor, category == "bio") %>% mutate(site = "stor") # No bio data
-young_biomass <- filter(rbind(full_product_young, young_GEM), category == "bio",
+biomass_kong <- filter(full_product_kong, category == "bio",
+                       !grepl("biogeochemistry|Norstore", citation, ignore.case = T))
+biomass_is <- filter(full_product_is, category == "bio",
+                     !grepl("Domaschke|Norstore", citation, ignore.case = T)) # NB: Domaschke should be removed earlier in PG pipeline
+biomass_stor <- filter(full_product_stor, category == "bio")# No biomass data
+biomass_young <- filter(rbind(full_product_young, young_GEM), category == "bio",
                         !grepl("Species Composition", citation),
-                        grepl("pp_", variable, ignore.case = T)) %>% mutate(site = "young") # "pp_" may be too restrictive
-disko_biomass <- filter(rbind(full_product_disko, disko_GEM), category == "bio") %>% mutate(site = "disko") %>% slice(0) # No biomass data
-nuup_biomass <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
+                        grepl("pp_", variable, ignore.case = T)) # "pp_" may be too restrictive
+biomass_disko <- filter(rbind(full_product_disko, disko_GEM), category == "bio")  %>% slice(0) # No biomass data
+biomass_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
                        !grepl("Species Composition", citation),
-                       !grepl("fluor|Chl a", variable)) %>% mutate(site = "nuup") # Should filter some of the tip growth data
-por_biomass <- filter(full_product_por, category == "bio") %>% mutate(site = "por") # No bio data
+                       !grepl("fluor|Chl a", variable)) # Should filter some of the tip growth data
+biomass_por <- filter(full_product_por, category == "bio") # No bio data
 clean_biomass <- rbind(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass) %>% 
-  mutate(type = "in situ", driver = "Biomass")
+  mutate(type = "in situ", driver = "biomass")
 rm(kong_biomass, is_biomass, stor_biomass, young_biomass, disko_biomass, nuup_biomass, por_biomass); gc()
 
 # Summary analyses
@@ -746,9 +765,6 @@ review_summary_plot(summary_biomass, "biomass")
 
 
 ### Species richness ------------------------------------------------------
-
-# For the time being it may be easier to convert these values to the more basic count of simply phytoplankton or zooplankton
-# This would then allow for a more simple summary of the meta/data but requires knowledge of the genus per species etc.
 
 # "Several modelling studies project a decrease of phytoplankton bloom in spring and an increase in cyanobacteria blooms in summer."
 # "However, uncertainties remain because some field studies claim that cyanobacteria have not increased and some experimental studies show that responses of cyanobacteria to temperature, salinity and pH vary from species to species. "

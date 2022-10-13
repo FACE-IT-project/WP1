@@ -765,7 +765,8 @@ kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankto
   left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv"), by = c("sps" = "id")) %>% 
   dplyr::rename(lon = longitude, lat = latitude) %>% 
   mutate(value = value*biomass_conv, # Need to check that this conversion is correct
-         variable = case_when(!is.na(stage) ~ paste0(species," [",stage,"]"), TRUE ~ species),
+         variable = case_when(!is.na(stage) ~ paste0(species," (",stage,")"), TRUE ~ species),
+         variable = paste0(variable, " [ind/m3]"),
          category = "bio",
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
@@ -786,6 +787,7 @@ kong_protist_nutrient_chla_1 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorde
                              as.numeric(gsub("^(.{2})(.*)$", "\\1.\\2", Longitude))))
 kong_protist_nutrient_chla_2 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Protist_abundance_Kongsfjorden2009-2013_Hegseth et al.csv") %>% 
   dplyr::select(Cruise:Year, Taxon_full, `Abundance (Cells L-1)`) %>% 
+  mutate(Taxon_full = paste0(Taxon_full," [cells/l]")) %>% 
   pivot_wider(names_from = Taxon_full, values_from = `Abundance (Cells L-1)`, values_fn = mean)
 kong_protist_nutrient_chla_3 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Nutrients&Chla_Kongsfjorden2009-2014_Hegseth et al.csv", na = c("NA", "na"))
 kong_protist_nutrient_chla <- kong_protist_nutrient_chla_1 %>% 
@@ -799,8 +801,8 @@ kong_protist_nutrient_chla <- kong_protist_nutrient_chla_1 %>%
   mutate(date = case_when(is.na(date) ~ as.Date(`Sampling date`, format = "%d/%m/%Y"), TRUE ~ date)) %>% 
   mutate(date = case_when(is.na(date) ~ as.Date(`Sampling date`, format = "%Y-%m-%d %H:%M"), TRUE ~ date)) %>% 
   dplyr::rename(lon = Longitude, lat = Latitude, depth = Depth.x) %>%
-  dplyr::select(lon, lat, date, depth, P:Chla, `Dinobryon spp. cyst`:`Heterocapsa  sp.`) %>%
-  pivot_longer(P:`Heterocapsa  sp.`, names_to = "variable", values_to = "value") %>% 
+  dplyr::select(lon, lat, date, depth, P:Chla, `Dinobryon spp. cyst [cells/l]`:`Heterocapsa  sp. [cells/l]`) %>%
+  pivot_longer(P:`Heterocapsa  sp. [cells/l]`, names_to = "variable", values_to = "value") %>% 
   filter(!is.na(value)) %>% 
   mutate(category = case_when(variable %in% c("P", "NO2", "NO3", "Si", "NH4") ~ "chem", # May want to include "Chla
                               TRUE ~ "bio"),
