@@ -1217,7 +1217,7 @@ rm(is_mooring_IFO_units); gc()
 is_mooring_GFI_N <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-04-15"), .before = 1)
 
-## North mouth mooring GFI
+## South mouth mooring GFI
 is_mooring_GFI_S <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
@@ -1486,7 +1486,7 @@ if(!exists("pg_stor_ALL")) load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_
 
 # Process individual files
 ## Light data
-### NB: No columns with key drivers: CDOM, icam_anap, Perkins_ap
+### NB: No columns with key drivers: CDOM, icam_aphy, icam_anap, Perkins_ap, O18
 ### NB: pressure [dbar] used here as no depth data available
 stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_properties/acs_fdom_ctd.csv") %>% 
   dplyr::select(`Lat [deg_N]`, `Lon [deg_E]`, Year, Month, Day, `Pressure [dbar]`, `Temp [degC]`, `Sal [PSU]`) %>% 
