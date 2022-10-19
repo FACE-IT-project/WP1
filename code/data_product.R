@@ -24,18 +24,20 @@ pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 
 # Quick filtering function
 # Manual tweaks will still be required after running this
-# TODO: Consider the necessity of lon/lat coords
+# NB: Values with no lon/lat must be removed at this step to prevent data bleed across sites
 pg_quick_filter <- function(file_name, bbox){
   pg_dat <- data.table::fread(file_name, nThread = 15)
   if("Longitude" %in% colnames(pg_dat)){
-    pg_base <- pg_dat %>% dplyr::rename(lon = Longitude, lat = Latitude) %>% 
-      filter(!Error %in% c("No columns with key drivers", "No data in DOI reference"))
-    pg_res <- pg_base %>% 
+    pg_res <- pg_dat %>% dplyr::rename(lon = Longitude, lat = Latitude) %>% 
+      filter(Error == "") %>% 
+      # filter(!Error %in% c("No columns with key drivers", "No data in DOI reference")) %>% 
+    # pg_res <- pg_base %>% 
       filter(lon >= bbox[1], lon <= bbox[2],
              lat >= bbox[3], lat <= bbox[4]) %>% 
-      bind_rows(filter(pg_base, is.na(lon))) %>%
-      janitor::remove_empty("cols")
-    rm(pg_base); gc()
+      # bind_rows(filter(pg_base, is.na(lon))) %>%
+      janitor::remove_empty("cols") %>% 
+      distinct()
+    # rm(pg_base); gc()
   } else{
     pg_res <- NULL
   }
@@ -119,21 +121,22 @@ EU_zooplankton <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zoo
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
          citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # CTD data from YMER cruise in 1980
 ## Note that the first row after the header contains the units:
 ## METERS, DBARS, ITS-90, PSS-78, flag, UMOL/KG, flag, UMOL/KG, flag, UMOL/KG, flag, UMOL/KG, flag, TU, TU, flag, O/OO, flag, DEGC
 EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv", skip = 36) %>%
-  dplyr::rename(lon = LONGITUDE, lat = LATITUDE, date = DATE, depth = DEPTH, pres = CTDPRS,
+  dplyr::rename(lon = LONGITUDE, lat = LATITUDE, date = DATE, bot_depth = DEPTH, depth = CTDPRS,
                 temp = CTDTMP, sal = CTDSAL, O2 = OXYGEN, SiO4 = SILCAT, NO3 = NITRAT, PO4 = PHSPHT) %>% 
   dplyr::select(date:sal, O2, SiO4, NO3, PO4, TRITUM, TRITER, DELO18, THETA) %>% 
   slice(-1) %>% # Remove row containing units
-  pivot_longer(pres:THETA, names_to = "variable", values_to = "value") %>%
+  pivot_longer(temp:THETA, names_to = "variable", values_to = "value") %>%
   mutate(date = lubridate::ymd(date),
          category = case_when(variable %in% c("O2", "SiO4", "NO3", "PO4") ~ "chem", TRUE ~ "phys"),
-         variable = case_when(variable == "pres" ~ "pres [DBARS]",
-                              variable == "temp" ~ "temp [ITS-90]",
+         variable = case_when(variable == "temp" ~ "temp [ITS-90]",
                               variable == "sal" ~ "sal [PSS-78]",
                               variable %in% c("O2", "SiO4", "NO3", "PO4") ~ paste0(variable," [µmol/kg]"),
                               variable %in% c("TRITUM", "TRITER") ~ paste0(variable," [TU]"),
@@ -144,8 +147,10 @@ EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv",
          date_accessed = as.Date("2021-04-15"),
          URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
          citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
-  filter(value != -999)
+  filter(value != -999) %>% 
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # CTD data for Arctic
 ## NB: The documentation does not give the volume of sampling for nutrients (i.e. litres (l) or kilograms (kg))
@@ -163,7 +168,9 @@ EU_Codispoti <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/Codispoti_Arctic_
          date_accessed = as.Date("2021-04-15"),
          URL = "https://www.nodc.noaa.gov/archive/arc0034/0072133/",
          citation = "Multiple. See References section in: https://www.nodc.noaa.gov/archive/arc0034/0072133/1.1/data/1-data/ReadMe_Codispoti_ArcticNuts.pdf") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Ice core samples for protist presence
 ## NB: Units for PAR data are not given so it is assumed that they are [µmol m-2 s-1]
@@ -178,7 +185,9 @@ EU_protists <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/protists/sea-ice
          date_accessed = as.Date("2021-04-19"),
          URL = "https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842",
          citation = "Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Carb chem Arctic model output
 ## Outputs are stored at the Centre for Environmental Data Analysis's (CEDA) JASMIN servers:/gws/nopw/j04/nemo_vol2/ROAM. 
@@ -203,7 +212,9 @@ EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_outpu
          date_accessed = as.Date("2021-08-11"),
          URL = "File was received directly from J-P Gattuso",
          citation = "Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Greenland fjord CTD casts
 ## NB: The units are found in the README by following the URL
@@ -225,8 +236,10 @@ EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE2
          date_accessed = as.Date("2021-10-20"),
          URL = "https://zenodo.org/record/5572329#.Yo5IrzlBw5n",
          citation = "Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
-  filter(!is.na(value))
+  filter(!is.na(value)) %>% 
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # SOCAT data
 EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%  
@@ -242,7 +255,9 @@ EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%
          date_accessed = as.Date("2021-08-06"),
          URL = "https://www.socat.info",
          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 
@@ -277,7 +292,9 @@ EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Ma
          date_accessed = as.Date("2022-10-19"),
          URL = "https://www.glodap.info",
          citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
@@ -334,7 +351,9 @@ sval_MOSJ_glacier_mass <- bind_rows(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_e
          category = "cryo", depth = NA,
          date_accessed = as.Date("2022-04-28")) %>% 
   filter(!is.na(value)) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, sval_MOSJ_kronebreen, sval_MOSJ_midtre); gc()
 
 # Glacier mass balance from Nature publication
@@ -368,7 +387,9 @@ sval_Nature_glacier_mass <- left_join(sval_Nature_glacier_mass_base, sval_Nature
          citation = "Geyman, E., van Pelt, W., Maloof, A., Aas, H. F., & Kohler, J. (2021). 1936/1938 DEM of Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.f6afca5c",
          category = "cryo", depth = NA,
          date_accessed = as.Date("2022-05-10")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(sval_Nature_glacier_mass_base, sval_Nature_glacier_mass_latlon); gc()
 
 # Glacier area outlines
@@ -407,7 +428,9 @@ sval_tidewater_ablation <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fron
          category = "cryo", depth = NA,
          date_accessed = as.Date("2022-04-26")) %>% 
   filter(date2 > "1901-01-01", !is.na(variable)) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Surface meteorology
 # See 'README_N-ICE_metData_v2.txt' for detailed info
@@ -481,7 +504,9 @@ sval_UNIS_database <- full_join(sval_UNIS_TEMP, sval_UNIS_PSAL, by = c("lon", "l
          variable = paste0(variable," [", units,"]"),
          category = "phys",
          date_accessed = as.Date("2021-03-12")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value); gc()
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value); gc()
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop"); gc()
 rm(sval_UNIS_nc_dat, sval_UNIS_TEMP, sval_UNIS_PSAL, sval_UNIS_CNDC); gc()
 
 # Seabird database
@@ -531,7 +556,9 @@ sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbar
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5",
          citation = "Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Svalbard population counts
 sval_pop <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats.csv", delim = "\t") %>% 
@@ -643,9 +670,18 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 ## PG product --------------------------------------------------------------
 
 # Load pg kong files
+## NB: This keeps data without lon/lat coords as some may be useful
+pg_kong_base <- read_csv("data/pg_data/pg_kong.csv") %>% 
+  dplyr::rename(lon = Longitude, lat = Latitude) %>% 
+  filter(Error %in% c("Lon/Lat column is missing")) %>% 
+  janitor::remove_empty("cols") %>% 
+  distinct()
+## NB: This removes all data without lon/lat so that only Kongsfjorden data remain
 system.time(
   pg_kong_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_kong)
 ) # 70 seconds
+## This then has all available Kongsfjorden data from PANGAEA
+pg_kong <- bind_rows(pg_kong_base, pg_kong_sub)
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
