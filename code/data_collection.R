@@ -12,7 +12,7 @@
 # Consider using powerjoin for some of the issues caused by the pangaeaR package
 # https://cran.r-project.org/web/packages/powerjoin/readme/README.html
 # Or some other cleaning methods:
-# https://www.r-bloggers.com/2022/05/data-cleaning-in-r-2-r-packages-to-clean-and-validate-datasets/?utm_source=phpList&utm_medium=email&utm_campaign=R-bloggers-daily&utm_content=HTML
+# https://appsilon.com/data-cleaning-in-r/
 # Consider only using 'child' datafiles to avoid repeat downloads
 
 # Libraries used in this script
@@ -56,7 +56,6 @@ pg_meta_print <- function(pg_doi){
 }
 
 # Function for extracting info from PANGAEA data
-# TODO: Decide if we need to have lon/lat coordinates
 pg_dl_prep <- function(pg_dl){
   
   # Prep for error reporting
@@ -64,6 +63,8 @@ pg_dl_prep <- function(pg_dl){
   
   # Extract data.frame or catch specific errors
   if(is.data.frame(pg_dl$data)){
+    # NB: This can't be done because columns won't match query_ALL$pg_col_name
+    # pg_dl$data <- janitor::clean_names(pg_dl$data)
     if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
       if("Longitude" %in% colnames(pg_dl$data) & "Latitude" %in% colnames(pg_dl$data)){
         if("Latitude 2" %in% colnames(pg_dl$data) & sum(grepl("Latitude", colnames(pg_dl$data))) == 1){
@@ -155,7 +156,7 @@ pg_full_search <- function(lookup_table = F, ...){
     pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
       filter(!grepl("video|photograph|image|station list|master tracks|aircraft|flight|
                     |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
-      filter(!grepl("sediment|soil", citation)) %>% # It is unclear if these files should be filtered because they occasionally have a few useful data
+      filter(!grepl("sediment|soil", citation)) %>% # Unclear if these files should be filtered as they occasionally have a few useful data
       filter(!grepl("ACLOUD|SOCAT", citation)) %>% 
       filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
   }
@@ -208,7 +209,7 @@ pg_ref_extract <- function(pg_EU_file){
 # pg_test_3 <- pg_test_dl("10.1594/PANGAEA.774421")
 
 
-## EU Arctic cruise Oceans data on PANGAEA - 262 - Some issues
+## EU Arctic cruise Oceans data on PANGAEA - 270 - Some issues
 # ~ 3 minutes
 # NB: The following PG downloads have rows with missing lon/lat values
 # This is a conscious choice for now because the spatial info may
@@ -225,7 +226,7 @@ data.table::fwrite(pg_EU_cruise_oceans_dl, "data/pg_data/pg_EU_cruise_Oceans.csv
 rm(pg_EU_cruise_oceans_dl, pg_EU_cruise_oceans_trim); gc()
 
 
-## EU Arctic cruise Atmosphere data on PANGAEA - 151 - Some issues
+## EU Arctic cruise Atmosphere data on PANGAEA - 149 - Some issues
 # ~3 minutes
 print(paste0("Began run on pg_EU_cruise_atmosphere at ", Sys.time()))
 pg_EU_cruise_atmosphere <- pg_full_search(query = "cruise", topic = "Atmosphere", bbox = c(-60, 63, 60, 90)) %>% 
@@ -250,7 +251,7 @@ data.table::fwrite(pg_EU_cruise_cryosphere_dl, "data/pg_data/pg_EU_cruise_Cryosp
 rm(pg_EU_cruise_cryosphere_dl, pg_EU_cruise_cryosphere_trim); gc()
 
 
-## EU Arctic cruise Biological Classification data on PANGAEA - 265 - Some issues
+## EU Arctic cruise Biological Classification data on PANGAEA - 272 - Some issues
 # ~3 minutes
 print(paste0("Began run on pg_EU_cruise_bio_class at ", Sys.time()))
 pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological Classification", bbox = c(-60, 63, 60, 90)) %>% 
@@ -275,7 +276,7 @@ data.table::fwrite(pg_EU_cruise_biosphere_dl, "data/pg_data/pg_EU_cruise_Biosphe
 rm(pg_EU_cruise_biosphere_dl, pg_EU_cruise_biosphere_trim); gc()
 
 
-## EU Arctic cruise Ecology data on PANGAEA - 540 - Some issues
+## EU Arctic cruise Ecology data on PANGAEA - 551 - Some issues
 ## NB: Takes ~18 minutes
 print(paste0("Began run on pg_EU_cruise_ecology at ", Sys.time()))
 pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox = c(-60, 63, 60, 90)) %>% 
@@ -294,7 +295,7 @@ pg_EU_cruise_human <- pg_full_search(query = "cruise", topic = "Human Dimensions
   filter(!doi %in% pg_doi_list$doi)
 
 
-## EU Arctic cruise Chemistry data on PANGAEA west - 1913 - Some issues
+## EU Arctic cruise Chemistry data on PANGAEA west - 1931 - Some issues
 ## MB ~16 minutes
 print(paste0("Began run on pg_EU_cruise_chemistry_west at ", Sys.time()))
 pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(-60, 63, 0, 90)) %>% 
@@ -307,7 +308,7 @@ data.table::fwrite(pg_EU_cruise_chemistry_west_dl, "data/pg_data/pg_EU_cruise_Ch
 rm(pg_EU_cruise_chemistry_west_dl, pg_EU_cruise_chemistry_west_trim); gc()
 
 
-## EU Arctic cruise Chemistry data on PANGAEA east - 5646 - Some issues
+## EU Arctic cruise Chemistry data on PANGAEA east - 5642 - Some issues
 ## NB: ~68 minutes
 print(paste0("Began run on pg_EU_cruise_chemistry_east at ", Sys.time()))
 pg_EU_cruise_chemistry_east <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(0, 63, 60, 90)) %>% 
@@ -315,13 +316,13 @@ pg_EU_cruise_chemistry_east <- pg_full_search(query = "cruise", topic = "Chemist
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_chemistry_east[c("doi", "file")]))
 pg_EU_cruise_chemistry_east_dl <- plyr::ldply(pg_EU_cruise_chemistry_east$doi, pg_dl_proc)
 pg_EU_cruise_chemistry_east_trim <- filter(pg_EU_cruise_chemistry_east_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
-# test1 <- data.frame(table(pg_EU_cruise_chemistry_east_trim$citation)) # Investigate which files contribute the most size
+# test1 <- data.frame(table(pg_EU_cruise_chemistry_east_trim$citation)) # All files look reasonable
 data.table::fwrite(pg_EU_cruise_chemistry_east_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_east.csv")
 data.table::fwrite(pg_EU_cruise_chemistry_east_dl, "data/pg_data/pg_EU_cruise_Chemistry_east.csv")
 rm(pg_EU_cruise_chemistry_east_dl, pg_EU_cruise_chemistry_east_trim); gc()
 
 
-## EU Arctic CTD data on PANGAEA - 905 - Some issues
+## EU Arctic CTD data on PANGAEA - 961 - Some issues
 ## NB: ~14 minutes
 print(paste0("Began run on pg_EU_CTD at ", Sys.time()))
 pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 63, 60, 90)) %>% 

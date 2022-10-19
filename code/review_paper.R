@@ -96,7 +96,6 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 # Ognyanova, K. (2021) Network visualization with R. Retrieved from www.kateto.net/network-visualization.
 
 # TODO: Fix discharge and carbonate system relationship
-# Carbonate system should be split into pCO2 and total alkalinity (TA)
 
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
@@ -201,62 +200,5 @@ render.d3movie(net3,
                # edge.tooltip = paste("<b>Edge type:</b>", (net3 %e% 'note'), "<br>", 
                #                      "<b>Edge weight:</b>", (net3 %e% "note" ) ),
                # output.mode = "htmlWidget", # Can be used in shiny app
-               launchBrowser = T, filename = "docs/driver_network.html")  
-
-
-# Table 1 -----------------------------------------------------------------
-
-# Create table of sources for each category/group
-load("data/analyses/all_ref.RData") # NB: Must add data sources to this output
-
-# Pivot wider to get var_type
-all_ref_var_type <- all_ref %>% 
-  distinct() %>% 
-  mutate(var_type_count = 1) %>% 
-  pivot_wider(id_cols = c(type, URL, citation), names_from = var_type, values_from = var_type_count, values_fn = mean)
-
-# Combine
-all_ref_wide <- all_ref %>% 
-  left_join(all_ref_var_type, by = c("type", "URL", "citation")) %>% 
-  dplyr::select(-var_type) %>% distinct() %>% 
-  filter(type == "in situ") # Remove non in situ sources
-
-# Get summaries by site
-table_1_func <- function(site_name, site_long){
-  # site_col <- colnames(all_ref_wide)[which(colnames(all_ref_wide) == site_name)]
-  # df_sub <- all_ref_wide
-  site_name <- enquo(site_name)
-  df_ref <- all_ref_wide %>% 
-    filter(!is.na(!!site_name)) %>% 
-    dplyr::select(-type, -URL, -citation) %>% 
-    summarise_all(sum, na.rm = T) %>% 
-    mutate(Site = site_long) %>% 
-    dplyr::select(Site, !!site_name, cryo:soc, PANGAEA, NPDC, GEM, NMDC, NSIDC:`Port of Longyearbyen`)
-  colnames(df_ref)[2] <- "Total"
-  return(df_ref)
-}
-
-# Final table
-table_1_kong <- table_1_func(kong, "Kongsfjorden")
-table_1_is <- table_1_func(is, "Isfjorden")
-table_1_stor <- table_1_func(stor, "Storfjorden")
-table_1_young <- table_1_func(young, "Young Sound")
-table_1_disko <- table_1_func(disko, "Disko Bay")
-table_1_nuup <- table_1_func(nuup, "Nuup Kangerlua")
-table_1_por <- table_1_func(por, "Porsangerfjorden")
-table_1 <- rbind(table_1_kong, table_1_is, table_1_stor, table_1_young, table_1_disko, table_1_nuup, table_1_por) %>% 
-  mutate(Other = Reduce("+",.[12:23])) %>% 
-  dplyr::select(Site:NMDC, Other)
-write_csv(table_1, "data/analyses/table_1.csv")
-knitr::kable(table_1)
-table_1_plot <- ggplot() +
-  annotate(geom = "table", x = 0, y = 0, label = list(table_1)) +
-  theme_void()
-ggsave("figures/table_1.png", table_1_plot, width = 6.2, height = 1.55)
-
-# Some acronyms:
-# "NSIDC" = National Snow & Ice Data Center
-# "NMDC" = Norwegian Marine Data Centre
-# "NMI" = Norwegian Meteorological Institute
-# "NIRD" = National Infrastructure for Research Data
+               launchBrowser = T, filename = "docs/driver_network.html")
 

@@ -592,6 +592,9 @@ review_summary_plot(summary_light, "light")
 ### Carb -------------------------------------------------------------------
 
 # TODO: Sort out the variable conversions etc.
+# TODO: pH is not always the same, there are different scales with differences of up to 0.2
+# TODO: Difference in measured vx calculated pCO2, and difference in SST and normalised temperature
+# TODO: Send Jean-Pierre the EP TA reference
 
 # From Liqing Jiang:
 # I like the idea of adding the carbon parameter pair used to conduct the CO2 system calculation to the variable name. 
@@ -640,6 +643,12 @@ summary_carb <- review_summary(filter(clean_carb, depth >= 0, depth <= 10))
 
 # Plot results
 review_summary_plot(summary_carb, "carb")
+
+
+# TODO: Send these DOIs to Jean-Pierre
+testdf <- clean_carb %>% 
+  dplyr::filter(variable == "pCO2 [µatm]")
+unique(testdf$citation)
 
 
 ### Nutrients ---------------------------------------------------------------
@@ -702,6 +711,9 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 # TODO: Merge variables where possible
 # TODO: also include 'flu'
+# TODO: Look into making PP conversion calculations with existing data 
+
+# Phaeogygments etc are not measures of PP, don't need fluoresnce either
 
 # "For phytoplankton, clear symptoms of climate change, such as prolongation of the growing season, are evident and can be explained by the warming, but otherwise climate effects vary from species to species and area to area."
 # "A 15-year study (2000–2014) using FerryBox observations, covering the area between Helsinki (Gulf of Finland) and Travemünde (Mecklenburg Bight), confirmed that spring bloom intensity was mainly determined by winter nutrient concentration, while bloom timing and duration co-varied with meteorological conditions." 
@@ -735,6 +747,7 @@ review_summary_plot(summary_pp, "pp")
 
 # TODO: Re-run Kong product to get ind/ms rather than biomass
 # TODO: Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
+# TODO: Look into creating phytoplankton biomass conversion using Chl a data
 
 # Test check for all bio vars to make sure no biomass vars are missed
 as.vector(distinct(filter(full_product_kong, category == "bio"), variable))
@@ -774,6 +787,11 @@ review_summary_plot(summary_biomass, "biomass")
 # and we simplify that to a presence absence binary (i.e. 1|0)
 # So then is this really a different driver, or is it all biomass?
 # Or rather is biomass encroaching on species richness?
+
+# This value will be negatively affected by how deep into the taxonomy a researcher has gone in one site vs another
+# E.g. by giving all species, or just grouping by a larger taxa
+# So don't use these comparisons in the data paper
+# Just describe the data
 
 # "Several modelling studies project a decrease of phytoplankton bloom in spring and an increase in cyanobacteria blooms in summer."
 # "However, uncertainties remain because some field studies claim that cyanobacteria have not increased and some experimental studies show that responses of cyanobacteria to temperature, salinity and pH vary from species to species. "
