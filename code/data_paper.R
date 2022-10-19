@@ -1124,6 +1124,7 @@ clean_all_clean <- clean_all_cryo %>%
   rbind(clean_all_bio) %>% 
   rbind(clean_all_spp_count) %>% 
   rbind(clean_all_soc)
+# TODO: Remove time series with only annual values
 # rm(clean_all, clean_all_spp_count); gc()
 
 ### Relationships from the network analysis - created via the review paper
@@ -1679,8 +1680,9 @@ ggsave("figures/dp_fig_3.png", fig_3, width = 7, height = 6)
 
 # Figure 4 ----------------------------------------------------------------
 # Show how data availability over time by driver (not variable) has changed by site
-# Time series plots with linear lines
-# One plot per driver with site shown as colours in stacked barplot
+# Colour of bars per year should show count of sites, not individual colours per site
+# Height of bars shows available data per year
+# May want to cut this up by depth, at least for temp/sal
 # NB: Uses all_meta_insitu from Figure 3
 
 # Simple annual presence of drivers by site
@@ -1718,6 +1720,12 @@ ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 12)
 # Show the differences in R2 etc between sites
 # Heatmap of differences
 
+
+# Figure 7 ----------------------------------------------------------------
+# A figure or table showing similarity between model and amalgamated data. 
+# Perhaps RMSE values as a function of time series differences by monthly means by site.
+# A) Difference between in situ/remote projections and model RCPs
+# B) The trends of the model data against those of the amalgamated data.
 
 
 # Table 1 -----------------------------------------------------------------
@@ -1780,4 +1788,11 @@ ggsave("figures/table_1.png", table_1_plot, width = 6.2, height = 1.55)
 # "NMDC" = Norwegian Marine Data Centre
 # "NMI" = Norwegian Meteorological Institute
 # "NIRD" = National Infrastructure for Research Data
+
+
+# Table 3 -----------------------------------------------------------------
+
+# Table showing the drivers that were able to be compared and those that could not.
+# The check mark showing a possible comparison could be changed to show if the comparisons are both in situ, or only a remotely sensed time series is being compared.
+# Use two check marks per box to accomplish this.
 

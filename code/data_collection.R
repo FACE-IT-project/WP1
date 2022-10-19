@@ -368,15 +368,15 @@ rm(SOCAT_R, SOCAT_R_sub); gc()
 
 # Kongsfjorden ------------------------------------------------------------
 
-## All Kongsfjorden bbox data files - 2530
+## All Kongsfjorden bbox data files - 2615
 print(paste0("Began run on pg_kong at ", Sys.time()))
-pg_kong_bbox <- pg_full_search(query = "", bbox = c(bbox_kong[1], bbox_kong[3], bbox_kong[2], bbox_kong[4])) %>% # 2494 files
+pg_kong_bbox <- pg_full_search(query = "", bbox = c(bbox_kong[1], bbox_kong[3], bbox_kong[2], bbox_kong[4])) %>% # 2575 files
   filter(!doi %in% pg_doi_list$doi)
 pg_kong_name_1 <- pg_full_search(query = "kongsfjord") %>% # 7 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi)
-pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") %>% # 19 files
+pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") %>% # 21 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi)
-pg_kong_name_3 <- pg_full_search(query = "ny alesund") %>% # 11 files
+pg_kong_name_3 <- pg_full_search(query = "ny alesund") %>% # 13 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi, !doi %in% pg_kong_name_2$doi)
 pg_kong_name_4 <- pg_full_search(query = "ny-alesund") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_kong_bbox$doi, !doi %in% pg_kong_name_1$doi, 
@@ -384,16 +384,18 @@ pg_kong_name_4 <- pg_full_search(query = "ny-alesund") %>% # 0 files
 pg_kong_all <- rbind(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4) %>%
   filter(!doi %in% c("10.1594/PANGAEA.909130")) %>% # Wide file with no date values
   # filter(!grepl("Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% # This removes ~40 million rows of bathy data
+  filter(!grepl("946961", citation)) %>% # 3.7 million rows of second resolution air temperature
   arrange(citation) %>% distinct()
 rm(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4); gc()
 
 # Download files
 system.time(
-pg_kong_dl <- plyr::ldply(pg_kong_all$doi, pg_dl_proc)
+pg_kong_dl <- plyr::ldply(pg_kong_all$doi, pg_dl_proc) %>% 
+  janitor::remove_empty(which = "cols")
 ) # 38 minutes
 # colnames(pg_kong_dl)
 # test1 <- data.frame(table(pg_kong_dl$citation)) # Investigate which files contribute the most size
-# test2 <- filter(pg_kong_dl, grepl("914973", citation)) %>% janitor::remove_empty(which = "cols")
+# test2 <- filter(pg_kong_dl, grepl("946961", citation)) %>% janitor::remove_empty(which = "cols")
 # NB: Can't filter these as they may contain data points used in another site file
 # pg_kong_trim <- filter(pg_kong_dl, Longitude >= 11, Longitude <= 12.69, Latitude >= 78.86, Latitude <= 79.1) %>% 
   # janitor::remove_empty(which = "cols")
@@ -427,15 +429,15 @@ save(sst_MUR_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.
 
 # Isfjorden ---------------------------------------------------------------
 
-## All Isfjorden data files - 848
+## All Isfjorden data files - 954
 print(paste0("Began run on pg_is at ", Sys.time()))
-pg_is_bbox <- pg_full_search(query = "", bbox = c(bbox_is[1], bbox_is[3], bbox_is[2], bbox_is[4])) %>% # 160 files
+pg_is_bbox <- pg_full_search(query = "", bbox = c(bbox_is[1], bbox_is[3], bbox_is[2], bbox_is[4])) %>% # 166 files
   filter(!doi %in% pg_doi_list$doi)
 pg_is_name_1 <- pg_full_search(query = "isfjord") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi)
 pg_is_name_2 <- pg_full_search(query = "isfjorden") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi, !doi %in% pg_is_name_1$doi)
-pg_is_name_3 <- pg_full_search(query = "longyearbyen") %>% # 689 files
+pg_is_name_3 <- pg_full_search(query = "longyearbyen") %>% # 791 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_is_bbox$doi, !doi %in% pg_is_name_1$doi, !doi %in% pg_is_name_2$doi)
 pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3) %>% 
   filter(!doi %in% c("10.1594/PANGAEA.909130", # Wide file with no date values
@@ -445,11 +447,12 @@ rm(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3); gc()
 
 # Download files
 system.time(
-pg_is_dl <- plyr::ldply(pg_is_all$doi, pg_dl_proc)
-) # 14 minutes
+pg_is_dl <- plyr::ldply(pg_is_all$doi, pg_dl_proc) %>% 
+  janitor::remove_empty(which = "cols")
+) # 30 minutes
 # colnames(pg_is_dl)
 # test1 <- data.frame(table(pg_is_dl$citation)) # Investigate which files contribute the most size
-# test2 <- filter(pg_kong_dl, grepl("914973", citation)) %>% janitor::remove_empty(which = "cols")
+# test2 <- filter(pg_is_dl, grepl("2008GL0", citation)) %>% janitor::remove_empty(which = "cols")
 # pg_is_trim <- filter(pg_is_dl, Longitude >= 13.62, Longitude <= 17.14, Latitude >= 78.03, Latitude <= 78.71)
 data.table::fwrite(pg_is_dl, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is.csv")
 data.table::fwrite(pg_is_dl, "data/pg_data/pg_is.csv")
@@ -479,15 +482,16 @@ is_AIS_raw_files <- dir("~/pCloudDrive/FACE-IT_data/isfjorden/AIS", full.names =
 is_AIS_raw <- map_dfr(is_AIS_raw_files, read_delim, delim = ";")
 is_AIS_raw <- data.frame(is_AIS_raw)
 save(is_AIS_raw, file = "~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
+rm(is_AIS_raw_files, is_AIS_raw); gc()
 
 
 # Storfjorden -------------------------------------------------------------
 
-## All Storfjorden data files - 54
+## All Storfjorden data files - 57
 print(paste0("Began run on pg_stor at ", Sys.time()))
-pg_stor_bbox <- pg_full_search(query = "", bbox = c(bbox_stor[1], bbox_stor[3], bbox_stor[2], bbox_stor[4])) %>% # 37 files
+pg_stor_bbox <- pg_full_search(query = "", bbox = c(bbox_stor[1], bbox_stor[3], bbox_stor[2], bbox_stor[4])) %>% # 38 files
   filter(!doi %in% pg_doi_list$doi)
-pg_stor_name_1 <- pg_full_search(query = "storfjorden") # 7 files
+pg_stor_name_1 <- pg_full_search(query = "storfjorden") # 9 files
 pg_stor_name_2 <- pg_full_search(query = "storfjord") # 10 files
 pg_stor_all <- rbind(pg_stor_bbox, pg_stor_name_1, pg_stor_name_2) %>% 
   arrange(citation) %>% distinct()
@@ -495,14 +499,15 @@ rm(pg_stor_bbox, pg_stor_name_1, pg_stor_name_2); gc()
 
 # Download files
 system.time(
-pg_stor_dl <- plyr::ldply(pg_stor_all$doi, pg_dl_proc)
+pg_stor_dl <- plyr::ldply(pg_stor_all$doi, pg_dl_proc) %>% 
+  janitor::remove_empty(which = "cols")
 ) # 28 seconds
 # pg_ingle_trim <- filter(pg_ingle_dl, Longitude >= 18.15, Longitude <= 18.79, Latitude >= 77.87, Latitude <= 78.05) # Reduces to 0...
 data.table::fwrite(pg_stor_dl, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor.csv")
 data.table::fwrite(pg_stor_dl, "data/pg_data/pg_stor.csv")
 rm(pg_stor_dl); gc()
 
-# Update DOI list with Inglefieldbukta
+# Update DOI list with Storfjorden
 pg_doi_list <- distinct(rbind(pg_doi_list, data.frame(doi = pg_stor_all$doi, file = "pg_stor_all")))
 write_csv(pg_doi_list, "~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
@@ -520,12 +525,12 @@ save(ice_1km_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.R
 
 # Svalbard ----------------------------------------------------------------
 
-## All Svalbard data files - 319
+## All Svalbard data files - 287
 # NB: These files were searched for after the specific sites intentionally
 # This was so that site specific files would be allocated to the appropriate folders
 # And the files not attributed to a given site would be downloaded in this chunk
 # However, I'm currently thinking we don't want these data...
-# pg_sval_all <- pg_full_search(query = "", bbox = c(9, 76, 30, 81)) %>% 
+# pg_sval_all <- pg_full_search(query = "", bbox = c(9, 76, 30, 81)) %>%
 #   filter(!doi %in% pg_doi_list$doi) %>% arrange(citation) %>% distinct()
 
 # Svalbard team files - 10 datasets
@@ -534,9 +539,9 @@ save(ice_1km_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/ice_1km_stor.R
 
 # Young Sound -------------------------------------------------------------
 
-## All Young Sound data files - 152
+## All Young Sound data files - 161
 print(paste0("Began run on pg_young at ", Sys.time()))
-pg_young_bbox <- pg_full_search(query = "", bbox = c(bbox_young[1], bbox_young[3], bbox_young[2], bbox_young[4])) %>% # 150 files
+pg_young_bbox <- pg_full_search(query = "", bbox = c(bbox_young[1], bbox_young[3], bbox_young[2], bbox_young[4])) %>% # 160 files
   filter(!doi %in% pg_doi_list$doi)
 pg_young_name_1 <- pg_full_search(query = "zackenberg") %>% # 3 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_young_bbox$doi)
@@ -549,8 +554,9 @@ rm(pg_young_bbox, pg_young_name_1); gc()
 
 # Download files
 system.time(
-pg_young_dl <- plyr::ldply(pg_young_all$doi, pg_dl_proc)
-) # 306 seconds
+pg_young_dl <- plyr::ldply(pg_young_all$doi, pg_dl_proc) %>% 
+  janitor::remove_empty(which = "cols")
+) # 257 seconds
 # test1 <- data.frame(table(pg_young_dl$citation)) # Investigate which files contribute the most size
 # pg_young_trim <- filter(pg_young_dl, Longitude >= -22.367917, Longitude <= -19.907644, Latitude >= 74.210137, Latitude <= 74.624304)
 data.table::fwrite(pg_young_dl, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young.csv")
@@ -575,9 +581,9 @@ save(ice_1km_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/ice_1km_young
 
 # Disko Bay ---------------------------------------------------------------
 
-## All Disko Bay data files - 233
+## All Disko Bay data files - 236
 print(paste0("Began run on pg_disko at ", Sys.time()))
-pg_disko_bbox <- pg_full_search(query = "", bbox = c(bbox_disko[1], bbox_disko[3], bbox_disko[2], bbox_disko[4])) %>% # 226 files
+pg_disko_bbox <- pg_full_search(query = "", bbox = c(bbox_disko[1], bbox_disko[3], bbox_disko[2], bbox_disko[4])) %>% # 229 files
   filter(!doi %in% pg_doi_list$doi)
 pg_disko_name_1 <- pg_full_search(query = "Qeqertarsuup") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi)
@@ -596,8 +602,9 @@ rm(pg_disko_bbox, pg_disko_name_1, pg_disko_name_2, pg_disko_name_3); gc()
 
 # Download files
 system.time(
-pg_disko_dl <- plyr::ldply(pg_disko_all$doi, pg_dl_proc)
-) # 252 seconds
+pg_disko_dl <- plyr::ldply(pg_disko_all$doi, pg_dl_proc) %>% 
+  janitor::remove_empty(which = "cols")
+) # 224 seconds
 # colnames(pg_disko_dl)
 # test1 <- data.frame(table(pg_disko_dl$citation)) # Investigate which files contribute the most size
 data.table::fwrite(pg_disko_dl, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko.csv")
@@ -622,9 +629,9 @@ save(ice_1km_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/ice_1km_disko.R
 
 # Nuup Kangerlua ----------------------------------------------------------
 
-## All Nuup Kangerlua data files - 196
+## All Nuup Kangerlua data files - 199
 print(paste0("Began run on pg_nuup at ", Sys.time()))
-pg_nuup_bbox <- pg_full_search(query = "", bbox = c(bbox_nuup[1], bbox_nuup[3], bbox_nuup[2], bbox_nuup[4])) %>% # 119 files
+pg_nuup_bbox <- pg_full_search(query = "", bbox = c(bbox_nuup[1], bbox_nuup[3], bbox_nuup[2], bbox_nuup[4])) %>% # 122 files
   filter(!doi %in% pg_doi_list$doi)
 # pg_nuup_name_1 <- pg_full_search(query = "kangerlua") # 0 files
 pg_nuup_name_2 <- pg_full_search(query = "nuuk") %>% # 77 files
@@ -636,8 +643,9 @@ rm(pg_nuup_bbox,  pg_nuup_name_2); gc()
 
 # Download files
 system.time(
-pg_nuup_dl <- plyr::ldply(pg_nuup_all$doi, pg_dl_proc)
-) # 227 seconds
+pg_nuup_dl <- plyr::ldply(pg_nuup_all$doi, pg_dl_proc) %>% 
+  janitor::remove_empty(which = "cols")
+) # 201 seconds
 data.table::fwrite(pg_nuup_dl, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup.csv")
 data.table::fwrite(pg_nuup_dl, "data/pg_data/pg_nuup.csv")
 rm(pg_nuup_dl); gc()
@@ -666,16 +674,18 @@ pg_por_bbox <- pg_full_search(query = "", bbox = c(bbox_por[1], bbox_por[3], bbo
   filter(!doi %in% pg_doi_list$doi)
 pg_por_name_1 <- pg_full_search(query = "Porsangerfjord") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_por_bbox$doi)
+# pg_por_name_2 <- pg_full_search(query = "Porsangerfjorden")# 0 files
 pg_por_all <- rbind(pg_por_bbox, pg_por_name_1) %>% 
-  filter(!grepl("Multibeam survey", citation, ignore.case = T)) %>% # This removes ~7 million rows of bathy data
-  filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via their own portal
+  # filter(!grepl("Multibeam survey", citation, ignore.case = T)) %>% # This removes ~7 million rows of bathy data
+  # filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via their own portal
   arrange(citation) %>% distinct()
 rm(pg_por_bbox, pg_por_name_1); gc()
 
 # Download files
 system.time(
-pg_por_dl <- plyr::ldply(pg_por_all$doi, pg_dl_proc)
-) # 44 seconds
+pg_por_dl <- plyr::ldply(pg_por_all$doi, pg_dl_proc) %>% 
+  janitor::remove_empty(which = "cols")
+) # 33 seconds
 # colnames(pg_por_dl)
 # test1 <- data.frame(table(pg_por_dl$citation)) # Investigate which files contribute the most size
 data.table::fwrite(pg_por_dl, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por.csv")
@@ -716,13 +726,12 @@ rm(pg_trom_bbox, pg_trom_name_1, pg_trom_name_2); gc()
 
 # Download files
 system.time(
-  pg_trom_dl <- plyr::ldply(pg_trom_all$doi, pg_dl_proc)
+  pg_trom_dl <- plyr::ldply(pg_trom_all$doi, pg_dl_proc) %>% 
+    janitor::remove_empty(which = "cols")
 ) # 44 seconds
 # colnames(pg_trom_dl)
 # test1 <- data.frame(table(pg_tromso_dl$citation)) # Investigate which files contribute the most size
 data.table::fwrite(pg_trom_dl, "~/pCloudDrive/FACE-IT_data/tromso/pg_trom.csv")
 # data.table::fwrite(pg_trom_dl, "data/pg_data/pg_por.csv")
 rm(pg_tromso_dl); gc()
-
-# PAR data
 
