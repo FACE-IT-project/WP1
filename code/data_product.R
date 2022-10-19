@@ -95,18 +95,14 @@ rm(pg_EU); gc()
 ## 9700302.2.2.tar.gz # This appears to be some sort of proprietary data format...
 # EU_NCEI_1989
 
-# GRDC river discharge data
-## NB: These are restricted data so they are not added to 'full_product_EU'
-## Site: https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html
-## Citation: Arctic Region Discharge Data (2021). The Global Runoff Data Centre, 56068 Koblenz, Germany
-# lta_discharge = long-term average discharge, cubic metre per sec
-# r_vol_yr = mean annual volume, cubic kilometre
-# r_height_yr	= mean annual runoff depth, mm
-# EU_GRDC <- read_csv("~/pCloudDrive/restricted_data/GRDC/grdc_arctichycos_stations.csv")
-
 # CTD data from Ichthyo research
-## NB: Server was done when attempting to access these data on 2022-05-25
+## NB: Server was down when attempting to access these data on 2022-05-25
 # EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
+
+# EU MET station data
+# TODO: Develop code to automatically download and process these MET data
+# https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html
+# https://frost.met.no/index.html
 
 # Zooplankton biodiversity
 EU_zooplankton <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zooplankton-biodiversity.tsv", delim = "\t") %>%
@@ -152,8 +148,8 @@ EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv",
   filter(value != -999)
 
 # CTD data for Arctic
-## NB: The documentation does not give the volume of sampling for nutrients (i.e. liters (l) or kilograms (kg))
-## But searching through a 1976 paper that they reference it appears to be in liters
+## NB: The documentation does not give the volume of sampling for nutrients (i.e. litres (l) or kilograms (kg))
+## But searching through a 1976 paper that they reference it appears to be in litress
 EU_Codispoti <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/Codispoti_Arctic_Nutrients_Submission_11-11-2010.csv") %>%
   dplyr::rename(lon = Longitude, lat = Latitude, date = Date, depth = z, temp = `T`, sal = Sal) %>% 
   dplyr::select(date, lat:NO3, NO2) %>% 
@@ -911,6 +907,7 @@ kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_ferry.rds") 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
 ## SAMS mooring data
+# TODO: Finish this process
 kong_mooring_SAMS <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS/", full.names = T), load_SAMS, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-10-21"), .before = 1)
 
@@ -1000,7 +997,6 @@ kong_light_Laeseke <- read_csv("~/pCloudDrive/restricted_data/Bremen/Light Data/
 # While interesting, these data do not have lon/lat coords so are difficult to incorporate with everything else
 
 ## Light data from Inka
-## NB: I (Robert) need to upload these data to PANGAEA to give them a DOI etc.
 # NB: The sensors get dirty throughout the year so values after the winter dark period are best to remove
 kong_light_Inka_1 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_10M_above kelp canopy_July2012-June2013_final.csv") %>% 
   slice(1:15999) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 10) %>% 
@@ -1051,7 +1047,7 @@ kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_In
 rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Inka_hourly); gc()
 
 # PAR data from Dieter Hanelt
-## NB: The coords that are slightly different from Hansneset are a but of a guess RE advise from Dieter
+## NB: The coords that are slightly different from Hansneset are a bit of a guess RE advise from Dieter
 ## NB: There are two different sampling profiles on the same day with the same coords provided
 ## This is because the time of day of sampling is different
 kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Hansneset_PAR.csv") %>% 
@@ -1220,7 +1216,7 @@ rm(is_mooring_IFO_units); gc()
 is_mooring_GFI_N <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_N", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-04-15"), .before = 1)
 
-## North mouth mooring GFI
+## South mouth mooring GFI
 is_mooring_GFI_S <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_GFI_S", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
@@ -1489,7 +1485,7 @@ if(!exists("pg_stor_ALL")) load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_
 
 # Process individual files
 ## Light data
-### NB: No columns with key drivers: CDOM, icam_anap, Perkins_ap
+### NB: No columns with key drivers: CDOM, icam_aphy, icam_anap, Perkins_ap, O18
 ### NB: pressure [dbar] used here as no depth data available
 stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_properties/acs_fdom_ctd.csv") %>% 
   dplyr::select(`Lat [deg_N]`, `Lon [deg_E]`, Year, Month, Day, `Pressure [dbar]`, `Temp [degC]`, `Sal [PSU]`) %>% 

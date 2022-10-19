@@ -1719,7 +1719,13 @@ ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 12)
 # Heatmap of differences
 
 
+
 # Table 1 -----------------------------------------------------------------
+
+# List of the categories, drivers, and their variables
+
+
+# Table 2 -----------------------------------------------------------------
 
 # Create table of sources for each category/group
 load("data/analyses/all_ref.RData") # NB: Must add data sources to this output
