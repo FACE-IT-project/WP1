@@ -743,7 +743,8 @@ load_GFI <- function(file_name){
            category = case_when(variable %in% c("oxy") ~ "chem", TRUE ~ "phys"),
            units = case_when(units == "Celsius" ~ "°C", units == "degree" ~ "°", TRUE ~ units),
            variable = paste0(variable, " [", units,"]")) %>% 
-    dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value)
+    dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value) %>% 
+    distinct()
   )
   return(res)
 }
@@ -838,7 +839,8 @@ load_SAMS <- function(file_name){
            units = case_when(units == "degrees_Celsius" ~ "°C", TRUE ~ units),
            category = case_when(variable %in% c("fluo_V", "fluo") ~ "bio", TRUE ~ "phys"),
            variable = paste0(variable, " [", units,"]")) %>% 
-    dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value)
+    dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value) %>% 
+    distinct()
   return(res)
 }
 
@@ -1040,8 +1042,9 @@ load_nor_hydro <- function(year_choice, date_accessed){
                                 variable == "sal" ~ "sal [PSU]",
                                 variable == "dens" ~ "dens [kg/m3]"),
            depth = as.numeric(depth)) %>% 
-    dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
-    distinct()
+    distinct() %>% 
+    group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
   # print(paste0("Loaded ",lubridate::year(min(res_raw$date)),": ", nrow(res)," rows"))
   return(res)
 }
@@ -2148,6 +2151,7 @@ driver2_lm <- function(driver1, driver2){
     filter(!is.na(date)) %>% distinct() %>% 
     mutate(date = lubridate::round_date(date, unit = "month"),
            depth = case_when(depth < 0 ~ "land",
+                             is.na(depth) & variable == "ablation [m w.e.]" ~ "land",
                              is.na(depth) ~ "surface",
                              depth <= 10 ~ "0 to 10",
                              depth <= 50 ~ "10 to 50",

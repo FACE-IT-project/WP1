@@ -138,10 +138,9 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 
 ### Sea ice ----------------------------------------------------------------
 
-# TODO: Look into sea ice variables with depths below the surface
-# Check if ablation [m w.e.] should be a land or surface value
-# Force sea ice cover proportion values of 0 to remain in the data.frame
-# Convert this piece of the pipeline to use review_filter_var()
+# Test check for all bio vars to make sure no biomass vars are missed
+as.vector(distinct(filter(full_product_por, category == "cryo"), variable))
+as.vector(distinct(filter(nuup_GEM, category == "cryo"), variable))
 
 # Collect all ice related data
 # https://doi.org/10.1594/PANGAEA.935267; bi [code] = ice of land origin, ci [code] = sea ice concentration, zi [code] = ice situation
@@ -153,23 +152,15 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 # https://doi.org/10.1594/PANGAEA.908494; SIC d [months/a] = Sea ice cover duration NB: This file is a good candidate for checking pipeline errors
 # https://doi.org/10.1594/PANGAEA.815951; Glac w [km] = Glacier width
 # https://doi.org/10.1594/PANGAEA.59224; IRD [arbitrary units] = Ice rafted debris, general
-sea_ice_kong <- filter(full_product_kong, category == "cryo", variable == "ice cover [%]") # Sea ice percent cover of inner fjord
-sea_ice_is <- filter(full_product_is, category == "cryo",
-                     URL != "https://doi.org/10.1594/PANGAEA.57721", # Glacial maximum ice sheet extension
-                     variable %in% c("EsEs acc [cm]", "Ice extent")) # Sea ice extent and ice accretion
-sea_ice_stor <- filter(full_product_stor, category == "cryo",
-                       URL != "https://doi.org/10.1594/PANGAEA.57721",
-                       variable %in% c("Ice conc [tenths]", "Ice cov [%]", "Ice extent", 
-                                       "IP [km**3/day]", "EsEs [m]")) %>% mutate(site = "stor") # Sea ice percent cover and thickness
-sea_ice_young <- filter(rbind(full_product_young, young_GEM), category == "cryo",
-                        !grepl("snow", variable),
-                        !grepl("Hynek, Bernhard; Binder, Daniel;", citation),
-                        !grepl("Hynek, Bernhard; Weyss, Gernot;", citation)) # A lot of GEM data
-sea_ice_disko <- filter(rbind(full_product_disko, disko_GEM), category == "cryo") %>% slice(0) # No sea ice data
-sea_ice_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "cryo") %>% slice(0) # No sea ice data
-sea_ice_por <- filter(full_product_por, category == "cryo", URL != "https://doi.org/10.1594/PANGAEA.57721")
+sea_ice_kong <- review_filter_var(full_product_kong, "ice|EsEs", "glacier|ind/m3|extent") # bi, ci, zi, and ice extent not useful
+sea_ice_is <- review_filter_var(full_product_is, "ice|EsEs", "glacier|ind/m3|extent")# A couple EsEs acc values...
+sea_ice_stor <- review_filter_var(full_product_stor, "ice|EsEs|IP", "precip|glacier|snow|extent") # A lot of ice production data
+sea_ice_young <- review_filter_var(rbind(full_product_young, young_GEM), "ice|open", "snow") # A lot of GEM data
+sea_ice_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "ice") %>% slice(0) # No sea ice data
+sea_ice_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "ice") # No sea ice data
+sea_ice_por <- review_filter_var(full_product_por, "ice", "extent") # Ice cover in km^2
 clean_sea_ice <- rbind(sea_ice_kong, sea_ice_is, sea_ice_stor, sea_ice_young, sea_ice_disko, sea_ice_nuup, sea_ice_por) %>% 
-  mutate(type = "in situ", driver = "sea ice")
+  filter(!is.na(value)) %>% mutate(driver = "sea ice", depth = NA) # Deeper depths are bottom depths and should be converted to NA
 rm(sea_ice_kong, sea_ice_is, sea_ice_stor, sea_ice_young, sea_ice_disko, sea_ice_nuup, sea_ice_por); gc()
 
 # Figures
@@ -214,10 +205,11 @@ ice_4km_por_proc <- ice_4km_por %>%
 ice_4km_proc <- rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
                       ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc)
 save(ice_4km_proc, file = "data/analyses/ice_4km_proc.RData")
-ice_4km_prop <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
 rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
    ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
    ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc); gc()
+# load("data/analyses/ice_4km_proc.RData")
+ice_4km_prop <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
 
 # Calculate trends
 ice_4km_trend <- plyr::ddply(dplyr::rename(ice_4km_prop, val = mean_prop), c("site", "month"), trend_calc, .parallel = T)
@@ -243,7 +235,7 @@ ice_4km_stats <- bind_rows(ice_4km_prop_long, ice_4km_trend_long) %>%
          citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.")
 
 # Bind together
-clean_sea_ice <- bind_rows(clean_sea_ice, ice_4km_stats)
+clean_sea_ice <- bind_rows(clean_sea_ice, ice_4km_stats) %>% distinct()
 
 # Analyses
 summary_sea_ice <- review_summary(clean_sea_ice)
@@ -569,11 +561,12 @@ light_stor <- review_filter_var(full_product_stor, "PAR|UV") # No PAR data
 light_young <- review_filter_var(rbind(full_product_young, young_GEM),  "PAR|UV", "vella|tinn")
 ## NB: It is unclear if these values should be divided by 10 or not
 ## It is also unclear what the time dimension is for the data
-light_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "PAR|UV", "milli") %>% filter(value > 0)
+light_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "PAR|UV", "milli")
 ## NB: Some of these values are also very high
 light_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "PAR|UV", "trip|vella|sulc|lip|lib|parv")
 light_por <- review_filter_var(full_product_por, "PAR|UV") # No PAR data
 clean_light <- rbind(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por) %>% 
+  filter(value > 0) %>% 
   mutate(variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
                               str_detect(variable, "UVA") ~ "UV-A [W*m^2]",
                               str_detect(variable, "UVB") ~ "UV-B [W*m^2]",
@@ -593,7 +586,7 @@ review_summary_plot(summary_light, "light")
 
 # TODO: Sort out the variable conversions etc.
 # TODO: pH is not always the same, there are different scales with differences of up to 0.2
-# TODO: Difference in measured vx calculated pCO2, and difference in SST and normalised temperature
+# TODO: Difference in measured vs calculated pCO2, and difference in SST and normalised temperature
 # TODO: Send Jean-Pierre the EP TA reference
 
 # From Liqing Jiang:
@@ -607,7 +600,6 @@ unique(filter(full_product_kong, category == "chem")$variable)
 # Keep pCO2_calc as a separate variable because they can't be taken as absolutely the same
 # Same for PCO2water_SST_wet
 # Can use SeaCarb to transform fco2 to pCO2
-# Get all pCO2 data
 # Note that there are duplicates from GLODAP and the underlying files downloaded via PANGAEA
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
 # which is something that the GLODAP product requests that we do.
@@ -626,16 +618,19 @@ carb_nuup <- review_filter_var(filter(rbind(full_product_nuup, nuup_GEM), catego
 carb_por <- review_filter_var(filter(full_product_por, category == "chem"), 
                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat")
 clean_carb <- rbind(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por) %>% 
+  filter(value != -9999) %>%  # NB: This shouldn't be necessary here...
   mutate(value = case_when(variable == "AT [mmol(eq)/l]" ~ value*1000, TRUE ~ value), # Convert to µmol/l
-         variable = case_when(str_detect(variable, "ph|pH") ~ "pH",
-                              variable %in% c("AT [mmol(eq)/l]", "AT [µmol/kg]", "EP TA [µmol/kg]",
-                                              "talk [μmol kg-1]") ~ "TA [µmol/kg]", # NB: This may be incorrect to do.
-                              variable %in% c("pco2 [uatm]", "pCO2water_SST_wet [µatm]",
-                                              "pCO2water_SST_wet [uatm]", "pco2_calc [uatm]") ~ "pCO2 [µatm]", # This is not correct to do.
+         variable = case_when(variable %in% c("AT [mmol(eq)/l]", "AT [µmol/kg]", #"EP TA [µmol/kg]",
+                                              "talk [μmol kg-1]") ~ "TA [µmol/kg]",
+                              variable %in% c("pco2 [uatm]") ~ "pCO2 [µatm]", 
+                              variable %in% c("pCO2water_SST_wet [uatm]") ~ "pCO2water_SST_wet [µatm]",
+                              variable %in% c("pco2_calc [uatm]") ~ "pCO2_calc [µatm]",
+                              # str_detect(variable, "ph|pH") ~ "pH", # Incorrect
                               TRUE ~ variable),
          driver = "carb")
 # unique(clean_carb$variable[str_detect(clean_carb$variable, "ph|pH")]) # Double check that only pH values are screened this way
 # unique(clean_carb$variable)
+# test_df <- dplyr::select(clean_carb, citation, variable) %>% distinct() %>% filter(str_detect(variable, "ph|pH"))
 rm(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por); gc()
 
 # Summary analyses
@@ -643,12 +638,6 @@ summary_carb <- review_summary(filter(clean_carb, depth >= 0, depth <= 10))
 
 # Plot results
 review_summary_plot(summary_carb, "carb")
-
-
-# TODO: Send these DOIs to Jean-Pierre
-testdf <- clean_carb %>% 
-  dplyr::filter(variable == "pCO2 [µatm]")
-unique(testdf$citation)
 
 
 ### Nutrients ---------------------------------------------------------------
@@ -660,7 +649,7 @@ unique(testdf$citation)
 # "Such studies highlight the importance of studying the Baltic Sea as an interlinked socio-ecological system."
 
 # [µmol/l] is the same as [µg-at/l]
-# [µmol/l] vs [μmol kg-1] are different, a conversion must be made between them
+# [µmol/l] vs [μmol kg-1] are different, a conversion should be made between them, but they appear to be used interchangeably
 
 # Keep Nitrate + Nitrite
 
@@ -680,6 +669,7 @@ nutrients_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM),
                                     "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "chlam")
 nutrients_por <- review_filter_var(full_product_por, "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4")
 clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por) %>% 
+  filter(value != -9999) %>%  # NB: This shouldn't be necessary here...
         # Change GLODAP variable to match PANGAEA standard 
   mutate(variable = case_when(variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol/l]",   
                               variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol/l]",   
@@ -687,7 +677,9 @@ clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients
                               variable == "phosphate [μmol kg-1]" ~ "PO4 [µmol/l]",
                               TRUE ~ variable),
          # Convert other variable names to a single standard
-         variable = case_when(variable %in% c("[NO3]- [µmol/l]", "NO3 [µg-at/l]", "NO3 [µmol/kg]") ~ "NO3 [µmol/l]", # Possible units issue
+         variable = case_when(variable %in% c("[NO3]- [µmol/l]",
+                                              "NO3 [µmol/kg]", # Possible units issue
+                                              "NO3 [µg-at/l]") ~ "NO3 [µmol/l]", 
                               variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol/l]",
                               variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol/l]",
                               variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol/l]",
@@ -710,10 +702,9 @@ review_summary_plot(summary_nutrients, "nutrients")
 ### Primary production ------------------------------------------------------
 
 # TODO: Merge variables where possible
-# TODO: also include 'flu'
 # TODO: Look into making PP conversion calculations with existing data 
 
-# Phaeogygments etc are not measures of PP, don't need fluoresnce either
+# Phaeopygments etc are not measures of PP, don't need fluorescence either
 
 # "For phytoplankton, clear symptoms of climate change, such as prolongation of the growing season, are evident and can be explained by the warming, but otherwise climate effects vary from species to species and area to area."
 # "A 15-year study (2000–2014) using FerryBox observations, covering the area between Helsinki (Gulf of Finland) and Travemünde (Mecklenburg Bight), confirmed that spring bloom intensity was mainly determined by winter nutrient concentration, while bloom timing and duration co-varied with meteorological conditions." 
@@ -745,7 +736,6 @@ review_summary_plot(summary_pp, "pp")
 
 ### Biomass -----------------------------------------------------------------
 
-# TODO: Re-run Kong product to get ind/ms rather than biomass
 # TODO: Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
 # TODO: Look into creating phytoplankton biomass conversion using Chl a data
 
@@ -766,8 +756,8 @@ biomass_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
                        !grepl("CTD|Primary|Chlorophyll", citation))
 biomass_por <- filter(full_product_por, category == "bio") # No bio data
 clean_biomass <- rbind(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por) %>% 
-  filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]")) %>% 
-  mutate(type = "in situ", driver = "biomass")
+  filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]"), !grepl("\\[\\%\\]", variable)) %>% 
+  mutate(variable = str_replace(variable, "individuals\\/m3", "ind\\/m3"), type = "in situ", driver = "biomass")
 # unique(clean_biomass$variable)
 rm(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por); gc()
 
