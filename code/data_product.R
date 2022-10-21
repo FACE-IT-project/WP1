@@ -73,12 +73,12 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
 
 # There is no EU PANGAEA product because the bits and pieces were given to the individual PG site files
 # This file is only loaded to get a summary of the data
-pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
-system.time(
-  pg_EU <- plyr::ldply(pg_EU_files, pg_quick_filter, bbox = bbox_EU)
-) # 70 seconds
-length(unique(pg_EU$citation))
-rm(pg_EU); gc()
+# pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
+# system.time(
+#   pg_EU <- plyr::ldply(pg_EU_files, pg_quick_filter, bbox = bbox_EU)
+# ) # 70 seconds
+# length(unique(pg_EU$citation))
+# rm(pg_EU); gc()
 
 
 ## Full product ------------------------------------------------------------
@@ -645,6 +645,7 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
          lon = NA, lat = NA, 
          date_accessed = as.Date("2020-09-30"),
          variable = paste0(Area," [",var,"]"),
+         # TODO: Are ship CO2 emissions for social or chemical data?
          category = case_when(grepl("co2|nox|sox", variable, ignore.case = T) ~ "chem",
                               grepl("PM", variable, ignore.case = T) ~ "phys", TRUE ~ "soc"),
          URL = "Received directly from Morten Simonsen",
@@ -1398,6 +1399,7 @@ full_product_is <- rbind(dplyr::select(pg_is_ALL, -site),
                          is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
                          is_AIS, is_ship_arrivals) %>% 
   rbind(filter(dplyr::select(full_product_sval, -site), lon >= bbox_is[1], lon <= bbox_is[2], lat >= bbox_is[3], lat <= bbox_is[4])) %>% 
+  rbind(filter(dplyr::select(full_product_sval, -site), grepl("Isfjorden", variable))) %>% # Shipping data 
   rbind(filter(dplyr::select(full_product_sval, -site), grepl("Isfjorden", citation))) %>% distinct() %>% mutate(site = "is")
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
@@ -1531,6 +1533,7 @@ stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_prope
 full_product_stor <- rbind(dplyr::select(pg_stor_ALL, -site), 
                            stor_light_CTD) %>% 
   rbind(filter(dplyr::select(full_product_sval, -site), lon >= bbox_stor[1], lon <= bbox_stor[2], lat >= bbox_stor[3], lat <= bbox_stor[4])) %>% 
+  rbind(filter(dplyr::select(full_product_sval, -site), grepl("Storfjorden", variable))) %>% # Shipping data 
   rbind(filter(dplyr::select(full_product_sval, -site), grepl("Storfjorden", citation))) %>% distinct() %>% mutate(site = "stor")
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")

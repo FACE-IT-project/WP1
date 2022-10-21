@@ -1732,9 +1732,21 @@ review_filter_check <- function(filter_object, check_var = NULL, check_cit = NUL
 # Summary analyses of filtered variables
 review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12-31")){
   
+  if(filter_object$driver[1] == "biomass"){
+    df_base <- filter_object %>% 
+      mutate(variable = case_when(str_detect(variable, "ind\\/m3") ~ "spp count [ind/m3]", 
+                                  str_detect(variable, "cells\\/l") ~ "spp count [cells/l]",
+                                  TRUE ~ variable))
+  } else if(filter_object$driver[1] == "spp rich"){
+    df_base <- filter_object %>% 
+      filter(variable == "spp count [n]")
+  } else {
+    df_base <- filter_object
+  }
+  
   # Monthly averages
-  df_monthly <- filter_object %>%
-    filter(!is.na(date), # This needs to be attended to eventually
+  df_monthly <- df_base %>%
+    filter(!is.na(date),
            !is.na(value)) %>% 
     group_by(variable) %>% 
     mutate(date_round = lubridate::floor_date(date, "month"),
@@ -1786,7 +1798,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
               count = n(), .groups = "drop")
  
   # Citations
-  df_source <- filter_object %>% 
+  df_source <- df_base %>% 
     dplyr::select(type, URL, citation) %>% distinct() %>% 
     mutate(source = case_when(grepl("PANGAEA", URL) ~ "PANGAEA",
                               grepl("data.npolar.no", URL) ~ "NPDC",
@@ -1809,7 +1821,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
                               grepl("File provided by", URL) ~ "Author",
                               TRUE ~ URL)) %>% 
     table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = source, values_from = Freq)
-  df_citations <- filter_object %>% dplyr::select(type, category, site, URL, citation) %>% distinct() %>% 
+  df_citations <- df_base %>% dplyr::select(type, category, site, URL, citation) %>% distinct() %>% 
     table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = site, values_from = Freq) %>% 
     left_join(df_source, by = c("type", "URL", "citation"))
   
@@ -1933,6 +1945,14 @@ review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date
     facet_grid(site+type~variable, scales = "free_y") +
     theme(panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("~/Desktop/analyses_output/",short_var,"_clim_box.png"), width = 20, height = 9)
+}
+
+# Convenience function for interrogating dataframes
+cat_driver_var <- function(df){
+  print(unique(df$category))
+  print(unique(df$driver))
+  print(unique(df$variable))
+  table(df$driver, df$variable)
 }
 
 # Add depth data manually from PANGAEA files where this info is in the meta-data
@@ -2137,13 +2157,13 @@ lm_all <- function(df_idx, df_main){
 # Find all possible linear model comparisons for two given drivers
 driver2_lm <- function(driver1, driver2){
   
-  # Filter out only the two drivers in question
-  df_driver <- clean_all_clean %>% 
-    filter(driver %in% c(driver1, driver2))
-  
   # If no variables exist for driver  (e.g. governance) return nothing
   if(nrow(filter(clean_all_clean, driver == driver1)) == 0) return()
   if(nrow(filter(clean_all_clean, driver == driver2)) == 0) return()
+  
+  # Filter out only the two drivers in question
+  df_driver <- clean_all_clean %>% 
+    filter(driver %in% c(driver1, driver2))
   
   # Get monthly means by depth across entire site
   df_mean_month_depth <- df_driver %>% 
@@ -2161,16 +2181,27 @@ driver2_lm <- function(driver1, driver2){
     summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
     filter(!is.na(value)); gc()
   
+  # Filter out annual values
+  annual_screen <- df_mean_month_depth %>%
+    mutate(year = lubridate::year(date)) %>% 
+    group_by(type, site, category, driver, variable, year, depth) %>% 
+    summarise(annual_count = n(), .groups = "drop") %>% 
+    filter(annual_count > 1) %>% # Remove data that never have more than one count per year
+    dplyr::select(type, site, category, driver, variable, depth) %>% 
+    distinct()
+  df_screen <- right_join(df_mean_month_depth, annual_screen, 
+                          by = c("type", "site", "category", "driver", "variable", "depth"))
+  
   # The list of possible variables to compare
-  df_var <- df_mean_month_depth %>% filter(driver == driver1) %>% 
+  df_var <- df_screen %>% filter(driver == driver1) %>% 
     dplyr::select(type, driver, variable, depth) %>% distinct() %>% mutate(var_index = 1:n())
   
   # get all stats
-  df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_mean_month_depth, .parallel = TRUE)
+  df_lm <- plyr::ddply(df_var, c("var_index"), lm_all, df_main = df_screen, .parallel = TRUE)
   
   # Clean up and exit
   if(nrow(df_lm) > 0) df_lm <- dplyr::select(df_lm, -var_index)
-  rm(df_driver, df_mean_month_depth, df_var); gc()
+  rm(annual_screen, df_driver, df_mean_month_depth, df_var); gc()
   return(df_lm)
 }
 

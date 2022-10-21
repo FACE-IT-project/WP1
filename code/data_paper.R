@@ -45,7 +45,7 @@ driver_cat_colours <- c(
 # Data --------------------------------------------------------------------
 
 # FACE-IT collected data
-load("~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData") # Some social data don't make it into the smaller files
+## NB: It is not useful to combine all of these files into a single dataframe
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
@@ -53,9 +53,6 @@ load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
-# NB: It's not clear if this is worthwhile
-# full_product_all <- rbind(full_product_sval, full_product_kong, full_product_is, full_product_stor,
-#                           full_product_young, full_product_disko, full_product_nuup)
 
 # GEM data
 load("~/pCloudDrive/restricted_data/GEM/young/young_GEM.RData")
@@ -154,7 +151,7 @@ as.vector(distinct(filter(nuup_GEM, category == "cryo"), variable))
 # https://doi.org/10.1594/PANGAEA.59224; IRD [arbitrary units] = Ice rafted debris, general
 sea_ice_kong <- review_filter_var(full_product_kong, "ice|EsEs", "glacier|ind/m3|extent") # bi, ci, zi, and ice extent not useful
 sea_ice_is <- review_filter_var(full_product_is, "ice|EsEs", "glacier|ind/m3|extent")# A couple EsEs acc values...
-sea_ice_stor <- review_filter_var(full_product_stor, "ice|EsEs|IP", "precip|glacier|snow|extent") # A lot of ice production data
+sea_ice_stor <- review_filter_var(full_product_stor, "ice|EsEs|IP", "precip|glacier|snow|extent|Storfjord") # A lot of ice production data
 sea_ice_young <- review_filter_var(rbind(full_product_young, young_GEM), "ice|open", "snow") # A lot of GEM data
 sea_ice_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "ice") %>% slice(0) # No sea ice data
 sea_ice_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "ice") # No sea ice data
@@ -426,6 +423,8 @@ review_summary_plot(summary_runoff, "runoff")
 
 ### Sea temp ----------------------------------------------------------------
 
+# TODO: Look into temperature values above 20°C
+
 # Remove air, CO2, and pH related temperature values
 # TTT is air temperature from cruise data on PANGAEA. e.g. https://doi.pangaea.de/10.1594/PANGAEA.326679
 # MAAT + MAGT = ground temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.808512
@@ -508,7 +507,7 @@ clean_sea_temp <- rbind(sea_temp_kong, sea_temp_is, sea_temp_stor, sea_temp_youn
                               type == "OISST" ~ "Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1",
                               TRUE ~ citation),
          driver = "sea temp") %>% 
-  filter(depth >= 0)
+  filter(depth >= 0, value > -1.8)
 rm(sea_temp_kong, sea_temp_is, sea_temp_stor, sea_temp_young, sea_temp_disko, sea_temp_nuup, sea_temp_por); gc()
 
 # Summary analyses
@@ -542,7 +541,7 @@ sal_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "sal|PSU", 
 sal_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "sal|PSU", "sal interp|acu|ent")
 sal_por <- review_filter_var(full_product_por, "sal|PSU", "Sal interp")
 clean_sal <- rbind(sal_kong, sal_is, sal_stor, sal_young, sal_disko, sal_nuup, sal_por) %>%
-  mutate(variable = "sal", driver = "salinity")
+  mutate(variable = "sal", driver = "salinity") %>% filter(value > 0)
 rm(sal_kong, sal_is, sal_stor, sal_young, sal_disko, sal_nuup, sal_por); gc()
 
 # Summary analyses
@@ -568,7 +567,7 @@ light_por <- review_filter_var(full_product_por, "PAR|UV") # No PAR data
 clean_light <- rbind(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por) %>% 
   filter(value > 0) %>% 
   mutate(variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
-                              str_detect(variable, "UVA") ~ "UV-A [W*m^2]",
+                              str_detect(variable, "UVA") ~ "UV-A [W*m^2]", # TODO: Kepp or remove?
                               str_detect(variable, "UVB") ~ "UV-B [W*m^2]",
                               TRUE ~ variable), driver = "light")
 rm(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por); gc()
@@ -585,9 +584,9 @@ review_summary_plot(summary_light, "light")
 ### Carb -------------------------------------------------------------------
 
 # TODO: Sort out the variable conversions etc.
-# TODO: pH is not always the same, there are different scales with differences of up to 0.2
-# TODO: Difference in measured vs calculated pCO2, and difference in SST and normalised temperature
-# TODO: Send Jean-Pierre the EP TA reference
+# pH is not always the same, there are different scales with differences of up to 0.2
+## It requires expert knowledge and review of each citation to determine the provenence of the pH scale...
+# Difference in measured vs calculated pCO2, and difference in SST and normalised temperature
 
 # From Liqing Jiang:
 # I like the idea of adding the carbon parameter pair used to conduct the CO2 system calculation to the variable name. 
@@ -606,9 +605,11 @@ unique(filter(full_product_kong, category == "chem")$variable)
 carb_kong <- review_filter_var(filter(full_product_kong, category == "chem"), 
                                "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|PO4|NO2|NO3|NH4")
 carb_is <- review_filter_var(filter(full_product_is, category == "chem"),
-                             "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|PO4|NO2|NO3|nitrate|silicate|phosphate|tco2")
+                             "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", 
+                             "O2 sat|PO4|NO2|NO3|nitrate|silicate|phosphate|tco2|Isfjord|EP TA")
 carb_stor <- review_filter_var(filter(full_product_stor, category == "chem"), 
-                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|nitrate|silicate|phosphate|tco2|fco2")
+                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", 
+                               "O2 sat|nitrate|silicate|phosphate|tco2|fco2|Storfjord")
 carb_young <- review_filter_var(filter(rbind(full_product_young, young_GEM), category == "chem"), 
                                 "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "nitrate")
 carb_disko <- review_filter_var(filter(rbind(full_product_disko, disko_GEM), category == "chem"), 
@@ -618,19 +619,22 @@ carb_nuup <- review_filter_var(filter(rbind(full_product_nuup, nuup_GEM), catego
 carb_por <- review_filter_var(filter(full_product_por, category == "chem"), 
                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat")
 clean_carb <- rbind(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por) %>% 
-  filter(value != -9999) %>%  # NB: This shouldn't be necessary here...
+  filter(!variable %in% c("pH_dur [total scale]", "ph_s_sf_t_insi [total scale]", 
+                          "ph_s_dur_t_fb [total scale]", "pH_calc [total scale]", "phts25p0")) %>% 
   mutate(value = case_when(variable == "AT [mmol(eq)/l]" ~ value*1000, TRUE ~ value), # Convert to µmol/l
-         variable = case_when(variable %in% c("AT [mmol(eq)/l]", "AT [µmol/kg]", #"EP TA [µmol/kg]",
+         variable = case_when(variable %in% c("AT [mmol(eq)/l]", "AT [µmol/kg]",
                                               "talk [μmol kg-1]") ~ "TA [µmol/kg]",
                               variable %in% c("pco2 [uatm]") ~ "pCO2 [µatm]", 
                               variable %in% c("pCO2water_SST_wet [uatm]") ~ "pCO2water_SST_wet [µatm]",
                               variable %in% c("pco2_calc [uatm]") ~ "pCO2_calc [µatm]",
-                              # str_detect(variable, "ph|pH") ~ "pH", # Incorrect
+                              variable %in% c("pH_sf [total scale]", "pHT in situ", "phtsinsitutp") ~ "pH in situ [total scale]",
+                              variable %in% c("pH") ~ "pH [unknown scale]",
                               TRUE ~ variable),
          driver = "carb")
 # unique(clean_carb$variable[str_detect(clean_carb$variable, "ph|pH")]) # Double check that only pH values are screened this way
 # unique(clean_carb$variable)
 # test_df <- dplyr::select(clean_carb, citation, variable) %>% distinct() %>% filter(str_detect(variable, "ph|pH"))
+# test_df <- filter(clean_carb, variable == "phtsinsitutp")
 rm(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por); gc()
 
 # Summary analyses
@@ -641,6 +645,8 @@ review_summary_plot(summary_carb, "carb")
 
 
 ### Nutrients ---------------------------------------------------------------
+
+# TODO: Create report showing difference in GLODAP l and kg values
 
 # "The associated increase in N:P ratio may contribute to maintaining the “vicious circle of eutrophication”. "
 # "An increase of riverine dissolved organic matter (DOM) may also decrease primary production, but the relative importance of this process in different sea areas is not well known."
@@ -669,7 +675,8 @@ nutrients_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM),
                                     "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4", "chlam")
 nutrients_por <- review_filter_var(full_product_por, "nitr|amon|phos|silic|NO3|NO2|NH4|PO4|SiO4")
 clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por) %>% 
-  filter(value != -9999) %>%  # NB: This shouldn't be necessary here...
+  filter(value > 0) %>%
+  filter(variable != "NO3 [µmol/kg]") %>% # TODO: Fix this conversion in data_product.R seacarb::rho() see help file
         # Change GLODAP variable to match PANGAEA standard 
   mutate(variable = case_when(variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol/l]",   
                               variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol/l]",   
@@ -678,7 +685,7 @@ clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients
                               TRUE ~ variable),
          # Convert other variable names to a single standard
          variable = case_when(variable %in% c("[NO3]- [µmol/l]",
-                                              "NO3 [µmol/kg]", # Possible units issue
+                                              # "NO3 [µmol/kg]", # Possible units issue
                                               "NO3 [µg-at/l]") ~ "NO3 [µmol/l]", 
                               variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol/l]",
                               variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol/l]",
@@ -688,6 +695,7 @@ clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients
                               TRUE ~ variable),
          driver = "nutrients")
 unique(clean_nutrients$variable)
+test_df <- filter(clean_nutrients, variable == "NO3 [µmol/l]")
 rm(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por); gc()
 
 # Summary analyses
@@ -716,14 +724,19 @@ review_summary_plot(summary_nutrients, "nutrients")
 # Collect all ChlA data
 # https://zenodo.org/record/5572041#.YW_Lc5uxU5m: chl_flu [µg chl m-3] = chlorophyll a calculated from fluorescence profile
 pp_kong <- review_filter_var(full_product_kong, "chl|pp|prim|prod", "sp|spp|hPa|ppt|phyceae|append|scripp")
-pp_is <- review_filter_var(full_product_is, "chl|pp|prim|prod", "hPa|spp")
+pp_is <- review_filter_var(full_product_is, "chl|pp|prim|prod", "hPa|spp|ppt")
 pp_stor <- review_filter_var(full_product_stor, "chl|pp|prim|prod", "hPa|ppt") # No PP data
 pp_young <- review_filter_var(rbind(full_product_young, young_GEM), "chl|pp|prim|prod", "dippl|scripp|max") # Lot's of different variables
-pp_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "chl|pp|prim|prod", "hPa")
+pp_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "chl|pp|prim|prod", "hPa|ppt")
 pp_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "chl|pp|prim|prod", "hPa|chlamy|individ|nodos")
 pp_por <- review_filter_var(full_product_por, "chl|pp|prim|prod", "hPa") # No PP data
 clean_pp <- rbind(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por) %>% 
-  mutate(driver = "prim prod")
+  filter(value > 0) %>%
+  mutate(variable = case_when(variable %in% c("chlA [µg/l]", "Chl a [µg/l]") ~ "Chla [µg/l]", 
+                              variable == "Chlorophyll A - 10um [µg/l]" ~ "Chla - 10um [µg/l]",
+                              variable == "Chlorophyll A - GFF [µg/l]" ~ "Chla - GFF [µg/l]",
+                              TRUE ~ variable),
+         driver = "prim prod")
 # unique(clean_pp$variable)
 rm(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por); gc()
 
@@ -757,28 +770,21 @@ biomass_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
 biomass_por <- filter(full_product_por, category == "bio") # No bio data
 clean_biomass <- rbind(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por) %>% 
   filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]"), !grepl("\\[\\%\\]", variable)) %>% 
+  filter(!grepl("blade growth", variable), !grepl("tip growth", variable)) %>% # NB: Decided to remove growth data
   mutate(variable = str_replace(variable, "individuals\\/m3", "ind\\/m3"), type = "in situ", driver = "biomass")
 # unique(clean_biomass$variable)
 rm(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por); gc()
 
 # Summary analyses
-# TODO: Need to fix this for final summary stats
 summary_biomass <- review_summary(clean_biomass)
 
 # Plot results
-# NB: This doesn;t run because there are too many variables
-# Still considering how to merge them
 review_summary_plot(summary_biomass, "biomass")
 
 
 ### Species richness ------------------------------------------------------
 
-# TODO: This is perhaps just a derivative of biomass in that we take whatever species have presence/amount data
-# and we simplify that to a presence absence binary (i.e. 1|0)
-# So then is this really a different driver, or is it all biomass?
-# Or rather is biomass encroaching on species richness?
-
-# This value will be negatively affected by how deep into the taxonomy a researcher has gone in one site vs another
+# This usefulness of this value will be adversely affected by how deep into the taxonomy a researcher has gone in one site vs another
 # E.g. by giving all species, or just grouping by a larger taxa
 # So don't use these comparisons in the data paper
 # Just describe the data
@@ -801,11 +807,22 @@ as.vector(distinct(filter(nuup_GEM, category == "bio"), variable))
 # Get all species variables
 # This is done by taking the biomass data and counting the different variables on a given day
 # This requires a bit of cleaning up of the variable names first
-clean_spp_rich <- clean_biomass %>% 
+spp_rich_kong <- filter(full_product_kong, category == "bio",
+                        !grepl("biogeochemistry|Norstore", citation, ignore.case = T))
+spp_rich_is <- filter(full_product_is, category == "bio",
+                      !grepl("Domaschke|Norstore", citation, ignore.case = T)) # NB: Domaschke should be removed earlier in PG pipeline
+spp_rich_stor <- filter(full_product_stor, category == "bio")# No bio data
+spp_rich_young <- filter(rbind(full_product_young, young_GEM), category == "bio",
+                         grepl("Phytoplankton", citation, ignore.case = T))
+spp_rich_disko <- filter(rbind(full_product_disko, disko_GEM), category == "bio") %>% slice(0) # No species richness data
+spp_rich_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
+                        !grepl("CTD|Primary|Chlorophyll", citation))
+spp_rich_por <- filter(full_product_por, category == "bio") # No bio data
+clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_young, spp_rich_disko, spp_rich_nuup, spp_rich_por) %>% 
+  filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]")) %>% 
   filter(value > 0) %>% 
          # Fix sp. and spp.
   mutate(variable = str_replace(variable, " sp | spp | spp. ", " sp. "),
-         # variable = str_replace(variable, " spp ", " spp. "),
          # Remove life stages
          variable = str_replace(variable, " \\(CI\\)| \\(CII\\)| \\(CIII\\)| \\(CIV\\)| \\(CV\\)|
                                 | \\(CI-CIII\\)| \\(CI-CV\\)|
@@ -832,11 +849,13 @@ clean_spp_rich <- clean_biomass %>%
                                 |0-30um|0-40um| indet.0-50um| cf. normanii| cf. Cerinula - larvae| - larvae", ""),
          # Fix double spacing
          variable = str_replace(variable, "  ", " "),
+         # Other small scale fixes
          variable = str_replace(variable, "finmarchicusI|finmarchicusII|finmarchicusV", "finmarchicus"),
          variable = str_replace(variable, "glacialisI|glacialisII|glacialisV", "glacialis"),
          variable = str_replace(variable, "; lt|; gte|;0 gte|; gt", ""),
          variable = str_replace(variable, "sp.0-40um|sp.0-30um", "sp."),
          variable = str_replace(variable, "sp.3", 'sp.')) %>% 
+         # Fixes by species
   mutate(variable = case_when(str_detect(variable, "A. nodosum") ~ "A. nodosum", 
                               str_detect(variable, "S. latissima") ~ "S. latissima", 
                               str_detect(variable, "CiliophoraNon") ~ "Ciliophora",
@@ -854,19 +873,30 @@ clean_spp_rich <- clean_biomass %>%
                               str_detect(variable, "Pseudocalanus sp.") ~ "Pseudocalanus sp.",
                               str_detect(variable, "Scolecithricella minor") ~ "Scolecithricella minor",
                               TRUE ~ variable)) %>% 
+         # More specific fixes
   mutate(variable = case_when(variable == "Acartia longiremisI" ~ "Acartia longiremis", 
                               variable == "AetideidaeV" ~ "Aetideidae", 
                               TRUE ~ variable)) %>% 
-  # Remove unidentified things
+        # Remove unidentified things
   mutate(variable = case_when(variable %in% c("Centric diatoms not determined", "centric diatoms not determined",
                                               "Cell 7 domek", "Centric diatoms not det.") ~ as.character(NA),
                               TRUE ~ variable)) %>% 
-  filter(!is.na(variable)) %>% arrange(variable) %>%
+  mutate(variable = paste0(variable," [presence]"), value = 1,
+         driver = "spp rich", type = "in situ") %>% 
+  filter(!is.na(variable)) %>% arrange(variable)
+
+# From the cleaned up data create a species count variable
   # From here the species are combined into counts - the names are therefore lost
+spp_count <- clean_spp_rich %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
-  mutate(variable = "spp rich")
-  # unique(clean_spp_rich$variable)
+  mutate(variable = "spp count [n]") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type, variable, value) %>% 
+  distinct()
+
+# Combine and clean up
+clean_spp_rich <- rbind(clean_spp_rich, spp_count) %>% distinct()
+rm(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_young, spp_rich_disko, spp_rich_nuup, spp_rich_por); gc()
 
 # Summary analyses
 summary_spp_rich <- review_summary(clean_spp_rich)
@@ -901,6 +931,8 @@ rm(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por); gc()
 
 ### Tourism ----------------------------------------------------------------
 
+# TODO: There are some tourism data in the Svalbard data product that need to be added here
+
 # Test check for all soc vars to make sure no desired tourism vars are missed
 as.vector(distinct(filter(full_product_young, category == "soc"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "soc"), variable))
@@ -915,7 +947,8 @@ tourism_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "tour")
 tourism_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "tour") # No tourism data
 tourism_por <- review_filter_var(full_product_por, "tour") # No tourism data
 clean_tourism <- rbind(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por) %>% 
-  mutate(driver = "Tourism")
+  mutate(driver = "tourism")
+# unique(clean_tourism$variable)
 rm(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por); gc()
 
 # Summary analyses
@@ -929,24 +962,39 @@ review_summary_plot(summary_tourism, "tourism")
 
 # NB: Ship traffic is included here as it is mostly due to industry and not tourism
 
-# TODO: Look into why there aren't Storfjorden shipping data
-# It may be in a Isfjorden AIS file and the site name is getting overwritten at some step
-
 # Test check for all soc vars to make sure no desired fisheries vars are missed
-as.vector(distinct(filter(full_product_por, category == "soc"), variable))
+as.vector(distinct(filter(full_product_stor, category == "soc"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "soc"), variable))
 
 # Get shipping variables
 fisheries_kong <- review_filter_var(full_product_kong, "Vessels", "Passenger|Pleasure")
 fisheries_is <- review_filter_var(full_product_is, "trips|gross|berths|nautical|duration|fuel|power|emissions|tonnage|calls",
                                  "Cruise|Tourist|Day trip|Pleasure")
-fisheries_stor <- review_filter_var(full_product_stor, "trip")
+fisheries_stor <- review_filter_var(full_product_stor, "trips|gross|berths|nautical|duration|fuel|power|emissions|tonnage|calls")
 fisheries_young <- review_filter_var(rbind(full_product_young, young_GEM), "trips") # No social data
 fisheries_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "trips") # No social data
 fisheries_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "trips") # No social data
 fisheries_por <- review_filter_var(full_product_por, "trips") # No social data
 clean_fisheries <- rbind(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por) %>% 
-  mutate(driver = "fisheries")
+  filter(!grepl("\\[Month Trips\\]", variable)) %>% # NB: It is unclear what exactly these are
+  mutate(variable = case_when(str_detect(variable, "CO2 emissions \\(tonnes\\)") ~ "CO2 emissions total [tonnes; sum]",
+                              str_detect(variable, "\\[Nautical miles\\]") ~ "nautical miles [sum]",
+                              str_detect(variable, "Duration \\(hours\\)") ~ "duration [hours; sum]",
+                              str_detect(variable, "Duration in port \\(hours\\)") ~ "duration in port [hours; sum]",
+                              str_detect(variable, "Fuel \\(tonnes\\)") ~ "Total fuel [tonnes; sum]",
+                              str_detect(variable, "Fuel in port \\(tonnes\\)") ~ "Fuel in port [tonnes; sum]",
+                              str_detect(variable, "Fuel propulsion \\(tonnes\\)") ~ "Fuel propulsion [tonnes; sum]",
+                              str_detect(variable, "NOx emissions total \\(tonnes\\)") ~ "NOx emissions total [tonnes; sum]",
+                              str_detect(variable, "NOx emissions in port\\(tonnes\\)") ~ "NOx emissions in port [tonnes; sum]",
+                              str_detect(variable, "SOx emissions total \\(tonnes\\)") ~ "SOx emissions total [tonnes; sum]",
+                              str_detect(variable, "SOx emissions in port \\(tonnes\\)") ~ "SOx emissions in port [tonnes; sum]",
+                              str_detect(variable, "PM emissions total \\(tonnes\\)") ~ "PM emissions total [tonnes; sum]",
+                              str_detect(variable, "PM emissions in port \\(tonnes\\)") ~ "PM emissions in port [tonnes; sum]",
+                              str_detect(variable, "Power \\(GWh\\)") ~ "Power total [GWh; sum]",
+                              str_detect(variable, "Power in port \\(GWh\\)") ~ "Power in port [tonnes; sum]",
+                              str_detect(variable, "\\[Number of trips pr year\\]") ~ "trips [n]",
+                              TRUE ~ variable), driver = "fisheries") %>% arrange(variable)
+# unique(clean_fisheries$variable)
 rm(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por); gc()
 
 # Summary analyses
@@ -980,9 +1028,7 @@ plyr::l_ply(unique(clean_all$category), save_category, .parallel = T,
 all_ref <- bind_rows(summary_sea_ice$citations,summary_glacier$citations, summary_runoff$citations,
                      summary_sea_temp$citations, summary_sal$citations, summary_light$citations,
                      summary_carb$citations, summary_nutrients$citations, 
-                     summary_pp$citations, 
-                     # summary_biomass$citations, # Needs fixing due to many small variables
-                     summary_spp_rich$citations, 
+                     summary_pp$citations, summary_biomass$citations, summary_spp_rich$citations, 
                      # summary_gov$citations, # Currently no data
                      summary_tourism$citations, summary_fisheries$citations)
 save(all_ref, file = "data/analyses/all_ref.RData")
@@ -994,9 +1040,7 @@ save(all_ref, file = "data/analyses/all_ref.RData")
 all_meta <- rbind(summary_sea_ice$monthly, summary_glacier$monthly, summary_runoff$monthly,
                   summary_sea_temp$monthly, summary_sal$monthly, summary_light$monthly,
                   summary_carb$monthly, summary_nutrients$monthly, 
-                  summary_pp$monthly, 
-                  # summary_biomass$monthly, # See above
-                  summary_spp_rich$monthly, 
+                  summary_pp$monthly, summary_biomass$monthly, summary_spp_rich$monthly, 
                   # summary_gov$monthly
                   summary_tourism$monthly, summary_fisheries$monthly)
 save(all_meta, file = "data/analyses/all_meta.RData")
@@ -1038,49 +1082,29 @@ ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 # clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
 load("data/analyses/clean_all.RData")
 
-# Combine some variables for better correlations
-## NB: This should be done earlier in the data management process and is done here as a temporary fix
-## This is part of the normal evolution of a workflow
-clean_all_cryo <- clean_all %>% 
-  filter(category == "cryo", value != 0) %>% 
-  filter(variable != "sal") %>% # Investigate these weird values
+# Clean/remove some variables for better comparisons
+clean_all_cryo <- filter(clean_all, category == "cryo") %>% 
   filter(!str_detect(variable, "cover Jan|cover Feb|cover Mar|cover Apr|cover May|cover Jun|
                      |cover Jul|cover Aug|cover Sep|cover Oct|cover Nov|cover Dec|
                      |end date|start date|Snow|snow|
                      |_1936|_1990|_2010")) # Add these back in if possible
-clean_all_phys <- clean_all %>% 
-  filter(category == "phys", value != 0, variable != "TTT [°C]") # Simply need to remove air temperature
-clean_all_chem <- clean_all %>% 
-  filter(category == "chem", value != 0, driver != "O2") %>% # Need to remove O2
-  mutate(variable = case_when(variable %in% c("pco2 [uatm]", "pCO2water_SST_wet [µatm]",
-                                              "pCO2water_SST_wet [uatm]", "pco2_calc [uatm]") ~ "pCO2 [µatm]", # This is not correct to do. See e-mail.
-                              variable %in% c("[NO3]- [µmol/l]", "NO3 [µg-at/l]", "NO3 [µmol/kg]") ~ "NO3 [µmol/l]", # Incorrect to do
-                              variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol/l]", # Incorrect to do
-                              variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol/l]", # Incorrect to do
-                              variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol/l]", # Incorrect to do
-                              variable == "nitrate+nitrite [µmol/l]" ~ "NO3+NO2 [µmol/l]",
-                              TRUE ~ variable)) # Need to better standardise names
-clean_all_bio <- clean_all %>% 
-  filter(category == "bio", driver != "Species", value != 0) %>% 
-  filter(variable != "pCO2") %>% # Remove these values as they are for terrestrial lichen
-  mutate(variable = case_when(str_detect(variable, "Avg g dw") ~ "A. nodosum [Avg g dw]", 
-                              str_detect(variable, "segment") ~ as.character(NA),
-                              str_detect(variable, "cm/year") ~ "S. latissima [cm/year]",
-                              str_detect(variable, "g C/year") ~ "S. latissima [g C/year]",
+clean_all_phys <- filter(clean_all, category == "phys") %>% 
+  filter(!grepl("UV-A", variable)) %>% # Don't want this for comparisons... maybe remove completely...
+  filter(!grepl("emissions", variable)) # Removing ship emissions for the moment
+clean_all_chem <- filter(clean_all, category == "chem") %>% 
+  filter(!grepl("pH \\[unknown scale\\]", variable)) %>% # Only want known pH scale data for comparisons
+  filter(!grepl("emissions", variable)) # Removing ship emissions for the moment
+clean_all_biomass <- filter(clean_all, driver == "biomass") %>% # Just get sum of all species counts per sample... not ideal
+  mutate(variable = case_when(str_detect(variable, "ind\\/m3") ~ "spp count [ind/m3]", 
+                              str_detect(variable, "cells\\/l") ~ "spp count [cells/l]",
                               TRUE ~ variable)) %>% 
-  filter(!is.na(variable)) %>% 
   group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop")
-clean_all_spp_count <- clean_all %>% 
-  filter(driver == "spp rich", value != 0) %>% 
-  group_by(date_accessed, URL, citation, type, site, category, driver, lon, lat, date, depth) %>% 
-  summarise(value = as.numeric(n()), .groups = "drop") %>% 
-  mutate(variable = "spp count")
-clean_all_soc <- clean_all %>% 
-  filter(category == "soc", value != 0) %>% 
-  mutate(driver = case_when(driver == "Shipping" ~ "Fisheries", # Need to fix this above
-                            TRUE ~ driver),
-         variable = case_when(variable %in% c("Calls [Cruise boats (overseas)]", "Calls [Tourist boats (expedition cruise)]",
+  summarise(value = sum(value, na.rm = T), .groups = "drop")
+clean_all_bio <- filter(clean_all, category == "bio") %>% 
+  filter(driver == "prim prod" |variable == "spp count [n]") %>% # remove everything except the species count value created above 
+  rbind(clean_all_biomass); rm(clean_all_biomass)
+clean_all_soc <- filter(clean_all, category == "soc")%>% 
+  mutate(variable = case_when(variable %in% c("Calls [Cruise boats (overseas)]", "Calls [Tourist boats (expedition cruise)]",
                                               "Calls [Day trip boats (local boats)]", "Calls [Day trip boats (12 PAX RIB mm)]",
                                               "Calls [Pleasure boats (Sail charter engine)]") ~ "Calls - tourism [n]",
                               variable %in% c("Calls [Cargo boats]", "Calls [Teaching / research]",
@@ -1100,76 +1124,73 @@ clean_all_soc <- clean_all %>%
   filter(!str_detect(variable, "Duration|duration|Fuel|gross weight|Month trips|emissions|
                      |Number of trips pr year|Average speed|Power|Total fuel|Tonnage|
                      |Month Trips|Number of ships")) %>% # These are annual values 
-  # Remove Isfjorden/Storfjorden label and select sum rather than mean values
-  mutate(variable = case_when(str_detect(variable, "CO2 emissions \\(tonnes\\)") ~ "CO2 emissions total [tonnes]",
-                              str_detect(variable, "Nautical miles|nautical miles") ~ "Nautical miles",
-                              str_detect(variable, "Number of ships") ~ "Number of ships [n]",
-                              str_detect(variable, "mean") ~ as.character(NA),
+  # Select sum rather than mean values
+  mutate(variable = case_when(str_detect(variable, "mean") ~ as.character(NA),
                               str_detect(variable, "; sum") ~ gsub("; sum", "", variable),
                               TRUE ~ variable)) %>% 
   filter(!is.na(variable))
+
+# Combine
 clean_all_clean <- clean_all_cryo %>% 
   rbind(clean_all_phys) %>% 
   rbind(clean_all_chem) %>%
   rbind(clean_all_bio) %>% 
-  rbind(clean_all_spp_count) %>% 
   rbind(clean_all_soc)
-# TODO: Remove time series with only annual values
-# rm(clean_all, clean_all_spp_count); gc()
+rm(clean_all_cryo, clean_all_phys, clean_all_chem, clean_all_bio, clean_all_soc); gc()
 
 ### Relationships from the network analysis - created via the review paper
 # We want to see which sites have what relationships, and if there are any obvious outliers
 # This is one of the main points that will feed back into the review paper
 
-#List of drivers and variables
+# List of drivers and variables
 unique(clean_all_clean$driver)
 unique(clean_all_clean$variable)
 table(clean_all_clean$driver, clean_all_clean$variable)
 
 ## Cryosphere
-ice_temp <- driver2_lm("Ice vars", "Sea temp") # sea ice -> sea temp
-ice_light <- driver2_lm("Ice vars", "PAR") # sea ice -> light
-ice_biomass <- driver2_lm("Ice vars", "Biomass") # sea ice -> biomass
-ice_spp <- driver2_lm("Ice vars", "Species") # sea ice -> spp richness
-ice_gov <- driver2_lm("Ice vars", "Governance") # sea ice -> governance
-gmb_discharge <- driver2_lm("Glacier vars", "river") # gmb -> discharge
-gmb_spp <- driver2_lm("Glacier vars", "Species") # gmb -> spp richness
-discharge_temp <- driver2_lm("river", "Sea temp") # discharge -> sea temp
-discharge_sal <- driver2_lm("river", "Salinity") # discharge -> salinity
-discharge_light <- driver2_lm("river", "PAR") # discharge -> light
-discharge_carb <- driver2_lm("river", "pCO2") # discharge -> carb system
-discharge_nut <- driver2_lm("river", "Nutrients") # discharge -> nutrients
+ice_temp <- driver2_lm("sea ice", "sea temp") # sea ice -> sea temp
+ice_light <- driver2_lm("sea ice", "light") # sea ice -> light
+ice_biomass <- driver2_lm("sea ice", "biomass") # sea ice -> biomass
+ice_spp <- driver2_lm("sea ice", "spp rich") # sea ice -> spp richness
+ice_gov <- driver2_lm("sea ice", "gov") # sea ice -> governance
+gmb_runoff <- driver2_lm("glacier", "runoff") # gmb -> runoff
+gmb_spp <- driver2_lm("glacier", "spp rich") # gmb -> spp richness
+runoff_temp <- driver2_lm("runoff", "sea temp") # runoff -> sea temp
+runoff_sal <- driver2_lm("runoff", "salinity") # runoff -> salinity
+runoff_light <- driver2_lm("runoff", "light") # runoff -> light
+runoff_carb <- driver2_lm("runoff", "carb") # runoff -> carb system
+runoff_nut <- driver2_lm("runoff", "nutrients") # runoff -> nutrients
 
 ## Physics
-temp_ice <- driver2_lm("Sea temp", "Ice vars") # sea temp -> sea ice
-temp_spp <- driver2_lm("Sea temp", "Species") # sea temp -> spp richness
-temp_biomass <- driver2_lm("Sea temp", "Biomass") # sea temp -> biomass
-temp_PP <- driver2_lm("Sea temp", "Chla") # sea temp -> PP
-sal_spp <- driver2_lm("Salinity", "Species") # salinity -> spp richness
-sal_biomass <- driver2_lm("Salinity", "Biomass") # salinity -> biomass
-light_spp <- driver2_lm("PAR", "Species") # light -> spp richness
-light_biomass <- driver2_lm("PAR", "Biomass") # light -> biomass
-light_PP <- driver2_lm("PAR", "Chla") # light -> PP
+temp_ice <- driver2_lm("sea temp", "sea ice") # sea temp -> sea ice
+temp_spp <- driver2_lm("sea temp", "spp rich") # sea temp -> spp richness
+temp_biomass <- driver2_lm("sea temp", "biomass") # sea temp -> biomass
+temp_PP <- driver2_lm("sea temp", "prim prod") # sea temp -> PP
+sal_spp <- driver2_lm("salinity", "spp rich") # salinity -> spp richness
+sal_biomass <- driver2_lm("salinity", "biomass") # salinity -> biomass
+light_spp <- driver2_lm("light", "spp rich") # light -> spp richness
+light_biomass <- driver2_lm("light", "biomass") # light -> biomass
+light_PP <- driver2_lm("light", "prim prod") # light -> PP
 
 ## Chemistry
-carb_spp <- driver2_lm("pCO2", "Species") # carb system -> spp richness
-nut_PP <- driver2_lm("Nutrients", "Chla") # nutrients -> PP
+carb_spp <- driver2_lm("carb", "spp rich") # carb system -> spp richness
+nut_PP <- driver2_lm("nutrients", "prim prod") # nutrients -> PP
 
 ## Biology
-PP_biomass <- driver2_lm("Chla", "Biomass") # PP -> biomass
-biomass_spp <- driver2_lm("Biomass", "Species") # biomass -> spp richness
+PP_biomass <- driver2_lm("prim prod", "biomass") # PP -> biomass
+biomass_spp <- driver2_lm("biomass", "spp rich") # biomass -> spp richness
 
 ## Social
-gov_tour <- driver2_lm("Governance", "Tourism") # governance -> tourism # No governance data
-gov_fish <- driver2_lm("Governance", "Shipping") # governance -> fisheries # No governance data
-tour_nut <- driver2_lm("Tourism", "Nutrients") # tourism -> nutrients
-tour_light <- driver2_lm("Tourism", "PAR") # tourism -> light
-fish_biomass <- driver2_lm("Fisheries", "Biomass") # fisheries -> biomass
-fish_spp <- driver2_lm("Fisheries", "Species") # fisheries -> spp richness
+gov_tour <- driver2_lm("gov", "tourism") # governance -> tourism # No governance data
+gov_fish <- driver2_lm("gov", "fisheries") # governance -> fisheries # No governance data
+tour_nut <- driver2_lm("tourism", "nutrients") # tourism -> nutrients
+tour_light <- driver2_lm("tourism", "light") # tourism -> light
+fish_biomass <- driver2_lm("fisheries", "biomass") # fisheries -> biomass
+fish_spp <- driver2_lm("fisheries", "spp rich") # fisheries -> spp richness
 
 # Look across sites for differences in r2 values for variables that are shared between sites
-driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_discharge, gmb_spp, 
-                    discharge_temp, discharge_sal, discharge_light, discharge_carb, discharge_nut,
+driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_runoff, gmb_spp, 
+                    runoff_temp, runoff_sal, runoff_light, runoff_carb, runoff_nut,
                     temp_ice, temp_spp, temp_biomass, temp_PP, sal_spp, sal_biomass, light_spp, light_biomass, light_PP,
                     carb_spp, nut_PP, 
                     PP_biomass, biomass_spp,
@@ -1216,7 +1237,7 @@ driver_all_filter <- driver_all %>%
 unique(driver_all_filter$driver)
 unique(driver_all_filter$driver_y)
 driver_all_filter %>% 
-  filter(driver == "Sea temp") %>%
+  filter(driver == "sea temp") %>%
   filter(variable_y != "PAR [µmol m-2 s-1]") %>% # Investigate why these values are so high
   filter(variable_y != "NO2 [µmol/l]") %>%  # Investigate why these values are so low
   unite(variable_x_y, c(variable, variable_y)) %>%
@@ -1236,7 +1257,7 @@ driver_all_filter %>%
 # TODO: Look into dichotomy of Q and ablation for disko vs young
 # TODO: Look into differences between PAR and Chla/Spp count for nuup vs young
 # TODO: Look into funny relationship between Open water [annual days] and temp [°C] in Young Sound
-# TODO: Massive negative relationship between temp and Spp count at Young sound
+# TODO: Massive negative relationship between temp and spp count at Young sound
 
 # Get monthly means by depth across entire site
 df_mean_month_depth <- clean_all_clean %>% 
