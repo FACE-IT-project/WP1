@@ -694,8 +694,8 @@ clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients
                                               "NO2_NO3 [µmol/l]") ~ "NO3+NO2 [µmol/l]",
                               TRUE ~ variable),
          driver = "nutrients")
-unique(clean_nutrients$variable)
-test_df <- filter(clean_nutrients, variable == "NO3 [µmol/l]")
+# unique(clean_nutrients$variable)
+# test_df <- filter(clean_nutrients, variable == "NO3 [µmol/l]")
 rm(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por); gc()
 
 # Summary analyses
@@ -738,6 +738,8 @@ clean_pp <- rbind(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por) 
                               TRUE ~ variable),
          driver = "prim prod")
 # unique(clean_pp$variable)
+unique(clean_pp$variable[str_detect(clean_pp$variable, "PP|pp")]) # Double check that only pH values are screened this way
+test_df <- filter(clean_pp, variable == "TOTAL_chla_area")
 rm(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por); gc()
 
 # Summary analyses
@@ -887,6 +889,8 @@ clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_youn
 
 # From the cleaned up data create a species count variable
   # From here the species are combined into counts - the names are therefore lost
+# TODO: Consider merging across publications to reduce duplicates
+# Very important to detail this clearly in the manuscript
 spp_count <- clean_spp_rich %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
