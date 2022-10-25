@@ -1,6 +1,5 @@
 from,to,from_sign,to_sign,note
 s01,s06,decrease,increase,Decreasing sea ice allows for more light penetration
-s01,s12,decrease,decrease,Loss of sea ice encourages poor governance through temptation of newly exposed seas
 s01,s11,decrease,complex,Lack of sea ice reduces species that depend on it while also allowing for new species to enter
 s04,s01,increase,decrease,Atlantic water inflow melts sea ice more rapidly
 s16,s01,increase,decrease,Atlantic water inflow melts sea ice more rapidly
@@ -11,7 +10,7 @@ s02,s19,decrease,decrease,Shifting to land-terminating will end glacier front up
 s03,s04,increase,increase,Terrestrial waters tend to be warmer than marine water
 s03,s05,increase,decrease,Discharge tends to be fresh so mixing lowers fjord salinity
 s03,s06,increase,decrease,Discharge waters usually increase turbidity thereby reducing light availability
-s03,s07,increase,increase,Discharge tends to increase aspects of the carbonate system
+s03,s07,increase,complex,Discharge increases some aspects of the carbonate system while decreasing others
 s03,s08,increase,increase,Discharge generally has more nutrients than the fjord waters it mixes with
 s03,s19,increase,decrease,Discharge can create a fresh surface layer that inhibits upwelling
 s15,s04,increase,increase,The greenhouse effect of increase atmospheric CO2 warms sea water as well as air temperatures

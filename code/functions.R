@@ -43,7 +43,7 @@ Sys.setenv(TZ = "UTC")
 Sys.setlocale("LC_TIME","en_GB.UTF-8")
 
 # Bounding boxes
-bbox_EU <- c(-60, 60, 60, 90)
+bbox_EU <- c(-60, 60, 60, 90) # Note that this is intentionally different from the Copernicus definition of c(-25, 60, 66, 90)
 bbox_sval <- c(9, 30, 76, 81)
 bbox_kong <- c(11, 12.69, 78.86, 79.1)
 bbox_kong_wide <- c(9.5, 14.0, 78.0, 79.5)

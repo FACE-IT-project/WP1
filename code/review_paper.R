@@ -48,6 +48,10 @@ edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>%
 # EU bbox
 bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 
+# EU bbox from Copernicus
+bbox_EU_CMEMS <- c(-25, 60, 66, 90)
+bbox_EU_CMEMS_poly <- bbox_to_poly(bbox_EU_CMEMS, "EU CMEMS")
+
 # EU Arctic land shapes
 coastline_Arctic <- filter(coastline_full_df, y > 50, x < 90, x > -90)
 
@@ -60,32 +64,63 @@ site_points <- data.frame(site = factor(x = c("Kongsfjorden", "Isfjorden", "Stor
                                                    "Porsangerfjorden")),
                           lon = c(11.845, 14.365, 19.88, -21.237, -52.555, -50.625, 25.75),
                           lat = c(78.98, 78.235, 77.78, 74.517, 69.36, 64.405, 70.6))
+# Colour palette for sites
+site_colours <- c(
+  "Kongsfjorden" = "chocolate4", 
+  "Isfjorden" = "chocolate3", 
+  "Storfjorden" = "chocolate1", 
+  "Young Sound" = "springgreen4", 
+  "Disko Bay" = "springgreen3", 
+  "Nuup Kangerlua" = "springgreen2", 
+  "Porsangerfjorden" = "plum4"
+)
+
 # Full study area
-rp_fig_1 <- basemap(limits = c(-60, 60, 60, 90), bathymetry = T) +
-  annotation_spatial(bbox_EU_poly, fill = "darkgreen", colour = "black", alpha = 0.1) +
-  geom_spatial_point(data = site_points, size = 9, crs = 4326,
+rp_fig_1 <- basemap(limits = c(-50, 50, 61, 90), bathymetry = T) +
+  annotation_spatial(bbox_EU_CMEMS_poly, fill = "darkgreen", colour = "black", alpha = 0.1) +
+  # WSC arrow and label
+  geom_spatial_segment(
+    aes(x = 15, xend = 6, y = 75, yend = 80.5), 
+    arrow = arrow(length = unit(0.03, "npc")),
+    colour = "red", linewidth = 3, crs = 4326, great_circle = T) +
+  geom_spatial_label(aes(x = 14, y = 76, label = "WSC"), 
+                     colour = "red", crs = 4326, size = 4, alpha = 0.9) +
+  # Other labels
+  geom_spatial_label(aes(x = 0, y = 78, label = "Fram\nStrait"), 
+                     colour = "black", crs = 4326, size = 4, alpha = 0.5) +
+  geom_spatial_label(aes(x = 27, y = 79, label = "Svalbard"), 
+                     colour = "black", crs = 4326, size = 4, alpha = 0.5) +
+  geom_spatial_label(aes(x = 40, y = 74, label = "Barents Sea"), 
+                     colour = "black", crs = 4326, size = 4, alpha = 0.5) +
+  geom_spatial_label(aes(x = 0, y = 73.5, label = "Greenland\nSea"), 
+                     colour = "black", crs = 4326, size = 4, alpha = 0.5) +
+  geom_spatial_label(aes(x = 0, y = 68, label = "Norwegian\nSea"), 
+                     colour = "black", crs = 4326, size = 4, alpha = 0.5) +
+  geom_spatial_label(aes(x = -40, y = 76, label = "Greenland"), 
+                     colour = "black", crs = 4326, size = 4, alpha = 0.5) +
+  geom_spatial_label(aes(x = 19, y = 70.5, label = "Northern\nNorway"), 
+                     colour = "black", crs = 4326, size = 4, alpha = 0.5) +
+  # Site points
+  geom_spatial_point(data = site_points, size = 6, crs = 4326,
                      aes(x = lon, y = lat), colour = "black") +
-  geom_spatial_point(data = site_points, size = 8, crs = 4326,
+  geom_spatial_point(data = site_points, size = 5, crs = 4326,
                      aes(x = lon, y = lat, colour = site)) +
-  # geom_spatial_segment(
-  #   aes(x = 0, xend = 10, y = 60, yend = 65),
-  #   arrow = arrow(length = unit(0.03, "npc")),
-  #   crs = 4326) +
-  # geom_curve(
-  #   aes(x = 10, xend = 20, y = 60, yend = 65),
-  #   arrow = arrow(length = unit(0.03, "npc"))
-  # ) +
-  # labs(colour = "Site", x = NULL, y = NULL) +
+  scale_colour_manual("Site", values = site_colours) +
+  # Other minutia
+  labs(x = NULL, y = NULL) +
   # labs(title = "FACE-IT study area and focal sites",
   #      colour = "Site",
   #      caption = "robert.schlegel@imev-mer.fr\nSorbonne Université") +
   theme(panel.border = element_rect(colour = "black", fill = NA),
-        legend.position = c(0.948, 0.29),
-        # legend.margin = margin(10, 10, 10, 10),
+        panel.background = element_rect(fill = NA, colour = "black"),
+        # plot.background = element_rect(fill = "grey90", colour = "black"),
+        # plot.margin = margin(t = -2, r = 0, b = -2, l = 0, unit = "cm"),
+        axis.text = element_text(colour = "black", size = 10),
+        legend.position = c(0.928, 0.31),
         legend.box.margin = margin(10, 10, 10, 10), 
         legend.box.background = element_rect(fill = "white", colour = "black"))
-rp_fig_1
-ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
+# rp_fig_1
+ggsave("figures/rp_fig_1.png", rp_fig_1, height = 8, width = 12)
 
 
 # Figure 2 ----------------------------------------------------------------
@@ -94,8 +129,6 @@ ggsave("figures/rp_fig_1.png", rp_fig_1, height = 10, width = 16)
 # If the network figure is used, the blog should be cited in the acknowledgements.
 # https://kateto.net/network-visualization
 # Ognyanova, K. (2021) Network visualization with R. Retrieved from www.kateto.net/network-visualization.
-
-# TODO: Fix discharge and carbonate system relationship
 
 # Create network
 net <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
@@ -125,10 +158,10 @@ rp_fig_2_plot <- ggraph(net, layout = "circle") +
              label.padding = unit(0.4, "lines"), label.size = unit(0.7, "lines")) +
   scale_edge_colour_manual("Trend/\nImpact", 
                            breaks = c("increase", "decrease", "complex"),
-                           values = c("purple", "blue", "red")) +
+                           values = c("red", "blue", "purple")) +
   scale_colour_manual("Driver trends\nand impacts",
                       breaks = c("increase", "decrease", "complex"),
-                      labels = c("increase", "decrease", "both"),
+                      labels = c("increase", "decrease", "uncertain"),
                       values = c("red", "blue", "purple")) +
   scale_fill_manual("Category", 
                     breaks = c("cryosphere", "physics", "chemistry", "biology", "social"),
@@ -137,16 +170,18 @@ rp_fig_2_plot <- ggraph(net, layout = "circle") +
   guides(colour = guide_legend(order = 1, label.position = "right", override.aes = list(shape = 15, size = 16)),
          fill = "none") +
   theme_void() +
-  theme(plot.background = element_rect(fill = "grey90", colour = NA),
+  theme(plot.background = element_rect(fill = "grey90", colour = "black"),
+        panel.background = element_rect(fill = NA, colour = "black"),
+        # panel.border = element_rect(fill = NA, colour = "black"),
         plot.margin = margin(t = -10, r = -10, b = -10, l = 0, unit = "pt"),
-        legend.position = c(0.908, 0.136),
+        legend.position = c(0.908, 0.1285),
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18),
         legend.background = element_rect(fill = "white", colour = "black"),
         legend.margin = margin(t = 10, r = 15, b = 10, l = 10, unit = "pt"))
 
 # Combine and save
-ggsave("figures/rp_fig_2.png", rp_fig_2_plot, width = 10, height = 10)
+ggsave("figures/rp_fig_2.png", rp_fig_2_plot, width = 14, height = 12)
 
 ### Interactive networks
 # https://kateto.net/network-visualization
