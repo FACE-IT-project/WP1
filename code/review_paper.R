@@ -57,10 +57,10 @@ coastline_Arctic <- filter(coastline_full_df, y > 50, x < 90, x > -90)
 
 # Study sites
 site_points <- data.frame(site = factor(x = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
-                                              "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                              "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua", 
                                               "Porsangerfjorden"),
                                         levels = c("Kongsfjorden", "Isfjorden","Storfjorden", 
-                                                   "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                                   "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua", 
                                                    "Porsangerfjorden")),
                           lon = c(11.845, 14.365, 19.88, -21.237, -52.555, -50.625, 25.75),
                           lat = c(78.98, 78.235, 77.78, 74.517, 69.36, 64.405, 70.6))
@@ -70,8 +70,8 @@ site_colours <- c(
   "Isfjorden" = "chocolate3", 
   "Storfjorden" = "chocolate1", 
   "Young Sound" = "springgreen4", 
-  "Disko Bay" = "springgreen3", 
-  "Nuup Kangerlua" = "springgreen2", 
+  "Qeqertarsuup Tunua" = "springgreen3", 
+  "Nuup Kangerlua" = "springgreen1", 
   "Porsangerfjorden" = "plum4"
 )
 
@@ -116,11 +116,13 @@ rp_fig_1 <- basemap(limits = c(-50, 50, 61, 90), bathymetry = T) +
         # plot.background = element_rect(fill = "grey90", colour = "black"),
         # plot.margin = margin(t = -2, r = 0, b = -2, l = 0, unit = "cm"),
         axis.text = element_text(colour = "black", size = 10),
-        legend.position = c(0.928, 0.31),
+        legend.position = c(0.9195, 0.31),
         legend.box.margin = margin(10, 10, 10, 10), 
         legend.box.background = element_rect(fill = "white", colour = "black"))
 # rp_fig_1
-ggsave("figures/rp_fig_1.png", rp_fig_1, height = 8, width = 12)
+ggsave("figures/rp_fig_1.png", rp_fig_1, height = 8, width = 12)#, dpi = 600)
+ggsave("figures/rp_fig_1.eps", rp_fig_1, height = 8, width = 12, dpi = 1000)
+# ggsave("figures/rp_fig_1.tiff", rp_fig_1, height = 8, width = 12, dpi = 1000) # lol. 348 MB
 
 
 # Figure 2 ----------------------------------------------------------------
