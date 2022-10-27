@@ -18,7 +18,6 @@ s16,s04,increase,increase,A large cause of local seawater temperature warming in
 s01,s04,decrease,increase,Less sea ice allows seawater temperatures to increase more rapidly
 s17,s05,increase,decrease,Increasing precipitation will lead to reduced surface salinities
 s05,s11,decrease,complex,Decreasing salinity will change the trophic balance of species as some will cope better than others
-s05,s07,decrease,increase,Decreasing seawater salinity increases DIC and pCO2
 s06,s11,complex,complex,Increasing light levels are generally regarded to increase species richness but it is unclear if light will increase or decrease
 s06,s10,complex,complex,More light will likely lead to more biomass but it is unclear if where light levels will increase or decrease
 s18,s06,increase,decrease,Cloudiness will likely increase thereby lowering light levels
