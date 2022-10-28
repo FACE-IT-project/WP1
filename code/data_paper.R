@@ -567,7 +567,7 @@ light_por <- review_filter_var(full_product_por, "PAR|UV") # No PAR data
 clean_light <- rbind(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por) %>% 
   filter(value > 0) %>% 
   mutate(variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
-                              str_detect(variable, "UVA") ~ "UV-A [W*m^2]", # TODO: Kepp or remove?
+                              str_detect(variable, "UVA") ~ "UV-A [W*m^2]", # TODO: Keep or remove?
                               str_detect(variable, "UVB") ~ "UV-B [W*m^2]",
                               TRUE ~ variable), driver = "light")
 rm(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por); gc()

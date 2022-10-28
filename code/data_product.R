@@ -1087,6 +1087,42 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
+# Light and kelp data from Sarina's 2022 paper
+## NB: Not added to meta-database or data product; waiting for manuscript publication and PANGAEA publication
+kong_NiedzKelp <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp.csv") %>% 
+  fill(Length, Width, Stipe.Length, Area.discs, µmol.0, µmol.0.h.cm, µmol.24, µmol.24.h.cm, 
+       Comp.irr, Comp.irr.log, Chla.cm.tR, Acc.cm.tR, Acc.Chla.tR, N.Perc, C.Perc, CN) %>% 
+  dplyr::rename(`Experiment day` = Exp.Day, `Treat temp [°C]` = Temperature,
+                `phylloid length [cm]` = Length, `phylloid width [cm]` = Width, `cauloid length [cm]` = Stipe.Length,
+                `disc area [cm-2]` = Area.discs, `FW [g]` = FW, `DW [g]` = DW, `Fv/Fm` = Fv.Fm,
+                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.0,
+                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.0.h.cm,
+                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.24,
+                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.24.h.cm,
+                `Compensation E [mol m-2 s-1]` = Comp.irr,
+                `Compensation E [log(mol m-2 s-1)]` = Comp.irr.log,
+                `Chl a [µg cm-2]` = Chla.cm, `Chl a mean [µg cm-2]` = Chla.cm.tR,
+                `Pigm acc [µg cm-2]` = Acc.cm, `Pigm acc mean [µg cm-2]` = Acc.cm.tR,
+                `Pigm acc/chl a [µg cm-2]` = Acc.Chla, `Pigm acc/chl a mean [µg cm-2]` = Acc.Chla.tR,
+                `N [%]` = N.Perc, `C [%]` = C.Perc) %>% 
+  mutate(Species = case_when(Species == "Slat" ~ "Saccharina latissima",
+                             Species == "Aesc" ~ "Alaria esculenta"))
+write_delim(kong_NiedzKelp, "~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp_PG.csv", delim = "\t")
+kong_NiedzLight <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataLight.csv")
+kong_NiedzLight_PG <- kong_NiedzLight %>% 
+  dplyr::rename(`longitude [°E]`= Longitude, `latitude [°N]` = Latitude, `depth [m]` = Depth,
+                `PAR [µmol m-2 s-1]` = PAR, `PAR [log(µmol m-2 s-1)]`= `log(PAR)`,
+                `UV-A [µmol m-2 s-1]` = UV.A, `UV-B [µmol m-2 s-1]` = UV.B, 
+                `E [µmol m-2 s-1]` = Surface.irr) %>% 
+  separate(DateTime, into = c("Date", "Time"), sep = " ") %>% 
+  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) %>%  # NB: Need confirmation that the time is UTC+0 or UTC+2
+  dplyr::select(Station, `latitude [°N]`, `longitude [°E]`, `date/time [UTC+0]`, `depth [m]`,
+                `E [µmol m-2 s-1]`, `PAR [µmol m-2 s-1]`, `PAR [log(µmol m-2 s-1)]`, 
+                `UV-A [µmol m-2 s-1]`, `UV-B [µmol m-2 s-1]`) %>% 
+  group_by(Station, `latitude [°N]`, `longitude [°E]`) %>% 
+  arrange(`depth [m]`, .by_group = TRUE) %>% ungroup()
+write_delim(kong_NiedzLight_PG, "~/pCloudDrive/restricted_data/Niedzwiedz/dataLight_PG.csv", delim = "\t")
+
 # Combine and save
 full_product_kong <- rbind(dplyr::select(pg_kong_ALL, -site), 
                            kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
