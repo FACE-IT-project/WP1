@@ -1583,7 +1583,7 @@ ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 # NB: Must run Setup to get necessary objects
 
 # Load cleaned up clean data
-load("data/analyses/clean_all_clean.RData")
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 
 # Create frequency data.frame of datasets for category -> driver -> variable
 data_point_freq <- clean_all_clean %>% 
@@ -1645,9 +1645,8 @@ ggsave("figures/dp_fig_2.png", fig_2, width = 12, height = 7)
 # Metadata figure showing the coverage of the key drivers
 # This should concisely show how many datasets/points are available for each key drivers and site
 # But one should be cautious about focussing too much on the sites
-load("data/analyses/all_meta.RData")
 
-load("data/analyses/clean_all_clean.RData")
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 
 # Filter out remote products
 season_insitu <- filter(clean_all_clean, type == "in situ") %>% 
@@ -1708,28 +1707,36 @@ ggsave("figures/dp_fig_3.png", fig_3, width = 7, height = 6)
 # Colour of bars per year should show count of sites, not individual colours per site
 # Height of bars shows available data per year
 # May want to cut this up by depth, at least for temp/sal
-# NB: Uses all_meta_insitu from Figure 3
+
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 
 # Simple annual presence of drivers by site
-all_meta_annual <- all_meta_insitu %>% 
+clean_all_annual <- clean_all_clean %>% 
+  filter(type == "in situ") %>% 
   mutate(year = lubridate::year(date)) %>% 
   group_by(site, year, category, driver) %>% 
-  summarise(count = n(), .groups = "drop") %>% 
-  mutate(presence = 1,
-         driver = factor(driver, levels = c("Ice vars", "Glacier vars", "river", # NB: These need to be updated to final standard
-                                            "Sea temp", "Salinity", "PAR",
-                                            "pCO2", "Nutrients",
-                                            "Chla", "Biomass", "Species",      
-                                            "Tourism", "Shipping")))
+  summarise(driver_count = n(), .groups = "drop") %>% 
+  group_by(year, category, driver) %>% 
+  summarise(site_count = n(), 
+            driver_count_sum = sum(driver_count), .groups = "drop") %>% 
+  mutate(driver = factor(driver, levels = c("sea ice", "glacier", "runoff",
+                                            "sea temp", "salinity", "light",
+                                            "carb", "nutrients",
+                                            "prim prod", "biomass", "spp rich",      
+                                            "tourism", "fisheries")),
+         site_count = as.factor(site_count))
 
 # Stacked barplots of drvier presence in a given year
-fig_4 <- ggplot(data = all_meta_annual, aes(x = year, y = presence)) +
-  geom_col(position = "stack", aes(fill = site)) +
-  facet_wrap(~driver, ncol = 1) +
-  labs(fill = "Site") +
+fig_4 <- ggplot(data = clean_all_annual, aes(x = year, y = driver_count_sum)) +
+  geom_col(position = "stack", aes(fill = site_count)) +
+  facet_wrap(~driver, ncol = 1, scales = "free_y", strip.position = "right") +
+  labs(fill = "Site count", x = NULL, y = "Count of data points") +
+  scale_fill_brewer() +
+  guides(fill = guide_legend(nrow = 1)) +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         legend.position = "bottom")
+fig_4
 
 # Save
 ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 12)
@@ -1766,11 +1773,17 @@ table_1 <- clean_all_clean %>%
   arrange(category, driver, variable)
 write_csv(table_1, "data/analyses/table_1.csv")
 
+# Create figure for now because Google docs tables are red hot garbage
+table_1_plot <- ggplot() +
+  annotate(geom = "table", x = 0, y = 0, label = list(table_1)) +
+  theme_void()
+ggsave("figures/table_1.png", table_1_plot, width = 4.25, height = 15)
+
 
 # Table 2 -----------------------------------------------------------------
 
 # Create table of sources for each category/group
-load("data/analyses/all_ref.RData") # NB: Must add data sources to this output
+load("data/analyses/all_ref.RData")
 
 # Pivot wider to get category
 all_ref_var_type <- all_ref %>% 
@@ -1785,7 +1798,7 @@ all_ref_wide <- all_ref %>%
   filter(type == "in situ") # Remove non in situ sources
 
 # Get summaries by site
-table_1_func <- function(site_name, site_long){
+table_2_func <- function(site_name, site_long){
   # site_col <- colnames(all_ref_wide)[which(colnames(all_ref_wide) == site_name)]
   # df_sub <- all_ref_wide
   site_name <- enquo(site_name)
@@ -1800,22 +1813,22 @@ table_1_func <- function(site_name, site_long){
 }
 
 # Final table
-table_1_kong <- table_1_func(kong, "Kongsfjorden")
-table_1_is <- table_1_func(is, "Isfjorden")
-table_1_stor <- table_1_func(stor, "Storfjorden")
-table_1_young <- table_1_func(young, "Young Sound")
-table_1_disko <- table_1_func(disko, "Disko Bay")
-table_1_nuup <- table_1_func(nuup, "Nuup Kangerlua")
-table_1_por <- table_1_func(por, "Porsangerfjorden")
-table_1 <- rbind(table_1_kong, table_1_is, table_1_stor, table_1_young, table_1_disko, table_1_nuup, table_1_por) %>% 
+table_2_kong <- table_2_func(kong, "Kongsfjorden")
+table_2_is <- table_2_func(is, "Isfjorden")
+table_2_stor <- table_2_func(stor, "Storfjorden")
+table_2_young <- table_2_func(young, "Young Sound")
+table_2_disko <- table_2_func(disko, "Disko Bay")
+table_2_nuup <- table_2_func(nuup, "Nuup Kangerlua")
+table_2_por <- table_2_func(por, "Porsangerfjorden")
+table_2 <- rbind(table_2_kong, table_2_is, table_2_stor, table_2_young, table_2_disko, table_2_nuup, table_2_por) %>% 
   mutate(Other = Reduce("+",.[12:23])) %>% 
   dplyr::select(Site:NMDC, Other)
-write_csv(table_1, "data/analyses/table_1.csv")
-knitr::kable(table_1)
-table_1_plot <- ggplot() +
-  annotate(geom = "table", x = 0, y = 0, label = list(table_1)) +
+write_csv(table_2, "data/analyses/table_2.csv")
+knitr::kable(table_2)
+table_2_plot <- ggplot() +
+  annotate(geom = "table", x = 0, y = 0, label = list(table_2)) +
   theme_void()
-ggsave("figures/table_1.png", table_1_plot, width = 6.2, height = 1.55)
+ggsave("figures/table_2.png", table_2_plot, width = 6.75, height = 1.55)
 
 # Some acronyms:
 # "NSIDC" = National Snow & Ice Data Center
