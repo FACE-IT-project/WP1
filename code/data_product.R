@@ -1114,6 +1114,7 @@ kong_NiedzLight_PG <- kong_NiedzLight %>%
                 `PAR [µmol m-2 s-1]` = PAR, `PAR [log(µmol m-2 s-1)]`= `log(PAR)`,
                 `UV-A [µmol m-2 s-1]` = UV.A, `UV-B [µmol m-2 s-1]` = UV.B, 
                 `E [µmol m-2 s-1]` = Surface.irr) %>% 
+  mutate(DateTime = DateTime-7200) %>% # Correct from Svalbard (UTC+2) to UTC+0
   separate(DateTime, into = c("Date", "Time"), sep = " ") %>% 
   mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) %>%  # NB: Need confirmation that the time is UTC+0 or UTC+2
   dplyr::select(Station, `latitude [°N]`, `longitude [°E]`, `date/time [UTC+0]`, `depth [m]`,

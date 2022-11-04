@@ -4,8 +4,8 @@
 # TODO: Add ability to filter out specific time series depending on length or some other criteria
 # Need to be able to link the spatial and temporal mismatch of combined summary data with lack of trends etc.
 # These issues are themselves an important part of the conclusions from the analysis
-# Consider changing analysis to 0-5 m rather than 0-10 m
 # For meta-data figures, also include the count of datasets/publications per variable per site
+# Look into values in clean_all_clean that are missing dates
 
 # Quotes are from Viitasalo and Bonsdorff (2022) unless stated otherwise
 # https://esd.copernicus.org/articles/13/711/2022/
@@ -1141,10 +1141,12 @@ clean_all_clean <- clean_all_cryo %>%
   rbind(clean_all_bio) %>% 
   rbind(clean_all_soc)
 rm(clean_all_cryo, clean_all_phys, clean_all_chem, clean_all_bio, clean_all_soc); gc()
+save(clean_all_clean, file = "data/analyses/clean_all_clean.RData")
 
 ### Relationships from the network analysis - created via the review paper
 # We want to see which sites have what relationships, and if there are any obvious outliers
 # This is one of the main points that will feed back into the review paper
+# NB: These have laready been run and can be loaded below as `driver_alll`
 
 # List of drivers and variables
 unique(clean_all_clean$driver)
@@ -1199,6 +1201,8 @@ driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_runo
                     carb_spp, nut_PP, 
                     PP_biomass, biomass_spp,
                     gov_tour, gov_fish, tour_nut, tour_light, fish_biomass, fish_spp) %>% distinct()
+save(driver_all, file = "data/analyses/driver_all.RData")
+# load(file = "data/analyses/driver_all.RData")
 
 # Quick fix for plotting
 driver_all_asym <- asymmetrize(driver_all, variable, variable_y) %>% 
@@ -1576,26 +1580,32 @@ ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
 
 # Figure 2 ----------------------------------------------------------------
 # Square treemap plots showing count of datasets and count of data points
-# NB: Must run Setup and the beginning of Section 4 to get necessary objects
+# NB: Must run Setup to get necessary objects
 
-# TODO: Need a note in the legend of the plot saying what the actual total of datasets is
-# Because this plot doubles up datasets at the caetgory and driver level
-
-# TODO: Go through clean_all_freq to find errors in data management
+# Load cleaned up clean data
+load("data/analyses/clean_all_clean.RData")
 
 # Create frequency data.frame of datasets for category -> driver -> variable
 data_point_freq <- clean_all_clean %>% 
-  filter(!driver %in% c("Air temp", "O2", "Snow vars"),
-         type == "in situ") %>% 
+  filter(type == "in situ") %>% 
   group_by(category, driver, variable) %>% 
   summarise(freq = n(), .groups = "drop")
 data_set_freq <- clean_all_clean %>% 
-  filter(!driver %in% c("Air temp", "O2", "Snow vars"),
-         type == "in situ") %>% 
+  filter(type == "in situ") %>% 
   dplyr::select(citation, category, driver, variable) %>%
   distinct() %>%
   group_by(category, driver, variable) %>% 
   summarise(freq = n(), .groups = "drop")
+
+# Total count of data points and most frequent driver
+sum(data_point_freq$freq)
+sum(data_point_freq$freq[data_point_freq$driver == "sea temp"])
+sum(data_point_freq$freq[data_point_freq$driver == "salinity"])
+
+# Total count of datasets and most frequent driver
+sum(data_set_freq$freq)
+sum(data_set_freq$freq[data_point_freq$driver == "sea temp"])
+sum(data_set_freq$freq[data_point_freq$driver == "salinity"])
 
 # Tree map of datasets
 fig_2_a <- ggplot(data_set_freq, 
@@ -1627,8 +1637,8 @@ fig_2_b <- ggplot(data_point_freq,
 
 # Combine and save
 fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b,
-                           ncol = 1, labels = c("A)", "B)"), legend = "left", common.legend = T)
-ggsave("figures/dp_fig_2.png", fig_2, width = 7, height = 12)
+                           ncol = 2, labels = c("A)", "B)"), legend = "bottom", common.legend = T)
+ggsave("figures/dp_fig_2.png", fig_2, width = 12, height = 7)
 
 
 # Figure 3 ----------------------------------------------------------------
@@ -1637,57 +1647,57 @@ ggsave("figures/dp_fig_2.png", fig_2, width = 7, height = 12)
 # But one should be cautious about focussing too much on the sites
 load("data/analyses/all_meta.RData")
 
-# TODO: Rather show this globally to reduce complexity
-# Facet by season
-# x-axis is driver
-# fill is category
+load("data/analyses/clean_all_clean.RData")
 
 # Filter out remote products
-all_meta_insitu <- filter(all_meta, type == "in situ") %>% 
-  dplyr::rename(category = category, driver = driver, variable = variable) %>% 
-  filter(!driver %in% c("Air temp", "O2", "Snow vars")) %>% 
+season_insitu <- filter(clean_all_clean, type == "in situ") %>% 
+  filter(!is.na(date)) %>%  # NB: There shouldn't be any values with missing dates
   mutate(month = lubridate::month(date), 
+         month_day = format(date, format = "%m-%d"),
+         month_days = lubridate::days_in_month(date),
          season = case_when(month %in% 1:3 ~ "Winter", 
                             month %in% 4:6 ~ "Spring",
                             month %in% 7:9 ~ "Summer",
                             month %in% 10:12 ~ "Autumn"),
-         season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn")),
-         site = factor(site, levels = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
-                       labels = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
-                                  "Young Sound", "Disko Bay", "Nuup Kangelrua",
-                                  "Porsangerfjorden")))
+         season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn")))
 
 # Calculate mean stats
-all_meta_mean <- all_meta_insitu %>% 
-  group_by(season, month, category, driver) %>% 
-  summarise(mean_count_days_group = mean(count_days_group, na.rm = T),
-            sd_count_days_group = sd(count_days_group, na.rm = T), .groups = "drop") %>% 
+season_mean <- season_insitu %>% 
+  dplyr::select(season, month, month_day, month_days, category, driver) %>% 
+  distinct() %>% 
+  group_by(season, month, month_days, category, driver) %>% 
+  summarise(unique_days = n(), .groups = "drop") %>% 
+  mutate(prop_days = unique_days/month_days) %>% 
   group_by(season, category, driver) %>% 
-  summarise(sum_season_count_days_group = sum(mean_count_days_group, na.rm = T),
-            prop_count = sum_season_count_days_group/92, .groups = "drop") # Make the proportion value more accurate if we use this
+  summarise(mean_days = mean(prop_days), .groups = "drop")
 
 # Expand all levels
-all_meta_full <- expand(all_meta_mean, season, category, driver) %>% 
-  left_join(all_meta_mean, by = c("season", "category", "driver")) %>% 
+season_mean_full <- expand(season_mean, season, nesting(category, driver)) %>% 
+  left_join(season_mean, by = c("season", "category", "driver")) %>% 
   mutate(season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn")),
-         driver = factor(driver, levels = c("Ice vars", "Glacier vars", "river", # NB: These need to be updated to final standard
-                                            "Sea temp", "Salinity", "PAR",
-                                            "pCO2", "Nutrients",
-                                            "Chla", "Biomass", "Species",      
-                                            "Tourism", "Shipping"))) %>%
+         driver = factor(driver, levels = c("sea ice", "glacier", "runoff",
+                                            "sea temp", "salinity", "light",
+                                            "carb", "nutrients",
+                                            "prim prod", "biomass", "spp rich",      
+                                            "tourism", "fisheries"))) %>%
   replace(is.na(.), 0)
 
 # Plot
-fig_3 <- ggplot(data = all_meta_full, aes(x = driver, y = prop_count)) +
+fig_3 <- ggplot(data = season_mean_full, aes(x = driver, y = mean_days)) +
   geom_col(position = "stack", colour = "black", aes(fill = category)) +
   facet_wrap(~season, ncol = 1) + #guides(fill = "none") +
-  scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 1.1), expand = c(0, 0)) +
   labs(x = "Driver", y = "Proportion of seasonal coverage") +
   scale_fill_manual("Category",
                     breaks = c("cryo", "phys", "chem", "bio", "soc"),
                     values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 0.9))
-# fig_3_panel
+  theme(axis.text.x = element_text(angle = 30, hjust = 0.9),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(fill = NA, colour = "black"),
+        # plot.background = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom")
+# fig_3
 
 # Save
 ggsave("figures/dp_fig_3.png", fig_3, width = 7, height = 6)
@@ -1746,6 +1756,15 @@ ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 12)
 # Table 1 -----------------------------------------------------------------
 
 # List of the categories, drivers, and their variables
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
+# table(all_meta$category, all_meta$driver, all_meta$variable)
+table_1 <- clean_all_clean %>% 
+  dplyr::select(category, driver, variable) %>% 
+  distinct() %>% 
+  mutate(category = factor(category, levels = c("cryo", "phys", "chem", "bio", "soc"))) %>% 
+  arrange(category, driver, variable)
+write_csv(table_1, "data/analyses/table_1.csv")
 
 
 # Table 2 -----------------------------------------------------------------
