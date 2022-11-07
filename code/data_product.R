@@ -2847,7 +2847,7 @@ nuup_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/N
          citation = "Monthly measurements of the concentration of Nox, which is Nitrate (NO3) plus Nitrite (NO2). Water column MarineBasis Nuuk. doi: 10.17897/3NQX-FA50") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
-# Fish larvae presence
+# Fish larvae presence 2006-2013
 ## NB: These values have erroneously been given Zackenberg coordinates on the GEM database
 nuup_GEM_fish_larvae <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Fish_Larvae_Species_Composition_individuals_m.csv") %>% 
   dplyr::rename(date = DATE, variable = SPECIES, value = `FISH LARV`) %>% 

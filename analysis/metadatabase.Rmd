@@ -1971,7 +1971,7 @@ nuup_prim_prod <- data.frame(type = "In situ incubation",
 # Fish larvae presence
 nuup_fish_larvae <- data.frame(type = "Survey",
                                data_name = "Fish larvae: presence, abundance",
-                               date_range = "2005 - 2013",
+                               date_range = "2006 - 2013",
                                # lon_range = "-51.9", lat_range = "64.1", depth_range = "5 - 10",
                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/SBG4-YH51">GEM</a>',
