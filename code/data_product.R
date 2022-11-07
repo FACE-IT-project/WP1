@@ -1092,6 +1092,16 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
 kong_NiedzKelp <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp.csv") %>% 
   fill(Length, Width, Stipe.Length, Area.discs, µmol.0, µmol.0.h.cm, µmol.24, µmol.24.h.cm, 
        Comp.irr, Comp.irr.log, Chla.cm.tR, Acc.cm.tR, Acc.Chla.tR, N.Perc, C.Perc, CN) %>% 
+  mutate(µmol.0 = round(µmol.0, 2), 
+         µmol.0.h.cm = round(µmol.0.h.cm, 2), 
+         Comp.irr = round(Comp.irr, 2), 
+         Chla.cm = round(Chla.cm, 2), 
+         Chla.cm.tR = round(Chla.cm.tR, 2), 
+         Acc.cm = round(Acc.cm, 2), 
+         Acc.cm.tR = round(Acc.cm.tR, 2),
+         Acc.Chla = round(Acc.Chla, 2), 
+         Acc.Chla.tR = round(Acc.Chla.tR, 2), 
+         CN = round(CN, 2)) %>% 
   dplyr::rename(`Experiment day` = Exp.Day, `Treat temp [°C]` = Temperature,
                 `phylloid length [cm]` = Length, `phylloid width [cm]` = Width, `cauloid length [cm]` = Stipe.Length,
                 `disc area [cm-2]` = Area.discs, `FW [g]` = FW, `DW [g]` = DW, `Fv/Fm` = Fv.Fm,
@@ -1113,13 +1123,13 @@ kong_NiedzLight_PG <- kong_NiedzLight %>%
   dplyr::rename(`longitude [°E]`= Longitude, `latitude [°N]` = Latitude, `depth [m]` = Depth,
                 `PAR [µmol m-2 s-1]` = PAR, `PAR [log(µmol m-2 s-1)]`= `log(PAR)`,
                 `UV-A [µmol m-2 s-1]` = UV.A, `UV-B [µmol m-2 s-1]` = UV.B, 
-                `E [µmol m-2 s-1]` = Surface.irr) %>% 
+                `E [µmol m-2 s-1]` = Surface.irr, Sal = Surface.Salinity) %>% 
   mutate(DateTime = DateTime-7200) %>% # Correct from Svalbard (UTC+2) to UTC+0
   separate(DateTime, into = c("Date", "Time"), sep = " ") %>% 
-  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) %>%  # NB: Need confirmation that the time is UTC+0 or UTC+2
+  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) %>%
   dplyr::select(Station, `latitude [°N]`, `longitude [°E]`, `date/time [UTC+0]`, `depth [m]`,
                 `E [µmol m-2 s-1]`, `PAR [µmol m-2 s-1]`, `PAR [log(µmol m-2 s-1)]`, 
-                `UV-A [µmol m-2 s-1]`, `UV-B [µmol m-2 s-1]`) %>% 
+                `UV-A [µmol m-2 s-1]`, `UV-B [µmol m-2 s-1]`, Sal) %>% 
   group_by(Station, `latitude [°N]`, `longitude [°E]`) %>% 
   arrange(`depth [m]`, .by_group = TRUE) %>% ungroup()
 write_delim(kong_NiedzLight_PG, "~/pCloudDrive/restricted_data/Niedzwiedz/dataLight_PG.csv", delim = "\t")
