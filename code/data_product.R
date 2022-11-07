@@ -24,18 +24,16 @@ pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 
 # Quick filtering function
 # Manual tweaks will still be required after running this
-# TODO: Consider the necessity of lon/lat coords
+# NB: Values with no lon/lat must be removed at this step to prevent data bleed across sites
 pg_quick_filter <- function(file_name, bbox){
   pg_dat <- data.table::fread(file_name, nThread = 15)
   if("Longitude" %in% colnames(pg_dat)){
-    pg_base <- pg_dat %>% dplyr::rename(lon = Longitude, lat = Latitude) %>% 
-      filter(!Error %in% c("No columns with key drivers", "No data in DOI reference"))
-    pg_res <- pg_base %>% 
+    pg_res <- pg_dat %>% dplyr::rename(lon = Longitude, lat = Latitude) %>% 
+      filter(Error == "") %>% 
       filter(lon >= bbox[1], lon <= bbox[2],
              lat >= bbox[3], lat <= bbox[4]) %>% 
-      bind_rows(filter(pg_base, is.na(lon))) %>%
-      janitor::remove_empty("cols")
-    rm(pg_base); gc()
+      janitor::remove_empty("cols") %>% 
+      distinct()
   } else{
     pg_res <- NULL
   }
@@ -59,7 +57,9 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
     mutate(category = var_word) %>% 
     filter(!is.na(value)) %>%
     distinct() %>% 
-    dplyr::select(date_accessed:depth, category, variable, value)
+    # dplyr::select(date_accessed:depth, category, variable, value)
+    group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
   return(pg_melt)
 }
 
@@ -73,12 +73,12 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
 
 # There is no EU PANGAEA product because the bits and pieces were given to the individual PG site files
 # This file is only loaded to get a summary of the data
-pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
-system.time(
-  pg_EU <- plyr::ldply(pg_EU_files, pg_quick_filter, bbox = bbox_EU)
-) # 70 seconds
-length(unique(pg_EU$citation))
-rm(pg_EU); gc()
+# pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
+# system.time(
+#   pg_EU <- plyr::ldply(pg_EU_files, pg_quick_filter, bbox = bbox_EU)
+# ) # 70 seconds
+# length(unique(pg_EU$citation))
+# rm(pg_EU); gc()
 
 
 ## Full product ------------------------------------------------------------
@@ -119,21 +119,22 @@ EU_zooplankton <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zoo
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
          citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # CTD data from YMER cruise in 1980
 ## Note that the first row after the header contains the units:
 ## METERS, DBARS, ITS-90, PSS-78, flag, UMOL/KG, flag, UMOL/KG, flag, UMOL/KG, flag, UMOL/KG, flag, TU, TU, flag, O/OO, flag, DEGC
 EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv", skip = 36) %>%
-  dplyr::rename(lon = LONGITUDE, lat = LATITUDE, date = DATE, depth = DEPTH, pres = CTDPRS,
+  dplyr::rename(lon = LONGITUDE, lat = LATITUDE, date = DATE, bot_depth = DEPTH, depth = CTDPRS,
                 temp = CTDTMP, sal = CTDSAL, O2 = OXYGEN, SiO4 = SILCAT, NO3 = NITRAT, PO4 = PHSPHT) %>% 
   dplyr::select(date:sal, O2, SiO4, NO3, PO4, TRITUM, TRITER, DELO18, THETA) %>% 
   slice(-1) %>% # Remove row containing units
-  pivot_longer(pres:THETA, names_to = "variable", values_to = "value") %>%
+  pivot_longer(temp:THETA, names_to = "variable", values_to = "value") %>%
   mutate(date = lubridate::ymd(date),
          category = case_when(variable %in% c("O2", "SiO4", "NO3", "PO4") ~ "chem", TRUE ~ "phys"),
-         variable = case_when(variable == "pres" ~ "pres [DBARS]",
-                              variable == "temp" ~ "temp [ITS-90]",
+         variable = case_when(variable == "temp" ~ "temp [ITS-90]",
                               variable == "sal" ~ "sal [PSS-78]",
                               variable %in% c("O2", "SiO4", "NO3", "PO4") ~ paste0(variable," [µmol/kg]"),
                               variable %in% c("TRITUM", "TRITER") ~ paste0(variable," [TU]"),
@@ -144,8 +145,10 @@ EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv",
          date_accessed = as.Date("2021-04-15"),
          URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
          citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
-  filter(value != -999)
+  filter(value != -999) %>% 
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # CTD data for Arctic
 ## NB: The documentation does not give the volume of sampling for nutrients (i.e. litres (l) or kilograms (kg))
@@ -163,7 +166,9 @@ EU_Codispoti <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/Codispoti_Arctic_
          date_accessed = as.Date("2021-04-15"),
          URL = "https://www.nodc.noaa.gov/archive/arc0034/0072133/",
          citation = "Multiple. See References section in: https://www.nodc.noaa.gov/archive/arc0034/0072133/1.1/data/1-data/ReadMe_Codispoti_ArcticNuts.pdf") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Ice core samples for protist presence
 ## NB: Units for PAR data are not given so it is assumed that they are [µmol m-2 s-1]
@@ -178,7 +183,9 @@ EU_protists <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/protists/sea-ice
          date_accessed = as.Date("2021-04-19"),
          URL = "https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842",
          citation = "Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Carb chem Arctic model output
 ## Outputs are stored at the Centre for Environmental Data Analysis's (CEDA) JASMIN servers:/gws/nopw/j04/nemo_vol2/ROAM. 
@@ -203,7 +210,9 @@ EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_outpu
          date_accessed = as.Date("2021-08-11"),
          URL = "File was received directly from J-P Gattuso",
          citation = "Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Greenland fjord CTD casts
 ## NB: The units are found in the README by following the URL
@@ -225,8 +234,10 @@ EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE2
          date_accessed = as.Date("2021-10-20"),
          URL = "https://zenodo.org/record/5572329#.Yo5IrzlBw5n",
          citation = "Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
-  filter(!is.na(value))
+  filter(!is.na(value)) %>% 
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # SOCAT data
 EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%  
@@ -242,12 +253,14 @@ EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%
          date_accessed = as.Date("2021-08-06"),
          URL = "https://www.socat.info",
          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 
 # GLODAP data
-EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>% 
+EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>% 
   `colnames<-`(gsub("G2","",colnames(.))) %>% 
   dplyr::rename(lon = longitude, lat = latitude) %>% 
   filter(lon <= 60, lon >= -60, lat >= 63) %>% 
@@ -258,7 +271,7 @@ EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>%
                 phosphate, tco2, talk, fco2, fco2temp, phts25p0, phtsinsitutp, cfc11, pcfc11, cfc12, pcfc12, 
                 cfc113, pcfc113, ccl4, pccl4, sf6, psf6, c13, c14, h3, he3, he, neon, o18, toc, doc, don, tdn, chla) %>% 
   pivot_longer(temperature:chla, names_to = "variable", values_to = "value") %>% 
-  filter(!is.na(value)) %>% 
+  filter(!is.na(value), value != -9999) %>% 
   mutate(category = case_when(variable %in% c("temperature", "theta", "salinity") ~ "phys", TRUE ~ "chem"),
          variable = case_when(variable %in% c("temperature", "theta", "fco2temp") ~ paste0(variable," [°C]"),
                               variable %in% c("oxygen", "aou", "nitrate", "nitrite", "silicate", 
@@ -274,11 +287,12 @@ EU_GLODAP <- read_rds("~/pCloudDrive/FACE-IT_data/glodap/GLODAP_bottle.rds") %>%
                               variable %in% c("toc", "doc", "don", "tdn") ~ paste0(variable," [μmol L-1 d]"),
                               variable %in% c("chla") ~ paste0(variable," [μg kg-1 d]"),
                               TRUE ~ variable),
-         date_accessed = as.Date("2021-08-06"),
+         date_accessed = as.Date("2022-10-19"),
          URL = "https://www.glodap.info",
-         citation = "Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016
-         Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+         citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>% 
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 # load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
@@ -335,7 +349,9 @@ sval_MOSJ_glacier_mass <- bind_rows(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_e
          category = "cryo", depth = NA,
          date_accessed = as.Date("2022-04-28")) %>% 
   filter(!is.na(value)) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, sval_MOSJ_kronebreen, sval_MOSJ_midtre); gc()
 
 # Glacier mass balance from Nature publication
@@ -369,7 +385,9 @@ sval_Nature_glacier_mass <- left_join(sval_Nature_glacier_mass_base, sval_Nature
          citation = "Geyman, E., van Pelt, W., Maloof, A., Aas, H. F., & Kohler, J. (2021). 1936/1938 DEM of Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.f6afca5c",
          category = "cryo", depth = NA,
          date_accessed = as.Date("2022-05-10")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(sval_Nature_glacier_mass_base, sval_Nature_glacier_mass_latlon); gc()
 
 # Glacier area outlines
@@ -408,7 +426,9 @@ sval_tidewater_ablation <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fron
          category = "cryo", depth = NA,
          date_accessed = as.Date("2022-04-26")) %>% 
   filter(date2 > "1901-01-01", !is.na(variable)) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Surface meteorology
 # See 'README_N-ICE_metData_v2.txt' for detailed info
@@ -482,7 +502,9 @@ sval_UNIS_database <- full_join(sval_UNIS_TEMP, sval_UNIS_PSAL, by = c("lon", "l
          variable = paste0(variable," [", units,"]"),
          category = "phys",
          date_accessed = as.Date("2021-03-12")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value); gc()
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value); gc()
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop"); gc()
 rm(sval_UNIS_nc_dat, sval_UNIS_TEMP, sval_UNIS_PSAL, sval_UNIS_CNDC); gc()
 
 # Seabird database
@@ -532,7 +554,9 @@ sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbar
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5",
          citation = "Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Svalbard population counts
 sval_pop <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats.csv", delim = "\t") %>% 
@@ -621,6 +645,7 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
          lon = NA, lat = NA, 
          date_accessed = as.Date("2020-09-30"),
          variable = paste0(Area," [",var,"]"),
+         # TODO: Are ship CO2 emissions for social or chemical data?
          category = case_when(grepl("co2|nox|sox", variable, ignore.case = T) ~ "chem",
                               grepl("PM", variable, ignore.case = T) ~ "phys", TRUE ~ "soc"),
          URL = "Received directly from Morten Simonsen",
@@ -761,7 +786,7 @@ kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankto
   left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankton_species_meta.csv"), by = c("sps" = "id")) %>% 
   dplyr::rename(lon = longitude, lat = latitude) %>% 
   mutate(variable = case_when(!is.na(stage) ~ paste0(species," (",stage,")"), TRUE ~ species),
-         # value = value*biomass_conv, # This changes the values from ind/m3 to something else see Hop et al. 2019
+         # value = value*biomass_conv, # This changes the values from ind/m3 to biomass; see Hop et al. 2019
          variable = paste0(variable, " [ind/m3]"),
          category = "bio",
          date_accessed = as.Date("2021-02-11"),
@@ -813,7 +838,9 @@ kong_protist_nutrient_chla <- kong_protist_nutrient_chla_1 %>%
          URL = "https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4",
          citation = "Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.") %>% 
   distinct() %>%
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(kong_protist_nutrient_chla_1, kong_protist_nutrient_chla_2, kong_protist_nutrient_chla_3); gc()
 
 ## CTD sampling data
@@ -904,13 +931,13 @@ kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_ferry.rds") 
          date_accessed = as.Date("2021-08-12"),
          citation = "Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 ## SAMS mooring data
-# TODO: Finish this process
 kong_mooring_SAMS <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS/", full.names = T), load_SAMS, .parallel = T) %>% 
-  mutate(date_accessed = as.Date("2021-10-21"), .before = 1)
+  mutate(date_accessed = as.Date("2021-10-21"), .before = 1) %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 ## Ny-Alesund ship arrivals
 kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_ship_arrivals.csv") %>% 
@@ -925,8 +952,7 @@ kong_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_shi
          date_accessed = as.Date("2021-10-18"),
          citation = "Havenstrøm, E. (2021). Port calls in Kings Bay. https://port.kingsbay.no/statistics") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  summarise(value = mean(value, na.rm = T), .groups = "drop") 
 
 ## Bremen data
 # Daten/ELUV
@@ -1060,6 +1086,43 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
          citation = "Pavlov, A. K., Leu, E., Hanelt, D., Bartsch, I., Karsten, U., Hudson, S. R., ... & Granskog, M. A. (2019). The underwater light climate in Kongsfjorden and its ecological implications. In The ecosystem of Kongsfjorden, Svalbard (pp. 137-170). Springer, Cham.") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
+
+# Light and kelp data from Sarina's 2022 paper
+## NB: Not added to meta-database or data product; waiting for manuscript publication and PANGAEA publication
+kong_NiedzKelp <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp.csv") %>% 
+  fill(Length, Width, Stipe.Length, Area.discs, µmol.0, µmol.0.h.cm, µmol.24, µmol.24.h.cm, 
+       Comp.irr, Comp.irr.log, Chla.cm.tR, Acc.cm.tR, Acc.Chla.tR, N.Perc, C.Perc, CN) %>% 
+  dplyr::rename(`Experiment day` = Exp.Day, `Treat temp [°C]` = Temperature,
+                `phylloid length [cm]` = Length, `phylloid width [cm]` = Width, `cauloid length [cm]` = Stipe.Length,
+                `disc area [cm-2]` = Area.discs, `FW [g]` = FW, `DW [g]` = DW, `Fv/Fm` = Fv.Fm,
+                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.0,
+                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.0.h.cm,
+                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.24,
+                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.24.h.cm,
+                `Compensation E [mol m-2 s-1]` = Comp.irr,
+                `Compensation E [log(mol m-2 s-1)]` = Comp.irr.log,
+                `Chl a [µg cm-2]` = Chla.cm, `Chl a mean [µg cm-2]` = Chla.cm.tR,
+                `Pigm acc [µg cm-2]` = Acc.cm, `Pigm acc mean [µg cm-2]` = Acc.cm.tR,
+                `Pigm acc/chl a [µg cm-2]` = Acc.Chla, `Pigm acc/chl a mean [µg cm-2]` = Acc.Chla.tR,
+                `N [%]` = N.Perc, `C [%]` = C.Perc) %>% 
+  mutate(Species = case_when(Species == "Slat" ~ "Saccharina latissima",
+                             Species == "Aesc" ~ "Alaria esculenta"))
+write_delim(kong_NiedzKelp, "~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp_PG.csv", delim = "\t")
+kong_NiedzLight <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataLight.csv")
+kong_NiedzLight_PG <- kong_NiedzLight %>% 
+  dplyr::rename(`longitude [°E]`= Longitude, `latitude [°N]` = Latitude, `depth [m]` = Depth,
+                `PAR [µmol m-2 s-1]` = PAR, `PAR [log(µmol m-2 s-1)]`= `log(PAR)`,
+                `UV-A [µmol m-2 s-1]` = UV.A, `UV-B [µmol m-2 s-1]` = UV.B, 
+                `E [µmol m-2 s-1]` = Surface.irr) %>% 
+  mutate(DateTime = DateTime-7200) %>% # Correct from Svalbard (UTC+2) to UTC+0
+  separate(DateTime, into = c("Date", "Time"), sep = " ") %>% 
+  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) %>%  # NB: Need confirmation that the time is UTC+0 or UTC+2
+  dplyr::select(Station, `latitude [°N]`, `longitude [°E]`, `date/time [UTC+0]`, `depth [m]`,
+                `E [µmol m-2 s-1]`, `PAR [µmol m-2 s-1]`, `PAR [log(µmol m-2 s-1)]`, 
+                `UV-A [µmol m-2 s-1]`, `UV-B [µmol m-2 s-1]`) %>% 
+  group_by(Station, `latitude [°N]`, `longitude [°E]`) %>% 
+  arrange(`depth [m]`, .by_group = TRUE) %>% ungroup()
+write_delim(kong_NiedzLight_PG, "~/pCloudDrive/restricted_data/Niedzwiedz/dataLight_PG.csv", delim = "\t")
 
 # Combine and save
 full_product_kong <- rbind(dplyr::select(pg_kong_ALL, -site), 
@@ -1368,10 +1431,12 @@ is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arriv
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
 # Combine and save
-full_product_is <- rbind(dplyr::select(pg_is_ALL, -site), is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
+full_product_is <- rbind(dplyr::select(pg_is_ALL, -site), 
+                         is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
                          is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
                          is_AIS, is_ship_arrivals) %>% 
   rbind(filter(dplyr::select(full_product_sval, -site), lon >= bbox_is[1], lon <= bbox_is[2], lat >= bbox_is[3], lat <= bbox_is[4])) %>% 
+  rbind(filter(dplyr::select(full_product_sval, -site), grepl("Isfjorden", variable))) %>% # Shipping data 
   rbind(filter(dplyr::select(full_product_sval, -site), grepl("Isfjorden", citation))) %>% distinct() %>% mutate(site = "is")
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
@@ -1505,6 +1570,7 @@ stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_prope
 full_product_stor <- rbind(dplyr::select(pg_stor_ALL, -site), 
                            stor_light_CTD) %>% 
   rbind(filter(dplyr::select(full_product_sval, -site), lon >= bbox_stor[1], lon <= bbox_stor[2], lat >= bbox_stor[3], lat <= bbox_stor[4])) %>% 
+  rbind(filter(dplyr::select(full_product_sval, -site), grepl("Storfjorden", variable))) %>% # Shipping data 
   rbind(filter(dplyr::select(full_product_sval, -site), grepl("Storfjorden", citation))) %>% distinct() %>% mutate(site = "stor")
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
@@ -1657,7 +1723,8 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
 rm(list = grep("holding_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Combine and save
-full_product_young <- rbind(dplyr::select(pg_young_ALL, -site), young_prim_prod) %>% 
+full_product_young <- rbind(dplyr::select(pg_young_ALL, -site), 
+                            young_prim_prod) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_young[1], lon <= bbox_young[2], lat >= bbox_young[3], lat <= bbox_young[4])) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Young Sound", citation))) %>% distinct() %>% mutate(site = "young")
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
@@ -1700,7 +1767,9 @@ young_mooring_multi <- read_csv("~/pCloudDrive/restricted_data/Young_Sound/RBR_S
          URL = "Received directly from Mikael Sejr",
          date_accessed = as.Date("2021-12-01"),
          citation = "Singh, R., Belanger, S., ... Sejr, M. (2022) In prep.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Sea ice free period per year
 young_GEM_sea_ice_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Sea_ice_conditions_Open_water_duration.csv", delim = "\t") %>% 
@@ -1749,7 +1818,9 @@ young_GEM_sea_ice_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/you
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/H5D5-TZ32",
          date_accessed = as.Date("2022-02-03"),
          citation = "Sea ice thickness. Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/H5D5-TZ32") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Sea ice thickness
 young_GEM_sea_ice_snow_thickness <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Sea_ice_conditions_Snow_thickness.csv", delim = "\t") %>% 
@@ -1760,7 +1831,9 @@ young_GEM_sea_ice_snow_thickness <- read_delim("~/pCloudDrive/restricted_data/GE
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/B77X-BT16",
          date_accessed = as.Date("2022-02-03"),
          citation = "Sea ice snow thickness. Sea ice conditions MarineBasis Zackenberg. doi: 10.17897/B77X-BT16") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Water column CTD
 ## NB: PAR units not given, but they look like [µmol m-2 s-1]
@@ -1778,7 +1851,9 @@ young_GEM_CTD_water_column <- read_delim("~/pCloudDrive/restricted_data/GEM/youn
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/CG48-0H12",
          date_accessed = as.Date("2022-02-03"),
          citation = "CTD measurements Water column. Water column MarineBasis Zackenberg. doi: 10.17897/CG48-0H12") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Mooring CTD
 young_GEM_CTD_mooring <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Mooring_CTD_measurements.csv", delim = "\t") %>% 
@@ -1807,7 +1882,9 @@ young_GEM_CTD_sill <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zacken
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/B4E2-N060",
          date_accessed = as.Date("2022-02-03"),
          citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Bottom CTD measurements
 young_GEM_CTD_bottom <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Bottom_CTD_measurements.csv") %>% 
@@ -1824,7 +1901,9 @@ young_GEM_CTD_bottom <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zack
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/J1J5-W960",
          date_accessed = as.Date("2022-05-03"),
          citation = "Boone, W., Rysgaard, S., Carlson, D. F., Meire, L., Kirillov, S., Mortensen, J., ... & Sejr, M. K. (2018). Coastal freshening prevents fjord bottom water renewal in Northeast Greenland: A mooring study from 2003 to 2015. Geophysical Research Letters, 45(6), 2726-2733") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Phytoplankton relative species composition
 young_GEM_phyto_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Phytoplankton_Relative_Species_Composition.csv", delim = "\t") %>%
@@ -1835,18 +1914,23 @@ young_GEM_phyto_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zacken
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/MN5J-K414",
          date_accessed = as.Date("2022-02-03"),
          citation = "Phytoplankton Relative Species Composition (%). Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # DIC concentration
 young_GEM_DIC <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_DIC_Concentration_æmol_kg.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, depth = Depth, value = `Dissolved inorganic carbon (DIC), µmol kg-1`) %>% 
+  filter(value != -9999) %>% 
   mutate(category = "chem",
          variable = "DIC [µmol/kg]",
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/7FSW-D577",
          date_accessed = as.Date("2022-02-03"),
          citation = "Water DIC Concentration (µmol/kg). Water column MarineBasis Zackenberg. doi: 10.17897/7FSW-D577") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # pCO2 in the water column
 young_GEM_pCO2 <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_pCO2.csv", delim = "\t") %>% 
@@ -1866,35 +1950,44 @@ young_GEM_pCO2 <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg
 # Phosphate concentration
 young_GEM_phosphate <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_Phosphate_Concentration.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, depth = Depth, value = `PO4, µM`) %>% 
+  filter(value != -9999) %>% 
   mutate(category = "chem",
          variable = "PO4 [µmol/l]",
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/KQ4Z-SD22",
          date_accessed = as.Date("2022-02-03"),
          citation = "Water Phosphate Concentration (µmol/L). Water column MarineBasis Zackenberg. doi: 10.17897/KQ4Z-SD22") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Silicate concentration
 young_GEM_silicate <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_Silicate_Concentration.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, depth = Depth, value = `Si, µM`) %>% 
+  filter(value != -9999) %>% 
   mutate(category = "chem",
          variable = "Si [µmol/l]",
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/GFHW-ZT42",
          date_accessed = as.Date("2022-02-03"),
          citation = "Water Silicate Concentration (µmol/L). Water column MarineBasis Zackenberg. doi: 10.17897/GFHW-ZT42") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T),  .groups = "drop")
 
 # Silicate concentration
 young_GEM_TA <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_TA_Concentration_æmol_kg.csv", delim = "\t") %>% 
   dplyr::rename(date = Date, depth = Depth, value = `Total Alkalinity (TA), µmol kg-1`) %>% 
+  filter(value != -9999) %>% 
   mutate(category = "chem",
          variable = "TA [µmol/kg]",
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/6H8H-WM93",
          date_accessed = as.Date("2022-02-03"),
          citation = "Water TA Concentration (µmol/kg). Water column MarineBasis Zackenberg. doi: 10.17897/6H8H-WM93") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Zooplankton abundance
 young_GEM_zoo_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Zooplankton_Abundance.csv", delim = "\t") %>% 
@@ -2018,6 +2111,10 @@ young_GEM_PAR_land <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zacken
 # Glacier ice surface mass balance
 # Jikes, whoever created this coords file needs some help
 # Somehow `2013-04-28 12:00:00 stake 13` refuses to change...
+## NB: Daily averages are not created of the ablation values here because many datum are missing lon/lat
+## By creating daily means it clumps these values together, which is incorrect to do
+## After some reflection it was decided to keep the value smissing lon/lat because they still have date values
+## Meaning that they are useful when constructing a time series of change when creating averages over the study site
 young_GEM_gmb_coords <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Glacier_ice_GPS_sites.csv") %>% 
   mutate(site_name = str_replace(site_name, "s", "stake "),
          lon = case_when(lon %in% c(-99.99, -9999) ~ as.numeric(NA), 
@@ -2039,6 +2136,9 @@ young_GEM_gmb <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_
          date_accessed = as.Date("2022-04-28"),
          citation = "Surface mass balance. Glacier ice GlacioBasis Zackenberg. doi: 10.17897/SNZB-ZA54") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # NB: Do NOT create daily averages for this file
+  # group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  # summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(young_GEM_gmb_coords); gc()
 
 # Snow depth
@@ -2060,17 +2160,21 @@ young_GEM_snow_depth <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zack
 young_GEM_chla <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Pigment_concentration.csv") %>% 
   dplyr::rename(date = Date, depth = `DEPTH (M)`, `Chl a [µg/l]` = `Chl a (µg-l)`, `Phaeopigments [µg/l]` = `Phaeopigments (µg-l)`) %>%
   pivot_longer(`Chl a [µg/l]`:`Phaeopigments [µg/l]`, names_to = "variable") %>% 
+  filter(!is.na(value)) %>% 
   mutate(lon = -as.numeric(measurements::conv_unit(`LONGITUDE (DDM)`, "deg_dec_min", "dec_deg")),
          lat = as.numeric(measurements::conv_unit(`LATITUDE (DDM)`, "deg_dec_min", "dec_deg")),
          category = "bio",
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/DS37-V333",
          date_accessed = as.Date("2022-04-28"),
          citation = "Pigment concentration: Collected using Niskin Bottle Water Sampler. Water column MarineBasis Zackenberg. doi: 10.17897/DS37-V333") %>%
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Nitrate plus nitrite concentrations
 young_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Water_column_Water_Nitrate_Nitrite_Concentration.csv") %>% 
   dplyr::rename(date = Date, depth = Depth, value = `Nitrate+nitrite (NOx), µM`) %>% 
+  filter(value != -9999) %>% 
   mutate(category = "chem",
          variable = "nitrate+nitrite [µmol/l]",
          lon = -20.57, lat = 74.47,
@@ -2204,7 +2308,8 @@ rm(disko_CTD_ChlA_var); gc()
 
 # Combine and save
 # TODO: Consider using the greenlandic name, rather than Disko Bay
-full_product_disko <- rbind(dplyr::select(pg_disko_ALL, -site), disko_CTD_ChlA) %>% 
+full_product_disko <- rbind(dplyr::select(pg_disko_ALL, -site), 
+                            disko_CTD_ChlA) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_disko[1], lon <= bbox_disko[2], lat >= bbox_disko[3], lat <= bbox_disko[4])) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Disko", citation))) %>% distinct() %>% mutate(site = "disko")
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
@@ -2242,7 +2347,9 @@ disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61",
          date_accessed = as.Date("2022-02-03"),
          citation = "CTD measurements. Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Precipitation
 disko_GEM_precip <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Precipitation_Precipitation_60min_sample_mm.csv") %>% 
@@ -2312,6 +2419,8 @@ disko_GEM_snow2 <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Dat
   summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
 
 # Glacier ice mass balance
+# NB: There are multiple sites, but only on set of lon/lat given
+# It was decided to create daily means of these values...
 disko_GEM_gmb <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Glacier_ice_Surface_mass_balance.csv") %>% 
   filter(ablation != -9999) %>% 
   dplyr::rename(value = ablation) %>% 
@@ -2321,7 +2430,9 @@ disko_GEM_gmb <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/QXKF-G654",
          date_accessed = as.Date("2022-05-03"),
          citation = "Ablation stake readings in the ablation zone. Glacier ice GlacioBasis Disko. doi: 10.17897/QXKF-G654") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
 
 # Glacier ice temperature
 disko_GEM_glacier_ice <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Glacier_ice_AWS_LYN_A.csv") %>% 
@@ -2389,12 +2500,15 @@ disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
                 lat = `Latitude (degrees_north)`, lon = `Longitude (degrees_east)`) %>% 
   dplyr::select(lon, lat, date, depth, `temp [°C]`, `salinity [PSU]`, `Sigma-t`) %>% 
   pivot_longer(`temp [°C]`:`Sigma-t`, names_to = "variable") %>% 
+  filter(!is.na(value)) %>% 
   mutate(category = "phys",
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/62VX-AX79",
          date_accessed = as.Date("2022-04-28"),
          lon = -lon,
          citation = "Historic temperature and salinity, 1924 to 2010. Water column MarineBasis Disko. doi: 10.17897/62VX-AX79") %>% 
-    dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+    # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Combine and save
 disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow1, disko_GEM_snow2, 
@@ -2411,7 +2525,7 @@ rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg Nuup Kangerlua files
 system.time(
   pg_nuup_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_nuup)
-) # 65 seconds
+) # 91 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -2427,13 +2541,15 @@ pg_nuup_clean <- pg_nuup_sub %>%
   # Manage lon/lat columns - no issues
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
-  mutate(date = case_when(date %in% seq(2000, 2009) ~ paste0(date,"-01-01"),
+  mutate(date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                          nchar(date) == 7 ~ paste0(date,"-01-01"),
                           # is.na(date) & !is.na(Date) ~ as.character(Date),
                           # is.na(date) & !is.na(`Sampling date`) ~ `Sampling date`, # There is an issue with these values
                           TRUE ~ date),
          # date = as.character(date),
          date = ifelse(date == "", NA, date),
          date = as.Date(gsub("T.*", "", date))) %>%
+         # date = as.Date(date)) %>%
   # Manage depth column
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`))) %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
@@ -2513,7 +2629,9 @@ nuup_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nu
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/KMEK-TK21",
          date_accessed = as.Date("2022-02-03"),
          citation = "CTD measurements. Water column MarineBasis Nuuk. doi: 10.17897/KMEK-TK21") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Primary production
 nuup_GEM_pp <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Particulate_Pelagic_Primary_Production_mg_C_m2_d.csv", delim = "\t") %>% 
@@ -2535,7 +2653,9 @@ nuup_GEM_phyto_sp <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Dat
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/Y3A4-9D86",
          date_accessed = as.Date("2022-02-03"),
          citation = "Phytoplankton Relative Species Composition (%). Water column MarineBasis Nuuk. doi: 10.17897/Y3A4-9D86") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Silicate concentration
 nuup_GEM_silicate <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Silicate_Concentration_æmol_L.csv", delim = "\t") %>% 
@@ -2545,7 +2665,9 @@ nuup_GEM_silicate <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Dat
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/VVQP-F862",
          date_accessed = as.Date("2022-02-03"),
          citation = "Monthly measurements of the concentration of silicate (Si(OH)4). Water column MarineBasis Nuuk. doi: 10.17897/VVQP-F862") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # ChlA concentrations
 nuup_GEM_ChlA <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Water_Chlorophyll_a_Concentration_æg_L.csv", delim = "\t") %>% 
@@ -2556,7 +2678,9 @@ nuup_GEM_ChlA <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Wa
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/1QK2-6B74",
          date_accessed = as.Date("2022-02-03"),
          citation = "Water Chlorophyll a Concentration (µg/L). Water column MarineBasis Nuuk. doi: 10.17897/1QK2-6B74") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = round(mean(value, na.rm = T), 8), .groups = "drop")
 
 # Precipitation
 nuup_GEM_precip <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Precipitation_Precipitation_accumulated_mm.csv") %>% 
@@ -2662,7 +2786,7 @@ nuup_GEM_Kingigtorssuaq <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nu
          date_accessed = as.Date("2022-04-28"),
          citation = "Discharge at river Kingigtorssuaq (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/VWS5-4688") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+  summarise(value = round(mean(value, na.rm = T), 4), .groups = "drop")
 
 # River discharge at Kobbefjord
 nuup_GEM_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Kobbefjord_m3_s.csv") %>% 
@@ -2675,7 +2799,7 @@ nuup_GEM_Kobbefjord <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_D
          date_accessed = as.Date("2022-04-28"),
          citation = "Discharge at river Kobbefjord (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/H2MR-PP28") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+  summarise(value = round(mean(value, na.rm = T), 4), .groups = "drop")
 
 # River discharge at Oriartorfik
 nuup_GEM_Oriartorfik <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Oriartorfik_m3_s.csv") %>% 
@@ -2688,7 +2812,7 @@ nuup_GEM_Oriartorfik <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
          date_accessed = as.Date("2022-04-28"),
          citation = "Discharge at river Oriartorfik (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/VHDT-PX65") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+  summarise(value = round(mean(value, na.rm = T), 4), .groups = "drop")
 
 # River discharge at Teqinngalip
 nuup_GEM_Teqinngalip <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_River_hydrology_Discharge_@_river_Teqinngalip_m3_s.csv") %>% 
@@ -2701,7 +2825,7 @@ nuup_GEM_Teqinngalip <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
          date_accessed = as.Date("2022-04-28"),
          citation = "Discharge at river Teqinngalip (m3/s). River hydrology ClimateBasis Nuuk. doi: 10.17897/DFVW-4R58") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = round(mean(value, na.rm = T), 2), .groups = "drop")
+  summarise(value = round(mean(value, na.rm = T), 4), .groups = "drop")
 
 # Nitrate and nitrite concentrations
 nuup_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Water_column_Nitrate_Nitrite_Concentration_цmol_L.csv") %>% 
@@ -2724,10 +2848,13 @@ nuup_GEM_fish_larvae <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/SBG4-YH51",
          date_accessed = as.Date("2022-04-28"),
          citation = "Fish Larvae Species Composition (individuals/m3). Water column MarineBasis Nuuk. doi: 10.17897/SBG4-YH51") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 8), .groups = "drop")
 
 # Leaf growth of Saccharina latissima (g)
 ## NB: These values have erroneously been given Zackenberg coordinates on the GEM database
+## Decided to create daily averages from replicate data
 nuup_GEM_Slat_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_vegetation_Leaf_Growth_of_Saccharina_latissima_g_C_yr.csv") %>% 
   dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - BIOMASS`) %>% 
   mutate(category = "bio",
@@ -2736,10 +2863,13 @@ nuup_GEM_Slat_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/EWVJ-KX92",
          date_accessed = as.Date("2022-04-28"),
          citation = "Leaf Growth of Saccharina latissima (g C/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/EWVJ-KX92") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 3), .groups = "drop")
 
 # Leaf growth of Saccharina latissima (cm)
 ## NB: These values have erroneously been given Zackenberg coordinates on the GEM database
+## Decided to create daily averages from replicate data
 nuup_GEM_Slat_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_vegetation_Leaf_Growth_of_Saccharina_latissima_cm_yr.csv") %>% 
   dplyr::rename(date = DATE, value = `KELP BLADE GROWTH - LENGTH`) %>%
   mutate(category = "bio",
@@ -2748,7 +2878,9 @@ nuup_GEM_Slat_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/TDEK-WQ82",
          date_accessed = as.Date("2022-04-28"),
          citation = "Leaf Growth of Saccharina latissima (cm/yr). Benthic vegetation MarineBasis Nuuk. doi: 10.17897/TDEK-WQ82") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = round(mean(value, na.rm = T), 1), .groups = "drop")
 
 # Ascophyllum nodosum tips (g)
 nuup_GEM_Anod_g <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data_Benthic_Vegetation_Ascophyllum_nodosum_segment_biomass.csv") %>% 

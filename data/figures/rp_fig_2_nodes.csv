@@ -1,11 +1,11 @@
 id ,driver,category,cat_num,trend,trend_num,level
-s01,sea ice,cryosphere,1,decrease,1,key
+s01,Sea-ice,cryosphere,1,decrease,1,key
 s02,glacier mass balance,cryosphere,1,decrease,1,key
-s03,glacial + riverine discharge,cryosphere,1,increase,3,key
+s03,terrestrial runoff,cryosphere,1,increase,3,key
 s04,seawater temperature,physics,2,increase,3,key
 s05,salinity,physics,2,decrease,1,key
 s06,light,physics,2,complex,2,key
-s07,carbonate system,chemistry,3,increase,3,key
+s07,carbonate system*,chemistry,3,increase,3,key
 s08,nutrients,chemistry,3,increase,3,key
 s09,primary production,biology,4,increase,3,key
 s10,biomass,biology,4,increase,3,key
