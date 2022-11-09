@@ -21,6 +21,7 @@ library(ggplotify) # For working with complex data visuals
 library(ggcorrplot) # For correlograms
 library(ggalluvial) # For alluvial plot
 library(ggasym) # For correlation plots with multiple colour bars
+library(ggrepel) # For labels with segments
 library(treemapify) # For gridded tree map
 
 # Ice cover colours
@@ -41,6 +42,19 @@ driver_cat_colours <- c(
   "soc" = "#F48080"
 )
 
+# Long names for merging
+long_cat_names <- data.frame(category = c("cryo", "phys", "chem", "bio", "soc"),
+                             category_long = c("cryosphere", "physics", "chemistry", "biology", "social"))
+long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
+                                           "sea temp", "salinity", "light",
+                                           "carb", "nutrients", 
+                                           "prim prod", "biomass", "spp rich", 
+                                           "tourism", "fisheries"),
+                                driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                                "seawater temperature", "salinity", "light",
+                                                "carbonate chemistry", "nutrients",
+                                                "primary production", "biomass", "species richness",
+                                                "tourism", "fisheries"))
 
 # Data --------------------------------------------------------------------
 
@@ -1724,25 +1738,50 @@ clean_all_annual <- clean_all_clean %>%
                                             "carb", "nutrients",
                                             "prim prod", "biomass", "spp rich",      
                                             "tourism", "fisheries")),
-         site_count = as.factor(site_count))
+         site_count = as.factor(site_count)) %>% 
+  left_join(long_driver_names, by = "driver") %>% 
+  mutate(driver_long = factor(driver_long, 
+                              levels = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                         "seawater temperature", "salinity", "light",
+                                         "carbonate chemistry", "nutrients",
+                                         "primary production", "biomass", "species richness",
+                                         "tourism", "fisheries")))
 
-# Stacked barplots of drvier presence in a given year
+# Driver text labels
+clean_all_labels <- clean_all_annual %>% 
+  group_by(category, driver_long) %>% 
+  filter(driver_count_sum == max(driver_count_sum)) %>% 
+  ungroup()
+
+# Stacked barplots of driver presence in a given year
 fig_4 <- ggplot(data = clean_all_annual, aes(x = year, y = driver_count_sum)) +
   geom_col(position = "stack", aes(fill = site_count)) +
-  facet_wrap(~driver, ncol = 1, scales = "free_y", strip.position = "right") +
-  labs(fill = "Site\ncount", x = NULL, y = "Count of data points") +
+  geom_label(data = clean_all_labels, hjust = 0,
+             aes(x = 1957, y = driver_count_sum*0.65, label = driver_long)) +
+  geom_label_repel(data = clean_all_labels, nudge_x = -15, min.segment.length = 0.0,
+                   aes(x = year, y = driver_count_sum, label = scales::comma(driver_count_sum))) +
+  facet_wrap(~driver_long, ncol = 1, scales = "free_y") +
+  labs(fill = "Count of sites\nwith data", x = NULL, y = "Count of data points") +
   scale_fill_brewer() +
+  scale_x_continuous(limits = c(1950, 2022),
+                     expand = c(0, 0),
+                     breaks = c(1951, 1960, 1980, 2000, 2020),
+                     labels = c("<-1876", "1960", "1980", "2000", "2020")) +
   guides(fill = guide_legend(nrow = 1, label.position = "bottom")) +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(fill = NA, colour = "black"),
+        strip.text = element_blank(), 
+        strip.background = element_blank(),
         legend.position = "bottom", 
         legend.spacing.x = unit(0, "mm"),
         legend.title = element_text(margin = margin(r = 10)))
-        # legend.direction = "vertical")
-fig_4
+# fig_4
 
 # Save
-ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 12)
+ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 8)
 
 
 # Figure 5 ----------------------------------------------------------------
