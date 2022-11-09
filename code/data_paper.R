@@ -1426,13 +1426,13 @@ site_points <- data.frame(site = factor(x = c("Kongsfjorden", "Isfjorden", "Stor
 
 # Colour palette for sites
 site_colours <- c(
-  "Kongsfjorden" = "tan1", 
-  "Isfjorden" = "sienna1", 
-  "Storfjorden" = "orange1", 
-  "Young Sound" = "darkseagreen1", 
-  "Disko Bay" = "seagreen1", 
-  "Nuup Kangerlua" = "palegreen1", 
-  "Porsangerfjorden" = "plum1"
+  "Kongsfjorden" = "chocolate4", 
+  "Isfjorden" = "chocolate3", 
+  "Storfjorden" = "chocolate1", 
+  "Young Sound" = "springgreen4", 
+  "Qeqertarsuup Tunua" = "springgreen3", 
+  "Nuup Kangerlua" = "springgreen1", 
+  "Porsangerfjorden" = "plum4"
 )
 
 # EU SST trends
@@ -1575,7 +1575,7 @@ fig_1 <- fig_1_base +
   # Ice legend
   geom_grob(aes(x = 0.0, y = -0.94, label = list(cowplot::as_grob(ice_legend))))
 # fig_1
-ggsave("figures/fig_1.png", fig_1, width = 12, height = 10)
+ggsave("figures/dp_fig_1.png", fig_1, width = 12, height = 10)
 
 
 # Figure 2 ----------------------------------------------------------------
@@ -1730,12 +1730,15 @@ clean_all_annual <- clean_all_clean %>%
 fig_4 <- ggplot(data = clean_all_annual, aes(x = year, y = driver_count_sum)) +
   geom_col(position = "stack", aes(fill = site_count)) +
   facet_wrap(~driver, ncol = 1, scales = "free_y", strip.position = "right") +
-  labs(fill = "Site count", x = NULL, y = "Count of data points") +
+  labs(fill = "Site\ncount", x = NULL, y = "Count of data points") +
   scale_fill_brewer() +
-  guides(fill = guide_legend(nrow = 1)) +
+  guides(fill = guide_legend(nrow = 1, label.position = "bottom")) +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
-        legend.position = "bottom")
+        legend.position = "bottom", 
+        legend.spacing.x = unit(0, "mm"),
+        legend.title = element_text(margin = margin(r = 10)))
+        # legend.direction = "vertical")
 fig_4
 
 # Save
@@ -1767,17 +1770,31 @@ if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 
 # table(all_meta$category, all_meta$driver, all_meta$variable)
 table_1 <- clean_all_clean %>% 
-  dplyr::select(category, driver, variable) %>% 
+  dplyr::select(category, driver) %>% 
   distinct() %>% 
   mutate(category = factor(category, levels = c("cryo", "phys", "chem", "bio", "soc"))) %>% 
-  arrange(category, driver, variable)
+  arrange(category, driver)
 write_csv(table_1, "data/analyses/table_1.csv")
+
+# Pivot wide
+table_1_wide <- table_1 %>% 
+  group_by(category) %>% 
+  mutate(row_idx = 1:n()) %>% 
+  pivot_wider(names_from = category, values_from = driver) %>% 
+  dplyr::select(-row_idx)
+
+# Or rather just manually create this table
+table_1_wide <- data.frame(cryo = c("sea ice", "glacier", "runoff"),
+                           phys = c("sea temp", "salinity", "light"),
+                           chem = c("carb", "nutrients", ""),
+                           bio = c("prim prod", "biomass", "spp rich"),
+                           soc = c("gov", "tourism", "fisheries"))
 
 # Create figure for now because Google docs tables are red hot garbage
 table_1_plot <- ggplot() +
-  annotate(geom = "table", x = 0, y = 0, label = list(table_1)) +
+  annotate(geom = "table", x = 0, y = 0, label = list(table_1_wide)) +
   theme_void()
-ggsave("figures/table_1.png", table_1_plot, width = 4.25, height = 15)
+ggsave("figures/table_1.png", table_1_plot, width = 3.5, height = 0.8)
 
 
 # Table 2 -----------------------------------------------------------------
@@ -1843,3 +1860,21 @@ ggsave("figures/table_2.png", table_2_plot, width = 6.75, height = 1.55)
 # The check mark showing a possible comparison could be changed to show if the comparisons are both in situ, or only a remotely sensed time series is being compared.
 # Use two check marks per box to accomplish this.
 
+# Table A1 ----------------------------------------------------------------
+
+# List of the categories, drivers, and their variables
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
+# table(all_meta$category, all_meta$driver, all_meta$variable)
+table_A1 <- clean_all_clean %>% 
+  dplyr::select(category, driver, variable) %>% 
+  distinct() %>% 
+  mutate(category = factor(category, levels = c("cryo", "phys", "chem", "bio", "soc"))) %>% 
+  arrange(category, driver, variable)
+write_csv(table_A1, "data/analyses/table_A1.csv")
+
+# Create figure for now because Google docs tables are red hot garbage
+table_A1_plot <- ggplot() +
+  annotate(geom = "table", x = 0, y = 0, label = list(table_A1)) +
+  theme_void()
+ggsave("figures/table_A1.png", table_A1_plot, width = 4.25, height = 15.2, dpi = 600)

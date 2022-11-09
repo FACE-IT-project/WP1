@@ -1,79 +1,14 @@
-category,driver,variable
-cryo,glacier,ablation [m w.e.]
-cryo,glacier,cumulative mass balance [m]
-cryo,glacier,Glac w [km]
-cryo,glacier,glacier ice area rate [km2 yr-1]
-cryo,glacier,glacier ice surface velocity [m yr-1]
-cryo,glacier,glacier ice thickness flux gate [m]
-cryo,glacier,glacier ice thickness front [m]
-cryo,glacier,glacier mass balance ablation [Gt yr-1]
-cryo,glacier,glacier mass balance calving [Gt yr-1]
-cryo,glacier,glacier mass balance front [Gt yr-1]
-cryo,glacier,Net balance [m]
-cryo,glacier,Summer balance [m]
-cryo,glacier,Winter balance [m]
-cryo,runoff,Q [m3/s]
-cryo,sea ice,EsEs [m]
-cryo,sea ice,EsEs acc [cm]
-cryo,sea ice,ice area [km2]
-cryo,sea ice,Ice conc [tenths]
-cryo,sea ice,Ice cov [%]
-cryo,sea ice,ice cover [%]
-cryo,sea ice,IP [km**3/day]
-cryo,sea ice,Open water [annual days]
-cryo,sea ice,sea ice cover [proportion]
-cryo,sea ice,Sea ice thickness [cm]
-phys,light,PAR [µmol m-2 s-1]
-phys,light,UV-B [W*m^2]
-phys,salinity,sal
-phys,sea temp,temp [°C]
-chem,carb,CaCO3 [%]
-chem,carb,pCO2 [µatm]
-chem,carb,pCO2_calc [µatm]
-chem,carb,pCO2water_SST_wet [µatm]
-chem,carb,pH in situ [total scale]
-chem,carb,TA [µmol/kg]
-chem,nutrients,NH4 [µmol/l]
-chem,nutrients,NO2 [µmol/l]
-chem,nutrients,NO3 [µmol/kg]
-chem,nutrients,NO3 [µmol/l]
-chem,nutrients,NO3+NO2 [µmol/l]
-chem,nutrients,PO4 [µmol/l]
-chem,nutrients,SiO4 [µmol/l]
-bio,biomass,spp count [cells/l]
-bio,biomass,spp count [ind/m3]
-bio,prim prod,alpha_chl [g C g-1 Chl mol-1 photons m2]
-bio,prim prod,chl_flu [µg chl m-3]
-bio,prim prod,chl_fluor [µg/l]
-bio,prim prod,Chla - 10um [µg/l]
-bio,prim prod,Chla - GFF [µg/l]
-bio,prim prod,Chla [µg/l]
-bio,prim prod,chla_area_GFF_frac [mg Chla m-2]
-bio,prim prod,chla_area_plus_10_frac [mg Chla m-2]
-bio,prim prod,chla_GFF_conc [µg Chla m-3]
-bio,prim prod,chla_GFF_frac
-bio,prim prod,chla_plus_10_conc [µg Chla m-3]
-bio,prim prod,chla_plus_10_frac
-bio,prim prod,pm_chl [g C g-1 Chl h-1]
-bio,prim prod,PP [mg C/m3/d]
-bio,prim prod,PP_area_disolv_frac [mg C m-2 day-1]
-bio,prim prod,PP_area_GFF_frac [mg C m-2 day-1]
-bio,prim prod,PP_area_plus_10_frac [mg C m-2 day-1]
-bio,prim prod,pp_chla [mg C µg Chla-1 m–3 day-1]
-bio,prim prod,PP_dissolv_frac
-bio,prim prod,PP_GFF_frac
-bio,prim prod,PP_plus_10_frac
-bio,prim prod,pp_vol [mg C m-3 day-1]
-bio,prim prod,TOTAL_chla_area
-bio,prim prod,TOTAL_PP_area
-bio,spp rich,spp count [n]
-soc,fisheries,berths [n]
-soc,fisheries,Calls - commercial [n]
-soc,fisheries,nautical miles [sum]
-soc,fisheries,trips [n]
-soc,fisheries,Vessels [n]
-soc,tourism,Arrivals [n]
-soc,tourism,Calls - tourism [n]
-soc,tourism,Days in port - tourism [count]
-soc,tourism,Passengers [n]
-soc,tourism,Vessels [n]
+category,driver
+cryo,glacier
+cryo,runoff
+cryo,sea ice
+phys,light
+phys,salinity
+phys,sea temp
+chem,carb
+chem,nutrients
+bio,biomass
+bio,prim prod
+bio,spp rich
+soc,fisheries
+soc,tourism
