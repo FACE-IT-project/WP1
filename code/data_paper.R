@@ -1747,7 +1747,13 @@ clean_all_annual <- clean_all_clean %>%
                                          "primary production", "biomass", "species richness",
                                          "tourism", "fisheries")))
 
-# Driver text labels
+# Stats
+clean_all_annual %>% 
+  group_by(category, driver) %>% 
+  summarise(year = min(year, na.rm = T)) %>% 
+  arrange(year)
+
+# Labels for plotting
 clean_all_labels <- clean_all_annual %>% 
   group_by(category, driver_long) %>% 
   filter(driver_count_sum == max(driver_count_sum)) %>% 
