@@ -1085,7 +1085,7 @@ ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 
 
 # Section 4 ---------------------------------------------------------------
-# Relationships between data analysed for Section 2
+# Relationships between data analysed for Section 3
 # NB: Only necessary to run the `Setup` section
 
 ## Provide literature reviews on the relationships they have with each other as well as data analyses of these relationships
@@ -1157,6 +1157,9 @@ clean_all_clean <- clean_all_cryo %>%
 rm(clean_all_cryo, clean_all_phys, clean_all_chem, clean_all_bio, clean_all_soc); gc()
 save(clean_all_clean, file = "data/analyses/clean_all_clean.RData")
 
+# Load cleaned up clean data
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
 ### Relationships from the network analysis - created via the review paper
 # We want to see which sites have what relationships, and if there are any obvious outliers
 # This is one of the main points that will feed back into the review paper
@@ -1216,7 +1219,9 @@ driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_runo
                     PP_biomass, biomass_spp,
                     gov_tour, gov_fish, tour_nut, tour_light, fish_biomass, fish_spp) %>% distinct()
 save(driver_all, file = "data/analyses/driver_all.RData")
-# load(file = "data/analyses/driver_all.RData")
+
+# Load relationship data
+if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 
 # Quick fix for plotting
 driver_all_asym <- asymmetrize(driver_all, variable, variable_y) %>% 
@@ -1795,6 +1800,12 @@ ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 8)
 # Importance is to show difference between sites
 # Heatmap or corplot: https://jhrcook.github.io/ggasym/index.html
 
+# TODO: Start by getting the relationships per site
+# Show them together or as facets, but not as an asym matrix
+# We only want to see the relationships with data
+# Filter these down by the amount shown across sites
+# The creation of table 3 for this should be very helpful
+
 
 # Figure 6 ----------------------------------------------------------------
 # Show the differences in R2 etc between sites
@@ -1904,6 +1915,7 @@ ggsave("figures/table_2.png", table_2_plot, width = 6.75, height = 1.55)
 # Table showing the drivers that were able to be compared and those that could not.
 # The check mark showing a possible comparison could be changed to show if the comparisons are both in situ, or only a remotely sensed time series is being compared.
 # Use two check marks per box to accomplish this.
+
 
 # Table A1 ----------------------------------------------------------------
 
