@@ -1344,6 +1344,12 @@ ggplot(data = df_3, aes(x = value.x, y = value.y)) +
 ## "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
 ## "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
 
+# Load cleaned up clean data
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
+# Load relationship data
+if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
+
 # Morten model data
 ## NB: Nit = Nitrate 
 model_kong <- load_model("kongsfjorden_rcp")
@@ -1378,14 +1384,8 @@ ggplot(model_kong_even_grid, aes(x = lon, y = lat)) +
                  xlim = c(coords[1]-1.5, coords[2]+1.5), 
                  ylim = c(coords[3]-0.4, coords[4]+0.4))
 
-# TODO: Get linear relationships for variables consistent across sites
-# Then multiply those linear trends by the future projections in the model
-# With a bit of table joining help, this could be done in an automated fashion
-# One must code the model variables to similar present day data at similar depths
-# One then takes the projected increases by 2100 at different RCP and multiplies them
-# by the historic relationships
-
-# Rather we just subset the pixels to those within the bounding box of each site
+# Get the RMSE between data and model data
+#Also average average decadal trends for the pixels within the bounding box of each site
 model_kong_stats <- model_bbox_stats(model_kong, "kong")
 model_is_stats <- model_bbox_stats(model_is, "is")
 model_stor_stats <- model_bbox_stats(model_stor, "stor")
@@ -1395,6 +1395,8 @@ model_ALL_stats <- rbind(model_kong_stats, model_is_stats, model_stor_stats,
                         model_young_stats, model_por_stats)
 rm(model_kong_stats, model_is_stats, model_stor_stats,
    model_young_stats, model_por_stats); gc()
+save(model_ALL_stats, file = "data/analyses/model_ALL_stats.RData")
+if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
 
 # Get historic slopes as these tend to be higher than RCP 8.5
 historic_trend <- driver_all %>% 

@@ -1595,9 +1595,24 @@ model_bbox_stats <- function(model_product, site_abv){
   # Get correct bounding box
   bbox <- bbox_from_name(site_abv)
   
+  # Load clean data
+  if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+  clean_all_sub <- clean_all_clean %>% 
+    filter(site == site_abv,
+           variable %in% c("NO3 [µmol/l]", "pCO2 [µatm]","PO4 [µmol/l]",
+                           "SiO4 [µmol/l]", "temp [°C]", "sal")) %>% 
+    mutate(depth = case_when(depth <= 10 ~ "0 to 10",
+                             depth <= 50 ~ "10 to 50",
+                             depth <= 200 ~ "50 to 200"),
+           date = lubridate::round_date(date, "month")) %>% 
+    filter(!is.na(depth)) %>%  # Remove data deeper than 200 metres
+    group_by(site, date, depth, variable) %>% 
+    summarise(value_dat = mean(value, na.rm = T), .groups = "drop")
+  
   # Mean stats by bbox
-  model_bbox_mean <- model_product %>% 
+  model_clean <- model_product %>% 
     mutate(site = site_abv,
+           date = lubridate::round_date(date-20, "month"), # Round to start of month to match other data
            depth = case_when(depth <= 10 ~ "0 to 10",
                              depth <= 50 ~ "10 to 50",
                              depth <= 200 ~ "50 to 200")) %>% # Convert to depth categories matching site averages
@@ -1607,33 +1622,45 @@ model_bbox_stats <- function(model_product, site_abv){
     dplyr::select(-Udir, -USpeed, -Oxy) %>% # No longer checking these variables
     pivot_longer(cols = Salt:pco2w, names_to = "variable") %>% 
     group_by(site, proj, date, depth, variable) %>% 
-    summarise(value = mean(value, na.rm = T), .groups = "drop")
-  
-  # Linear models
-  model_bbox_lm <- model_bbox_mean %>% 
-    group_by(site, proj, depth, variable) %>% 
-    lm_tidy(df = ., x_var = "date", y_var = "value") %>% ungroup() %>% 
-    mutate(slope = round(slope*3652.5, 4)) %>%  # From daily to decadal trend)
-    dplyr::select(-nobs) %>% 
-    # For all lm stats
-    # pivot_longer(cols = slope:pval) %>% 
-    # unite(proj, name, sep = " ", col = "proj_name") %>% 
-    # pivot_wider(names_from = proj_name, values_from = value) %>% 
-    # For just the slope
-    dplyr::select(-rsq, -pval) %>% 
-    pivot_wider(names_from = proj, values_from = slope) %>% 
-    #
+    summarise(value_mod = mean(value, na.rm = T), .groups = "drop") %>% 
     mutate(variable = case_when(variable == "Nit" ~ "NO3 [µmol/l]",
                                 variable == "pco2w" ~ "pCO2 [µatm]",
                                 variable == "Pho" ~ "PO4 [µmol/l]",
                                 variable == "Salt" ~ "sal",
                                 variable == "Sil" ~ "SiO4 [µmol/l]",
-                                variable == "Temp" ~ "temp [°C]" ,
-                                TRUE ~ variable))
+                                variable == "Temp" ~ "temp [°C]",
+                                TRUE ~ variable)) %>% 
+    left_join(clean_all_sub, by = c("site", "date", "depth", "variable"))
+  
+  # Test visuals
+  # model_clean %>% 
+  #   filter(depth == "10 to 50", proj == "RCP 8.5", variable == "temp [°C]") %>% 
+  #   ggplot(aes(x = date, y = value_mod)) +
+  #   geom_point() + geom_line() +
+  #   geom_point(aes(y = value_dat), colour = "red") + 
+  #   geom_line(aes(y = value_dat), colour = "red")
+  
+  # RMSE
+  model_RMSE <- model_clean %>% 
+    filter(!is.na(value_dat)) %>% 
+    group_by(site, proj, depth, variable) %>% 
+    summarise(n = n(),
+              rmse = sqrt(mean((value_dat-value_mod)^2)), .groups = "drop")
+  
+  # Linear models
+  model_lm <- model_clean %>% 
+    group_by(site, proj, depth, variable) %>% 
+    lm_tidy(df = ., x_var = "date", y_var = "value_mod") %>% ungroup() %>% 
+    mutate(slope = round(slope*3652.5, 4)) %>%  # From daily to decadal trend)
+    dplyr::select(-nobs) # Always 1,200
+  
+  # Combine stats
+  model_stats <- left_join(model_RMSE, model_lm,
+                           by = c("site", "proj", "depth", "variable"))
   
   # Return and exit
-  rm(model_bbox_mean); gc()
-  return(model_bbox_lm)
+  rm(model_clean, model_RMSE, model_lm); gc()
+  return(model_stats)
 }
 
 # Convenience wrapper for creating hi-res gridded coordinates
