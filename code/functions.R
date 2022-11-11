@@ -1606,7 +1606,7 @@ model_bbox_stats <- function(model_product, site_abv){
                              depth <= 200 ~ "50 to 200"),
            date = lubridate::round_date(date, "month")) %>% 
     filter(!is.na(depth)) %>%  # Remove data deeper than 200 metres
-    group_by(site, date, depth, variable) %>% 
+    group_by(site, type, depth, date, variable) %>% 
     summarise(value_dat = mean(value, na.rm = T), .groups = "drop")
   
   # Mean stats by bbox
