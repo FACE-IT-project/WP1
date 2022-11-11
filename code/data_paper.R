@@ -1863,34 +1863,9 @@ if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 # Load moel stats
 if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
 
-# Create wide model slopes for better merging
-model_wide <- model_ALL_stats %>% 
-  dplyr::select(site, proj, depth, variable, slope) %>% 
-  pivot_wider(names_from = proj, values_from = slope)
-
-# Get historic slopes as these tend to be higher than RCP 8.5
-historic_trend <- driver_all %>% 
-  filter(is.na(variable_y)) %>% 
-  mutate(hist_trend = slope*120) %>% 
-  dplyr::select(site, type, category, driver, variable, depth, hist_trend)
-
-# Get the product of the historic relationship between drivers and the projected change in the independent driver
-future_stats <- driver_all %>% 
-  filter(!is.na(variable_y)) %>% 
-  left_join(model_wide, by = c("site", "variable", "depth")) %>% 
-  left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth")) %>% 
-  filter(!is.na(`RCP 2.6`)) %>% 
-  mutate(change_hist = slope*(hist_trend*8),
-         change_2.6 = slope*(`RCP 2.6`*8),
-         change_4.5 = slope*(`RCP 4.5`*8),
-         change_8.5 = slope*(`RCP 8.5`*8)) %>% 
-  mutate(mean_hist = mean_val+change_hist,
-         mean_2.6 = mean_val+change_2.6,
-         mean_4.5 = mean_val+change_4.5,
-         mean_8.5 = mean_val+change_8.5)
-
 # RMSE between in situ/remote and model
 fig_6 <- model_ALL_stats %>% 
+  filter(type == "in situ") %>% 
   mutate(mean_mod_greater = ifelse(mean_mod > mean_dat, 1, 0)) %>% 
   left_join(long_site_names, by = "site") %>% 
   mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
@@ -1918,11 +1893,50 @@ ggsave("figures/dp_fig_6.png", fig_6, width = 7, height = 3)
 # Figure 7 ----------------------------------------------------------------
 # Projections of data where possible
 
+# Load relationship data
+if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 
-future_stats %>% 
+# Load moel stats
+if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
+
+# Create wide model slopes for better merging
+model_wide <- model_ALL_stats %>% 
+  dplyr::select(site, type, proj, depth, variable, slope) %>% 
+  pivot_wider(names_from = proj, values_from = slope)
+
+# Get historic slopes as these tend to be higher than RCP 8.5
+historic_trend <- driver_all %>% 
+  filter(is.na(variable_y)) %>% 
+  mutate(hist_trend = slope*120) %>% 
+  dplyr::select(site, type, category, driver, variable, depth, hist_trend)
+
+# Get the product of the historic relationship between drivers and the projected change in the independent driver
+future_stats <- driver_all %>% 
+  filter(!is.na(variable_y)) %>% 
+  left_join(model_wide, by = c("site", "type", "variable", "depth")) %>% 
+  left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth")) %>% 
+  filter(!is.na(`RCP 2.6`)) %>% 
+  mutate(change_hist = slope*(hist_trend*8),
+         change_2.6 = slope*(`RCP 2.6`*8),
+         change_4.5 = slope*(`RCP 4.5`*8),
+         change_8.5 = slope*(`RCP 8.5`*8)) %>% 
+  mutate(mean_hist = mean_val+change_hist,
+         mean_2.6 = mean_val+change_2.6,
+         mean_4.5 = mean_val+change_4.5,
+         mean_8.5 = mean_val+change_8.5)
+
+# The figure
+fig_7 <- future_stats %>% 
   dplyr::select(site:depth_y, mean_val, mean_hist:mean_8.5) %>% 
   pivot_longer(cols = mean_val:mean_8.5) %>% 
-  mutate(name = factor(name, levels = c("mean_val", "mean_hist", "mean_2.6", "mean_4.5", "mean_8.5"))) %>% 
+  left_join(long_site_names, by = "site") %>% 
+  mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
+                                                  "Storfjorden", "Porsangerfjorden")),
+         name = case_when(name == "mean_hist" ~ paste0(name,"_",type), TRUE ~ name),
+         name = factor(name, levels = c("mean_val", "mean_hist_in situ", "mean_hist_OISST", "mean_hist_CCI",
+                                        "mean_2.6", "mean_4.5", "mean_8.5"),
+                       labels = c("Historic", "Proj: in situ", "Proj: OISST", "Proj: CCI",
+                                  "Proj: RCP 2.6", "Proj: RCP 4.5", "Proj: RCP 8.5"))) %>% 
   # QC
   mutate(value = case_when(variable_y == "sea ice cover [proportion]" & value < -1 ~ as.numeric(NA), 
                            variable_y == "Chla [µg/l]" & value < -3 ~ as.numeric(NA),
@@ -1931,11 +1945,16 @@ future_stats %>%
   #
   ggplot(aes(x = name, y = value)) +
   geom_boxplot(aes(fill = variable), outlier.colour = NA) +
-  geom_jitter(aes(colour = site)) +
+  geom_jitter(aes(colour = site_long)) +
   facet_wrap(~variable_y, scales = "free_y") +
-  scale_fill_brewer("Driver", palette = "Dark2") +
-  # facet_grid(depth~variable_y, scales = "free_y") +
-  theme(axis.text.x = element_text(angle = 30))
+  scale_fill_brewer("Variable", palette = "Set3") +
+  scale_colour_manual("Site", values = site_colours) +
+  labs(y = NULL, x = NULL) +
+  theme(axis.text.x = element_text(angle = 30),
+        legend.position = c(0.82, 0.154),
+        legend.box = "horizontal")
+# fig_7
+ggsave("figures/dp_fig_7.png", fig_7, width = 8, height = 8)
 
 
 # Table 1 -----------------------------------------------------------------
@@ -2073,6 +2092,24 @@ ggsave("figures/table_3.png", table_3_plot, width = 5.4, height = 1.8, dpi = 600
 
 # Table 4 -----------------------------------------------------------------
 # Difference in projected trends
+
+# Load relationship data
+if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
+
+# Load moel stats
+if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
+
+# Get historic slopes as these tend to be higher than RCP 8.5
+historic_trend <- driver_all %>% 
+  filter(is.na(variable_y)) %>% 
+  mutate(hist_trend = slope*120) %>% 
+  dplyr::select(site, type, category, driver, variable, depth, hist_trend)
+
+# Get the product of the historic relationship between drivers and the projected change in the independent driver
+future_stats <- driver_all %>% 
+  filter(!is.na(variable_y)) %>% 
+  left_join(model_wide, by = c("site", "type", "variable", "depth")) %>% 
+  left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth"))
 
 # The trends of the model data against those of the amalgamated data
 table_4 <- future_stats %>% 
