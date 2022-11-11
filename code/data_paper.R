@@ -42,7 +42,23 @@ driver_cat_colours <- c(
   "soc" = "#F48080"
 )
 
+# Colour palette for sites
+site_colours <- c(
+  "Kongsfjorden" = "chocolate4", 
+  "Isfjorden" = "chocolate3", 
+  "Storfjorden" = "chocolate1", 
+  "Young Sound" = "springgreen4", 
+  "Qeqertarsuup Tunua" = "springgreen3", 
+  "Nuup Kangerlua" = "springgreen1", 
+  "Porsangerfjorden" = "plum4"
+)
+
+
 # Long names for merging
+long_site_names <- data.frame(site = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
+                             site_long = c("Kongsfjorden", "Isfjorden", "Storfjorden",
+                                           "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
+                                           "Porsangerfjorden"))
 long_cat_names <- data.frame(category = c("cryo", "phys", "chem", "bio", "soc"),
                              category_long = c("cryosphere", "physics", "chemistry", "biology", "social"))
 long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
@@ -1175,7 +1191,6 @@ ice_temp <- driver2_lm("sea ice", "sea temp") # sea ice -> sea temp
 ice_light <- driver2_lm("sea ice", "light") # sea ice -> light
 ice_biomass <- driver2_lm("sea ice", "biomass") # sea ice -> biomass
 ice_spp <- driver2_lm("sea ice", "spp rich") # sea ice -> spp richness
-ice_gov <- driver2_lm("sea ice", "gov") # sea ice -> governance
 gmb_runoff <- driver2_lm("glacier", "runoff") # gmb -> runoff
 gmb_spp <- driver2_lm("glacier", "spp rich") # gmb -> spp richness
 runoff_temp <- driver2_lm("runoff", "sea temp") # runoff -> sea temp
@@ -1207,17 +1222,16 @@ biomass_spp <- driver2_lm("biomass", "spp rich") # biomass -> spp richness
 gov_tour <- driver2_lm("gov", "tourism") # governance -> tourism # No governance data
 gov_fish <- driver2_lm("gov", "fisheries") # governance -> fisheries # No governance data
 tour_nut <- driver2_lm("tourism", "nutrients") # tourism -> nutrients
-tour_light <- driver2_lm("tourism", "light") # tourism -> light
 fish_biomass <- driver2_lm("fisheries", "biomass") # fisheries -> biomass
 fish_spp <- driver2_lm("fisheries", "spp rich") # fisheries -> spp richness
 
 # Look across sites for differences in r2 values for variables that are shared between sites
-driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, ice_gov, gmb_runoff, gmb_spp, 
+driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, gmb_runoff, gmb_spp, 
                     runoff_temp, runoff_sal, runoff_light, runoff_carb, runoff_nut,
                     temp_ice, temp_spp, temp_biomass, temp_PP, sal_spp, sal_biomass, light_spp, light_biomass, light_PP,
                     carb_spp, nut_PP, 
                     PP_biomass, biomass_spp,
-                    gov_tour, gov_fish, tour_nut, tour_light, fish_biomass, fish_spp) %>% distinct()
+                    gov_tour, gov_fish, tour_nut, fish_biomass, fish_spp) %>% distinct()
 save(driver_all, file = "data/analyses/driver_all.RData")
 
 # Load relationship data
@@ -1442,17 +1456,6 @@ site_points <- data.frame(site = factor(x = c("Kongsfjorden", "Isfjorden", "Stor
                                                    "Porsangerfjorden")),
                           lon = c(11.845, 14.365, 19.88, -21.237, -52.555, -50.625, 25.75),
                           lat = c(78.98, 78.235, 77.78, 74.517, 69.36, 64.405, 70.6))
-
-# Colour palette for sites
-site_colours <- c(
-  "Kongsfjorden" = "chocolate4", 
-  "Isfjorden" = "chocolate3", 
-  "Storfjorden" = "chocolate1", 
-  "Young Sound" = "springgreen4", 
-  "Qeqertarsuup Tunua" = "springgreen3", 
-  "Nuup Kangerlua" = "springgreen1", 
-  "Porsangerfjorden" = "plum4"
-)
 
 # EU SST trends
 ## NB: This file is very large, only load if necessary
@@ -1806,17 +1809,60 @@ ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 8)
 # Filter these down by the amount shown across sites
 # The creation of table 3 for this should be very helpful
 
+# Load relationship data
+if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
+
+# Get count of comparisons by site regardless of data type and depth
+driver_all_site_count <- driver_all %>% 
+  dplyr::select(driver, driver_y, variable, variable_y, site) %>% 
+  distinct() %>% 
+  filter(!is.na(driver_y)) %>% 
+  group_by(driver, driver_y, variable, variable_y) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  filter(count >= 4)
+
+# Filter combos with four or more sites available
+driver_all_filter <- driver_all %>% 
+  right_join(driver_all_site_count) %>% 
+  mutate(comp = paste0(variable," -> ", variable_y),
+         depth_comp = paste0(depth," -> ", depth_y)) %>% 
+  filter(comp != "sea ice cover [proportion] -> temp [°C]") # Redundant
+
+# Boxplots of slopes for each comparison
+# With the sites and depths of comparison making up the points
+fig_5 <- driver_all_filter %>% 
+  left_join(long_site_names, by = "site") %>% 
+  mutate(site_long = factor(site_long,
+                            levels = c("Kongsfjorden", "Isfjorden", "Storfjorden",
+                                       "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
+                                       "Porsangerfjorden"))) %>% 
+  # filter(depth == depth_y) %>% # Too restrictive
+  ggplot(aes(x = comp, y = slope)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(aes(colour = site_long),
+              size = 3, position = position_jitter(0.3)) +
+  facet_wrap(~comp, scales = "free") +
+  labs(x = NULL, y = "Slope [Y/X]") +
+  scale_colour_manual("Site", values = site_colours) +
+  guides(colour = guide_legend(override.aes = list(shape = 15, size = 10))) +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = c(0.82, 0.154),
+        panel.border = element_rect(fill = NA, colour = "black"))
+# fig_5
+
+# Save
+ggsave("figures/dp_fig_5.png", fig_5, width = 12, height = 10)
+
 
 # Figure 6 ----------------------------------------------------------------
-# Show the differences in R2 etc between sites
-# Heatmap of differences
-
-
-# Figure 7 ----------------------------------------------------------------
 # A figure or table showing similarity between model and amalgamated data. 
 # Perhaps RMSE values as a function of time series differences by monthly means by site.
 # A) Difference between in situ/remote projections and model RCPs
+  # Only do this for sea temp and sea ice
 # B) The trends of the model data against those of the amalgamated data.
+  # Only do this for sea temp and sea ice
+# C) Projections of comparisons from Figure 5
 
 
 # Table 1 -----------------------------------------------------------------
@@ -1915,6 +1961,41 @@ ggsave("figures/table_2.png", table_2_plot, width = 6.75, height = 1.55)
 # Table showing the drivers that were able to be compared and those that could not.
 # The check mark showing a possible comparison could be changed to show if the comparisons are both in situ, or only a remotely sensed time series is being compared.
 # Use two check marks per box to accomplish this.
+
+# Load relationship data
+if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
+
+# Get count of comparisons by site regardless of data type and depth
+driver_all_site_count <- driver_all %>% 
+  dplyr::select(driver, driver_y, variable, variable_y, site) %>% 
+  distinct() %>% 
+  filter(!is.na(driver_y)) %>% 
+  group_by(driver, driver_y, variable, variable_y) %>% 
+  summarise(count = n(), .groups = "drop") 
+
+# Count of site counts
+driver_count_count <- driver_all_site_count %>% 
+  group_by(count) %>% 
+  summarise(count_count = n())
+
+# Checks
+driver_check <- driver_all_site_count %>% 
+  filter(driver == "sea ice")
+
+# Create table
+table_3 <- driver_all_site_count %>% 
+  filter(count >= 4) %>% 
+  arrange(-count) %>% 
+  dplyr::rename(`driver x` = driver, `driver y` = driver_y,
+                `variable x` = variable, `variable y` = variable_y, `site count` = count) %>% 
+  slice(-1) # Remove redundant sea ice sea temp comparison
+write_csv(table_3, "data/analyses/table_3.csv")
+
+# Create figure for now because Google docs tables are red hot garbage
+table_3_plot <- ggplot() +
+  annotate(geom = "table", x = 0, y = 0, label = list(table_3)) +
+  theme_void()
+ggsave("figures/table_3.png", table_3_plot, width = 5.4, height = 1.8, dpi = 600)
 
 
 # Table A1 ----------------------------------------------------------------
