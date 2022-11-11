@@ -1643,7 +1643,7 @@ model_bbox_stats <- function(model_product, site_abv){
   # RMSE
   model_RMSE <- model_clean %>% 
     filter(!is.na(value_dat)) %>% 
-    group_by(site, proj, depth, variable) %>% 
+    group_by(site, type, proj, depth, variable) %>% 
     summarise(n = n(),
               mean_dat = mean(value_dat, na.rm = T),
               mean_mod = mean(value_mod, na.rm = T),

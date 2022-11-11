@@ -15,7 +15,7 @@
 # Setup -------------------------------------------------------------------
 
 source("code/functions.R")
-library(ggpmisc)
+library(ggpmisc) # For plotting tables
 library(listr) # For dealing with lists - not used
 library(ggplotify) # For working with complex data visuals
 library(ggcorrplot) # For correlograms
@@ -1889,15 +1889,15 @@ future_stats <- driver_all %>%
          mean_4.5 = mean_val+change_4.5,
          mean_8.5 = mean_val+change_8.5)
 
-# A) RMSE between in situ/remote and model
-fig_6a <- model_ALL_stats %>% 
+# RMSE between in situ/remote and model
+fig_6 <- model_ALL_stats %>% 
   mutate(mean_mod_greater = ifelse(mean_mod > mean_dat, 1, 0)) %>% 
   left_join(long_site_names, by = "site") %>% 
   mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
                                                   "Storfjorden", "Porsangerfjorden")),
          variable = factor(variable, levels = c("temp [°C]", "sal", "pCO2 [µatm]", 
                                                 "NO3 [µmol/l]", "PO4 [µmol/l]", "SiO4 [µmol/l]" ))) %>% 
-  group_by(site_long, depth, variable) %>% 
+  group_by(site_long, type, depth, variable) %>% 
   summarise(mean_mod_greater = mean(mean_mod_greater, na.rm = T),
             rmse = mean(rmse, na.rm = T), .groups = "drop") %>% 
   ggplot(aes(x = depth, y = variable)) +
@@ -1909,24 +1909,10 @@ fig_6a <- model_ALL_stats %>%
   scale_fill_manual(values = c("blue", "red")) +
   coord_cartesian(expand = F) +
   labs(x = "Depth", y = "Variable")
-fig_6a
+fig_6
 
-# B) The trends of the model data against those of the amalgamated data
-fig_6b <- future_stats %>% 
-  dplyr::select(site, type, variable, depth, `RCP 2.6`, `RCP 4.5`, `RCP 8.5`, hist_trend) %>% 
-  distinct() %>% 
-  pivot_wider(names_from = type, values_from = hist_trend) %>% 
-  pivot_longer(`RCP 2.6`:OISST, names_to = "proj", values_to = "value") %>% 
-  left_join(long_site_names, by = "site") %>% 
-  mutate(proj = factor(proj, levels = c("in situ", "OISST", "CCI", "RCP 2.6", "RCP 4.5", "RCP 8.5")),
-         site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
-                                                  "Storfjorden", "Porsangerfjorden"))) %>% 
-  ggplot(aes(x = proj, y = variable)) +
-  geom_tile(fill = NA, colour = "black") +
-  geom_label(aes(label = round(value, 3))) +
-  facet_grid(depth ~ site_long) +
-  labs(x = "Projection", y = "Variable") +
-  coord_cartesian(expand = F)
+# Save
+ggsave("figures/dp_fig_6.png", fig_6, width = 7, height = 3)
 
 
 # Figure 7 ----------------------------------------------------------------
@@ -2083,6 +2069,31 @@ table_3_plot <- ggplot() +
   annotate(geom = "table", x = 0, y = 0, label = list(table_3)) +
   theme_void()
 ggsave("figures/table_3.png", table_3_plot, width = 5.4, height = 1.8, dpi = 600)
+
+
+# Table 4 -----------------------------------------------------------------
+# Difference in projected trends
+
+# The trends of the model data against those of the amalgamated data
+table_4 <- future_stats %>% 
+  dplyr::select(site, type, variable, depth, `RCP 2.6`, `RCP 4.5`, `RCP 8.5`, hist_trend) %>% 
+  distinct() %>% 
+  pivot_wider(names_from = type, values_from = hist_trend) %>% 
+  left_join(long_site_names, by = "site") %>% 
+  dplyr::select(site_long, variable, depth, `in situ`, OISST, CCI, `RCP 2.6`, `RCP 4.5`, `RCP 8.5`) %>% 
+  mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
+                                                  "Storfjorden", "Porsangerfjorden")),
+         variable = factor(variable, levels = c("temp [°C]", "sal"))) %>% 
+  mutate_if(is.numeric, round, 3) %>% 
+  arrange(site_long, variable) %>% 
+  dplyr::rename(site = site_long)
+write_csv(table_4, "data/analyses/table_4.csv")
+
+# The table
+table_4_plot <- ggplot() +
+  annotate(geom = "table", x = 0, y = 0, label = list(table_4)) +
+  theme_void()
+ggsave("figures/table_4.png", table_4_plot, width = 5.8, height = 3.7, dpi = 600)
 
 
 # Table A1 ----------------------------------------------------------------
