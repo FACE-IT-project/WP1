@@ -1645,6 +1645,8 @@ model_bbox_stats <- function(model_product, site_abv){
     filter(!is.na(value_dat)) %>% 
     group_by(site, proj, depth, variable) %>% 
     summarise(n = n(),
+              mean_dat = mean(value_dat, na.rm = T),
+              mean_mod = mean(value_mod, na.rm = T),
               rmse = sqrt(mean((value_dat-value_mod)^2)), .groups = "drop")
   
   # Linear models
@@ -1659,7 +1661,7 @@ model_bbox_stats <- function(model_product, site_abv){
                            by = c("site", "proj", "depth", "variable"))
   
   # Return and exit
-  rm(model_clean, model_RMSE, model_lm); gc()
+  rm(bbox, model_clean, model_RMSE, model_lm); gc()
   return(model_stats)
 }
 
