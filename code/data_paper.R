@@ -1805,12 +1805,6 @@ ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 8)
 # Importance is to show difference between sites
 # Heatmap or corplot: https://jhrcook.github.io/ggasym/index.html
 
-# TODO: Start by getting the relationships per site
-# Show them together or as facets, but not as an asym matrix
-# We only want to see the relationships with data
-# Filter these down by the amount shown across sites
-# The creation of table 3 for this should be very helpful
-
 # Load relationship data
 if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 
@@ -1859,12 +1853,103 @@ ggsave("figures/dp_fig_5.png", fig_5, width = 12, height = 10)
 
 # Figure 6 ----------------------------------------------------------------
 # A figure or table showing similarity between model and amalgamated data. 
-# Perhaps RMSE values as a function of time series differences by monthly means by site.
-# A) Difference between in situ/remote projections and model RCPs
-  # Only do this for sea temp and sea ice
-# B) The trends of the model data against those of the amalgamated data.
-  # Only do this for sea temp and sea ice
-# C) Projections of comparisons from Figure 5
+
+# Load cleaned up clean data
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
+# Load relationship data
+if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
+
+# Load moel stats
+if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
+
+# Create wide model slopes for better merging
+model_wide <- model_ALL_stats %>% 
+  dplyr::select(site, proj, depth, variable, slope) %>% 
+  pivot_wider(names_from = proj, values_from = slope)
+
+# Get historic slopes as these tend to be higher than RCP 8.5
+historic_trend <- driver_all %>% 
+  filter(is.na(variable_y)) %>% 
+  mutate(hist_trend = slope*120) %>% 
+  dplyr::select(site, type, category, driver, variable, depth, hist_trend)
+
+# Get the product of the historic relationship between drivers and the projected change in the independent driver
+future_stats <- driver_all %>% 
+  filter(!is.na(variable_y)) %>% 
+  left_join(model_wide, by = c("site", "variable", "depth")) %>% 
+  left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth")) %>% 
+  filter(!is.na(`RCP 2.6`)) %>% 
+  mutate(change_hist = slope*(hist_trend*8),
+         change_2.6 = slope*(`RCP 2.6`*8),
+         change_4.5 = slope*(`RCP 4.5`*8),
+         change_8.5 = slope*(`RCP 8.5`*8)) %>% 
+  mutate(mean_hist = mean_val+change_hist,
+         mean_2.6 = mean_val+change_2.6,
+         mean_4.5 = mean_val+change_4.5,
+         mean_8.5 = mean_val+change_8.5)
+
+# A) RMSE between in situ/remote and model
+fig_6a <- model_ALL_stats %>% 
+  mutate(mean_mod_greater = ifelse(mean_mod > mean_dat, 1, 0)) %>% 
+  left_join(long_site_names, by = "site") %>% 
+  mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
+                                                  "Storfjorden", "Porsangerfjorden")),
+         variable = factor(variable, levels = c("temp [°C]", "sal", "pCO2 [µatm]", 
+                                                "NO3 [µmol/l]", "PO4 [µmol/l]", "SiO4 [µmol/l]" ))) %>% 
+  group_by(site_long, depth, variable) %>% 
+  summarise(mean_mod_greater = mean(mean_mod_greater, na.rm = T),
+            rmse = mean(rmse, na.rm = T), .groups = "drop") %>% 
+  ggplot(aes(x = depth, y = variable)) +
+  geom_tile(aes(fill = as.factor(mean_mod_greater)), 
+            colour = "black", alpha = 0.5, show.legend = F) +
+  geom_text(aes(label = round(rmse, 2))) +
+  facet_wrap(~site_long, nrow = 1) +
+  scale_y_discrete(limits = rev) +
+  scale_fill_manual(values = c("blue", "red")) +
+  coord_cartesian(expand = F) +
+  labs(x = "Depth", y = "Variable")
+fig_6a
+
+# B) The trends of the model data against those of the amalgamated data
+fig_6b <- future_stats %>% 
+  dplyr::select(site, type, variable, depth, `RCP 2.6`, `RCP 4.5`, `RCP 8.5`, hist_trend) %>% 
+  distinct() %>% 
+  pivot_wider(names_from = type, values_from = hist_trend) %>% 
+  pivot_longer(`RCP 2.6`:OISST, names_to = "proj", values_to = "value") %>% 
+  left_join(long_site_names, by = "site") %>% 
+  mutate(proj = factor(proj, levels = c("in situ", "OISST", "CCI", "RCP 2.6", "RCP 4.5", "RCP 8.5")),
+         site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
+                                                  "Storfjorden", "Porsangerfjorden"))) %>% 
+  ggplot(aes(x = proj, y = variable)) +
+  geom_tile(fill = NA, colour = "black") +
+  geom_label(aes(label = round(value, 3))) +
+  facet_grid(depth ~ site_long) +
+  labs(x = "Projection", y = "Variable") +
+  coord_cartesian(expand = F)
+
+
+# Figure 7 ----------------------------------------------------------------
+# Projections of data where possible
+
+
+future_stats %>% 
+  dplyr::select(site:depth_y, mean_val, mean_hist:mean_8.5) %>% 
+  pivot_longer(cols = mean_val:mean_8.5) %>% 
+  mutate(name = factor(name, levels = c("mean_val", "mean_hist", "mean_2.6", "mean_4.5", "mean_8.5"))) %>% 
+  # QC
+  mutate(value = case_when(variable_y == "sea ice cover [proportion]" & value < -1 ~ as.numeric(NA), 
+                           variable_y == "Chla [µg/l]" & value < -3 ~ as.numeric(NA),
+                           variable_y == "Chla [µg/l]" & value > 3 ~ as.numeric(NA),
+                           TRUE ~ value)) %>% 
+  #
+  ggplot(aes(x = name, y = value)) +
+  geom_boxplot(aes(fill = variable), outlier.colour = NA) +
+  geom_jitter(aes(colour = site)) +
+  facet_wrap(~variable_y, scales = "free_y") +
+  scale_fill_brewer("Driver", palette = "Dark2") +
+  # facet_grid(depth~variable_y, scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 30))
 
 
 # Table 1 -----------------------------------------------------------------
