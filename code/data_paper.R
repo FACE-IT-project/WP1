@@ -1525,7 +1525,7 @@ fig_1_a <- basemap(limits = c(-60, 60, 60, 90), bathymetry = F) +
         legend.box.margin = margin(10, 10, 10, 10),
         legend.box.background = element_rect(fill = "white", colour = "black"))
 fig_1_a$layers <- fig_1_a$layers[c(2,1,3,4,5)] # Reorder land shape and SST rasters
-ggsave("~/Desktop/anlyses_output/fig_1_a.png", fig_1_a, width = 10, height = 7)
+ggsave("~/Desktop/analyses_output/fig_1_a.png", fig_1_a, width = 10, height = 7)
 
 # Side panels: ice cover trends by site (days of year of ice cover)
 (fig_1_b_kong <- ice_trend_grid_plot("Kongsfjorden", 0.03, check_conv = F) + 

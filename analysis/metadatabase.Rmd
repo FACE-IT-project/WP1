@@ -234,6 +234,14 @@ EU_green_fjords <- data.frame(type = "CTD",
                               reference = '<a onclick="alert(\'Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329\');">Holding et al. (2021)</a>',
                               note = '<a target="_blank" rel="noopener noreferrer" href="https://rpubs.com/JohnnaH/798295">Interactive map</a>')
 
+# IMR species observations
+EU_IMR_spp_obs <- data.frame(type = "Survey",
+                             data_name = "Species: presence",
+                             date_range = "1980 - 2007",
+                             URL = '<a target="_blank" rel="noopener noreferrer" href=https://gbif.imr.no/ipt/resource?r=imr>GBIF</a>',
+                             reference = '<a onclick="alert(\'Sagen, H., Morvik, A. (2015). Observations of marine species [Data set]. IMR. Accessed: 2022-11-14.\');">Sagen and Morvik (2015)</a>',
+                             note = NA)
+
 # SOCAT
 EU_SOCAT <- data.frame(type = "Synthesis",
                        data_name = "Partial pressure of CO2",
@@ -272,7 +280,8 @@ EU_PG <- data.frame(type = "PANGAEA",
 
 # Combine
 metadata_EU_arctic <- rbind(EU_GEBCO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, 
-                            EU_NCEI_1989, EU_GRDC, EU_Popova, EU_icthyo, EU_green_fjords, EU_SOCAT, EU_GLODAP, EU_PG)
+                            EU_NCEI_1989, EU_GRDC, EU_Popova, EU_icthyo, EU_green_fjords, EU_IMR_spp_obs,
+                            EU_SOCAT, EU_GLODAP, EU_PG)
 ```
 
 ```{r EU-arctic-meta-data-table}
@@ -303,7 +312,7 @@ sval_MOSJ_glacier_mass <- data.frame(type = "Survey",
                                 # lon_range = NA, lat_range = NA, depth_range = NA,
                                 # file_name = '<a onclick="alert(\'cumulative-mass-balance-for-glaciers-in-svalbard.csv; austre-broggerbreen-mass-balance.csv; etonbreen-austfonna-mass-balance.csv; kongsvegen-mass-balance.csv; kronebreenholtedahlfonna-mass-balance.csv; midtre-lovenbreen-mass-balance.csv\');">6 files</a>',
                                 URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.mosj.no/en/climate/land/mass-balance-glaciers.html">MOSJ</a>',
-                                reference = '<a onclick="alert(\'Kohler, J. & Moholdt, G. (2021) Mass balance of Svalbard glaciers [Dataset]. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). Accessed: 2022-04-26. https://www.mosj.no/en/climate/land/mass-balance-glaciers.html\');">Kohler & Moholdt (2021)</a>',
+                                reference = '<a onclick="alert(\'Kohler, J. & Moholdt, G. (2021) Mass balance of Svalbard glaciers [Data set]. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). Accessed: 2022-04-26. https://www.mosj.no/en/climate/land/mass-balance-glaciers.html\');">Kohler & Moholdt (2021)</a>',
                                 note = NA)
 
 # Glacial topography + thickness

@@ -693,6 +693,12 @@ load_GFI <- function(file_name){
   GFI_units <- GFI_dump$variable %>% 
     filter(!name %in% c("depth", "lon", "lat")) %>% 
     dplyr::select(name, units)
+  GFI_lon <- mean(GFI_dump$attribute$global$geospatial_lon_min,
+                  GFI_dump$attribute$global$geospatial_lon_max)
+  GFI_lat <- mean(GFI_dump$attribute$global$geospatial_lat_min,
+                  GFI_dump$attribute$global$geospatial_lat_max)
+  GFI_depth <- mean(GFI_dump$attribute$global$geospatial_vertical_min,
+                    GFI_dump$attribute$global$geospatial_vertical_max)
   GFI_start <- GFI_dump$attribute$global$instrument_start_time
   GFI_citation <- GFI_dump$attribute$global$citation
   file_short <- sapply(strsplit(file_name, "/"), "[[", 8)
@@ -725,10 +731,9 @@ load_GFI <- function(file_name){
     FTP_URL <- "ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_A/"
   
   # Process data
-  suppressWarnings(
   res <- hyper_tibble(tidync(file_name)) %>% 
-    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
-    mutate(date = as.Date(as.POSIXct(time*86400, origin = GFI_start)), .keep = "unused") %>% 
+    mutate(date = as.Date(as.POSIXct(time*86400, origin = GFI_start)), 
+           lon = GFI_lon, lat = GFI_lat, depth = GFI_depth, .keep = "unused") %>% 
     pivot_longer(c(GFI_units$name), names_to = "variable", values_to = "value") %>% 
     filter(!is.na(value)) %>% 
     group_by(lon, lat, date, depth, variable) %>% 
@@ -745,7 +750,6 @@ load_GFI <- function(file_name){
            variable = paste0(variable, " [", units,"]")) %>% 
     dplyr::select(URL, citation, lon, lat, date, depth, category, variable, value) %>% 
     distinct()
-  )
   return(res)
 }
 

@@ -152,7 +152,7 @@ EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv",
 
 # CTD data for Arctic
 ## NB: The documentation does not give the volume of sampling for nutrients (i.e. litres (l) or kilograms (kg))
-## But searching through a 1976 paper that they reference it appears to be in litress
+## But searching through a 1976 paper that they reference it appears to be in litres
 EU_Codispoti <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/Codispoti_Arctic_Nutrients_Submission_11-11-2010.csv") %>%
   dplyr::rename(lon = Longitude, lat = Latitude, date = Date, depth = z, temp = `T`, sal = Sal) %>% 
   dplyr::select(date, lat:NO3, NO2) %>% 
@@ -239,6 +239,23 @@ EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE2
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
+# IMR species observations
+EU_IMR_spp_obs <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/IMR/EU_occurrence.txt", delim = "\t") %>% 
+  unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
+  dplyr::rename(lon = decimalLongitude, lat = decimalLatitude, variable = scientificName) %>% 
+  dplyr::select(lon, lat, date, variable) %>% 
+  distinct() %>% 
+  filter(lon <= 60, lon >= -60, lat >= 60) %>% 
+  mutate(date = as.Date(date),
+         depth = NA,
+         variable = paste0(variable," [presence]"),
+         category = "bio",
+         date_accessed = as.Date("2022-11-14"),
+         URL = "https://gbif.imr.no/ipt/resource?r=imr",
+         citation = "Sagen, H., Morvik, A. (2015). Observations of marine species [Data set]. GBIF.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = 1, .groups = "drop")
+
 # SOCAT data
 EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%  
   dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
@@ -253,7 +270,6 @@ EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%
          date_accessed = as.Date("2021-08-06"),
          URL = "https://www.socat.info",
          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
-  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
@@ -290,7 +306,6 @@ EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Ma
          date_accessed = as.Date("2022-10-19"),
          URL = "https://www.glodap.info",
          citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>% 
-  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
@@ -298,7 +313,7 @@ EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Ma
 
 # Combine and save
 full_product_EU <- rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, EU_green_fjords,
-                         EU_SOCAT, EU_GLODAP) %>% mutate(site = "EU")
+                         EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP) %>% mutate(site = "EU")
 data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
 save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
 save(full_product_EU, file = "data/full_data/full_product_EU.RData")
@@ -3026,12 +3041,32 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
 ## Hydrographic data
 por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08"))
 
+## IMR red king crab survey data
+por_imr_kingcrab_count <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/IMR/dwca-imr_kingcrab-v1.2/measurementorfact.txt")
+por_imr_kingcrab <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/IMR/dwca-imr_kingcrab-v1.2/occurrence.txt") %>% 
+  left_join(por_imr_kingcrab_count, by = "id") %>% 
+  unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
+  dplyr::rename(lon = decimalLongitude, lat = decimalLatitude, variable = scientificName) %>% 
+  mutate(value = case_when(occurrenceStatus == "Present" ~ 1,
+                           occurrenceStatus == "Absent" ~ 0),
+         variable = paste0(variable," [presence]")) %>% 
+  rowwise() %>% 
+  mutate(depth = mean(c(minimumDepthInMeters, maximumDepthInMeters), na.rm = T)) %>% 
+  # dplyr::select(lon, lat, date, depth, variable, value) %>% 
+  distinct() %>% 
+  filter(lon >= bbox_por[1], lon <= bbox_por[2], lat >= bbox_por[3], lat >= bbox_por[4]) %>% 
+  mutate(date = as.Date(date),
+         date_accessed = as.Date("2022-11-14"),
+         URL = "https://gbif.imr.no/ipt/resource?r=imr_kingcrab",
+         citation = "Hjelset, Ann Merete; Institute of Marine Research, Norway (2017): Red king crab survey data from Finnmark Northern Norway in the period 1994 -2016 http://gbif.imr.no/ipt/resource?id=imr_kingcrab/v1.2.xml",
+         category = "bio") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+
 # Combine and save
 full_product_por <- rbind(dplyr::select(pg_por_ALL, -site), 
                           por_mooring_GFI, por_sea_ice, por_hydro) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_por[1], lon <= bbox_por[2], lat >= bbox_por[3], lat <= bbox_por[4])) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Porsanger", citation))) %>% distinct() %>% mutate(site = "por")
-data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
 plyr::l_ply(unique(full_product_por$category), save_category, .parallel = T,
