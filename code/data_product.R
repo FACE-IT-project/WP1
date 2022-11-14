@@ -3042,29 +3042,29 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
 por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08"))
 
 ## IMR red king crab survey data
-por_imr_kingcrab_count <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/IMR/dwca-imr_kingcrab-v1.2/measurementorfact.txt")
-por_imr_kingcrab <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/IMR/dwca-imr_kingcrab-v1.2/occurrence.txt") %>% 
-  left_join(por_imr_kingcrab_count, by = "id") %>% 
+por_IMR_kingcrab_count <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/IMR/dwca-imr_kingcrab-v1.2/measurementorfact.txt")
+por_IMR_kingcrab <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/IMR/dwca-imr_kingcrab-v1.2/occurrence.txt") %>% 
+  left_join(por_IMR_kingcrab_count, by = "id") %>% 
   unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
-  dplyr::rename(lon = decimalLongitude, lat = decimalLatitude, variable = scientificName) %>% 
-  mutate(value = case_when(occurrenceStatus == "Present" ~ 1,
-                           occurrenceStatus == "Absent" ~ 0),
-         variable = paste0(variable," [presence]")) %>% 
+  dplyr::rename(lon = decimalLongitude, lat = decimalLatitude, variable = scientificName, value = measurementValue) %>% 
+  mutate(variable = paste0(variable," [count]")) %>% 
   rowwise() %>% 
   mutate(depth = mean(c(minimumDepthInMeters, maximumDepthInMeters), na.rm = T)) %>% 
-  # dplyr::select(lon, lat, date, depth, variable, value) %>% 
+  dplyr::select(lon, lat, date, depth, variable, value) %>%
   distinct() %>% 
   filter(lon >= bbox_por[1], lon <= bbox_por[2], lat >= bbox_por[3], lat >= bbox_por[4]) %>% 
   mutate(date = as.Date(date),
+         depth = case_when(is.na(depth) ~ as.numeric(NA), TRUE ~ depth),
          date_accessed = as.Date("2022-11-14"),
          URL = "https://gbif.imr.no/ipt/resource?r=imr_kingcrab",
          citation = "Hjelset, Ann Merete; Institute of Marine Research, Norway (2017): Red king crab survey data from Finnmark Northern Norway in the period 1994 -2016 http://gbif.imr.no/ipt/resource?id=imr_kingcrab/v1.2.xml",
          category = "bio") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+rm(por_IMR_kingcrab_count); gc()
 
 # Combine and save
 full_product_por <- rbind(dplyr::select(pg_por_ALL, -site), 
-                          por_mooring_GFI, por_sea_ice, por_hydro) %>% 
+                          por_mooring_GFI, por_sea_ice, por_hydro, por_IMR_kingcrab) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_por[1], lon <= bbox_por[2], lat >= bbox_por[3], lat <= bbox_por[4])) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Porsanger", citation))) %>% distinct() %>% mutate(site = "por")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")

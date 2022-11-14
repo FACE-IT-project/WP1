@@ -238,7 +238,7 @@ EU_green_fjords <- data.frame(type = "CTD",
 EU_IMR_spp_obs <- data.frame(type = "Survey",
                              data_name = "Species: presence",
                              date_range = "1980 - 2007",
-                             URL = '<a target="_blank" rel="noopener noreferrer" href=https://gbif.imr.no/ipt/resource?r=imr>GBIF</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href=https://gbif.imr.no/ipt/resource?r=imr>IMR</a>',
                              reference = '<a onclick="alert(\'Sagen, H., Morvik, A. (2015). Observations of marine species [Data set]. IMR. Accessed: 2022-11-14.\');">Sagen and Morvik (2015)</a>',
                              note = NA)
 
@@ -2286,6 +2286,14 @@ por_IMR_plankton <- data.frame(type = "Multinet",
                                reference = '<a onclick="alert(\'No reference available yet.\');">Falkenhaug et al. (In prep.)</a>',
                                note = "Data are still being prepared. No firm release date set.")
 
+## IMR red king crab survey data
+por_IMR_kingcrab_count <- data.frame(type = "Survey",
+                                     data_name = "Red king crab: count",
+                                     date_range = "1994 - 2017",
+                                     URL = '<a target="_blank" rel="noopener noreferrer" href="https://gbif.imr.no/ipt/resource?r=imr_kingcrab">IMR</a>',
+                                     reference = '<a onclick="alert(\'Hjelset, Ann Merete; Institute of Marine Research, Norway (2017): Red king crab survey data from Finnmark Northern Norway in the period 1994 -2016 http://gbif.imr.no/ipt/resource?id=imr_kingcrab/v1.2.xml\');">Hjelset (2017)</a>',
+                       note = NA)
+
 # NOAA OISST
 por_NOAA <- data.frame(type = "Remote",
                        data_name = "Sea temperature: surface",
@@ -2344,8 +2352,8 @@ full_product_por <- data.frame(type = "FACE-IT",
 
 # Bind them together
 metadata_porsangerfjorden <- rbind(por_mooring_GFI, por_fish_bio, por_benthos_bio, por_NorKyst, por_sea_ice, 
-                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_NOAA, por_CCI, por_MASIE,
-                                   por_PG, full_product_por)
+                                   por_hydro, por_IMR_CTD, por_IMR_plankton, por_IMR_kingcrab_count, 
+                                   por_NOAA, por_CCI, por_MASIE, por_PG, full_product_por)
 ```
 
 ```{r porsangerfjorden-meta-data-table}
@@ -2355,4 +2363,4 @@ DT::datatable(metadata_porsangerfjorden, rownames = FALSE, escape = FALSE, colna
 
 <br>
 
-# References
+<!-- # References -->
