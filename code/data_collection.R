@@ -591,7 +591,9 @@ pg_disko_name_2 <- pg_full_search(query = "disko bay") %>% # 12 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi)
 pg_disko_name_3 <- pg_full_search(query = "disko_bay") %>% # 0 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi, !doi %in% pg_disko_name_2$doi)
-pg_disko_all <- rbind(pg_disko_bbox, pg_disko_name_1, pg_disko_name_2, pg_disko_name_3) %>% 
+pg_disko_name_4 <- pg_full_search(query = "qeqertalik") %>% # ? files
+  filter(!doi %in% pg_doi_list$doi, !doi %in% pg_disko_bbox$doi, !doi %in% pg_disko_name_2$doi)
+pg_disko_all <- rbind(pg_disko_bbox, pg_disko_name_1, pg_disko_name_2, pg_disko_name_3, pg_disko_name_4) %>% 
   filter(!grepl("sea level", citation)) %>% 
   filter(!doi %in% c("10.1594/PANGAEA.770250", "10.1594/PANGAEA.770249")) %>% # These two files are too massive
   filter(!doi %in% c("10.1594/PANGAEA.770247", "10.1594/PANGAEA.770248")) %>% # These are simple bathy files
@@ -636,7 +638,9 @@ pg_nuup_bbox <- pg_full_search(query = "", bbox = c(bbox_nuup[1], bbox_nuup[3], 
 # pg_nuup_name_1 <- pg_full_search(query = "kangerlua") # 0 files
 pg_nuup_name_2 <- pg_full_search(query = "nuuk") %>% # 77 files
   filter(!doi %in% pg_doi_list$doi, !doi %in% pg_nuup_bbox$doi)
-pg_nuup_all <- rbind(pg_nuup_bbox, pg_nuup_name_2) %>% 
+pg_nuup_name_3 <- pg_full_search(query = "sermersooq") %>% # ? files
+  filter(!doi %in% pg_doi_list$doi, !doi %in% pg_nuup_bbox$doi)
+pg_nuup_all <- rbind(pg_nuup_bbox, pg_nuup_name_2, pg_nuup_name_3) %>% 
   filter(!grepl("WOCE", citation)) %>% # The WOCE data have formatting issues and should be downloaded via their own portal
   arrange(citation) %>% distinct()
 rm(pg_nuup_bbox,  pg_nuup_name_2); gc()

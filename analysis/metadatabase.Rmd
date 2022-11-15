@@ -94,11 +94,7 @@ Figure 1: FACE-IT study sites throughout the EU Arctic. The light green bounding
 </center>
 <br>
 
-<!-- _NB: This is one option for how to show tabular information. I've put the tables behind these buttons so that only one is shown at a time. Lower down in this document all tables are shown together. I'm curious to know what people prefer._ -->
-
-<!-- #### Tables {.tabset .tabset-fade .tabset-pills}  -->
-
-<!-- ##### Meta-data {-} -->
+Note that there are many sources of fisheries data in the Barents Sea (e.g. via [IMR](https://gbif.imr.no/ipt/) and [MOSJ](https://www.mosj.no/en/fauna/marine/)) that are not listed here as they do not contain data within any of the seven fjords focussed on by FACE-IT.
 
 ```{r EU-arctic-meta-data}
 # Bathymetry data
@@ -1231,6 +1227,8 @@ DT::datatable(metadata_stor, rownames = FALSE, escape = FALSE, colnames = DT_col
 
 See the EU Arctic figure above for where the Greenland sites are located. They are too spread out to be shown here in a single figure with any better precision than the full study area.
 
+There is a wealth of national statistics data available for Greenland via their [national statistics](https://stat.gl/default.asp?lang=en) website. 
+
 Please note that all GEM files must be downloaded directly from the URLs provided. Under the agreement between FACE-IT and GEM they are not to be hosted on the FACE-IT pCloud folder. This is primarily so that GEM can track the individual downloads of their files and for what purpose they were downloaded. This also requires that users of the data read a user agreement file. 
 
 ## Young Sound
@@ -2179,6 +2177,8 @@ DT::datatable(metadata_nuup, rownames = FALSE, escape = FALSE, colnames = DT_col
 <br>
 
 # Norway
+
+The [national statistics](https://www.ssb.no/en) website for Norway is very complete, and may provide the interested researcher with a wealth of information. But note that the focus of the statistics is mostly on 'city living', and the relevant environmental statistics are a bit buried.
 
 ## Porsangerfjorden
 

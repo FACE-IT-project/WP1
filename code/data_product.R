@@ -13,6 +13,7 @@
 source("code/functions.R")
 source("code/key_drivers.R")
 library(stringi)
+library(pxweb)
 
 # Re-run full data collection pipeline
 # system.time(
@@ -1606,6 +1607,45 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 
 
+
+# Greenland ---------------------------------------------------------------
+
+## PG product -------------------------------------------------------------
+
+# There is no PG product for Greenland
+
+
+## Full product -----------------------------------------------------------
+
+# National statistics
+## Income
+green_income_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/IN/IN20/INXPI101.px",
+            query = "data/JSON/pxapi-api_table_INXPI101.px.json")
+green_income <- as.data.frame(green_income_json, column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Income for persons (14 years +)`) %>% 
+  mutate(site = case_when(grepl("Qeqertalik", municipality) ~ "disko",
+                          grepl("Sermersooq", municipality) ~ "nuup"),
+         variable = paste0(`type of income`," - ",gender, "[DKK]"),
+         date = as.Date(paste0(time,"-12-31")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "gov",
+         URL = "https://bank.stat.gl:443/api/v1/en/Greenland/IN/IN20/INXPI101.px",
+         citation = px_cite(green_income_json),
+         lon = NA, lat = NA, depth = NA) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+rm(green_income_json)
+
+# Combine and save
+full_product_green <- rbind(green_income)
+data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
+save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
+save(full_product_green, file = "data/full_data/full_product_green.RData")
+plyr::l_ply(unique(full_product_green$category), save_category, .parallel = T,
+            df = full_product_green, data_type = "full", site_name = "green") # NB: Site name requires some consideration
+rm(list = grep("green_",names(.GlobalEnv),value = TRUE)); gc()
+
+
 # Young Sound -------------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
@@ -2332,7 +2372,6 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
 rm(disko_CTD_ChlA_var); gc()
 
 # Combine and save
-# TODO: Consider using the greenlandic name, rather than Disko Bay
 full_product_disko <- rbind(dplyr::select(pg_disko_ALL, -site), 
                             disko_CTD_ChlA) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_disko[1], lon <= bbox_disko[2], lat >= bbox_disko[3], lat <= bbox_disko[4])) %>% 
@@ -2941,6 +2980,17 @@ nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_
 save(nuup_GEM, file = "data/restricted/nuup_GEM.RData"); save(nuup_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
 rm(list = grep("nuup_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
+
+# Norway ------------------------------------------------------------------
+
+## PG product -------------------------------------------------------------
+
+# There is no PG product for Norway
+
+
+## Full product -----------------------------------------------------------
+
+# National statistics
 
 # Porsangerfjorden ---------------------------------------------------------
 

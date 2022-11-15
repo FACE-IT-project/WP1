@@ -943,6 +943,8 @@ review_summary_plot(summary_spp_rich, "spp rich")
 
 ### Governance --------------------------------------------------------------
 
+## TODO: Separate local population out from tourism data
+
 # NB: Currently no governance data exist
 gov_kong <- review_filter_var(full_product_kong, "gov") %>% slice(0)
 gov_is <- review_filter_var(full_product_is, "gov")

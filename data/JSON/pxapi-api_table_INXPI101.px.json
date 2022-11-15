@@ -1,0 +1,100 @@
+{
+  "query": [
+    {
+      "code": "municipality",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "956",
+          "959"
+        ]
+      }
+    },
+    {
+      "code": "unit",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2"
+        ]
+      }
+    },
+    {
+      "code": "gender",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "1",
+          "2"
+        ]
+      }
+    },
+    {
+      "code": "age",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "place of residence",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "place of birth",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "type of income",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "27"
+        ]
+      }
+    },
+    {
+      "code": "time",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0",
+          "1",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

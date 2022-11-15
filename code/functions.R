@@ -266,6 +266,13 @@ convert_even_grid <- function(df, z_col, pixel_res){
   return(z_df)
 }
 
+# Function for creating citations from a px JXON source (i.e. national stats websites)
+px_cite <- function(x){
+  cit <- paste0(x$metadata[[1]]$source," (",lubridate::year(x$metadata[[1]]$updated),"). ",
+                x$metadata[[1]]$label, ". [Date accessed: ",as.Date(Sys.Date()),"]")
+  return(cit)
+}
+
 # Convenience function for getting bbox from site name
 bbox_from_name <- function(site_name){
   # get correct bounding box
