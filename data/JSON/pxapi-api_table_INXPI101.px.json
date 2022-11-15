@@ -5,8 +5,13 @@
       "selection": {
         "filter": "item",
         "values": [
+          "GRL",
+          "955",
           "956",
-          "959"
+          "957",
+          "959",
+          "960",
+          "961"
         ]
       }
     },
@@ -24,6 +29,7 @@
       "selection": {
         "filter": "item",
         "values": [
+          "0",
           "1",
           "2"
         ]

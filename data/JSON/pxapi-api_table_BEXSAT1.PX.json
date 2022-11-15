@@ -1,0 +1,16 @@
+{
+  "query": [
+    {
+      "code": "place of birth",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

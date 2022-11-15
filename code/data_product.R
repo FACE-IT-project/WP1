@@ -1622,38 +1622,66 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 green_income_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/IN/IN20/INXPI101.px",
             query = "data/JSON/pxapi-api_table_INXPI101.px.json")
-green_income <- as.data.frame(green_income_json, column.name.type = "text", variable.value.type = "text") %>% 
-  dplyr::rename(value = `Income for persons (14 years +)`) %>% 
-  mutate(site = case_when(grepl("Qeqertalik", municipality) ~ "disko",
-                          grepl("Sermersooq", municipality) ~ "nuup"),
-         variable = paste0(`type of income`," - ",gender, " [DKK]"),
+green_income <- as.data.frame(green_income_json, 
+                              column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Income for persons (14 years +)`, site = municipality) %>% 
+  mutate(variable = paste0(`type of income`," - ",gender, " [DKK]"),
          date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA,
-         URL = "https://bank.stat.gl:443/api/v1/en/Greenland/IN/IN20/INXPI101.px",
+         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_income_json$url,
          citation = px_cite(green_income_json)) %>% 
+  filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
-## Monthly fishery employment and income
-green_fishery_employment_json <- 
+## Monthly employment and income
+green_employment_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR30/ARXBFB3.px",
             query = "data/JSON/pxapi-api_table_ARXBFB3.px.json")
-green_fishery_employment <- as.data.frame(green_fishery_employment_json, 
-                                          column.name.type = "text", variable.value.type = "text") %>% 
-  dplyr::rename(value = `Main employment for permanent residents`, variable = `inventory variable`) %>% 
-  mutate(site = case_when(grepl("Qeqertalik", municipality) ~ "disko",
-                          grepl("Sermersooq", municipality) ~ "nuup"),
-         variable = case_when(grepl("Number of main", variable) ~ 
-                                paste0("Fisheries main employed - ",gender," [n/month]"),
-                              grepl("Average monthly", variable) ~ 
-                                paste0("Fisheries income - ",gender," [DKK/month]")),
+green_employment <- as.data.frame(green_employment_json, 
+                                  column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Main employment for permanent residents`, long_var = `inventory variable`,
+                site = municipality) %>% 
+  mutate(long_var = case_when(grepl("Number of main", long_var) ~ paste0(" - main employment - ", gender," [n/month]"),
+                              grepl("Average monthly", long_var) ~ paste0(" - income - ",gender," [DKK/month]")),
+         variable = paste0(industry, long_var),
          date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA,
-         URL = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR30/ARXBFB3.px",
-         citation = px_cite(green_fishery_employment_json)) %>% 
+         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_employment_json$url,
+         citation = px_cite(green_employment_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Unemployment
+green_unemployment_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR40/ARXLED3.px",
+            query = "data/JSON/pxapi-api_table_ARXLED3.px.json")
+green_unemployment <- as.data.frame(green_unemployment_json, 
+                                    column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Unemployment among permanent residents aged 18-65 years`, site = district) %>% 
+  mutate(variable = paste0("Unemployed - ",gender, " [n]"),
+         date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
+         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_unemployment_json$url,
+         citation = px_cite(green_unemployment_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Population
+green_pop_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/BE/BE01/BEXSAT1.PX",
+            query = "data/JSON/pxapi-api_table_BEXSAT1.PX.json")
+green_pop <- as.data.frame(green_pop_json,
+                           column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Population and population growth`) %>% 
+  mutate(site = "green",
+         variable = case_when(type == "Number"~ "Population [n]",
+                              type == "Growth" ~ "Population growth [n]",
+                              type == "Growth in percent" ~ "Population growth [%]"),
+         date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
+         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_pop_json$url,
+         citation = px_cite(green_pop_json)) %>% 
+  filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
-full_product_green <- rbind(green_income, green_fishery_employment)
+full_product_green <- rbind(green_income, green_fishery_employment, green_unemployment, green_pop)
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
@@ -2388,6 +2416,8 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
 rm(disko_CTD_ChlA_var); gc()
 
 # Combine and save
+# TODO: Add greenland stats data
+  # Filter site by: Qeqertarsuaq | Qeqertalik
 full_product_disko <- rbind(dplyr::select(pg_disko_ALL, -site), 
                             disko_CTD_ChlA) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_disko[1], lon <= bbox_disko[2], lat >= bbox_disko[3], lat <= bbox_disko[4])) %>% 
@@ -2678,6 +2708,8 @@ if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
 if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
 # Combine and save
+# TODO: Add greenland stats data
+  # Filter site by: Sermersooq | Nuuk
 full_product_nuup <- rbind(dplyr::select(pg_nuup_ALL, -site)) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_nuup[1], lon <= bbox_nuup[2], lat >= bbox_nuup[3], lat <= bbox_nuup[4])) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Nuup|Nuuk", citation))) %>% distinct() %>% mutate(site = "nuup")

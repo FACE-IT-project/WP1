@@ -1,7 +1,16 @@
 {
   "query": [
     {
-      "code": "industry",
+      "code": "quarter",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "district",
       "selection": {
         "filter": "item",
         "values": [
@@ -27,17 +36,20 @@
       }
     },
     {
-      "code": "municipality",
+      "code": "place of residence",
       "selection": {
         "filter": "item",
         "values": [
-          "0",
-          "1",
-          "2",
-          "3",
-          "4",
-          "5",
-          "6"
+          "0"
+        ]
+      }
+    },
+    {
+      "code": "age",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0"
         ]
       }
     },
@@ -47,16 +59,6 @@
         "filter": "item",
         "values": [
           "0",
-          "1",
-          "2"
-        ]
-      }
-    },
-    {
-      "code": "inventory variable",
-      "selection": {
-        "filter": "item",
-        "values": [
           "1",
           "2"
         ]
