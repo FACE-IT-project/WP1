@@ -1,0 +1,46 @@
+{
+  "query": [
+    {
+      "code": "industry",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2"
+        ]
+      }
+    },
+    {
+      "code": "municipality",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2",
+          "5"
+        ]
+      }
+    },
+    {
+      "code": "gender",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "1",
+          "2"
+        ]
+      }
+    },
+    {
+      "code": "inventory variable",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "1",
+          "2"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

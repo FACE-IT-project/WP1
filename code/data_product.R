@@ -1626,18 +1626,34 @@ green_income <- as.data.frame(green_income_json, column.name.type = "text", vari
   dplyr::rename(value = `Income for persons (14 years +)`) %>% 
   mutate(site = case_when(grepl("Qeqertalik", municipality) ~ "disko",
                           grepl("Sermersooq", municipality) ~ "nuup"),
-         variable = paste0(`type of income`," - ",gender, "[DKK]"),
-         date = as.Date(paste0(time,"-12-31")),
-         date_accessed = as.Date(Sys.Date()),
-         category = "gov",
+         variable = paste0(`type of income`," - ",gender, " [DKK]"),
+         date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
+         category = "gov", lon = NA, lat = NA, depth = NA,
          URL = "https://bank.stat.gl:443/api/v1/en/Greenland/IN/IN20/INXPI101.px",
-         citation = px_cite(green_income_json),
-         lon = NA, lat = NA, depth = NA) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-rm(green_income_json)
+         citation = px_cite(green_income_json)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Monthly fishery employment and income
+green_fishery_employment_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR30/ARXBFB3.px",
+            query = "data/JSON/pxapi-api_table_ARXBFB3.px.json")
+green_fishery_employment <- as.data.frame(green_fishery_employment_json, 
+                                          column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Main employment for permanent residents`, variable = `inventory variable`) %>% 
+  mutate(site = case_when(grepl("Qeqertalik", municipality) ~ "disko",
+                          grepl("Sermersooq", municipality) ~ "nuup"),
+         variable = case_when(grepl("Number of main", variable) ~ 
+                                paste0("Fisheries main employed - ",gender," [n/month]"),
+                              grepl("Average monthly", variable) ~ 
+                                paste0("Fisheries income - ",gender," [DKK/month]")),
+         date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
+         category = "gov", lon = NA, lat = NA, depth = NA,
+         URL = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR30/ARXBFB3.px",
+         citation = px_cite(green_fishery_employment_json)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
-full_product_green <- rbind(green_income)
+full_product_green <- rbind(green_income, green_fishery_employment)
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
