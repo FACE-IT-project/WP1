@@ -1,0 +1,56 @@
+{
+  "query": [
+    {
+      "code": "month",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "Total",
+          "01",
+          "02",
+          "03",
+          "04",
+          "05",
+          "06",
+          "07",
+          "08",
+          "09",
+          "10",
+          "11",
+          "12"
+        ]
+      }
+    },
+    {
+      "code": "port",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "TOT",
+          "AAS",
+          "ILU",
+          "ITT",
+          "KAN",
+          "MAN",
+          "NAN",
+          "NAR",
+          "NRS",
+          "NUK",
+          "PAA",
+          "QAQ",
+          "QAS",
+          "QSK",
+          "QEQ",
+          "QNQ",
+          "SIS",
+          "TAS",
+          "UPV",
+          "UUM"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

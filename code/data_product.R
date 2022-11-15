@@ -14,6 +14,7 @@ source("code/functions.R")
 source("code/key_drivers.R")
 library(stringi)
 library(pxweb)
+library(clock)
 
 # Re-run full data collection pipeline
 # system.time(
@@ -1680,8 +1681,51 @@ green_pop <- as.data.frame(green_pop_json,
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
+## Cruise passengers # NB: Not working for some reason
+green_cruise_passenger_json <-
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU10/TUXKRH.px",
+            query = "data/JSON/pxapi-api_table_TUXKRH.px.json")
+green_cruise_passenger <- as.data.frame(green_cruise_passenger_json,
+                                        column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Number of cruise passengers for each harbour`, site = port) %>% 
+  mutate(variable = case_when(month == "Total" ~ "Cruise passengers - total [n]",
+                              TRUE ~ "Cruise passengers [n]"),
+         month_int = case_when(month == "Total" ~ 12,
+                               TRUE ~ as.numeric(match(month, month.name))),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                             format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_cruise_passenger_json$url,
+         citation = px_cite(green_cruise_passenger_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Cruise arrivals
+green_cruise_count_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU10/TUXKRK.px",
+          query = "data/JSON/pxapi-api_table_TUXKRK.px.json")
+green_cruise_count <- as.data.frame(green_cruise_count_json,
+                                    column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Number of cruise passengers for each harbour`) %>% 
+  mutate(site = "green",
+         variable = case_when(unit == "Number of cruises" ~ 
+                                paste0("Cruise capacity (",capacity,") arrivals [n]"),
+                              unit == "Passengers" ~ 
+                                paste0("Cruise capacity (",capacity,") passengers [n]")),
+         month_int = case_when(month == "Total" ~ 12,
+                               TRUE ~ as.numeric(match(month, month.name))),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_cruise_passenger_json$url,
+         citation = px_cite(green_cruise_passenger_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+
 # Combine and save
-full_product_green <- rbind(green_income, green_fishery_employment, green_unemployment, green_pop)
+full_product_green <- rbind(green_income, green_fishery_employment, green_unemployment, green_pop, 
+                            green_cruise_passenger, green_cruise_count)
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
