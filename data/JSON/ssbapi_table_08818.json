@@ -1,0 +1,37 @@
+{
+  "query": [
+    {
+      "code": "ImpEks",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2"
+        ]
+      }
+    },
+    {
+      "code": "SITC",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "034",
+          "035",
+          "036",
+          "037"
+        ]
+      }
+    },
+    {
+      "code": "ContentsCode",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "Verdi"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

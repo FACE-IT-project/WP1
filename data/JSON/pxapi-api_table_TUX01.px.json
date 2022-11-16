@@ -1,0 +1,27 @@
+{
+  "query": [
+    {
+      "code": "district",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "0",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

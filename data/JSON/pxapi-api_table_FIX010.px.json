@@ -1,0 +1,100 @@
+{
+  "query": [
+    {
+      "code": "nation",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "GRL",
+          "UDL"
+        ]
+      }
+    },
+    {
+      "code": "species",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "Torsk",
+          "Hellefisk",
+          "Rejer",
+          "Stenbider",
+          "Havkat",
+          "Krabber",
+          "Uuvaq",
+          "Fjeldørred",
+          "Rødfisk",
+          "Helleflynder",
+          "Kammusling",
+          "Laks",
+          "Lodde",
+          "Bifangst",
+          "Blandet fisk",
+          "Blåhvilling",
+          "Brosme",
+          "Kuller",
+          "Lange",
+          "Makrel",
+          "Polar torsk",
+          "Sej",
+          "Sild",
+          "Skolæst",
+          "Andre rejearter",
+          "Andre arter"
+        ]
+      }
+    },
+    {
+      "code": "fishsegm",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "Kyst",
+          "Hav"
+        ]
+      }
+    },
+    {
+      "code": "area",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "Vestgrønland",
+          "Østgrønland",
+          "Vest- Østgrønland",
+          "Island",
+          "Færøerne",
+          "Barentshavet",
+          "Svalbard",
+          "Ices International"
+        ]
+      }
+    },
+    {
+      "code": "vessel type",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "Jolle",
+          "Kutter",
+          "Trawler"
+        ]
+      }
+    },
+    {
+      "code": "quarter",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

@@ -1628,7 +1628,7 @@ green_income <- as.data.frame(green_income_json,
   dplyr::rename(value = `Income for persons (14 years +)`, site = municipality) %>% 
   mutate(variable = paste0(`type of income`," - ",gender, " [DKK]"),
          date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_income_json$url,
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_income_json$url,
          citation = px_cite(green_income_json)) %>% 
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
@@ -1645,7 +1645,7 @@ green_employment <- as.data.frame(green_employment_json,
                               grepl("Average monthly", long_var) ~ paste0(" - income - ",gender," [DKK/month]")),
          variable = paste0(industry, long_var),
          date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_employment_json$url,
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_employment_json$url,
          citation = px_cite(green_employment_json)) %>% 
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
@@ -1659,7 +1659,7 @@ green_unemployment <- as.data.frame(green_unemployment_json,
   dplyr::rename(value = `Unemployment among permanent residents aged 18-65 years`, site = district) %>% 
   mutate(variable = paste0("Unemployed - ",gender, " [n]"),
          date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_unemployment_json$url,
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_unemployment_json$url,
          citation = px_cite(green_unemployment_json)) %>% 
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
@@ -1676,12 +1676,12 @@ green_pop <- as.data.frame(green_pop_json,
                               type == "Growth" ~ "Population growth [n]",
                               type == "Growth in percent" ~ "Population growth [%]"),
          date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_pop_json$url,
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_pop_json$url,
          citation = px_cite(green_pop_json)) %>% 
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
-## Cruise passengers # NB: Not working for some reason
+## Cruise passengers
 green_cruise_passenger_json <-
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU10/TUXKRH.px",
             query = "data/JSON/pxapi-api_table_TUXKRH.px.json")
@@ -1695,7 +1695,7 @@ green_cruise_passenger <- as.data.frame(green_cruise_passenger_json,
          date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
                                                              format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
          date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_cruise_passenger_json$url,
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_cruise_passenger_json$url,
          citation = px_cite(green_cruise_passenger_json)) %>% 
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
@@ -1717,15 +1717,206 @@ green_cruise_count <- as.data.frame(green_cruise_count_json,
          date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
                                                                      format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
          date_accessed = as.Date(Sys.Date()),
-         category = "gov", lon = NA, lat = NA, depth = NA, URL = green_cruise_passenger_json$url,
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_cruise_passenger_json$url,
          citation = px_cite(green_cruise_passenger_json)) %>% 
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
+## Cruise passenger nationality
+green_cruise_nation_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU10/TUXKRL.px",
+            query = "data/JSON/pxapi-api_table_TUXKRL.px.json")
+green_cruise_nation <- as.data.frame(green_cruise_nation_json,
+                                    column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Nationality of cruise passengers`) %>% 
+  mutate(site = "green",
+         variable = case_when(month == "Total" ~ paste0("Cruise passengers - ",nation," -total [n]"),
+                              TRUE ~ paste0("Cruise passengers - ",nation," [n]")),
+         month_int = case_when(month == "Total" ~ 12,
+                               TRUE ~ as.numeric(match(month, month.name))),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_cruise_nation_json$url,
+         citation = px_cite(green_cruise_nation_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Air passenger arrivals
+green_air_passenger_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU20/TUXUPAX.px",
+            query = "data/JSON/pxapi-api_table_TUXUPAX.px.json")
+green_air_passenger <- as.data.frame(green_air_passenger_json,
+                                     column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Number of international passengers`, site = airport) %>% 
+  mutate(variable = case_when(month == "Total" ~ "Airport arrivals - total [n]",
+                              TRUE ~ "Airport arrivals [n]"),
+         month_int = case_when(month == "Total" ~ 12,
+                               TRUE ~ as.numeric(match(month, month.name))),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_air_passenger_json$url,
+         citation = px_cite(green_air_passenger_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Overnight stays
+green_guests_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU30/TUXHOT.px",
+            query = "data/JSON/pxapi-api_table_TUXHOT.px.json")
+green_guests <- as.data.frame(green_guests_json,
+                              column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Overnight stays`, site = region) %>% 
+  mutate(variable = case_when(month == "Total" ~ paste0(unit," - total [n]"),
+                              TRUE ~ paste0(unit," [n]")),
+         month_int = case_when(month == "Total" ~ 12,
+                               TRUE ~ as.numeric(match(month, month.name))),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_guests_json$url,
+         citation = px_cite(green_guests_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Sled dogs
+green_dogs_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TUX01.px",
+            query = "data/JSON/pxapi-api_table_TUX01.px.json")
+green_dogs <- as.data.frame(green_dogs_json,
+                            column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Number of sled dogs`, site = district) %>% 
+  mutate(variable = case_when(site == "Total" ~ "Sled dogs - total [n]",
+                              TRUE ~ "Sled dogs [n]"),
+         date = as.Date(paste0(time,"-12-31")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_dogs_json$url,
+         citation = px_cite(green_dogs_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Domestic landings
+green_landings_domestic_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/FI/FI10/FIX012.px",
+            query = "data/JSON/pxapi-api_table_FIX012.px.json")
+green_landings_domestic <- as.data.frame(green_landings_domestic_json,
+                                         column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Total landings of fish and shellfish`, site = district) %>% 
+  mutate(variable = paste0(species," - ",`vessel type`," - ",`fishing segment`," [",enhed,"]"),
+         month_int = as.numeric(match(month, month.name)),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_landings_domestic_json$url,
+         citation = px_cite(green_landings_domestic_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## International landings
+green_landings_inter_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/FI/FI10/FIX010.px",
+            query = "data/JSON/pxapi-api_table_FIX010.px.json")
+green_landings_inter <- as.data.frame(green_landings_inter_json,
+                                      column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Total catch of fish and shellfish in ton and type of vessels`, site = area) %>% 
+  mutate(variable = paste0(species," - ",`vessel type`," - ",`fishsegm`," - ",nation," - ",quarter," [Tonnes]"),
+         month_int = case_when(quarter == "Quarter 1" ~ 3,
+                               quarter == "Quarter 2" ~ 6,
+                               quarter == "Quarter 3" ~ 9,
+                               quarter == "Quarter 4" ~ 12),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_landings_inter_json$url,
+         citation = px_cite(green_landings_inter_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## International landings
+green_fish_price_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/FI/FI60/FIX009.px",
+            query = "data/JSON/pxapi-api_table_FIX009.px.json")
+green_fish_price <- as.data.frame(green_fish_price_json,
+                                  column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Index of average kilo prices of selected fish products (2010 = 100)`) %>% 
+  mutate(site = "green",
+         value = case_when(time == 2010 ~ 100, TRUE ~ value),
+         species = str_replace(species, ",", " -"),
+         variable = case_when(quarter == "Average" ~ paste0("Average kilo price - ",species," - total [index]"),
+                              TRUE ~ paste0("Average kilo price - ",species," [index]")),
+         month_int = case_when(quarter == "1st quarter" ~ 3,
+                               quarter == "2nd quarter" ~ 6,
+                               quarter == "3rd quarter" ~ 9,
+                               quarter == "4th quarter" ~ 12,
+                               quarter == "Average" ~ 12),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_fish_price_json$url,
+         citation = px_cite(green_fish_price_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## International landing quotas
+green_quotas_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/FI/FI10/FIXKVOT.px",
+            query = "data/JSON/pxapi-api_table_FIXKVOT.px.json")
+green_quotas <- as.data.frame(green_quotas_json,
+                              column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Fish quotas for offshore- and coastal fisheries for Greenland and other countries`, site = area) %>% 
+  mutate(variable = paste0("Quota - ",species," - ",`fishplace`," - ",`nation`," [Tonnes]"),
+         date = as.Date(paste0(time,"-12-31")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_quotas_json$url,
+         citation = px_cite(green_quotas_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Domestic quota advice
+green_quota_advice_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/FI/FI70/FIX021.px",
+            query = "data/JSON/pxapi-api_table_FIX021.px.json")
+green_quota_advice <- as.data.frame(green_quota_advice_json,
+                                    column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Advice on permitted catches of fish`, site = area) %>% 
+  mutate(form = case_when(form == "Kvota" ~ "Quota", TRUE ~ form),
+         variable = paste0(form," - ",species," [pieces]"),
+         date = as.Date(paste0(time,"-12-31")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_quota_advice_json$url,
+         citation = px_cite(green_quota_advice_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Domestic quota advice
+green_fish_exports_json <- 
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/IE/IEXEXPMND.px",
+            query = "data/JSON/pxapi-api_table_IEXEXPMND.px.json")
+green_fish_exports <- as.data.frame(green_fish_exports_json,
+                                    column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = `Exports of fishproducts`) %>% 
+  mutate(site = "green",
+         product = str_replace(product, "Exports,", ""),
+         product = str_replace(product, ",", " -"),
+         variable = case_when(month == "Total" ~ paste0("Export - ",product," - total [",unit,"]"),
+                              TRUE ~ paste0("Export - ",product," [",unit,"]")),
+         month_int = case_when(month == "Total" ~ 12,
+                               TRUE ~ as.numeric(match(month, month.name))),
+         date = as.Date(invalid_resolve(set_day(year_month_day_parse(paste0(time,"-",month_int),
+                                                                     format = "%Y-%m", precision = "month"), 31), invalid = "previous")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = green_fish_exports_json$url,
+         citation = px_cite(green_fish_exports_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
-full_product_green <- rbind(green_income, green_fishery_employment, green_unemployment, green_pop, 
-                            green_cruise_passenger, green_cruise_count)
+full_product_green <- rbind(green_income, green_employment, green_unemployment, green_pop, 
+                            green_cruise_passenger, green_cruise_count, green_cruise_nation,
+                            green_air_passenger, green_guests, green_dogs, green_landings_domestic,
+                            green_landings_inter, green_fish_price, green_quotas, green_quota_advice,
+                            green_fish_exports)
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
@@ -3083,6 +3274,55 @@ rm(list = grep("nuup_GEM",names(.GlobalEnv),value = TRUE)); gc()
 ## Full product -----------------------------------------------------------
 
 # National statistics
+## Salmon exports
+nor_salmon_exports_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/03024/",
+            query = "data/JSON/ssbapi_table_03024.json")
+nor_salmon_exports <- as.data.frame(nor_salmon_exports_json,
+                                    column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(Tonnes = `Weight (tonnes)`, `NOK/kg` = `Price per kilo (NOK)`) %>% 
+  pivot_longer(cols = c(Tonnes, `NOK/kg`), names_to = "unit", values_to = "value") %>% 
+  mutate(site = "nor",
+         `commodity group` = str_replace(`commodity group`, ",", " -"),
+         variable = paste0("Export - ",`commodity group`," [",unit,"]"),
+         week = str_replace(week, "U",""),
+         date = as.Date(paste0(week,7),"%Y%U%u") ,
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_salmon_exports_json$url,
+         citation = px_cite(nor_salmon_exports_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Fish exports
+nor_fish_exports_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/08818/",
+            query = "data/JSON/ssbapi_table_08818.json")
+nor_fish_exports <- as.data.frame(nor_fish_exports_json,
+                                  column.name.type = "text", variable.value.type = "text") %>% 
+  dplyr::rename(value = Value, var = `commodity group`) %>% 
+  separate(month, into = c("year", "month"), sep = "M") %>% 
+  mutate(site = "nor",
+         var = case_when(grepl("Fish, fresh", var) ~ "Fish - fresh or frozen",
+                         grepl("Fish, dried", var) ~ "Fish - dried or salted or smoked",
+                         grepl("whether in shell or", var) ~ "Other - fresh or frozen or dried or salted or smoked",
+                         grepl("Fish, crustaceans", var) ~ "Fish or Other - prepared or preserved"),
+         variable = paste0("Export - ",var," [NOK 1,000]"),
+         date = as.Date(paste0(year,"-",month,"-01"))+months(1)-days(1),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_fish_exports_json$url,
+         citation = px_cite(nor_fish_exports_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+# Combine and save
+full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports)
+data.table::fwrite(full_product_nor, "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.csv")
+save(full_product_nor, file = "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.RData")
+save(full_product_nor, file = "data/full_data/full_product_nor.RData")
+plyr::l_ply(unique(full_product_nor$category), save_category, .parallel = T,
+            df = full_product_nor, data_type = "full", site_name = "nor") # NB: Site name requires some consideration
+rm(list = grep("nor_",names(.GlobalEnv),value = TRUE)); gc()
+
 
 # Porsangerfjorden ---------------------------------------------------------
 

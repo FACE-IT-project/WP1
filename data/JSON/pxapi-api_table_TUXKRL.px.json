@@ -1,0 +1,72 @@
+{
+  "query": [
+    {
+      "code": "month",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "Total",
+          "M01",
+          "M02",
+          "M03",
+          "M04",
+          "M05",
+          "M06",
+          "M07",
+          "M08",
+          "M09",
+          "M10",
+          "M11",
+          "M12"
+        ]
+      }
+    },
+    {
+      "code": "nation",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "TOT",
+          "ARG",
+          "AUS",
+          "AUT",
+          "BEL",
+          "BRA",
+          "CAN",
+          "CHL",
+          "CHN",
+          "HRV",
+          "CZE",
+          "DNK",
+          "FIN",
+          "FRA",
+          "DEU",
+          "GRC",
+          "HKG",
+          "HUN",
+          "IND",
+          "ISR",
+          "ITA",
+          "JPN",
+          "LUX",
+          "MEX",
+          "NLD",
+          "NOR",
+          "POL",
+          "RUS",
+          "ESP",
+          "SWE",
+          "CHE",
+          "TUR",
+          "UK",
+          "USA",
+          "OOO",
+          "UKN"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}
