@@ -1,0 +1,31 @@
+{
+  "query": [
+    {
+      "code": "Sektor",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "ALLE",
+          "110",
+          "510",
+          "550",
+          "150-190_610-635",
+          "660-680",
+          "210-497_710-890"
+        ]
+      }
+    },
+    {
+      "code": "ContentsCode",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "SysselsattSvalbard"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

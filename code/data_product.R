@@ -3286,7 +3286,7 @@ nor_salmon_exports <- as.data.frame(nor_salmon_exports_json,
          `commodity group` = str_replace(`commodity group`, ",", " -"),
          variable = paste0("Export - ",`commodity group`," [",unit,"]"),
          week = str_replace(week, "U",""),
-         date = as.Date(paste0(week,7),"%Y%U%u") ,
+         date = as.Date(paste0(week,7),"%Y%U%u"),
          date_accessed = as.Date(Sys.Date()),
          category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_salmon_exports_json$url,
          citation = px_cite(nor_salmon_exports_json)) %>% 
@@ -3314,8 +3314,151 @@ nor_fish_exports <- as.data.frame(nor_fish_exports_json,
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
+## Birth rate
+# https://www.ssb.no/en/befolkning/fodte-og-dode/statistikk/fodte
+
+## Gender equality
+# https://www.ssb.no/en/befolkning/likestilling/statistikk/indikatorer-for-kjonnslikestilling-i-kommunene
+
+## Population projections
+# https://www.ssb.no/en/befolkning/befolkningsframskrivinger
+
+## Population
+# https://www.ssb.no/en/statbank/table/01222 - More detailed stats
+# https://www.ssb.no/en/statbank/table/06913 - Pop stats back to 1951 
+# NB: This fails to be coerced to a data.frame
+# nor_pop_json <- 
+#   pxweb_get(url = "https://data.ssb.no/api/v0/en/table/05212/",
+#             query = "data/JSON/ssbapi_table_05212.json")
+# nor_pop <- as.data.frame(nor_pop_json, column.name.type = "text", variable.value.type = "text")
+nor_pop_male_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/05277/",
+            query = "data/JSON/ssbapi_table_05277_male.json")
+nor_pop_female_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/05277/",
+            query = "data/JSON/ssbapi_table_05277_female.json")
+nor_pop <- rbind(as.data.frame(nor_pop_male_json),
+                      as.data.frame(nor_pop_female_json)) %>% 
+  dplyr::rename(value = Population, site = region) %>% 
+  mutate(variable = paste0("Population - ",age," - ",sex," [n]"),
+         date = as.Date(paste0(year,"-12-31")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_pop_male_json$url,
+         citation = px_cite(nor_pop_male_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Svalbard population
+sval_pop_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/07429/",
+            query = "data/JSON/ssbapi_table_07429.json")
+sval_pop <- as.data.frame(sval_pop_json) %>% 
+  dplyr::rename(value = Persons) %>% 
+  separate(`half year`, into = c("year", "half"), sep = "H") %>% 
+  mutate(site = "Longyearbyen & Ny-Alesund",
+         variable = paste0("Population - ",age," - ",sex," [n]"),
+         date = case_when(half == "1" ~ as.Date(paste0(year,"-06-30")),
+                          half == "2" ~ as.Date(paste0(year,"-12-31"))),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = sval_pop_json$url,
+         citation = px_cite(sval_pop_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## MPAs
+nor_MPA_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/08936/",
+            query = "data/JSON/ssbapi_table_08936.json")
+nor_MPA <- as.data.frame(nor_MPA_json) %>% 
+  dplyr::rename(`[km^2]` = `Protected area at sea (km²)`, `[n]` = `Number of protected areas total`, site = region) %>% 
+  pivot_longer(col = c(`[km^2]`, `[n]`), names_to = "unit", values_to = "value") %>% 
+  mutate(variable = paste0(`protection purpose`," ",unit),
+         date = as.Date(paste0(year,"-12-31")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_MPA_json$url,
+         citation = px_cite(nor_MPA_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Waste per household
+# https://www.ssb.no/en/statbank/table/12241
+# https://www.ssb.no/en/statbank/table/13136
+
+## Air passengers
+nor_air_passenger_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/08507/",
+            query = "data/JSON/ssbapi_table_08507.json")
+nor_air_passenger <- as.data.frame(nor_air_passenger_json) %>% 
+  dplyr::rename(value = Passengers, site = airport, 
+                var = `passenger group`, var2 = `domestic/international flights`) %>% 
+  separate(month, into = c("year", "month"), sep = "M") %>% 
+  mutate(var = case_when(grepl("Total passengers", var) ~ "Passengers - total",
+                         grepl("arrival", var) ~ "Passengers - arrival",
+                         grepl("departure", var) ~ "Passengers - departure"),
+         var2 = case_when(grepl("Domestic and international", var2) ~ "All flights", TRUE ~ var2),
+         variable = paste0(var," - ",var2," [n]"),
+         date = as.Date(paste0(year,"-",month,"-01"))+months(1)-days(1),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_air_passenger_json$url,
+         citation = px_cite(nor_air_passenger_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Transport - for consideration
+# https://www.ssb.no/en/transport-og-reiseliv/landtransport/statistikk/innenlandsk-transport
+# https://www.ssb.no/en/statbank/table/08923
+# https://www.ssb.no/en/statbank/table/09495
+
+## Employment - No fisheries specific data
+# https://www.ssb.no/en/statbank/table/12817
+# https://www.ssb.no/en/statbank/table/13472
+
+## Svalbard employment sector %
+sval_employ_perc_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/09715/",
+            query = "data/JSON/ssbapi_table_09715.json")
+sval_employ_perc <- as.data.frame(sval_employ_perc_json) %>% 
+  dplyr::rename(value = `Share of total employment on Svalbard`, variable = sector) %>% 
+  mutate(site = "sval",
+         variable = paste0("Employment - ",variable," [% share]"),
+         date = as.Date(paste0(year,"-12-31")),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_MPA_json$url,
+         citation = px_cite(nor_MPA_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
+## Unemployment
+# https://www.ssb.no/en/statbank/table/11587
+# https://www.ssb.no/en/statbank/table/08930
+
+## Earnings
+# https://www.ssb.no/en/statbank/table/11419
+
+## Tourism - Nothing clearly needed
+# https://www.ssb.no/en/nasjonalregnskap-og-konjunkturer/nasjonalregnskap/statistikk/satellittregnskap-for-turisme
+# https://www.ssb.no/en/statbank/table/10638
+
+## Accommodation
+nor_accommodation_json <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/en/table/12892/",
+            query = "data/JSON/ssbapi_table_12892.json")
+nor_accommodation <- as.data.frame(nor_accommodation_json) %>% 
+  dplyr::rename(value = `Guest nights`, site = region, 
+                var1 = `type of accommodation`, var2 = `country of residence`) %>% 
+  separate(month, into = c("year", "month"), sep = "M") %>% 
+  mutate(var2 = str_replace(var2, ",", " -"),
+         variable = paste0("Geust nights - ",var1," - ",var2," [n]"),
+         date = as.Date(paste0(year,"-",month,"-01"))+months(1)-days(1),
+         date_accessed = as.Date(Sys.Date()),
+         category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_accommodation_json$url,
+         citation = px_cite(nor_accommodation_json)) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+
 # Combine and save
-full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports)
+full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_pop_json, nor_MPA, 
+                          nor_air_passenger, sval_employ_perc, nor_accommodation)
 data.table::fwrite(full_product_nor, "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.csv")
 save(full_product_nor, file = "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.RData")
 save(full_product_nor, file = "data/full_data/full_product_nor.RData")

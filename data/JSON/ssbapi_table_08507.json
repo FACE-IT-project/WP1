@@ -1,0 +1,98 @@
+{
+  "query": [
+    {
+      "code": "Lufthavn",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "ENGM",
+          "ENZV",
+          "ENBR",
+          "ENVA",
+          "ENAT",
+          "ENAN",
+          "ENDU",
+          "ENBV",
+          "ENBO",
+          "ENBN",
+          "ENBS",
+          "ENFG",
+          "ENFL",
+          "ENBL",
+          "ENHF",
+          "ENEV",
+          "ENHK",
+          "ENHD",
+          "ENHV",
+          "ENKR",
+          "ENCN",
+          "ENKB",
+          "ENNA",
+          "ENMH",
+          "ENRA",
+          "ENML",
+          "ENMS",
+          "ENRY",
+          "ENNM",
+          "ENNK",
+          "ENNO",
+          "ENRO",
+          "ENRM",
+          "ENRS",
+          "ENSD",
+          "ENTO",
+          "ENST",
+          "ENSN",
+          "ENSG",
+          "ENSK",
+          "ENSO",
+          "ENSB",
+          "ENSH",
+          "ENSR",
+          "ENTC",
+          "ENVD",
+          "ENSS",
+          "ENLK",
+          "ENVR",
+          "ENOL",
+          "ENOV",
+          "ENAL"
+        ]
+      }
+    },
+    {
+      "code": "TrafikkType",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "000"
+        ]
+      }
+    },
+    {
+      "code": "TrafikkFly",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "I",
+          "U",
+          "IU"
+        ]
+      }
+    },
+    {
+      "code": "PassasjerType",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "AAT",
+          "ANOM",
+          "AVOM"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}

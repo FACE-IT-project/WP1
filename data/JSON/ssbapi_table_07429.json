@@ -1,0 +1,33 @@
+{
+  "query": [
+    {
+      "code": "Kjonn",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "1",
+          "2"
+        ]
+      }
+    },
+    {
+      "code": "Alder",
+      "selection": {
+        "filter": "vs:AlleAldre01aaa",
+        "values": [
+          "000",
+          "01-05",
+          "06-12",
+          "13-15",
+          "16-19",
+          "20-44",
+          "45-66",
+          "67+"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json"
+  }
+}
