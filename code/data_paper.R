@@ -1161,7 +1161,11 @@ save(all_meta, file = "data/analyses/all_meta.RData")
 FACE_IT_v1 <- clean_all %>% 
   filter(!grepl("g-e-m", URL), # Remove GEM data
          !grepl("GRDC", URL), # Remove GRDC data
-         !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael)
+         !grepl("Received directly from Mikael Sejr", URL)) %>%  # Remove embargoed PAR data from Mikael
+  # Convert to PANGAEA date standard
+  dplyr::rename(`date/time [UTC+0]` = date, `depth [m]` = depth,
+                `longitude [°E]` = lon, `latitude [°N]` = lat) %>% 
+  mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00"))
 
 # Save as .csv
 write_csv(FACE_IT_v1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.csv")
