@@ -1841,6 +1841,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
     filter(between(date, as.Date(trend_dates[1]), as.Date(trend_dates[2]))) %>%
     group_by(site, type, variable) %>%
     mutate(row_idx = 1:n()) %>%
+    filter(!is.na(value_mean)) %>% 
     do(fit_site = broom::tidy(lm(value_mean ~ row_idx, data = .))) %>% 
     unnest(fit_site) %>% 
     filter(term == "row_idx") %>% 

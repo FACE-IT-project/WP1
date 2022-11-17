@@ -193,7 +193,8 @@ sea_ice_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "ice") 
 sea_ice_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "ice") # No sea ice data
 sea_ice_por <- review_filter_var(full_product_por, "ice", "extent") # Ice cover in km^2
 clean_sea_ice <- rbind(sea_ice_kong, sea_ice_is, sea_ice_stor, sea_ice_young, sea_ice_disko, sea_ice_nuup, sea_ice_por) %>% 
-  filter(!is.na(value)) %>% mutate(driver = "sea ice", depth = NA) # Deeper depths are bottom depths and should be converted to NA
+  filter(!is.na(value)) %>% mutate(driver = "sea ice", depth = NA, # Deeper depths are bottom depths and should be converted to NA
+                                   date_accessed = as.Date(date_accessed)) 
 rm(sea_ice_kong, sea_ice_is, sea_ice_stor, sea_ice_young, sea_ice_disko, sea_ice_nuup, sea_ice_por); gc()
 
 # Figures
@@ -358,7 +359,7 @@ ice_temp_depth_change <- ice_temp %>%
                            depth > 200 ~ "+200")) %>%
   group_by(site, variable, year, depth) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  filter(!is.na(value))review_filter_var
+  filter(!is.na(value))
 # Monthly climatologies by depth
 ice_temp_depth_clim <- ice_temp %>% 
   dplyr::select(site, variable, date, depth, value) %>% 
@@ -774,8 +775,8 @@ clean_pp <- rbind(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por) 
                               TRUE ~ variable),
          driver = "prim prod")
 # unique(clean_pp$variable)
-unique(clean_pp$variable[str_detect(clean_pp$variable, "PP|pp")]) # Double check that only pH values are screened this way
-test_df <- filter(clean_pp, variable == "TOTAL_chla_area")
+# unique(clean_pp$variable[str_detect(clean_pp$variable, "PP|pp")]) # Double check that only pH values are screened this way
+# test_df <- filter(clean_pp, variable == "TOTAL_chla_area")
 rm(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por); gc()
 
 # Summary analyses
@@ -806,16 +807,21 @@ biomass_disko <- filter(rbind(full_product_disko, disko_GEM), category == "bio")
 biomass_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
                        !grepl("CTD|Primary|Chlorophyll", citation))
 biomass_por <- filter(full_product_por, category == "bio") # No bio data
-biomass_EU <- filter(full_product_EU, category == "bio")
-biomass_sval <- filter(full_product_sval, category == "bio")
-biomass_green <- filter(full_product_green, category == "bio")
+biomass_EU <- filter(full_product_EU, category == "bio", is.na(lon), variable != "fluor") # No biomass data
+biomass_sval <- filter(full_product_sval, category == "bio", is.na(lon))
+biomass_green <- filter(full_product_green, category == "bio", is.na(lon))
 biomass_nor <- filter(full_product_nor, category == "bio")
-clean_biomass <- rbind(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por) %>% 
+clean_biomass <- rbind(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por,
+                       biomass_EU, biomass_sval, biomass_green, biomass_nor) %>% 
   filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]"), !grepl("\\[\\%\\]", variable)) %>% 
   filter(!grepl("blade growth", variable), !grepl("tip growth", variable)) %>% # NB: Decided to remove growth data
-  mutate(variable = str_replace(variable, "individuals\\/m3", "ind\\/m3"), type = "in situ", driver = "biomass")
+  filter(!grepl("\\[presence\\]", variable)) %>% # Presence data used in species richness driver
+  mutate(variable = str_replace(variable, "individuals\\/m3", "ind\\/m3"), 
+         variable = str_replace(variable, "Biomass - ", ""),
+         type = "in situ", driver = "biomass")
 # unique(clean_biomass$variable)
-rm(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por); gc()
+rm(biomass_kong, biomass_is, biomass_stor, biomass_young, biomass_disko, biomass_nuup, biomass_por,
+   biomass_EU, biomass_sval, biomass_green, biomass_nor); gc()
 
 # Summary analyses
 summary_biomass <- review_summary(clean_biomass)
@@ -860,11 +866,12 @@ spp_rich_disko <- filter(rbind(full_product_disko, disko_GEM), category == "bio"
 spp_rich_nuup <- filter(rbind(full_product_nuup, nuup_GEM), category == "bio",
                         !grepl("CTD|Primary|Chlorophyll", citation))
 spp_rich_por <- filter(full_product_por, category == "bio") # No bio data
-spp_rich_EU <- filter(full_product_EU, category == "bio")
-spp_rich_sval <- filter(full_product_sval, category == "bio")
-spp_rich_green <- filter(full_product_green, category == "bio")
+spp_rich_EU <- filter(full_product_EU, category == "bio", is.na(lon))
+spp_rich_sval <- filter(full_product_sval, category == "bio", is.na(lon))
+spp_rich_green <- filter(full_product_green, category == "bio", is.na(lon))
 spp_rich_nor <- filter(full_product_nor, category == "bio")
-clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_young, spp_rich_disko, spp_rich_nuup, spp_rich_por) %>% 
+clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_young, spp_rich_disko, spp_rich_nuup, spp_rich_por,
+                        spp_rich_EU, spp_rich_sval, spp_rich_green, spp_rich_nor) %>% 
   filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]")) %>% 
   filter(value > 0) %>% 
          # Fix sp. and spp.
@@ -883,6 +890,7 @@ clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_youn
          variable = str_replace(variable, " \\[\\%\\]", ""),
          variable = str_replace(variable, " \\[cells\\/l]", ""),
          variable = str_replace(variable, " \\[individuals\\/m3\\]", ""),
+         variable = str_replace(variable, " \\[count\\]", ""),
          variable = str_replace(variable, " 30-40um| 40-50um| 50-60um| 70-80um", ""),
          # Remove other specifications
          variable = str_replace(variable, " \\(veliger\\)| \\(AF\\)| \\(cypris\\)| \\(nauplii\\)|
@@ -918,6 +926,7 @@ clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_youn
                               str_detect(variable, "Pseudocalanus acuspes") ~ "Pseudocalanus acuspes",
                               str_detect(variable, "Pseudocalanus sp.") ~ "Pseudocalanus sp.",
                               str_detect(variable, "Scolecithricella minor") ~ "Scolecithricella minor",
+                              str_detect(variable, "Polar cod") ~ "Boreogadus saida",
                               TRUE ~ variable)) %>% 
          # More specific fixes
   mutate(variable = case_when(variable == "Acartia longiremisI" ~ "Acartia longiremis", 
@@ -936,15 +945,19 @@ clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_youn
 # TODO: Consider merging across publications to reduce duplicates
 # Very important to detail this clearly in the manuscript
 spp_count <- clean_spp_rich %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type) %>% 
+  group_by(lon, lat, date, depth, category, driver, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
-  mutate(variable = "spp count [n]") %>% 
+  mutate(variable = "spp count [n]",
+         date_accessed = as.Date(Sys.Date()), 
+         URL = "None", 
+         citation = "Value derived for FACE-IT dataset") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type, variable, value) %>% 
   distinct()
 
 # Combine and clean up
 clean_spp_rich <- rbind(clean_spp_rich, spp_count) %>% distinct()
-rm(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_young, spp_rich_disko, spp_rich_nuup, spp_rich_por); gc()
+rm(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_young, spp_rich_disko, spp_rich_nuup, spp_rich_por,
+   spp_rich_EU, spp_rich_sval, spp_rich_green, spp_rich_nor); gc()
 
 # Summary analyses
 summary_spp_rich <- review_summary(clean_spp_rich)
@@ -963,32 +976,38 @@ review_summary_plot(summary_spp_rich, "spp rich")
 gov_kong <- review_filter_var(full_product_kong, "gov") %>% slice(0)
 gov_is <- review_filter_var(full_product_is, "gov")
 gov_stor <- review_filter_var(full_product_stor, "gov")
-gov_young <- review_filter_var(full_product_young, "gov")
-gov_disko <- review_filter_var(full_product_disko, "gov")
-gov_nuup <- review_filter_var(full_product_nuup, "gov")
+gov_young <- review_filter_var(rbind(full_product_young, young_GEM), "gov")
+gov_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "gov")
+gov_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "gov")
 gov_por <- review_filter_var(full_product_por, "gov")
 gov_EU <- filter(full_product_EU, category == "soc")
 gov_sval <- filter(full_product_sval, category == "soc")
 gov_green <- filter(full_product_green, category == "soc")
 gov_nor <- filter(full_product_nor, category == "soc")
-clean_gov <- rbind(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por)
-rm(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por); gc()
+clean_gov <- rbind(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por,
+                   gov_EU, gov_sval, gov_green, gov_nor) %>%
+  filter(!grepl("Received", URL)) %>%
+  filter(!grepl("arrival|guest|Guest|Passengers|Export|Catch|Quota|Advice|price|Coastal|Offshore|
+                |dogs|overnight|passengers", variable)) %>% 
+  mutate(driver = "gov", type = "in situ") %>% 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type, variable, value) %>% 
+  distinct()
+# unique(clean_gov$variable)
+rm(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por,
+   gov_EU, gov_sval, gov_green, gov_nor); gc()
 
 # Summary analyses
-# NB: Won't work without data
-# summary_gov <- review_summary(clean_gov)
+summary_gov <- review_summary(clean_gov)
 
 # Plot results
-# NB: Won't work without data
+# Don't run this, too many small variables
 # review_summary_plot(summary_gov, "gov")
 
 
 ### Tourism ----------------------------------------------------------------
 
-# TODO: There are some tourism data in the Svalbard data product that need to be added here
-
 # Test check for all soc vars to make sure no desired tourism vars are missed
-as.vector(distinct(filter(full_product_young, category == "soc"), variable))
+as.vector(distinct(filter(full_product_nor, category == "soc"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "soc"), variable))
 
 # Get tourism variables
@@ -1000,20 +1019,25 @@ tourism_young <- review_filter_var(rbind(full_product_young, young_GEM), "tour")
 tourism_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "tour") # No tourism data
 tourism_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "tour") # No tourism data
 tourism_por <- review_filter_var(full_product_por, "tour") # No tourism data
-tourism_EU <- filter(full_product_EU, category == "soc")
-tourism_sval <- filter(full_product_sval, category == "soc")
-tourism_green <- filter(full_product_green, category == "soc")
-tourism_nor <- filter(full_product_nor, category == "soc")
-clean_tourism <- rbind(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por) %>% 
-  mutate(driver = "tourism")
+tourism_EU <- review_filter_var(full_product_EU, "tour")
+tourism_sval <- review_filter_var(full_product_sval, "arrival|guest")
+tourism_green <- review_filter_var(full_product_green, "dogs|stays|guests|arrival|passenger|capacity")
+tourism_nor <- review_filter_var(full_product_nor, "Guest|Passenger")
+clean_tourism <- rbind(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por,
+                       tourism_EU, tourism_sval, tourism_green, tourism_nor) %>% 
+  mutate(driver = "tourism") %>% 
+  filter(!is.na(value))
 # unique(clean_tourism$variable)
-rm(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por); gc()
+rm(tourism_kong, tourism_is, tourism_stor, tourism_young, tourism_disko, tourism_nuup, tourism_por,
+   tourism_EU, tourism_sval, tourism_green, tourism_nor); gc()
 
 # Summary analyses
+# One variable is throwing an error
 summary_tourism <- review_summary(clean_tourism)
 
 # Plot results
-review_summary_plot(summary_tourism, "tourism")
+# Don't run this, too many small variables
+# review_summary_plot(summary_tourism, "tourism")
 
 
 ### Fisheries ---------------------------------------------------------------
@@ -1021,7 +1045,7 @@ review_summary_plot(summary_tourism, "tourism")
 # NB: Ship traffic is included here as it is mostly due to industry and not tourism
 
 # Test check for all soc vars to make sure no desired fisheries vars are missed
-as.vector(distinct(filter(full_product_stor, category == "soc"), variable))
+as.vector(distinct(filter(full_product_nor, category == "soc"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "soc"), variable))
 
 # Get shipping variables
@@ -1033,11 +1057,12 @@ fisheries_young <- review_filter_var(rbind(full_product_young, young_GEM), "trip
 fisheries_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "trips") # No social data
 fisheries_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "trips") # No social data
 fisheries_por <- review_filter_var(full_product_por, "trips") # No social data
-fisheries_EU <- filter(full_product_EU, category == "soc")
-fisheries_sval <- filter(full_product_sval, category == "soc")
-fisheries_green <- filter(full_product_green, category == "soc")
-fisheries_nor <- filter(full_product_nor, category == "soc")
-clean_fisheries <- rbind(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por) %>% 
+fisheries_EU <- review_filter_var(full_product_EU, "fish")
+fisheries_sval <- review_filter_var(full_product_sval, "fish")
+fisheries_green <- review_filter_var(full_product_green, "Export|Catch|Quota|Advice|price|Coastal|Offshore")
+fisheries_nor <- review_filter_var(full_product_nor, "Export")
+clean_fisheries <- rbind(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por,
+                         fisheries_EU, fisheries_sval, fisheries_green, fisheries_nor) %>% 
   filter(!grepl("\\[Month Trips\\]", variable)) %>% # NB: It is unclear what exactly these are
   mutate(variable = case_when(str_detect(variable, "CO2 emissions \\(tonnes\\)") ~ "CO2 emissions total [tonnes; sum]",
                               str_detect(variable, "\\[Nautical miles\\]") ~ "nautical miles [sum]",
@@ -1056,19 +1081,19 @@ clean_fisheries <- rbind(fisheries_kong, fisheries_is, fisheries_stor, fisheries
                               str_detect(variable, "Power in port \\(GWh\\)") ~ "Power in port [tonnes; sum]",
                               str_detect(variable, "\\[Number of trips pr year\\]") ~ "trips [n]",
                               TRUE ~ variable), 
-         driver = "fisheries") %>% arrange(variable)
+         driver = "fisheries", category = "soc") %>% arrange(variable)
+# unique(clean_fisheries$category)
+# unique(clean_fisheries$driver)
 # unique(clean_fisheries$variable)
-rm(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por); gc()
+rm(fisheries_kong, fisheries_is, fisheries_stor, fisheries_young, fisheries_disko, fisheries_nuup, fisheries_por,
+   fisheries_EU, fisheries_sval, fisheries_green, fisheries_nor); gc()
 
 # Summary analyses
 summary_fisheries <- review_summary(clean_fisheries)
 
 # Plot results
-review_summary_plot(summary_fisheries, "fisheries")
-
-
-# Currently no landings data
-# Need to find this from government statistic/fisheries sites
+# Don't plot this, too many variables
+# review_summary_plot(summary_fisheries, "fisheries")
 
 
 ## Save clean data ---------------------------------------------------------
@@ -1087,12 +1112,14 @@ plyr::l_ply(unique(clean_all$category), save_category, .parallel = T,
 
 ## References --------------------------------------------------------------
 
+# TODO: Correct automagic reference classification for governance data
 # NB: Check for N-ICE and remove if present
-all_ref <- bind_rows(summary_sea_ice$citations,summary_glacier$citations, summary_runoff$citations,
+all_ref <- bind_rows(summary_sea_ice$citations, summary_glacier$citations, summary_runoff$citations,
                      summary_sea_temp$citations, summary_sal$citations, summary_light$citations,
                      summary_carb$citations, summary_nutrients$citations, 
                      summary_pp$citations, summary_biomass$citations, summary_spp_rich$citations, 
                      summary_gov$citations, summary_tourism$citations, summary_fisheries$citations)
+all_ref[grepl("N-ICE", all_ref$citation),]
 save(all_ref, file = "data/analyses/all_ref.RData")
 
 
@@ -1107,17 +1134,18 @@ all_meta <- rbind(summary_sea_ice$monthly, summary_glacier$monthly, summary_runo
 save(all_meta, file = "data/analyses/all_meta.RData")
 # load("data/analyses/all_meta.RData")
 
-all_meta %>% 
-  filter(!is.na(value_mean)) %>% 
-  mutate(month = lubridate::month(date)) %>% 
-  ggplot(aes(x = as.factor(month), y = count_days_name)) +
-  geom_boxplot(aes(fill = site), position = "dodge", outlier.colour = NA) +
-  geom_jitter(aes(colour = log10(count))) +
-  scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
-  labs(y = paste0("Unique days with data points"), x = "Month", fill = "Site", colour = "Count [log10(n)]") +
-  facet_grid(site~driver) +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
+# Too many small variables at the moment
+# all_meta %>% 
+#   filter(!is.na(value_mean)) %>% 
+#   mutate(month = lubridate::month(date)) %>% 
+#   ggplot(aes(x = as.factor(month), y = count_days_name)) +
+#   geom_boxplot(aes(fill = site), position = "dodge", outlier.colour = NA) +
+#   geom_jitter(aes(colour = log10(count))) +
+#   scale_colour_viridis_c() + scale_y_continuous(limits = c(0, 32), expand = c(0, 0)) +
+#   labs(y = paste0("Unique days with data points"), x = "Month", fill = "Site", colour = "Count [log10(n)]") +
+#   facet_grid(site~driver) +
+#   theme(panel.border = element_rect(colour = "black", fill = NA))
+# ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 
 # annual_temp <- MUR_data %>%
 #   mutate(year = lubridate::year(t)) %>% 
@@ -1130,8 +1158,14 @@ ggsave("~/Desktop/analyses_output/meta_meta_box.png", width = 16, height = 12)
 ## PANGAEA file ------------------------------------------------------------
 
 # Remove GEM and GRDC data
+FACE_IT_v1 <- clean_all %>% 
+  filter(!grepl("g-e-m", URL), # Remove GEM data
+         !grepl("GRDC", URL), # Remove GRDC data
+         !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael)
 
 # Save as .csv
+write_csv(FACE_IT_v1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.csv")
+write_csv(FACE_IT_v1, "data/full_data/FACE_IT_v1.csv")
 
 
 # Section 4 ---------------------------------------------------------------

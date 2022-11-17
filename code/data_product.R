@@ -655,6 +655,8 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
 # write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
 
 # AIS data
+# TODO: Change this so that the primary variable becomes the site
+# And the sub variables become the primary variable and units
 sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %>% 
   pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "var", values_to = "value") %>% 
   mutate(date = as.Date(paste0(Year,"-12-31")),
@@ -3454,7 +3456,7 @@ nor_accommodation <- as.data.frame(nor_accommodation_json) %>%
                 var1 = `type of accommodation`, var2 = `country of residence`) %>% 
   separate(month, into = c("year", "month"), sep = "M") %>% 
   mutate(var2 = str_replace(var2, ",", " -"),
-         variable = paste0("Geust nights - ",var1," - ",var2," [n]"),
+         variable = paste0("Guest nights - ",var1," - ",var2," [n]"),
          date = as.Date(paste0(year,"-",month,"-01"))+months(1)-days(1),
          date_accessed = as.Date(Sys.Date()),
          category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_accommodation_json$url,
@@ -3500,13 +3502,14 @@ nor_MOSJ_pcod <- read_delim("~/pCloudDrive/FACE-IT_data/norway/biomass-of-polar-
 
 # Combine and save
 full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_pop, nor_MPA, 
-                          nor_air_passenger, sval_employ_perc, nor_accommodation, nor_IMR_kingcrab)
+                          nor_air_passenger, sval_employ_perc, nor_accommodation, 
+                          nor_IMR_kingcrab, nor_MOSJ_pcod)
 data.table::fwrite(full_product_nor, "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.csv")
 save(full_product_nor, file = "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.RData")
 save(full_product_nor, file = "data/full_data/full_product_nor.RData")
 plyr::l_ply(unique(full_product_nor$category), save_category, .parallel = T,
             df = full_product_nor, data_type = "full", site_name = "nor") # NB: Site name requires some consideration
-rm(list = grep("nor_",names(.GlobalEnv),value = TRUE)); gc()
+rm(list = grep("nor_|sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Porsangerfjorden ---------------------------------------------------------
@@ -3587,6 +3590,9 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 # Load full EU file
 if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
 
+# Load full Norway file
+if(!exists("full_product_nor")) load("data/full_data/full_product_nor.RData")
+
 # Load PG product
 if(!exists("pg_por_ALL")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
@@ -3613,6 +3619,7 @@ por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("202
 full_product_por <- rbind(dplyr::select(pg_por_ALL, -site), 
                           por_mooring_GFI, por_sea_ice, por_hydro) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_por[1], lon <= bbox_por[2], lat >= bbox_por[3], lat <= bbox_por[4])) %>% 
+  rbind(filter(dplyr::select(full_product_nor, -site), lon >= bbox_por[1], lon <= bbox_por[2], lat >= bbox_por[3], lat <= bbox_por[4])) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Porsanger", citation))) %>% distinct() %>% mutate(site = "por")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
