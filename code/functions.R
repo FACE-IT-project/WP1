@@ -829,10 +829,12 @@ load_SAMS <- function(file_name){
                        "KF_20_20_pro_sbe56_10040.nc", "KF_20_20_pro_sbe56_10055.nc", "KF_20_20_pro_sbe56_10059.nc",
                        "KF_20_20_pro_sbe56_10060.nc", "KF_20_20_pro_sbe56_10061.nc", "KF_20_20_pro_sbe56_10062.nc",
                        "KF_20_20_pro_sbe56_10066.nc", "KF_20_20_pro_sbe56_10067.nc")) {
-    suppressWarnings(
-      res_base <- hyper_tibble(tidync(file_name)) %>% 
-        cbind(hyper_tibble(activate(tidync(file_name), "S")))  # This line throws an unneeded warning
-    )
+    SAMS_lon <- mean(as.numeric(SAMS_dump$attribute$global$geospatial_lon_min),
+                     as.numeric(SAMS_dump$attribute$global$geospatial_lon_max), na.rm = T)
+    SAMS_lat <- mean(as.numeric(SAMS_dump$attribute$global$geospatial_lat_min),
+                     as.numeric(SAMS_dump$attribute$global$geospatial_lat_max))
+    res_base <- hyper_tibble(tidync(file_name)) %>% 
+      mutate(longitude = SAMS_lon, latitude = SAMS_lat)
   } else {
     res_base <- hyper_tibble(tidync(file_name))
   }
@@ -868,7 +870,6 @@ load_SAMS <- function(file_name){
 }
 
 # Simple wrapper for loading met station NetCDF data
-# TODO: Add code to this that creates a reference from global info in the NetCDF file
 load_met_NetCDF <- function(file_name){
   
   # Get NetCDF metadata
@@ -885,12 +886,18 @@ load_met_NetCDF <- function(file_name){
                      ncdf4::ncatt_get(nc_file, varid = 0, "source")$value, ". ",
                      ncdf4::ncatt_get(nc_file, varid = 0, "metadata_link")$value)
   
+  # Coords
+  # TODO: Figure out how to extract coordinates from messy NetCDF format
+  # NCdump doesn't work and can't access coord values via ncatt_get
+  # ncdump::NetCDF(file_name)
+  # ncdf4::ncatt_get(nc_file, varid = 0, attname = "latitude")
+  
   # Process data
   suppressWarnings(
   res <- hyper_tibble(tidync(file_name)) %>% 
     # mutate(across(everything(), ~replace(., . == 9969209968386869046778552952102584320, NA)),
     mutate(date = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>% 
-    # NB: COlumn order differs between files so need to rather state which columns not to melt
+    # NB: Column order differs between files so need to rather state which columns not to melt
     pivot_longer(cols = c(-date, -time), names_to = "variable", values_to = "value") %>% 
     mutate(value = case_when(variable == "air_temperature_2m" & value > 500 ~ 1000001,
                              variable == "air_temperature_2m" & value < 10 ~ 1000001, TRUE ~ value)) %>% 
@@ -904,8 +911,9 @@ load_met_NetCDF <- function(file_name){
               relative_humidity = mean(relative_humidity, na.rm = T),
               air_pressure_at_sea_level_qnh = mean(air_pressure_at_sea_level_qnh, na.rm = T),
               wind_from_direction_10m = as.numeric(round(mean.circular(circular(wind_from_direction_10m, units = "degrees"), na.rm = T)))) %>% 
-    cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
-    dplyr::rename(lon = longitude, lat = latitude) %>% 
+    # cbind(hyper_tibble(activate(tidync(file_name), "S"))) %>%  # This line throws an unneeded warning
+    # dplyr::rename(lon = longitude, lat = latitude) %>% 
+    mutate(lon = NA, lat = NA) %>%
     pivot_longer(air_temperature_2m:air_pressure_at_sea_level_qnh, names_to = "variable", values_to = "value") %>% 
     filter(!is.na(value)) %>% 
     mutate(URL = met_URL,

@@ -50,7 +50,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   sub_cols <- colnames(pg_clean)[colnames(pg_clean) %in% unique(key_words)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "lon", "lat", "date", "depth")]
   print(sub_cols)
-  if(length(sub_cols) == 0) stop("No variables for this driver group") 
+  if(length(sub_cols) == 0) return()
   
   # Subset and melt data.frame
   pg_melt <- pg_clean %>% 
@@ -658,7 +658,7 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
 sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %>% 
   pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "var", values_to = "value") %>% 
   mutate(date = as.Date(paste0(Year,"-12-31")),
-         depth = 0, # It may be better to list this as NA 
+         depth = NA,
          lon = NA, lat = NA, 
          date_accessed = as.Date("2020-09-30"),
          variable = paste0(Area," [",var,"]"),
@@ -749,12 +749,13 @@ pg_kong_Physical <- pg_var_melt(pg_kong_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_kong_Chemistry <- pg_var_melt(pg_kong_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-# pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio") # 0 values
+pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio") # 0 values
 # Social
-# pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc") # 0 values
+pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc") # 0 values
 
 # Stack them together
-pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry) %>% mutate(site = "kong")
+pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry,
+                     pg_kong_Biology, pg_kong_Social) %>% mutate(site = "kong")
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
 
@@ -1153,7 +1154,7 @@ write_delim(kong_NiedzLight_PG, "~/pCloudDrive/restricted_data/Niedzwiedz/dataLi
 
 # Combine and save
 full_product_kong <- rbind(dplyr::select(pg_kong_ALL, -site), 
-                           kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla, # kong_glacier_info,
+                           kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
                            kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
                            kong_light_Laeseke, kong_light_Inka, kong_PAR_Dieter) %>% 
@@ -1172,6 +1173,8 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 # Simple checks
 # full_product_kong %>% filter(grepl("Jentzsch", citation))
 
+# TODO: These files should be downloaded, but are missing from the final clean product: 
+  # https://dashboard.awi.de/?dashboard=3865
 # Philipp Fischer ferry box data - There are a couple of months of data for 2014
 # kong_fischer <- full_product_kong %>% filter(grepl("Fischer", citation))
 
@@ -1251,10 +1254,11 @@ pg_is_Chemistry <- pg_var_melt(pg_is_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
 pg_is_Biology <- pg_var_melt(pg_is_clean, query_Biology$pg_col_name, "bio")
 # Social
-# pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") # empty
+pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, pg_is_Biology) %>% mutate(site = "is")
+pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, 
+                   pg_is_Biology, pg_is_Social) %>% mutate(site = "is")
 data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.csv")
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
 
@@ -1372,13 +1376,16 @@ is_Chla_IsA <- rbind(is_Chla_IsA_1, is_Chla_IsA_2) %>%
 rm(is_Chla_IsA_units, is_Chla_IsA_1, is_Chla_IsA_2); gc()
 
 ## Isfjorden radio meteorological station
-is_met_radio <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc") %>% mutate(date_accessed = as.Date("2021-04-14"), .before = 1)
+is_met_radio <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99790.nc") %>% 
+  mutate(date_accessed = as.Date("2021-04-14"), .before = 1)
 
 ## Airport meteorological station
-is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.nc") %>% mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
+is_met_airport <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99840.nc") %>% 
+  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Pyramiden radio meteorological station
-is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
+is_met_pyramiden <- load_met_NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/SN99880.nc") %>% 
+  mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ship AIS data
 # Rather combine all of the ships into one variable
@@ -1551,12 +1558,13 @@ pg_stor_Physical <- pg_var_melt(pg_stor_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_stor_Chemistry <- pg_var_melt(pg_stor_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-# pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio") # empty
+pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-# pg_stor_Social <- pg_var_melt(pg_stor_clean, query_Social$pg_col_name, "soc") # empty
+pg_stor_Social <- pg_var_melt(pg_stor_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_stor_ALL <- rbind(pg_stor_Cryosphere, pg_stor_Physical, pg_stor_Chemistry) %>% mutate(site = "stor")
+pg_stor_ALL <- rbind(pg_stor_Cryosphere, pg_stor_Physical, pg_stor_Chemistry,
+                     pg_stor_Biology, pg_stor_Social) %>% mutate(site = "stor")
 data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.csv")
 save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
@@ -1606,7 +1614,6 @@ plyr::l_ply(unique(full_product_stor$category), save_category, .parallel = T,
             df = full_product_stor, data_type = "full", site_name = "stor")
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
-
 
 
 # Greenland ---------------------------------------------------------------
@@ -1977,12 +1984,13 @@ pg_young_Physical <- pg_var_melt(pg_young_clean, query_Physical$pg_col_name, "ph
 # Carbonate chemistry
 pg_young_Chemistry <- pg_var_melt(pg_young_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-# pg_young_Biology <- pg_var_melt(pg_young_clean, query_Biology$pg_col_name, "bio") # empty
+pg_young_Biology <- pg_var_melt(pg_young_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-# pg_young_Social <- pg_var_melt(pg_young_clean, query_Social$pg_col_name, "soc") # empty
+pg_young_Social <- pg_var_melt(pg_young_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_young_ALL <- rbind(pg_young_Cryosphere, pg_young_Physical, pg_young_Chemistry) %>% mutate(site = "young")
+pg_young_ALL <- rbind(pg_young_Cryosphere, pg_young_Physical, pg_young_Chemistry,
+                      pg_young_Biology, pg_young_Social) %>% mutate(site = "young")
 data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.csv")
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
@@ -2596,12 +2604,13 @@ pg_disko_Physical <- pg_var_melt(pg_disko_clean, query_Physical$pg_col_name, "ph
 # Carbonate chemistry
 pg_disko_Chemistry <- pg_var_melt(pg_disko_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-# pg_disko_Biology <- pg_var_melt(pg_disko_clean, query_Biology$pg_col_name, "bio") # empty
+pg_disko_Biology <- pg_var_melt(pg_disko_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-# pg_disko_Social <- pg_var_melt(pg_disko_clean, query_Social$pg_col_name, "soc") # empty
+pg_disko_Social <- pg_var_melt(pg_disko_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_disko_ALL <- rbind(pg_disko_Cryosphere, pg_disko_Physical, pg_disko_Chemistry) %>% mutate(site = "disko")
+pg_disko_ALL <- rbind(pg_disko_Cryosphere, pg_disko_Physical, pg_disko_Chemistry,
+                      pg_disko_Biology, pg_disko_Social) %>% mutate(site = "disko")
 data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.csv")
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
@@ -2651,8 +2660,6 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
 rm(disko_CTD_ChlA_var); gc()
 
 # Combine and save
-# TODO: Add greenland stats data
-  # Filter site by: Qeqertarsuaq | Qeqertalik
 full_product_disko <- rbind(dplyr::select(pg_disko_ALL, -site), 
                             disko_CTD_ChlA) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_disko[1], lon <= bbox_disko[2], lat >= bbox_disko[3], lat <= bbox_disko[4])) %>% 
@@ -2918,12 +2925,13 @@ pg_nuup_Physical <- pg_var_melt(pg_nuup_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_nuup_Chemistry <- pg_var_melt(pg_nuup_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-# pg_nuup_Biology <- pg_var_melt(pg_nuup_clean, query_Biology$pg_col_name, "bio") # empty
+pg_nuup_Biology <- pg_var_melt(pg_nuup_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-# pg_nuup_Social <- pg_var_melt(pg_nuup_clean, query_Social$pg_col_name, "soc") # empty
+pg_nuup_Social <- pg_var_melt(pg_nuup_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_nuup_ALL <- rbind(pg_nuup_Cryosphere, pg_nuup_Physical, pg_nuup_Chemistry) %>% mutate(site = "nuup")
+pg_nuup_ALL <- rbind(pg_nuup_Cryosphere, pg_nuup_Physical, pg_nuup_Chemistry,
+                     pg_nuup_Biology, pg_nuup_Social) %>% mutate(site = "nuup")
 data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.csv")
 save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
@@ -2943,8 +2951,6 @@ if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
 if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
 # Combine and save
-# TODO: Add greenland stats data
-  # Filter site by: Sermersooq | Nuuk
 full_product_nuup <- rbind(dplyr::select(pg_nuup_ALL, -site)) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_nuup[1], lon <= bbox_nuup[2], lat >= bbox_nuup[3], lat <= bbox_nuup[4])) %>% 
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Nuup|Nuuk", citation))) %>% distinct() %>% mutate(site = "nuup")
@@ -3493,7 +3499,7 @@ nor_MOSJ_pcod <- read_delim("~/pCloudDrive/FACE-IT_data/norway/biomass-of-polar-
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
-full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_pop_json, nor_MPA, 
+full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_pop, nor_MPA, 
                           nor_air_passenger, sval_employ_perc, nor_accommodation, nor_IMR_kingcrab)
 data.table::fwrite(full_product_nor, "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.csv")
 save(full_product_nor, file = "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.RData")
@@ -3559,12 +3565,13 @@ pg_por_Physical <- pg_var_melt(pg_por_clean, query_Physical$pg_col_name, "phys")
 # Carbonate chemistry
 pg_por_Chemistry <- pg_var_melt(pg_por_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-# pg_por_Biology <- pg_var_melt(pg_por_clean, query_Biology$pg_col_name, "bio") # empty
+pg_por_Biology <- pg_var_melt(pg_por_clean, query_Biology$pg_col_name, "bio") # empty
 # Social
-# pg_por_Social <- pg_var_melt(pg_por_clean, query_Social$pg_col_name, "soc") # empty
+pg_por_Social <- pg_var_melt(pg_por_clean, query_Social$pg_col_name, "soc") # empty
 
 # Stack them together
-pg_por_ALL <- rbind(pg_por_Cryosphere, pg_por_Physical, pg_por_Chemistry) %>% mutate(site = "por")
+pg_por_ALL <- rbind(pg_por_Cryosphere, pg_por_Physical, pg_por_Chemistry,
+                    pg_por_Biology, pg_por_Social) %>% mutate(site = "por")
 data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.csv")
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
