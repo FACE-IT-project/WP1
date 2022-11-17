@@ -514,6 +514,18 @@ long_to_short_name <- function(long_name){
   return(short_name)
 }
 
+# Filter data by coords and site name
+## Helps to keep site name data without coords
+filter_site_bbox <- function(df, site_char, bbox){
+  df_site <- df %>% 
+    filter(grepl(site_char, site))
+  df_bbox <- df %>% 
+    filter(lon >= bbox[1], lon <= bbox[2], lat >= bbox[3], lat <= bbox[4])
+  df_res <- rbind(df_site, df_bbox) %>% distinct()
+  rm(df_site, df_bbox); gc()
+  return(df_res)
+}
+
 # Function for smoother meta-data creation
 # Not currently used
 make_meta_data <- function(dat, type, data_name, file_name, URL, reference, note = NA){
