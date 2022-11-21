@@ -281,7 +281,7 @@ bbox_from_name <- function(site_name){
   if(site_name %in% c("ingle", "Inglefieldbukta")) bbox_name <- bbox_ingle
   if(site_name %in% c("stor", "Storfjorden")) bbox_name <- bbox_stor
   if(site_name %in% c("young", "Young Sound")) bbox_name <- bbox_young
-  if(site_name %in% c("disko", "Disko Bay")) bbox_name <- bbox_disko
+  if(site_name %in% c("disko", "Disko Bay", "Qeqertarsuup Tunua")) bbox_name <- bbox_disko
   if(site_name %in% c("nuup", "Nuup Kangerlua")) bbox_name <- bbox_nuup
   if(site_name %in% c("por", "Porsangerfjorden")) bbox_name <- bbox_por
   # This has been coded to allow an error here
@@ -502,13 +502,14 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
   return(map_res)
 }
 
+# Yep
 long_to_short_name <- function(long_name){
   if(long_name == "Kongsfjorden") short_name <- "kong"
   if(long_name == "Isfjorden") short_name <- "is"
   if(long_name == "Inglefieldbukta") short_name <- "ingle"
   if(long_name == "Storfjorden") short_name <- "stor"
   if(long_name == "Young Sound") short_name <- "young"
-  if(long_name == "Disko Bay") short_name <- "disko"
+  if(long_name %in% c("Disko Bay", "Qeqertarsuup Tunua")) short_name <- "disko"
   if(long_name == "Nuup Kangerlua") short_name <- "nuup"
   if(long_name == "Porsangerfjorden") short_name <- "por"
   return(short_name)
@@ -1880,7 +1881,7 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
                               grepl("dap.ceda.ac.uk", URL) ~ "CCI",
                               grepl("Received directly from", URL) ~ "Author",
                               grepl("File provided by", URL) ~ "Author",
-                              TRUE ~ URL)) %>% 
+                              TRUE ~ "Other")) %>% 
     table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = source, values_from = Freq)
   df_citations <- df_base %>% dplyr::select(type, category, site, URL, citation) %>% distinct() %>% 
     table(.) %>% data.frame() %>% filter(Freq > 0) %>% pivot_wider(names_from = site, values_from = Freq) %>% 

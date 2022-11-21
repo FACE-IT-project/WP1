@@ -2,8 +2,7 @@ driver x,driver y,variable x,variable y,site count
 sea temp,sea ice,temp [°C],sea ice cover [proportion],7
 runoff,salinity,Q [m3/s],sal,6
 runoff,sea temp,Q [m3/s],temp [°C],6
-runoff,carb,Q [m3/s],pCO2water_SST_wet [µatm],4
+salinity,spp rich,sal,spp count [n],5
+sea temp,spp rich,temp [°C],spp count [n],5
 runoff,light,Q [m3/s],PAR [µmol m-2 s-1],4
-salinity,spp rich,sal,spp count [n],4
 sea ice,light,sea ice cover [proportion],PAR [µmol m-2 s-1],4
-sea temp,spp rich,temp [°C],spp count [n],4

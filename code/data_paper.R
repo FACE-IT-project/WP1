@@ -65,12 +65,13 @@ long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
                                            "sea temp", "salinity", "light",
                                            "carb", "nutrients", 
                                            "prim prod", "biomass", "spp rich", 
-                                           "tourism", "fisheries"),
+                                           "gov", "tourism", "fisheries"),
                                 driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
                                                 "seawater temperature", "salinity", "light",
                                                 "carbonate chemistry", "nutrients",
                                                 "primary production", "biomass", "species richness",
-                                                "tourism", "fisheries"))
+                                                "governance", "tourism", "fisheries"))
+
 
 # Data --------------------------------------------------------------------
 
@@ -942,8 +943,6 @@ clean_spp_rich <- rbind(spp_rich_kong, spp_rich_is, spp_rich_stor, spp_rich_youn
 
 # From the cleaned up data create a species count variable
   # From here the species are combined into counts - the names are therefore lost
-# TODO: Consider merging across publications to reduce duplicates
-# Very important to detail this clearly in the manuscript
 spp_count <- clean_spp_rich %>% 
   group_by(lon, lat, date, depth, category, driver, site, type) %>% 
   summarise(value = as.numeric(n()), .groups = "drop") %>% 
@@ -1176,17 +1175,9 @@ write_csv(FACE_IT_v1, "data/full_data/FACE_IT_v1.csv")
 # Relationships between data analysed for Section 3
 # NB: Only necessary to run the `Setup` section
 
-## Provide literature reviews on the relationships they have with each other as well as data analyses of these relationships
-# What is changing in the EU Arctic (setting the scene):
-#   "Boundary conditions"
-# e.g. Warming ocean, loss of sea ice, etc.
-# We then go through the key drivers and ask for each driver whether there are general results about Arctic fjords across all sites
-# Differences in some sites could be used as exceptions that prove the rule
-# Specific comparisons taken from network plot for relationships
-
 # Load all clean data
 # clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
-load("data/analyses/clean_all.RData")
+if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 
 # Clean/remove some variables for better comparisons
 clean_all_cryo <- filter(clean_all, category == "cryo") %>% 
@@ -1207,42 +1198,86 @@ clean_all_biomass <- filter(clean_all, driver == "biomass") %>% # Just get sum o
   group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
   summarise(value = sum(value, na.rm = T), .groups = "drop")
 clean_all_bio <- filter(clean_all, category == "bio") %>% 
-  filter(driver == "prim prod" |variable == "spp count [n]") %>% # remove everything except the species count value created above 
+  filter(driver == "prim prod" |variable == "spp count [n]") %>% # Remove everything except the species count value created above 
   rbind(clean_all_biomass); rm(clean_all_biomass)
-clean_all_soc <- filter(clean_all, category == "soc")%>% 
+clean_all_gov <- filter(clean_all, driver == "gov") %>% 
+  mutate(variable = case_when(str_detect(variable, "Population - ") ~ "Population [n]",
+                              str_detect(variable, "Taxable income - ") ~ "Taxable income [DKK]",
+                              str_detect(variable, "All industries - main employment - Total") ~ "Employement [n/month]",
+                              str_detect(variable, "All industries - income - Total") ~ "Income [DKK/month]",
+                              str_detect(variable, "Unemployed - Total ") ~ "Unemployed [n]",
+                              str_detect(variable, "pop \\[Longyearbyen & Ny-Alesund") ~ "Population [n]",
+                              str_detect(variable, "pop \\[Barentsburg and Pyramiden") ~ "Population [n]",
+                              str_detect(variable, "pop \\[Hornsund") ~ "Population [n]",
+                              TRUE ~ variable)) %>% 
+  filter(!str_detect(variable, "Taxable income - |- main employment| - income - |Unemployed - |Employment - ")) %>%
+  filter(!is.na(variable), !is.na(value)) %>% 
+  group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% arrange(variable)
+clean_all_tourism <- filter(clean_all, driver == "tourism") %>% 
   mutate(variable = case_when(variable %in% c("Calls [Cruise boats (overseas)]", "Calls [Tourist boats (expedition cruise)]",
                                               "Calls [Day trip boats (local boats)]", "Calls [Day trip boats (12 PAX RIB mm)]",
                                               "Calls [Pleasure boats (Sail charter engine)]") ~ "Calls - tourism [n]",
-                              variable %in% c("Calls [Cargo boats]", "Calls [Teaching / research]",
-                                              "Calls [Fishing boats]", "Calls [Navy / Coast Guard]",
-                                              "Calls [Polar / Nordsyssel]", "Calls [Pilot boat]",
-                                              "Calls [Other vessels]") ~ "Calls - commercial [n]",
+                              variable == "Guest nights - Total - Total [n]" ~ "Guest nights [n]",
+                              variable == "Cruise capacity (Total) arrivals [n]" ~ "Cruise capacity arrivals [n]",
+                              variable == "Cruise capacity (Total) passengers [n]" ~ "Cruise capacity passengers [n]",
                               str_detect(variable, "Passengers") ~ "Passengers [n]",
                               str_detect(variable, "arrival") ~ "Arrivals [n]",
                               str_detect(variable, "Days in port") ~ "Days in port - tourism [count]",
-                              str_detect(variable, "pop ") ~ "Population [n]",
                               str_detect(variable, "guest night ") ~ "Guest nights [n]",
                               str_detect(variable, "Vessels ") ~ "Vessels [n]",
                               TRUE ~ variable)) %>% 
-  group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
-  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% 
   # Remove some unwanted ship values like duration in the fjord
   filter(!str_detect(variable, "Duration|duration|Fuel|gross weight|Month trips|emissions|
                      |Number of trips pr year|Average speed|Power|Total fuel|Tonnage|
-                     |Month Trips|Number of ships")) %>% # These are annual values 
+                     |Month Trips|Number of ships|(annual)|Cruise passengers - |
+                     |Guest nights - |Cruise capacity \\(|- total \\[n\\]")) %>% # These are annual values or are otherwise accounted for
   # Select sum rather than mean values
   mutate(variable = case_when(str_detect(variable, "mean") ~ as.character(NA),
                               str_detect(variable, "; sum") ~ gsub("; sum", "", variable),
                               TRUE ~ variable)) %>% 
-  filter(!is.na(variable))
+  filter(!is.na(variable), !is.na(value)) %>% 
+  group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% arrange(variable)
+clean_all_fisheries <- filter(clean_all, driver == "fisheries") %>% 
+  mutate(variable = case_when(variable %in% c("Calls [Cargo boats]", "Calls [Teaching / research]",
+                                              "Calls [Fishing boats]", "Calls [Navy / Coast Guard]",
+                                              "Calls [Polar / Nordsyssel]", "Calls [Pilot boat]",
+                                              "Calls [Other vessels]") ~ "Calls - commercial [n]",
+                              variable == "Export -  total [1,000 DKK]" ~ "Export [1,000 DKK]",
+                              variable == "Export -  total [Tonnes]" ~ "Export [Tonnes]",
+                              str_detect(variable, "Advice - ") ~ "Advice [pieces]",
+                              str_detect(variable, "Quarter ") ~ as.character(NA),
+                              str_detect(variable, " - Coastal \\[1,000 DKK\\]") ~ "Landings - coastal [1,000 DKK]",
+                              str_detect(variable, " - Coastal \\[Tonnes\\]") ~ "Landings - coastal [Tonnes]",
+                              str_detect(variable, " - Offshore \\[1,000 DKK\\]") ~ "Landings - offshore [1,000 DKK]",
+                              str_detect(variable, " - Offshore \\[Tonnes\\]") ~ "Landings - offshore [Tonnes]",
+                              str_detect(variable, "Average kilo price - ") ~ "Average kilo price [index]",
+                              str_detect(variable, "Quota - ") ~ "Quota [Tonnes]",
+                              str_detect(variable, "Catch - ") ~ "Catch [pieces]",
+                              str_detect(variable, "Vessels ") ~ "Vessels [n]",
+                              TRUE ~ variable)) %>% 
+  # Remove some unwanted ship values like duration in the fjord
+  filter(!str_detect(variable, "Duration|duration|Fuel|gross weight|Month trips|emissions|
+                     |Number of trips pr year|Average speed|Power|Total fuel|Tonnage|
+                     |Month Trips|Number of ships|Export - ")) %>% # These are annual values or are otherwise accounted for
+  # Select sum rather than mean values
+  mutate(variable = case_when(str_detect(variable, "mean") ~ as.character(NA),
+                              str_detect(variable, "; sum") ~ gsub("; sum", "", variable),
+                              TRUE ~ variable)) %>% 
+  filter(!is.na(variable), !is.na(value)) %>% 
+  group_by(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop") %>% arrange(variable)
 
 # Combine
 clean_all_clean <- clean_all_cryo %>% 
   rbind(clean_all_phys) %>% 
   rbind(clean_all_chem) %>%
   rbind(clean_all_bio) %>% 
-  rbind(clean_all_soc)
-rm(clean_all_cryo, clean_all_phys, clean_all_chem, clean_all_bio, clean_all_soc); gc()
+  rbind(clean_all_gov) %>% 
+  rbind(clean_all_tourism) %>% 
+  rbind(clean_all_fisheries)
+rm(clean_all_cryo, clean_all_phys, clean_all_chem, clean_all_bio, clean_all_gov, clean_all_tourism, clean_all_fisheries); gc()
 save(clean_all_clean, file = "data/analyses/clean_all_clean.RData")
 
 # Load cleaned up clean data
@@ -1270,6 +1305,7 @@ runoff_sal <- driver2_lm("runoff", "salinity") # runoff -> salinity
 runoff_light <- driver2_lm("runoff", "light") # runoff -> light
 runoff_carb <- driver2_lm("runoff", "carb") # runoff -> carb system
 runoff_nut <- driver2_lm("runoff", "nutrients") # runoff -> nutrients
+gc()
 
 ## Physics
 temp_ice <- driver2_lm("sea temp", "sea ice") # sea temp -> sea ice
@@ -1281,14 +1317,17 @@ sal_biomass <- driver2_lm("salinity", "biomass") # salinity -> biomass
 light_spp <- driver2_lm("light", "spp rich") # light -> spp richness
 light_biomass <- driver2_lm("light", "biomass") # light -> biomass
 light_PP <- driver2_lm("light", "prim prod") # light -> PP
+gc()
 
 ## Chemistry
 carb_spp <- driver2_lm("carb", "spp rich") # carb system -> spp richness
 nut_PP <- driver2_lm("nutrients", "prim prod") # nutrients -> PP
+gc()
 
 ## Biology
 PP_biomass <- driver2_lm("prim prod", "biomass") # PP -> biomass
 biomass_spp <- driver2_lm("biomass", "spp rich") # biomass -> spp richness
+gc()
 
 ## Social
 gov_tour <- driver2_lm("gov", "tourism") # governance -> tourism # No governance data
@@ -1296,6 +1335,7 @@ gov_fish <- driver2_lm("gov", "fisheries") # governance -> fisheries # No govern
 tour_nut <- driver2_lm("tourism", "nutrients") # tourism -> nutrients
 fish_biomass <- driver2_lm("fisheries", "biomass") # fisheries -> biomass
 fish_spp <- driver2_lm("fisheries", "spp rich") # fisheries -> spp richness
+gc()
 
 # Look across sites for differences in r2 values for variables that are shared between sites
 driver_all <- rbind(ice_temp, ice_light, ice_biomass, ice_spp, gmb_runoff, gmb_spp, 
@@ -1457,7 +1497,7 @@ ggplot(model_kong_even_grid, aes(x = lon, y = lat)) +
                  ylim = c(coords[3]-0.4, coords[4]+0.4))
 
 # Get the RMSE between data and model data
-#Also average average decadal trends for the pixels within the bounding box of each site
+# Also average average decadal trends for the pixels within the bounding box of each site
 model_kong_stats <- model_bbox_stats(model_kong, "kong")
 model_is_stats <- model_bbox_stats(model_is, "is")
 model_stor_stats <- model_bbox_stats(model_stor, "stor")
@@ -1523,10 +1563,10 @@ coastline_Arctic <- filter(coastline_full_df, y > 50, x < 90, x > -90)
 
 # Study sites
 site_points <- data.frame(site = factor(x = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
-                                              "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                              "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua", 
                                               "Porsangerfjorden"),
                                         levels = c("Kongsfjorden", "Isfjorden","Storfjorden", 
-                                                   "Young Sound", "Disko Bay", "Nuup Kangerlua", 
+                                                   "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua", 
                                                    "Porsangerfjorden")),
                           lon = c(11.845, 14.365, 19.88, -21.237, -52.555, -50.625, 25.75),
                           lat = c(78.98, 78.235, 77.78, 74.517, 69.36, 64.405, 70.6))
@@ -1605,7 +1645,7 @@ ggsave("~/Desktop/analyses_output/fig_1_a.png", fig_1_a, width = 10, height = 7)
 (fig_1_b_is <- ice_trend_grid_plot("Isfjorden", 0.04, check_conv = F))
 (fig_1_b_stor <- ice_trend_grid_plot("Storfjorden", 0.04, check_conv = F))
 (fig_1_b_young <- ice_trend_grid_plot("Young Sound", 0.04, check_conv = F, lat_nudge = 0.025))
-(fig_1_b_disko <- ice_trend_grid_plot("Disko Bay", 0.05, check_conv = F))
+(fig_1_b_disko <- ice_trend_grid_plot("Qeqertarsuup Tunua", 0.05, check_conv = F))
 (fig_1_b_nuup <- ice_trend_grid_plot("Nuup Kangerlua", 0.05, check_conv = F) + 
     coord_quickmap(xlim = c(-53.0, -49.6), ylim = c(64.01, 64.80), expand = F))
 (fig_1_b_por <- ice_trend_grid_plot("Porsangerfjorden", 0.05, check_conv = F) + 
@@ -1647,25 +1687,25 @@ fig_1 <- fig_1_base +
             nudge_x = -0.033, add.segments = F) +
   # Kongsfjorden
   geom_grob(aes(x = 0.065, y = 0.16, label = list(cowplot::as_grob(fig_1_b_kong))),
-            nudge_x = -0.07, nudge_y = 0.55, segment.colour = "tan1") +
+            nudge_x = -0.07, nudge_y = 0.55, segment.colour = "chocolate4") +
   # Isfjorden
   geom_grob(aes(x = 0.08, y = 0.15, label = list(cowplot::as_grob(fig_1_b_is))),
-            nudge_x = 0.35, nudge_y = 0.6, vp.width = 0.25, vp.height = 0.25, segment.colour = "sienna1") +
+            nudge_x = 0.35, nudge_y = 0.6, vp.width = 0.25, vp.height = 0.25, segment.colour = "chocolate3") +
   # Storfjorden
   geom_grob(aes(x = 0.12, y = 0.15, label = list(cowplot::as_grob(fig_1_b_stor))),
-            nudge_x = 0.65, nudge_y = 0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "orange1") +
+            nudge_x = 0.65, nudge_y = 0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "chocolate1") +
   # Young Sound
   geom_grob(aes(x = -0.15, y = 0.05, label = list(cowplot::as_grob(fig_1_b_young))),
-            nudge_x = -0.41, nudge_y = 0.53, vp.width = 0.20, vp.height = 0.20, segment.colour = "darkseagreen1") +
+            nudge_x = -0.41, nudge_y = 0.53, vp.width = 0.20, vp.height = 0.20, segment.colour = "springgreen4") +
   # Disko bay
   geom_grob(aes(x = -0.45, y = 0.11, label = list(cowplot::as_grob(fig_1_b_disko))),
-            nudge_x = -0.41, nudge_y = -0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "seagreen1") +
+            nudge_x = -0.41, nudge_y = -0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "springgreen3") +
   # Nuup Kangerlua
   geom_grob(aes(x = -0.55, y = -0.03, label = list(cowplot::as_grob(fig_1_b_nuup))),
-            nudge_x = -0.26, nudge_y = -0.4, vp.width = 0.25, vp.height = 0.25, segment.colour = "palegreen1") +
+            nudge_x = -0.26, nudge_y = -0.4, vp.width = 0.25, vp.height = 0.25, segment.colour = "springgreen1") +
   # Porsangerfjorden
   geom_grob(aes(x = 0.23, y = -0.05, label = list(cowplot::as_grob(fig_1_b_por))),
-            nudge_x = 0.5, nudge_y = -0.46, vp.width = 0.3, vp.height = 0.3, segment.colour = "plum1") +
+            nudge_x = 0.5, nudge_y = -0.46, vp.width = 0.3, vp.height = 0.3, segment.colour = "plum4") +
   # Temperature legend
   geom_grob(aes(x = -0.1, y = -0.74, label = list(cowplot::as_grob(temp_legend)))) +
   # Ice legend
@@ -1715,7 +1755,9 @@ fig_2_a <- ggplot(data_set_freq,
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual("Category",
                     breaks = c("cryo", "phys", "chem", "bio", "soc"),
-                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080"))
+                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  theme(legend.background = element_rect(fill = "grey70", colour = "black"),
+        legend.key = element_blank())
 
 # Tree map of data points
 fig_2_b <- ggplot(data_point_freq, 
@@ -1732,8 +1774,9 @@ fig_2_b <- ggplot(data_point_freq,
                     values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080"))
 
 # Combine and save
-fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b,
-                           ncol = 2, labels = c("A)", "B)"), legend = "bottom", common.legend = T)
+fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, ncol = 2, labels = c("A)", "B)"),
+                           legend = "bottom", common.legend = T)  + 
+  ggpubr::bgcolor("white") + ggpubr::border(color = "white") 
 ggsave("figures/dp_fig_2.png", fig_2, width = 12, height = 7)
 
 
@@ -1774,7 +1817,7 @@ season_mean_full <- expand(season_mean, season, nesting(category, driver)) %>%
                                             "sea temp", "salinity", "light",
                                             "carb", "nutrients",
                                             "prim prod", "biomass", "spp rich",      
-                                            "tourism", "fisheries"))) %>%
+                                            "gov", "tourism", "fisheries"))) %>%
   replace(is.na(.), 0)
 
 # Plot
@@ -1809,7 +1852,11 @@ if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 # Simple annual presence of drivers by site
 clean_all_annual <- clean_all_clean %>% 
   filter(type == "in situ") %>% 
-  mutate(year = lubridate::year(date)) %>% 
+  mutate(year = lubridate::year(date),
+         site = case_when(str_detect(site, "Avannaanta|Qeqertalik") ~ "disko",
+                          str_detect(site, "Sermersooq") ~ "nuup",
+                          TRUE ~ site)) %>%
+  filter(site %in% c("kong", "is", "stor", "young", "disko", "nuup", "por")) %>% 
   group_by(site, year, category, driver) %>% 
   summarise(driver_count = n(), .groups = "drop") %>% 
   group_by(year, category, driver) %>% 
@@ -1819,7 +1866,7 @@ clean_all_annual <- clean_all_clean %>%
                                             "sea temp", "salinity", "light",
                                             "carb", "nutrients",
                                             "prim prod", "biomass", "spp rich",      
-                                            "tourism", "fisheries")),
+                                            "gov", "tourism", "fisheries")),
          site_count = as.factor(site_count)) %>% 
   left_join(long_driver_names, by = "driver") %>% 
   mutate(driver_long = factor(driver_long, 
@@ -1827,7 +1874,7 @@ clean_all_annual <- clean_all_clean %>%
                                          "seawater temperature", "salinity", "light",
                                          "carbonate chemistry", "nutrients",
                                          "primary production", "biomass", "species richness",
-                                         "tourism", "fisheries")))
+                                         "governance",  "tourism", "fisheries")))
 
 # Stats
 clean_all_annual %>% 
@@ -1838,7 +1885,8 @@ clean_all_annual %>%
 # Labels for plotting
 clean_all_labels <- clean_all_annual %>% 
   group_by(category, driver_long) %>% 
-  filter(driver_count_sum == max(driver_count_sum)) %>% 
+  filter(driver_count_sum == max(driver_count_sum)) %>%
+  filter(year == min(year)) %>% 
   ungroup()
 
 # Stacked barplots of driver presence in a given year
@@ -1915,7 +1963,8 @@ fig_5 <- driver_all_filter %>%
   guides(colour = guide_legend(override.aes = list(shape = 15, size = 10))) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        legend.position = c(0.82, 0.154),
+        legend.position = c(0.65, 0.154),
+        legend.direction = "horizontal",
         panel.border = element_rect(fill = NA, colour = "black"))
 # fig_5
 
@@ -1956,7 +2005,7 @@ fig_6 <- model_ALL_stats %>%
   scale_fill_manual(values = c("blue", "red")) +
   coord_cartesian(expand = F) +
   labs(x = "Depth", y = "Variable")
-fig_6
+# fig_6
 
 # Save
 ggsave("figures/dp_fig_6.png", fig_6, width = 7, height = 3)
@@ -2023,8 +2072,10 @@ fig_7 <- future_stats %>%
   scale_colour_manual("Site", values = site_colours) +
   labs(y = NULL, x = NULL) +
   theme(axis.text.x = element_text(angle = 30),
-        legend.position = c(0.82, 0.154),
-        legend.box = "horizontal")
+        panel.border = element_rect(fill = NA, colour = "black"),
+        # legend.position = c(0.82, 0.154),
+        legend.position = "bottom",
+        legend.box = "vertical")
 # fig_7
 ggsave("figures/dp_fig_7.png", fig_7, width = 8, height = 8)
 
@@ -2068,14 +2119,44 @@ ggsave("figures/table_1.png", table_1_plot, width = 3.5, height = 0.8)
 # Create table of sources for each category/group
 load("data/analyses/all_ref.RData")
 
+# "PANGAEA",
+# grepl("data.npolar.no", URL) ~ "NPDC",
+# grepl("/nmdc/", URL) ~ "NMDC",
+# grepl("nmdc.no", URL) ~ "NMDC",
+# grepl("dataverse.no", URL) ~ "NMDC",
+# grepl("glodap.info", URL) ~ "GLODAP",
+# grepl("socat.info", URL) ~ "SOCAT",
+# grepl("zenodo.org", URL) ~ "Zenodo",
+# grepl("g-e-m.dk", URL) ~ "GEM",
+# grepl("mosj.no", URL) ~ "MOSJ",
+# grepl("archive.sigma2.no", URL) ~ "NIRD",
+# grepl("port.kingsbay.no", URL) ~ "Kings Bay",
+# grepl("portlongyear.no", URL) ~ "Port of Longyearbyen",
+# URL == "https://doi.org/10.7265/N5GT5K3K" ~ "NSIDC",
+# grepl("thredds.met.no", URL) ~ "NMI",
+# grepl("noaa.gov", URL) ~ "NOAA",
+# grepl("dap.ceda.ac.uk", URL) ~ "CCI",
+# grepl("Received directly from", URL) ~ "Author",
+# grepl("File provided by", URL) ~ "Author",
+
+# Fix uncaught source names
+all_ref_fix <- all_ref %>% 
+  pivot_longer(cols = kong:`https://data.ssb.no/api/v0/en/table/08818/`, values_to = "source", names_to = "name") %>% 
+  filter(!is.na(source)) %>% 
+  mutate(name = case_when(!name %in% c("kong", "por", "young", "stor", "is", "disko", "nuup",  
+                                       "PANGAEA", "NPDC", "NMDC", "GLODAP", "SOCAT", "Zenodo",
+                                       "GEM", "MOSJ", "NIRD", "Kings Bay", "Port of Longyearbyen",
+                                       "NSIDC", "NMI", "NOAA", "CCI", "Author") ~ "Other", TRUE ~ name)) %>% 
+  pivot_wider(values_from = source, names_from = name, values_fn = mean)
+
 # Pivot wider to get category
-all_ref_var_type <- all_ref %>% 
+all_ref_var_type <- all_ref_fix %>% 
   distinct() %>% 
   mutate(var_type_count = 1) %>% 
   pivot_wider(id_cols = c(type, URL, citation), names_from = category, values_from = var_type_count, values_fn = mean)
 
 # Combine
-all_ref_wide <- all_ref %>% 
+all_ref_wide <- all_ref_fix %>% 
   left_join(all_ref_var_type, by = c("type", "URL", "citation")) %>% 
   dplyr::select(-category) %>% distinct() %>% 
   filter(type == "in situ") # Remove non in situ sources
@@ -2100,11 +2181,11 @@ table_2_kong <- table_2_func(kong, "Kongsfjorden")
 table_2_is <- table_2_func(is, "Isfjorden")
 table_2_stor <- table_2_func(stor, "Storfjorden")
 table_2_young <- table_2_func(young, "Young Sound")
-table_2_disko <- table_2_func(disko, "Disko Bay")
+table_2_disko <- table_2_func(disko, "Qeqertarsuup Tunua")
 table_2_nuup <- table_2_func(nuup, "Nuup Kangerlua")
 table_2_por <- table_2_func(por, "Porsangerfjorden")
 table_2 <- rbind(table_2_kong, table_2_is, table_2_stor, table_2_young, table_2_disko, table_2_nuup, table_2_por) %>% 
-  mutate(Other = Reduce("+",.[12:23])) %>% 
+  mutate(Other = Reduce("+",.[12:ncol(table_2_kong)])) %>% 
   dplyr::select(Site:NMDC, Other)
 write_csv(table_2, "data/analyses/table_2.csv")
 knitr::kable(table_2)
@@ -2171,6 +2252,11 @@ if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 # Load moel stats
 if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
 
+# Create wide model slopes for better merging
+model_wide <- model_ALL_stats %>% 
+  dplyr::select(site, type, proj, depth, variable, slope) %>% 
+  pivot_wider(names_from = proj, values_from = slope)
+
 # Get historic slopes as these tend to be higher than RCP 8.5
 historic_trend <- driver_all %>% 
   filter(is.na(variable_y)) %>% 
@@ -2189,20 +2275,23 @@ table_4 <- future_stats %>%
   distinct() %>% 
   pivot_wider(names_from = type, values_from = hist_trend) %>% 
   left_join(long_site_names, by = "site") %>% 
+  filter(!is.na(site_long)) %>% 
   dplyr::select(site_long, variable, depth, `in situ`, OISST, CCI, `RCP 2.6`, `RCP 4.5`, `RCP 8.5`) %>% 
   mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
                                                   "Storfjorden", "Porsangerfjorden")),
          variable = factor(variable, levels = c("temp [°C]", "sal"))) %>% 
+  filter(!is.na(variable)) %>% 
   mutate_if(is.numeric, round, 3) %>% 
   arrange(site_long, variable) %>% 
-  dplyr::rename(site = site_long)
+  dplyr::rename(site = site_long) %>% 
+  filter(!is.na(site), depth != "+200") 
 write_csv(table_4, "data/analyses/table_4.csv")
 
 # The table
 table_4_plot <- ggplot() +
   annotate(geom = "table", x = 0, y = 0, label = list(table_4)) +
   theme_void()
-ggsave("figures/table_4.png", table_4_plot, width = 5.8, height = 3.7, dpi = 600)
+ggsave("figures/table_4.png", table_4_plot, width = 5.8, height = 4.3, dpi = 600)
 
 
 # Table A1 ----------------------------------------------------------------
@@ -2222,4 +2311,4 @@ write_csv(table_A1, "data/analyses/table_A1.csv")
 table_A1_plot <- ggplot() +
   annotate(geom = "table", x = 0, y = 0, label = list(table_A1)) +
   theme_void()
-ggsave("figures/table_A1.png", table_A1_plot, width = 4.25, height = 15.2, dpi = 600)
+ggsave("figures/table_A1.png", table_A1_plot, width = 4.25, height = 21.5, dpi = 600)

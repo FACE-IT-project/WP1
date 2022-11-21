@@ -1,19 +1,22 @@
 site,variable,depth,in situ,OISST,CCI,RCP 2.6,RCP 4.5,RCP 8.5
-Kongsfjorden,temp [°C],0 to 10,-0.795,0.147,0.387,-0.006,0.09,0.232
-Kongsfjorden,temp [°C],10 to 50,-0.474,NA,NA,-0.015,0.081,0.212
-Kongsfjorden,temp [°C],50 to 200,-0.202,NA,NA,-0.019,0.081,0.212
-Kongsfjorden,sal,0 to 10,0.261,NA,NA,0.007,0.015,0.017
-Kongsfjorden,sal,10 to 50,0.02,NA,NA,0.01,0.014,0.018
-Kongsfjorden,sal,50 to 200,-0.013,NA,NA,0.011,0.014,0.018
-Isfjorden,temp [°C],0 to 10,0.117,0.213,0.417,0.006,0.099,0.25
-Isfjorden,temp [°C],10 to 50,0.214,NA,NA,-0.012,0.082,0.223
-Isfjorden,temp [°C],50 to 200,0.215,NA,NA,-0.013,0.074,0.208
-Isfjorden,sal,0 to 10,0.761,NA,NA,0.009,0.015,0.018
-Isfjorden,sal,10 to 50,0.412,NA,NA,0.01,0.014,0.018
-Isfjorden,sal,50 to 200,0.19,NA,NA,0.01,0.014,0.017
-Storfjorden,temp [°C],0 to 10,2.796,0.099,0.292,0.025,0.098,0.237
-Storfjorden,temp [°C],10 to 50,6.002,NA,NA,0.004,0.07,0.184
-Storfjorden,temp [°C],50 to 200,3.531,NA,NA,0.002,0.057,0.154
-Porsangerfjorden,temp [°C],0 to 10,0.32,0.319,0.098,0.009,0.094,0.25
-Porsangerfjorden,temp [°C],10 to 50,0.269,NA,NA,-0.008,0.081,0.2
-Porsangerfjorden,temp [°C],50 to 200,0.557,NA,NA,-0.005,0.079,0.192
+Kongsfjorden,temp [°C],0 to 10,-0.695,0.151,0.392,-0.02,0.061,0.178
+Kongsfjorden,temp [°C],10 to 50,-0.483,NA,NA,-0.015,0.081,0.212
+Kongsfjorden,temp [°C],50 to 200,-0.267,NA,NA,-0.019,0.081,0.212
+Kongsfjorden,sal,0 to 10,0.316,NA,NA,0.007,0.015,0.017
+Kongsfjorden,sal,10 to 50,0.021,NA,NA,0.01,0.014,0.018
+Kongsfjorden,sal,50 to 200,-0.01,NA,NA,0.011,0.014,0.018
+Isfjorden,temp [°C],0 to 10,0.223,0.216,0.422,-0.008,0.068,0.197
+Isfjorden,temp [°C],10 to 50,0.083,NA,NA,-0.012,0.082,0.223
+Isfjorden,temp [°C],50 to 200,0.164,NA,NA,-0.013,0.074,0.208
+Isfjorden,sal,0 to 10,0.77,NA,NA,0.009,0.015,0.018
+Isfjorden,sal,10 to 50,0.478,NA,NA,0.01,0.014,0.018
+Isfjorden,sal,50 to 200,0.181,NA,NA,0.01,0.014,0.017
+Storfjorden,temp [°C],0 to 10,3.487,0.103,0.294,0.013,0.077,0.202
+Storfjorden,temp [°C],10 to 50,5.96,NA,NA,0.004,0.07,0.184
+Storfjorden,temp [°C],50 to 200,3.039,NA,NA,0.002,0.057,0.154
+Porsangerfjorden,temp [°C],0 to 10,0.353,0.324,0.103,0.033,0.102,0.24
+Porsangerfjorden,temp [°C],10 to 50,0.285,NA,NA,-0.008,0.081,0.2
+Porsangerfjorden,temp [°C],50 to 200,0.633,NA,NA,-0.005,0.079,0.192
+Porsangerfjorden,sal,0 to 10,-0.069,NA,NA,-0.005,-0.003,0.001
+Porsangerfjorden,sal,10 to 50,-0.01,NA,NA,-0,0.003,0.01
+Porsangerfjorden,sal,50 to 200,0.025,NA,NA,0.002,0.004,0.009
