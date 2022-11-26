@@ -1659,6 +1659,8 @@ temp_legend <- filter(sst_EU_arctic_annual_trends, lat >= 60) %>%
   scale_colour_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
   labs(colour = "SST trend\n(°C/dec)") +
   theme(legend.position = "bottom", legend.key.width = unit(3, "cm"),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
         legend.box.background = element_rect(fill = NA, colour = "black"))
 temp_legend <- ggpubr::get_legend(temp_legend)
 ice_legend <- ice_4km_annual_trends %>% 
@@ -1669,6 +1671,8 @@ ice_legend <- ice_4km_annual_trends %>%
                        limits = c(min(ice_4km_annual_trends$trend), max(ice_4km_annual_trends$trend))) +
   labs(colour = "Ice cover\n(days/year)") +
   theme(legend.position = "bottom", legend.key.width = unit(3, "cm"),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
         legend.box.background = element_rect(fill = NA, colour = "black"))
 ice_legend <- ggpubr::get_legend(ice_legend)
 
@@ -1756,8 +1760,11 @@ fig_2_a <- ggplot(data_set_freq,
   scale_fill_manual("Category",
                     breaks = c("cryo", "phys", "chem", "bio", "soc"),
                     values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
-  theme(legend.background = element_rect(fill = "grey70", colour = "black"),
-        legend.key = element_blank())
+  theme(legend.background = element_rect(fill = "grey90", colour = "black"),
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 40, unit = "pt"),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        legend.box.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt"))
 
 # Tree map of data points
 fig_2_b <- ggplot(data_point_freq, 
@@ -1771,10 +1778,12 @@ fig_2_b <- ggplot(data_point_freq,
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual("Category",
                     breaks = c("cryo", "phys", "chem", "bio", "soc"),
-                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080"))
+                    values = c("mintcream", "skyblue", "#F6EA7C", "#A2ED84", "#F48080")) +
+  theme(plot.margin = margin(t = 0, r = 0, b = 0, l = 40, unit = "pt"))
 
 # Combine and save
-fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, ncol = 2, labels = c("A)", "B)"),
+fig_2 <- ggpubr::ggarrange(fig_2_a, fig_2_b, ncol = 2, #hjust = 0,
+                           labels = c("A)", "B)"), font.label = list(size = 20),
                            legend = "bottom", common.legend = T)  + 
   ggpubr::bgcolor("white") + ggpubr::border(color = "white") 
 ggsave("figures/dp_fig_2.png", fig_2, width = 12, height = 7)
@@ -1834,6 +1843,7 @@ fig_3 <- ggplot(data = season_mean_full, aes(x = driver, y = mean_days)) +
         panel.grid.minor = element_blank(),
         panel.border = element_rect(fill = NA, colour = "black"),
         # plot.background = element_rect(fill = NA, colour = "black"),
+        legend.background = element_rect(fill = "grey90", colour = "black"),
         legend.position = "bottom")
 # fig_3
 
@@ -1876,44 +1886,82 @@ clean_all_annual <- clean_all_clean %>%
                                          "primary production", "biomass", "species richness",
                                          "governance",  "tourism", "fisheries")))
 
+# Specifically the earliest dataset per driver
+earliest_driver <- clean_all_clean %>% 
+  group_by(driver) %>% 
+  filter(date == min(date, na.rm = T)) %>% 
+  arrange(driver)
+
 # Stats
 clean_all_annual %>% 
   group_by(category, driver) %>% 
   summarise(year = min(year, na.rm = T)) %>% 
   arrange(year)
 
+# Tests
+df_1 <- clean_all_clean %>% 
+  filter(driver == "prim prod")
+
+# Final proc to get sums before 1957
+clean_all_annual_proc <- clean_all_annual %>% 
+  mutate(year = case_when(year < 1957 ~ 1952, TRUE ~ year)) %>% 
+  group_by(year, category, driver, driver_long) %>% 
+  summarise(site_count = max(as.numeric(site_count), na.rm = T),
+            driver_count_sum = sum(driver_count_sum, na.rm = T), 
+            .groups = "drop") %>% 
+  mutate(site_count = as.factor(site_count))
+
 # Labels for plotting
 clean_all_labels <- clean_all_annual %>% 
   group_by(category, driver_long) %>% 
   filter(driver_count_sum == max(driver_count_sum)) %>%
   filter(year == min(year)) %>% 
-  ungroup()
+  ungroup() %>% 
+  arrange(driver_long) %>% 
+  # Manually assign label position along x-axis
+  mutate(x_idx = c(-5, -5, -20,
+                   -22, -20, -10,
+                   -5, -5,
+                   -7, -15, -18,
+                   -15, -30, -6))
 
 # Stacked barplots of driver presence in a given year
-fig_4 <- ggplot(data = clean_all_annual, aes(x = year, y = driver_count_sum)) +
-  geom_col(position = "stack", aes(fill = site_count)) +
-  geom_label(data = clean_all_labels, hjust = 0,
+fig_4 <- ggplot(data = clean_all_annual_proc, aes(x = year, y = driver_count_sum)) +
+  geom_col(position = "stack", aes(fill = site_count), colour = "black") +
+  geom_text(data = clean_all_labels, hjust = 0,
              aes(x = 1957, y = driver_count_sum*0.65, label = driver_long)) +
-  geom_label_repel(data = clean_all_labels, nudge_x = -15, min.segment.length = 0.0,
-                   aes(x = year, y = driver_count_sum, label = scales::comma(driver_count_sum))) +
+  geom_text_repel(data = clean_all_labels, nudge_x = clean_all_labels$x_idx, min.segment.length = 0.0,
+                  aes(x = year, y = driver_count_sum, label = scales::comma(driver_count_sum))) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 1955, linetype = "dotted", alpha = 0.5) +
   facet_wrap(~driver_long, ncol = 1, scales = "free_y") +
   labs(fill = "Count of sites\nwith data", x = NULL, y = "Count of data points") +
-  scale_fill_brewer() +
-  scale_x_continuous(limits = c(1950, 2022),
+  scale_fill_manual(values = c(blues9[3:9])) +
+  scale_x_continuous(limits = c(1949, 2022),
                      expand = c(0, 0),
-                     breaks = c(1951, 1960, 1980, 2000, 2020),
-                     labels = c("<-1876", "1960", "1980", "2000", "2020")) +
+                     breaks = c(1952, 1955, 1960, 1980, 2000, 2020),
+                     labels = c("1876\n1956", "", "1960", "1980", "2000", "2020")) +
   guides(fill = guide_legend(nrow = 1, label.position = "bottom")) +
+  theme_bw() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(fill = NA, colour = "black"),
-        strip.text = element_blank(), 
+        panel.border = element_blank(),
+        # axis.line = element_line(colour = "black"),
+        # panel.border = element_rect(fill = NA, colour = "black"),
+        # panel.border = theme_border(type = c("bottom","right","left")),
+        # axis.line.x = element_line(color = 'black'),
+        # axis.line.y.left   = element_line(color = 'black'),
+        # axis.line.y.right  = element_line(color = 'black'),
+        # axis.text.y.right  = element_blank(),
+        # axis.ticks.y.right = element_blank(),
+        strip.text = element_blank(),
         strip.background = element_blank(),
-        legend.position = "bottom", 
-        legend.spacing.x = unit(0, "mm"),
-        legend.title = element_text(margin = margin(r = 10)))
+        legend.position = "bottom",
+        # legend.spacing.x = unit(0, "mm"),
+        legend.background = element_rect(fill = "grey90", colour = "black"),
+        legend.title = element_text(margin = margin(r = 5)))
 # fig_4
 
 # Save
@@ -2085,6 +2133,9 @@ ggsave("figures/dp_fig_7.png", fig_7, width = 8, height = 8)
 # List of the categories, drivers, and their variables
 if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 
+# Get ref for UNIS CTD database
+# ref_UNIS <- unique(clean_all_clean$citation[grepl("UNIS", clean_all_clean$citation)])
+
 # table(all_meta$category, all_meta$driver, all_meta$variable)
 table_1 <- clean_all_clean %>% 
   dplyr::select(category, driver) %>% 
@@ -2118,26 +2169,6 @@ ggsave("figures/table_1.png", table_1_plot, width = 3.5, height = 0.8)
 
 # Create table of sources for each category/group
 load("data/analyses/all_ref.RData")
-
-# "PANGAEA",
-# grepl("data.npolar.no", URL) ~ "NPDC",
-# grepl("/nmdc/", URL) ~ "NMDC",
-# grepl("nmdc.no", URL) ~ "NMDC",
-# grepl("dataverse.no", URL) ~ "NMDC",
-# grepl("glodap.info", URL) ~ "GLODAP",
-# grepl("socat.info", URL) ~ "SOCAT",
-# grepl("zenodo.org", URL) ~ "Zenodo",
-# grepl("g-e-m.dk", URL) ~ "GEM",
-# grepl("mosj.no", URL) ~ "MOSJ",
-# grepl("archive.sigma2.no", URL) ~ "NIRD",
-# grepl("port.kingsbay.no", URL) ~ "Kings Bay",
-# grepl("portlongyear.no", URL) ~ "Port of Longyearbyen",
-# URL == "https://doi.org/10.7265/N5GT5K3K" ~ "NSIDC",
-# grepl("thredds.met.no", URL) ~ "NMI",
-# grepl("noaa.gov", URL) ~ "NOAA",
-# grepl("dap.ceda.ac.uk", URL) ~ "CCI",
-# grepl("Received directly from", URL) ~ "Author",
-# grepl("File provided by", URL) ~ "Author",
 
 # Fix uncaught source names
 all_ref_fix <- all_ref %>% 
