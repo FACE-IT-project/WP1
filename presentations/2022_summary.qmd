@@ -1,0 +1,214 @@
+---
+# title: "FACE-IT WP1 Summary: 2022"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+editor: source
+---
+
+# FACE-IT WP1 Summary: 2022 {background-color="#008980" style="text-align: center"}
+
+</br>
+
+::: columns
+::: {.column style="text-align: center"}
+Jean-Pierre Gattuso </br> - Lead -
+:::
+
+::: {.column style="text-align: center"}
+*Robert Schlegel* </br> - Data scientist -
+:::
+:::
+
+## 
+
+![](../logo/Logo_FACE-IT_PNG_1500.png){.absolute top="-20" left="0"  width="400" height="200"}
+
+<br>
+<br>
+<br>
+<br>
+
+::: incremental
+-   WP1
+    -   Identify + analyse drivers of change
+    -   Manage and disseminate data and analyses within/out consortium
+:::
+
+## Publications
+
+::: incremental
+-   Schlegel et al. (2022, in review). **Drivers of Change in Arctic Fjord Socio-ecological Systems.** *Coastal futures*
+-   Schlegel & Gattuso (2022, in review). **A Dataset for Investigating Socio-ecological Changes in Arctic Fjords.** *Earth System Science Data (ESSD)*
+:::
+
+## Socio-ecological systems {auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg" visibility="uncounted"}
+
+::: {.r-stack}
+::: {data-id="box1" style="background: #F48080; width: 550px; height: 550px; border-radius: 200px;"}
+:::
+
+::: {data-id="box2" style="background: #A2ED84; width: 450px; height: 450px; border-radius: 200px;"}
+:::
+
+::: {data-id="box3" style="background: #F6EA7C; width: 350px; height: 350px; border-radius: 200px;"}
+:::
+
+::: {data-id="box4" style="background: skyblue; width: 250px; height: 250px; border-radius: 200px;"}
+:::
+
+::: {data-id="box5" style="background: mintcream; width: 150px; height: 150px; border-radius: 200px;"}
+:::
+:::
+
+## Socio-ecological systems {visibility="uncounted" auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg"}
+
+::: {.r-hstack}
+::: {data-id="box1" auto-animate-delay="0" style="background: #F48080; width: 400px; height: 100px; margin: 10px;" .absolute top="540" left="220"}
+:::
+
+::: {data-id="box2" auto-animate-delay="0.1" style="background: #A2ED84; width: 400px; height: 100px; margin: 10px;" .absolute top="430" left="170"}
+:::
+
+::: {data-id="box3" auto-animate-delay="0.2" style="background: #F6EA7C; width: 400px; height: 100px; margin: 10px;" .absolute top="320" left="120"}
+:::
+
+::: {data-id="box4" auto-animate-delay="0.2" style="background: skyblue; width: 400px; height: 100px; margin: 10px;" .absolute top="210" left="70"}
+:::
+
+::: {data-id="box5" auto-animate-delay="0.4" style="background: mintcream; width: 400px; height: 100px; margin: 10px;" .absolute top="100" left="20"}
+:::
+:::
+
+::: {.fragment .absolute top="125" left="100"}
+__Cryosphere__
+:::
+
+::: {.fragment .absolute top="235" left="190"}
+__Physics__
+:::
+
+::: {.fragment .absolute top="345" left="220"}
+__Chemistry__
+:::
+
+::: {.fragment .absolute top="455" left="290"}
+__Biology__
+:::
+
+::: {.fragment .absolute top="565" left="360"}
+__Social__
+:::
+
+::: columns
+::: {.column style="text-align: center"}
+:::
+
+::: {.column style="text-align: center"}
+::: {.fragment .fade-down style="background: black; width: 450px; height: 250px; border-radius: 100px;" .absolute top="250" right="-20"}
+<span style="color:white">Key drivers determined by literature __and__ available data</span>
+:::
+:::
+:::
+
+## {auto-animate=true auto-animate-easing="ease-in-out" background-color="#e5e5e5" transition="fade"}
+
+::: {data-id="box5" auto-animate-delay="0" style="text-align: center; background: mintcream; width: 400px; height: 100px; margin: 10px;" .absolute top="50" left="20"}
+__Cryosphere__
+:::
+
+![](kd_cryo.png){.absolute top="200" left="50"}
+
+## {auto-animate=true auto-animate-easing="ease-in-out" background-color="#e5e5e5" transition="fade"}
+
+::: {data-id="box5" auto-animate-delay="0" style="text-align: center; background: skyblue; width: 400px; height: 100px; margin: 10px;" .absolute top="50" left="120"}
+__Physics__
+:::
+
+![](kd_phys.png){.absolute top="200" left="50"}
+
+## {auto-animate=true auto-animate-easing="ease-in-out" background-color="#e5e5e5" transition="fade"}
+
+::: {data-id="box5" auto-animate-delay="0" style="text-align: center; background: #F6EA7C; width: 400px; height: 100px; margin: 10px;" .absolute top="50" left="220"}
+__Chemistry__
+:::
+
+![](kd_chem.png){.absolute top="200" left="50"}
+
+## {auto-animate=true auto-animate-easing="ease-in-out" background-color="#e5e5e5" transition="fade"}
+
+::: {data-id="box5" auto-animate-delay="0" style="text-align: center; background: #A2ED84; width: 400px; height: 100px; margin: 10px;" .absolute top="50" left="320"}
+__Biology__
+:::
+
+![](kd_bio.png){.absolute top="200" left="50"}
+
+## {auto-animate=true auto-animate-easing="ease-in-out" background-color="#e5e5e5" transition="fade"}
+
+::: {data-id="box5" auto-animate-delay="0" style="text-align: center; background: #F48080; width: 400px; height: 100px; margin: 10px;" .absolute top="50" left="420"}
+__Social__
+:::
+
+![](kd_soc.png){.absolute top="200" left="50"}
+
+## {background-color="#e5e5e5" transition="fade-in"}
+
+<!-- Space the lines between categories -->
+:::: {.columns}
+
+::: {.column width="70%"}
+![](kd_full.png){.absolute top="0" left="-20"}
+:::
+
+::: {.column width="30%"}
+<br>
+<p style="font-size:32pt">__Key drivers of change__</p>
+:::
+
+::::
+
+## Interactions {background-color="#e5e5e5" transition="fade"}
+
+![](../figures/LOV_fig_1B.png){.absolute top="70" left="140" height="630"}
+
+## What's next?
+
+::: incremental
+-   Finalise review process for two papers
+-   Improve data access web portal
+-   Continue sourcing socio-ecological data
+:::
+
+## What do we need?
+
+::: incremental
+-   Help us help you
+-   Let us know when you have data to publish
+-   Let us know when you need data
+-   Let us know when you need technical analysis support
+:::
+
+## {background-color="#008980"}
+
+Thank you for listening!
+
+::: columns
+::: {.column style="text-align: center"}
+![](../logo/profile.jpeg){width="300"}
+<br>
+Robert Schlegel
+:::
+
+::: {.column style="text-align: center"}
+<br>
+![](../logo/Logo_Sorbonne University.png){width="500"} 
+<br>
+LOV, Sorbonne Université – CNRS, France
+:::
+:::

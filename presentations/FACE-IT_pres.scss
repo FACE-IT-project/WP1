@@ -1,0 +1,25 @@
+/*-- scss:defaults --*/
+
+// fonts
+@import 'https://fonts.googleapis.com/css2?family=Raleway';
+$font-family-sans-serif: "Raleway", sans-serif !default;
+
+// colors
+$body-bg: #ffffff !default;
+$body-color: #000000 !default;
+$link-color: #7fad24 !default;
+$code-color: #008980 !default;
+$selection-bg: rgba(0, 0, 0, 0.99);
+
+// headings
+$presentation-heading-font: "Raleway", sans-serif !default;
+$presentation-heading-color: #4472c4 !default;
+$presentation-h2-color: #008980 !default;
+
+/*-- scss:rules --*/
+
+.reveal .slide-logo {
+  max-height: 6.0rem !important;
+  bottom: 10px;
+  right: 50px;
+};

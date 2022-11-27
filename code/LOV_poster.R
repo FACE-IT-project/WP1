@@ -50,53 +50,30 @@ edges <- read_csv("data/figures/rp_fig_2_edges.csv") %>%
 # Colour by category with sub bars for each driver
 
 # Load all clean data
-load("data/analyses/clean_all.RData")
+if(!exists("clean_all"))load("data/analyses/clean_all.RData")
 
 # Get metadata for driver data coverage and total datasets
 data_meta <- clean_all %>% 
-  filter(type == "in situ",
-         var_group %in% c("Ice vars", "Glacier vars", "river", 
-                          "Sea temp", "Salinity", "PAR",          
-                          "pCO2", "Nutrients",
-                          "Chla", "Biomass", "Species",
-                          "Tourism", "Shipping" )) %>% 
-  group_by(citation, var_group) %>% 
-  summarise(start_date = min(date, na.rm = T), end_date = max(date, na.rm = T), 
+  filter(type == "in situ") %>%
+  # There is still one minor error in the clean data
+  mutate(value = case_when(category == "bio" & driver == "light" ~ as.numeric(NA),
+                           TRUE ~ value)) %>%
+  #
+  filter(!is.na(value)) %>% 
+  group_by(citation, category, driver) %>% 
+  summarise(start_date = min(date, na.rm = T), 
+            end_date = max(date, na.rm = T), 
             data_points = n(), .groups = "drop") %>% 
-  group_by(var_group) %>% 
+  group_by(category, driver) %>% 
   summarise(min_date = min(start_date, na.rm = T), max_date = max(end_date, na.rm = T), 
-            data_sets = n(), data_points = sum(data_points, na.rm = T), .groups = "drop") %>% 
-  rbind(data.frame(var_group = "Governance", min_date = NA, max_date = NA, data_sets = 1, data_points = 1))
+            data_sets = n(), data_points = sum(data_points, na.rm = T), .groups = "drop")
 
 # Clean up for plotting
 panel_a_data <- data_meta %>% 
-  mutate(driver = case_when(var_group == "Biomass" ~ "biomass",
-                            var_group == "Chla" ~ "primary production",
-                            var_group == "Glacier vars" ~ "glacier mass balance",
-                            var_group == "Ice vars" ~ "sea ice",
-                            var_group == "Nutrients" ~ "nutrients",
-                            var_group == "PAR" ~ "light",
-                            var_group == "pCO2" ~ "carbonate system",
-                            var_group == "river" ~ "glacial + river discharge",
-                            var_group == "Salinity" ~ "salinity",
-                            var_group == "Sea temp" ~ "seawater temperature",
-                            var_group == "Shipping" ~ "fisheries",
-                            var_group == "Species" ~ "species richness",
-                            var_group == "Tourism" ~ "tourism",
-                            var_group == "Governance" ~ "governance"),
-         category = case_when(driver %in% c("sea ice", "glacier mass balance", "glacial + river discharge") ~ "cryosphere",
-                              driver %in% c("seawater temperature", "salinity", "light") ~ "physics",
-                              driver %in% c("carbonate system", "nutrients") ~ "chemistry",
-                              driver %in% c("primary production", "biomass", "species richness") ~ "biology",
-                              driver %in% c("governance", "tourism", "fisheries") ~ "social"),
-         driver = factor(driver, levels = c("sea ice", "glacier mass balance", "glacial + river discharge",
-                                            "seawater temperature", "salinity", "light",
-                                            "carbonate system", "nutrients",
-                                            "primary production", "biomass", "species richness",
-                                            "governance", "tourism", "fisheries")),
-         driver_num = as.numeric(driver),
+  left_join(long_cat_names, by = "category") %>% 
+  left_join(long_driver_names, by = "driver") %>% 
+  mutate(driver_num = as.numeric(driver_long),
          data_points_log10 = log10(data_points))
-         # data_points = scales::comma(data_points))
 
 # Labels for categories
 panel_a_labels <- panel_a_data %>% 
@@ -106,19 +83,15 @@ panel_a_labels <- panel_a_data %>%
 
 # Plot the data
 panel_a <- ggplot(panel_a_data, aes(x = data_points_log10, y = driver_num)) +
-  geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
-  geom_segment(data = panel_a_data[-14,],
-               aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+  geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
                colour = "black", size =  13) +
-  geom_point(data = panel_a_data[-14,], 
-             aes(x = data_points_log10, y = driver_num, fill = category), 
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category_long), 
              shape = 21, size = 16, stroke = 0.8, show.legend = F) +
-  geom_segment(data = panel_a_data[-14,],
-               aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category_long), 
                size = 12, show.legend = F) +
-  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
+  geom_text(aes(x = 0.1, label = driver_long), hjust = "left", size = 7) +
   geom_richtext(data = panel_a_labels, hjust = 0.5,
-                aes(x = -0.2, y = y_num, label = category, fill = category),
+                aes(x = -0.2, y = y_num, label = category, fill = category_long),
                 angle = 90, size = 9, show.legend = F, label.r = unit(1, "lines"),
                 label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
                 # label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) + # Note that ggarrange messes this up
@@ -227,17 +200,17 @@ ggsave("figures/LOV_fig_1.png", fig_1, width = 28, height = 12)
 # Bits and pieces ---------------------------------------------------------
 
 # Cryosphere panel A
-kd_cryo <- filter(panel_a_data, category == "cryosphere") %>% 
+kd_cryo <- filter(panel_a_data, category_long == "cryosphere") %>% 
   ggplot(aes(x = data_points_log10, y = driver_num)) +
   geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
   geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
                colour = "black", size =  13) +
-  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category_long), 
              shape = 21, size = 16, stroke = 0.8, show.legend = F) +
-  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category_long), 
                size = 12, show.legend = F) +
-  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
-  geom_richtext(aes(x = -0.2, y = 2, label = category, fill = category),
+  geom_text(aes(x = 0.1, label = driver_long), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 2, label = category_long, fill = category_long),
                 angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
                 label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
                 label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
@@ -269,17 +242,17 @@ kd_cryo
 ggsave("presentations/kd_cryo.png", kd_cryo, height = 3, width = 12)
 
 # Physics panel A
-kd_phys <- filter(panel_a_data, category == "physics") %>% 
+kd_phys <- filter(panel_a_data, category_long == "physics") %>% 
   ggplot(aes(x = data_points_log10, y = driver_num)) +
   geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
   geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
                colour = "black", size =  13) +
-  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category_long), 
              shape = 21, size = 16, stroke = 0.8, show.legend = F) +
-  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category_long), 
                size = 12, show.legend = F) +
   geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
-  geom_richtext(aes(x = -0.2, y = 5, label = category, fill = category),
+  geom_richtext(aes(x = -0.2, y = 5, label = category_long, fill = category_long),
                 angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
                 label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
                 label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
@@ -311,17 +284,17 @@ kd_phys
 ggsave("presentations/kd_phys.png", kd_phys, height = 3, width = 12)
 
 # Chemistry panel A
-kd_chem <- filter(panel_a_data, category == "chemistry") %>% 
+kd_chem <- filter(panel_a_data, category_long == "chemistry") %>% 
   ggplot(aes(x = data_points_log10, y = driver_num)) +
   geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
   geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
                colour = "black", size =  13) +
-  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category_long), 
              shape = 21, size = 16, stroke = 0.8, show.legend = F) +
-  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category_long), 
                size = 12, show.legend = F) +
-  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
-  geom_richtext(aes(x = -0.2, y = 7.5, label = category, fill = category),
+  geom_text(aes(x = 0.1, label = driver_long), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 7.5, label = category_long, fill = category_long),
                 angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
                 label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
                 label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
@@ -353,17 +326,17 @@ kd_chem
 ggsave("presentations/kd_chem.png", kd_chem, height = 3, width = 12)
 
 # Biology panel A
-kd_bio <- filter(panel_a_data, category == "biology") %>% 
+kd_bio <- filter(panel_a_data, category_long == "biology") %>% 
   ggplot(aes(x = data_points_log10, y = driver_num)) +
   geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
   geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
                colour = "black", size =  13) +
-  geom_point(aes(x = data_points_log10, y = driver_num, fill = category), 
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category_long), 
              shape = 21, size = 16, stroke = 0.8, show.legend = F) +
-  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category_long), 
                size = 12, show.legend = F) +
-  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
-  geom_richtext(aes(x = -0.2, y = 10, label = category, fill = category),
+  geom_text(aes(x = 0.1, label = driver_long), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 10, label = category_long, fill = category_long),
                 angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
                 label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
                 label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +
@@ -395,20 +368,17 @@ kd_bio
 ggsave("presentations/kd_bio.png", kd_bio, height = 3, width = 12)
 
 # Social panel A
-kd_soc <- filter(panel_a_data, category == "social") %>% 
+kd_soc <- filter(panel_a_data, category_long == "social") %>% 
   ggplot(aes(x = data_points_log10, y = driver_num)) +
   geom_point(aes(x = 0, y = driver_num), alpha = 0) + # Keep governance driver in the y axis
-  geom_segment(data = filter(panel_a_data, driver %in% c("tourism", "fisheries")),
-               aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
+  geom_segment(aes(x = -0.01, xend = data_points_log10, y = driver_num, yend = driver_num),
                colour = "black", size =  13) +
-  geom_point(data = filter(panel_a_data, driver %in% c("tourism", "fisheries")), 
-             aes(x = data_points_log10, y = driver_num, fill = category), 
+  geom_point(aes(x = data_points_log10, y = driver_num, fill = category_long), 
              shape = 21, size = 16, stroke = 0.8, show.legend = F) +
-  geom_segment(data = filter(panel_a_data, driver %in% c("tourism", "fisheries")),
-               aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category), 
+  geom_segment(aes(x = 0, xend = data_points_log10, y = driver_num, yend = driver_num, colour = category_long), 
                size = 12, show.legend = F) +
-  geom_text(aes(x = 0.1, label = driver), hjust = "left", size = 7) +
-  geom_richtext(aes(x = -0.2, y = 13, label = category, fill = category),
+  geom_text(aes(x = 0.1, label = driver_long), hjust = "left", size = 7) +
+  geom_richtext(aes(x = -0.2, y = 13, label = category_long, fill = category_long),
                 angle = 90, size = 9, hjust = 0.5, show.legend = F, label.r = unit(1, "lines"),
                 label.margin = unit(c(0.5, 0.5, 0.5, 0.5), "lines"),
                 label.padding = unit(c(0.5, 0.5, 0.5, 0.5), "lines")) +

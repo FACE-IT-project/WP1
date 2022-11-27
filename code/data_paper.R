@@ -603,7 +603,8 @@ light_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "PAR|UV",
 light_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "PAR|UV", "trip|vella|sulc|lip|lib|parv")
 light_por <- review_filter_var(full_product_por, "PAR|UV") # No PAR data
 clean_light <- rbind(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por) %>% 
-  filter(value > 0) %>% 
+  filter(value > 0,
+         category == "phys") %>% # NB: Double check where the species presence data are coming from 
   mutate(variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
                               str_detect(variable, "UVA") ~ "UV-A [W*m^2]", # TODO: Keep or remove?
                               str_detect(variable, "UVB") ~ "UV-B [W*m^2]",
