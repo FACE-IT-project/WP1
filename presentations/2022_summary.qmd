@@ -28,7 +28,8 @@ Jean-Pierre Gattuso </br> - Lead -
 
 ## 
 
-![](../logo/Logo_FACE-IT_PNG_1500.png){.absolute top="-20" left="0"  width="400" height="200"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){.absolute top="-20" left="-20"  width="400" height="200"}
+![](../logo/h2020_grant.png){.absolute top="10" right="-40"  width="700" height="170"}
 
 <br>
 <br>
