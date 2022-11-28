@@ -2240,12 +2240,20 @@ lm_all <- function(df_idx, df_main){
   df_sub_lm <- df_sub %>%
     filter(date >= as.Date("1982-01-01"), date <= "2020-12-31") %>% 
     group_by(site, type, category, driver, variable, depth) %>% 
-    mutate(date_idx = 1:n(),
-           min_date = min(date, na.rm = T),
+    mutate(min_date = min(date, na.rm = T),
            mean_val = mean(value, na.rm = T),
            max_date = max(date, na.rm = T)) %>% 
-    group_by(site, type, category, driver, variable, depth, min_date, mean_val, max_date) %>% 
-    lm_tidy(df = ., x_var = "date_idx", y_var = "value")
+    complete(date = seq.Date(as.Date("1982-01-01"), as.Date("2020-12-31"), by = "month")) %>%
+    fill(var_index, mean_val, min_date, max_date, .direction = "downup") %>%
+    group_by(site, type, category, driver, variable, depth, min_date, mean_val, max_date) %>%
+    lm_tidy(df = ., x_var = "date", y_var = "value")
+  
+  df3 <- df_sub %>% 
+    filter(site == "young", driver == "sea temp")
+  lm(date ~ value, df3) %>% 
+    broom::tidy %>% map_dbl(function(x) x$estimate[2])
+  broom::tidy(lm(value ~ date, df3))
+  
   df_res <- df_join %>% 
     group_by(site, type, type_y, category, category_y, driver, driver_y, variable, variable_y, depth, depth_y) %>% 
     mutate(min_date = min(date, na.rm = T),
@@ -2268,7 +2276,8 @@ driver2_lm <- function(driver1, driver2){
   
   # Filter out only the two drivers in question
   df_driver <- clean_all_clean %>% 
-    filter(driver %in% c(driver1, driver2))
+    filter(driver %in% c(driver1, driver2),
+           site %in% long_site_names$site)
   
   # Get monthly means by depth across entire site
   df_mean_month_depth <- df_driver %>% 
