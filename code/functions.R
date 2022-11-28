@@ -2247,13 +2247,6 @@ lm_all <- function(df_idx, df_main){
     fill(var_index, mean_val, min_date, max_date, .direction = "downup") %>%
     group_by(site, type, category, driver, variable, depth, min_date, mean_val, max_date) %>%
     lm_tidy(df = ., x_var = "date", y_var = "value")
-  
-  df3 <- df_sub %>% 
-    filter(site == "young", driver == "sea temp")
-  lm(date ~ value, df3) %>% 
-    broom::tidy %>% map_dbl(function(x) x$estimate[2])
-  broom::tidy(lm(value ~ date, df3))
-  
   df_res <- df_join %>% 
     group_by(site, type, type_y, category, category_y, driver, driver_y, variable, variable_y, depth, depth_y) %>% 
     mutate(min_date = min(date, na.rm = T),
