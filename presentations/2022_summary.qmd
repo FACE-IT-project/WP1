@@ -46,7 +46,7 @@ Jean-Pierre Gattuso </br> - Lead -
 
 ::: incremental
 -   Schlegel et al. (2022, in review). **Drivers of Change in Arctic Fjord Socio-ecological Systems.** *Coastal futures*
--   Schlegel & Gattuso (2022, in review). **A Dataset for Investigating Socio-ecological Changes in Arctic Fjords.** *Earth System Science Data (ESSD)*
+-   Schlegel & Gattuso (2022, in prep). **A Dataset for Investigating Socio-ecological Changes in Arctic Fjords.** *Earth System Science Data (ESSD)*
 :::
 
 ## Socio-ecological systems {auto-animate=true auto-animate-easing="ease-in-out" background-color="white" background-image="longyearbyen_port.jpg" visibility="uncounted"}
