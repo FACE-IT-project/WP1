@@ -24,54 +24,6 @@ library(ggasym) # For correlation plots with multiple colour bars
 library(ggrepel) # For labels with segments
 library(treemapify) # For gridded tree map
 
-# Ice cover colours
-ice_cover_colours <- c(
-  "ocean" = "navy",
-  "land" = "slategrey",
-  "sea ice" = "mintcream",
-  "coast" = "dodgerblue",
-  "exclude" = "gold"
-)
-
-# Key driver category colours
-driver_cat_colours <- c(
-  "cryo" = "mintcream",
-  "phys" = "skyblue",
-  "chem" = "#F6EA7C",
-  "bio" = "#A2ED84",
-  "soc" = "#F48080"
-)
-
-# Colour palette for sites
-site_colours <- c(
-  "Kongsfjorden" = "chocolate4", 
-  "Isfjorden" = "chocolate3", 
-  "Storfjorden" = "chocolate1", 
-  "Young Sound" = "springgreen4", 
-  "Qeqertarsuup Tunua" = "springgreen3", 
-  "Nuup Kangerlua" = "springgreen1", 
-  "Porsangerfjorden" = "plum4"
-)
-
-
-# Long names for merging
-long_site_names <- data.frame(site = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
-                             site_long = c("Kongsfjorden", "Isfjorden", "Storfjorden",
-                                           "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
-                                           "Porsangerfjorden"))
-long_cat_names <- data.frame(category = c("cryo", "phys", "chem", "bio", "soc"),
-                             category_long = c("cryosphere", "physics", "chemistry", "biology", "social"))
-long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
-                                           "sea temp", "salinity", "light",
-                                           "carb", "nutrients", 
-                                           "prim prod", "biomass", "spp rich", 
-                                           "gov", "tourism", "fisheries"),
-                                driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
-                                                "seawater temperature", "salinity", "light",
-                                                "carbonate chemistry", "nutrients",
-                                                "primary production", "biomass", "species richness",
-                                                "governance", "tourism", "fisheries"))
-
 
 # Data --------------------------------------------------------------------
 

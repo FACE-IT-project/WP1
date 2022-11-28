@@ -11,24 +11,6 @@ library(ggpmisc)
 library(ggpattern)
 library(igraph) # Create network
 
-# Ice cover colours
-ice_cover_colours <- c(
-  "ocean" = "navy",
-  "land" = "slategrey",
-  "sea ice" = "mintcream",
-  "coast" = "dodgerblue",
-  "exclude" = "gold"
-)
-
-# Key driver category colours
-driver_cat_colours <- c(
-  "cryo" = "mintcream",
-  "phys" = "skyblue",
-  "chem" = "#F6EA7C",
-  "bio" = "#A2ED84",
-  "soc" = "#F48080"
-)
-
 
 # Data --------------------------------------------------------------------
 
@@ -64,16 +46,6 @@ site_points <- data.frame(site = factor(x = c("Kongsfjorden", "Isfjorden", "Stor
                                                    "Porsangerfjorden")),
                           lon = c(11.845, 14.365, 19.88, -21.237, -52.555, -50.625, 25.75),
                           lat = c(78.98, 78.235, 77.78, 74.517, 69.36, 64.405, 70.6))
-# Colour palette for sites
-site_colours <- c(
-  "Kongsfjorden" = "chocolate4", 
-  "Isfjorden" = "chocolate3", 
-  "Storfjorden" = "chocolate1", 
-  "Young Sound" = "springgreen4", 
-  "Qeqertarsuup Tunua" = "springgreen3", 
-  "Nuup Kangerlua" = "springgreen1", 
-  "Porsangerfjorden" = "plum4"
-)
 
 # Full study area
 rp_fig_1 <- basemap(limits = c(-50, 50, 61, 90), bathymetry = T) +

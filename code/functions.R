@@ -99,6 +99,26 @@ DepthCol <- c(
   "2000+ m" = brewer.pal(9, "Blues")[9]
 )
 
+# Ice cover colours
+ice_cover_colours <- c(
+  "ocean" = "navy",
+  "land" = "slategrey",
+  "sea ice" = "mintcream",
+  "coast" = "dodgerblue",
+  "exclude" = "gold"
+)
+
+# Colour palette for sites
+site_colours <- c(
+  "Kongsfjorden" = "chocolate4", 
+  "Isfjorden" = "chocolate3", 
+  "Storfjorden" = "chocolate1", 
+  "Young Sound" = "springgreen4", 
+  "Qeqertarsuup Tunua" = "springgreen3", 
+  "Nuup Kangerlua" = "springgreen1", 
+  "Porsangerfjorden" = "plum4"
+)
+
 # Base URL for MUR data
 base_MUR_URL <- "https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data/GDS2/L4/GLOB/JPL/MUR/v4.1"
 
