@@ -36,11 +36,12 @@ Jean-Pierre Gattuso </br> - Lead -
 <br>
 <br>
 
-::: incremental
--   WP1
-    -   Identify + analyse drivers of change
-    -   Manage and disseminate data and analyses within/out consortium
-:::
+1) compile data on key potential drivers of changes in coastal biodiversity
+2) make the project data openly accessible
+
+## Deliverable
+
+![](WP1_table.png)
 
 ## Publications
 
