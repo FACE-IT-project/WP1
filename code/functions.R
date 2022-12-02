@@ -2261,6 +2261,7 @@ lm_all <- function(df_idx, df_main){
 }
 
 # Find all possible linear model comparisons for two given drivers
+# driver1 <- "sea temp"; driver2 <- "sea ice" # For testing
 driver2_lm <- function(driver1, driver2){
   
   # If no variables exist for driver  (e.g. governance) return nothing
@@ -2298,6 +2299,15 @@ driver2_lm <- function(driver1, driver2){
     distinct()
   df_screen <- right_join(df_mean_month_depth, annual_screen, 
                           by = c("type", "site", "category", "driver", "variable", "depth"))
+  
+  # Test df
+  # df_sub <- df_screen %>% 
+  #   filter(site == "kong", depth == "0 to 10", type == "in situ",
+  #          between(date, as.Date("1982-01-01"), as.Date("2020-12-31")))
+  
+  # Test visual
+  # ggplot(df_sub, aes(x = date, y = value)) +
+  #   geom_line() + geom_smooth(method = "lm")
   
   # The list of possible variables to compare
   df_var <- df_screen %>% filter(driver == driver1) %>% 
