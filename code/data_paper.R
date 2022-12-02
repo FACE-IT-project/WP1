@@ -1941,18 +1941,27 @@ driver_all_site_count <- driver_all %>%
 # Filter combos with four or more sites available
 driver_all_filter <- driver_all %>% 
   right_join(driver_all_site_count) %>% 
-  mutate(comp = paste0(variable," -> ", variable_y),
-         depth_comp = paste0(depth," -> ", depth_y)) %>% 
-  filter(comp != "sea ice cover [proportion] -> temp [°C]") # Redundant
+  mutate(comp = paste0(variable,"\nvs\n", variable_y),
+         depth_comp = paste0(depth,"\nvs\n", depth_y)) %>% 
+  filter(comp != "sea ice cover [proportion]\nvs\ntemp [°C]") %>%  # Redundant
+  mutate(comp = factor(comp, 
+                       levels = c("temp [°C]\nvs\nsea ice cover [proportion]",
+                                  "Q [m3/s]\nvs\nsal", "Q [m3/s]\nvs\ntemp [°C]",
+                                  "sal\nvs\nspp count [n]", "temp [°C]\nvs\nspp count [n]",
+                                  "Q [m3/s]\nvs\nPAR [µmol m-2 s-1]",
+                                  "sea ice cover [proportion]\nvs\nPAR [µmol m-2 s-1]")))
+
+# Test stats
+df_test <- driver_all_filter %>% 
+  filter(comp == "temp [°C]\nvs\nsea ice cover [proportion]")
+mean(df_test$slope)
+median(df_test$slope)
+sd(df_test$slope)
 
 # Boxplots of slopes for each comparison
 # With the sites and depths of comparison making up the points
 fig_5 <- driver_all_filter %>% 
   left_join(long_site_names, by = "site") %>% 
-  mutate(site_long = factor(site_long,
-                            levels = c("Kongsfjorden", "Isfjorden", "Storfjorden",
-                                       "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
-                                       "Porsangerfjorden"))) %>% 
   # filter(depth == depth_y) %>% # Too restrictive
   ggplot(aes(x = comp, y = slope)) +
   geom_boxplot(outlier.shape = NA) +
@@ -1961,16 +1970,21 @@ fig_5 <- driver_all_filter %>%
   facet_wrap(~comp, scales = "free") +
   labs(x = NULL, y = "Slope [Y/X]") +
   scale_colour_manual("Site", values = site_colours) +
-  guides(colour = guide_legend(override.aes = list(shape = 15, size = 10))) +
+  guides(colour = guide_legend(nrow = 3, override.aes = list(shape = 15, size = 10))) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = c(0.65, 0.154),
-        legend.direction = "horizontal",
+        legend.direction = "horizontal", 
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14), 
+        strip.text = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
         panel.border = element_rect(fill = NA, colour = "black"))
 # fig_5
 
 # Save
-ggsave("figures/dp_fig_5.png", fig_5, width = 12, height = 10)
+ggsave("figures/dp_fig_5.png", fig_5, width = 12, height = 12)
 
 
 # Figure 6 ----------------------------------------------------------------
@@ -1990,10 +2004,11 @@ fig_6 <- model_ALL_stats %>%
   filter(type == "in situ") %>% 
   mutate(mean_mod_greater = ifelse(mean_mod > mean_dat, 1, 0)) %>% 
   left_join(long_site_names, by = "site") %>% 
-  mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
-                                                  "Storfjorden", "Porsangerfjorden")),
-         variable = factor(variable, levels = c("temp [°C]", "sal", "pCO2 [µatm]", 
-                                                "NO3 [µmol/l]", "PO4 [µmol/l]", "SiO4 [µmol/l]" ))) %>% 
+  mutate(variable = factor(variable, 
+                           levels = c("temp [°C]", "sal", "pCO2 [µatm]", 
+                                      "NO3 [µmol/l]", "PO4 [µmol/l]", "SiO4 [µmol/l]"),
+                           labels = c("temp [°C]", "sal", "pCO2 [µatm]", 
+                                      "NO3 [µmol l-1]", "PO4 [µmol l-1]", "SiO4 [µmol l-1]"))) %>% 
   group_by(site_long, type, depth, variable) %>% 
   summarise(mean_mod_greater = mean(mean_mod_greater, na.rm = T),
             rmse = mean(rmse, na.rm = T), .groups = "drop") %>% 
@@ -2005,7 +2020,9 @@ fig_6 <- model_ALL_stats %>%
   scale_y_discrete(limits = rev) +
   scale_fill_manual(values = c("blue", "red")) +
   coord_cartesian(expand = F) +
-  labs(x = "Depth", y = "Variable")
+  labs(x = "Depth", y = "Variable") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        panel.border = element_rect(fill = NA, colour = "black"))
 # fig_6
 
 # Save
@@ -2052,13 +2069,16 @@ fig_7 <- future_stats %>%
   dplyr::select(site:depth_y, mean_val, mean_hist:mean_8.5) %>% 
   pivot_longer(cols = mean_val:mean_8.5) %>% 
   left_join(long_site_names, by = "site") %>% 
-  mutate(site_long = factor(site_long, levels = c("Kongsfjorden", "Isfjorden",
-                                                  "Storfjorden", "Porsangerfjorden")),
-         name = case_when(name == "mean_hist" ~ paste0(name,"_",type), TRUE ~ name),
+  filter(variable == "temp [°C]",
+         variable_y %in% c("sea ice cover [proportion]", "spp count [n]", "Chla [µg/l]")) %>% 
+  mutate(name = case_when(name == "mean_hist" ~ paste0(name,"_",type), TRUE ~ name),
          name = factor(name, levels = c("mean_val", "mean_hist_in situ", "mean_hist_OISST", "mean_hist_CCI",
                                         "mean_2.6", "mean_4.5", "mean_8.5"),
-                       labels = c("Historic", "Proj: in situ", "Proj: OISST", "Proj: CCI",
-                                  "Proj: RCP 2.6", "Proj: RCP 4.5", "Proj: RCP 8.5"))) %>% 
+                       labels = c("Historic", "in situ", "OISST", "CCI",
+                                  "RCP 2.6", "RCP 4.5", "RCP 8.5")),
+         variable_y = factor(variable_y,
+                             levels = c("sea ice cover [proportion]", "Chla [µg/l]", "spp count [n]"),
+                             labels = c("sea ice cover [proportion]", "Chla [µg l-1]", "spp count [n]"))) %>% 
   # QC
   mutate(value = case_when(variable_y == "sea ice cover [proportion]" & value < -1 ~ as.numeric(NA), 
                            variable_y == "Chla [µg/l]" & value < -3 ~ as.numeric(NA),
@@ -2066,19 +2086,24 @@ fig_7 <- future_stats %>%
                            TRUE ~ value)) %>% 
   #
   ggplot(aes(x = name, y = value)) +
-  geom_boxplot(aes(fill = variable), outlier.colour = NA) +
+  geom_boxplot(outlier.colour = NA) +
   geom_jitter(aes(colour = site_long)) +
   facet_wrap(~variable_y, scales = "free_y") +
-  scale_fill_brewer("Variable", palette = "Set3") +
+  # scale_fill_brewer("Variable", palette = "Set3") +
   scale_colour_manual("Site", values = site_colours) +
-  labs(y = NULL, x = NULL) +
-  theme(axis.text.x = element_text(angle = 30),
-        panel.border = element_rect(fill = NA, colour = "black"),
-        # legend.position = c(0.82, 0.154),
+  guides(colour = guide_legend(nrow = 1, override.aes = list(shape = 15, size = 10))) +
+  labs(y = "Projected mean value\nin the year 2100", x = "Projection") +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14), 
+        strip.text = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        axis.text.x = element_text(angle = 30, hjust = 1),
         legend.position = "bottom",
-        legend.box = "vertical")
+        legend.box = "vertical",
+        panel.border = element_rect(fill = NA, colour = "black"))
 # fig_7
-ggsave("figures/dp_fig_7.png", fig_7, width = 8, height = 8)
+ggsave("figures/dp_fig_7.png", fig_7, width = 8, height = 4)
 
 
 # Table 1 -----------------------------------------------------------------
@@ -2239,7 +2264,8 @@ if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
 # Create wide model slopes for better merging
 model_wide <- model_ALL_stats %>% 
   dplyr::select(site, type, proj, depth, variable, slope) %>% 
-  pivot_wider(names_from = proj, values_from = slope)
+  pivot_wider(names_from = proj, values_from = slope) %>% 
+  filter(variable %in% c("temp [°C]", "sal"))
 
 # Get historic slopes as these tend to be higher than RCP 8.5
 historic_trend <- driver_all %>% 
@@ -2250,7 +2276,7 @@ historic_trend <- driver_all %>%
 # Get the product of the historic relationship between drivers and the projected change in the independent driver
 future_stats <- driver_all %>% 
   filter(!is.na(variable_y)) %>% 
-  left_join(model_wide, by = c("site", "type", "variable", "depth")) %>% 
+  right_join(model_wide, by = c("site", "type", "variable", "depth")) %>% 
   left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth"))
 
 # The trends of the model data against those of the amalgamated data
@@ -2275,7 +2301,7 @@ write_csv(table_4, "data/analyses/table_4.csv")
 table_4_plot <- ggplot() +
   annotate(geom = "table", x = 0, y = 0, label = list(table_4)) +
   theme_void()
-ggsave("figures/table_4.png", table_4_plot, width = 5.8, height = 4.3, dpi = 600)
+ggsave("figures/table_4.png", table_4_plot, width = 5.8, height = 4.8, dpi = 600)
 
 
 # Table A1 ----------------------------------------------------------------

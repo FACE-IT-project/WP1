@@ -14,6 +14,9 @@ Isfjorden,sal,50 to 200,0.181,NA,NA,0.01,0.014,0.017
 Storfjorden,temp [°C],0 to 10,3.487,0.103,0.294,0.013,0.077,0.202
 Storfjorden,temp [°C],10 to 50,5.96,NA,NA,0.004,0.07,0.184
 Storfjorden,temp [°C],50 to 200,3.039,NA,NA,0.002,0.057,0.154
+Storfjorden,sal,0 to 10,NA,NA,NA,0.014,0.028,0.039
+Storfjorden,sal,10 to 50,NA,NA,NA,0.011,0.015,0.02
+Storfjorden,sal,50 to 200,NA,NA,NA,0.01,0.014,0.017
 Porsangerfjorden,temp [°C],0 to 10,0.353,0.324,0.103,0.033,0.102,0.24
 Porsangerfjorden,temp [°C],10 to 50,0.285,NA,NA,-0.008,0.081,0.2
 Porsangerfjorden,temp [°C],50 to 200,0.633,NA,NA,-0.005,0.079,0.192

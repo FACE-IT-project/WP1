@@ -126,7 +126,11 @@ base_MUR_URL <- "https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data
 long_site_names <- data.frame(site = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
                               site_long = c("Kongsfjorden", "Isfjorden", "Storfjorden",
                                             "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
-                                            "Porsangerfjorden"))
+                                            "Porsangerfjorden")) %>% 
+  mutate(site_long = factor(site_long,
+                            levels = c("Kongsfjorden", "Isfjorden", "Storfjorden",
+                                       "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
+                                       "Porsangerfjorden")))
 long_cat_names <- data.frame(category = c("cryo", "phys", "chem", "bio", "soc"),
                              category_long = c("cryosphere", "physics", "chemistry", "biology", "social"))
 long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
