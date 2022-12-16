@@ -1,6 +1,8 @@
 # code/functions.R
 # This script houses functions and other preparatory things used throughout the project
 
+# TODO: Write convenience wrapper to query clean dataset for specific files/DOI etc
+
 
 # Setup -------------------------------------------------------------------
 
