@@ -1109,6 +1109,10 @@ save(all_meta, file = "data/analyses/all_meta.RData")
 
 ## PANGAEA file ------------------------------------------------------------
 
+# Load all clean data
+# clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
+if(!exists("clean_all")) load("data/analyses/clean_all.RData")
+
 # Remove GEM and GRDC data
 FACE_IT_v1 <- clean_all %>% 
   filter(!grepl("g-e-m", URL), # Remove GEM data
@@ -1122,6 +1126,26 @@ FACE_IT_v1 <- clean_all %>%
 # Save as .csv
 write_csv(FACE_IT_v1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.csv")
 write_csv(FACE_IT_v1, "data/full_data/FACE_IT_v1.csv")
+
+# Cryo data
+FACE_IT_v1_cryo <- filter(FACE_IT_v1, category == "cryo") %>% pivot_wider(names_from = variable, values_from = value)
+write_csv(FACE_IT_v1_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_cryo.csv")
+
+# Phys data
+FACE_IT_v1_phys <- filter(FACE_IT_v1, category == "phys") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
+write_csv(FACE_IT_v1_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_phys.csv")
+
+# Chem data
+FACE_IT_v1_chem <- filter(FACE_IT_v1, category == "chem") %>% pivot_wider(names_from = variable, values_from = value)
+write_csv(FACE_IT_v1_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_chem.csv")
+
+# Bio data
+FACE_IT_v1_bio <- filter(FACE_IT_v1, category == "bio") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
+write_csv(FACE_IT_v1_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_bio.csv")
+
+# Soc data
+FACE_IT_v1_soc <- filter(FACE_IT_v1, category == "soc") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
+write_csv(FACE_IT_v1_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_soc.csv")
 
 
 # Section 4 ---------------------------------------------------------------
