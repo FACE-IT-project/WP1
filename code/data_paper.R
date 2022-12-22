@@ -1632,10 +1632,13 @@ ice_legend <- ggpubr::get_legend(ice_legend)
 # Create base for layering plots
 base_df <- data.frame(x = c(-1, 0, 1), y = c(-1, 0, 1))
 fig_1_base <- ggplot(data = base_df, aes(x = x, y = y)) + 
-  geom_point(colour = "white") + 
+  geom_point(colour = "white", size = 0.0001) +
   scale_x_continuous(breaks = seq(-1, 1, by = 0.1)) +
   scale_y_continuous(breaks = seq(-1, 1, by = 0.1)) +
   theme_void()
+
+# TODO: Updates to packages messed up this figure.
+# Need to fix spacing and segment colours
 
 # Combine
 fig_1 <- fig_1_base +
@@ -1644,25 +1647,25 @@ fig_1 <- fig_1_base +
             nudge_x = -0.033, add.segments = F) +
   # Kongsfjorden
   geom_grob(aes(x = 0.065, y = 0.16, label = list(cowplot::as_grob(fig_1_b_kong))),
-            nudge_x = -0.07, nudge_y = 0.55, segment.colour = "chocolate4") +
+            nudge_x = -0.07, nudge_y = 0.55, default.colour = "chocolate4") +
   # Isfjorden
   geom_grob(aes(x = 0.08, y = 0.15, label = list(cowplot::as_grob(fig_1_b_is))),
-            nudge_x = 0.35, nudge_y = 0.6, vp.width = 0.25, vp.height = 0.25, segment.colour = "chocolate3") +
+            nudge_x = 0.35, nudge_y = 0.6, vp.width = 0.25, vp.height = 0.25, default.colour = "chocolate3") +
   # Storfjorden
   geom_grob(aes(x = 0.12, y = 0.15, label = list(cowplot::as_grob(fig_1_b_stor))),
-            nudge_x = 0.65, nudge_y = 0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "chocolate1") +
+            nudge_x = 0.65, nudge_y = 0.03, vp.width = 0.25, vp.height = 0.25, default.colour = "chocolate1") +
   # Young Sound
   geom_grob(aes(x = -0.15, y = 0.05, label = list(cowplot::as_grob(fig_1_b_young))),
-            nudge_x = -0.41, nudge_y = 0.53, vp.width = 0.20, vp.height = 0.20, segment.colour = "springgreen4") +
+            nudge_x = -0.41, nudge_y = 0.53, vp.width = 0.20, vp.height = 0.20, default.colour = "springgreen4") +
   # Disko bay
   geom_grob(aes(x = -0.45, y = 0.11, label = list(cowplot::as_grob(fig_1_b_disko))),
-            nudge_x = -0.41, nudge_y = -0.03, vp.width = 0.25, vp.height = 0.25, segment.colour = "springgreen3") +
+            nudge_x = -0.41, nudge_y = -0.03, vp.width = 0.25, vp.height = 0.25, default.colour = "springgreen3") +
   # Nuup Kangerlua
   geom_grob(aes(x = -0.55, y = -0.03, label = list(cowplot::as_grob(fig_1_b_nuup))),
-            nudge_x = -0.26, nudge_y = -0.4, vp.width = 0.25, vp.height = 0.25, segment.colour = "springgreen1") +
+            nudge_x = -0.26, nudge_y = -0.4, vp.width = 0.25, vp.height = 0.25, default.colour = "springgreen1") +
   # Porsangerfjorden
   geom_grob(aes(x = 0.23, y = -0.05, label = list(cowplot::as_grob(fig_1_b_por))),
-            nudge_x = 0.5, nudge_y = -0.46, vp.width = 0.3, vp.height = 0.3, segment.colour = "plum4") +
+            nudge_x = 0.5, nudge_y = -0.46, vp.width = 0.3, vp.height = 0.3, default.colour = "plum4") +
   # Temperature legend
   geom_grob(aes(x = -0.1, y = -0.74, label = list(cowplot::as_grob(temp_legend)))) +
   # Ice legend
@@ -2135,6 +2138,7 @@ table_1_wide <- data.frame(cryo = c("sea ice", "glacier", "runoff"),
                            chem = c("carb", "nutrients", ""),
                            bio = c("prim prod", "biomass", "spp rich"),
                            soc = c("gov", "tourism", "fisheries"))
+write_csv(table_1_wide, "data/analyses/table_1_wide.csv")
 
 # Create figure for now because Google docs tables are red hot garbage
 table_1_plot <- ggplot() +
