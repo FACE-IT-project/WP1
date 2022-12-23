@@ -214,7 +214,7 @@ ice_4km_trend_long <- ice_4km_trend %>%
                               variable == "sd_val" ~ paste0("sea ice cover ",month," [SD proportion]"))) %>% 
   dplyr::select(-month)
 ice_4km_stats <- bind_rows(ice_4km_prop_long, ice_4km_trend_long) %>% 
-  mutate(type = "remote",
+  mutate(type = "MASIE",
          category = "cryo",
          driver = "sea ice",
          date_accessed = as.Date("2022-04-26"),
@@ -428,6 +428,7 @@ review_summary_plot(summary_runoff, "runoff")
 # Removing tpot (Potential temperature) is a potentially controversial decision...
 # t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
 # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
+# TODO: t_fb is the ferry box temperature when pCO2 is caluclated and should be temp_pco2
 OISST_kong <- sst_kong_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 CCI_kong <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
@@ -548,16 +549,14 @@ light_kong <- review_filter_var(full_product_kong, "PAR|UV", "Onc|Gym|Para|below
 light_is <- review_filter_var(full_product_is, "PAR|UV", "aeuch|eleg|UVEL") # No PAR data
 light_stor <- review_filter_var(full_product_stor, "PAR|UV") # No PAR data
 light_young <- review_filter_var(rbind(full_product_young, young_GEM),  "PAR|UV", "vella|tinn")
-## NB: It is unclear if these values should be divided by 10 or not
-## It is also unclear what the time dimension is for the data
 light_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "PAR|UV", "milli")
-## NB: Some of these values are also very high
 light_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "PAR|UV", "trip|vella|sulc|lip|lib|parv")
-light_por <- review_filter_var(full_product_por, "PAR|UV") # No PAR data
+light_por <- review_filter_var(full_product_por, "PAR|UV", "Para") # No PAR data
 clean_light <- rbind(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por) %>% 
   filter(value > 0,
-         category == "phys") %>% # NB: Double check where the species presence data are coming from 
-  mutate(variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
+         !grepl("volt", variable)) %>%
+  mutate(value = case_when(str_detect(variable, "mmol") ~ value/1000, TRUE ~ value),
+         variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
                               str_detect(variable, "UVA") ~ "UV-A [W*m^2]", # TODO: Keep or remove?
                               str_detect(variable, "UVB") ~ "UV-B [W*m^2]",
                               TRUE ~ variable), driver = "light")
@@ -1121,7 +1120,8 @@ FACE_IT_v1 <- clean_all %>%
   # Convert to PANGAEA date standard
   dplyr::rename(`date/time [UTC+0]` = date, `depth [m]` = depth,
                 `longitude [°E]` = lon, `latitude [°N]` = lat) %>% 
-  mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00"))
+  mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00"),
+         citation = str_replace_all(citation, ";", "."))
 
 # Save as .csv
 write_csv(FACE_IT_v1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.csv")
@@ -1129,23 +1129,23 @@ write_csv(FACE_IT_v1, "data/full_data/FACE_IT_v1.csv")
 
 # Cryo data
 FACE_IT_v1_cryo <- filter(FACE_IT_v1, category == "cryo") %>% pivot_wider(names_from = variable, values_from = value)
-write_csv(FACE_IT_v1_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_cryo.csv")
+write_delim(FACE_IT_v1_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_cryo.csv", delim = ";")
 
 # Phys data
 FACE_IT_v1_phys <- filter(FACE_IT_v1, category == "phys") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_csv(FACE_IT_v1_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_phys.csv")
+write_delim(FACE_IT_v1_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_phys.csv", delim = ";")
 
 # Chem data
 FACE_IT_v1_chem <- filter(FACE_IT_v1, category == "chem") %>% pivot_wider(names_from = variable, values_from = value)
-write_csv(FACE_IT_v1_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_chem.csv")
+write_delim(FACE_IT_v1_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_chem.csv", delim = ";")
 
 # Bio data
 FACE_IT_v1_bio <- filter(FACE_IT_v1, category == "bio") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_csv(FACE_IT_v1_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_bio.csv")
+write_delim(FACE_IT_v1_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_bio.csv", delim = ";")
 
 # Soc data
 FACE_IT_v1_soc <- filter(FACE_IT_v1, category == "soc") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_csv(FACE_IT_v1_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_soc.csv")
+write_delim(FACE_IT_v1_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_soc.csv", delim = ";")
 
 
 # Section 4 ---------------------------------------------------------------

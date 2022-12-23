@@ -827,6 +827,7 @@ load_GFI <- function(file_name){
 # file_names <- dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/mooring_SAMS/", full.names = T)#13-25
 # test1 <- load_SAMS(file_names[17])
 # file_name <- file_names[1]
+# rm(file_names, file_name)
 load_SAMS <- function(file_name){
   
   # Get NetCDF metadata

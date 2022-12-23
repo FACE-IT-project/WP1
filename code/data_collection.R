@@ -66,6 +66,7 @@ pg_dl_prep <- function(pg_dl){
     # NB: This can't be done because columns won't match query_ALL$pg_col_name
     # pg_dl$data <- janitor::clean_names(pg_dl$data)
     if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
+      # if("LONGITUDE" %in% names(pg_dl$metadata$events))
       if("Longitude" %in% colnames(pg_dl$data) & "Latitude" %in% colnames(pg_dl$data)){
         if("Latitude 2" %in% colnames(pg_dl$data) & sum(grepl("Latitude", colnames(pg_dl$data))) == 1){
           colnames(pg_dl$data)[which(colnames(pg_dl$data) == "Latitude 2")] <- "Latitude"

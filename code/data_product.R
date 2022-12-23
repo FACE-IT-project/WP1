@@ -694,12 +694,15 @@ system.time(
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
-# pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.909130")
+# pg_test <- pg_data(doi = "10.1594/PANGAEA.896828")
+# pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.896828")
 # pg_test <- pg_kong_sub %>% 
 #   filter(URL == "https://doi.org/10.1594/PANGAEA.868371") %>% 
 #   dplyr::select(contains("depth"), everything()) %>% 
 #   # mutate_all(~na_if(., '')) %>% 
 #   janitor::remove_empty("cols")
+# pg_kong <- read_csv("data/pg_data/pg_kong.csv")
+# pg_test <- filter(pg_kong, URL == "https://doi.pangaea.de/10.1594/PANGAEA.896828")
 
 # More testing
 # colnames(pg_kong_sub)
@@ -1787,7 +1790,8 @@ green_guests <- as.data.frame(green_guests_json,
          category = "soc", lon = NA, lat = NA, depth = NA, URL = green_guests_json$url,
          citation = px_cite(green_guests_json)) %>% 
   filter(!is.na(value)) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable, site) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop")
 
 ## Sled dogs
 green_dogs_json <- 
@@ -3293,11 +3297,13 @@ nor_salmon_exports <- as.data.frame(nor_salmon_exports_json,
   mutate(site = "nor",
          `commodity group` = str_replace(`commodity group`, ",", " -"),
          variable = paste0("Export - ",`commodity group`," [",unit,"]"),
-         week = str_replace(week, "U",""),
-         date = as.Date(paste0(week,7),"%Y%U%u"),
+         week = paste0(str_replace(week, "U","-"),"-1"),
+         date = as.Date(week,"%Y-%U-%u"),
          date_accessed = as.Date(Sys.Date()),
          category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_salmon_exports_json$url,
          citation = px_cite(nor_salmon_exports_json)) %>% 
+  mutate(date = case_when(is.na(date) ~ as.Date(paste0(substr(week, start = 1, stop = 4), "-12-31")),
+                          TRUE ~ date)) %>% 
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
@@ -3354,7 +3360,10 @@ nor_pop <- rbind(as.data.frame(nor_pop_male_json),
          category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_pop_male_json$url,
          citation = px_cite(nor_pop_male_json)) %>% 
   filter(!is.na(value)) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable, site) %>% 
+  # NB: There appear to be three measurements per year.
+  # So we choose the highest pop value in a given year
+  summarise(value = max(value, na.rm = T), .groups = "drop")
 
 ## Svalbard population
 sval_pop_json <- 
@@ -3483,7 +3492,8 @@ nor_IMR_kingcrab <- read_delim("~/pCloudDrive/FACE-IT_data/norway/IMR/dwca-imr_k
          URL = "https://gbif.imr.no/ipt/resource?r=imr_kingcrab",
          citation = "Hjelset, Ann Merete; Institute of Marine Research, Norway (2017): Red king crab survey data from Finnmark Northern Norway in the period 1994 -2016 http://gbif.imr.no/ipt/resource?id=imr_kingcrab/v1.2.xml",
          category = "bio") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable, site) %>% 
+  summarise(value = sum(value, na.rm = T), .groups = "drop")
 rm(nor_IMR_kingcrab_count); gc()
 
 ## Polar cod biomass in the Barents Sea
