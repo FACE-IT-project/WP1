@@ -59,7 +59,7 @@ query_depth <- query_params("depth|bathymetry|pressure|density|elevation",
                             |Stomatal|Symbiodinium|Synchaeta|Thaliacea|Thecosomata|Thorium|Time at|Tissue|Trochophora",
                             "hPa|kPa|MPa|arbitrary|#|µm|g/cm|±|A/m|dB|1/mm")
 # Combined
-query_Meta <- rbind(query_longitude, query_latitude, query_date, query_depth)
+query_Meta <- rbind(query_longitude, query_latitude, query_date, query_depth) %>% distinct()
 rm(query_longitude, query_latitude, query_date, query_depth); gc()
 
 
@@ -77,13 +77,13 @@ query_ice <- query_params("ice",
 # Glacier
 query_glacier <- query_params("glacier|glacial", "Foraminifera|glacialis")
 # River discharge (river, discharge)
-query_river <- query_params("river|discharge", "Diatoms|smoke|glacier|Dust|pixel|Riversideite", "#|±")
+query_river <- query_params("river|discharge", "Diatoms|smoke|Dust|pixel|Riversideite", "#|±")
 # Snow cover
 query_snow <- query_params("snow")
 # Permafrost
 query_permafrost <- query_params("permafrost")
 # Combined
-query_Cryosphere <- rbind(query_ice, query_glacier, query_river, query_snow, query_permafrost)
+query_Cryosphere <- rbind(query_ice, query_glacier, query_river, query_snow, query_permafrost) %>% distinct()
 rm(query_ice, query_glacier, query_river, query_snow, query_permafrost); gc()
 
 
@@ -119,26 +119,25 @@ query_slp <- query_params("pressure", no_units = "±|dbar",
 # Sedimentation rate (sedim)
 query_sedimentation <- query_params("sedimentation") 
 # Suspended matter: organic, mineral (pom, pim, som, spm)
-# NB: This one is questionable. I decided to keep most parameters but maybe shouldn't have.
 query_suspended <- query_params("suspended", "Backscattering", "±")
 # (Seawater+air) temperature: surface, mid, bottom (°C, temp, sst)
 query_temperature <- query_params("temperature", no_units = "±|K/100m",
-                                  "Acid|Body|Fugacity|processes|Number|partial pressure|atoms|treatment|xCO2|δ")
+                                  "Acid|Body|Fugacity|processes|Number|partial pressure|atoms|treatment|xCO2|δ|
+                                  |Quality flag|Sonic")
 # Wind: direction, speed (wind, speed, direction, u, v)
 query_wind <- query_params("wind|speed|direction", 
                            "Sigma|window|Aurelia|bed dip|Brightness|cloud|Coiling|Current|deform|Gamete|
                            |Growing|ice |ice-|sperm|pixel|Plastic|polen|Predator|prey|Ship|snow|swim|swell|
                            |temperature|Tidal|Towing|wave", "±")
 # combined
-query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, 
-                        query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind)
+query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_salinity, 
+                        query_slp, query_sedimentation, query_suspended, query_temperature, query_wind) %>% distinct()
 rm(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, 
    query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind); gc()
 
 
 ## Chemistry
 # CaCO3 saturation state (CaCO3, Arg, Ara, Cal, omega)
-# NB: Decided to keep almost everything
 query_calc_carb <- query_params("calcium carbonate", "δ", "±")
 # Dissolved inorganic carbon (DIC)
 # Dissolved organic carbon (DOC)
@@ -160,8 +159,8 @@ query_nutrients <- query_params("nitrate|nitrite|ammonium|phosphate|silicate",
                                 |Tricresyl|Triisobutyl|Triphenyl|Triphosphates|Uridine|δ15|Δ17|δ18", 
                                 "±")
 # Partial pressure of CO2 (pCO2)
-query_pCO2 <- query_params("partial pressure", 
-                           "Blood|Coelomic|Extrapallial|Haemolymph|oxygen|Methane|nitro|Ozone|Treatment|vapour", "±")
+query_pCO2 <- query_params("partial pressure|pco2|co2", 
+                           "Blood|Coelomic|Extrapallial|Haemolymph|oxygen|Methane|nitro|Ozone|Treatment|vapour|gene|xCO2|δ13", "±")
 # pH (ph)
 query_pH <- query_params("pH", 
                          "Calcifying|Coelomic|Extrapallial|Haemolymph|Metabolic|cellular|periv|seminal|soil|treatment|voltage", 
@@ -169,10 +168,13 @@ query_pH <- query_params("pH",
 # Total alkalinity (TA, AT)
 query_alkalinity <- query_params("alkalinity", "borate|chlorine|Coelomic", "±")
 # Combined
-query_Chemistry <- rbind(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity)
+query_Chemistry <- rbind(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, 
+                         query_pH, query_alkalinity) %>% distinct()
 rm(query_calc_carb, query_dissolved, query_oxygen, query_nutrients, query_pCO2, query_pH, query_alkalinity); gc()
 
 ## Biology
+# Chlorophyll
+query_chl <- query_params("chlorophyll", no_units = "±")
 # Calcification
 query_calcification <- query_params("calcification", no_units = "±")
 # Nitrogen fixation
@@ -182,13 +184,16 @@ query_photosynthesis <- query_params("Photosynthesis", "Carbon-14", "±")
 # Primary production
 query_prim_prod <- query_params("Primary production", no_units = "±")
 # Respiration
-# Nb: Not sure about the need for this one...
 query_respiration <- query_params("Community respiration", no_units = "±")
 # Species: presence/absence, abundance/biomass
-# NB: Not doing this at the moment due to how wide these data are...
+query_species <- filter(pg_parameters, grepl(sp_abb_one, Abbreviation)) %>% 
+  mutate(pg_col_name = case_when(!is.na(Unit) ~ paste0(Abbreviation," [",Unit,"]"),
+                                 TRUE ~ Abbreviation))
 # Combined
-query_Biology <- rbind(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration)
-rm(query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration); gc()
+# NB: Specifically not adding 'query_species' here as this is handled differently due to data width
+query_Biology <- rbind(query_chl, query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, 
+                       query_respiration) %>% distinct()
+rm(query_chl, query_calcification, query_nitro_fix, query_photosynthesis, query_prim_prod, query_respiration); gc()
 
 ## Social
 # Fish landings: commercial, recreational, quotas, seasonality
@@ -208,4 +213,7 @@ rm(query_landings, query_management, query_nat_stat, query_tourism, query_vessel
 
 ## All variables together
 query_ALL <- rbind(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social)
+# NB: Specifically not removing 'query_meta'
+rm(query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social, 
+   pg_parameters, sp_abb_one, sp_abb_sep, query_params); gc()
 

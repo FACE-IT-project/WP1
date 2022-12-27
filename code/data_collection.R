@@ -19,6 +19,10 @@
 source("code/functions.R")
 source("code/key_drivers.R")
 
+# For finding meta-data in PG files
+lon_names <- c("LONGITUDE", "Longitude", "longitude", "long", "lon")
+lat_names <- c("LATITUDE", "Latitude", "latitude", "lat")
+
 # Set cores
 doParallel::registerDoParallel(cores = 15)
 
@@ -63,34 +67,74 @@ pg_dl_prep <- function(pg_dl){
   
   # Extract data.frame or catch specific errors
   if(is.data.frame(pg_dl$data)){
+    
     # NB: This can't be done because columns won't match query_ALL$pg_col_name
     # pg_dl$data <- janitor::clean_names(pg_dl$data)
+    
+    # Check that all columns are unique
+    # NB: There is an error in the pangaer package that does not give enough characters to columns
+    # This allows very long column names to have the units etc. cut off the end
+    # I created an issue on the GitHub page with no response...
     if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
-      # if("LONGITUDE" %in% names(pg_dl$metadata$events))
-      if("Longitude" %in% colnames(pg_dl$data) & "Latitude" %in% colnames(pg_dl$data)){
-        if("Latitude 2" %in% colnames(pg_dl$data) & sum(grepl("Latitude", colnames(pg_dl$data))) == 1){
-          colnames(pg_dl$data)[which(colnames(pg_dl$data) == "Latitude 2")] <- "Latitude"
-        }
-        col_idx <- colnames(pg_dl$data)[colnames(pg_dl$data) %in% unique(query_ALL$pg_col_name)]
-        dl_single <- pg_dl$data %>% 
-          dplyr::select(all_of(col_idx)) %>%  
-          # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-          janitor::remove_empty(which = c("rows", "cols"))
-        if("Longitude" %in% colnames(dl_single) & "Latitude" %in% colnames(dl_single)){
-          dl_single <- dl_single %>% 
-            mutate(date_accessed = as.Date(Sys.Date()),
-                   URL = pg_dl$url,
-                   citation = pg_dl$citation,
-                   Longitude = case_when(as.numeric(Longitude) > 180 ~ as.numeric(Longitude)-360, 
-                                         TRUE ~ as.numeric(Longitude))) %>% 
-            filter(Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90) %>% 
-            dplyr::select(date_accessed, URL, citation, everything())
-        } else {
-          dl_error <- "Lon/Lat column is empty"
-        }
-      } else {
-        dl_error <- "Lon/Lat column is missing"
+      
+      # In rare cases there is a 'Latitude 2' and not 'Latitude' column
+      if("Latitude 2" %in% colnames(pg_dl$data) & sum(grepl("Latitude", colnames(pg_dl$data))) == 1){
+        colnames(pg_dl$data)[which(colnames(pg_dl$data) == "Latitude 2")] <- "Latitude"
       }
+      
+      # Datasets publish before ~2017 may have lon/lat and Date/Time in the metadata list and not the data
+      if("metadata" %in% names(pg_dl)){
+        if("events" %in% names(pg_dl$metadata)){
+          pg_meta <- as_tibble(pg_dl$metadata$events)
+          if(!"Longitude" %in% colnames(pg_dl$data)){
+            if(TRUE %in% c(lon_names %in% colnames(pg_meta))){
+              pg_dl$data$Longitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lon_names)][1])
+            }
+          }
+          if(!"Latitude" %in% colnames(pg_dl$data)){
+            if(TRUE %in% c(lat_names %in% colnames(pg_meta))){
+              pg_dl$data$Latitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lat_names)][1])
+            }
+          }
+          if(!"Date/Time" %in% colnames(pg_dl$data)){
+            if("DATE/TIME" %in% colnames(pg_meta)){
+              pg_dl$data$`Date/Time` <- pg_meta$`DATE/TIME`[1]
+            }
+          }
+        }
+      }
+      
+      # Get names of desired columns
+      # NB: It is necessary to allow partial matches via grepl() because column names
+      # occasionally have notes about the data attached to them, preventing exact matches
+      col_names_df <- tibble(names = colnames(pg_dl$data))
+      # col_idx <- filter(col_names_df, grepl(paste(names, sep = "", collapse = "|"),
+      #                                       c(unique(query_ALL$pg_col_name), unique(query_species$pg_col_name))))
+      col_spp <- col_idx[which(col_idx %in% c(unique(query_Meta$pg_col_name), unique(query_species$pg_col_name)))]
+      col_no_spp <- col_idx[which(!col_idx %in% unique(query_species$pg_col_name))]
+      
+      # Get data for desired drivers, excluding species due to the width of these data
+      dl_single <- pg_dl$data %>% 
+        dplyr::select(all_of(col_idx)) %>%  
+        # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
+        janitor::remove_empty(which = c("rows", "cols")) %>% 
+        mutate(date_accessed = as.Date(Sys.Date()),
+               URL = pg_dl$url,
+               citation = pg_dl$citation) %>% 
+        dplyr::select(date_accessed, URL, citation, everything())
+      
+      # Get species values directly as a melted data.frame
+      
+      # Filter spatially if possible
+      if("Longitude" %in% colnames(dl_single) & "Latitude" %in% colnames(dl_single)){
+        dl_single <- dl_single %>% 
+          mutate(Longitude = case_when(as.numeric(Longitude) > 180 ~ as.numeric(Longitude)-360,
+                                       TRUE ~ as.numeric(Longitude)),
+                 Latitude = as.numeric(Latitude)) %>% 
+          filter(Longitude >= -60, Longitude <= 60, Latitude >= 60, Latitude <= 90)
+      }
+      
+    # Return error messages as necessary
     } else {
       dl_error <- "Multiple columns with same name"
     }
@@ -98,10 +142,10 @@ pg_dl_prep <- function(pg_dl){
     dl_error <- "No data in DOI reference"
   }
   
-  # Determined that there are columns with key drivers
+  # Determine if there are columns with desired data
   if(is.null(dl_error)){
     if(all(colnames(dl_single) %in% c("date_accessed", "URL", "citation", "Longitude", "Latitude", "Date/Time"))){
-      dl_error <- "No columns with key drivers"
+      dl_error <- "No columns with drivers"
     }
   }
   
@@ -168,9 +212,9 @@ pg_full_search <- function(lookup_table = F, ...){
 pg_test_dl <- function(pg_doi){
   # Get data
   dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) stop("Download failed"))
-  dl_single <- data.frame(URL = dl_dat[[1]]$url,
-                          citation = dl_dat[[1]]$citation,
-                          dl_dat[[1]]$data)
+  dl_single <- tibble(URL = dl_dat[[1]]$url,
+                      citation = dl_dat[[1]]$citation,
+                      dl_dat[[1]]$data)
   return(dl_single)
 }
 
