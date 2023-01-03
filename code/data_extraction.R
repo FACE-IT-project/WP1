@@ -31,6 +31,13 @@ extract_1 <- clean_all %>%
 length(unique(paste0(extract_1$lon, extract_1$lat)))
 # Unique days of sampling - 14705
 length(unique(extract_1$date))
+
+# Regions
+region
+coords_in <- extract_1_coords %>%
+  mutate(in_grid = sp::point.in.polygon(point.x = distinct_df[["lon"]], point.y = distinct_df[["lat"]],
+                                        pol.x = region_sub[["lon"]], pol.y = region_sub[["lat"]]))
+
 # Monthly clims
 extract_1 %>% mutate(month = lubridate::month(date)) %>% filter(!is.na(month)) %>% 
   ggplot(aes(x = as.factor(month), y = value)) +

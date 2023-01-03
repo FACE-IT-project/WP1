@@ -453,6 +453,7 @@ bbox_regions_kong <- data.frame(region = factor(c("Inner", "Mid", "Outer", "Mout
                                 lat2 = c(79.1, 79.1, 79.1, 79.1, 78.95))
 
 ## Find data in regions
+test <- points_in_region("Outer", bbox_regions_kong, full_product_kong_coords)
 full_region_kong <- plyr::ldply(unique(bbox_regions_kong$region), points_in_region, .parallel = F, 
                                 bbox_df = bbox_regions_kong, data_df = full_product_kong_coords)
 region_labels_kong <- full_region_kong %>% 
