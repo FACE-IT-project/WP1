@@ -1113,7 +1113,7 @@ save(all_meta, file = "data/analyses/all_meta.RData")
 if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 
 # Remove GEM and GRDC data
-FACE_IT_v1 <- clean_all %>% 
+FACE_IT_v1.1 <- clean_all %>% 
   filter(!grepl("g-e-m", URL), # Remove GEM data
          !grepl("GRDC", URL), # Remove GRDC data
          !grepl("Received directly from Mikael Sejr", URL)) %>%  # Remove embargoed PAR data from Mikael
@@ -1124,28 +1124,28 @@ FACE_IT_v1 <- clean_all %>%
          citation = str_replace_all(citation, ";", "."))
 
 # Save as .csv
-write_csv(FACE_IT_v1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.csv")
-write_csv(FACE_IT_v1, "data/full_data/FACE_IT_v1.csv")
+write_csv(FACE_IT_v1.1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1.csv")
+write_csv(FACE_IT_v1.1, "data/full_data/FACE_IT_v1.1.csv")
 
 # Cryo data
-FACE_IT_v1_cryo <- filter(FACE_IT_v1, category == "cryo") %>% pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_cryo.csv", delim = ";")
+FACE_IT_v1.1_cryo <- filter(FACE_IT_v1.1, category == "cryo") %>% pivot_wider(names_from = variable, values_from = value)
+write_delim(FACE_IT_v1.1_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1_phys <- filter(FACE_IT_v1, category == "phys") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_phys.csv", delim = ";")
+FACE_IT_v1.1_phys <- filter(FACE_IT_v1.1, category == "phys") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
+write_delim(FACE_IT_v1.1_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1_chem <- filter(FACE_IT_v1, category == "chem") %>% pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_chem.csv", delim = ";")
+FACE_IT_v1.1_chem <- filter(FACE_IT_v1.1, category == "chem") %>% pivot_wider(names_from = variable, values_from = value)
+write_delim(FACE_IT_v1.1_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1_bio <- filter(FACE_IT_v1, category == "bio") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_bio.csv", delim = ";")
+FACE_IT_v1.1_bio <- filter(FACE_IT_v1.1, category == "bio") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
+write_delim(FACE_IT_v1.1_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1_soc <- filter(FACE_IT_v1, category == "soc") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1_soc.csv", delim = ";")
+FACE_IT_v1.1_soc <- filter(FACE_IT_v1.1, category == "soc") %>% pivot_wider(names_from = variable, values_from = value, values_fn = mean)
+write_delim(FACE_IT_v1.1_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1_soc.csv", delim = ";")
 
 
 # Section 4 ---------------------------------------------------------------
