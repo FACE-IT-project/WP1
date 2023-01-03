@@ -439,9 +439,11 @@ ggsave("figures/bbox_por.png", plot_problems_por, height = 7)
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 coastline_kong <- coastline_full_df %>% 
   filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1)
+full_product_kong_coords <- full_product_kong %>% 
+  dplyr::select(lon, lat) %>% distinct()
 
 ## Manually create regions
-bbox_kong <- c(11, 12.69, 78.86, 79.1)
+# bbox_kong <- c(11, 12.69, 78.86, 79.1)
 ### TODO: Probably more effective to carve out these shapes from the hi-res coastline polygons
 bbox_regions_kong <- data.frame(region = factor(c("Inner", "Mid", "Outer", "Mouth", "Discard"),
                                                 levels = c("Inner", "Mid", "Outer", "Mouth", "Discard")),
@@ -451,8 +453,8 @@ bbox_regions_kong <- data.frame(region = factor(c("Inner", "Mid", "Outer", "Mout
                                 lat2 = c(79.1, 79.1, 79.1, 79.1, 78.95))
 
 ## Find data in regions
-full_region_kong <- plyr::ldply(unique(bbox_regions_kong$region), points_in_region, .parallel = T, 
-                                bbox_df = bbox_regions_kong, data_df = full_product_kong)
+full_region_kong <- plyr::ldply(unique(bbox_regions_kong$region), points_in_region, .parallel = F, 
+                                bbox_df = bbox_regions_kong, data_df = full_product_kong_coords)
 region_labels_kong <- full_region_kong %>% 
   group_by(region) %>% 
   summarise(lon = mean(range(lon)),

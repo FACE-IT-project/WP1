@@ -226,6 +226,7 @@ pg_full_search <- function(lookup_table = F, ...){
                     |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
       filter(!grepl("sediment|soil", citation)) %>% # Unclear if these files should be filtered as they occasionally have a few useful data
       filter(!grepl("ACLOUD|SOCAT", citation)) %>% 
+      filter(!grepl("Schlegel", citation)) %>% # Prevent downloading the FACE-IT dataset
       filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
   }
   return(pg_res_all)
