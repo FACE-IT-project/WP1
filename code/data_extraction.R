@@ -20,4 +20,9 @@ if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 extract_1 <- clean_all %>% 
   filter(site == "kong",
          driver %in% c("sea temp", "salinity", "light", "prim prod", "carb"),
-         variable %in% c("temp [°C]", "sal", "PAR [µmol m-2 s-1]", "pH [unknown scale]", "pH in situ [total scale]", "Chla [µg/l]"))
+         variable %in% c("temp [°C]", "sal", "PAR [µmol m-2 s-1]", "pH [unknown scale]", "pH in situ [total scale]", "Chla [µg/l]"),
+         depth <= 8)
+# Unique coords - 7772
+length(unique(paste0(extract_1$lon, extract_1$lat)))
+# Unique days of sampling - 14705
+length(unique(extract_1$date))

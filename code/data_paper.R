@@ -1,15 +1,11 @@
 # code/data_paper.R
 # The code used for the analyses in the WP1 data paper (D1.3)
 
-# TODO: Add ability to filter out specific time series depending on length or some other criteria
-# Need to be able to link the spatial and temporal mismatch of combined summary data with lack of trends etc.
-# These issues are themselves an important part of the conclusions from the analysis
-# For meta-data figures, also include the count of datasets/publications per variable per site
-# Look into values in clean_all_clean that are missing dates
-
 # Quotes are from Viitasalo and Bonsdorff (2022) unless stated otherwise
 # https://esd.copernicus.org/articles/13/711/2022/
 # "In addition, to better understand the effects of climate change on the biodiversity of the Baltic Sea, more emphasis should be placed on studies of shallow photic environments."
+
+# NB: Individual clean_*_all.csv are available at ~/WP1/data/full_data/
 
 
 # Setup -------------------------------------------------------------------
@@ -252,83 +248,6 @@ rm(ice_4km_prop, ice_4km_prop_long, ice_4km_trend, ice_4km_trend_long, ice_4km_s
 ## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
 ## Consider calculating open water days
 
-# More summary ideas
-# Filter out the chosen drivers
-sea_ice_df <- filter(clean_all_clean, driver == "sea ice")
-# List variables
-unique(ice_vars$variable)
-# Meta-data by variable and site
-# References per variable
-ice_ref <- ice_temp %>% 
-  dplyr::select(site, variable, citation) %>% 
-  distinct() %>% 
-  group_by(site, variable) %>% 
-  summarise(n_ref = n(), .groups = "drop")
-# Availability by month - proportion
-ice_temp_month <- ice_temp %>% 
-  dplyr::select(site, variable, date) %>% 
-  distinct() %>% 
-  mutate(month = month(date)) %>% 
-  filter(!is.na(month)) %>% 
-  group_by(site, variable, month) %>% 
-  summarise(n_month = n(), .groups = "drop") %>% 
-  group_by(site, variable) %>% 
-  mutate(sum_month = sum(n_month, na.rm = T),
-         prop_month = n_month/sum_month)
-# Availability at depth
-ice_temp_depth <- ice_temp %>% 
-  dplyr::select(site, variable, depth) %>% 
-  distinct() %>% 
-  mutate(depth = round(depth, -1)) %>% 
-  # filter(!is.na(depth)) %>% # May want to convert NA to 0 as these are almost always on-the-surface values
-  group_by(site, variable, depth) %>% 
-  summarise(n_depth = n(), .groups = "drop") %>% 
-  group_by(site, variable) %>% 
-  mutate(sum_depth = sum(n_depth, na.rm = T),
-         prop_depth = n_depth/sum_depth)
-# Availability over time
-ice_temp_date <- ice_temp %>% 
-  dplyr::select(site, variable, date) %>% 
-  filter(!is.na(date)) %>%
-  distinct() %>% 
-  mutate(year = year(date)) %>%
-  group_by(site, variable, year) %>% 
-  summarise(n_year = n(), .groups = "drop") %>% 
-  group_by(site, variable) %>% 
-  mutate(sum_year = sum(n_year, na.rm = T),
-         prop_year = round(n_year/sum_year, 4))
-# Changes over time by depth
-## By monthly and by annually
-ice_temp_depth_change <- ice_temp %>% 
-  dplyr::select(site, variable, date, depth, value) %>% 
-  filter(!is.na(date)) %>%
-  distinct() %>% 
-  mutate(year = year(date),
-         depth = case_when(depth < 0 ~ "land",
-                           is.na(depth) ~ "surface",
-                           depth <= 10 ~ "0 to 10",
-                           depth <= 50 ~ "10 to 50",
-                           depth <= 200 ~ "50 to 200",
-                           depth > 200 ~ "+200")) %>%
-  group_by(site, variable, year, depth) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  filter(!is.na(value))
-# Monthly climatologies by depth
-ice_temp_depth_clim <- ice_temp %>% 
-  dplyr::select(site, variable, date, depth, value) %>% 
-  filter(!is.na(date)) %>%
-  distinct() %>% 
-  mutate(month = month(date),
-         depth = case_when(depth < 0 ~ "land",
-                           is.na(depth) ~ "surface",
-                           depth <= 10 ~ "0 to 10",
-                           depth <= 50 ~ "10 to 50",
-                           depth <= 200 ~ "50 to 200",
-                           depth > 200 ~ "+200")) %>%
-  group_by(site, variable, month, depth) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
-  filter(!is.na(value))
-
 
 ### Glacier -----------------------------------------------------------------
 
@@ -428,7 +347,6 @@ review_summary_plot(summary_runoff, "runoff")
 # Removing tpot (Potential temperature) is a potentially controversial decision...
 # t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
 # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
-# TODO: t_fb is the ferry box temperature when pCO2 is caluclated and should be temp_pco2
 OISST_kong <- sst_kong_bbox %>% dplyr::rename(date = t) %>% 
   group_by(date) %>% summarise(value = mean(temp, na.rm = T)) %>% mutate(type = "OISST")
 CCI_kong <- sst_CCI_kong_bbox %>% dplyr::rename(date = t) %>%  
@@ -485,8 +403,7 @@ sea_temp_por <- review_filter_var(full_product_por, "temp|°C",
 
 # Combined cleaned data
 clean_sea_temp <- rbind(sea_temp_kong, sea_temp_is, sea_temp_stor, sea_temp_young, sea_temp_disko, sea_temp_nuup, sea_temp_por) %>% 
-  mutate(variable = "temp [°C]", category = "phys",
-         depth = case_when(is.na(depth) & type %in% c("OISST", "CCI") ~ 0, TRUE ~ depth),
+  mutate(depth = case_when(is.na(depth) & type %in% c("OISST", "CCI") ~ 0, TRUE ~ depth),
          date_accessed = as.Date(date_accessed),
          date_accessed = case_when(type == "CCI" ~ as.Date("2021-12-13"),
                                    type == "OISST" ~ as.Date("2021-12-03"),
@@ -497,12 +414,15 @@ clean_sea_temp <- rbind(sea_temp_kong, sea_temp_is, sea_temp_stor, sea_temp_youn
          citation = case_when(type == "CCI" ~ "Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.",
                               type == "OISST" ~ "Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1",
                               TRUE ~ citation),
+         variable = case_when(variable %in% c("t_fb [°C]") ~ "temp_pco2 [°C]", # Temperatures for pCO2 analyses
+                              TRUE ~ "temp [°C]"),
+         category = "phys",
          driver = "sea temp") %>% 
   filter(depth >= 0, value > -1.8)
 rm(sea_temp_kong, sea_temp_is, sea_temp_stor, sea_temp_young, sea_temp_disko, sea_temp_nuup, sea_temp_por); gc()
 
 # Summary analyses
-summary_sea_temp <- review_summary(filter(clean_sea_temp, depth >= 0, depth <= 10))
+summary_sea_temp <- review_summary(clean_sea_temp)
 
 # Plot results
 # NB: The apparent cooling trend from in situ data is due to the lack of winter temperatures from pre-satellite era data
@@ -532,11 +452,14 @@ sal_disko <- review_filter_var(rbind(full_product_disko, disko_GEM), "sal|PSU", 
 sal_nuup <- review_filter_var(rbind(full_product_nuup, nuup_GEM), "sal|PSU", "sal interp|acu|ent")
 sal_por <- review_filter_var(full_product_por, "sal|PSU", "Sal interp")
 clean_sal <- rbind(sal_kong, sal_is, sal_stor, sal_young, sal_disko, sal_nuup, sal_por) %>%
-  mutate(variable = "sal", driver = "salinity") %>% filter(value > 0)
+  mutate(variable = case_when(variable %in% c("s_fb [unit]") ~ "sal_pco2", # Salinity for pCO2 analyses
+                              TRUE ~ "sal"), 
+         driver = "salinity") %>% 
+  filter(value > 0)
 rm(sal_kong, sal_is, sal_stor, sal_young, sal_disko, sal_nuup, sal_por); gc()
 
 # Summary analyses
-summary_sal <- review_summary(filter(clean_sal, depth >= 0, depth <= 10))
+summary_sal <- review_summary(clean_sal)
 
 # Plot results
 review_summary_plot(summary_sal, "sal")
@@ -563,7 +486,7 @@ clean_light <- rbind(light_kong, light_is, light_stor, light_young, light_disko,
 rm(light_kong, light_is, light_stor, light_young, light_disko, light_nuup, light_por); gc()
 
 # Summary analyses
-summary_light <- review_summary(filter(clean_light, depth >= 0, depth <= 10))
+summary_light <- review_summary(clean_light)
 
 # Plot results
 review_summary_plot(summary_light, "light")
@@ -628,7 +551,7 @@ clean_carb <- rbind(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_
 rm(carb_kong, carb_is, carb_stor, carb_young, carb_disko, carb_nuup, carb_por); gc()
 
 # Summary analyses
-summary_carb <- review_summary(filter(clean_carb, depth >= 0, depth <= 10))
+summary_carb <- review_summary(clean_carb)
 
 # Plot results
 review_summary_plot(summary_carb, "carb")
@@ -689,7 +612,7 @@ clean_nutrients <- rbind(nutrients_kong, nutrients_is, nutrients_stor, nutrients
 rm(nutrients_kong, nutrients_is, nutrients_stor, nutrients_young, nutrients_disko, nutrients_nuup, nutrients_por); gc()
 
 # Summary analyses
-summary_nutrients <- review_summary(filter(clean_nutrients, depth >= 0, depth <= 10))
+summary_nutrients <- review_summary(clean_nutrients)
 
 # Plot results
 review_summary_plot(summary_nutrients, "nutrients")
@@ -699,7 +622,6 @@ review_summary_plot(summary_nutrients, "nutrients")
 
 ### Primary production ------------------------------------------------------
 
-# TODO: Merge variables where possible
 # TODO: Look into making PP conversion calculations with existing data 
 
 # Phaeopygments etc are not measures of PP, don't need fluorescence either
@@ -733,7 +655,7 @@ clean_pp <- rbind(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por) 
 rm(pp_kong, pp_is, pp_stor, pp_young, pp_disko, pp_nuup, pp_por); gc()
 
 # Summary analyses
-summary_pp <- review_summary(filter(clean_pp, depth >= 0, depth <= 10))
+summary_pp <- review_summary(clean_pp)
 
 # Plot results
 review_summary_plot(summary_pp, "pp")
