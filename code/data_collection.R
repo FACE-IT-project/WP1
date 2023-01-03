@@ -85,20 +85,22 @@ pg_dl_prep <- function(pg_dl){
       # Datasets publish before ~2017 may have lon/lat and Date/Time in the metadata list and not the data
       if("metadata" %in% names(pg_dl)){
         if("events" %in% names(pg_dl$metadata)){
-          pg_meta <- as_tibble(pg_dl$metadata$events)
-          if(!"Longitude" %in% colnames(pg_dl$data)){
-            if(TRUE %in% c(lon_names %in% colnames(pg_meta))){
-              pg_dl$data$Longitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lon_names)][1])
+          if(is.list(pg_dl$metadata$events)){
+            pg_meta <- as_tibble(pg_dl$metadata$events)
+            if(!"Longitude" %in% colnames(pg_dl$data)){
+              if(TRUE %in% c(lon_names %in% colnames(pg_meta))){
+                pg_dl$data$Longitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lon_names)][1])
+              }
             }
-          }
-          if(!"Latitude" %in% colnames(pg_dl$data)){
-            if(TRUE %in% c(lat_names %in% colnames(pg_meta))){
-              pg_dl$data$Latitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lat_names)][1])
+            if(!"Latitude" %in% colnames(pg_dl$data)){
+              if(TRUE %in% c(lat_names %in% colnames(pg_meta))){
+                pg_dl$data$Latitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lat_names)][1])
+              }
             }
-          }
-          if(!"Date/Time" %in% colnames(pg_dl$data)){
-            if("DATE/TIME" %in% colnames(pg_meta)){
-              pg_dl$data$`Date/Time` <- pg_meta$`DATE/TIME`[1]
+            if(!"Date/Time" %in% colnames(pg_dl$data)){
+              if("DATE/TIME" %in% colnames(pg_meta)){
+                pg_dl$data$`Date/Time` <- pg_meta$`DATE/TIME`[1]
+              }
             }
           }
         }
@@ -107,23 +109,43 @@ pg_dl_prep <- function(pg_dl){
       # Get names of desired columns
       # NB: It is necessary to allow partial matches via grepl() because column names
       # occasionally have notes about the data attached to them, preventing exact matches
-      col_names_df <- tibble(names = colnames(pg_dl$data))
-      # col_idx <- filter(col_names_df, grepl(paste(names, sep = "", collapse = "|"),
-      #                                       c(unique(query_ALL$pg_col_name), unique(query_species$pg_col_name))))
-      col_spp <- col_idx[which(col_idx %in% c(unique(query_Meta$pg_col_name), unique(query_species$pg_col_name)))]
-      col_no_spp <- col_idx[which(!col_idx %in% unique(query_species$pg_col_name))]
+      # col_names_df <- tibble(names = sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1))
+      # col_idx <- col_names_df %>% 
+      #   filter(grepl(paste(query_ALL$Abbreviation, sep = "", collapse = "|"), names))
+      # col_spp <- col_idx %>% filter(grepl(paste(query_species$Abbreviation, sep = "", collapse = "|"), names))
+      # col_no_spp <- col_idx[which(!col_idx$names %in% unique(query_species$pg_col_name)),]
+      col_name <- colnames(pg_dl$data)
+      col_abb <- sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1)
+      col_abb[col_abb == "Sal ([PSU])"] <- "Sal" # One important exception
+      col_idx <- col_name[which(col_abb %in% query_ALL$Abbreviation)]
+      col_meta <- col_name[which(col_abb %in% query_Meta$Abbreviation)]
+      col_spp <- col_name[which(col_abb %in% query_species$Abbreviation)]
       
       # Get data for desired drivers, excluding species due to the width of these data
-      dl_single <- pg_dl$data %>% 
-        dplyr::select(all_of(col_idx)) %>%  
-        # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-        janitor::remove_empty(which = c("rows", "cols")) %>% 
+      dl_driver <- tibble()
+      if(length(col_idx) > length(col_meta)){
+        dl_driver <- pg_dl$data %>% 
+          dplyr::select(all_of(col_idx)) %>% 
+          # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
+          janitor::remove_empty(which = c("rows", "cols")) 
+      }
+      
+      # Get species values directly as a melted data.frame
+      dl_spp <- tibble()
+      if(length(col_spp) > 0){
+        dl_spp <- pg_dl$data %>% 
+          dplyr::select(all_of(c(col_meta, col_spp))) %>% 
+          janitor::remove_empty(which = c("rows", "cols")) %>% 
+          pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")  
+      }
+      
+      # Combine
+      dl_single <- bind_rows(dl_driver, dl_spp) %>% 
         mutate(date_accessed = as.Date(Sys.Date()),
                URL = pg_dl$url,
                citation = pg_dl$citation) %>% 
-        dplyr::select(date_accessed, URL, citation, everything())
-      
-      # Get species values directly as a melted data.frame
+        dplyr::select(date_accessed, URL, citation, everything()) %>% 
+        janitor::remove_empty(which = c("rows", "cols"))
       
       # Filter spatially if possible
       if("Longitude" %in% colnames(dl_single) & "Latitude" %in% colnames(dl_single)){
@@ -158,6 +180,7 @@ pg_dl_prep <- function(pg_dl){
   
   # Exit
   return(dl_single)
+  # rm(pg_dl, dl_error, pg_meta, col_names_df, col_idx, col_meta, col_spp, col_no_spp, dl_driver, dl_spp, dl_single); gc()
 }
 
 # Function for downloading and processing PANGAEA data for merging
@@ -167,11 +190,11 @@ pg_dl_proc <- function(pg_doi){
   dl_error <- NULL
   suppressWarnings(
   dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) {dl_error <<- "Cannot access data via pangaer"})
-  )
+  ); gc()
   
   # Extract data from multiple lists as necessary
   if(is.null(dl_error)){
-    dl_df <- plyr::ldply(dl_dat, pg_dl_prep)
+    dl_df <- plyr::ldply(dl_dat, pg_dl_prep); gc()
   } else {
     dl_df <- data.frame(date_accessed = as.Date(Sys.Date()),
                         URL = paste0("https://doi.org/",pg_doi),
@@ -242,43 +265,36 @@ pg_ref_extract <- function(pg_EU_file){
 
 
 # Specific author queries
-# pg_Riebesell <- pg_full_search(query = "Riebesell", bbox = c(-60, 63, 60, 90))
-# pg_Fransson <- pg_full_search(query = "Fransson", bbox = c(-60, 63, 60, 90))
-# pg_Chierici <- pg_full_search(query = "Chierici", bbox = c(-60, 63, 60, 90))
-# pg_Fischer <- pg_full_search(query = "Chierici", bbox = c(-60, 63, 60, 90))
-# pg_Bouman <- pg_full_search(query = "Bouman", bbox = c(-60, 63, 60, 90))
+# pg_Riebesell <- pg_full_search(query = "Riebesell", bbox = c(-60, 60, 60, 90))
+# pg_Fransson <- pg_full_search(query = "Fransson", bbox = c(-60, 60, 60, 90))
+# pg_Chierici <- pg_full_search(query = "Chierici", bbox = c(-60, 60, 60, 90))
+# pg_Fischer <- pg_full_search(query = "Chierici", bbox = c(-60, 60, 60, 90))
+# pg_Bouman <- pg_full_search(query = "Bouman", bbox = c(-60, 60, 60, 90))
 
 # Test specific files
 # pg_test_1 <- pg_data(doi = "10.1594/PANGAEA.857405")[[2]]$data
 # pg_test_2 <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.774421")
 # pg_test_3 <- pg_test_dl("10.1594/PANGAEA.774421")
+# pg_test_4 <- pg_dl_prep(pg_data("10.1594/PANGAEA.896828")[[1]])
+# pg_test_5 <- pg_dl_prep(pg_data("10.1594/PANGAEA.56580")[[1]])
 
-
-## EU Arctic cruise Oceans data on PANGAEA - 270 - Some issues
-# ~ 3 minutes
-# NB: The following PG downloads have rows with missing lon/lat values
-# This is a conscious choice for now because the spatial info may
-# be stored in a different column name and we don't want to lose data here
+## EU Arctic cruise Oceans data on PANGAEA - 320 - Some issues
 print(paste0("Began run on pg_EU_cruise_oceans at ", Sys.time()))
-pg_EU_cruise_oceans <- pg_full_search(query = "cruise", topic = "Oceans", bbox = c(-60, 63, 60, 90)) 
+pg_EU_cruise_oceans <- pg_full_search(query = "cruise", topic = "Oceans", bbox = c(-60, 60, 60, 90)) 
 pg_doi_list <- distinct(data.frame(doi = pg_EU_cruise_oceans$doi, file = "pg_EU_cruise_oceans"))
-pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)
-# Get lookup table
-# Combine and filter by coords
-pg_EU_cruise_oceans_trim <- filter(pg_EU_cruise_oceans_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_oceans_dl <- plyr::ldply(pg_EU_cruise_oceans$doi, pg_dl_proc)); gc() # ~ 3 minutes
+# Get lookup tables - Still need to implement
 data.table::fwrite(pg_EU_cruise_oceans_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Oceans.csv")
 data.table::fwrite(pg_EU_cruise_oceans_dl, "data/pg_data/pg_EU_cruise_Oceans.csv")
 rm(pg_EU_cruise_oceans_dl, pg_EU_cruise_oceans_trim); gc()
 
 
 ## EU Arctic cruise Atmosphere data on PANGAEA - 149 - Some issues
-# ~3 minutes
 print(paste0("Began run on pg_EU_cruise_atmosphere at ", Sys.time()))
-pg_EU_cruise_atmosphere <- pg_full_search(query = "cruise", topic = "Atmosphere", bbox = c(-60, 63, 60, 90)) %>% 
+pg_EU_cruise_atmosphere <- pg_full_search(query = "cruise", topic = "Atmosphere", bbox = c(-60, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_atmosphere")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_atmosphere[c("doi", "file")]))
-pg_EU_cruise_atmosphere_dl <- plyr::ldply(pg_EU_cruise_atmosphere$doi, pg_dl_proc) 
-pg_EU_cruise_atmosphere_trim <- filter(pg_EU_cruise_atmosphere_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_atmosphere_dl <- plyr::ldply(pg_EU_cruise_atmosphere$doi, pg_dl_proc)) # ~3 minutes
 data.table::fwrite(pg_EU_cruise_atmosphere_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Atmosphere.csv")
 data.table::fwrite(pg_EU_cruise_atmosphere_dl, "data/pg_data/pg_EU_cruise_Atmosphere.csv")
 rm(pg_EU_cruise_atmosphere_dl, pg_EU_cruise_atmosphere_trim); gc()
@@ -286,24 +302,21 @@ rm(pg_EU_cruise_atmosphere_dl, pg_EU_cruise_atmosphere_trim); gc()
 
 ## EU Arctic cruise Cryosphere data on PANGAEA - 6
 print(paste0("Began run on pg_EU_cruise_cryosphere at ", Sys.time()))
-pg_EU_cruise_cryosphere <- pg_full_search(query = "cruise", topic = "Cryosphere", bbox = c(-60, 63, 60, 90)) %>% 
+pg_EU_cruise_cryosphere <- pg_full_search(query = "cruise", topic = "Cryosphere", bbox = c(-60, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_cryosphere")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_cryosphere[c("doi", "file")]))
-pg_EU_cruise_cryosphere_dl <- plyr::ldply(pg_EU_cruise_cryosphere$doi, pg_dl_proc)
-pg_EU_cruise_cryosphere_trim <- filter(pg_EU_cruise_cryosphere_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_cryosphere_dl <- plyr::ldply(pg_EU_cruise_cryosphere$doi, pg_dl_proc))
 data.table::fwrite(pg_EU_cruise_cryosphere_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Cryosphere.csv")
 data.table::fwrite(pg_EU_cruise_cryosphere_dl, "data/pg_data/pg_EU_cruise_Cryosphere.csv")
 rm(pg_EU_cruise_cryosphere_dl, pg_EU_cruise_cryosphere_trim); gc()
 
 
 ## EU Arctic cruise Biological Classification data on PANGAEA - 272 - Some issues
-# ~3 minutes
 print(paste0("Began run on pg_EU_cruise_bio_class at ", Sys.time()))
-pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological Classification", bbox = c(-60, 63, 60, 90)) %>% 
+pg_EU_cruise_bio_class <- pg_full_search(query = "cruise", topic = "Biological Classification", bbox = c(-60, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_bio_class")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_bio_class[c("doi", "file")]))
-pg_EU_cruise_bio_class_dl <- plyr::ldply(pg_EU_cruise_bio_class$doi, pg_dl_proc)
-pg_EU_cruise_bio_class_trim <- filter(pg_EU_cruise_bio_class_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_bio_class_dl <- plyr::ldply(pg_EU_cruise_bio_class$doi, pg_dl_proc)) # ~3 minutes
 data.table::fwrite(pg_EU_cruise_bio_class_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Bio_class.csv")
 data.table::fwrite(pg_EU_cruise_bio_class_dl, "data/pg_data/pg_EU_cruise_Bio_class.csv")
 rm(pg_EU_cruise_bio_class_dl, pg_EU_cruise_bio_class_trim); gc()
@@ -311,24 +324,21 @@ rm(pg_EU_cruise_bio_class_dl, pg_EU_cruise_bio_class_trim); gc()
 
 ## EU Arctic cruise Biosphere data on PANGAEA - 3
 print(paste0("Began run on pg_EU_cruise_biosphere at ", Sys.time()))
-pg_EU_cruise_biosphere <- pg_full_search(query = "cruise", topic = "Biosphere", bbox = c(-60, 63, 60, 90)) %>% 
+pg_EU_cruise_biosphere <- pg_full_search(query = "cruise", topic = "Biosphere", bbox = c(-60, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_biosphere")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_biosphere[c("doi", "file")]))
-pg_EU_cruise_biosphere_dl <- plyr::ldply(pg_EU_cruise_biosphere$doi, pg_dl_proc)
-pg_EU_cruise_biosphere_trim <- filter(pg_EU_cruise_biosphere_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_biosphere_dl <- plyr::ldply(pg_EU_cruise_biosphere$doi, pg_dl_proc))
 data.table::fwrite(pg_EU_cruise_biosphere_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Biosphere.csv")
 data.table::fwrite(pg_EU_cruise_biosphere_dl, "data/pg_data/pg_EU_cruise_Biosphere.csv")
 rm(pg_EU_cruise_biosphere_dl, pg_EU_cruise_biosphere_trim); gc()
 
 
 ## EU Arctic cruise Ecology data on PANGAEA - 551 - Some issues
-## NB: Takes ~18 minutes
 print(paste0("Began run on pg_EU_cruise_ecology at ", Sys.time()))
-pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox = c(-60, 63, 60, 90)) %>% 
+pg_EU_cruise_ecology <- pg_full_search(query = "cruise", topic = "Ecology", bbox = c(-60, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_ecology")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_ecology[c("doi", "file")]))
-pg_EU_cruise_ecology_dl <- plyr::ldply(pg_EU_cruise_ecology$doi, pg_dl_proc)
-pg_EU_cruise_ecology_trim <- filter(pg_EU_cruise_ecology_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_ecology_dl <- plyr::ldply(pg_EU_cruise_ecology$doi, pg_dl_proc)) # ~18 minutes
 data.table::fwrite(pg_EU_cruise_ecology_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Ecology.csv")
 data.table::fwrite(pg_EU_cruise_ecology_dl, "data/pg_data/pg_EU_cruise_Ecology.csv")
 rm(pg_EU_cruise_ecology_dl, pg_EU_cruise_ecology_trim); gc()
@@ -336,31 +346,27 @@ rm(pg_EU_cruise_ecology_dl, pg_EU_cruise_ecology_trim); gc()
 
 ## EU Arctic cruise Human Dimensions data on PANGAEA - 0
 print(paste0("Began run on pg_EU_cruise_human at ", Sys.time()))
-pg_EU_cruise_human <- pg_full_search(query = "cruise", topic = "Human Dimensions", bbox = c(-60, 63, 60, 90)) %>% 
+pg_EU_cruise_human <- pg_full_search(query = "cruise", topic = "Human Dimensions", bbox = c(-60, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi)
 
 
 ## EU Arctic cruise Chemistry data on PANGAEA west - 1931 - Some issues
-## MB ~16 minutes
 print(paste0("Began run on pg_EU_cruise_chemistry_west at ", Sys.time()))
-pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(-60, 63, 0, 90)) %>% 
+pg_EU_cruise_chemistry_west <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(-60, 60, 0, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_chemistry_west")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_chemistry_west[c("doi", "file")]))
-pg_EU_cruise_chemistry_west_dl <- plyr::ldply(pg_EU_cruise_chemistry_west$doi, pg_dl_proc)
-pg_EU_cruise_chemistry_west_trim <- filter(pg_EU_cruise_chemistry_west_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_chemistry_west_dl <- plyr::ldply(pg_EU_cruise_chemistry_west$doi, pg_dl_proc)) # ~16 minutes
 data.table::fwrite(pg_EU_cruise_chemistry_west_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_west.csv")
 data.table::fwrite(pg_EU_cruise_chemistry_west_dl, "data/pg_data/pg_EU_cruise_Chemistry_west.csv")
 rm(pg_EU_cruise_chemistry_west_dl, pg_EU_cruise_chemistry_west_trim); gc()
 
 
 ## EU Arctic cruise Chemistry data on PANGAEA east - 5642 - Some issues
-## NB: ~68 minutes
 print(paste0("Began run on pg_EU_cruise_chemistry_east at ", Sys.time()))
-pg_EU_cruise_chemistry_east <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(0, 63, 60, 90)) %>% 
+pg_EU_cruise_chemistry_east <- pg_full_search(query = "cruise", topic = "Chemistry", bbox = c(0, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_cruise_chemistry_east")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_cruise_chemistry_east[c("doi", "file")]))
-pg_EU_cruise_chemistry_east_dl <- plyr::ldply(pg_EU_cruise_chemistry_east$doi, pg_dl_proc)
-pg_EU_cruise_chemistry_east_trim <- filter(pg_EU_cruise_chemistry_east_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_cruise_chemistry_east_dl <- plyr::ldply(pg_EU_cruise_chemistry_east$doi, pg_dl_proc)) # ~68 minutes
 # test1 <- data.frame(table(pg_EU_cruise_chemistry_east_trim$citation)) # All files look reasonable
 data.table::fwrite(pg_EU_cruise_chemistry_east_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_Chemistry_east.csv")
 data.table::fwrite(pg_EU_cruise_chemistry_east_dl, "data/pg_data/pg_EU_cruise_Chemistry_east.csv")
@@ -368,13 +374,11 @@ rm(pg_EU_cruise_chemistry_east_dl, pg_EU_cruise_chemistry_east_trim); gc()
 
 
 ## EU Arctic CTD data on PANGAEA - 961 - Some issues
-## NB: ~14 minutes
 print(paste0("Began run on pg_EU_CTD at ", Sys.time()))
-pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 63, 60, 90)) %>% 
+pg_EU_CTD <- pg_full_search(query = "CTD", bbox = c(-60, 60, 60, 90)) %>% 
   filter(!doi %in% pg_doi_list$doi) %>% mutate(file = "pg_EU_CTD")
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_EU_CTD[c("doi", "file")]))
-pg_EU_CTD_dl <- plyr::ldply(pg_EU_CTD$doi, pg_dl_proc)
-pg_EU_CTD_trim <- filter(pg_EU_CTD_dl, Longitude >= -60, Longitude <= 60, Latitude >= 63, Latitude <= 90)
+system.time(pg_EU_CTD_dl <- plyr::ldply(pg_EU_CTD$doi, pg_dl_proc)) # ~14 minutes
 data.table::fwrite(pg_EU_CTD_dl, "~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_CTD.csv")
 data.table::fwrite(pg_EU_CTD_dl, "data/pg_data/pg_EU_CTD.csv") # 5.2 GB
 rm(pg_EU_CTD_dl, pg_EU_CTD_trim); gc()

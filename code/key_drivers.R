@@ -108,7 +108,8 @@ query_heatflux <- query_params("heatflux|heat-flux|heat flux|latent|sensible|
                                |longwave|long-wave|long wave|shortwave|short-wave|short wave")
 # Light extinction coefficient (kd, absorption)
 # NB: "absorption" not used because of how wide those data are
-query_light_extinction <- query_params("extinction", "aerosol|foraminifera|Delta")
+query_light <- query_params("extinction|turbidity|photosynthetic", 
+                            "aerosol|foraminifera")
 # Mixed layer depth (mixed, MLD)
 query_MLD <- query_params("mixed layer|mixed-layer|mixedlayer", "Foraminifera|Illite|clay|smectite")
 # Salinity (sal, psu)
@@ -130,9 +131,9 @@ query_wind <- query_params("wind|speed|direction",
                            |Growing|ice |ice-|sperm|pixel|Plastic|polen|Predator|prey|Ship|snow|swim|swell|
                            |temperature|Tidal|Towing|wave", "±")
 # combined
-query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, query_salinity, 
+query_Physical <- rbind(query_current, query_evap_precip, query_heatflux, query_light, query_MLD, query_salinity, 
                         query_slp, query_sedimentation, query_suspended, query_temperature, query_wind) %>% distinct()
-rm(query_current, query_evap_precip, query_heatflux, query_light_extinction, query_MLD, 
+rm(query_current, query_evap_precip, query_heatflux, query_light, query_MLD, 
    query_salinity, query_slp, query_sedimentation, query_suspended, query_temperature, query_wind); gc()
 
 
@@ -212,7 +213,7 @@ query_Social <- rbind(query_landings, query_management, query_nat_stat, query_to
 rm(query_landings, query_management, query_nat_stat, query_tourism, query_vessels); gc()
 
 ## All variables together
-query_ALL <- rbind(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social)
+query_ALL <- rbind(query_Meta, query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social) %>% distinct()
 # NB: Specifically not removing 'query_meta'
 rm(query_Cryosphere, query_Physical, query_Chemistry, query_Biology, query_Social, 
    pg_parameters, sp_abb_one, sp_abb_sep, query_params); gc()
