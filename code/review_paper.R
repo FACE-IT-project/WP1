@@ -85,7 +85,7 @@ rp_fig_1 <- basemap(limits = c(-50, 50, 61, 90), bathymetry = T) +
   #      caption = "robert.schlegel@imev-mer.fr\nSorbonne Université") +
   theme(panel.border = element_rect(colour = "black", fill = NA),
         panel.background = element_rect(fill = NA, colour = "black"),
-        # plot.background = element_rect(fill = "grey90", colour = "black"),
+        plot.background = element_rect(fill = "white", colour = NA),
         # plot.margin = margin(t = -2, r = 0, b = -2, l = 0, unit = "cm"),
         axis.text = element_text(colour = "black", size = 10),
         legend.position = c(0.9195, 0.31),
@@ -93,7 +93,7 @@ rp_fig_1 <- basemap(limits = c(-50, 50, 61, 90), bathymetry = T) +
         legend.box.background = element_rect(fill = "white", colour = "black"))
 # rp_fig_1
 ggsave("figures/rp_fig_1.png", rp_fig_1, height = 8, width = 12)#, dpi = 600)
-ggsave("figures/rp_fig_1.eps", rp_fig_1, height = 8, width = 12, dpi = 1000)
+# ggsave("figures/rp_fig_1.eps", rp_fig_1, height = 8, width = 12, dpi = 1000)
 # ggsave("figures/rp_fig_1.tiff", rp_fig_1, height = 8, width = 12, dpi = 1000) # lol. 348 MB
 
 
