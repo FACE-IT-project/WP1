@@ -90,6 +90,19 @@ is_AIS_raw <- is_AIS_raw %>%
   mutate(year = lubridate::year(date_time_utc),
          month = lubridate::month(date_time_utc))
 
+# Convenience wrapper for parsing ship AIS data
+# df <- is_AIS_unique[2,]
+AIS_df <- function(df){
+  query <- df$query
+  res <- jsonlite::fromJSON(system(query, intern = T))[["entries"]]
+  if(length(res) == 0){
+    res <- data.frame(mmsi = df$mmsi)
+  }
+  return(res)
+  # rm(df, query, res)
+}
+#
+
 
 # Process ice data --------------------------------------------------------
 
@@ -154,38 +167,23 @@ ggsave("figures/ice_cover_is.png", ice_plot, width = 12, height = 5)
 
 # Process AIS data --------------------------------------------------------
 
+# Unique mmsi values
+is_AIS_unique <- is_AIS_raw %>% 
+  dplyr::select(mmsi) %>% 
+  distinct() %>% 
+  filter(mmsi != 0) %>% # These values must be wrong
+  mutate(row_idx = 1:n(),
+         query = paste0("curl --location --request GET 'https://gateway.api.globalfishingwatch.org/v2/vessels/search?query=",
+                        mmsi,
+                        "&datasets=public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest&limit=10&offset=0' -H 'Authorization: Bearer ",
+                        globalfishingwatch_API_key,"'"))
+
 # Query AIS database by mmsi to get ship info
-u <- "curl --location --request GET 'https://gateway.api.globalfishingwatch.org/v2/vessels/search?query=224224000&datasets=public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest&limit=10&offset=0' \
-  -H 'Authorization: Bearer globalfishing_API_key'"
-AIS_base_URL <- "https://gateway.api.globalfishingwatch.org/v2/vessels/search?"
-AIS_mmsi <- 224224000
-AIS_query <- paste0("query=",AIS_mmsi,"&datasets=public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest&limit=10&offset=0")
-AIS_header <- paste0(" -H 'Authorization: Bearer ",globalfishingwatch_API_key,"'")
-AIS_full <- paste0(AIS_base_URL, AIS_query, AIS_header)
-test <- straighten(u) %>% make_req()
-test <- curl(AIS_full)
-test <- curl_fetch_memory(AIS_full)
-tmp <- tempfile()
-curl_download(u, tmp)
-test1 <- system("curl --location --request GET 'https://gateway.api.globalfishingwatch.org/v2/vessels/search?query=224224000&datasets=public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest&limit=10&offset=0' -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpZEtleSJ9.eyJkYXRhIjp7Im5hbWUiOiJtbXNpX3F1ZXJ5IiwidXNlcklkIjoyMjg1OSwiYXBwbGljYXRpb25OYW1lIjoibW1zaV9xdWVyeSIsImlkIjo0MDgsInR5cGUiOiJ1c2VyLWFwcGxpY2F0aW9uIn0sImlhdCI6MTY3MjgzMzcyMywiZXhwIjoxOTg4MTkzNzIzLCJhdWQiOiJnZnciLCJpc3MiOiJnZncifQ.RoWDkYJbfWlbR8MkqfDCOtxruSTBCzuXk1WOemF60QmakkMYhLPsLDMWznCL8uTVjA2UJe1Z57bKVAYnFvNxl--98Gr2E6OdPy-xlU-oSgOaHISDoQCTq5n5IxLAIcm6gXBavRriZo0ndH3wXmViHWNNwPXmsD7tcZUogVIWN9mLOdIZnsCXNW-puKyZOAvFqH7frKsUuVE5DhjOA7VCi_p6wWNC47wEI1vwtYAobEya5f3OCA6mLoHnWJwd87C-ZaHIX-hoJ9CocC_pgNxYE4Lsk9st2jZVI_KleLZ2Ww0xTzz5OJOIZh7OrIbSSfDIlx6ZULqIG7x-28xNTg5DW7zRTair15MKbLO0dsQi6wCi6DzkHa788XugVSFKjQPx05DHCt6nqx967WA2ddwNO6udxPrKwQmwc2wUUNUxaqyS3690gNiYJjK1DQtsu--8YL-kkSzVOy3ZnbZzO88H-pe-hNwbdDyDrhHJk_6oSF1FMPH42zTK38exsuQX0Wij'", intern = T)
-test2 <- jsonlite::fromJSON(test1)[["entries"]]
-flat <- straighten("curl --location --request GET 'https://gateway.api.globalfishingwatch.org/v2/vessels/search?query=224224000&datasets=public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest&limit=10&offset=0' -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpZEtleSJ9.eyJkYXRhIjp7Im5hbWUiOiJtbXNpX3F1ZXJ5IiwidXNlcklkIjoyMjg1OSwiYXBwbGljYXRpb25OYW1lIjoibW1zaV9xdWVyeSIsImlkIjo0MDgsInR5cGUiOiJ1c2VyLWFwcGxpY2F0aW9uIn0sImlhdCI6MTY3MjgzMzcyMywiZXhwIjoxOTg4MTkzNzIzLCJhdWQiOiJnZnciLCJpc3MiOiJnZncifQ.RoWDkYJbfWlbR8MkqfDCOtxruSTBCzuXk1WOemF60QmakkMYhLPsLDMWznCL8uTVjA2UJe1Z57bKVAYnFvNxl--98Gr2E6OdPy-xlU-oSgOaHISDoQCTq5n5IxLAIcm6gXBavRriZo0ndH3wXmViHWNNwPXmsD7tcZUogVIWN9mLOdIZnsCXNW-puKyZOAvFqH7frKsUuVE5DhjOA7VCi_p6wWNC47wEI1vwtYAobEya5f3OCA6mLoHnWJwd87C-ZaHIX-hoJ9CocC_pgNxYE4Lsk9st2jZVI_KleLZ2Ww0xTzz5OJOIZh7OrIbSSfDIlx6ZULqIG7x-28xNTg5DW7zRTair15MKbLO0dsQi6wCi6DzkHa788XugVSFKjQPx05DHCt6nqx967WA2ddwNO6udxPrKwQmwc2wUUNUxaqyS3690gNiYJjK1DQtsu--8YL-kkSzVOy3ZnbZzO88H-pe-hNwbdDyDrhHJk_6oSF1FMPH42zTK38exsuQX0Wij'")
-req <- as.list(make_req(flat)[[1]])[[1]]
-test <- curl(req)
-test <- curl(flat[[1]])
-test <- curl()
-test <- httr::GET(flat[[1]])
-test <- httr::GET(url = AIS_full)
-result <- GET("https://gateway.api.globalfishingwatch.org/v2/vessels/search",
-               # verbose(),
-               # encode = "json",
-              config = list(
-                add_headers(`query` = "224224000", 
-                            `datasets` = "public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest",
-                            `limit` = "10", `offset` = "0",
-                            `Authorization` = paste0("Bearer ",globalfishingwatch_API_key))#,
-                # authenticate(paste0("Authorization: Bearer ",globalfishingwatch_API_key,))
-              ))
+# NB: Only run this once. Takes a long time and uses monitored API bandwidth.
+is_AIS_database <- plyr::ddply(is_AIS_unique, c("row_idx"), AIS_df)
+save(is_AIS_database, file = "metadata/is_AIS_database.RData")
+
+# Merge with mmsi database to get ship types
 
 # Get daily count of unique ships in the fjord
 is_AIS_unique <- is_AIS_raw %>% 
