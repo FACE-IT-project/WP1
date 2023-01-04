@@ -7,8 +7,6 @@
 
 # Libraries used
 library(tidyverse)
-library(curl)
-library(curlconverter) # devtools::install_github("hrbrmstr/curlconverter")
 library(doParallel); registerDoParallel(cores = 12)
 
 # globalfishingwatch API key
@@ -85,21 +83,36 @@ trend_calc <- function(df){
 # Ship AIS data
 ## sog: speed over ground,
 ## cog: course over ground
-load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
+if(!exists("is_AIS_raw")) load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
 is_AIS_raw <- is_AIS_raw %>% 
   mutate(year = lubridate::year(date_time_utc),
          month = lubridate::month(date_time_utc))
 
 # Convenience wrapper for parsing ship AIS data
-# df <- is_AIS_unique[2,]
+# df <- is_AIS_unique[1,]
 AIS_df <- function(df){
-  query <- df$query
-  res <- jsonlite::fromJSON(system(query, intern = T))[["entries"]]
-  if(length(res) == 0){
+  
+  # Create query
+  query <- paste0("curl --location --request GET 'https://gateway.api.globalfishingwatch.org/v2/vessels/search?query=",
+                  df$mmsi,
+                  "&datasets=public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest&limit=10&offset=0' -H 'Authorization: Bearer ",
+                  globalfishingwatch_API_key,"'")
+  
+  # Get data
+  dl_error <- NULL
+  suppressWarnings(
+    res <- tryCatch(system(query, intern = T), error = function(query) {dl_error <<- "Cannot access database"})
+  )
+  
+  # Extract data from multiple lists as necessary
+  if(!is.null(dl_error)){
     res <- data.frame(mmsi = df$mmsi)
+  } else {
+    res <- jsonlite::fromJSON(res)[["entries"]]
   }
+  if(length(res) == 0) res <- data.frame(mmsi = df$mmsi)
   return(res)
-  # rm(df, query, res)
+  # rm(df, query, res, dl_error)
 }
 #
 
@@ -172,16 +185,13 @@ is_AIS_unique <- is_AIS_raw %>%
   dplyr::select(mmsi) %>% 
   distinct() %>% 
   filter(mmsi != 0) %>% # These values must be wrong
-  mutate(row_idx = 1:n(),
-         query = paste0("curl --location --request GET 'https://gateway.api.globalfishingwatch.org/v2/vessels/search?query=",
-                        mmsi,
-                        "&datasets=public-global-support-vessels:latest,public-global-carrier-vessels:latest,public-global-fishing-vessels:latest&limit=10&offset=0' -H 'Authorization: Bearer ",
-                        globalfishingwatch_API_key,"'"))
+  mutate(row_idx = 1:n())
 
 # Query AIS database by mmsi to get ship info
 # NB: Only run this once. Takes a long time and uses monitored API bandwidth.
-is_AIS_database <- plyr::ddply(is_AIS_unique, c("row_idx"), AIS_df)
-save(is_AIS_database, file = "metadata/is_AIS_database.RData")
+# is_AIS_database <- plyr::ddply(is_AIS_unique, c("row_idx"), AIS_df)
+# save(is_AIS_database, file = "metadata/is_AIS_database.RData")
+load("metadata/is_AIS_database.RData")
 
 # Merge with mmsi database to get ship types
 

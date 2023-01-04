@@ -7,6 +7,7 @@ code/ny-alesund_cc_pf_rws.R
 metadata/pangaea_parameters.tab
 metadata/pg_EU_ref_meta.csv
 metadata/globalfishingwatch_API_key.RData
+metadata/is_AIS_database.RData
 data/GLODAP_Arctic_carb_chem.csv
 data/pg_data
 data/model
