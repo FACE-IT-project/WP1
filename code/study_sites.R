@@ -469,6 +469,7 @@ region_labels_kong <- full_region_kong %>%
 plot_regions_kong <- ggplot() +
   geom_polygon(data = coastline_kong, fill = "grey70", colour = "black",
                aes(x = x, y = y, group = polygon_id)) +
+  # geom_polygon(data = bbox_regions_kong, aes(x = lon, y = lat, group = region, fill = region)) +
   # geom_tile(aes(x = lon, y = lat)) +
   geom_rect(data = bbox_regions_kong, aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2, fill = region), alpha = 0.3) +
   geom_point(data = distinct(full_region_kong), aes(x = lon, y = lat, colour = region), show.legend = F) +

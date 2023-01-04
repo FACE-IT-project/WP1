@@ -22,8 +22,12 @@ coastline_full_df_kong <- coastline_full_df %>%
 #### depth: surface data would already be good but, if possible, data at 7/8m depth would be awesome. 
 #### period and frequency: the whole year if possible, but especially spring/summer. Weekly data would be nice.
 ### how much points along the fjord: the idea of the eDNA project is to characterise the light/salinity gradient that we have along the fjord so 4 to 6 points would be awesome.
+### Create spatial average of all data within 500 m of study sites
+### Create weekly averages based on Monday start
+### Finish this by Jan 19
 extract_1 <- clean_all %>% 
   filter(site == "kong",
+         date >= as.Date("2000-01-01"),
          driver %in% c("sea temp", "salinity", "light", "prim prod", "carb"),
          variable %in% c("temp [°C]", "sal", "PAR [µmol m-2 s-1]", "pH [unknown scale]", "pH in situ [total scale]", "Chla [µg/l]"),
          between(depth, 0, 8))
@@ -69,6 +73,7 @@ extract_1 %>%
   geom_polygon(data = coastline_full_df_kong, fill = "grey70", colour = "black",
                aes(x = x, y = y, group = polygon_id)) +
   geom_point(aes(colour = variable)) +
+  facet_wrap(~variable) +
   coord_quickmap(expand = F,
                  xlim = c(bbox_kong[1], bbox_kong[2]), 
                  ylim = c(bbox_kong[3], bbox_kong[4])) +
