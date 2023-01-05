@@ -9,8 +9,8 @@
 library(tidyverse)
 library(doParallel); registerDoParallel(cores = 12)
 
-# globalfishingwatch API key
-load("metadata/globalfishingwatch_API_key.RData")
+# Isfjorden bbox
+bbox_is <- c(12.97, 17.50, 77.95, 78.90)
 
 # Ice data
 load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
@@ -80,17 +80,21 @@ trend_calc <- function(df){
   return(res)
 }
 
+# globalfishingwatch API key
+load("metadata/globalfishingwatch_API_key.RData")
+
 # Ship AIS data
 ## sog: speed over ground,
 ## cog: course over ground
 if(!exists("is_AIS_raw")) load("~/pCloudDrive/FACE-IT_data/isfjorden/AIS/is_AIS_raw.RData")
 is_AIS_raw <- is_AIS_raw %>% 
   mutate(year = lubridate::year(date_time_utc),
-         month = lubridate::month(date_time_utc))
+         month = lubridate::month(date_time_utc)) %>% 
+  dplyr::select(-nav_status, -message_nr); gc()
 
 # Convenience wrapper for parsing ship AIS data
 # df <- is_AIS_unique[1,]
-AIS_df <- function(df){
+gfw_query <- function(df){
   
   # Create query
   query <- paste0("curl --location --request GET 'https://gateway.api.globalfishingwatch.org/v2/vessels/search?query=",
@@ -180,8 +184,17 @@ ggsave("figures/ice_cover_is.png", ice_plot, width = 12, height = 5)
 
 # Process AIS data --------------------------------------------------------
 
+# Create coarser resolution for easier use
+is_AIS_coarse <- is_AIS_raw %>% 
+  mutate(lon = round(lon, 2),
+         lat = round(lat, 2)) %>% 
+  group_by(mmsi, lon, lat, year, month) %>% 
+  summarise(ship_count = n(), .groups = "drop")
+rm(is_AIS_raw) # When working on laptop
+gc()
+
 # Unique mmsi values
-is_AIS_unique <- is_AIS_raw %>% 
+is_AIS_mmsi <- is_AIS_coarse %>% 
   dplyr::select(mmsi) %>% 
   distinct() %>% 
   filter(mmsi != 0) %>% # These values must be wrong
@@ -189,14 +202,23 @@ is_AIS_unique <- is_AIS_raw %>%
 
 # Query AIS database by mmsi to get ship info
 # NB: Only run this once. Takes a long time and uses monitored API bandwidth.
-# is_AIS_database <- plyr::ddply(is_AIS_unique, c("row_idx"), AIS_df)
-# save(is_AIS_database, file = "metadata/is_AIS_database.RData")
-load("metadata/is_AIS_database.RData")
+# is_gfw_database <- plyr::ddply(is_AIS_mmsi, c("row_idx"), gfw_query)
+# save(is_gfw_database, file = "metadata/is_gfw_database.RData")
+load("metadata/is_gfw_database.RData")
+
+# Combine database queries
+is_AIS_database <- bind_rows(is_gfw_database) %>% 
+  dplyr::select(mmsi, vesselType) %>% 
+  mutate(mmsi = as.numeric(mmsi)) %>% 
+  distinct()
 
 # Merge with mmsi database to get ship types
+is_AIS_data <- is_AIS_coarse %>% 
+  left_join(is_AIS_database, by = "mmsi") %>% 
+  mutate(vesselType = case_when(is.na(vesselType) ~ "Unknown", TRUE ~ vesselType))
 
-# Get daily count of unique ships in the fjord
-is_AIS_unique <- is_AIS_raw %>% 
+# Get monthly count of unique ships in the fjord
+is_AIS_unique_monthly <- is_AIS_data %>% 
   dplyr::select(year, month, mmsi) %>% 
   distinct() %>% 
   group_by(year, month) %>% 
@@ -206,26 +228,41 @@ is_AIS_unique <- is_AIS_raw %>%
   # complete(date = seq.Date(min(date), max(date), by = "month")) %>% 
   # replace(is.na(.), 0)
 
-# Get daily count of positions recorded for unique ships
-is_AIS_position <- is_AIS_raw %>% 
+# Get monthly count of unique ships in the fjord
+is_AIS_vessel_monthly <- is_AIS_data %>% 
+  dplyr::select(year, month, vesselType) %>% 
+  distinct() %>% 
+  group_by(year, month) %>% 
+  summarise(type_count = n(), .groups = "drop")
+
+# Get monthly count of positions recorded for unique ships
+is_AIS_unique_position <- is_AIS_data %>% 
   dplyr::select(year, month, lon, lat, mmsi) %>% 
   distinct() %>% 
   group_by(year, month) %>% 
   summarise(position_count = n(), .groups = "drop")
+
+# Get monthly count of positions recorded for unique ships
+is_AIS_vessel_position <- is_AIS_data %>% 
+  dplyr::select(year, month, lon, lat, vesselType) %>% 
+  distinct() %>% 
+  group_by(year, month) %>% 
+  summarise(vessel_position_count = n(), .groups = "drop")
 
 # Get daily count of time in fjord for unique ships
 
 # Get daily distance of unique ships
 
 # Get trends in ship count
-is_AIS_unique_trend <- plyr::ddply(dplyr::rename(is_AIS_unique, val = ship_count), c("month"), trend_calc, .parallel = T) %>% 
+# NB: Don't run on laptop...
+is_AIS_unique_trend <- plyr::ddply(dplyr::rename(is_AIS_unique_monthly, val = ship_count), c("month"), trend_calc, .parallel = T) %>% 
   mutate(dataset = "ship AIS")
 ice_AIS_trend <- rbind(ice_4km_is_trend, is_AIS_unique_trend)
 write_csv(ice_AIS_trend, "data/analyses/is_ice_AIS_trend.csv")
 
-# Create figure for further use
+# Create ship count figure
 ## boxplot
-ship_box <- ggplot(data = is_AIS_unique, aes(x = as.factor(month), y = ship_count, fill = month)) + 
+ship_box <- ggplot(data = is_AIS_unique_monthly, aes(x = as.factor(month), y = ship_count, fill = month)) + 
   geom_boxplot(aes(group = month)) + 
   scale_fill_continuous(type = "viridis") +
   scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
@@ -234,7 +271,7 @@ ship_box <- ggplot(data = is_AIS_unique, aes(x = as.factor(month), y = ship_coun
 ship_box
 
 ## Scatterplot
-ship_scatter <- ggplot(data = is_AIS_unique, aes(x = year, y = ship_count, colour = month)) + 
+ship_scatter <- ggplot(data = is_AIS_unique_monthly, aes(x = year, y = ship_count, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
   scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
   scale_x_continuous(breaks = c(2012, 2015, 2018)) +
@@ -247,4 +284,16 @@ ship_scatter
 ship_plot <- ggpubr::ggarrange(ship_box, ship_scatter, ncol = 2, align = "hv", labels = c("A)", "B)"))
 ship_plot
 ggsave("figures/ship_count_is.png", ship_plot, width = 12, height = 5)
+
+# Create ship map figure
+is_AIS_vessel_year_sum <- is_AIS_data %>% 
+  group_by(vesselType, year, lon, lat, ship_count) %>% 
+  summarise(vessel_type_sum = sum(ship_count), .groups = "drop")
+map_vessel_year <- ggplot(data = is_AIS_vessel_year_sum, aes(x = lon, y = lat)) +
+  borders() + geom_tile(aes(fill = log10(vessel_type_sum))) +
+  coord_quickmap(xlim = bbox_is[1:2], ylim = bbox_is[3:4]) +
+  facet_grid(year~vesselType) +
+  theme(legend.position = "bottom")
+map_vessel_year
+ggsave("figures/vessel_sum_map_is.png", map_vessel_year, width = 7, height = 18)
 
