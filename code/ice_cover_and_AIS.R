@@ -95,7 +95,7 @@ is_AIS_raw <- is_AIS_raw %>%
   dplyr::select(-nav_status, -message_nr); gc()
 
 # Convenience wrapper for parsing ship AIS data
-# df <- is_AIS_unique[1,]
+# df <- is_AIS_mmsi[1,]
 gfw_query <- function(df){
   
   # Create query
@@ -117,6 +117,35 @@ gfw_query <- function(df){
     res <- jsonlite::fromJSON(res)[["entries"]]
   }
   if(length(res) == 0) res <- data.frame(mmsi = df$mmsi)
+  return(res)
+  # rm(df, query, res, dl_error)
+}
+
+# Query www.myshiptracking.com database
+# df <- is_AIS_mmsi[235,]
+# df <- data.frame(mmsi = 123456789)
+mst_query <- function(df){
+  
+  # Create query
+  query <- paste0("https://www.myshiptracking.com/vessels?side=false&name=",df$mmsi)
+  
+  # Get data
+  dl_error <- NULL
+  suppressWarnings(
+    res <- tryCatch(readHTMLTable(readLines(con = query))$`table-filter`, 
+                    error = function(query) {dl_error <<- "Cannot access database"})
+  )
+  
+  # Extract data from multiple lists as necessary
+  if(!is.null(dl_error)){
+    res <- data.frame(MMSI = df$mmsi, Type = "Can't access")
+  } else {
+    if(is.null(res)){
+      res <- data.frame(MMSI = df$mmsi, Type = "No data")
+    } else {
+      res <- res[1:7]
+    }
+  }
   return(res)
   # rm(df, query, res, dl_error)
 }
@@ -208,69 +237,103 @@ is_AIS_mmsi <- is_AIS_coarse %>%
 # save(is_gfw_database, file = "metadata/is_gfw_database.RData")
 load("metadata/is_gfw_database.RData")
 
-# Query shipais.uk
-test1 <- RCurl::getURL("http://shipais.uk/search.html?q=227802680")
-test2 <- readHTMLTable(test1, skip.rows = 1:6)
-test3 <- htmlParse(test1, asText = T)
-test5 <- XML::htmlParse(RCurl::getURLContent("https://www.marinetraffic.com/en/data/?asset_type=vessels&columns=flag,shipname,photo,recognized_next_port,reported_eta,reported_destination,current_port,imo,mmsi,ship_type,show_on_live_map,time_of_latest_position,lon_of_latest_position,notes&quicksearch|begins|quicksearch=259650000")) # Obscured behind javascript
-test6 <- XML::htmlParse(RCurl::getURL("https://www.myshiptracking.com/vessels?side=false&name=259650000")) # Works
-test7 <- XML::htmlParse(RCurl::getURL("https://www.vesselfinder.com/vessels?name=227802680")) # Forbidden
-test8 <- XML::htmlParse(RCurl::getURL("https://www.vesselfinder.com/vessels/details/9210622")) # Forbidden
-test9 <- XML::htmlParse(RCurl::getURL("https://www.vesseltracker.com/en/vessels.html?term=259650000")) # Works
-test10 <- XML::htmlParse(RCurl::getURL("https://www.marinevesseltraffic.com/vessels?vessel=259650000&flag=&page=1&sort=none&direction=none")) # Works poorly
-# test2 <- data.frame(files = readHTMLTable(OISST_url_get, skip.rows = 1:2)[[1]]$Name)
-
 # Scrape info from myshiptracking.com
-url_ship <- "https://www.myshiptracking.com/vessels?side=false&name=259650000"
-ship_info <- test6 <- XML::htmlParse(RCurl::getURL(), asText = T)
-flat_html <- readLines(con = url_ship)
-ship_table <- readHTMLTable(flat_html)$`table-filter`
-ship_read <- readLines(url_ship, encoding = "UTF-8")
-parsed_ship <- htmlParse(ship_read, encoding = "UTF-8")
-# "\t\t\t\t\t\t\t\t\t\t\t\t\t\t<td"
+# NB: Only run this once.
+# is_mst_database <- plyr::ddply(is_AIS_mmsi, c("row_idx"), mst_query)
+# save(is_mst_database, file = "metadata/is_mst_database.RData")
+load("metadata/is_mst_database.RData")
 
 # Combine database queries
-is_AIS_database <- bind_rows(is_gfw_database) %>% 
-  dplyr::select(mmsi, vesselType) %>% 
-  mutate(mmsi = as.numeric(mmsi)) %>% 
-  distinct()
+is_AIS_database <- left_join(is_mst_database, is_gfw_database, by  = c("MMSI" = "mmsi")) %>% 
+  mutate(Type = case_when(Type == "No data" & !is.na(vesselType) ~ vesselType, TRUE ~ Type),
+         Vessel = case_when(is.na(Vessel) & !is.na(shipname) ~ shipname, TRUE ~ Vessel)) %>% 
+  dplyr::select(MMSI, Vessel, Type) %>% 
+  mutate(MMSI = as.numeric(MMSI)) %>% 
+  distinct() %>% 
+                                # Unknown or otherwise missing vessel types
+  mutate(Type_group = case_when(Type %in% c("No data", "Other Type", "Not available", "Reserved", 
+                                            "---", "Reserved for future use") ~ "Unknown",
+                                # Fishing vessels
+                                Type %in% c("Fishing", "Trawler", "Factory Trawler", "Fishing Vessel",
+                                            "Fish Carrier", "Sealer", "Fish Factory") ~ "Fishing",
+                                # Pleasure vessels
+                                Type %in% c("Sailing", "Sailing Vessel") ~ "Pleasure",#  "Sailing",
+                                Type %in% c("Pleasure Craft", "Yacht", "Wing in ground",
+                                            "Wing in ground B") ~ "Pleasure",
+                                # Passenger vessels
+                                Type %in% c("Passengers Ship", "Passenger", "High speed craft",
+                                            "Ro-Ro/Passenger Ship", "Passenger/Cargo Ship") ~ "Passenger",
+                                # Cargo vessels
+                                Type %in% c("General Cargo", "Bulk Carrier", "Cargo",
+                                            "Container Ship", "Reefer", "Ore Carrier",
+                                            "Vehicles Carrier", "Wood Chips Carrier", "Bulker",
+                                            "Cargo/Container Ship", "Cement Carrier", "Chemical Tanker",
+                                            "Ro-Ro Cargo") ~ "Cargo",
+                                # Research activities
+                                Type %in% c("Research/Survey Vessel", "Fishery Research Vessel",
+                                            "Diving ops", "Diving Support Vessel") ~ "Research",
+                                # Port related
+                                Type %in% c("Port Tender", "Tug", "Anchor Handling Vessel",
+                                            "Pilot Vessel", "Spare - Local Vessel",
+                                            "Standby Safety Vessel", "Anti-pollution equipment",
+                                            "Towing") ~ "Port",
+                                # Fossil fuel activities
+                                Type %in% c("Oil/Chemical Tanker", "Tanker", "Oil Products Tanker", 
+                                            "Crude Oil Tanker", "Lng Tanker", "Lpg Tanker", 
+                                            "Tanker B", "Tanker D") ~ "Fossil",
+                                # Other governmental/law enforcement etc.
+                                Type %in% c("Search and Rescue vessel", "Military ops",
+                                            "Patrol Vessel", "Icebreaker", "Buoy-laying Vessel",
+                                            "Cable Layer", "Dredging or underwater ops", "Crane Ship",
+                                            "Grab Hopper Dredger", "Landing Craft", "Naval Patrol Vessel",
+                                            "Offshore Supply Ship", "Salvage/Rescue Vessel", 
+                                            "Search and Rescue Aircraft", "Training Ship",
+                                            "Waste Disposal Vessel", "Law Enforcement") ~ "Gov",
+                                TRUE ~ as.character(NA)))
+
+# Table of grouped ship types
+table_type_group <- is_AIS_database %>%
+  group_by(Type_group, Type) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  arrange(Type_group, -count)
+write_csv(table_type_group, "metadata/table_ship_type_group.csv")
 
 # Merge with mmsi database to get ship types
 is_AIS_data <- is_AIS_coarse %>% 
-  left_join(is_AIS_database, by = "mmsi") %>% 
-  mutate(vesselType = case_when(is.na(vesselType) ~ "Unknown", TRUE ~ vesselType))
+  left_join(is_AIS_database, by = c("mmsi" = "MMSI")) %>% 
+  mutate(Type_group = case_when(is.na(Type_group) ~ "Unknown", TRUE ~ Type_group))
 
 # Get monthly count of unique ships in the fjord
 is_AIS_unique_monthly <- is_AIS_data %>% 
   dplyr::select(year, month, mmsi) %>% 
   distinct() %>% 
   group_by(year, month) %>% 
-  summarise(ship_count = n(), .groups = "drop") #%>%
+  summarise(unique_count_monthly = n(), .groups = "drop") #%>%
   # NB:Time series is already complete so this is unnecessary
   # mutate(date = as.Date(paste0(year,"-",month,"-01"))) #%>% 
   # complete(date = seq.Date(min(date), max(date), by = "month")) %>% 
   # replace(is.na(.), 0)
 
-# Get monthly count of unique ships in the fjord
-is_AIS_vessel_monthly <- is_AIS_data %>% 
-  dplyr::select(year, month, vesselType) %>% 
+# Get monthly count of unique ships per type in the fjord
+is_AIS_type_monthly <- is_AIS_data %>% 
+  dplyr::select(year, month, Type_group, mmsi) %>% 
   distinct() %>% 
-  group_by(year, month) %>% 
-  summarise(type_count = n(), .groups = "drop")
+  group_by(year, month, Type_group) %>% 
+  summarise(type_group_count_monthly = n(), .groups = "drop")
 
 # Get monthly count of positions recorded for unique ships
 is_AIS_unique_position <- is_AIS_data %>% 
   dplyr::select(year, month, lon, lat, mmsi) %>% 
   distinct() %>% 
   group_by(year, month) %>% 
-  summarise(position_count = n(), .groups = "drop")
+  summarise(unique_position_count = n(), .groups = "drop")
 
-# Get monthly count of positions recorded for unique ships
-is_AIS_vessel_position <- is_AIS_data %>% 
-  dplyr::select(year, month, lon, lat, vesselType) %>% 
+# Get monthly count of positions recorded for unique ships by type
+is_AIS_type_position <- is_AIS_data %>% 
+  dplyr::select(year, month, lon, lat, Type_group, mmsi) %>% 
   distinct() %>% 
-  group_by(year, month) %>% 
-  summarise(vessel_position_count = n(), .groups = "drop")
+  group_by(year, month, Type) %>% 
+  summarise(type_group_position_count = n(), .groups = "drop")
 
 # Get daily count of time in fjord for unique ships
 
@@ -278,35 +341,42 @@ is_AIS_vessel_position <- is_AIS_data %>%
 
 # Get trends in ship count
 # NB: Don't run on laptop...
-is_AIS_unique_trend <- plyr::ddply(dplyr::rename(is_AIS_unique_monthly, val = ship_count), c("month"), trend_calc, .parallel = T) %>% 
-  mutate(dataset = "ship AIS")
-ice_AIS_trend <- rbind(ice_4km_is_trend, is_AIS_unique_trend)
-write_csv(ice_AIS_trend, "data/analyses/is_ice_AIS_trend.csv")
+# is_AIS_unique_trend <- plyr::ddply(dplyr::rename(is_AIS_unique_monthly, val = ship_count), c("month"), trend_calc, .parallel = T) %>% 
+#   mutate(dataset = "ship AIS")
+# ice_AIS_trend <- rbind(ice_4km_is_trend, is_AIS_unique_trend)
+# write_csv(ice_AIS_trend, "data/analyses/is_ice_AIS_trend.csv")
 
-# Create ship count figure
+# Create unique ship count figure
 ## boxplot
-ship_box <- ggplot(data = is_AIS_unique_monthly, aes(x = as.factor(month), y = ship_count, fill = month)) + 
+ship_box <- ggplot(data = is_AIS_unique_monthly, 
+                   aes(x = as.factor(month), y = unique_count_monthly, fill = month)) + 
   geom_boxplot(aes(group = month)) + 
   scale_fill_continuous(type = "viridis") +
   scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
-  labs(x = "Month", y = "Unique ship count", fill = "Month") +
+  labs(x = "Month", y = "Unique ship count", fill = "Month",
+       title = "Unique ship count in Isfjorden per month from 2011 - 2019 by MMSI",
+       subtitle = "Range in unique ship counts per month") +
   theme_bw() + theme(legend.position = "none")
 ship_box
 
 ## Scatterplot
-ship_scatter <- ggplot(data = is_AIS_unique_monthly, aes(x = year, y = ship_count, colour = month)) + 
+ship_scatter <- ggplot(data = is_AIS_unique_monthly, 
+                       aes(x = year, y = unique_count_monthly, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
   scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
   scale_x_continuous(breaks = c(2012, 2015, 2018)) +
   scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
-  labs(x = "Year", y = NULL, colour = "Month") +
+  labs(x = "Year", y = NULL, colour = "Month", 
+       subtitle = "Trend in unique ship counts per month") +
   theme_bw() + theme(legend.position = "none")
 ship_scatter
 
 ## Combine
-ship_plot <- ggpubr::ggarrange(ship_box, ship_scatter, ncol = 2, align = "hv", labels = c("A)", "B)"))
+ship_plot <- ggpubr::ggarrange(ship_box, ship_scatter, ncol = 2, align = "hv")#, labels = c("A)", "B)"))
 ship_plot
-ggsave("figures/ship_count_is.png", ship_plot, width = 12, height = 5)
+ggsave("figures/ship_count_unique_is.png", ship_plot, width = 12, height = 5)
+
+
 
 # Create ship map figure
 is_AIS_vessel_year_sum <- is_AIS_data %>% 
