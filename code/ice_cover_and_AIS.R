@@ -7,6 +7,8 @@
 
 # Libraries used
 library(tidyverse)
+library(RCurl) # For web scraping etc.
+library(XML) # Same same
 library(doParallel); registerDoParallel(cores = 12)
 
 # Isfjorden bbox
@@ -205,6 +207,20 @@ is_AIS_mmsi <- is_AIS_coarse %>%
 # is_gfw_database <- plyr::ddply(is_AIS_mmsi, c("row_idx"), gfw_query)
 # save(is_gfw_database, file = "metadata/is_gfw_database.RData")
 load("metadata/is_gfw_database.RData")
+
+# Query shipais.uk
+test1 <- RCurl::getURL("http://shipais.uk/search.html?q=227802680")
+test2 <- readHTMLTable(test1, skip.rows = 1:6)
+test3 <- htmlParse(test1, asText = T)
+test5 <- XML::htmlParse(RCurl::getURLContent("https://www.marinetraffic.com/en/data/?asset_type=vessels&columns=flag,shipname,photo,recognized_next_port,reported_eta,reported_destination,current_port,imo,mmsi,ship_type,show_on_live_map,time_of_latest_position,lon_of_latest_position,notes&quicksearch|begins|quicksearch=259650000")) # Obscured behind javascript
+test6 <- XML::htmlParse(RCurl::getURL("https://www.myshiptracking.com/vessels?side=false&name=259650000")) # Works
+test7 <- XML::htmlParse(RCurl::getURL("https://www.vesselfinder.com/vessels?name=227802680")) # Forbidden
+test8 <- XML::htmlParse(RCurl::getURL("https://www.vesselfinder.com/vessels/details/9210622")) # Forbidden
+test9 <- XML::htmlParse(RCurl::getURL("https://www.vesseltracker.com/en/vessels.html?term=259650000")) # Works
+# test2 <- data.frame(files = readHTMLTable(OISST_url_get, skip.rows = 1:2)[[1]]$Name)
+
+# Scrape info from myshiptracking.com
+ship_info <- test6 <- XML::htmlParse(RCurl::getURL("https://www.myshiptracking.com/vessels?side=false&name=259650000"), asText = T)
 
 # Combine database queries
 is_AIS_database <- bind_rows(is_gfw_database) %>% 
