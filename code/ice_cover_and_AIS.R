@@ -217,10 +217,17 @@ test6 <- XML::htmlParse(RCurl::getURL("https://www.myshiptracking.com/vessels?si
 test7 <- XML::htmlParse(RCurl::getURL("https://www.vesselfinder.com/vessels?name=227802680")) # Forbidden
 test8 <- XML::htmlParse(RCurl::getURL("https://www.vesselfinder.com/vessels/details/9210622")) # Forbidden
 test9 <- XML::htmlParse(RCurl::getURL("https://www.vesseltracker.com/en/vessels.html?term=259650000")) # Works
+test10 <- XML::htmlParse(RCurl::getURL("https://www.marinevesseltraffic.com/vessels?vessel=259650000&flag=&page=1&sort=none&direction=none")) # Works poorly
 # test2 <- data.frame(files = readHTMLTable(OISST_url_get, skip.rows = 1:2)[[1]]$Name)
 
 # Scrape info from myshiptracking.com
-ship_info <- test6 <- XML::htmlParse(RCurl::getURL("https://www.myshiptracking.com/vessels?side=false&name=259650000"), asText = T)
+url_ship <- "https://www.myshiptracking.com/vessels?side=false&name=259650000"
+ship_info <- test6 <- XML::htmlParse(RCurl::getURL(), asText = T)
+flat_html <- readLines(con = url_ship)
+ship_table <- readHTMLTable(flat_html)$`table-filter`
+ship_read <- readLines(url_ship, encoding = "UTF-8")
+parsed_ship <- htmlParse(ship_read, encoding = "UTF-8")
+# "\t\t\t\t\t\t\t\t\t\t\t\t\t\t<td"
 
 # Combine database queries
 is_AIS_database <- bind_rows(is_gfw_database) %>% 
