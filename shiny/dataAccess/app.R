@@ -103,13 +103,13 @@ bbox_por <- c(24.5, 27, 70, 71.2)
 map_base <- readRDS("map_base.Rda")
 
 # Load PANGAEA driver metadata sheet
-## NB: Code only run once from home dir to get slimmed down parameter list
-# pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
-# var_names <- distinct(select(df_driv, var_name)) # df_driv = load all data
-# param_list <- pg_parameters %>% 
-#     mutate(Driver = paste0(Abbreviation," [",Unit,"]")) %>% 
-#     filter(Driver %in% var_names$var_name) %>% 
-#     dplyr::select(Driver, Parameter)
+## NB: Code only run once to get slimmed down parameter list
+# pg_parameters <- read_tsv("~/WP1/metadata/pangaea_parameters.tab")
+# if(!exists("clean_all")) load("~/WP1/data/analyses/clean_all.RData")
+# param_list <- distinct(select(clean_all, category, driver, variable)) %>% 
+#   mutate(long_name = sapply(base::strsplit(variable, " \\["), "[[", 1)) %>% 
+#   left_join(pg_parameters, by = c("long_name" = "Abbreviation")) %>% 
+#   dplyr::select(category, driver, variable, long_name)
 # write_csv(param_list, "shiny/dataAccess/param_list.csv")
 param_list <- read_csv("param_list.csv")
 
@@ -194,7 +194,7 @@ ui <- dashboardPage(
     dashboardBody(
         fluidRow(
             column(width = 3,
-                   box(width = 12, height = "380px", title = "Full variable names",
+                   box(width = 12, height = "380px", title = "Data info",
                        status = "warning", solidHeader = TRUE, collapsible = FALSE,
                        DT::dataTableOutput("longVarDT")),
                    box(width = 12, height = "440px", title = "Filter data",
@@ -257,7 +257,7 @@ server <- function(input, output, session) {
     output$selectDrivUI <- renderUI({
         # req(input$selectCat)
         
-        if(length(input$selectCat) > 0){
+        if(input$selectSite %in%  c("kong", "is", "stor", "young", "disko", "nuup", "por") & length(input$selectCat) > 0){
             driv_choices_base <- droplevels(unique(filter(long_names, category %in% input$selectCat)))
             driv_choices <- as.character(driv_choices_base$driver)
             names(driv_choices) <- driv_choices_base$driver_long
@@ -279,7 +279,8 @@ server <- function(input, output, session) {
     output$selectVarUI <- renderUI({
       # req(df_driv())
       
-      if(length(input$selectDriv) > 0){
+      if(input$selectSite %in%  c("kong", "is", "stor", "young", "disko", "nuup", "por") & 
+         length(input$selectCat) > 0 & length(input$selectDriv) > 0){
         var_choices <- unique(df_driv()$variable)
       } else{
         var_choices <- ""
@@ -356,6 +357,9 @@ server <- function(input, output, session) {
         shiny::sliderInput("slideDepth", "Depth range", value = c(min_val, max_val), min = min_val, max = max_val)
     })
 
+
+  ## Instructions ------------------------------------------------------------
+
     observeEvent(input$info, {
         sendSweetAlert(
             session = session,
@@ -364,17 +368,18 @@ server <- function(input, output, session) {
                 "The FACE-IT data access app is laid out as a dashboard with a ",tags$em("side bar"),
                 " on the left and additional information and plots in the ",tags$em("body"),".",
                 tags$h3(icon("bars"),"Side bar", style = "color: cadetblue;"),
-                tags$h4(tags$b("1. Site"),": Select a site to begin the data exploration process. Currently it is only possible to select one site at a time. After selecting a site the 'Lon/lat' figure in the body will display a rough map."),
-                tags$h4(tags$b("2. Categories"),": Select one or more categories of interest."),
-                tags$h4(icon("hammer"),tags$b("3. Clean or full data"),": Much of the data sourced for FACE-IT are formatted differently from one another. In an effort to adress this issue the data are undergoing an additional level of cleaning. This is currently under construction."),
-                tags$h4(tags$b("4. Filter PANGAEA"),": The data downloaded from PANGAEA are voluminous, but often contain data that are not of interest. Switch this value to 'Yes' to remove PANGAEA data from the list of drivers selected in the next step. ."),
-                tags$h4(tags$b("5. Drivers"),": The four preceeding steps will have filtered down the possible drivers that can now be selected here. After selecting one or more drivers the figures in the body will begin to be populated by the data."),
-                tags$h4(tags$b("6. Download"),": When one is happy with the selected/filtered data they may be downloaded here. First choose the file type, then click the download button."),
+                tags$h4(tags$b("1. Study site"),": Select one of the seven FACE-IT study sites to begin the data exploration process. After selecting a site the 'Lon/lat' figure in the body will display a rough map."),
+                tags$h4(tags$b("2. Category(s)"),": Categories are the broadest classification possible of the data. Select one or more values to move to step 3."),
+                # tags$h4(icon("hammer"),tags$b("3. Clean or full data"),": Much of the data sourced for FACE-IT are formatted differently from one another. In an effort to adress this issue the data are undergoing an additional level of cleaning. This is currently under construction."),
+                # tags$h4(tags$b("4. Filter PANGAEA"),": The data downloaded from PANGAEA are voluminous, but often contain data that are not of interest. Switch this value to 'Yes' to remove PANGAEA data from the list of drivers selected in the next step. ."),
+                tags$h4(tags$b("3. Driver(s)"),": Drivers are more specific than categories. One may select multiple values here."),
+                tags$h4(tags$b("4. Variable(s)"),": Variables are specific types of measurements of the social/natural world. The values available here are a product of steps 2+3."),
+                tags$h4(tags$b("5. Download"),": When one is happy with the selected/filtered data they may be downloaded here. First choose the file type, then click the download button."),
                 tags$h3(icon("images"),"Body", style = "color: steelblue;"),
-                tags$h4(tags$b("Full names"),": This menu allows the user to search for the full names of the drivers seen in ", tags$em("5. Drivers"), "in the sidebar."),
-                tags$h4(tags$b("Filter data"),": The ranges in the data for: longitude, latitude, depth, and date will be displayed here. Moving these sliders will filter out the data and this will be reflected in the figures to the right."),
-                tags$h4(tags$b("Lon/lat"),": Displays a map of where the selected data are located. Different colours show different drivers. Mouse over the dots on within the map to see more information."),
-                tags$h4(tags$b("Date"),": Displays the selected/filtered data as a time series. May mouse over the points to see more information."),
+                tags$h4(tags$b("Data info"),": This menu allows the user to search for more information for the variables seen in ", tags$em("4. Variable(s)"), "in the sidebar."),
+                tags$h4(tags$b("Filter data"),": The ranges in the data for: longitude, latitude, depth, and date will be displayed here. Moving these sliders will filter out the data and this will be shown in the figures in the body."),
+                tags$h4(tags$b("Lon/lat"),": Displays a map of where the selected data are located. Different drivers are shown by shape, and colours show variables. Mouse over the dots to see more information."),
+                tags$h4(tags$b("Date"),": Displays the selected data as a time series. Mouse over the points to see more information."),
                 tags$h4(tags$b("Depth"),": Shows the selected data as a stacked bar plot from the surface (0 m) down to the deepest depth in the data. Data are binned into 10 m groups. Negative values show data above the sea surface (altimetry). Mouse over for more information."),
                 # tags$br(),
                 tags$h3(icon("address-book"),"Contact", style = "color: royalblue;"),
@@ -416,19 +421,21 @@ server <- function(input, output, session) {
       file_list <- full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]
 
       # Load initial data
-      df_driv <- purrr::map_dfr(file_list, data.table::fread) %>% 
-        mutate(date = as.Date(date)) %>% 
-        filter(!grepl("g-e-m", URL), # Remove GEM data
-               !grepl("GRDC", URL), # Remove GRDC data
-               !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
-      
+      df_driv <- purrr::map_dfr(file_list, data.table::fread)
+      if(nrow(df_driv) > 0){
+        df_driv <- df_driv %>% 
+          mutate(date = as.Date(date)) %>% 
+          filter(!grepl("g-e-m", URL), # Remove GEM data
+                 !grepl("GRDC", URL), # Remove GRDC data
+                 !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
+      }
+
       # Filter PANGAEA data
       # if(input$PANGAEAfilter == "Yes"){
       #     df_driv <- filter(df_driv, !grepl("PANGAEA", URL))
       # }
-      
-      # Format dates and exit
-      # df_driv$date <- as.Date(df_driv$date)
+
+      # Exit
       return(df_driv)
     })
     
@@ -535,9 +542,9 @@ server <- function(input, output, session) {
                                          "<br>Count: ",count)))
         }
       }
-
       
       ggplotly(basePlot, tooltip = "text")
+      
     })
     
     
@@ -577,6 +584,7 @@ server <- function(input, output, session) {
       }
       
       ggplotly(basePlot, tooltip = "text")
+      
     })
     
 
@@ -618,6 +626,7 @@ server <- function(input, output, session) {
       
       ggplotly(basePlot, tooltip = "text")# %>% config(displayModeBar = F) %>% 
       # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+      
     })
 
 }
