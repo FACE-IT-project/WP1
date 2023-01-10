@@ -32,7 +32,7 @@ CatCol <- c(
     "Physical" = "skyblue",
     "Chemistry" = "#F6EA7C",
     "Biology" = "#A2ED84",
-    "Social" = "F48080"
+    "Social" = "#F48080"
 )
 
 # Same but with abbreviations for the categories
@@ -48,8 +48,10 @@ CatColAbr <- c(
 # Data --------------------------------------------------------------------
 
 # For testing
-# input <- data.frame(selectSite = "_kong",
-#                     selectCat = "_phys")
+# input <- data.frame(cleanVSfull = "clean",
+#                     selectSite = "is",
+#                     selectCat = c("cryo", "chem"),
+#                     selectDriv = c("sea ice", "nutrients"))
 
 # Full data file paths
 full_data_paths <- dir("full_data", full.names = T)
@@ -59,11 +61,31 @@ full_data_paths <- dir("full_data", full.names = T)
 #                  # "Svalbard" = "_sval",
 #                  "Young Sound" = "_young", "Disko Bay" = "_disko", "Nuup Kangerlua" = "_nuup",
 #                  "Porsangerfjorden" = "_por")
-sites_named <- list(Svalbard = c("Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor"),
-                 # "Svalbard" = "_sval",
-                 Greenland = c("Young Sound" = "_young", "Disko Bay" = "_disko", "Nuup Kangerlua" = "_nuup"),
-                 Norway = c("Porsangerfjorden" = "_por"))
-# cats_named <- 
+sites_named <- list(Svalbard = c("Kongsfjorden" = "kong", "Isfjorden" = "is", "Storfjorden" = "stor"),
+                    # "Svalbard" = "sval",
+                    Greenland = c("Young Sound" = "young", "Disko Bay" = "disko", "Nuup Kangerlua" = "nuup"),
+                    Norway = c("Porsangerfjorden" = "por"))
+
+# Long and short names for categories and drivers
+long_names <- data.frame(category = c("cryo", "cryo", "cryo", "phys", "phys", "phys",
+                                      "chem", "chem", "bio", "bio", "bio", "soc", "soc", "soc"),
+                         category_long = c("cryosphere", "cryosphere", "cryosphere", "physics", "physics", "physics",
+                                           "chemistry", "chemistry", "biology", "biology", "biology",
+                                           "social", "social", "social"),
+                         driver = c("sea ice", "glacier", "runoff", "sea temp", "salinity", "light",
+                                    "carb", "nutrients", "prim prod", "biomass", "spp rich", 
+                                    "gov", "tourism", "fisheries"),
+                                driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                                "seawater temperature", "salinity", "light",
+                                                "carbonate chemistry", "nutrients",
+                                                "primary production", "biomass", "species richness",
+                                                "governance", "tourism", "fisheries")) %>% 
+  mutate(driver_long = factor(driver_long, 
+                              levels = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                         "seawater temperature", "salinity", "light",
+                                         "carbonate chemistry", "nutrients",
+                                         "primary production", "biomass", "species richness",
+                                         "governance",  "tourism", "fisheries")))
 
 # Bounding boxes
 bbox_EU <- c(-60, 60, 63, 90)
@@ -83,7 +105,7 @@ map_base <- readRDS("map_base.Rda")
 # Load PANGAEA driver metadata sheet
 ## NB: Code only run once from home dir to get slimmed down parameter list
 # pg_parameters <- read_tsv("metadata/pangaea_parameters.tab")
-# var_names <- distinct(select(df_cat, var_name))
+# var_names <- distinct(select(df_driv, var_name)) # df_driv = load all data
 # param_list <- pg_parameters %>% 
 #     mutate(Driver = paste0(Abbreviation," [",Unit,"]")) %>% 
 #     filter(Driver %in% var_names$var_name) %>% 
@@ -94,7 +116,7 @@ param_list <- read_csv("param_list.csv")
 
 # UI ----------------------------------------------------------------------
 
-# Define UI for application that draws a histogram
+# Define UI
 ui <- dashboardPage(
     
     # Application title
@@ -111,50 +133,43 @@ ui <- dashboardPage(
         
         # Site name
         selectizeInput(
-            'selectSite', '1. Site',
+            'selectSite', '1. Study site',
             choices = sites_named,
             options = list(
                 placeholder = 'Select a site to begin',
                 onInitialize = I('function() { this.setValue(""); }'))
         ),
         
-        # Category
-        selectizeInput(
-            'selectCat', '2. Categories',
-            # choices = unique(df_load()$var_type),
-            choices = c("Cryosphere" = "_cryo", "Physical" = "_phys", "Chemistry" = "_chem", 
-                        "Biology" = "_bio", "Social" = "_soc"),
-            multiple = T,
-            options = list(
-                placeholder = 'Select driver category(s)',
-                onInitialize = I('function() { this.setValue(""); }')
-            )
-        ),
+        # Category - 2. Category(s)
+        uiOutput("selectCatUI"),
+        
+        # Drivers - 3. Driver(s)
+        uiOutput("selectDrivUI"),
+        
+        # Variables - 4. Variable(s)
+        uiOutput("selectVarUI"),
         
         # Switch for Clean vs Full data
         # shinyWidgetsGallery()
-        radioGroupButtons(
-            inputId = "cleanVSfull",
-            label = "3. Clean or full data", 
-            selected = "Full",
-            choices = c("Clean", "Full"),
-            status = "warning"
-        ),
+        # radioGroupButtons(
+        #   inputId = "cleanVSfull",
+        #   label = "5. Clean or full data", 
+        #   selected = "clean",
+        #   choices = c("Clean" = "clean", "Full" = "full"),
+        #   status = "warning"
+        # ),
         
         # Filter PANGAEA data
-        radioGroupButtons(
-            inputId = "PANGAEAfilter",
-            label = "4. Filter PANGAEA", 
-            choices = c("Yes", "No"), 
-            selected = "No",
-            status = "warning"
-        ),
-        
-        # Drivers
-        uiOutput("selectVarUI"),
+        # radioGroupButtons(
+        #     inputId = "PANGAEAfilter",
+        #     label = "4. Filter PANGAEA", 
+        #     choices = c("Yes", "No"), 
+        #     selected = "No",
+        #     status = "warning"
+        # ),
         
         # Download
-        radioButtons("downloadFilterType", "6. Download", choices = c(".csv", ".Rds"), 
+        radioButtons("downloadFilterType", "5. Download", choices = c(".csv", ".Rds"), 
                      selected = ".csv", inline = T),
         fluidRow(column(width = 2), column(width = 10, offset = 1, downloadButton("downloadFilter", "Download data"))),
         
@@ -173,23 +188,20 @@ ui <- dashboardPage(
             style = "material-flat",
             color = "success"
         )
-        
-        # ),
     ),
     
-    # Show a plot of the generated distribution
+    # Info, filters, and plots for the selected data
     dashboardBody(
         fluidRow(
             column(width = 3,
-                   box(width = 12, height = "380px", title = "Full names",
+                   box(width = 12, height = "380px", title = "Full variable names",
                        status = "warning", solidHeader = TRUE, collapsible = FALSE,
                        DT::dataTableOutput("longVarDT")),
                    box(width = 12, height = "440px", title = "Filter data",
                        status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                       #uiOutput("selectVarUI"), 
                        uiOutput("slideLonUI"), uiOutput("slideLatUI"),
                        uiOutput("slideDepthUI"), uiOutput("slideDateUI"))),
-            column(width = 5,
+            column(width = 6,
                    box(width = 12, height = "410px", title = "Lon/lat",
                        status = "info", solidHeader = TRUE, collapsible = FALSE,
                        shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "355px"), 
@@ -198,20 +210,16 @@ ui <- dashboardPage(
                        status = "primary", solidHeader = TRUE, collapsible = FALSE,
                        shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "355px"), 
                                                     type = 6, color = "#b0b7be"))),
-            column(width = 4,
+            column(width = 3,
                    box(width = 12, height = "840px", title = "Depth",
                        status = "success", solidHeader = TRUE, collapsible = FALSE,
                        shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
                                                     type = 6, color = "#b0b7be")))
-            # column(width = 3,
-            # fluidRow(plotlyOutput("depthPlot")))
-            # column(width = 3, plotlyOutput("depthPlot"))
         )
     ),
     
     title = "Data Access",
     skin = "purple"
-
 )
 
 
@@ -223,18 +231,43 @@ server <- function(input, output, session) {
     ## Reactive UI -------------------------------------------------------------
     
     # Select drivers
-    output$selectVarUI <- renderUI({
+    output$selectCatUI <- renderUI({
+    # req(input$selectSite)
+    
+    if(input$selectSite %in%  c("kong", "is", "stor", "young", "disko", "nuup", "por")){
+      cat_choices <- c("Cryosphere" = "cryo", "Physical" = "phys", "Chemistry" = "chem",
+                       "Biology" = "bio", "Social" = "soc")
+    } else{
+      cat_choices <- ""
+    }
+    
+    selectizeInput(
+      'selectCat', '2. Category(s)',
+      # choices = unique(df_load()$var_type),
+      choices = cat_choices,
+      multiple = T,
+      options = list(
+        placeholder = 'Select category(s)',
+        onInitialize = I('function() { this.setValue(""); }')
+      )
+    )
+  })
+  
+    # Select drivers
+    output$selectDrivUI <- renderUI({
         # req(input$selectCat)
         
         if(length(input$selectCat) > 0){
-            var_choices <- unique(df_cat()$var_name)
+            driv_choices_base <- droplevels(unique(filter(long_names, category %in% input$selectCat)))
+            driv_choices <- as.character(driv_choices_base$driver)
+            names(driv_choices) <- driv_choices_base$driver_long
         } else{
-            var_choices <- ""
+            driv_choices <- ""
         }
         
         selectizeInput(
-            'selectVar', '5. Drivers',
-            choices = var_choices, multiple = T,
+            'selectDriv', '3. Driver(s)',
+            choices = driv_choices, multiple = T,
             options = list(
                 placeholder = 'Select driver(s)',
                 onInitialize = I('function() { this.setValue(""); }')
@@ -242,7 +275,27 @@ server <- function(input, output, session) {
         )
     })
     
-    # List of long names for drivers
+    # Select variables
+    output$selectVarUI <- renderUI({
+      # req(df_driv())
+      
+      if(length(input$selectDriv) > 0){
+        var_choices <- unique(df_driv()$variable)
+      } else{
+        var_choices <- ""
+      }
+      
+      selectizeInput(
+        'selectVar', '4. Variable(s)',
+        choices = var_choices, multiple = T,
+        options = list(
+          placeholder = 'Select variable(s)',
+          onInitialize = I('function() { this.setValue(""); }')
+        )
+      )
+    })
+    
+    # List of long names for variables
     output$longVarDT <- DT::renderDataTable({
         # req(input$selectCat)
         # unique(df_cat()$var_name)
@@ -353,60 +406,49 @@ server <- function(input, output, session) {
     ## Process data ------------------------------------------------------------
     
     # Subset by category
-    df_cat <- reactive({
-        req(input$selectCat)
-        
-        # Load initial data
-        if(input$cleanVSfull == "Full"){
-            file_list <- paste0("full_data/full",
-                                # c("_cryo", "_phys"), # testing
-                                input$selectCat,
-                                input$selectSite,".csv")
-            df_cat <- purrr::map_dfr(file_list, data.table::fread)
-        } else {
-            file_list <- paste0("full_data/clean",
-                                # c("_cryo", "_phys"), # testing
-                                input$selectCat,
-                                # input$selectSite,
-                                "_all.csv")
-            df_cat <- purrr::map_dfr(file_list, data.table::fread) %>% # This should be improved to be site specific
-                filter(site == stringr::str_remove(input$selectSite, "_"),
-                       # var_type %in% str_remove(input$selectCat, "_"),
-                       !grepl("g-e-m", URL), # Remove GEM data
-                       !grepl("GRDC", URL), # Remove GRDC data
-                       !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
-            
-            # Remove GRDC data
-            ## Not yet amalgamated
-        }
+    df_driv <- reactive({
+      req(input$selectDriv)
+      
+      # Assemble possible files
+      # file_choice <- expand.grid(input$cleanVSfull, input$selectCat, input$selectDriv, input$selectSite) %>% 
+      file_choice <- expand.grid("clean", input$selectCat, input$selectDriv, input$selectSite) %>% 
+        unite(col = "all", sep = "_")
+      file_list <- full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]
 
-        # Filter PANGAEA data
-        if(input$PANGAEAfilter == "Yes"){
-            df_cat <- filter(df_cat, !grepl("PANGAEA", URL))
-        }
-        
-        # Format dates
-        df_cat$date <- as.Date(df_cat$date)
-        
-        return(df_cat)
+      # Load initial data
+      df_driv <- purrr::map_dfr(file_list, data.table::fread) %>% 
+        mutate(date = as.Date(date)) %>% 
+        filter(!grepl("g-e-m", URL), # Remove GEM data
+               !grepl("GRDC", URL), # Remove GRDC data
+               !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
+      
+      # Filter PANGAEA data
+      # if(input$PANGAEAfilter == "Yes"){
+      #     df_driv <- filter(df_driv, !grepl("PANGAEA", URL))
+      # }
+      
+      # Format dates and exit
+      # df_driv$date <- as.Date(df_driv$date)
+      return(df_driv)
     })
     
     # Subset by variable name
     df_var <- reactive({
         req(input$selectVar)
-        df_var <- df_cat() %>% 
-            filter(var_name %in% input$selectVar)
+        df_var <- df_driv() %>% 
+            filter(variable %in% input$selectVar)
         return(df_var)
     })
     
     # Filter by smaller details 
     df_filter <- reactive({
+      req(df_var())
         if(length(input$selectVar) == 0){
-            df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA, var_name = "No drivers selected",
+            df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA, var_name = "No variables selected",
                                     lon = NA, lat = NA, depth = NA)
         } else if(length(input$selectVar) > 0){
             req(input$slideDate)
-            df_filter <- df_var() #%>%
+            df_filter <- df_var()
             if(!is.na(input$slideLon[1])){
                 df_filter <- df_filter %>% 
                     filter(lon >= input$slideLon[1] | is.na(lon)) %>% 
@@ -438,130 +480,144 @@ server <- function(input, output, session) {
     ## Map ---------------------------------------------------------------------
     
     output$mapPlot <- renderPlotly({
-        req(input$selectSite)
-        
-        # Base map reacts to site selection
-        if(input$selectSite == "_sval") bbox_name <- bbox_sval
-        if(input$selectSite == "_kong") bbox_name <- bbox_kong
-        if(input$selectSite == "_is") bbox_name <- bbox_is
-        if(input$selectSite == "_stor") bbox_name <- bbox_stor
-        if(input$selectSite == "_young") bbox_name <- bbox_young
-        if(input$selectSite == "_disko") bbox_name <- bbox_disko
-        if(input$selectSite == "_nuup") bbox_name <- bbox_nuup
-        if(input$selectSite == "_por") bbox_name <- bbox_por
-        
-        # Get buffer area for plot
-        xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
-        xmax <- bbox_name[2]+(bbox_name[2]-bbox_name[1])/4
-        ymin <- bbox_name[3]-(bbox_name[4]-bbox_name[3])/8
-        ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
-        
+      req(input$selectSite)
+      
+      # Base map reacts to site selection
+      if(input$selectSite == "sval") bbox_name <- bbox_sval
+      if(input$selectSite == "kong") bbox_name <- bbox_kong
+      if(input$selectSite == "is") bbox_name <- bbox_is
+      if(input$selectSite == "stor") bbox_name <- bbox_stor
+      if(input$selectSite == "young") bbox_name <- bbox_young
+      if(input$selectSite == "disko") bbox_name <- bbox_disko
+      if(input$selectSite == "nuup") bbox_name <- bbox_nuup
+      if(input$selectSite == "por") bbox_name <- bbox_por
+      
+      # Get buffer area for plot
+      xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
+      xmax <- bbox_name[2]+(bbox_name[2]-bbox_name[1])/4
+      ymin <- bbox_name[3]-(bbox_name[4]-bbox_name[3])/8
+      ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
+      
+      # Show bbox created by lon/lat sliders
+      basePlot <- ggplot() + 
+        geom_polygon(data = map_base, fill = "grey80", colour = "black",
+                     aes(x = lon, y = lat, group = group, text = "Land")) +
+        # annotate(geom = "text", x = bbox_name[1], y = bbox_name[3], label = nrow(df_filter), colour = "red") +
+        # geom_rect(aes(xmin = bbox_name[1], xmax = bbox_name[2], ymin = bbox_name[3], ymax = bbox_name[4]),
+        # fill = "khaki", alpha = 0.1) +
+        # coord_equal(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
+        coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
+        labs(x = NULL, y = NULL, shape = "Driver", fill = "Variable") +
+        theme_bw() +
+        theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+              axis.text = element_text(size = 12, colour = "black"),
+              axis.ticks = element_line(colour = "black"), legend.position = "none")
+      
+      if(length(input$selectVar) > 0){
         # Filtered data for plotting
         df_filter <- df_filter() %>% 
-            filter(!is.na(lon), !is.na(lat)) %>% 
-            mutate(lon = round(lon, 3), lat = round(lat, 3)) %>% 
-            group_by(lon, lat, var_name) %>% 
-            summarise(count = n(), .groups = "drop")
-        
-        # Show bbox created by lon/lat sliders
-        basePlot <- ggplot() + 
-            geom_polygon(data = map_base, fill = "grey80", colour = "black",
-                         aes(x = lon, y = lat, group = group, text = "Land")) +
-            # annotate(geom = "text", x = bbox_name[1], y = bbox_name[3], label = nrow(df_filter), colour = "red") +
-            # geom_rect(aes(xmin = bbox_name[1], xmax = bbox_name[2], ymin = bbox_name[3], ymax = bbox_name[4]),
-                      # fill = "khaki", alpha = 0.1) +
-            # coord_equal(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
-            coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
-            labs(x = NULL, y = NULL, colour = "Driver") +
-            theme_bw() +
-            theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
-                  axis.text = element_text(size = 12, colour = "black"),
-                  axis.ticks = element_line(colour = "black"), legend.position = "none")
+          filter(!is.na(lon), !is.na(lat)) %>% 
+          mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
+          group_by(lon, lat, category, driver, variable) %>% 
+          summarise(count = n(), .groups = "drop") %>% 
+          left_join(long_names, by = c("category", "driver"))
         
         if(nrow(df_filter) > 0){
-            basePlot <- basePlot + geom_point(data = df_filter, 
-                                              aes(x = lon, y = lat, colour = var_name,
-                                                  text = paste0("Driver: ",var_name,
-                                                                "<br>Lon: ",lon,
-                                                                "<br>Lat: ",lat,
-                                                                "<br>Count: ",count)))
+          # Add data to map
+          basePlot <- basePlot + 
+            geom_point(data = df_filter,
+                       aes(x = lon, y = lat, shape = driver, colour = variable,
+                           text = paste0("Category: ",category_long,
+                                         "<br>Driver: ",driver_long,
+                                         "<br>Variable: ",variable,
+                                         "<br>Lon: ",lon,
+                                         "<br>Lat: ",lat,
+                                         "<br>Count: ",count)))
         }
-        
-        ggplotly(basePlot, tooltip = "text")
+      }
+
+      
+      ggplotly(basePlot, tooltip = "text")
     })
     
     
     ## Time series -------------------------------------------------------------
 
     output$tsPlot <- renderPlotly({
-        req(input$selectVar)
-        # req(input$slideLon)
-        
-        df_filter <- df_filter() %>% 
-            filter(!is.na(date)) %>% 
-            group_by(date, var_name) %>% 
-            summarise(count = n(), .groups = "drop")
-
-        # May want to create dummy dataframe if filtering removes all rows
-        # Doesn't work presently due to object dependencies
-        # if(nrow(df_filter == 0)) df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "NA")
-        
-        # Plot and exit
-        basePlot <- ggplot(data = df_filter, aes(x = date, y = log10(count))) +
-            # geom_point(aes(colour = var_name)) +
-            # geom_line(aes(colour = var_name, group = depth)) +
-            labs(x = NULL, y = "Count (log10)", colour = "Driver") +
-            theme_bw() +
-            theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
-                  axis.text = element_text(size = 12, colour = "black"),
-                  axis.ticks = element_line(colour = "black"), legend.position = "none")
-        
-        if(nrow(df_filter) > 0){
-            basePlot <- basePlot + geom_point(data = df_filter, aes(colour = var_name,
-                                                                    text = paste0("Driver: ",var_name,
-                                                                                  "<br>Date: ",date,
-                                                                                  "<br>Count: ",count)))
-        }
-        
-        ggplotly(basePlot, tooltip = "text")
+      req(input$selectVar)
+      # req(input$slideLon)
+      
+      df_filter <- df_filter() %>% 
+        filter(!is.na(date)) %>% 
+        group_by(date, category, driver, variable) %>% 
+        summarise(count = n(), .groups = "drop") %>% 
+        left_join(long_names, by = c("category", "driver"))
+      
+      # May want to create dummy dataframe if filtering removes all rows
+      # Doesn't work presently due to object dependencies
+      # if(nrow(df_filter == 0)) df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "NA")
+      
+      # Plot and exit
+      basePlot <- ggplot(data = df_filter, aes(x = date, y = log10(count))) +
+        labs(x = NULL, y = "Count (log10)", colour = "Driver") +
+        theme_bw() +
+        theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+              axis.text = element_text(size = 12, colour = "black"),
+              axis.ticks = element_line(colour = "black"), legend.position = "none")
+      
+      if(nrow(df_filter) > 0){
+        basePlot <- basePlot + 
+          geom_point(data = df_filter,
+                     aes(x = date, y = log10(count), shape = driver, colour = variable,
+                         text = paste0("Category: ",category_long,
+                                       "<br>Driver: ",driver_long,
+                                       "<br>Variable: ",variable,
+                                       "<br>Date: ",date,
+                                       "<br>Count: ",count)))
+      }
+      
+      ggplotly(basePlot, tooltip = "text")
     })
     
 
     ## Depth plot --------------------------------------------------------------
 
     output$depthPlot <- renderPlotly({
-        req(input$selectVar)
-        # req(input$slideLon)
-        
-        df_filter <- df_filter() %>% 
-            filter(!is.na(depth)) %>% 
-            # mutate(depth = ifelse(is.na(depth), 0, depth)) %>%
-            mutate(depth = round(depth, -1)) %>%
-            group_by(depth, var_name) %>% 
-            dplyr::summarise(count = n(), .groups = "drop")
-        
-        # Count of data at depth by var name
-        basePlot <- ggplot(df_filter) +
-            # geom_col(aes(x = depth, y = log10(count), fill = var_name,
-            #              text = paste0("Driver: ",var_name,
-            #                            "<br>Depth: ",depth,
-            #                            "<br>Count: ",count))) +
-            scale_x_reverse() +
-            coord_flip(expand = F) +
-            # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
-            # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
-            labs(x = NULL, fill = "Driver", y = "Count (log10)") +
-            theme(panel.border = element_rect(fill = NA, colour = "black"), legend.position = "none")
-        
-        if(nrow(df_filter) > 0){
-            basePlot <- basePlot + geom_col(data = df_filter, aes(x = depth, y = log10(count), fill = var_name,
-                                                                  text = paste0("Driver: ",var_name,
-                                                                                "<br>Depth: ",depth,
-                                                                                "<br>Count: ",count)))
-        }
-        
-        ggplotly(basePlot, tooltip = "text")# %>% config(displayModeBar = F) %>% 
-            # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+      req(input$selectVar)
+      # req(input$slideLon)
+      
+      df_filter <- df_filter() %>% 
+        filter(!is.na(depth)) %>% 
+        mutate(depth = round(depth, -1)) %>%
+        group_by(depth, category, driver, variable) %>% 
+        dplyr::summarise(count = n(), .groups = "drop") %>% 
+        left_join(long_names, by = c("category", "driver"))
+      
+      # Count of data at depth by var name
+      basePlot <- ggplot(df_filter) +
+        scale_x_reverse() +
+        coord_flip(expand = F) +
+        # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
+        # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
+        labs(x = NULL, fill = "Variable", y = "Count (log10)") +
+        theme_bw() +
+        theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+              axis.text = element_text(size = 12, colour = "black"),
+              axis.ticks = element_line(colour = "black"), legend.position = "none")
+      
+      if(nrow(df_filter) > 0){
+        basePlot <- basePlot + 
+          geom_col(data = df_filter, 
+                   aes(x = depth, y = log10(count), fill = variable,
+                       text = paste0("Category: ",category_long,
+                                     "<br>Driver: ",driver_long,
+                                     "<br>Variable: ",variable,
+                                     "<br>Depth: ",depth,
+                                     "<br>Count: ",count)))
+      }
+      
+      ggplotly(basePlot, tooltip = "text")# %>% config(displayModeBar = F) %>% 
+      # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
     })
 
 }
