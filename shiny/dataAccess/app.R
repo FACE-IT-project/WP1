@@ -84,8 +84,6 @@ long_names <- data.frame(category = c("cryo", "cryo", "cryo", "phys", "phys", "p
                                          "governance",  "tourism", "fisheries")))
 
 # Bounding boxes
-bbox_EU <- c(-60, 60, 63, 90)
-bbox_sval <- c(9, 30, 76, 81)
 bbox_kong <- c(11, 12.69, 78.86, 79.1)
 bbox_is <- c(12.97, 17.50, 77.95, 78.90)
 bbox_ingle <- c(18.15, 18.79, 77.87, 78.08)
@@ -96,26 +94,8 @@ bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
 bbox_por <- c(24.5, 27, 70, 71.2)
 
 # The base global map
-# map_base <- readRDS("map_base.Rda")
-# NB: Run only once to get smaller maps
-# Get wide bbox's from 'code/functions.R'
-# map_filt <- function(bbox){
-#   map_res <-  filter(map_base, between(lon, bbox[1], bbox[2]), between(lat, bbox[3], bbox[4]))
-# }
-# write_csv_arrow(map_filt(bbox_kong_wide), file = "~/WP1/shiny/dataAccess/map_kong.csv")
-# write_csv_arrow(map_filt(bbox_is_wide), file = "~/WP1/shiny/dataAccess/map_is.csv")
-# write_csv_arrow(map_filt(bbox_stor_wide), file = "~/WP1/shiny/dataAccess/map_stor.csv")
-# write_csv_arrow(map_filt(bbox_young_wide), file = "~/WP1/shiny/dataAccess/map_young.csv")
-# write_csv_arrow(map_filt(bbox_disko_wide), file = "~/WP1/shiny/dataAccess/map_disko.csv")
-# write_csv_arrow(map_filt(bbox_nuup_wide), file = "~/WP1/shiny/dataAccess/map_nuup.csv")
-# write_csv_arrow(map_filt(bbox_por_wide), file = "~/WP1/shiny/dataAccess/map_por.csv")
-map_kong <- read_csv_arrow("map_kong.csv")
-map_is <- read_csv_arrow("map_is.csv")
-map_stor <- read_csv_arrow("map_stor.csv")
-map_young <- read_csv_arrow("map_young.csv")
-map_disko <- read_csv_arrow("map_disko.csv")
-map_nuup <- read_csv_arrow("map_nuup.csv")
-map_por <- read_csv_arrow("map_por.csv")
+# NB: Considered creating smaller maps, but wasn't effective
+map_base <- readRDS("map_base.Rda")
 
 # Load PANGAEA driver metadata sheet
 ## NB: Code only run once to get slimmed down parameter list
@@ -418,9 +398,9 @@ server <- function(input, output, session) {
         },
         content <- function(file) {
             if(input$downloadFilterType == ".Rds"){
-                saveRDS(df_filter(), file = file)
+                saveRDS(df_filter()[["filter_data"]], file = file)
             } else if(input$downloadFilterType == ".csv"){
-                arrow::write_csv_arrow(df_filter(), file)
+                arrow::write_csv_arrow(df_filter()[["filter_data"]], file)
             }
         }
     )
@@ -498,7 +478,40 @@ server <- function(input, output, session) {
             df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA,
                                     var_name = "All data have been filtered out", lon = NA, lat = NA, depth = NA)
         }
-        return(df_filter)
+      
+      # Count data for map
+      df_filter_map <- df_filter %>% 
+        filter(!is.na(lon), !is.na(lat)) %>% 
+        mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
+        group_by(lon, lat, category, driver, variable) %>% 
+        summarise(count = n(), .groups = "drop") %>% 
+        left_join(long_names, by = c("category", "driver"))
+      if(nrow(df_filter_map) == 0) 
+        df_filter_map <- data.frame(lon = NA, lat = NA, driver = NA, variable = NA, 
+                                    category_long = NA, driver_long = NA, count = NA)
+      
+      # Count data for time series
+      df_filter_ts <- df_filter %>% 
+        filter(!is.na(date)) %>% 
+        mutate(year = year(date)) %>% 
+        group_by(year, category, driver, variable) %>% 
+        summarise(count = n(), .groups = "drop") %>% 
+        left_join(long_names, by = c("category", "driver"))
+      
+      # Count data for depth plot
+      df_filter_depth <- df_filter %>% 
+        filter(!is.na(depth)) %>% 
+        mutate(depth = round(depth, -1)) %>%
+        group_by(depth, category, driver, variable) %>% 
+        dplyr::summarise(count = n(), .groups = "drop") %>% 
+        left_join(long_names, by = c("category", "driver"))
+      
+      # Compile list and exit
+      df_final <- list(filter_data = df_filter,
+                       map_count = df_filter_map,
+                       ts_count = df_filter_ts,
+                       depth_count = df_filter_depth)
+      return(df_final)
     })
 
     
@@ -522,17 +535,14 @@ server <- function(input, output, session) {
       ymin <- bbox_name[3]-(bbox_name[4]-bbox_name[3])/8
       ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
       
-      # Filter down map for speed
-      map_base_sub <- 
+      # Filter map size for minor speed boost
+      map_base_sub <- filter(map_base, between(lon, bbox_name[1]-5, bbox_name[1]+5),
+                             between(lon, bbox_name[3]-3, bbox_name[4]+3))
       
-      # Show bbox created by lon/lat sliders
+      # Show data filtered by lon/lat sliders
       basePlot <- ggplot() + 
         geom_polygon(data = map_base, fill = "grey80", colour = "black",
                      aes(x = lon, y = lat, group = group, text = "Land")) +
-        # annotate(geom = "text", x = bbox_name[1], y = bbox_name[3], label = nrow(df_filter), colour = "red") +
-        # geom_rect(aes(xmin = bbox_name[1], xmax = bbox_name[2], ymin = bbox_name[3], ymax = bbox_name[4]),
-        # fill = "khaki", alpha = 0.1) +
-        # coord_equal(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
         coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
         labs(x = NULL, y = NULL, shape = "Driver", fill = "Variable") +
         theme_bw() +
@@ -541,26 +551,18 @@ server <- function(input, output, session) {
               axis.ticks = element_line(colour = "black"), legend.position = "none")
       
       if(length(input$selectVar) > 0){
-        # Filtered data for plotting
-        df_filter <- df_filter() %>% 
-          filter(!is.na(lon), !is.na(lat)) %>% 
-          mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
-          group_by(lon, lat, category, driver, variable) %>% 
-          summarise(count = n(), .groups = "drop") %>% 
-          left_join(long_names, by = c("category", "driver"))
+        # Data count for map
+        df_filter_map <- df_filter()[["map_count"]]
         
-        if(nrow(df_filter) > 0){
-          # Add data to map
-          basePlot <- basePlot + 
-            geom_point(data = df_filter,
-                       aes(x = lon, y = lat, shape = driver, colour = variable,
-                           text = paste0("Category: ",category_long,
-                                         "<br>Driver: ",driver_long,
-                                         "<br>Variable: ",variable,
-                                         "<br>Lon: ",lon,
-                                         "<br>Lat: ",lat,
-                                         "<br>Count: ",count)))
-        }
+        basePlot <- basePlot + 
+          geom_point(data = df_filter_map,
+                     aes(x = lon, y = lat, shape = driver, colour = variable,
+                         text = paste0("Category: ",category_long,
+                                       "<br>Driver: ",driver_long,
+                                       "<br>Variable: ",variable,
+                                       "<br>Lon: ",lon,
+                                       "<br>Lat: ",lat,
+                                       "<br>Count: ",count)))
       }
       
       ggplotly(basePlot, tooltip = "text")
@@ -572,35 +574,25 @@ server <- function(input, output, session) {
 
     output$tsPlot <- renderPlotly({
       req(input$selectVar)
-      # req(input$slideLon)
       
-      df_filter <- df_filter() %>% 
-        filter(!is.na(date)) %>% 
-        group_by(date, category, driver, variable) %>% 
-        summarise(count = n(), .groups = "drop") %>% 
-        left_join(long_names, by = c("category", "driver"))
-      
-      # May want to create dummy dataframe if filtering removes all rows
-      # Doesn't work presently due to object dependencies
-      # if(nrow(df_filter == 0)) df_filter <- data.frame(date = as.Date("2000-01-01"), value = 1, var_name = "NA")
-      
+      df_filter_ts <- df_filter()[["ts_count"]]
+
       # Plot and exit
-      basePlot <- ggplot(data = df_filter, aes(x = date, y = log10(count))) +
-        labs(x = NULL, y = "Count (log10)", colour = "Driver") +
+      if(nrow(df_filter_ts) > 0){
+      basePlot <- ggplot(data = df_filter_ts, aes(x = year, y = log10(count))) +
+        geom_point(aes(shape = driver, colour = variable,
+                       text = paste0("Category: ",category_long,
+                                     "<br>Driver: ",driver_long,
+                                     "<br>Variable: ",variable,
+                                     "<br>Year: ",year,
+                                     "<br>Count: ",count))) +
+        labs(x = NULL, y = "Count (log10)", colour = "Variable") +
         theme_bw() +
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
               axis.ticks = element_line(colour = "black"), legend.position = "none")
-      
-      if(nrow(df_filter) > 0){
-        basePlot <- basePlot + 
-          geom_point(data = df_filter,
-                     aes(x = date, y = log10(count), shape = driver, colour = variable,
-                         text = paste0("Category: ",category_long,
-                                       "<br>Driver: ",driver_long,
-                                       "<br>Variable: ",variable,
-                                       "<br>Date: ",date,
-                                       "<br>Count: ",count)))
+      } else {
+        basePlot <- ggplot() + geom_blank()
       }
       
       ggplotly(basePlot, tooltip = "text")
@@ -612,19 +604,20 @@ server <- function(input, output, session) {
 
     output$depthPlot <- renderPlotly({
       req(input$selectVar)
-      # req(input$slideLon)
+      # req(df_filter())
       
-      df_filter <- df_filter() %>% 
-        filter(!is.na(depth)) %>% 
-        mutate(depth = round(depth, -1)) %>%
-        group_by(depth, category, driver, variable) %>% 
-        dplyr::summarise(count = n(), .groups = "drop") %>% 
-        left_join(long_names, by = c("category", "driver"))
+      df_filter_depth <- df_filter()[["depth_count"]]
       
       # Count of data at depth by var name
-      basePlot <- ggplot(df_filter) +
-        scale_x_reverse() +
-        coord_flip(expand = F) +
+      if(nrow(df_filter_depth) > 0){
+      basePlot <- ggplot(df_filter_depth, aes(x = depth, y = log10(count))) +
+        geom_col(aes(fill = variable,
+                     text = paste0("Category: ",category_long,
+                                   "<br>Driver: ",driver_long,
+                                   "<br>Variable: ",variable,
+                                   "<br>Depth: ",depth,
+                                   "<br>Count: ",count))) +
+        scale_x_reverse() + coord_flip(expand = F) +
         # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
         # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
         labs(x = NULL, fill = "Variable", y = "Count (log10)") +
@@ -632,23 +625,14 @@ server <- function(input, output, session) {
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
               axis.ticks = element_line(colour = "black"), legend.position = "none")
-      
-      if(nrow(df_filter) > 0){
-        basePlot <- basePlot + 
-          geom_col(data = df_filter, 
-                   aes(x = depth, y = log10(count), fill = variable,
-                       text = paste0("Category: ",category_long,
-                                     "<br>Driver: ",driver_long,
-                                     "<br>Variable: ",variable,
-                                     "<br>Depth: ",depth,
-                                     "<br>Count: ",count)))
+      } else {
+        basePlot <- ggplot() + geom_blank()
       }
       
       ggplotly(basePlot, tooltip = "text")# %>% config(displayModeBar = F) %>% 
       # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
       
     })
-
 }
 
 # Run the application 
