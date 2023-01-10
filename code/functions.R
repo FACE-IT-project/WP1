@@ -26,6 +26,7 @@ library(sp)
 library(sf)
 library(circular) # For calculating mean daily wind direction from degree values
 library(pangaear)
+library(arrow)
 library(doParallel); registerDoParallel(cores = 12)
 
 # Find who is the user and define the pCloud path
@@ -1270,8 +1271,8 @@ save_data_one <- function(sub_levels, df){
   sub_split <- strsplit(sub_levels, "_")[[1]]
   sub_df <- filter(df, category == sub_split[1], driver == sub_split[2], site == sub_split[3])
   if(nrow(sub_df) == 0) return()
-  data.table::fwrite(sub_df, paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
-                                    sub_split[2],"_", sub_split[3],".csv"))
+  write_csv_arrow(sub_df, paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
+                                 sub_split[2],"_", sub_split[3],".csv"))
   rm(sub_split, sub_df); gc()
 }
 

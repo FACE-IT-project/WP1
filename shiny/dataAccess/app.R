@@ -3,7 +3,6 @@
 
 # TODO:
 # HiRes coastline for smaller sites
-# Troubleshoot clean vs full switch for data selection
 
 
 # Setup -------------------------------------------------------------------
@@ -13,11 +12,12 @@ library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
 library(DT)
-library(readr)
 library(dplyr)
 library(tidyr)
-library(ggplot2)
+library(purrr)
 library(lubridate)
+library(arrow)
+library(ggplot2)
 library(plotly)
 
 # Function for re-loading .RData files as necessary
@@ -57,10 +57,6 @@ CatColAbr <- c(
 full_data_paths <- dir("full_data", full.names = T)
 
 # Named sites for subsetting paths
-# sites_named <- c("Kongsfjorden" = "_kong", "Isfjorden" = "_is", "Storfjorden" = "_stor",
-#                  # "Svalbard" = "_sval",
-#                  "Young Sound" = "_young", "Disko Bay" = "_disko", "Nuup Kangerlua" = "_nuup",
-#                  "Porsangerfjorden" = "_por")
 sites_named <- list(Svalbard = c("Kongsfjorden" = "kong", "Isfjorden" = "is", "Storfjorden" = "stor"),
                     # "Svalbard" = "sval",
                     Greenland = c("Young Sound" = "young", "Disko Bay" = "disko", "Nuup Kangerlua" = "nuup"),
@@ -75,11 +71,11 @@ long_names <- data.frame(category = c("cryo", "cryo", "cryo", "phys", "phys", "p
                          driver = c("sea ice", "glacier", "runoff", "sea temp", "salinity", "light",
                                     "carb", "nutrients", "prim prod", "biomass", "spp rich", 
                                     "gov", "tourism", "fisheries"),
-                                driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
-                                                "seawater temperature", "salinity", "light",
-                                                "carbonate chemistry", "nutrients",
-                                                "primary production", "biomass", "species richness",
-                                                "governance", "tourism", "fisheries")) %>% 
+                         driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                         "seawater temperature", "salinity", "light",
+                                         "carbonate chemistry", "nutrients",
+                                         "primary production", "biomass", "species richness",
+                                         "governance", "tourism", "fisheries")) %>% 
   mutate(driver_long = factor(driver_long, 
                               levels = c("sea ice", "glacier mass balance", "terrestrial runoff",
                                          "seawater temperature", "salinity", "light",
@@ -100,18 +96,40 @@ bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
 bbox_por <- c(24.5, 27, 70, 71.2)
 
 # The base global map
-map_base <- readRDS("map_base.Rda")
+# map_base <- readRDS("map_base.Rda")
+# NB: Run only once to get smaller maps
+# Get wide bbox's from 'code/functions.R'
+# map_filt <- function(bbox){
+#   map_res <-  filter(map_base, between(lon, bbox[1], bbox[2]), between(lat, bbox[3], bbox[4]))
+# }
+# write_csv_arrow(map_filt(bbox_kong_wide), file = "~/WP1/shiny/dataAccess/map_kong.csv")
+# write_csv_arrow(map_filt(bbox_is_wide), file = "~/WP1/shiny/dataAccess/map_is.csv")
+# write_csv_arrow(map_filt(bbox_stor_wide), file = "~/WP1/shiny/dataAccess/map_stor.csv")
+# write_csv_arrow(map_filt(bbox_young_wide), file = "~/WP1/shiny/dataAccess/map_young.csv")
+# write_csv_arrow(map_filt(bbox_disko_wide), file = "~/WP1/shiny/dataAccess/map_disko.csv")
+# write_csv_arrow(map_filt(bbox_nuup_wide), file = "~/WP1/shiny/dataAccess/map_nuup.csv")
+# write_csv_arrow(map_filt(bbox_por_wide), file = "~/WP1/shiny/dataAccess/map_por.csv")
+map_kong <- read_csv_arrow("map_kong.csv")
+map_is <- read_csv_arrow("map_is.csv")
+map_stor <- read_csv_arrow("map_stor.csv")
+map_young <- read_csv_arrow("map_young.csv")
+map_disko <- read_csv_arrow("map_disko.csv")
+map_nuup <- read_csv_arrow("map_nuup.csv")
+map_por <- read_csv_arrow("map_por.csv")
 
 # Load PANGAEA driver metadata sheet
 ## NB: Code only run once to get slimmed down parameter list
-# pg_parameters <- read_tsv("~/WP1/metadata/pangaea_parameters.tab")
-# if(!exists("clean_all")) load("~/WP1/data/analyses/clean_all.RData")
-# param_list <- distinct(select(clean_all, category, driver, variable)) %>% 
-#   mutate(long_name = sapply(base::strsplit(variable, " \\["), "[[", 1)) %>% 
-#   left_join(pg_parameters, by = c("long_name" = "Abbreviation")) %>% 
-#   dplyr::select(category, driver, variable, long_name)
-# write_csv(param_list, "shiny/dataAccess/param_list.csv")
-param_list <- read_csv("param_list.csv")
+# pg_parameters <- read_delim_arrow("~/WP1/metadata/pangaea_parameters.tab", delim = "\t")
+# if(!exists("clean_all")) clean_all <- map_dfr(full_data_paths[grepl("clean_", full_data_paths)], read_csv_arrow)
+# param_list <- distinct(select(clean_all, category, driver, variable)) %>%
+#   mutate(var_name = sapply(base::strsplit(variable, " \\["), "[[", 1)) %>%
+#   left_join(pg_parameters, by = c("var_name" = "Abbreviation")) %>%
+#   dplyr::select(category, driver, variable, Parameter) %>% distinct() %>%
+#   left_join(long_names, by = c("category", "driver")) %>% 
+#   dplyr::rename(Category = category_long, Driver = driver_long, Variable = variable, Name = Parameter) %>% 
+#   dplyr::select(Category, Driver, Variable, Name)
+# write_csv_arrow(param_list, "~/WP1/shiny/dataAccess/param_list.csv")
+param_list <- read_csv_arrow("param_list.csv")
 
 
 # UI ----------------------------------------------------------------------
@@ -298,14 +316,14 @@ server <- function(input, output, session) {
     
     # List of long names for variables
     output$longVarDT <- DT::renderDataTable({
-        # req(input$selectCat)
-        # unique(df_cat()$var_name)
-        df_names <- param_list#filter(param_list, Driver %in% )
-        df_names_DT <- datatable(df_names, rownames = FALSE,
-                                 options = list(pageLength = 1000, scrollX = TRUE, scrollY = 240, info = FALSE,
-                                                lengthChange = FALSE, paging = FALSE,
-                                                columnDefs = list(list(searchable = FALSE, targets = 1))))
-        return(df_names_DT)
+      # req(input$selectCat)
+      
+      df_names <- param_list
+      df_names_DT <- datatable(df_names, rownames = FALSE,
+                               options = list(pageLength = 1000, scrollX = TRUE, scrollY = 240, info = FALSE,
+                                              lengthChange = FALSE, paging = FALSE,
+                                              columnDefs = list(list(searchable = FALSE, targets = 1))))
+      return(df_names_DT)
     })
     
     # Filter data
@@ -402,7 +420,7 @@ server <- function(input, output, session) {
             if(input$downloadFilterType == ".Rds"){
                 saveRDS(df_filter(), file = file)
             } else if(input$downloadFilterType == ".csv"){
-                readr::write_csv(df_filter(), file)
+                arrow::write_csv_arrow(df_filter(), file)
             }
         }
     )
@@ -421,7 +439,7 @@ server <- function(input, output, session) {
       file_list <- full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]
 
       # Load initial data
-      df_driv <- purrr::map_dfr(file_list, data.table::fread)
+      df_driv <- purrr::map_dfr(file_list, read_csv_arrow)
       if(nrow(df_driv) > 0){
         df_driv <- df_driv %>% 
           mutate(date = as.Date(date)) %>% 
@@ -490,20 +508,22 @@ server <- function(input, output, session) {
       req(input$selectSite)
       
       # Base map reacts to site selection
-      if(input$selectSite == "sval") bbox_name <- bbox_sval
+      if(input$selectSite == "por") bbox_name <- bbox_por
       if(input$selectSite == "kong") bbox_name <- bbox_kong
       if(input$selectSite == "is") bbox_name <- bbox_is
       if(input$selectSite == "stor") bbox_name <- bbox_stor
       if(input$selectSite == "young") bbox_name <- bbox_young
       if(input$selectSite == "disko") bbox_name <- bbox_disko
       if(input$selectSite == "nuup") bbox_name <- bbox_nuup
-      if(input$selectSite == "por") bbox_name <- bbox_por
       
       # Get buffer area for plot
       xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
       xmax <- bbox_name[2]+(bbox_name[2]-bbox_name[1])/4
       ymin <- bbox_name[3]-(bbox_name[4]-bbox_name[3])/8
       ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
+      
+      # Filter down map for speed
+      map_base_sub <- 
       
       # Show bbox created by lon/lat sliders
       basePlot <- ggplot() + 
