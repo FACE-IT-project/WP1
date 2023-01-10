@@ -2275,3 +2275,4 @@ table_A1_plot <- ggplot() +
   annotate(geom = "table", x = 0, y = 0, label = list(table_A1)) +
   theme_void()
 ggsave("figures/table_A1.png", table_A1_plot, width = 4.25, height = 21.5, dpi = 600)
+
