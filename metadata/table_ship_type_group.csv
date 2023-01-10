@@ -2,16 +2,24 @@ Type_group,Type,count
 Cargo,General Cargo,71
 Cargo,Bulk Carrier,58
 Cargo,Cargo,23
+Cargo,Oil/Chemical Tanker,19
+Cargo,Tanker,13
 Cargo,Container Ship,8
+Cargo,Oil Products Tanker,8
 Cargo,Reefer,8
 Cargo,Ore Carrier,7
+Cargo,Crude Oil Tanker,4
 Cargo,Vehicles Carrier,4
+Cargo,Lng Tanker,2
 Cargo,Wood Chips Carrier,2
 Cargo,Bulker,1
 Cargo,Cargo/Container Ship,1
 Cargo,Cement Carrier,1
 Cargo,Chemical Tanker,1
+Cargo,Lpg Tanker,1
 Cargo,Ro-Ro Cargo,1
+Cargo,Tanker B,1
+Cargo,Tanker D,1
 Fishing,Fishing,99
 Fishing,Trawler,89
 Fishing,Factory Trawler,22
@@ -19,29 +27,33 @@ Fishing,Fishing Vessel,16
 Fishing,Fish Carrier,4
 Fishing,Sealer,2
 Fishing,Fish Factory,1
-Fossil,Oil/Chemical Tanker,19
-Fossil,Tanker,13
-Fossil,Oil Products Tanker,8
-Fossil,Crude Oil Tanker,4
-Fossil,Lng Tanker,2
-Fossil,Lpg Tanker,1
-Fossil,Tanker B,1
-Fossil,Tanker D,1
+Gov,Research/Survey Vessel,27
+Gov,Port Tender,26
 Gov,Search and Rescue vessel,16
+Gov,Tug,15
 Gov,Law Enforcement,14
 Gov,Military ops,14
+Gov,Anchor Handling Vessel,6
+Gov,Fishery Research Vessel,6
 Gov,Patrol Vessel,4
+Gov,Pilot Vessel,4
+Gov,Diving ops,3
 Gov,Icebreaker,3
 Gov,Buoy-laying Vessel,2
 Gov,Cable Layer,2
 Gov,Dredging or underwater ops,2
+Gov,Spare - Local Vessel,2
+Gov,Standby Safety Vessel,2
+Gov,Anti-pollution equipment,1
 Gov,Crane Ship,1
+Gov,Diving Support Vessel,1
 Gov,Grab Hopper Dredger,1
 Gov,Landing Craft,1
 Gov,Naval Patrol Vessel,1
 Gov,Offshore Supply Ship,1
 Gov,Salvage/Rescue Vessel,1
 Gov,Search and Rescue Aircraft,1
+Gov,Towing,1
 Gov,Training Ship,1
 Gov,Waste Disposal Vessel,1
 Passenger,Passengers Ship,95
@@ -55,18 +67,6 @@ Pleasure,Yacht,12
 Pleasure,Sailing Vessel,3
 Pleasure,Wing in ground,1
 Pleasure,Wing in ground B,1
-Port,Port Tender,26
-Port,Tug,15
-Port,Anchor Handling Vessel,6
-Port,Pilot Vessel,4
-Port,Spare - Local Vessel,2
-Port,Standby Safety Vessel,2
-Port,Anti-pollution equipment,1
-Port,Towing,1
-Research,Research/Survey Vessel,27
-Research,Fishery Research Vessel,6
-Research,Diving ops,3
-Research,Diving Support Vessel,1
 Unknown,No data,989
 Unknown,Other Type,22
 Unknown,Not available,20

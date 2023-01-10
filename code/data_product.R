@@ -2681,7 +2681,7 @@ rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## GEM ---------------------------------------------------------------------
 
-# NB: Several undownloaded wind data files as these are not currently to be used in the review paper
+# NB: Several undownloaded wind data files as these were not used in the review paper
 
 # Open water CTD
 ## NB: These single lon/lat values seem dubious

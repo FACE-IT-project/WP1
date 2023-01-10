@@ -978,9 +978,12 @@ clean_all <- rbind(clean_sea_ice, clean_glacier, clean_runoff,
                    clean_pp, clean_biomass, clean_spp_rich,
                    clean_gov, clean_tourism, clean_fisheries) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
+
+# Save all data in one file
 save(clean_all, file = "data/analyses/clean_all.RData")
-plyr::l_ply(unique(clean_all$category), save_category, .parallel = T,
-            df = clean_all, data_type = "clean", site_name = "all")
+
+# Save all data by driver/site
+save_data(df = clean_all, data_type = "clean")
 
 
 ## References --------------------------------------------------------------

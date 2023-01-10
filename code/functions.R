@@ -1265,11 +1265,27 @@ load_GRDC <- function(file_name){
 }
 
 # Convenience function to save site products as individual files
-# NB: This is designed to be multicored with the categories as the grouped variable
-save_category <- function(cat_sub, df, data_type, site_name){
-  sub_df <- filter(df, category == cat_sub)
-  system.time(data.table::fwrite(sub_df, paste0("data/full_data/",data_type,"_",cat_sub,"_",site_name,".csv")))
-  rm(sub_df); gc()
+# This expects a list input of vectors e.g. "phys_temp_kong_clean"
+save_data_one <- function(sub_levels, df){
+  sub_split <- strsplit(sub_levels, "_")[[1]]
+  sub_df <- filter(df, category == sub_split[1], driver == sub_split[2], site == sub_split[3])
+  if(nrow(sub_df) == 0) return()
+  data.table::fwrite(sub_df, paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
+                                    sub_split[2],"_", sub_split[3],".csv"))
+  rm(sub_split, sub_df); gc()
+}
+
+# Convenience function to save site products as individual files
+save_data <- function(df, data_type){
+  unique_levels <- df %>% 
+    dplyr::select(category, driver, site) %>% 
+    dplyr::filter(site %in% long_site_names$site) %>% 
+    distinct() %>% 
+    mutate(type = data_type) %>% 
+    unite(col = "all", sep = "_") %>% 
+    as.list()
+  purrr::walk(unique_levels[[1]], save_data_one, df = df)
+  rm(unique_levels); gc()
 }
 
 # Data summary plotting function

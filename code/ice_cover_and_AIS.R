@@ -253,34 +253,34 @@ is_AIS_database <- left_join(is_mst_database, is_gfw_database, by  = c("MMSI" = 
                                 # Unknown or otherwise missing vessel types
   mutate(Type_group = case_when(Type %in% c("No data", "Other Type", "Not available", "Reserved", 
                                             "---", "Reserved for future use") ~ "Unknown",
-                                # Fishing vessels
-                                Type %in% c("Fishing", "Trawler", "Factory Trawler", "Fishing Vessel",
-                                            "Fish Carrier", "Sealer", "Fish Factory") ~ "Fishing",
+                                # Passenger vessels
+                                Type %in% c("Passengers Ship", "Passenger", "High speed craft",
+                                            "Ro-Ro/Passenger Ship", "Passenger/Cargo Ship") ~ "Passenger",
                                 # Pleasure vessels
                                 Type %in% c("Sailing", "Sailing Vessel") ~ "Pleasure",#  "Sailing",
                                 Type %in% c("Pleasure Craft", "Yacht", "Wing in ground",
                                             "Wing in ground B") ~ "Pleasure",
-                                # Passenger vessels
-                                Type %in% c("Passengers Ship", "Passenger", "High speed craft",
-                                            "Ro-Ro/Passenger Ship", "Passenger/Cargo Ship") ~ "Passenger",
+                                # Fishing vessels
+                                Type %in% c("Fishing", "Trawler", "Factory Trawler", "Fishing Vessel",
+                                            "Fish Carrier", "Sealer", "Fish Factory") ~ "Fishing",
                                 # Cargo vessels
                                 Type %in% c("General Cargo", "Bulk Carrier", "Cargo",
                                             "Container Ship", "Reefer", "Ore Carrier",
                                             "Vehicles Carrier", "Wood Chips Carrier", "Bulker",
                                             "Cargo/Container Ship", "Cement Carrier", "Chemical Tanker",
                                             "Ro-Ro Cargo") ~ "Cargo",
+                                # Fossil fuel activities
+                                Type %in% c("Oil/Chemical Tanker", "Tanker", "Oil Products Tanker", 
+                                            "Crude Oil Tanker", "Lng Tanker", "Lpg Tanker", 
+                                            "Tanker B", "Tanker D") ~ "Cargo", #"Fossil",
                                 # Research activities
                                 Type %in% c("Research/Survey Vessel", "Fishery Research Vessel",
-                                            "Diving ops", "Diving Support Vessel") ~ "Research",
+                                            "Diving ops", "Diving Support Vessel") ~ "Gov", #"Research",
                                 # Port related
                                 Type %in% c("Port Tender", "Tug", "Anchor Handling Vessel",
                                             "Pilot Vessel", "Spare - Local Vessel",
                                             "Standby Safety Vessel", "Anti-pollution equipment",
-                                            "Towing") ~ "Port",
-                                # Fossil fuel activities
-                                Type %in% c("Oil/Chemical Tanker", "Tanker", "Oil Products Tanker", 
-                                            "Crude Oil Tanker", "Lng Tanker", "Lpg Tanker", 
-                                            "Tanker B", "Tanker D") ~ "Fossil",
+                                            "Towing") ~ "Gov", #"Port",
                                 # Other governmental/law enforcement etc.
                                 Type %in% c("Search and Rescue vessel", "Military ops",
                                             "Patrol Vessel", "Icebreaker", "Buoy-laying Vessel",
@@ -301,7 +301,8 @@ write_csv(table_type_group, "metadata/table_ship_type_group.csv")
 # Merge with mmsi database to get ship types
 is_AIS_data <- is_AIS_coarse %>% 
   left_join(is_AIS_database, by = c("mmsi" = "MMSI")) %>% 
-  mutate(Type_group = case_when(is.na(Type_group) ~ "Unknown", TRUE ~ Type_group))
+  mutate(Type_group = case_when(is.na(Type_group) ~ "Unknown", TRUE ~ Type_group)) %>% 
+  filter(between(lon, bbox_is[1], bbox_is[2]), between(lat, bbox_is[3], bbox_is[4]))
 
 # Get monthly count of unique ships in the fjord
 is_AIS_unique_monthly <- is_AIS_data %>% 
@@ -332,7 +333,7 @@ is_AIS_unique_position <- is_AIS_data %>%
 is_AIS_type_position <- is_AIS_data %>% 
   dplyr::select(year, month, lon, lat, Type_group, mmsi) %>% 
   distinct() %>% 
-  group_by(year, month, Type) %>% 
+  group_by(year, month, Type_group) %>% 
   summarise(type_group_position_count = n(), .groups = "drop")
 
 # Get daily count of time in fjord for unique ships
@@ -348,45 +349,79 @@ is_AIS_type_position <- is_AIS_data %>%
 
 # Create unique ship count figure
 ## boxplot
-ship_box <- ggplot(data = is_AIS_unique_monthly, 
+ship_unique_box <- ggplot(data = is_AIS_unique_monthly, 
                    aes(x = as.factor(month), y = unique_count_monthly, fill = month)) + 
   geom_boxplot(aes(group = month)) + 
   scale_fill_continuous(type = "viridis") +
-  scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
+  # scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
   labs(x = "Month", y = "Unique ship count", fill = "Month",
-       title = "Unique ship count in Isfjorden per month from 2011 - 2019 by MMSI",
-       subtitle = "Range in unique ship counts per month") +
+       title = "Ship count by MMSI in Isfjorden per month from 2011 - 2019",
+       subtitle = "Range in ship counts per month") +
   theme_bw() + theme(legend.position = "none")
-ship_box
+ship_unique_box
 
 ## Scatterplot
-ship_scatter <- ggplot(data = is_AIS_unique_monthly, 
+ship_unique_scatter <- ggplot(data = is_AIS_unique_monthly, 
                        aes(x = year, y = unique_count_monthly, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
   scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
   scale_x_continuous(breaks = c(2012, 2015, 2018)) +
-  scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
+  # scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
   labs(x = "Year", y = NULL, colour = "Month", 
-       subtitle = "Trend in unique ship counts per month") +
+       subtitle = "Trend in ship counts per month") +
   theme_bw() + theme(legend.position = "none")
-ship_scatter
+ship_unique_scatter
 
 ## Combine
-ship_plot <- ggpubr::ggarrange(ship_box, ship_scatter, ncol = 2, align = "hv")#, labels = c("A)", "B)"))
-ship_plot
-ggsave("figures/ship_count_unique_is.png", ship_plot, width = 12, height = 5)
+ship_unique_plot <- ggpubr::ggarrange(ship_unique_box, ship_unique_scatter, ncol = 2, align = "hv")#, labels = c("A)", "B)"))
+ship_unique_plot
+ggsave("figures/ship_count_unique_is.png", ship_unique_plot, width = 12, height = 5)
 
+# Create ship type count figure
+## boxplot
+ship_type_box <- ggplot(data = is_AIS_type_monthly, 
+                   aes(x = as.factor(month), y = type_group_count_monthly, fill = month)) + 
+  geom_boxplot(aes(group = month)) + 
+  scale_fill_continuous(type = "viridis") +
+  # scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
+  facet_wrap(~Type_group, ncol = 1) +
+  labs(x = "Month", y = "Unique ship count", fill = "Month",
+       title = "Ship count by type in Isfjorden per month from 2011 - 2019",
+       subtitle = "Range in ship counts per month") +
+  theme_bw() + theme(legend.position = "none")
+ship_type_box
 
+## Scatterplot
+ship_type_scatter <- ggplot(data = is_AIS_type_monthly, 
+                       aes(x = year, y = type_group_count_monthly, colour = month)) + 
+  geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
+  scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
+  scale_x_continuous(breaks = c(2012, 2015, 2018)) +
+  # scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
+  facet_wrap(~Type_group, ncol = 1) +
+  labs(x = "Year", y = NULL, colour = "Month", 
+       subtitle = "Trend in ship counts per month") +
+  theme_bw() + theme(legend.position = "none")
+ship_type_scatter
+
+## Combine
+ship_type_plot <- ggpubr::ggarrange(ship_type_box, ship_type_scatter, ncol = 2, align = "hv")#, labels = c("A)", "B)"))
+ship_type_plot
+ggsave("figures/ship_count_type_is.png", ship_type_plot, width = 16, height = 10)
 
 # Create ship map figure
-is_AIS_vessel_year_sum <- is_AIS_data %>% 
-  group_by(vesselType, year, lon, lat, ship_count) %>% 
-  summarise(vessel_type_sum = sum(ship_count), .groups = "drop")
-map_vessel_year <- ggplot(data = is_AIS_vessel_year_sum, aes(x = lon, y = lat)) +
-  borders() + geom_tile(aes(fill = log10(vessel_type_sum))) +
+is_AIS_type_year_sum <- is_AIS_data %>% 
+  group_by(Type_group, year, lon, lat, ship_count) %>% 
+  summarise(type_sum = sum(ship_count), .groups = "drop")
+map_vessel_year <- ggplot(data = is_AIS_type_year_sum, aes(x = lon, y = lat)) +
+  borders() + geom_tile(aes(fill = log10(type_sum))) +
+  scale_fill_viridis_c(option = "A") +
   coord_quickmap(xlim = bbox_is[1:2], ylim = bbox_is[3:4]) +
-  facet_grid(year~vesselType) +
+  labs(x = NULL, y = NULL, fill = "Annual count [log10(n)]",
+       title = "Heatmap of recorded ship type positions by ~0.01° from 2011 - 2019",
+       subtitle = "NB: Values shown are log10 transformed") +
+  facet_grid(Type_group ~ year) +
   theme(legend.position = "bottom")
 map_vessel_year
-ggsave("figures/vessel_sum_map_is.png", map_vessel_year, width = 7, height = 18)
+ggsave("figures/ship_sum_type_map_is.png", map_vessel_year, width = 18, height = 12)
 
