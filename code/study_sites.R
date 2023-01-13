@@ -76,6 +76,10 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
                           lon1 = c(-51.49, -50.584), lon2 = c(-54.15, -51.979))
 
 
+# Hi-res site map files ---------------------------------------------------
+
+
+
 # EU shapefiles -----------------------------------------------------------
 
 # rb <- raster_bathymetry(bathy = paste0(pCloud_path,"FACE-IT_data/shape_files/GEBCO_2020.nc"),
@@ -115,7 +119,7 @@ extract_bathy(bbox_nuup, "nuup")
 extract_bathy(bbox_por, "por")
 
 
-# Map ---------------------------------------------------------------------
+# Map plots ---------------------------------------------------------------
 
 # Svalbard study sites
 map_sval <- basemap(c(7, 30, 75.5, 81.5), bathymetry = T) +
