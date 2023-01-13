@@ -497,6 +497,7 @@ review_summary_plot(summary_light, "light")
 ### Carb -------------------------------------------------------------------
 
 # TODO: Sort out the variable conversions etc.
+# Bring DIC back into dataset
 # pH is not always the same, there are different scales with differences of up to 0.2
 ## It requires expert knowledge and review of each citation to determine the provenence of the pH scale...
 # Difference in measured vs calculated pCO2, and difference in SST and normalised temperature
@@ -516,7 +517,7 @@ unique(filter(full_product_kong, category == "chem")$variable)
 # But this is actually a good thing as it allows us to acknowledge specific contributors,
 # which is something that the GLODAP product requests that we do.
 carb_kong <- review_filter_var(filter(full_product_kong, category == "chem"), 
-                               "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|PO4|NO2|NO3|NH4")
+                               "DIC|CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", "O2 sat|PO4|NO2|NO3|NH4")
 carb_is <- review_filter_var(filter(full_product_is, category == "chem"),
                              "CO2|pH|TA|AT|Alk|CaCO3|calc|carb|diox", 
                              "O2 sat|PO4|NO2|NO3|nitrate|silicate|phosphate|tco2|Isfjord|EP TA")
