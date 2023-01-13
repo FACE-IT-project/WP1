@@ -1,5 +1,7 @@
 # code/data_processing.R
 # This script is used to process data downloaded from multiple sources
+# It is also used to prep FACE-IT files for PANGAEA that will not be amalgamated
+# Generally this is for ex situ or lab experiments
 
 
 # Setup -------------------------------------------------------------------
@@ -86,4 +88,54 @@ prep_bathy <- function(file_name){
   
 }
 
+
+# Marambio dataset --------------------------------------------------------
+
+# See "~/pCloudDrive/restricted_data/Marambio/.~lock.Marambio 2022_PANGEA_PALMARIA.xlsx"
+# for metadata used below
+# 1, 3, 6, 10, 15 and 21
+# Load each sheet
+mar_1 <- read_csv_arrow("~/pCloudDrive/restricted_data/Marambio/Marambio 2022_PANGEA_PALMARIA_1.csv")
+mar_2 <- read_csv_arrow("~/pCloudDrive/restricted_data/Marambio/Marambio 2022_PANGEA_PALMARIA_2.csv")
+mar_3 <- read_csv_arrow("~/pCloudDrive/restricted_data/Marambio/Marambio 2022_PANGEA_PALMARIA_3.csv")
+mar_4 <- read_csv_arrow("~/pCloudDrive/restricted_data/Marambio/Marambio 2022_PANGEA_PALMARIA_4.csv")
+
+# Process pigment file
+mar_1_proc <- mar_1 %>% 
+  mutate(Replicate = rep(seq(1, 3), nrow(mar_1)/3)) %>% 
+  pivot_longer(t1:t6, names_to = "Day", values_to = "value") %>% 
+  pivot_wider(names_from = Parameter, values_from = value)
+
+# Process fv/fm file
+mar_2_proc <- mar_2 %>% 
+  mutate(Replicate = rep(seq(1, 3), nrow(mar_2)/3)) %>% 
+  pivot_longer(t1:t6, names_to = "Day", values_to = "value") %>% 
+  pivot_wider(names_from = Parameter, values_from = value)
+
+# Process NPQ file
+mar_3_proc <- mar_3 %>% 
+  pivot_longer(HL_t1:LL_t6, names_to = "Day", values_to = "value") %>% 
+  separate(Day, into = c("Treat_Light", "Day")) %>% 
+  mutate(col_names = paste0("NPQ [PAM-Light Curve ",`PAM-Light Curve`," µmol photons m-2 s-1]")) %>% 
+  dplyr::select(-Parameter, -`PAM-Light Curve`) %>% 
+  pivot_wider(names_from = col_names, values_from = value)
+
+# Process DPPH file
+mar_4_proc <- mar_4 %>% 
+  mutate(Replicate = rep(seq(1, 3), nrow(mar_4)/3)) %>% 
+  pivot_longer(t1:t6, names_to = "Day", values_to = "value") %>% 
+  pivot_wider(names_from = Parameter, values_from = value)
+
+# Combine all files
+join_columns <- c("Species", "Family", "Treat_Light", "Treat_SA", "Replicate", "Day")
+mar_full <- left_join(mar_1_proc, mar_2_proc, by = join_columns) %>% 
+  left_join(mar_3_proc, by = join_columns) %>% 
+  left_join(mar_4_proc, by = join_columns) %>% 
+  mutate(Treat_Light = case_when(Treat_Light == "HL" ~ 500, Treat_Light == "LL" ~ 50),
+       Day = case_when(Day  == "t1" ~ 1, Day  == "t2" ~ 3, Day  == "t3" ~ 6,
+                       Day  == "t4" ~ 10, Day  == "t5" ~ 15, Day  == "t6" ~ 21)) %>% 
+  dplyr::select(Species, Family, Replicate, Day,  everything()) %>% 
+  dplyr::rename(`Repl [#]` = Replicate, `Treat light [µmol photons m-2 s-1]` = Treat_Light, `Treat sal` = Treat_SA, 
+                `Chl a [µg/g]` = Chla, `Lut [µg/g]` = Lut, `β Car [µg/g]` = `β Car`, `Zea [µg/g]` = Zeax, `DPPH [µg/g]` = DPPH)
+write_csv(mar_full, "~/pCloudDrive/restricted_data/Marambio/Marambio_full.csv")
 
