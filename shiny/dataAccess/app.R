@@ -1,9 +1,6 @@
 # shiny/dataAccess/app.R
 # The code used to generate the UI for accessing the FACE-IT data product
 
-# TODO:
-# HiRes coastline for smaller sites
-
 
 # Setup -------------------------------------------------------------------
 
@@ -125,51 +122,18 @@ ui <- dashboardPage(
     dashboardSidebar(
         
         # Add FACE-IT logo to menu bar
-        br(),
+        br(), br(),
         img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225"),
         br(), br(),
-        
-        # Site name
-        selectizeInput(
-            'selectSite', '1. Study site',
-            choices = sites_named,
-            options = list(
-                placeholder = 'Select a site to begin',
-                onInitialize = I('function() { this.setValue(""); }'))
-        ),
-        
-        # Category - 2. Category(s)
-        uiOutput("selectCatUI"),
-        
-        # Drivers - 3. Driver(s)
-        uiOutput("selectDrivUI"),
-        
-        # Variables - 4. Variable(s)
-        uiOutput("selectVarUI"),
-        
-        # Switch for Clean vs Full data
-        # shinyWidgetsGallery()
-        # radioGroupButtons(
-        #   inputId = "cleanVSfull",
-        #   label = "5. Clean or full data", 
-        #   selected = "clean",
-        #   choices = c("Clean" = "clean", "Full" = "full"),
-        #   status = "warning"
-        # ),
-        
-        # Filter PANGAEA data
-        # radioGroupButtons(
-        #     inputId = "PANGAEAfilter",
-        #     label = "4. Filter PANGAEA", 
-        #     choices = c("Yes", "No"), 
-        #     selected = "No",
-        #     status = "warning"
-        # ),
-        
-        # Download
-        radioButtons("downloadFilterType", "5. Download", choices = c(".csv", ".Rds"), 
-                     selected = ".csv", inline = T),
-        fluidRow(column(width = 2), column(width = 10, offset = 1, downloadButton("downloadFilter", "Download data"))),
+        br(), br(), 
+            
+        # Sidebar menu with multiple drop downs
+        sidebarMenu(
+          # Setting id makes input$tabs give the tabName of currently-selected tab
+          id = "tabs",
+          menuItem("Data download", tabName = "download", icon = icon("table"), selected = TRUE),
+          menuItem("Information", tabName = "information", icon = icon("th"))
+          ),
         
         # Info popup
         # shinyWidgets::dropdown(shiny::renderPrint("Test"))
@@ -180,43 +144,99 @@ ui <- dashboardPage(
         # br(),
         useSweetAlert(),
         actionBttn(
-            inputId = "info",
-            label = "Instructions",
-            icon = icon("book"),
-            style = "material-flat",
-            color = "success"
+          inputId = "instructions",
+          label = "Instructions",
+          icon = icon("book"),
+          style = "material-flat",
+          color = "success"
         )
-    ),
+        ),
     
     # Info, filters, and plots for the selected data
     dashboardBody(
-        fluidRow(
-            column(width = 3,
-                   box(width = 12, height = "380px", title = "Data info",
-                       status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                       DT::dataTableOutput("longVarDT")),
-                   box(width = 12, height = "440px", title = "Filter data",
-                       status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                       uiOutput("slideLonUI"), uiOutput("slideLatUI"),
-                       uiOutput("slideDepthUI"), uiOutput("slideDateUI"))),
-            column(width = 6,
-                   box(width = 12, height = "410px", title = "Lon/lat",
-                       status = "info", solidHeader = TRUE, collapsible = FALSE,
-                       shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "355px"), 
-                                                    type = 6, color = "#b0b7be")),
-                   box(width = 12, height = "410px", title = "Date",
-                       status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                       shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "355px"), 
-                                                    type = 6, color = "#b0b7be"))),
-            column(width = 3,
-                   box(width = 12, height = "840px", title = "Depth",
-                       status = "success", solidHeader = TRUE, collapsible = FALSE,
-                       shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
-                                                    type = 6, color = "#b0b7be")))
-        )
+      tabItems(
+        tabItem(tabName = "download",
+                fluidRow(
+                  column(width = 3,
+                         box(width = 12, height = "880px", title = "Filter data",
+                             status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                             
+                             # Site name
+                             selectizeInput(
+                               'selectSite', '1. Study site',
+                               choices = sites_named,
+                               options = list(
+                                 placeholder = 'Select a site to begin',
+                                 onInitialize = I('function() { this.setValue(""); }'))
+                             ),
+                             
+                             # Category - 2. Category(s)
+                             uiOutput("selectCatUI"),
+                             
+                             # Drivers - 3. Driver(s)
+                             uiOutput("selectDrivUI"),
+                             
+                             # Variables - 4. Variable(s)
+                             uiOutput("selectVarUI"),
+                             
+                             # Filter - 5. lon 
+                             uiOutput("slideLonUI"), 
+                             
+                             # Filter - 6. lat
+                             uiOutput("slideLatUI"),
+                             
+                             # Filter -7. Date
+                             uiOutput("slideDateUI"), 
+                             
+                             # Filter - 8. Depth
+                             uiOutput("slideDepthUI"), 
+                             
+                             fluidRow(
+                               
+                               # Process - 9. Load
+                               column(width = 5,
+                                      h5(tags$b("9. Filter data")),
+                                      actionBttn(inputId = "filterData", label = "Go!")),
+                               # br(), br(),
+                               
+                               # Download - 10. Download
+                               column(width = 7,
+                                      radioButtons("downloadFilterType", "10. Download data", choices = c(".csv", ".Rds"), 
+                                                   selected = ".csv", inline = T),
+                                      downloadButton("downloadFilter", "Download data"))
+                             )
+                         )
+                  ),
+                  
+                  # Map and time series plots
+                  column(width = 6,
+                         box(width = 12, height = "410px", title = "Lon/lat",
+                             status = "info", solidHeader = TRUE, collapsible = FALSE,
+                             shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "355px"), 
+                                                          type = 6, color = "#b0b7be")),
+                         box(width = 12, height = "410px", title = "Date",
+                             status = "primary", solidHeader = TRUE, collapsible = FALSE,
+                             shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "355px"), 
+                                                          type = 6, color = "#b0b7be"))),
+                  
+                  # Depth plot
+                  column(width = 3,
+                         box(width = 12, height = "840px", title = "Depth",
+                             status = "success", solidHeader = TRUE, collapsible = FALSE,
+                             shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
+                                                          type = 6, color = "#b0b7be")))
+                )
+        ),
+        
+        # Data table
+        tabItem(tabName = "information",
+                box(width = 12, height = "840px", title = "Information",
+                    status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                    DT::dataTableOutput("longVarDT")))
+      )
     ),
     
-    title = "Data Access",
+    # title = "Data Access",
     skin = "purple"
 )
 
@@ -294,71 +314,87 @@ server <- function(input, output, session) {
       )
     })
     
+    # Filter data
+    # Lon
+    output$slideLonUI <- renderUI({
+      # req(input$selectVar)
+      
+      if(length(input$selectVar) == 0){
+        min_val <- 0; max_val <- 0
+      } else if(length(na.omit(df_var()$lon)) == 0){
+        min_val <- 0; max_val <- 0
+      } else {
+        min_val <- round(min(df_var()$lon, na.rm = T), 2)-0.01
+        max_val <- round(max(df_var()$lon, na.rm = T), 2)+0.01
+      }
+      shiny::sliderInput("slideLon", "5. Longitude range", value = c(min_val, max_val), min = min_val, max = max_val)
+    })
+    
+    # Lat
+    output$slideLatUI <- renderUI({
+      # req(input$selectVar)
+      
+      if(length(input$selectVar) == 0){
+        min_val <- 0; max_val <- 0
+      } else if(length(na.omit(df_var()$lat)) == 0){
+        min_val <- 0; max_val <- 0
+      } else {
+        min_val <- round(min(df_var()$lat, na.rm = T), 2)-0.01
+        max_val <- round(max(df_var()$lat, na.rm = T), 2)+0.01
+      }
+      shiny::sliderInput("slideLat", "6. Latitude range", value = c(min_val, max_val), min = min_val, max = max_val)
+    })
+    
+    # Date
+    output$slideDateUI <- renderUI({
+      # req(input$selectVar)
+      
+      if(length(input$selectVar) == 0){
+        min_val <- 0; max_val <- 0
+      } else if(length(na.omit(df_var()$date)) == 0){
+        min_val <- as.Date("2000-01-01"); max_val <- as.Date("2000-01-01")
+      } else {
+        min_val <- min(df_var()$date, na.rm = T)
+        max_val <- max(df_var()$date, na.rm = T)
+      }
+      
+      # min_val <- 0; max_val <- 0
+      
+      shiny::sliderInput("slideDate", "7. Date range", value = c(min_val, max_val), min = min_val, max = max_val)
+    })
+    
+    # Depth
+    output$slideDepthUI <- renderUI({
+      # req(input$selectVar)
+      
+      if(length(input$selectVar) == 0){
+        min_val <- 0; max_val <- 0
+      } else if(length(na.omit(df_var()$depth)) == 0){
+        min_val <- 0; max_val <- 0
+      } else {
+        min_val <- min(df_var()$depth, na.rm = T)
+        max_val <- max(df_var()$depth, na.rm = T)
+      }
+      
+      shiny::sliderInput("slideDepth", "8. Depth range", value = c(min_val, max_val), min = min_val, max = max_val)
+    })
+
     # List of long names for variables
     output$longVarDT <- DT::renderDataTable({
       # req(input$selectCat)
       
       df_names <- param_list
       df_names_DT <- datatable(df_names, rownames = FALSE,
-                               options = list(pageLength = 1000, scrollX = TRUE, scrollY = 240, info = FALSE,
+                               options = list(pageLength = 1000, scrollX = TRUE, scrollY = 700, info = FALSE,
                                               lengthChange = FALSE, paging = FALSE,
                                               columnDefs = list(list(searchable = FALSE, targets = 1))))
       return(df_names_DT)
     })
     
-    # Filter data
-    # Lon
-    output$slideLonUI <- renderUI({
-        req(input$selectVar)
-        if(length(na.omit(df_var()$lon)) == 0){
-            min_val <- 0; max_val <- 0
-        } else {
-            min_val <- round(min(df_var()$lon, na.rm = T), 2)-0.01
-            max_val <- round(max(df_var()$lon, na.rm = T), 2)+0.01
-        }
-        shiny::sliderInput("slideLon", "Longitude range", value = c(min_val, max_val), min = min_val, max = max_val)
-    })
-    
-    # Lat
-    output$slideLatUI <- renderUI({
-        req(input$selectVar)
-        if(length(na.omit(df_var()$lat)) == 0){
-            min_val <- 0; max_val <- 0
-        } else {
-            min_val <- round(min(df_var()$lat, na.rm = T), 2)-0.01
-            max_val <- round(max(df_var()$lat, na.rm = T), 2)+0.01
-        }
-        shiny::sliderInput("slideLat", "Latitude range", value = c(min_val, max_val), min = min_val, max = max_val)
-    })
-    
-    # Date
-    output$slideDateUI <- renderUI({
-        req(input$selectVar)
-        if(length(na.omit(df_var()$date)) == 0){
-            min_val <- as.Date("2000-01-01"); max_val <- as.Date("2000-01-01")
-        } else {
-            min_val <- min(df_var()$date, na.rm = T)
-            max_val <- max(df_var()$date, na.rm = T)
-        }
-        shiny::sliderInput("slideDate", "Date range", value = c(min_val, max_val), min = min_val, max = max_val)
-    })
-    
-    # Depth
-    output$slideDepthUI <- renderUI({
-        req(input$selectVar)
-        if(length(na.omit(df_var()$depth)) == 0){
-            min_val <- 0; max_val <- 0
-        } else {
-            min_val <- min(df_var()$depth, na.rm = T)
-            max_val <- max(df_var()$depth, na.rm = T)
-        }
-        shiny::sliderInput("slideDepth", "Depth range", value = c(min_val, max_val), min = min_val, max = max_val)
-    })
 
+    ## Instructions ------------------------------------------------------------
 
-  ## Instructions ------------------------------------------------------------
-
-    observeEvent(input$info, {
+    observeEvent(input$instructions, {
         sendSweetAlert(
             session = session,
             title = "Instructions",
@@ -446,7 +482,7 @@ server <- function(input, output, session) {
     })
     
     # Filter by smaller details 
-    df_filter <- reactive({
+    df_filter <- eventReactive(input$filterData, {
       req(df_var())
         if(length(input$selectVar) == 0){
             df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA, var_name = "No variables selected",
@@ -455,12 +491,12 @@ server <- function(input, output, session) {
             req(input$slideDate)
             df_filter <- df_var()
             if(!is.na(input$slideLon[1])){
-                df_filter <- df_filter %>% 
-                    filter(lon >= input$slideLon[1] | is.na(lon)) %>% 
+                df_filter <- df_filter %>%
+                    filter(lon >= input$slideLon[1] | is.na(lon)) %>%
                     filter(lon <= input$slideLon[2] | is.na(lon))}
             if(!is.na(input$slideLat[1])){
-                df_filter <- df_filter %>% 
-                    filter(lat >= input$slideLat[1] | is.na(lat)) %>% 
+                df_filter <- df_filter %>%
+                    filter(lat >= input$slideLat[1] | is.na(lat)) %>%
                     filter(lat <= input$slideLat[2] | is.na(lat))}
             if(!is.na(input$slideDepth[1])){
                 df_filter <- df_filter %>% 
@@ -554,15 +590,19 @@ server <- function(input, output, session) {
         # Data count for map
         df_filter_map <- df_filter()[["map_count"]]
         
-        basePlot <- basePlot + 
-          geom_point(data = df_filter_map,
-                     aes(x = lon, y = lat, shape = driver, colour = variable,
-                         text = paste0("Category: ",category_long,
-                                       "<br>Driver: ",driver_long,
-                                       "<br>Variable: ",variable,
-                                       "<br>Lon: ",lon,
-                                       "<br>Lat: ",lat,
-                                       "<br>Count: ",count)))
+        if(nrow(df_filter_map) > 0){
+          basePlot <- basePlot + 
+            geom_point(data = df_filter_map,
+                       aes(x = lon, y = lat, shape = driver, colour = variable,
+                           text = paste0("Category: ",category_long,
+                                         "<br>Driver: ",driver_long,
+                                         "<br>Variable: ",variable,
+                                         "<br>Lon: ",lon,
+                                         "<br>Lat: ",lat,
+                                         "<br>Count: ",count)))
+        } #else {
+          
+        # }
       }
       
       ggplotly(basePlot, tooltip = "text")
