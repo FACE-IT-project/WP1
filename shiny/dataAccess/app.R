@@ -123,44 +123,98 @@ ui <- dashboardPage(
     
     # Application title
     # dashboardHeader(title = "Access to data collected for FACE-IT"),
-    dashboardHeader(title = "Data access"),
+  dashboardHeader(# Set height of dashboardHeader
+    tags$li(class = "dropdown",
+            tags$style(".main-header {max-height: 80px}"),
+            tags$style(".main-header .logo {height: 80px}")
+    ),
+    title = tags$a(href = "https://www.face-it-project.eu/",
+                   target = "_blank", rel = "noopener noreferrer",
+                   tags$img(src = "FACE-IT_Logo_900.png", alt = "FACE-IT",
+                            height = "70", width = "180", 
+                            style = "vertical-align:middle;margin:5px 0px"))),
     
     # Sidebar
     dashboardSidebar(
-        
+      # Adjust the sidebar
+      tags$style(".left-side, .main-sidebar {padding-top: 80px}"),
         # Add FACE-IT logo to menu bar
-        br(), br(),
-        img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225"),
-        br(), br(),
-        br(), br(), 
-            
+        # br(), br(),
+        # img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225"),
+        # br(), br(),
+        # br(), br(),
+      
+      # Info popup
+      # shinyWidgets::dropdown(shiny::renderPrint("Test"))
+      # Activate sweet alerts
+      # br(),
+      # hr(),
+      br(),
+      useSweetAlert(),
+      actionBttn(
+        inputId = "instructions",
+        label = "Instructions",
+        icon = icon("book"),
+        style = "material-flat",
+        color = "success"
+      ),
+      br(),
+      # hr(),
+      # br(),
+
         # Sidebar menu with multiple drop downs
         sidebarMenu(
           # Setting id makes input$tabs give the tabName of currently-selected tab
           id = "tabs",
-          menuItem("Data download", tabName = "download", icon = icon("table"), selected = TRUE),
-          menuItem("Information", tabName = "information", icon = icon("th"))
-          ),
-        
-        # Info popup
-        # shinyWidgets::dropdown(shiny::renderPrint("Test"))
-        # Activate sweet alerts
-        br(),
-        hr(),
-        br(),
-        # br(),
-        useSweetAlert(),
-        actionBttn(
-          inputId = "instructions",
-          label = "Instructions",
-          icon = icon("book"),
-          style = "material-flat",
-          color = "success"
-        )
-        ),
+          menuItem("Data download interface", tabName = "download", icon = icon("table"), selected = TRUE),
+          menuItem("Advanced search tool", tabName = "information", icon = icon("th"))
+          )
+    ),
     
     # Info, filters, and plots for the selected data
     dashboardBody(
+      # Custom CSS to change app colours
+      tags$head(tags$style(HTML('
+        /* logo */
+        .skin-blue .main-header .logo {
+                              background-color: #008980;
+                              }
+
+        /* logo when hovered */
+        .skin-blue .main-header .logo:hover {
+                              background-color: #ffffff;
+                              }
+
+        /* navbar (rest of the header) */
+        .skin-blue .main-header .navbar {
+                              background-color: #4472c4;
+                              }        
+
+        /* main sidebar */
+        .skin-blue .main-sidebar {
+                              background-color: #008980;
+                              }
+
+        /* active selected tab in the sidebarmenu */
+        .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+                              background-color: #7fad24;
+                              }
+
+        /* other links in the sidebarmenu */
+        .skin-blue .main-sidebar .sidebar .sidebar-menu a{
+                              background-color: #008980;
+                              color: #000000;
+                              }
+
+        /* other links in the sidebarmenu when hovered */
+         .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+                              background-color: #7fad24;
+                              }
+        /* toggle button when hovered  */                    
+         .skin-blue .main-header .navbar .sidebar-toggle:hover{
+                              background-color: #008980;
+                              }
+                              '))),
       tabItems(
         tabItem(tabName = "download",
                 fluidRow(
@@ -237,14 +291,14 @@ ui <- dashboardPage(
         
         # Data table
         tabItem(tabName = "information",
-                box(width = 12, height = "840px", title = "Information",
+                box(width = 12, height = "840px", title = "Full variable names",
                     status = "warning", solidHeader = TRUE, collapsible = FALSE,
                     DT::dataTableOutput("longVarDT")))
       )
     ),
     
-    # title = "Data Access",
-    skin = "purple"
+    # NB: Don't change colour here. This is done above via in-line CSS.
+    # skin = "purple"
 )
 
 
@@ -391,10 +445,10 @@ server <- function(input, output, session) {
       # req(input$selectCat)
       
       df_names <- param_list
-      df_names_DT <- datatable(df_names, rownames = FALSE,
-                               options = list(pageLength = 1000, scrollX = TRUE, scrollY = 700, info = FALSE,
-                                              lengthChange = FALSE, paging = FALSE,
-                                              columnDefs = list(list(searchable = FALSE, targets = 1))))
+      df_names_DT <- datatable(df_names, rownames = FALSE, filter = 'top', 
+                               options = list(pageLength = 100, scrollX = TRUE, scrollY = 650, #info = FALSE,
+                                              dom = 't', # Disable top level search bar
+                                              lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
       return(df_names_DT)
     })
     
@@ -564,13 +618,13 @@ server <- function(input, output, session) {
       req(input$selectSite)
       
       # Base map reacts to site selection
-      if(input$selectSite == "por") bbox_name <- bbox_por#; map_base <- map_kong
-      if(input$selectSite == "kong") bbox_name <- bbox_kong#; map_base <- map_kong
-      if(input$selectSite == "is") bbox_name <- bbox_is#; map_base <- map_kong
-      if(input$selectSite == "stor") bbox_name <- bbox_stor#; map_base <- map_kong
-      if(input$selectSite == "young") bbox_name <- bbox_young#; map_base <- map_kong
-      if(input$selectSite == "disko") bbox_name <- bbox_disko#; map_base <- map_kong
-      if(input$selectSite == "nuup") bbox_name <- bbox_nuup#; map_base <- map_kong
+      if(input$selectSite == "por") bbox_name <- bbox_por
+      if(input$selectSite == "kong") bbox_name <- bbox_kong
+      if(input$selectSite == "is") bbox_name <- bbox_is
+      if(input$selectSite == "stor") bbox_name <- bbox_stor
+      if(input$selectSite == "young") bbox_name <- bbox_young
+      if(input$selectSite == "disko") bbox_name <- bbox_disko
+      if(input$selectSite == "nuup") bbox_name <- bbox_nuup
       
       # Get buffer area for plot
       xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
@@ -579,15 +633,12 @@ server <- function(input, output, session) {
       ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
       
       # Filter map size for minor speed boost
-      # map_sub <- filter(map_hi,#map_base, 
-      #                   between(lon, bbox_name[1]-10, bbox_name[2]+10),
-      #                   between(lat, bbox_name[3]-6, bbox_name[4]+6))
-      map_sub <- filter(map_hi,#map_base, 
+      map_sub <- filter(map_hi,
                         between(lon, bbox_name[1], bbox_name[2]),
                         between(lat, bbox_name[3], bbox_name[4]))
       map_sub_fix <- filter(map_hi, group %in% map_sub$group)
       
-      # Show data filtered by lon/lat sliders
+      # tHE BASE MAP
       basePlot <- ggplot() + 
         geom_polygon(data = map_sub_fix, fill = "grey80", colour = "black",
                      aes(x = lon, y = lat, group = group, text = "Land")) +
@@ -602,6 +653,7 @@ server <- function(input, output, session) {
         # Data count for map
         df_filter_map <- df_filter()[["map_count"]]
         
+        # Show data filtered by lon/lat sliders
         if(nrow(df_filter_map) > 0){
           basePlot <- basePlot + 
             geom_point(data = df_filter_map,
@@ -612,9 +664,7 @@ server <- function(input, output, session) {
                                          "<br>Lon: ",lon,
                                          "<br>Lat: ",lat,
                                          "<br>Count: ",count)))
-        } #else {
-          
-        # }
+        }
       }
       
       ggplotly(basePlot, tooltip = "text")
