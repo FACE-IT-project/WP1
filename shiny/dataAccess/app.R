@@ -90,9 +90,16 @@ bbox_disko <- c(-55.56, -49.55, 68.22, 70.5)
 bbox_nuup <- c(-53.32, -48.93, 64.01, 64.8)
 bbox_por <- c(24.5, 27, 70, 71.2)
 
-# The base global map
-# NB: Considered creating smaller maps, but wasn't effective
+# The base site maps
 map_base <- readRDS("map_base.Rda")
+map_hi <- read_csv_arrow("coastline_hi_sub.csv")
+# map_kong <- read_csv_arrow("map_kong.csv")
+# map_is <- read_csv_arrow("map_is.csv")
+# map_stor <- read_csv_arrow("map_stor.csv")
+# map_young <- read_csv_arrow("map_young.csv")
+# map_disko <- read_csv_arrow("map_disko.csv")
+# map_nuup <- read_csv_arrow("map_nuup.csv")
+# map_por <- read_csv_arrow("map_por.csv")
 
 # Load PANGAEA driver metadata sheet
 ## NB: Code only run once to get slimmed down parameter list
@@ -557,13 +564,13 @@ server <- function(input, output, session) {
       req(input$selectSite)
       
       # Base map reacts to site selection
-      if(input$selectSite == "por") bbox_name <- bbox_por
-      if(input$selectSite == "kong") bbox_name <- bbox_kong
-      if(input$selectSite == "is") bbox_name <- bbox_is
-      if(input$selectSite == "stor") bbox_name <- bbox_stor
-      if(input$selectSite == "young") bbox_name <- bbox_young
-      if(input$selectSite == "disko") bbox_name <- bbox_disko
-      if(input$selectSite == "nuup") bbox_name <- bbox_nuup
+      if(input$selectSite == "por") bbox_name <- bbox_por#; map_base <- map_kong
+      if(input$selectSite == "kong") bbox_name <- bbox_kong#; map_base <- map_kong
+      if(input$selectSite == "is") bbox_name <- bbox_is#; map_base <- map_kong
+      if(input$selectSite == "stor") bbox_name <- bbox_stor#; map_base <- map_kong
+      if(input$selectSite == "young") bbox_name <- bbox_young#; map_base <- map_kong
+      if(input$selectSite == "disko") bbox_name <- bbox_disko#; map_base <- map_kong
+      if(input$selectSite == "nuup") bbox_name <- bbox_nuup#; map_base <- map_kong
       
       # Get buffer area for plot
       xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
@@ -572,12 +579,17 @@ server <- function(input, output, session) {
       ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
       
       # Filter map size for minor speed boost
-      map_base_sub <- filter(map_base, between(lon, bbox_name[1]-5, bbox_name[1]+5),
-                             between(lon, bbox_name[3]-3, bbox_name[4]+3))
+      # map_sub <- filter(map_hi,#map_base, 
+      #                   between(lon, bbox_name[1]-10, bbox_name[2]+10),
+      #                   between(lat, bbox_name[3]-6, bbox_name[4]+6))
+      map_sub <- filter(map_hi,#map_base, 
+                        between(lon, bbox_name[1], bbox_name[2]),
+                        between(lat, bbox_name[3], bbox_name[4]))
+      map_sub_fix <- filter(map_hi, group %in% map_sub$group)
       
       # Show data filtered by lon/lat sliders
       basePlot <- ggplot() + 
-        geom_polygon(data = map_base, fill = "grey80", colour = "black",
+        geom_polygon(data = map_sub_fix, fill = "grey80", colour = "black",
                      aes(x = lon, y = lat, group = group, text = "Land")) +
         coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
         labs(x = NULL, y = NULL, shape = "Driver", fill = "Variable") +

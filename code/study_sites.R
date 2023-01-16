@@ -78,6 +78,40 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 
 # Hi-res site map files ---------------------------------------------------
 
+# Or rather just save the hi-res data as csv and make the maps dynamically in the app
+coastline_hi_sub <- coastline_full_df %>% 
+  rename(lon = x, lat = y, group = id) %>%
+  filter(between(lon, -55, 28), lat > 59)
+write_csv_arrow(coastline_hi_sub, file = "~/WP1/shiny/dataAccess/coastline_hi_sub.csv")
+
+# Convenience wrapper for creating hi-res site maps
+map_site <- function(site_name){
+  bbox <- bbox_from_name(site_name); bbox_wide <- bbox_wide_from_name(site_name)
+  coastline_rename <- coastline_full_df %>% rename(lon = x, lat = y, group = id)
+  map_df <- filter(coastline_rename, 
+                   between(lon, bbox_wide[1], bbox_wide[2]), 
+                   between(lat, bbox_wide[3], bbox_wide[4]))
+  map_plot <- ggplot() + 
+    geom_polygon(data = map_df, fill = "grey80", colour = "black",
+                 aes(x = lon, y = lat, group = group, text = "Land")) +
+    coord_quickmap(xlim = bbox[1:2], ylim = bbox[3:4], expand = F) +
+    # coord_cartesian(xlim = bbox[1:2], ylim = bbox[3:4], expand = F) +
+    labs(x = NULL, y = NULL) + theme_bw() +
+    theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+          axis.text = element_text(size = 12, colour = "black"),
+          axis.ticks = element_line(colour = "black"), legend.position = "none")
+  return(map_plot)
+}
+map_kong <- map_site("kong")
+saveRDS(map_kong, file = "~/WP1/shiny/dataAccess/map_kong.rds")
+save(map_kong, file = "~/WP1/shiny/dataAccess/map_kong.RData")
+write_csv_arrow(map_filt(bbox_kong_wide), file = "~/WP1/shiny/dataAccess/map_kong.csv")
+write_csv_arrow(map_filt(bbox_is_wide), file = "~/WP1/shiny/dataAccess/map_is.csv")
+write_csv_arrow(map_filt(bbox_stor_wide), file = "~/WP1/shiny/dataAccess/map_stor.csv")
+write_csv_arrow(map_filt(bbox_young_wide), file = "~/WP1/shiny/dataAccess/map_young.csv")
+write_csv_arrow(map_filt(bbox_disko_wide), file = "~/WP1/shiny/dataAccess/map_disko.csv")
+write_csv_arrow(map_filt(bbox_nuup_wide), file = "~/WP1/shiny/dataAccess/map_nuup.csv")
+write_csv_arrow(map_filt(bbox_por_wide), file = "~/WP1/shiny/dataAccess/map_por.csv")
 
 
 # EU shapefiles -----------------------------------------------------------

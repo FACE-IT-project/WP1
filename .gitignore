@@ -24,6 +24,7 @@ shiny/test_data
 shiny/kongCTD/data/data_base.Rds
 shiny/kongCTD/data/meta_data_base.Rds
 shiny/dataAccess/full_data
+shiny/dataAccess/coastline_hi_sub.csv
 data/analyses/ice_4km_proc.RData
 data/analyses/clean_all.RData
 data/analyses/clean_all_clean.RData
