@@ -8,6 +8,7 @@
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
+library(shinyBS)
 library(DT)
 library(dplyr)
 library(tidyr)
@@ -242,7 +243,7 @@ ui <- dashboardPage(
         tabItem(tabName = "download",
                 fluidRow(
                   column(width = 3,
-                         box(width = 12, height = "880px", title = "Filter data",
+                         box(width = 12, title = "Filter data", # height = "880px",
                              status = "warning", solidHeader = TRUE, collapsible = FALSE,
                              
                              # Site name
@@ -285,16 +286,15 @@ ui <- dashboardPage(
                                
                                # Download - 10. Download
                                column(width = 7,
-                                      radioButtons("downloadFilterType", "10. Download data", choices = c(".csv", ".Rds"), 
-                                                   selected = ".csv", inline = T),
-                                      downloadButton("downloadFilter", "Download data"))
+                                      h5(tags$b("10. Preview data")),
+                                      uiOutput("previewDataUI"))
                              )
                          )
                   ),
                   
                   # Map and time series plots
                   column(width = 6,
-                         box(width = 12, height = "410px", title = "Lon/lat",
+                         box(width = 12, height = "410px", title = "Location",
                              status = "info", solidHeader = TRUE, collapsible = FALSE,
                              shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "355px"), 
                                                           type = 6, color = "#b0b7be")),
@@ -309,17 +309,30 @@ ui <- dashboardPage(
                              status = "success", solidHeader = TRUE, collapsible = FALSE,
                              shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
                                                           type = 6, color = "#b0b7be")))
-                )
+                ),
         ),
         
         # Data table
         tabItem(tabName = "information",
-                box(width = 12, height = "380px", title = "Full variable names",
+                box(width = 12, height = "390px", title = "Full variable names",
                     status = "warning", solidHeader = TRUE, collapsible = FALSE,
                     DT::dataTableOutput("longVarDT")),
-                box(width = 12, height = "380px", title = "Data availability per site",
+                box(width = 12, height = "390px", title = "Data availability per site",
                     status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                    DT::dataTableOutput("countDrivDT")))
+                    DT::dataTableOutput("countDrivDT"))
+                )
+      ),
+      # Modal
+      bsModal(id = "modalData", title = "Data filtered for downloading", 
+              trigger = "previewData", size = "large",
+              renderPrint("Test")
+              # fluidPage(
+              # dataTableOutput("filterDT")#,
+              # fluidRow(
+              #   radioButtons("downloadFilterType", "Download data", 
+              #                choices = c(".csv", ".Rds"), selected = ".csv", inline = T),
+              #   downloadButton("downloadFilter", "Download data"))
+              # )
       )
     ),
     
@@ -478,88 +491,23 @@ server <- function(input, output, session) {
         } else if(length(input$selectVar) == 0){
           actionBttn(inputId = "filterNA", label = "Select variable(s)", color = "danger", size = "sm", block = TRUE, style = "pill")
         } else if(length(input$selectVar) > 0){
-          actionBttn(inputId = "filterData", label = "Go!", color = "success")
+          actionBttn(inputId = "filterData", label = "Filter", color = "success")
         }
       })
     })
-    
-    # List of long names for variables
-    output$longVarDT <- DT::renderDataTable({
-      # req(input$selectCat)
-      
-      df_names <- param_list %>% 
-        dplyr::rename(`Long name` = Name)
-      df_names_DT <- datatable(df_names, rownames = FALSE, filter = 'top', 
-                               options = list(pageLength = 100, scrollX = TRUE, scrollY = 220, #info = FALSE,
-                                              dom = 't', # Disable top level search bar
-                                              lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
-      return(df_names_DT)
+    filter_button <- reactiveValues(clicked = FALSE)
+    observeEvent(input$filterData, {
+      if(!filter_button$clicked) filter_button$clicked <- TRUE
     })
     
-    # Count of data points per driver per site
-    output$countDrivDT <- DT::renderDataTable({
-      # req(input$selectCat)
-      
-      df_meta <- clean_meta %>% 
-        dplyr::select(site_long, category_long, driver_long, count) %>% 
-        dplyr::rename(Site = site_long, Category = category_long, Driver = driver_long, `Data points` = count) %>% 
-        arrange(Site, Category, Driver)
-      df_meta_DT <- datatable(df_meta, rownames = FALSE, filter = 'top',
-                              options = list(pageLength = 100, scrollX = TRUE, scrollY = 220, #info = FALSE,
-                                              dom = 't', # Disable top level search bar
-                                              lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
-      return(df_meta_DT)
+    # Data preview button
+    output$previewDataUI <- renderUI({
+      if(!filter_button$clicked) {
+        actionBttn(inputId = "previewNA", label = "...", color = "danger", size = "sm", block = TRUE, style = "pill")
+      } else {
+        actionBttn(inputId = "previewData", label = "Prievew", color = "success")
+      }
     })
-    
-
-    ## Instructions ------------------------------------------------------------
-
-    observeEvent(input$instructions, {
-        sendSweetAlert(
-            session = session,
-            title = "Instructions",
-            text = tags$span(
-                "The FACE-IT data access app is laid out as a dashboard with a ",tags$em("side bar"),
-                " on the left and additional information and plots in the ",tags$em("body"),".",
-                tags$h3(icon("bars"),"Side bar", style = "color: cadetblue;"),
-                tags$h4(tags$b("1. Study site"),": Select one of the seven FACE-IT study sites to begin the data exploration process. After selecting a site the 'Lon/lat' figure in the body will display a rough map."),
-                tags$h4(tags$b("2. Category(s)"),": Categories are the broadest classification possible of the data. Select one or more values to move to step 3."),
-                # tags$h4(icon("hammer"),tags$b("3. Clean or full data"),": Much of the data sourced for FACE-IT are formatted differently from one another. In an effort to adress this issue the data are undergoing an additional level of cleaning. This is currently under construction."),
-                # tags$h4(tags$b("4. Filter PANGAEA"),": The data downloaded from PANGAEA are voluminous, but often contain data that are not of interest. Switch this value to 'Yes' to remove PANGAEA data from the list of drivers selected in the next step. ."),
-                tags$h4(tags$b("3. Driver(s)"),": Drivers are more specific than categories. One may select multiple values here."),
-                tags$h4(tags$b("4. Variable(s)"),": Variables are specific types of measurements of the social/natural world. The values available here are a product of steps 2+3."),
-                tags$h4(tags$b("5. Download"),": When one is happy with the selected/filtered data they may be downloaded here. First choose the file type, then click the download button."),
-                tags$h3(icon("images"),"Body", style = "color: steelblue;"),
-                tags$h4(tags$b("Data info"),": This menu allows the user to search for more information for the variables seen in ", tags$em("4. Variable(s)"), "in the sidebar."),
-                tags$h4(tags$b("Filter data"),": The ranges in the data for: longitude, latitude, depth, and date will be displayed here. Moving these sliders will filter out the data and this will be shown in the figures in the body."),
-                tags$h4(tags$b("Lon/lat"),": Displays a map of where the selected data are located. Different drivers are shown by shape, and colours show variables. Mouse over the dots to see more information."),
-                tags$h4(tags$b("Date"),": Displays the selected data as a time series. Mouse over the points to see more information."),
-                tags$h4(tags$b("Depth"),": Shows the selected data as a stacked bar plot from the surface (0 m) down to the deepest depth in the data. Data are binned into 10 m groups. Negative values show data above the sea surface (altimetry). Mouse over for more information."),
-                # tags$br(),
-                tags$h3(icon("address-book"),"Contact", style = "color: royalblue;"),
-                "For questions etc. please contact Robert Schlegel: robert.schlegel@imev-mer.fr"
-            ),
-            html = TRUE,
-            type = "info"
-        )
-    })
-    
-    
-    ## Download UI -------------------------------------------------------------
-    
-    # Download handler
-    output$downloadFilter <- downloadHandler(
-        filename = function() {
-            paste0("filtered_data",input$downloadFilterType[1])
-        },
-        content <- function(file) {
-            if(input$downloadFilterType == ".Rds"){
-                saveRDS(df_filter()[["filter_data"]], file = file)
-            } else if(input$downloadFilterType == ".csv"){
-                arrow::write_csv_arrow(df_filter()[["filter_data"]], file)
-            }
-        }
-    )
     
     
     ## Process data ------------------------------------------------------------
@@ -626,10 +574,6 @@ server <- function(input, output, session) {
                 df_filter <- df_filter %>% 
                     filter(date >= input$slideDate[1] | is.na(date)) %>% 
                     filter(date <= input$slideDate[2] | is.na(date))}
-                # filter(lon >= input$slideLon[1], lon <= input$slideLon[2],
-                #        lat >= input$slideLat[1], lat <= input$slideLat[2],
-                #        depth >= input$slideDepth[1], depth <= input$slideDepth[2],
-                #        date >= input$slideDate[1], date <= input$slideDate[2])
         } else {
             df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA,
                                     var_name = "All data have been filtered out", lon = NA, lat = NA, depth = NA)
@@ -642,9 +586,6 @@ server <- function(input, output, session) {
         group_by(lon, lat, category, driver, variable) %>% 
         summarise(count = n(), .groups = "drop") %>% 
         left_join(long_names, by = c("category", "driver"))
-      # if(nrow(df_filter_map) == 0) 
-      #   df_filter_map <- data.frame(lon = NA, lat = NA, driver = NA, variable = NA, 
-      #                               category_long = NA, driver_long = NA, count = NA)
       
       # Count data for time series
       df_filter_ts <- df_filter %>% 
@@ -669,7 +610,24 @@ server <- function(input, output, session) {
                        depth_count = df_filter_depth)
       return(df_final)
     })
+    
 
+    ## Download UI -------------------------------------------------------------
+    
+    # Download handler
+    output$downloadFilter <- downloadHandler(
+      filename = function() {
+        paste0("filtered_data",input$downloadFilterType[1])
+      },
+      content <- function(file) {
+        if(input$downloadFilterType == ".Rds"){
+          saveRDS(df_filter()[["filter_data"]], file = file)
+        } else if(input$downloadFilterType == ".csv"){
+          arrow::write_csv_arrow(df_filter()[["filter_data"]], file)
+        }
+      }
+    )
+    
     
     ## Map ---------------------------------------------------------------------
     
@@ -800,7 +758,86 @@ server <- function(input, output, session) {
       # layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
       
     })
+    
+    
+    # Info tables -------------------------------------------------------------
+    
+    # List of long names for variables
+    output$filterDT <- DT::renderDataTable({
+      req(input$filterData)
+      
+      df_filter <- df_filter()[["filter_data"]]
+      df_filter_DT <- datatable(df_filter, rownames = FALSE, filter = 'top')#, 
+                               # options = list(pageLength = 100, scrollX = TRUE, #scrollY = 220, #info = FALSE,
+                                              # dom = 't', # Disable top level search bar
+                                              # lengthChange = FALSE, 
+                                              # paging = TRUE, 
+                                              # searchHighlight = TRUE))
+      return(df_filter_DT)
+    })
+    
+    # List of long names for variables
+    output$longVarDT <- DT::renderDataTable({
+      # req(input$selectCat)
+      
+      df_names <- param_list %>% 
+        dplyr::rename(`Long name` = Name)
+      df_names_DT <- datatable(df_names, rownames = FALSE, filter = 'top', 
+                               options = list(pageLength = 100, scrollX = TRUE, scrollY = 230, #info = FALSE,
+                                              dom = 't', # Disable top level search bar
+                                              lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
+      return(df_names_DT)
+    })
+    
+    # Count of data points per driver per site
+    output$countDrivDT <- DT::renderDataTable({
+      # req(input$selectCat)
+      
+      df_meta <- clean_meta %>% 
+        dplyr::select(site_long, category_long, driver_long, count) %>% 
+        dplyr::rename(Site = site_long, Category = category_long, Driver = driver_long, `Data points` = count) %>% 
+        arrange(Site, Category, Driver)
+      df_meta_DT <- datatable(df_meta, rownames = FALSE, filter = 'top',
+                              options = list(pageLength = 100, scrollX = TRUE, scrollY = 230, #info = FALSE,
+                                             dom = 't', # Disable top level search bar
+                                             lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
+      return(df_meta_DT)
+    })
+    
+    
+    ## Instructions ------------------------------------------------------------
+    
+    observeEvent(input$instructions, {
+      sendSweetAlert(
+        session = session,
+        title = "Instructions",
+        text = tags$span(
+          "The FACE-IT data access app is laid out as a dashboard with a ",tags$em("side bar"),
+          " on the left and additional information and plots in the ",tags$em("body"),".",
+          tags$h3(icon("bars"),"Side bar", style = "color: cadetblue;"),
+          tags$h4(tags$b("1. Study site"),": Select one of the seven FACE-IT study sites to begin the data exploration process. After selecting a site the 'Lon/lat' figure in the body will display a rough map."),
+          tags$h4(tags$b("2. Category(s)"),": Categories are the broadest classification possible of the data. Select one or more values to move to step 3."),
+          # tags$h4(icon("hammer"),tags$b("3. Clean or full data"),": Much of the data sourced for FACE-IT are formatted differently from one another. In an effort to adress this issue the data are undergoing an additional level of cleaning. This is currently under construction."),
+          # tags$h4(tags$b("4. Filter PANGAEA"),": The data downloaded from PANGAEA are voluminous, but often contain data that are not of interest. Switch this value to 'Yes' to remove PANGAEA data from the list of drivers selected in the next step. ."),
+          tags$h4(tags$b("3. Driver(s)"),": Drivers are more specific than categories. One may select multiple values here."),
+          tags$h4(tags$b("4. Variable(s)"),": Variables are specific types of measurements of the social/natural world. The values available here are a product of steps 2+3."),
+          tags$h4(tags$b("5. Download"),": When one is happy with the selected/filtered data they may be downloaded here. First choose the file type, then click the download button."),
+          tags$h3(icon("images"),"Body", style = "color: steelblue;"),
+          tags$h4(tags$b("Data info"),": This menu allows the user to search for more information for the variables seen in ", tags$em("4. Variable(s)"), "in the sidebar."),
+          tags$h4(tags$b("Filter data"),": The ranges in the data for: longitude, latitude, depth, and date will be displayed here. Moving these sliders will filter out the data and this will be shown in the figures in the body."),
+          tags$h4(tags$b("Lon/lat"),": Displays a map of where the selected data are located. Different drivers are shown by shape, and colours show variables. Mouse over the dots to see more information."),
+          tags$h4(tags$b("Date"),": Displays the selected data as a time series. Mouse over the points to see more information."),
+          tags$h4(tags$b("Depth"),": Shows the selected data as a stacked bar plot from the surface (0 m) down to the deepest depth in the data. Data are binned into 10 m groups. Negative values show data above the sea surface (altimetry). Mouse over for more information."),
+          # tags$br(),
+          tags$h3(icon("address-book"),"Contact", style = "color: royalblue;"),
+          "For questions etc. please contact Robert Schlegel: robert.schlegel@imev-mer.fr"
+        ),
+        html = TRUE,
+        type = "info"
+      )
+    })
 }
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
