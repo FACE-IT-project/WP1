@@ -321,18 +321,6 @@ ui <- dashboardPage(
                     status = "warning", solidHeader = TRUE, collapsible = FALSE,
                     DT::dataTableOutput("countDrivDT"))
                 )
-      ),
-      # Modal
-      bsModal(id = "modalData", title = "Data filtered for downloading", 
-              trigger = "previewData", size = "large",
-              renderPrint("Test")
-              # fluidPage(
-              # dataTableOutput("filterDT")#,
-              # fluidRow(
-              #   radioButtons("downloadFilterType", "Download data", 
-              #                choices = c(".csv", ".Rds"), selected = ".csv", inline = T),
-              #   downloadButton("downloadFilter", "Download data"))
-              # )
       )
     ),
     
@@ -505,8 +493,36 @@ server <- function(input, output, session) {
       if(!filter_button$clicked) {
         actionBttn(inputId = "previewNA", label = "...", color = "danger", size = "sm", block = TRUE, style = "pill")
       } else {
-        actionBttn(inputId = "previewData", label = "Prievew", color = "success")
+        actionBttn(inputId = "previewData", label = "Preview", color = "success")
       }
+    })
+    
+    # Open the modal panel
+    observeEvent(input$previewData, {
+      # click <- input$map_click
+      # if(!is.null(click)){
+      shinyBS::toggleModal(session = session, modalId = "modalData", toggle = "open")
+      # } else {
+      #   showModal(modalDialog(
+      #     title = "Pixel: Lon = NA, Lat = NA",
+      #     "Please first click on a pixel in order to view more information about it."
+      #   ))
+      # }
+    })
+    
+    # Modal
+    output$uiModal <- renderUI({
+      shinyBS::bsModal(id = "modalData", title = "Data filtered for downloading", 
+                       trigger = "previewData", size = "large",
+                       # renderPrint("Test")
+                       # fluidPage(
+                       DT::dataTableOutput("filterDT")#,
+                       # fluidRow(
+                       #   radioButtons("downloadFilterType", "Download data", 
+                       #                choices = c(".csv", ".Rds"), selected = ".csv", inline = T),
+                       #   downloadButton("downloadFilter", "Download data"))
+                       # )
+      )
     })
     
     
