@@ -59,6 +59,11 @@ sites_named <- list(Svalbard = c("Kongsfjorden" = "kong", "Isfjorden" = "is", "S
                     Greenland = c("Young Sound" = "young", "Disko Bay" = "disko", "Nuup Kangerlua" = "nuup"),
                     Norway = c("Porsangerfjorden" = "por"))
 
+# Long and short names for sites
+long_sites <- data.frame(site = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
+                         site_long = c("Kongsfjorden", "Isfjorden", "Storfjorden", 
+                                       "Young Sound", "Disko Bay", "Nuup Kangerlua", "Porsangerfjorden"))
+
 # Long and short names for categories and drivers
 long_names <- data.frame(category = c("cryo", "cryo", "cryo", "phys", "phys", "phys",
                                       "chem", "chem", "bio", "bio", "bio", "soc", "soc", "soc"),
@@ -73,7 +78,9 @@ long_names <- data.frame(category = c("cryo", "cryo", "cryo", "phys", "phys", "p
                                          "carbonate chemistry", "nutrients",
                                          "primary production", "biomass", "species richness",
                                          "governance", "tourism", "fisheries")) %>% 
-  mutate(driver_long = factor(driver_long, 
+  mutate(category_long = factor(category_long,
+                                levels = c("cryosphere", "physics", "chemistry", "biology", "social")),
+         driver_long = factor(driver_long, 
                               levels = c("sea ice", "glacier mass balance", "terrestrial runoff",
                                          "seawater temperature", "salinity", "light",
                                          "carbonate chemistry", "nutrients",
@@ -100,6 +107,22 @@ map_hi <- read_csv_arrow("coastline_hi_sub.csv")
 # map_disko <- read_csv_arrow("map_disko.csv")
 # map_nuup <- read_csv_arrow("map_nuup.csv")
 # map_por <- read_csv_arrow("map_por.csv")
+
+# Load site data summary
+## NB: Code run once to generate spreadsheet
+# if(!exists("clean_all")) load("data/analyses/clean_all.RData")
+# clean_meta <- clean_all %>%
+#   filter(site %in% long_sites$site) %>%
+#   group_by(site, category, driver) %>%
+#   summarise(count = n(), .groups = "drop") %>%
+#   tidyr::complete(site, category, driver) %>% 
+#   left_join(long_names, by = c("category", "driver")) %>%
+#   left_join(long_sites, by = "site") %>%
+#   filter(!is.na(driver_long)) %>% 
+#   mutate(count = replace_na(count, 0)) %>% 
+#   dplyr::select(site, site_long, category, category_long, driver, driver_long, count)
+# save(clean_meta, file = "~/WP1/shiny/dataAccess/clean_meta.RData")
+load("clean_meta.RData")
 
 # Load PANGAEA driver metadata sheet
 ## NB: Code only run once to get slimmed down parameter list
@@ -131,11 +154,11 @@ ui <- dashboardPage(
     title = tags$a(href = "https://www.face-it-project.eu/",
                    target = "_blank", rel = "noopener noreferrer",
                    tags$img(src = "FACE-IT_Logo_900.png", alt = "FACE-IT",
-                            height = "70", width = "180", 
+                            height = "70", width = "170", 
                             style = "vertical-align:middle;margin:5px 0px"))),
     
     # Sidebar
-    dashboardSidebar(
+    dashboardSidebar(width = 200,
       # Adjust the sidebar
       tags$style(".left-side, .main-sidebar {padding-top: 80px}"),
         # Add FACE-IT logo to menu bar
@@ -166,8 +189,8 @@ ui <- dashboardPage(
         sidebarMenu(
           # Setting id makes input$tabs give the tabName of currently-selected tab
           id = "tabs",
-          menuItem("Data download interface", tabName = "download", icon = icon("table"), selected = TRUE),
-          menuItem("Advanced search tool", tabName = "information", icon = icon("th"))
+          menuItem("Data download interface", tabName = "download", icon = icon("download"), selected = TRUE),
+          menuItem("Advanced search tool", tabName = "information", icon = icon("table"))
           )
     ),
     
@@ -177,7 +200,7 @@ ui <- dashboardPage(
       tags$head(tags$style(HTML('
         /* logo */
         .skin-blue .main-header .logo {
-                              background-color: #008980;
+                              background-color: #ffffff;
                               }
 
         /* logo when hovered */
@@ -257,7 +280,7 @@ ui <- dashboardPage(
                                # Process - 9. Load
                                column(width = 5,
                                       h5(tags$b("9. Filter data")),
-                                      actionBttn(inputId = "filterData", label = "Go!")),
+                                      uiOutput("filterDataUI")),
                                # br(), br(),
                                
                                # Download - 10. Download
@@ -291,9 +314,12 @@ ui <- dashboardPage(
         
         # Data table
         tabItem(tabName = "information",
-                box(width = 12, height = "840px", title = "Full variable names",
+                box(width = 12, height = "380px", title = "Full variable names",
                     status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                    DT::dataTableOutput("longVarDT")))
+                    DT::dataTableOutput("longVarDT")),
+                box(width = 12, height = "380px", title = "Data availability per site",
+                    status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                    DT::dataTableOutput("countDrivDT")))
       )
     ),
     
@@ -440,16 +466,49 @@ server <- function(input, output, session) {
       shiny::sliderInput("slideDepth", "8. Depth range", value = c(min_val, max_val), min = min_val, max = max_val)
     })
 
+    # Filter button
+    observeEvent(c(input$selectSite, input$selectCat, input$selectDriv, input$selectvar), {
+      output$filterDataUI <- renderUI({
+        if(!input$selectSite %in% long_sites$site) {
+          actionBttn(inputId = "filterNA", label = "Select site", color = "danger", size = "sm", block = TRUE, style = "pill")
+        } else if(length(input$selectCat) == 0){
+          actionBttn(inputId = "filterNA", label = "Select category(s)", color = "danger", size = "sm", block = TRUE, style = "pill")
+        } else if(length(input$selectDriv) == 0){
+          actionBttn(inputId = "filterNA", label = "Select driver(s)", color = "danger", size = "sm", block = TRUE, style = "pill")
+        } else if(length(input$selectVar) == 0){
+          actionBttn(inputId = "filterNA", label = "Select variable(s)", color = "danger", size = "sm", block = TRUE, style = "pill")
+        } else if(length(input$selectVar) > 0){
+          actionBttn(inputId = "filterData", label = "Go!", color = "success")
+        }
+      })
+    })
+    
     # List of long names for variables
     output$longVarDT <- DT::renderDataTable({
       # req(input$selectCat)
       
-      df_names <- param_list
+      df_names <- param_list %>% 
+        dplyr::rename(`Long name` = Name)
       df_names_DT <- datatable(df_names, rownames = FALSE, filter = 'top', 
-                               options = list(pageLength = 100, scrollX = TRUE, scrollY = 650, #info = FALSE,
+                               options = list(pageLength = 100, scrollX = TRUE, scrollY = 220, #info = FALSE,
                                               dom = 't', # Disable top level search bar
                                               lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
       return(df_names_DT)
+    })
+    
+    # Count of data points per driver per site
+    output$countDrivDT <- DT::renderDataTable({
+      # req(input$selectCat)
+      
+      df_meta <- clean_meta %>% 
+        dplyr::select(site_long, category_long, driver_long, count) %>% 
+        dplyr::rename(Site = site_long, Category = category_long, Driver = driver_long, `Data points` = count) %>% 
+        arrange(Site, Category, Driver)
+      df_meta_DT <- datatable(df_meta, rownames = FALSE, filter = 'top',
+                              options = list(pageLength = 100, scrollX = TRUE, scrollY = 220, #info = FALSE,
+                                              dom = 't', # Disable top level search bar
+                                              lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
+      return(df_meta_DT)
     })
     
 
@@ -583,9 +642,9 @@ server <- function(input, output, session) {
         group_by(lon, lat, category, driver, variable) %>% 
         summarise(count = n(), .groups = "drop") %>% 
         left_join(long_names, by = c("category", "driver"))
-      if(nrow(df_filter_map) == 0) 
-        df_filter_map <- data.frame(lon = NA, lat = NA, driver = NA, variable = NA, 
-                                    category_long = NA, driver_long = NA, count = NA)
+      # if(nrow(df_filter_map) == 0) 
+      #   df_filter_map <- data.frame(lon = NA, lat = NA, driver = NA, variable = NA, 
+      #                               category_long = NA, driver_long = NA, count = NA)
       
       # Count data for time series
       df_filter_ts <- df_filter %>% 
@@ -614,8 +673,10 @@ server <- function(input, output, session) {
     
     ## Map ---------------------------------------------------------------------
     
-    output$mapPlot <- renderPlotly({
+    # The map data
+    map_base <- reactive({
       req(input$selectSite)
+      # req(input$selectVar)
       
       # Base map reacts to site selection
       if(input$selectSite == "por") bbox_name <- bbox_por
@@ -638,8 +699,8 @@ server <- function(input, output, session) {
                         between(lat, bbox_name[3], bbox_name[4]))
       map_sub_fix <- filter(map_hi, group %in% map_sub$group)
       
-      # tHE BASE MAP
-      basePlot <- ggplot() + 
+      # The base map
+      baseMap <- ggplot() + 
         geom_polygon(data = map_sub_fix, fill = "grey80", colour = "black",
                      aes(x = lon, y = lat, group = group, text = "Land")) +
         coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
@@ -648,51 +709,54 @@ server <- function(input, output, session) {
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
               axis.ticks = element_line(colour = "black"), legend.position = "none")
+      return(baseMap)
+    })
       
-      if(length(input$selectVar) > 0){
-        # Data count for map
-        df_filter_map <- df_filter()[["map_count"]]
-        
-        # Show data filtered by lon/lat sliders
-        if(nrow(df_filter_map) > 0){
-          basePlot <- basePlot + 
-            geom_point(data = df_filter_map,
-                       aes(x = lon, y = lat, shape = driver, colour = variable,
-                           text = paste0("Category: ",category_long,
-                                         "<br>Driver: ",driver_long,
-                                         "<br>Variable: ",variable,
-                                         "<br>Lon: ",lon,
-                                         "<br>Lat: ",lat,
-                                         "<br>Count: ",count)))
-        }
+    output$mapPlot <- renderPlotly({
+      req(input$filterData)
+      
+      baseMap <- map_base()
+      
+      # Map data for plotting
+      df_filter_map <- df_filter()[["map_count"]]
+      if(nrow(df_filter_map) > 0){
+        baseMap <- baseMap +
+          geom_point(data = df_filter_map,
+                     aes(x = lon, y = lat, shape = driver, colour = variable,
+                         text = paste0("Category: ",category_long,
+                                       "<br>Driver: ",driver_long,
+                                       "<br>Variable: ",variable,
+                                       "<br>Lon: ",lon,
+                                       "<br>Lat: ",lat,
+                                       "<br>Count: ",count)))
       }
-      
-      ggplotly(basePlot, tooltip = "text")
+      ggplotly(baseMap, tooltip = "text")
       
     })
     
     
     ## Time series -------------------------------------------------------------
-
+    
     output$tsPlot <- renderPlotly({
-      req(input$selectVar)
+      req(input$filterData)
+      # req(input$selectVar)
       
       df_filter_ts <- df_filter()[["ts_count"]]
-
+      
       # Plot and exit
       if(nrow(df_filter_ts) > 0){
-      basePlot <- ggplot(data = df_filter_ts, aes(x = year, y = log10(count))) +
-        geom_point(aes(shape = driver, colour = variable,
-                       text = paste0("Category: ",category_long,
-                                     "<br>Driver: ",driver_long,
-                                     "<br>Variable: ",variable,
-                                     "<br>Year: ",year,
-                                     "<br>Count: ",count))) +
-        labs(x = NULL, y = "Count (log10)", colour = "Variable") +
-        theme_bw() +
-        theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
-              axis.text = element_text(size = 12, colour = "black"),
-              axis.ticks = element_line(colour = "black"), legend.position = "none")
+        basePlot <- ggplot(data = df_filter_ts, aes(x = year, y = log10(count))) +
+          geom_point(aes(shape = driver, colour = variable,
+                         text = paste0("Category: ",category_long,
+                                       "<br>Driver: ",driver_long,
+                                       "<br>Variable: ",variable,
+                                       "<br>Year: ",year,
+                                       "<br>Count: ",count))) +
+          labs(x = "Year", y = "Count (log10)", colour = "Variable") +
+          theme_bw() +
+          theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+                axis.text = element_text(size = 12, colour = "black"),
+                axis.ticks = element_line(colour = "black"), legend.position = "none")
       } else {
         basePlot <- ggplot() + geom_blank()
       }
@@ -703,30 +767,31 @@ server <- function(input, output, session) {
     
 
     ## Depth plot --------------------------------------------------------------
-
+    
     output$depthPlot <- renderPlotly({
-      req(input$selectVar)
+      req(input$filterData)
+      # req(input$selectVar)
       # req(df_filter())
       
       df_filter_depth <- df_filter()[["depth_count"]]
       
       # Count of data at depth by var name
       if(nrow(df_filter_depth) > 0){
-      basePlot <- ggplot(df_filter_depth, aes(x = depth, y = log10(count))) +
-        geom_col(aes(fill = variable,
-                     text = paste0("Category: ",category_long,
-                                   "<br>Driver: ",driver_long,
-                                   "<br>Variable: ",variable,
-                                   "<br>Depth: ",depth,
-                                   "<br>Count: ",count))) +
-        scale_x_reverse() + coord_flip(expand = F) +
-        # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
-        # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
-        labs(x = NULL, fill = "Variable", y = "Count (log10)") +
-        theme_bw() +
-        theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
-              axis.text = element_text(size = 12, colour = "black"),
-              axis.ticks = element_line(colour = "black"), legend.position = "none")
+        basePlot <- ggplot(df_filter_depth, aes(x = depth, y = log10(count))) +
+          geom_col(aes(fill = variable,
+                       text = paste0("Category: ",category_long,
+                                     "<br>Driver: ",driver_long,
+                                     "<br>Variable: ",variable,
+                                     "<br>Depth: ",depth,
+                                     "<br>Count: ",count))) +
+          scale_x_reverse() + coord_flip(expand = F) +
+          # scale_fill_manual(values = CatColAbr, aesthetics = c("colour", "fill")) +
+          # guides(fill = guide_legend(nrow = length(unique(full_product$var_type)))) +
+          labs(x = NULL, fill = "Variable", y = "Count (log10)") +
+          theme_bw() +
+          theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+                axis.text = element_text(size = 12, colour = "black"),
+                axis.ticks = element_line(colour = "black"), legend.position = "none")
       } else {
         basePlot <- ggplot() + geom_blank()
       }
