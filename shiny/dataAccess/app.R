@@ -197,6 +197,11 @@ ui <- dashboardPage(
     
     # Info, filters, and plots for the selected data
     dashboardBody(
+      # Allow modal window to adjust width correctly
+      tags$style(
+        type = 'text/css',
+        '.modal-dialog { width: fit-content !important; }'
+      ),
       # Custom CSS to change app colours
       tags$head(tags$style(HTML('
         /* logo */
@@ -294,11 +299,11 @@ ui <- dashboardPage(
                   
                   # Map and time series plots
                   column(width = 6,
-                         box(width = 12, height = "410px", title = "Location",
+                         box(width = 12, title = "Location", #height = "410px", 
                              status = "info", solidHeader = TRUE, collapsible = FALSE,
                              shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "355px"), 
                                                           type = 6, color = "#b0b7be")),
-                         box(width = 12, height = "410px", title = "Date",
+                         box(width = 12, title = "Date", #height = "410px", 
                              status = "primary", solidHeader = TRUE, collapsible = FALSE,
                              shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "355px"), 
                                                           type = 6, color = "#b0b7be"))),
@@ -310,9 +315,10 @@ ui <- dashboardPage(
                              shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
                                                           type = 6, color = "#b0b7be")))
                 ),
+                # DT::dataTableOutput("mydatatable")
         ),
         
-        # Data table
+        # Data tables
         tabItem(tabName = "information",
                 box(width = 12, height = "390px", title = "Full variable names",
                     status = "warning", solidHeader = TRUE, collapsible = FALSE,
@@ -332,7 +338,6 @@ ui <- dashboardPage(
 # Server ------------------------------------------------------------------
 
 server <- function(input, output, session) {
-
     
     ## Reactive UI -------------------------------------------------------------
     
@@ -499,31 +504,29 @@ server <- function(input, output, session) {
     
     # Open the modal panel
     observeEvent(input$previewData, {
-      # click <- input$map_click
-      # if(!is.null(click)){
-      shinyBS::toggleModal(session = session, modalId = "modalData", toggle = "open")
-      # } else {
-      #   showModal(modalDialog(
-      #     title = "Pixel: Lon = NA, Lat = NA",
-      #     "Please first click on a pixel in order to view more information about it."
-      #   ))
-      # }
-    })
-    
-    # Modal
-    output$uiModal <- renderUI({
-      shinyBS::bsModal(id = "modalData", title = "Data filtered for downloading", 
-                       trigger = "previewData", size = "large",
-                       # renderPrint("Test")
-                       # fluidPage(
-                       DT::dataTableOutput("filterDT")#,
-                       # fluidRow(
-                       #   radioButtons("downloadFilterType", "Download data", 
-                       #                choices = c(".csv", ".Rds"), selected = ".csv", inline = T),
-                       #   downloadButton("downloadFilter", "Download data"))
-                       # )
-      )
-    })
+        showModal(modalDialog(
+          # size = "xl",
+          title = "Filtered data to download",
+          easyClose = TRUE,
+          # fluidPage(
+            DT::dataTableOutput("filterDT"),
+            # hr(),
+            # fluidRow(
+            #   column(width = 4, 
+            #          radioButtons("downloadFilterType", "Download data as",
+            #                       choices = c(".csv", ".Rds"), selected = ".csv", inline = T)),
+            #   column(width = 4,
+            #          downloadButton("downloadFilter", "Download"))
+            # )
+          # ),
+          footer = fluidRow(
+            column(width = 1,
+                   radioButtons("downloadFilterType", "Download data as",
+                                choices = c(".csv", ".Rds"), selected = ".csv", inline = T),
+                   downloadButton("downloadFilter", "Download")),
+            column(width = 1))
+        ))
+      })
     
     
     ## Process data ------------------------------------------------------------
@@ -783,12 +786,22 @@ server <- function(input, output, session) {
       req(input$filterData)
       
       df_filter <- df_filter()[["filter_data"]]
-      df_filter_DT <- datatable(df_filter, rownames = FALSE, filter = 'top')#, 
-                               # options = list(pageLength = 100, scrollX = TRUE, #scrollY = 220, #info = FALSE,
+      df_filter_DT <- datatable(df_filter, rownames = FALSE,  #filter = 'top', width = "700px",
+                               options = list(pageLength = 10,
+                                              scrollX = TRUE, #scrollY = 220, info = FALSE,
                                               # dom = 't', # Disable top level search bar
-                                              # lengthChange = FALSE, 
-                                              # paging = TRUE, 
-                                              # searchHighlight = TRUE))
+                                              #lengthChange = FALSE,
+                                              # paging = TRUE,
+                                              # searchHighlight = TRUE,
+                                              columnDefs = list(list(
+                                                targets = c(1, 2),
+                                                render = JS(
+                                                  "function(data, type, row, meta) {",
+                                                  "return type === 'display' && data.length > 6 ?",
+                                                  "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+                                                  "}")
+                                              ))
+                                              ))
       return(df_filter_DT)
     })
     
@@ -798,10 +811,11 @@ server <- function(input, output, session) {
       
       df_names <- param_list %>% 
         dplyr::rename(`Long name` = Name)
-      df_names_DT <- datatable(df_names, rownames = FALSE, filter = 'top', 
-                               options = list(pageLength = 100, scrollX = TRUE, scrollY = 230, #info = FALSE,
-                                              dom = 't', # Disable top level search bar
-                                              lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
+      df_names_DT <- datatable(df_names, rownames = FALSE, #filter = 'top', 
+                               options = list(pageLength = 10, scrollX = TRUE, scrollY = 222, #info = FALSE,
+                                              # dom = 't', # Disable top level search bar
+                                              # lengthChange = FALSE, paging = TRUE, 
+                                              searchHighlight = TRUE))
       return(df_names_DT)
     })
     
@@ -814,7 +828,7 @@ server <- function(input, output, session) {
         dplyr::rename(Site = site_long, Category = category_long, Driver = driver_long, `Data points` = count) %>% 
         arrange(Site, Category, Driver)
       df_meta_DT <- datatable(df_meta, rownames = FALSE, filter = 'top',
-                              options = list(pageLength = 100, scrollX = TRUE, scrollY = 230, #info = FALSE,
+                              options = list(pageLength = 100, scrollX = TRUE, scrollY = 222, #info = FALSE,
                                              dom = 't', # Disable top level search bar
                                              lengthChange = FALSE, paging = TRUE, searchHighlight = TRUE))
       return(df_meta_DT)
