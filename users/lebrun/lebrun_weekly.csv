@@ -1,0 +1,211 @@
+"Site","depth","year","week","variable","value"
+"Bloomstrand_Est",0,2006,23,"sal",30
+"Bloomstrand_Est",0,2006,23,"temp [°C]",3.3
+"French_Bird_Cliff",0,2006,24,"sal",33
+"French_Bird_Cliff",0,2006,24,"temp [°C]",2.6
+"French_Bird_Cliff",0,2014,36,"sal",33.22915584415585
+"French_Bird_Cliff",0,2014,36,"temp [°C]",4.603036904761905
+"French_Bird_Cliff",1,2009,31,"sal",31.9411682454755
+"French_Bird_Cliff",1,2009,31,"temp [°C]",3.8952
+"French_Bird_Cliff",1,2014,36,"sal",33.48
+"French_Bird_Cliff",1,2014,36,"temp [°C]",4.679666666666667
+"French_Bird_Cliff",2,2009,31,"sal",32.288456299334115
+"French_Bird_Cliff",2,2009,31,"temp [°C]",3.9238
+"French_Bird_Cliff",2,2014,36,"sal",33.6025
+"French_Bird_Cliff",2,2014,36,"temp [°C]",4.83225
+"French_Bird_Cliff",3,2009,31,"sal",32.42982792610701
+"French_Bird_Cliff",3,2009,31,"temp [°C]",3.9508
+"French_Bird_Cliff",3,2014,36,"sal",33.72
+"French_Bird_Cliff",3,2014,36,"temp [°C]",4.963666666666667
+"French_Bird_Cliff",4,2009,31,"sal",32.5361852201942
+"French_Bird_Cliff",4,2009,31,"temp [°C]",3.9701
+"French_Bird_Cliff",4,2014,36,"sal",33.9
+"French_Bird_Cliff",4,2014,36,"temp [°C]",5.08275
+"French_Bird_Cliff",4,2018,40,"sal",32.5494
+"French_Bird_Cliff",4,2018,40,"temp [°C]",1.232825
+"French_Bird_Cliff",5,2009,31,"sal",32.805507356795665
+"French_Bird_Cliff",5,2009,31,"temp [°C]",3.9562
+"French_Bird_Cliff",5,2014,36,"sal",33.95
+"French_Bird_Cliff",5,2014,36,"temp [°C]",5.143666666666666
+"French_Bird_Cliff",6,2009,31,"sal",32.98340038939714
+"French_Bird_Cliff",6,2009,31,"temp [°C]",4.02255
+"French_Bird_Cliff",6,2014,36,"sal",34.019999999999996
+"French_Bird_Cliff",6,2014,36,"temp [°C]",5.15975
+"French_Bird_Cliff",7,2009,31,"sal",33.20057779525575
+"French_Bird_Cliff",7,2009,31,"temp [°C]",3.8726000000000003
+"French_Bird_Cliff",7,2014,36,"sal",34.07
+"French_Bird_Cliff",7,2014,36,"temp [°C]",5.1745
+"French_Bird_Cliff",8,2009,31,"sal",33.26483751288579
+"French_Bird_Cliff",8,2009,31,"temp [°C]",3.82705
+"French_Bird_Cliff",8,2014,36,"sal",34.085
+"French_Bird_Cliff",8,2014,36,"temp [°C]",5.2
+"Glacier",0,2016,30,"temp [°C]",4.209333333333333
+"Glacier",0,2016,31,"temp [°C]",3.971
+"Glacier",1,2009,31,"sal",30.614285308953267
+"Glacier",1,2009,31,"temp [°C]",2.4508
+"Glacier",1,2016,30,"temp [°C]",3.9443333333333337
+"Glacier",1,2016,31,"temp [°C]",4.133
+"Glacier",2,2009,31,"sal",30.948160431350303
+"Glacier",2,2009,31,"temp [°C]",2.52975
+"Glacier",2,2016,30,"temp [°C]",4.227777777777778
+"Glacier",2,2016,31,"temp [°C]",4.473
+"Glacier",3,2009,31,"sal",31.27279217180449
+"Glacier",3,2009,31,"temp [°C]",2.56535
+"Glacier",3,2016,30,"temp [°C]",4.154333333333334
+"Glacier",3,2016,31,"temp [°C]",4.815
+"Glacier",4,2009,31,"sal",31.358351876030095
+"Glacier",4,2009,31,"temp [°C]",2.5807
+"Glacier",4,2016,30,"temp [°C]",3.9788888888888887
+"Glacier",4,2016,31,"temp [°C]",4.905666666666667
+"Glacier",5,2009,31,"sal",32.12535981968428
+"Glacier",5,2009,31,"temp [°C]",2.6903
+"Glacier",5,2016,30,"temp [°C]",3.91975
+"Glacier",5,2016,31,"temp [°C]",4.945
+"Glacier",6,2009,31,"sal",32.22528695453847
+"Glacier",6,2009,31,"temp [°C]",2.7348
+"Glacier",6,2016,30,"temp [°C]",3.9187777777777777
+"Glacier",6,2016,31,"temp [°C]",4.979333333333333
+"Glacier",7,2009,31,"sal",32.4431174449355
+"Glacier",7,2009,31,"temp [°C]",2.75725
+"Glacier",7,2016,30,"temp [°C]",3.8473333333333333
+"Glacier",7,2016,31,"temp [°C]",4.986
+"Glacier",8,2009,31,"sal",32.703949755675396
+"Glacier",8,2009,31,"temp [°C]",2.7916
+"Glacier",8,2016,30,"temp [°C]",3.8335
+"Glacier",8,2016,31,"temp [°C]",4.7965
+"Hansneset",0,2012,32,"PAR [µmol m-2 s-1]",556.5823498964803
+"Hansneset",0,2015,33,"PAR [µmol m-2 s-1]",73.44963337407238
+"Hansneset",1,2012,32,"PAR [µmol m-2 s-1]",333.8759259259259
+"Hansneset",1,2015,33,"PAR [µmol m-2 s-1]",49.756881650982756
+"Hansneset",2,2012,27,"PAR [µmol m-2 s-1]",124.9229861111111
+"Hansneset",2,2012,28,"PAR [µmol m-2 s-1]",151.65905753968255
+"Hansneset",2,2012,29,"PAR [µmol m-2 s-1]",126.60873015873017
+"Hansneset",2,2012,30,"PAR [µmol m-2 s-1]",64.52304563492063
+"Hansneset",2,2012,31,"PAR [µmol m-2 s-1]",16.069652777777776
+"Hansneset",2,2012,32,"PAR [µmol m-2 s-1]",154.67005611672278
+"Hansneset",2,2015,33,"PAR [µmol m-2 s-1]",40.48914999138625
+"Hansneset",3,2012,32,"PAR [µmol m-2 s-1]",117.46111904761905
+"Hansneset",3,2015,33,"PAR [µmol m-2 s-1]",29.9915843437985
+"Hansneset",4,2012,27,"PAR [µmol m-2 s-1]",81.01150462962963
+"Hansneset",4,2012,28,"PAR [µmol m-2 s-1]",55.126539351851854
+"Hansneset",4,2012,29,"PAR [µmol m-2 s-1]",65.95223214285714
+"Hansneset",4,2012,30,"PAR [µmol m-2 s-1]",37.40193452380952
+"Hansneset",4,2012,31,"PAR [µmol m-2 s-1]",6.890925925925926
+"Hansneset",4,2012,32,"PAR [µmol m-2 s-1]",67.7102380952381
+"Hansneset",5,2012,32,"PAR [µmol m-2 s-1]",46.99574358974359
+"Hansneset",5,2015,33,"PAR [µmol m-2 s-1]",20.960100996162826
+"Hansneset",6,2012,32,"PAR [µmol m-2 s-1]",35.94138709677419
+"Hansneset",7,2012,32,"PAR [µmol m-2 s-1]",25.575642857142856
+"Hansneset",8,2012,32,"PAR [µmol m-2 s-1]",19.58944117647059
+"Kongsfjordneset",1,2003,36,"sal",33.1373
+"Kongsfjordneset",1,2003,36,"temp [°C]",4.9271
+"Kongsfjordneset",1,2004,34,"sal",32.018299999999996
+"Kongsfjordneset",1,2004,34,"temp [°C]",2.72435
+"Kongsfjordneset",2,2003,36,"sal",33.1748
+"Kongsfjordneset",2,2003,36,"temp [°C]",4.9402
+"Kongsfjordneset",2,2004,34,"sal",32.0193
+"Kongsfjordneset",2,2004,34,"temp [°C]",2.7206
+"Kongsfjordneset",2,2012,36,"sal",31.733999999999998
+"Kongsfjordneset",2,2012,36,"temp [°C]",3.056
+"Kongsfjordneset",3,2003,36,"sal",33.1806
+"Kongsfjordneset",3,2003,36,"temp [°C]",4.943
+"Kongsfjordneset",3,2004,34,"sal",32.020300000000006
+"Kongsfjordneset",3,2004,34,"temp [°C]",2.7135499999999997
+"Kongsfjordneset",3,2012,36,"sal",32.074325
+"Kongsfjordneset",3,2012,36,"temp [°C]",3.26145
+"Kongsfjordneset",4,2003,36,"sal",33.1673
+"Kongsfjordneset",4,2003,36,"temp [°C]",4.9406
+"Kongsfjordneset",4,2004,34,"sal",32.026675
+"Kongsfjordneset",4,2004,34,"temp [°C]",2.69665
+"Kongsfjordneset",4,2012,36,"sal",32.5216
+"Kongsfjordneset",4,2012,36,"temp [°C]",3.5398
+"Kongsfjordneset",5,2003,36,"sal",33.1839
+"Kongsfjordneset",5,2003,36,"temp [°C]",4.9455
+"Kongsfjordneset",5,2004,34,"sal",32.027150000000006
+"Kongsfjordneset",5,2004,34,"temp [°C]",2.69585
+"Kongsfjordneset",5,2012,36,"sal",33.041666666666664
+"Kongsfjordneset",5,2012,36,"temp [°C]",3.792
+"Kongsfjordneset",6,2003,36,"sal",33.1835
+"Kongsfjordneset",6,2003,36,"temp [°C]",4.9461
+"Kongsfjordneset",6,2004,34,"sal",32.0536
+"Kongsfjordneset",6,2004,34,"temp [°C]",2.6539
+"Kongsfjordneset",6,2012,36,"sal",33.48533333333334
+"Kongsfjordneset",6,2012,36,"temp [°C]",3.9819999999999998
+"Kongsfjordneset",7,2003,36,"sal",33.4548
+"Kongsfjordneset",7,2003,36,"temp [°C]",5.0267
+"Kongsfjordneset",7,2004,34,"sal",32.242149999999995
+"Kongsfjordneset",7,2004,34,"temp [°C]",2.49625
+"Kongsfjordneset",7,2012,36,"sal",33.5444
+"Kongsfjordneset",7,2012,36,"temp [°C]",4.1358
+"Kongsfjordneset",8,2003,36,"sal",33.4899
+"Kongsfjordneset",8,2003,36,"temp [°C]",5.0341
+"Kongsfjordneset",8,2004,34,"sal",32.4473
+"Kongsfjordneset",8,2004,34,"temp [°C]",2.4206499999999997
+"Kongsfjordneset",8,2012,36,"sal",33.68875
+"Kongsfjordneset",8,2012,36,"temp [°C]",4.271
+"Osian_Sarsfjellet_BC",0,2014,30,"sal",31.73
+"Osian_Sarsfjellet_BC",0,2014,30,"temp [°C]",3.52
+"Osian_Sarsfjellet_BC",1,2001,29,"sal",31.462600198645603
+"Osian_Sarsfjellet_BC",1,2001,29,"temp [°C]",2.70664375
+"Osian_Sarsfjellet_BC",1,2002,30,"sal",31.794225383734222
+"Osian_Sarsfjellet_BC",1,2002,30,"temp [°C]",3.330125
+"Osian_Sarsfjellet_BC",1,2003,31,"sal",28.56977542623785
+"Osian_Sarsfjellet_BC",1,2003,31,"temp [°C]",3.903
+"Osian_Sarsfjellet_BC",1,2007,29,"sal",32.39888321795911
+"Osian_Sarsfjellet_BC",1,2007,29,"temp [°C]",3.44018
+"Osian_Sarsfjellet_BC",2,2001,29,"sal",31.703558026032958
+"Osian_Sarsfjellet_BC",2,2001,29,"temp [°C]",2.630875
+"Osian_Sarsfjellet_BC",2,2002,30,"sal",31.99866641540921
+"Osian_Sarsfjellet_BC",2,2002,30,"temp [°C]",3.335793333333333
+"Osian_Sarsfjellet_BC",2,2003,31,"sal",28.742728671653083
+"Osian_Sarsfjellet_BC",2,2003,31,"temp [°C]",3.8347166666666666
+"Osian_Sarsfjellet_BC",2,2007,29,"sal",32.88630903478045
+"Osian_Sarsfjellet_BC",2,2007,29,"temp [°C]",3.4367833333333335
+"Osian_Sarsfjellet_BC",3,2001,29,"sal",31.881903243806022
+"Osian_Sarsfjellet_BC",3,2001,29,"temp [°C]",2.59994375
+"Osian_Sarsfjellet_BC",3,2002,30,"sal",32.11363418443741
+"Osian_Sarsfjellet_BC",3,2002,30,"temp [°C]",3.340866666666667
+"Osian_Sarsfjellet_BC",3,2003,31,"sal",28.981072146211172
+"Osian_Sarsfjellet_BC",3,2003,31,"temp [°C]",3.7591833333333335
+"Osian_Sarsfjellet_BC",3,2007,29,"sal",32.9674312904705
+"Osian_Sarsfjellet_BC",3,2007,29,"temp [°C]",3.44075
+"Osian_Sarsfjellet_BC",4,2001,29,"sal",32.03824519369338
+"Osian_Sarsfjellet_BC",4,2001,29,"temp [°C]",2.57068125
+"Osian_Sarsfjellet_BC",4,2002,30,"sal",32.19905662176274
+"Osian_Sarsfjellet_BC",4,2002,30,"temp [°C]",3.3568000000000002
+"Osian_Sarsfjellet_BC",4,2003,31,"sal",29.21067459654069
+"Osian_Sarsfjellet_BC",4,2003,31,"temp [°C]",3.6106833333333332
+"Osian_Sarsfjellet_BC",4,2007,29,"sal",33.27195202170341
+"Osian_Sarsfjellet_BC",4,2007,29,"temp [°C]",3.3898333333333333
+"Osian_Sarsfjellet_BC",5,2001,29,"sal",32.18738458985216
+"Osian_Sarsfjellet_BC",5,2001,29,"temp [°C]",2.52799375
+"Osian_Sarsfjellet_BC",5,2002,30,"sal",32.32042107901952
+"Osian_Sarsfjellet_BC",5,2002,30,"temp [°C]",3.36506
+"Osian_Sarsfjellet_BC",5,2003,31,"sal",29.683418180584496
+"Osian_Sarsfjellet_BC",5,2003,31,"temp [°C]",3.468
+"Osian_Sarsfjellet_BC",5,2007,29,"sal",33.425229590422035
+"Osian_Sarsfjellet_BC",5,2007,29,"temp [°C]",3.3695666666666666
+"Osian_Sarsfjellet_BC",6,2001,29,"sal",32.368643482368086
+"Osian_Sarsfjellet_BC",6,2001,29,"temp [°C]",2.46850625
+"Osian_Sarsfjellet_BC",6,2002,30,"sal",32.46745936452771
+"Osian_Sarsfjellet_BC",6,2002,30,"temp [°C]",3.3184933333333335
+"Osian_Sarsfjellet_BC",6,2003,31,"sal",30.155843604742586
+"Osian_Sarsfjellet_BC",6,2003,31,"temp [°C]",3.3219333333333334
+"Osian_Sarsfjellet_BC",6,2007,29,"sal",33.47843750245494
+"Osian_Sarsfjellet_BC",6,2007,29,"temp [°C]",3.3617333333333335
+"Osian_Sarsfjellet_BC",7,2001,29,"sal",32.59269697266972
+"Osian_Sarsfjellet_BC",7,2001,29,"temp [°C]",2.41301875
+"Osian_Sarsfjellet_BC",7,2002,30,"sal",32.692838661053045
+"Osian_Sarsfjellet_BC",7,2002,30,"temp [°C]",3.058606666666667
+"Osian_Sarsfjellet_BC",7,2003,31,"sal",30.739691969929247
+"Osian_Sarsfjellet_BC",7,2003,31,"temp [°C]",2.9514
+"Osian_Sarsfjellet_BC",7,2007,29,"sal",33.53335343071642
+"Osian_Sarsfjellet_BC",7,2007,29,"temp [°C]",3.3564166666666666
+"Osian_Sarsfjellet_BC",8,2001,29,"sal",32.79896072041422
+"Osian_Sarsfjellet_BC",8,2001,29,"temp [°C]",2.39109375
+"Osian_Sarsfjellet_BC",8,2002,30,"sal",32.95735497257267
+"Osian_Sarsfjellet_BC",8,2002,30,"temp [°C]",2.57892
+"Osian_Sarsfjellet_BC",8,2003,31,"sal",31.652819071573056
+"Osian_Sarsfjellet_BC",8,2003,31,"temp [°C]",2.4497833333333334
+"Osian_Sarsfjellet_BC",8,2007,29,"sal",33.55303733794933
+"Osian_Sarsfjellet_BC",8,2007,29,"temp [°C]",3.347716666666667

@@ -21,61 +21,45 @@ coastline_full_df_kong <- coastline_full_df %>%
 ### T°, PAR, Salinity, Chla, pH
 #### depth: surface data would already be good but, if possible, data at 7/8m depth would be awesome. 
 #### period and frequency: the whole year if possible, but especially spring/summer. Weekly data would be nice.
-### how much points along the fjord: the idea of the eDNA project is to characterise the light/salinity gradient that we have along the fjord so 4 to 6 points would be awesome.
+### how much points along the fjord: the idea of the eDNA project is to characterise the light/salinity gradient 
+  # that we have along the fjord so 4 to 6 points would be awesome.
 ### Create spatial average of all data within 500 m of study sites
 ### Create weekly averages based on Monday start
 ### Finish this by Jan 19
-extract_1 <- clean_all %>% 
+
+# Load site list
+lebrun_sites <- read_csv_arrow("users/lebrun/Sites.csv") %>% 
+  dplyr::rename(lon = Longitude, lat = Latitude)
+
+lebrun_base <- clean_all %>% 
   filter(site == "kong",
          date >= as.Date("2000-01-01"),
          driver %in% c("sea temp", "salinity", "light", "prim prod", "carb"),
-         variable %in% c("temp [°C]", "sal", "PAR [µmol m-2 s-1]", "pH [unknown scale]", "pH in situ [total scale]", "Chla [µg/l]"),
+         variable %in% c("temp [°C]", "sal", "PAR [µmol m-2 s-1]", "pH in situ [total scale]", "Chla [µg/l]"),
          between(depth, 0, 8))
-# Unique coords - 7772
-length(unique(paste0(extract_1$lon, extract_1$lat)))
-# Unique days of sampling - 14705
-length(unique(extract_1$date))
+# Unique coords - 6711
+length(unique(paste0(lebrun_base$lon, lebrun_base$lat)))
+# Unique days of sampling - 8007
+length(unique(lebrun_base$date))
 
-# Regions
-region
-coords_in <- extract_1_coords %>%
-  mutate(in_grid = sp::point.in.polygon(point.x = distinct_df[["lon"]], point.y = distinct_df[["lat"]],
-                                        pol.x = region_sub[["lon"]], pol.y = region_sub[["lat"]]))
+# Get coordinates
+lebrun_coords <- lebrun_base %>% 
+  dplyr::select(lon, lat) %>% distinct() %>% na.omit() %>% 
+  grid_match(., lebrun_sites[,c(3,2,1)]) %>% 
+  dplyr::rename(lon = lon.x, lat = lat.x, lon_site = lon.y, lat_site = lat.y)
 
-# Monthly clims
-extract_1 %>% mutate(month = lubridate::month(date)) %>% filter(!is.na(month)) %>% 
-  ggplot(aes(x = as.factor(month), y = value)) +
-  geom_boxplot(aes(fill = variable), position = "dodge") +
-  facet_wrap(~variable, scales = "free_y") + 
-  labs(x = "Month", y = NULL, colour = "Variable") +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-# Time series
-extract_1 %>% 
-  ggplot(aes(x = date, y = value, colour = variable)) +
-  geom_point() +
-  facet_wrap(~variable, scales = "free_y") +
-  labs(y = NULL, x = NULL, colour = "Variable") +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-# Depth clims
-extract_1 %>% 
-  mutate(depth = as.factor(round(depth))) %>% 
-  ggplot(aes(x = value, y = depth)) +
-  geom_boxplot(aes(fill = variable), position = "dodge") +
-  labs(y = NULL, x = "Depth [m]", fill = "Variable") +
-  scale_y_discrete(limits = rev) +
-  facet_wrap(~variable, scales = "free_x") +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-# Spatial coverage
-extract_1 %>%
-  dplyr::select(variable, lon, lat) %>% 
-  distinct() %>% 
-  ggplot(aes(x = lon, y = lat)) +
-  geom_polygon(data = coastline_full_df_kong, fill = "grey70", colour = "black",
-               aes(x = x, y = y, group = polygon_id)) +
-  geom_point(aes(colour = variable)) +
-  facet_wrap(~variable) +
-  coord_quickmap(expand = F,
-                 xlim = c(bbox_kong[1], bbox_kong[2]), 
-                 ylim = c(bbox_kong[3], bbox_kong[4])) +
-  labs(x = NULL, y = NULL)
-# Coverage by region
+# Get references for data used
+lebrun_reference <- lebrun_base %>% 
+  left_join(lebrun_coords, by = c("lon", "lat")) %>% filter(dist <= 1) %>% 
+  dplyr::select(date_accessed, URL, citation) %>% distinct()
+write_csv_arrow(lebrun_reference, "users/lebrun/lebrun_reference.csv")
+
+# Filter sites within 500m and create weekly averages
+lebrun_weekly <- lebrun_base %>% 
+  mutate(depth = round(depth)) %>% 
+  left_join(lebrun_coords, by = c("lon", "lat")) %>% 
+  filter(dist <= 1) %>%
+  group_by(Site, depth, year = year(date), week = week(date), variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+write_csv_arrow(lebrun_weekly, "users/lebrun/lebrun_weekly.csv")
+

@@ -173,12 +173,15 @@ coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 # Functions ---------------------------------------------------------------
 
 # Find the nearest grid cells for each site
-grid_match <- function(coords1, coords2){
-  coords2$idx <- 1:nrow(coords2)
-  grid_index <- data.frame(coords1,
-                           idx = knnx.index(data = as.matrix(coords2[,1:2]),
-                                            query = as.matrix(coords1[,1:2]), k = 1))
-  grid_points <- left_join(grid_index, coords2, by = c("idx")) %>% 
+## NB: Requires two data.frames with lon, lat in that order
+grid_match <- function(coords_base, coords_match){
+  if(!"lon" %in% colnames(coords_base)) stop("Need lon/lat columns in coords_base")
+  if(!"lon" %in% colnames(coords_match)) stop("Need lon/lat columns in coords_match")
+  coords_match$idx <- 1:nrow(coords_match)
+  grid_index <- data.frame(coords_base,
+                           idx = knnx.index(data = as.matrix(coords_match[,1:2]),
+                                            query = as.matrix(coords_base[,1:2]), k = 1))
+  grid_points <- left_join(grid_index, coords_match, by = c("idx")) %>% 
     mutate(dist = round(distHaversine(cbind(lon.x, lat.x),
                                       cbind(lon.y, lat.y))/1000, 2), idx = NULL)
   return(grid_points)
