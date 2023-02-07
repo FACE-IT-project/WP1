@@ -455,13 +455,27 @@ sval_AIS_files <- row.names(sval_AIS_info)
 system.time(
   sval_AIS_1 <- map_dfr(sval_AIS_files[1:999], load_sval_AIS)
 ) # 768 seconds for 999 files
+save(sval_AIS_1, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_1.RData"); rm(sval_AIS_1); gc()
 system.time(
   sval_AIS_2 <- map_dfr(sval_AIS_files[1000:1999], load_sval_AIS)
-) # 866 seconds for 999 files
+) # 993 seconds for 999 files
+save(sval_AIS_2, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_2.RData"); rm(sval_AIS_2); gc()
 system.time(
   sval_AIS_3 <- map_dfr(sval_AIS_files[2000:2999], load_sval_AIS)
-) # 1334 seconds for 999 files
+) # 2582 seconds for 999 files
+save(sval_AIS_3, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_3.RData"); rm(sval_AIS_3); gc()
 system.time(
   sval_AIS_4 <- map_dfr(sval_AIS_files[3000:4075], load_sval_AIS)
-) # xxx seconds for 1075 files
+) # 2361 seconds for 1075 files
+save(sval_AIS_4, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_4.RData"); rm(sval_AIS_4); gc()
+
+# Load all and combine
+load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_1.RData")
+load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_2.RData")
+load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_3.RData")
+load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_4.RData")
+sval_AIS <- rbind(sval_AIS_1, sval_AIS_2, sval_AIS_3, sval_AIS_4)
+save(sval_AIS, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")
+rm(sval_AIS_1, sval_AIS_2, sval_AIS_3, sval_AIS_4); gc()
+load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")
 
