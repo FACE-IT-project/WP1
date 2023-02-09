@@ -407,14 +407,6 @@ pg_EU_ref_meta <- map_dfr(pg_EU_files, pg_ref_extract)
 write_csv(pg_EU_ref_meta, "metadata/pg_EU_ref_meta.csv")
 rm(pg_EU_files, pg_EU_ref_meta); gc()
 
-# Process SOCAT data into R format
-SOCAT_R <- read_delim("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.tsv", delim = "\t", skip = 6976)
-SOCAT_R_sub <- dplyr::select(SOCAT_R, yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`,
-                             `sample_depth [m]`, `ETOPO2_depth [m]`, `pCO2water_SST_wet [uatm]`) %>% 
-  mutate(yr = as.numeric(yr), mon = as.numeric(mon), day = as.numeric(day))
-write_rds(SOCAT_R_sub, "~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds", compress = "gz")
-rm(SOCAT_R, SOCAT_R_sub); gc()
-
 
 # Kongsfjorden ------------------------------------------------------------
 

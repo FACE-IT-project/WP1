@@ -3,6 +3,9 @@
 # It is also used to prep FACE-IT files for PANGAEA that will not be amalgamated
 # Generally this is for ex situ or lab experiments
 
+# NB: These files are stored on pCloud
+# Contact Robert Schlegel for access: robert.schlegel@imev-mer.fr
+
 
 # Setup -------------------------------------------------------------------
 
@@ -15,10 +18,31 @@ library(ncdump)
 library(ggOceanMaps)
 
 
-# pCO2 data ---------------------------------------------------------------
 
-# NB: These files are stored on pCloud
-# Contact Robert Schlegel for access: robert.schlegel@imev-mer.fr
+# SOCAT -------------------------------------------------------------------
+
+# Process SOCAT data into R format
+SOCAT_R <- read_delim("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.tsv", delim = "\t", skip = 6976)
+SOCAT_R_sub <- dplyr::select(SOCAT_R, yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`,
+                             `sample_depth [m]`, `ETOPO2_depth [m]`, `pCO2water_SST_wet [uatm]`) %>% 
+  mutate(yr = as.numeric(yr), mon = as.numeric(mon), day = as.numeric(day))
+write_rds(SOCAT_R_sub, "~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds", compress = "gz")
+rm(SOCAT_R, SOCAT_R_sub); gc()
+
+
+# GLODAP ------------------------------------------------------------------
+
+# Process GLODAP data into R format
+GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>% 
+  `colnames<-`(gsub("G2","",colnames(.))) %>% 
+  dplyr::rename(lon = longitude, lat = latitude) %>% 
+  unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
+  mutate(date = as.Date(date))
+write_rds(GLODAP, "~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022.rds", compress = "gz")
+rm(GLODAP); gc()
+
+
+# GLODAP bottles ----------------------------------------------------------
 
 # NetCDF info
 ncdump::NetCDF(paste0(pCloud_path,"FACE-IT_data/GLODAPv2.2016b_MappedClimatologies/GLODAPv2.2016b.TCO2.nc"))$variable
