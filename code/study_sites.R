@@ -18,6 +18,7 @@
 
 # Start with common project code
 source("code/functions.R")
+library(gdalUtils)
 
 # Load FACE-IT logo
 logo <- grid::rasterGrob(png::readPNG("FACE-IT_Logo_900.png"), interpolate = TRUE)
@@ -260,6 +261,18 @@ bathy_kong_plot <- ggplot(data = bathy_kong, aes(x = LON, y = LAT)) +
   scale_colour_viridis_c() +
   labs(x = NULL, y = NULL)
 ggsave("figures/map_kong_hires_bathy.png", bathy_kong_plot, height = 10, width = 12)
+
+
+# Hi-res Kong bathy from Norsk Polarinstitut
+# NB: This takes several minutes to load and then fails
+bathy_Norsk_kong <- readGDAL("data/restricted/NP_S100_Raster_10m/S100_Raster_10m.jp2")
+
+# This works but creates an enormous file
+gdalUtils::gdal_translate(src_dataset = "data/restricted/NP_S100_Raster_10m/S100_Raster_10m.jp2", 
+                          dst_dataset = "data/restricted/NP_S100_Raster_10m/S100_Raster_10m.tif", verbose = TRUE)
+
+# After the conversion
+bathy_Norsk_kong <- readGDAL("data/restricted/NP_S100_Raster_10m/S100_Raster_10m.tif")
 
 
 # Data problems -----------------------------------------------------------
