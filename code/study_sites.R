@@ -19,6 +19,7 @@
 # Start with common project code
 source("code/functions.R")
 library(gdalUtils)
+library(stars)
 
 # Load FACE-IT logo
 logo <- grid::rasterGrob(png::readPNG("FACE-IT_Logo_900.png"), interpolate = TRUE)
@@ -272,7 +273,21 @@ gdalUtils::gdal_translate(src_dataset = "data/restricted/NP_S100_Raster_10m/S100
                           dst_dataset = "data/restricted/NP_S100_Raster_10m/S100_Raster_10m.tif", verbose = TRUE)
 
 # After the conversion
-bathy_Norsk_kong <- readGDAL("data/restricted/NP_S100_Raster_10m/S100_Raster_10m.tif")
+bathy_Norsk_kong <- read_stars("data/restricted/NP_S100_Raster_10m/S100_Raster_10m.tif")
+plot(bathy_Norsk_kong)
+
+# Dybde = depth
+glacier_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/06_Norsk_Polarinsitut/NP_S100_SHP/S100_Isbreer_f.shp")
+elev_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/06_Norsk_Polarinsitut/NP_S100_SHP/S100_Koter_l.shp")
+coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
+bathy_Norsk_poly_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdeareal.shp")
+bathy_Norsk_line_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdekurve.shp")
+bathy_Norsk_point_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdepunkt.shp")
+ggplot(data = bathy_Norsk_kong) + 
+  geom_sf()
+  # geom_sf(aes(colour = DYBDE))
+  # geom_sf(aes(fill = DYBDE_MAX))
+
 
 
 # Data problems -----------------------------------------------------------
