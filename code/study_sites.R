@@ -530,3 +530,47 @@ plot_regions_kong <- ggplot() +
 plot_regions_kong
 ggsave("figures/regions_kong.png", plot_regions_kong)
 
+
+# Map requests ------------------------------------------------------------
+
+# From Annika:
+# Nuup Kangerlua, Isfjorden and Porsangerfjorden
+# It would be great if you can add the names and locations of major settlements. 
+# In the workshop discussions, there was a fair amount of focus on land as well. 
+# Would it be possible to add topographical detail and/or key features, such as 
+# glaciers, for the land or use some other trick to make it as important as the water part?
+
+# Nuup Kangerlua
+ggOceanMaps::basemap(limits = bbox_nuup, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
+                     bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
+  # geom_spatial_point(aes(x = -51.8422923, y = 64.259721)) +
+  geom_spatial_label(aes(x = -51.8422923, y = 64.259721, label = "Nuuk")) +
+  geom_spatial_label(aes(x = -50.3450035, y = 64.50, label = "Neriunaq")) +
+  geom_spatial_label(aes(x = -50.2744783, y = 64.37, label = "Kapisillit")) +
+  labs(title = "Nuup Kangerlua", x = NULL, y = NULL) +
+  theme(plot.background = element_rect(colour = NA, fill = "white"))
+ggsave("figures/requests/map_nuup_WP4.png", height = 6, width = 6)
+
+# Isfjorden
+ggOceanMaps::basemap(limits = bbox_is_wide, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
+                     bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
+  geom_spatial_label(aes(x = 15.48789, y = 78.2253587, label = "Longyearbyen")) +
+  geom_spatial_label(aes(x = 14.186268, y = 78.0664196, label = "Barentsburg")) +
+  geom_spatial_label(aes(x = 16.3262847, y = 78.6565062, label = "Pyramiden")) +
+  geom_spatial_label(aes(x = 11.6861781, y = 78.8756255, label = "Ny-Ålesund")) +
+  labs(title = "Svalbard/Isfjorden", x = NULL, y = NULL) +
+  theme(plot.background = element_rect(colour = NA, fill = "white"))
+ggsave("figures/requests/map_is_WP4.png", height = 6, width = 6)
+
+# Porsangerfjorden
+ggOceanMaps::basemap(limits = bbox_por, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
+                     bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
+  geom_spatial_label(aes(x = 24.9, y = 70.022, label = "Lakselv")) +
+  geom_spatial_label(aes(x = 24.9014675, y = 70.2073595, label = "Bevkop")) +
+  geom_spatial_label(aes(x = 25.0441326, y = 70.3154637, label = "Pillavuono")) +
+  geom_spatial_label(aes(x = 25.3, y = 70.035, label = "Nyby")) +
+  geom_spatial_label(aes(x = 25.5447693, y = 70.318202, label = "Børselv")) +
+  labs(title = "Porsangerfjorden", x = NULL, y = NULL) +
+  theme(plot.background = element_rect(colour = NA, fill = "white"))
+ggsave("figures/requests/map_por_WP4.png", height = 6, width = 6)
+
