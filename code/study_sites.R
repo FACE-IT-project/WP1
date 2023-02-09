@@ -264,30 +264,36 @@ bathy_kong_plot <- ggplot(data = bathy_kong, aes(x = LON, y = LAT)) +
 ggsave("figures/map_kong_hires_bathy.png", bathy_kong_plot, height = 10, width = 12)
 
 
-# Hi-res Kong bathy from Norsk Polarinstitut
-# NB: This takes several minutes to load and then fails
-bathy_Norsk_kong <- readGDAL("data/restricted/NP_S100_Raster_10m/S100_Raster_10m.jp2")
-
-# This works but creates an enormous file
-gdalUtils::gdal_translate(src_dataset = "data/restricted/NP_S100_Raster_10m/S100_Raster_10m.jp2", 
-                          dst_dataset = "data/restricted/NP_S100_Raster_10m/S100_Raster_10m.tif", verbose = TRUE)
-
-# After the conversion
-bathy_Norsk_kong <- read_stars("data/restricted/NP_S100_Raster_10m/S100_Raster_10m.tif")
-plot(bathy_Norsk_kong)
-
-# Dybde = depth
+# Hi-res Kong shape files from Norsk Polarinstitut
 glacier_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/06_Norsk_Polarinsitut/NP_S100_SHP/S100_Isbreer_f.shp")
 elev_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/06_Norsk_Polarinsitut/NP_S100_SHP/S100_Koter_l.shp")
 coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
 bathy_Norsk_poly_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdeareal.shp")
 bathy_Norsk_line_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdekurve.shp")
 bathy_Norsk_point_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdepunkt.shp")
-ggplot(data = bathy_Norsk_kong) + 
-  geom_sf()
-  # geom_sf(aes(colour = DYBDE))
-  # geom_sf(aes(fill = DYBDE_MAX))
 
+# Convert to lon/lat degree decimals
+bathy_point_kong_deg <- st_transform(bathy_Norsk_point_kong, 4326) |> dplyr::select(DYBDE, geometry)
+bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::select(DYBDE_MAX, geometry)
+
+# Subset to Kongsfjorden
+bbox_sub <- c(xmin = bbox_kong[1], ymin = bbox_kong[3], 
+              xmax = bbox_kong[2], ymax = bbox_kong[4])
+bathy_point_kong_deg_sub <- st_crop(x = bathy_point_kong_deg, y = bbox_sub)
+bathy_poly_kong_deg_sub <- st_crop(x = bathy_poly_kong_deg, y = bbox_sub)
+
+# Convert to even grid
+bathy_kong_grid <- st_make_grid(bathy_point_kong_deg_sub, cellsize = 0.01)#, what = "centers")
+bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg, template = st_as_stars(st_bbox(bathy_kong_grid)))
+
+# NB: This runs for over 10 minutes without finishing
+# bathy_kong_rast <- st_intersection(x = bathy_kong_deg_sub, y = bathy_kong_grid)
+
+ggplot(data = bathy_kong_deg_sub) +
+  geom_sf(aes(colour = DYBDE)) +
+  geom_sf(data = bathy_kong_rast, fill = NA)
+
+plot(bathy_kong_rast)
 
 
 # Data problems -----------------------------------------------------------
