@@ -20,6 +20,7 @@
 source("code/functions.R")
 library(gdalUtils)
 library(stars)
+library(sfheaders)
 sf_use_s2(FALSE) # Fixes cropping issues with polygons
 
 # Load FACE-IT logo
@@ -278,39 +279,56 @@ ggplot(data = glacier_Norsk_kong) + geom_sf()
 
 # Convert to lon/lat degree decimals
 bathy_point_kong_deg <- st_transform(bathy_Norsk_point_kong, 4326) |> dplyr::select(DYBDE, geometry)
-bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::select(DYBDE_MIN, geometry)
+bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::select(DYBDE_MIN, DYBDE_MAX, geometry)
 
 # Subset to Kongsfjorden
 bbox_sub <- st_bbox(c(xmin = bbox_kong[1], ymin = bbox_kong[3],
                       xmax = bbox_kong[2], ymax = bbox_kong[4]),
                     crs = st_crs(4326))
-bbox_sub_poly <- matrix(c(bbox_kong[1], bbox_kong[3],
-                          bbox_kong[1], bbox_kong[4],
-                          bbox_kong[2], bbox_kong[4],
-                          bbox_kong[2], bbox_kong[3],
-                          bbox_kong[1], bbox_kong[3]),
-                        byrow = T, ncol = 2) |> 
-  list() |> st_polygon() |> st_sfc(crs = "epsg:4326")
+# bbox_sub_poly <- matrix(c(bbox_kong[1], bbox_kong[3],
+#                           bbox_kong[1], bbox_kong[4],
+#                           bbox_kong[2], bbox_kong[4],
+#                           bbox_kong[2], bbox_kong[3],
+#                           bbox_kong[1], bbox_kong[3]),
+#                         byrow = T, ncol = 2) |> 
+#   list() |> st_polygon() |> st_sfc(crs = "epsg:4326")
 bathy_point_kong_deg_sub <- st_crop(x = bathy_point_kong_deg, y = bbox_sub)
 bathy_poly_kong_deg_sub <- st_crop(x = bathy_poly_kong_deg, y = bbox_sub)
 
+# Convert to dataframes to save as .csv
+bathy_point_df <- sf_to_df(bathy_point_kong_deg_sub, fill = TRUE) |> 
+  dplyr::select(x, y, DYBDE) |> dplyr::rename(lon = x, lat = y, depth = DYBDE)
+write_csv_arrow(bathy_point_df, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/bathy_point.csv")
+
 # Plot points
 bathy_point_kong_deg_sub |> 
-  filter(DYBDE <= 100) |> 
+  filter(DYBDE <= 200) |>
   ggplot() +
-  geom_sf(aes(colour = DYBDE))
+  geom_sf(aes(colour = DYBDE)) +
+  scale_colour_viridis_c()
 
 # Plot polygons
 ggplot(data = bathy_poly_kong_deg_sub) +
   geom_sf(aes(colour = DYBDE_MIN))
 
 # Convert to even grid
-bathy_kong_grid <- st_make_grid(bathy_point_kong_deg_sub, cellsize = 0.001)#, what = "centers")
+# bathy_kong_grid <- st_make_grid(bathy_point_kong_deg_sub, cellsize = 0.001)#, what = "centers")
 bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub)
-bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub, template = st_as_stars(bathy_kong_grid))
-bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub, template = st_as_stars(st_bbox(bathy_kong_grid)))
+# bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub, template = st_as_stars(bathy_kong_grid))
+# bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub, template = st_as_stars(st_bbox(bathy_kong_grid)))
+
+# Convert to dataframe to save as .csv
+bathy_rast_df <- as.data.frame(bathy_kong_rast, xy = TRUE) |> 
+  dplyr::rename(lon = x, lat = y, depth_min = DYBDE_MIN, depth_max = DYBDE_MAX)
+write_csv_arrow(bathy_rast_df, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/bathy_raster.csv")
 
 # Plot raster
+plot(bathy_kong_rast)
+
+# Save as .asc
+bathy_kong_rast <- as(bathy_kong_rast, "Raster")
+writeRaster(bathy_kong_rast, "~/bathy_kong_rast.asc", overwrite = TRUE)
+bathy_kong_rast <- raster("~/bathy_kong_rast.asc")
 plot(bathy_kong_rast)
 
 # NB: This runs for over 10 minutes without finishing
