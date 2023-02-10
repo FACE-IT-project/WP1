@@ -475,7 +475,8 @@ load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_2.RData")
 load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_3.RData")
 load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS_4.RData")
 sval_AIS <- rbind(sval_AIS_1, sval_AIS_2, sval_AIS_3, sval_AIS_4)
-save(sval_AIS, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")
 rm(sval_AIS_1, sval_AIS_2, sval_AIS_3, sval_AIS_4); gc()
-load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")
-
+system.time(save(sval_AIS, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")) # 140 seconds, 678.1 MB
+system.time(load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")) # 27 seconds
+system.time(write_csv_arrow(sval_AIS, "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # 140 seconds, 6.1 GB
+system.time(sval_AIS <- read_csv_arrow("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # 4 seconds
