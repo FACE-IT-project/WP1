@@ -109,6 +109,18 @@ EU_GEBCO <- data.frame(type = "Gridded",
                        reference = '<a onclick="alert(\'GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f\');">GEBCO (2021)</a>',
                        note = NA)
 
+# Bathymetry data
+EU_IBCAO <- data.frame(type = "Gridded",
+                       data_name = "Bathymetry",
+                       date_range = NA,
+                       # lon_range = "-180 - 180",
+                       # lat_range = "60 - 90",
+                       # depth_range = "0 - 10920",
+                       # file_name = '<a onclick="alert(\'Not currently hosted\');">0 files</a>',
+                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.gebco.net/data_and_products/gridded_bathymetry_data/arctic_ocean/">IBCAO</a>',
+                       reference = '<a onclick="alert(\'Jakobsson, M., Mayer, L. A., Bringensparr, C., Castro, C. F., Mohammad, R., Johnson, P., ... & Zinglersen, K. B. (2020). The international bathymetric chart of the Arctic Ocean version 4.0. Scientific data, 7(1), 176.\');">Jakobsson et al. (2020)</a>',
+                       note = NA)
+
 # Zooplankton biodiversity
 EU_zooplankton <- data.frame(type = "Net",
                              data_name = 'Zooplankton: biodiversity',
@@ -275,7 +287,7 @@ EU_PG <- data.frame(type = "PANGAEA",
                     note = "These are combinations of many PANGAEA queries.")
 
 # Combine
-metadata_EU_arctic <- rbind(EU_GEBCO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, 
+metadata_EU_arctic <- rbind(EU_GEBCO, EU_IBCAO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, 
                             EU_NCEI_1989, EU_GRDC, EU_Popova, EU_icthyo, EU_green_fjords, EU_IMR_spp_obs,
                             EU_SOCAT, EU_GLODAP, EU_PG)
 ```
