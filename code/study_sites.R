@@ -168,9 +168,9 @@ map_sval <- basemap(c(7, 30, 75.5, 81.5), bathymetry = T) +
                      aes(x = lon, y = lat, colour = site)) +
   labs(title = "Svalbard sites", colour = "Site") +
   theme(panel.border = element_rect(colour = "black", fill = NA),
-       # legend.position = c(0.899, 0.779),
-       legend.box.margin = margin(10, 10, 10, 10),
-       legend.box.background = element_rect(fill = "white", colour = "black"))
+        # legend.position = c(0.899, 0.779),
+        legend.box.margin = margin(10, 10, 10, 10),
+        legend.box.background = element_rect(fill = "white", colour = "black"))
 ggsave("figures/map_svalbard.png", map_sval, width = 7, height = 6)
 ggsave("docs/assets/map_svalbard.png", map_sval, width = 7, height = 6)
 
