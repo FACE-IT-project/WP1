@@ -273,9 +273,12 @@ coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_
 bathy_Norsk_poly_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdeareal.shp")
 bathy_Norsk_line_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdekurve.shp")
 bathy_Norsk_point_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdepunkt.shp")
+# NB: This file is enormous. Too large to plot.
+# shape_Norsk <- tiff::readTIFF("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/NP_J100_Raster_10m/J100_Raster_10m.tif")
 
 # Plot a raw shape file
 ggplot(data = glacier_Norsk_kong) + geom_sf()
+# plot(shape_Norsk)
 
 # Convert to lon/lat degree decimals
 bathy_point_kong_deg <- st_transform(bathy_Norsk_point_kong, 4326) |> dplyr::select(DYBDE, geometry)
@@ -302,14 +305,21 @@ write_csv_arrow(bathy_point_df, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/
 
 # Plot points
 bathy_point_kong_deg_sub |> 
-  filter(DYBDE <= 200) |>
+  # filter(DYBDE <= 200) |>
   ggplot() +
   geom_sf(aes(colour = DYBDE)) +
-  scale_colour_viridis_c()
+  scale_colour_viridis_c() + 
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "bottom")
+ggsave("figures/demo_map_point.png", width = 12, height = 10)
 
 # Plot polygons
 ggplot(data = bathy_poly_kong_deg_sub) +
-  geom_sf(aes(colour = DYBDE_MIN))
+  geom_sf(aes(colour = DYBDE_MIN)) +
+  scale_colour_viridis_c() + 
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "bottom")
+ggsave("figures/demo_map_polygon.png", width = 12, height = 10)
 
 # Convert to even grid
 # bathy_kong_grid <- st_make_grid(bathy_point_kong_deg_sub, cellsize = 0.001)#, what = "centers")
@@ -324,6 +334,12 @@ write_csv_arrow(bathy_rast_df, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/b
 
 # Plot raster
 plot(bathy_kong_rast)
+ggplot(data = bathy_rast_df, aes(x = lon, y = lat)) +
+  geom_raster(aes(fill = depth_min)) +
+  scale_fill_viridis_c() + 
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "bottom")
+ggsave("figures/demo_map_raster.png", width = 12, height = 10)
 
 # Save as .asc
 bathy_kong_rast <- as(bathy_kong_rast, "Raster")
