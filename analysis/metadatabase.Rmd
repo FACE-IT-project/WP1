@@ -30,7 +30,7 @@ library(DT) # For interactive tables
 library(kableExtra) # For formatting static tables
 # library(htmltools) # For additional HTML options
 # library(bsplus) # For additional buttons
-# library(ijtiff) # For reading the glacier tif files
+# library(tiff) # For reading the glacier tif files
 
 # Table column names
 # Add title for each dataset
@@ -61,7 +61,7 @@ options(DT.options = list(pageLength = 5,
 
 The interactive tables found below contain the meta-database of the datasets identified to contain the key drivers of change in fjord and adjacent coastal socio-ecological systems of the seven FACE-IT study sites ([D1.1](https://face-it-project.github.io/WP1/key_drivers.html)). These tables may be searched for key words. One may also click at the top of each column to order the rows in ascending/descending order. Datasets that are restricted to a single FACE-IT study site (e.g. mooring data from Kongsfjorden) are listed in the corresponding meta-datatable below and one may jump to these tables quickly using the table of contents (TOC) on the left. Datasets that encompass the entire European Arctic are listed in their own meta-datatable rather than being listed repeatedly in the tables for individual sites. The same applies for Svalbard. Nearly all of the datasets listed here were collected through some means of _in situ_ sampling however, for some important drivers (e.g. sea ice cover) gridded data from remotely sampled or modelled datasets were sourced and are listed in the meta-datatables for each site.
 
-This website was created for D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The datasets identified within this document will be used for the completion of a review article on past and future changes of key drivers in and around the FACE-IT study sites ([D1.3](https://face-it-project.github.io/WP1/review.html)). 
+This website was created for D1.2 for the Horizon2020 project [FACE-IT](https://www.face-it-project.eu/). The datasets identified within this document were used for the completion of a [review article](https://www.cambridge.org/core/journals/cambridge-prisms-coastal-futures/article/drivers-of-change-in-arctic-fjord-socioecological-systems-examples-from-the-european-arctic/1129E92425F6012F9610D8C9C172B2F0#article) and [data paper](https://essd.copernicus.org/preprints/essd-2022-455/) on past and future changes of key drivers in and around the FACE-IT study sites (D1.3). The data for these publications were amalgamated and published on [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.953115). To aid in the exploration of these data a [user interface](http://193.50.85.111:3838/dataAccess/) was constructed.
 
 ## Column definitions
 
@@ -80,8 +80,6 @@ The interactive tables found below contain the following columns:
 ## Data access
 
 Many of the datasets listed below are available from multiple established data sources. Large gridded data sets for most physical drivers at the Arctic scale can be accessed via: [Copernicus](https://marine.copernicus.eu/), [EMODnet](https://www.emodnet.eu/en), and [NOAA](https://www.ncei.noaa.gov/). Site specific datasets can be accessed via: [NPDC](https://data.npolar.no/home/), [NSF](https://arcticdata.io/), [openpolar](https://openpolar.no/), [PANGAEA](https://pangaea.de/), and [SIOS](https://sios-svalbard.org/metadata_search). Data for drivers pertaining more to policy may be found at: [INTAROS](https://intaros.nersc.no/) and [SAON](https://www.arcticobserving.org/). The data portals for national statistics and other social drivers are: [Grønlands statistik](https://stat.gl/dialog/topmain.asp?lang=da&subject=Fiskeri%20og%20fangst&sc=FI), [kystverket](https://ais-public.kystverket.no/ais-download/), [SSB](https://www.ssb.no/), and [statistikknett](https://statistikknett.no/).
-
-The non-embargoed data that have been collected for FACE-IT may be explored and downloaded via a [data access app](http://193.50.85.104:4949/dataAccess/). The data in this app are populated by the datasets listed in the meta-database tables below as having the type 'FACE-IT'.
 
 # European Arctic
 
