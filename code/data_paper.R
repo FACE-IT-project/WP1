@@ -842,11 +842,40 @@ review_summary_plot(summary_spp_rich, "spp rich")
 
 ## Social ------------------------------------------------------------------
 
+# NB: There is quite a lot of data in the social category for provinces/cities etc.
+# that are outside of the seven FACE-IT study sites.
+# It was unclear what was to be done with these data so they were included in the v1 dataset.
+# For future versions we may possibly remoe all data for settlements etc. not within the seven study sites
+
+### Relevant sites
+
+## Norway
+# Troms og Finnmark: Province(s) for Porsangerfjorden
+# Lakselv: Main city for Porsangerfjorden (?)
+# Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
+
+## Svalbard
+# Svalbard: Province for Svalbard
+# Longyearbyen: Main city in Isfjorden
+# Svalbard Longyear: Airport on Isfjorden
+# Ny-Alesund: Main village in Kongsfjorden
+
+## Greenland
+# Sermersooq: Municipality for Nuup Kangerlua
+# Nuuk: Main city in Nuup Kangerlua, also an airport
+# Qeqertalik: Municipality for Disko bay
+# Avannaata: Municipality that borders pn Disko Bay (relevant for demographics, fish landings, etc.)
+# Qeqertarsuaq: Main city in Disko Bay (?)
+# Aasiaat: Port on southern edge of Disko Bay
+# Ilulissat: Port on eastern edge of Disko Bay, also an airport
+# Qasigiannguit: Port on eastern edge of Disko Bay
+# Uummannaq: City North of Disko Bay (possibly relevant for fish landings etc.)
+# Kangaatsiaq: Port south of Disko Bay (possibly relevant for fish landings etc.)
+# Outside municipalities: Young Sound appears to fall outside of a municipality
+
+
 ### Governance --------------------------------------------------------------
 
-## TODO: Separate local population out from tourism data
-
-# NB: Currently no governance data exist
 gov_kong <- review_filter_var(full_product_kong, "gov") %>% slice(0)
 gov_is <- review_filter_var(full_product_is, "gov")
 gov_stor <- review_filter_var(full_product_stor, "gov")
@@ -861,12 +890,13 @@ gov_nor <- filter(full_product_nor, category == "soc")
 clean_gov <- rbind(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por,
                    gov_EU, gov_sval, gov_green, gov_nor) %>%
   filter(!grepl("Received", URL)) %>%
-  filter(!grepl("arrival|guest|Guest|Passengers|Export|Catch|Quota|Advice|price|Coastal|Offshore|
-                |dogs|overnight|passengers", variable)) %>% 
+  filter(!grepl("arrival|guest|Guest|Passengers|passengers|overnight|dogs|
+                |Export|Catch|Quota|Advice|price|Coastal|Offshore", variable)) %>% 
   mutate(driver = "gov", type = "in situ") %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, driver, site, type, variable, value) %>% 
   distinct()
 # unique(clean_gov$variable)
+# unique(clean_gov$site)
 rm(gov_kong, gov_is, gov_stor, gov_young, gov_disko, gov_nuup, gov_por,
    gov_EU, gov_sval, gov_green, gov_nor); gc()
 
