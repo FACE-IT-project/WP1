@@ -1,0 +1,75 @@
+---
+# title: "FACE-IT data management"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+    preload-iframes: true
+editor: source
+---
+
+# FACE-IT </br> data management {background-color="#008980" style="text-align: center"}
+
+</br>
+
+ASSW - Vienna - 2023
+
+</br>
+
+::: columns
+::: {.column style="text-align: center"}
+Jean-Pierre Gattuso </br> - Lead -
+:::
+
+::: {.column style="text-align: center"}
+*Robert Schlegel* </br> - Data scientist -
+:::
+:::
+
+## Data management {.larger}
+
+-   [Data management plan](https://face-it-project.github.io/WP1/DMP_FACE-IT_initial.pdf) (DMP)  
+-   [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html)  
+-   [Data access app](http://193.50.85.111:3838/dataAccess/)  
+
+<!-- ## {background-iframe="https://face-it-project.github.io/WP1/metadatabase.html"} -->
+
+## {background-color="#008980"}
+
+Thank you for listening!
+
+::: columns
+::: {.column style="text-align: center"}
+![](../logo/profile.jpeg){width="300"}
+</br>
+Robert Schlegel
+:::
+
+::: {.column style="text-align: center"}
+</br>
+![](../logo/Logo_Sorbonne University.png){width="500"} 
+</br>
+LOV, Sorbonne Université – CNRS, France
+:::
+:::
+
+## Sources
+
+::: columns
+::: {.column style="text-align: center"}
+![](QR_metadatabase.png)  
+Meta-database
+:::
+
+::: {.column style="text-align: center"}
+</br></br></br>
+Data access app
+![](QR_dataAccess.png)  
+:::
+:::
+
