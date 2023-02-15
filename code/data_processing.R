@@ -18,7 +18,6 @@ library(ncdump)
 library(ggOceanMaps)
 
 
-
 # SOCAT -------------------------------------------------------------------
 
 # Process SOCAT data into R format
@@ -152,14 +151,17 @@ mar_4_proc <- mar_4 %>%
 
 # Combine all files
 join_columns <- c("Species", "Family", "Treat_Light", "Treat_SA", "Replicate", "Day")
-mar_full <- left_join(mar_1_proc, mar_2_proc, by = join_columns) %>% 
-  left_join(mar_3_proc, by = join_columns) %>% 
-  left_join(mar_4_proc, by = join_columns) %>% 
+mar_full <- left_join(mar_1_proc, mar_2_proc, by = join_columns) |>  
+  left_join(mar_3_proc, by = join_columns) |>  
+  left_join(mar_4_proc, by = join_columns) |>  
   mutate(Treat_Light = case_when(Treat_Light == "HL" ~ 500, Treat_Light == "LL" ~ 50),
        Day = case_when(Day  == "t1" ~ 1, Day  == "t2" ~ 3, Day  == "t3" ~ 6,
-                       Day  == "t4" ~ 10, Day  == "t5" ~ 15, Day  == "t6" ~ 21)) %>% 
-  dplyr::select(Species, Family, Replicate, Day,  everything()) %>% 
+                       Day  == "t4" ~ 10, Day  == "t5" ~ 15, Day  == "t6" ~ 21)) |>  
+  dplyr::select(Species, Family, Replicate, Day,  everything()) |>  
   dplyr::rename(`Repl [#]` = Replicate, `Treat light [µmol photons m-2 s-1]` = Treat_Light, `Treat sal` = Treat_SA, 
-                `Chl a [µg/g]` = Chla, `Lut [µg/g]` = Lut, `β Car [µg/g]` = `β Car`, `Zea [µg/g]` = Zeax, `DPPH [µg/g]` = DPPH)
+                `Chl a [µg/g]` = Chla, `Lut [µg/g]` = Lut, `β Car [µg/g]` = `β Car`, `Zea [µg/g]` = Zeax, `DPPH [µg/g]` = DPPH) |> 
+  # Requested by PANGAEA
+  mutate_at(12:19, ~as.character(.)) |> 
+  mutate_at(12:19, ~replace_na(.,""))
 write_csv(mar_full, "~/pCloudDrive/restricted_data/Marambio/Marambio_full.csv")
 
