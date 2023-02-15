@@ -275,9 +275,14 @@ bathy_Norsk_line_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathym
 bathy_Norsk_point_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdepunkt.shp")
 # NB: This file is enormous. Too large to plot.
 # shape_Norsk <- tiff::readTIFF("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/NP_J100_Raster_10m/J100_Raster_10m.tif")
+bathy_Kong <- read_delim_arrow("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/NO2B1278.xyz",
+                               col_names = c("lon", "lat", "depth"), delim = " ")
+bathy_Kong_HiRes <- read_delim_arrow("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/NO2B1078.xyz",
+                                     col_names = c("lon", "lat", "depth"), delim = " ")
 
 # Plot a raw shape file
 ggplot(data = glacier_Norsk_kong) + geom_sf()
+# ggplot(data = bathy_Kong, aes(x = lon, y = lat, fill = depth)) + geom_raster()
 # plot(shape_Norsk)
 
 # Convert to lon/lat degree decimals
