@@ -12,7 +12,7 @@ format:
     theme: FACE-IT.scss
     self-contained: true
     transition: slide
-editor: visual
+editor: source
 ---
 
 # FACE-IT WP1 {background-color="#008980" style="text-align: center"}
