@@ -663,10 +663,11 @@ IBCAO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/IBCAO/IBCAO_v4_200
 ggplot() + geom_raster(data = IBCAO_data, aes(x = x, y = y, fill = z))
 IBCAO_utm <- st_as_sf(IBCAO_data, coords = c("x", "y"), crs = 3996)
 IBCAO_deg <- st_transform(IBCAO_utm, 4326)
+
 IBCAO_poly <- IBCAO_deg |> 
   mutate(z = round(z, -1)) |> 
   # group_by(z) |> 
-  st_mul
+  # st_mul
   st_cast("MULTIPOINT", group_or_split = TRUE) |> 
   st_cast("MULTILINESTRING", group_or_split = TRUE) |> 
   st_cast("MULTIPOLYGON", group_or_split = TRUE)
@@ -679,12 +680,27 @@ plot(IBCAO_centroid)
 bathy_kong_grid <- st_make_grid(IBCAO_deg, cellsize = 0.01)#, what = "polygons")#, what = "centers")
 # IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(bathy_kong_grid), align = TRUE)
 IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(st_bbox(bathy_kong_grid)))
+IBCAO_raster <- as(IBCAO_rast, "Raster")
 plot(IBCAO_rast)
 
 # Convert to dataframe to save as .csv
 IBCAO_rast_df <- as.data.frame(IBCAO_rast, xy = TRUE) |> 
   dplyr::rename(lon = x, lat = y, elevation = z)
 
+IBCAO_round <- IBCAO_rast_df |> 
+  mutate(lon = plyr::round_any(lon, 0.0125),
+         lat = plyr::round_any(lat, 0.0125)) |> 
+  group_by(lon, lat) |> 
+  summarise(elevation = mean(elevation, na.rm = TRUE), .groups = "drop")
+ggplot() + geom_raster(data = IBCAO_round, aes(x = lon, y = lat, fill = elevation))
+
+IBCAO_interp <- interp::interp(IBCAO_deg, z = "z")
+IBCAO_interp <- interp::interp(as(IBCAO_deg, "Spatial"),
+                       z = "z",
+                       ny = ncol(IBCAO_raster),
+                       nx = nrow(IBCAO_raster),
+                       duplicate = "mean")
+plot(IBCAO_interp)
 # The figure
 bathy_kong_fig <- ggplot() +
   # geom_raster(data = IBCAO_rast_df,
