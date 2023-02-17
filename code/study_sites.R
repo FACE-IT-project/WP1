@@ -660,67 +660,20 @@ IBCAO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/IBCAO/IBCAO_v4_200
   tidync::hyper_filter(x = dplyr::between(x, min(bbox_utm[,1]), max(bbox_utm[,1])), 
                        y = dplyr::between(y, min(bbox_utm[,2]), max(bbox_utm[,2]))) |> 
   tidync::hyper_tibble()
-ggplot() + geom_raster(data = IBCAO_data, aes(x = x, y = y, fill = z)) + coord_sf()
+# ggplot() + geom_raster(data = IBCAO_data, aes(x = x, y = y, fill = z)) + coord_sf()
 
+# Correctly reproject the data, keeping an even grid
 IBCAO_utm <- st_as_sf(IBCAO_data, coords = c("x", "y"), crs = 3996)
-
-
-
-
-IBCAO_utm_raster <- rasterFromXYZ(IBCAO_data, crs = "+init=epsg:3996")
-IBCAO_rast <- terra::rast(IBCAO_data)
-
-IBCAO_deg <- st_transform(IBCAO_utm, 4326)
-IBCAO_deg_df <- sf_to_df(IBCAO_deg, fill = TRUE) |> dplyr::select(x, y ,z)
-
-# maramp code - causes crash
-# IBCAO_bathy <- marmap::as.bathy(IBCAO_deg_df)
-# plot(IBCAO_bathy)
-# IBCAO_bathy_grid <- marmap::as.SpatialGridDataFrame(IBCAO_bathy)
-# plot(IBCAO_bathy_grid, image = TRUE, lwd = 0.2)
-# image(IBCAO_bathy_grid)
-
-IBCAO_poly <- IBCAO_deg |> 
-  mutate(z = round(z, -1)) |> 
-  # group_by(z) |> 
-  # st_mul
-  st_cast("MULTIPOINT", group_or_split = TRUE) |> 
-  st_cast("MULTILINESTRING", group_or_split = TRUE) |> 
-  st_cast("MULTIPOLYGON", group_or_split = TRUE)
-ggplot() + geom_sf(data = IBCAO_poly)
-# IBCAO_rast <- st_rasterize(IBCAO_deg)
-
-# Pointless
-# IBCAO_centroid <- st_centroid(st_union(IBCAO_utm))
-# plot(IBCAO_centroid)
-
-# Doesn't quite fill in the pixels correctly
-bathy_kong_grid <- st_make_grid(IBCAO_deg, cellsize = 0.1)#, what = "polygons")#, what = "centers")
-# IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(bathy_kong_grid), align = TRUE)
-IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(st_bbox(bathy_kong_grid)))
 IBCAO_rast <- st_rasterize(IBCAO_utm)
 IBCAO_raster <- as(IBCAO_rast, "Raster")
 IBCAO_raster_deg <- projectRaster(IBCAO_raster, crs = 4326)
 IBCAO_raster_df <- as.data.frame(IBCAO_raster_deg, xy = TRUE) |> 
   dplyr::rename(lon = x, lat = y, elevation = layer)
 
+# Colour palettes
+blue.col <- colorRampPalette(c("darkblue", "lightblue"))
+yellow.col <- colorRampPalette(c("lightyellow", "orange"))
 
-IBCAO_raster2 <- terra::project(IBCAO_raster, "EPSG:4326", method = "near")
-
-# Conversions
-IBCAO_utm <- st_as_sf(IBCAO_rast_df, coords = c("lon", "lat"), crs = 3996)
-IBCAO_deg <- st_transform(IBCAO_utm, 4326)
-IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(st_bbox(bathy_kong_grid)))
-IBCAO_raster <- as(IBCAO_rast, "Raster")
-IBCAO_deg_df <- sf_to_df(IBCAO_deg, fill = TRUE)
-
-# IBCAO_interp <- interp::interp(IBCAO_deg, z = "z")
-IBCAO_interp <- interp::interp(as(IBCAO_deg, "Spatial"),
-                       z = "z",
-                       ny = ncol(IBCAO_raster),
-                       nx = nrow(IBCAO_raster),
-                       duplicate = "mean")
-plot(IBCAO_interp)
 # The figure
 bathy_kong_fig <- ggplot() +
   # geom_raster(data = IBCAO_rast_df,
@@ -729,7 +682,9 @@ bathy_kong_fig <- ggplot() +
               aes(x = lon, y = lat, fill = elevation)) +
   # geom_sf(data = IBCAO_deg, aes(colour = z)) +
   geom_sf(data = coast_Norsk_kong_deg_sub) +
-  # scale_fill_continuous(trans = "reverse") +
+  scale_fill_gradient2(low = "blue", high = "brown") +
+  # scale_fill_manual(values = c(blue.col(5), yellow.col(5)),
+  #                   breaks = c(-200, -100, -50, -25, -10, 0, 10, 50, 100, 500, 1000)) +
   # scale_fill_viridis_c() + 
   labs(x = NULL, y = NULL) +
   coord_sf(xlim = c(bbox_kong[1:2]), ylim = c(bbox_kong[3:4]), expand = F) +
