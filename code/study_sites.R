@@ -294,13 +294,6 @@ bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::selec
 bbox_sub <- st_bbox(c(xmin = bbox_kong[1], ymin = bbox_kong[3],
                       xmax = bbox_kong[2], ymax = bbox_kong[4]),
                     crs = st_crs(4326))
-# bbox_sub_poly <- matrix(c(bbox_kong[1], bbox_kong[3],
-#                           bbox_kong[1], bbox_kong[4],
-#                           bbox_kong[2], bbox_kong[4],
-#                           bbox_kong[2], bbox_kong[3],
-#                           bbox_kong[1], bbox_kong[3]),
-#                         byrow = T, ncol = 2) |> 
-#   list() |> st_polygon() |> st_sfc(crs = "epsg:4326")
 bathy_point_kong_deg_sub <- st_crop(x = bathy_point_kong_deg, y = bbox_sub)
 bathy_poly_kong_deg_sub <- st_crop(x = bathy_poly_kong_deg, y = bbox_sub)
 
@@ -628,12 +621,94 @@ ggsave("figures/regions_kong.png", plot_regions_kong)
 
 # Map requests ------------------------------------------------------------
 
+# From Jean-Pierre
+# Map of Kongsfjorden (bbox only) with bathymetry sans contour lines
+# Send as .svg and .RData
+
+# Bounding box
+bbox_deg <- st_bbox(c(xmin = bbox_kong[1], ymin = bbox_kong[3], 
+                      xmax = bbox_kong[2], ymax = bbox_kong[4]), crs = st_crs(4326))
+bbox_deg_wide <- st_bbox(c(xmin = bbox_kong_wide[1], ymin = bbox_kong_wide[3], 
+                           xmax = bbox_kong_wide[2], ymax = bbox_kong_wide[4]), crs = st_crs(4326))
+# This should be improved, but will suffice for now
+bbox_utm <- as.data.frame(st_transform(st_as_sfc(bbox_deg), 3996))[[1]][[1]][[1]]
+
+# Hi-res Coastline
+coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
+coast_Norsk_kong_deg <- st_transform(coast_Norsk_kong, 4326)
+coast_Norsk_kong_deg_sub <- st_crop(x = coast_Norsk_kong_deg, y = bbox_deg_wide)
+
+# Bathymetry shapefiles
+bathy_Norsk_poly_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdeareal.shp")
+bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::select(DYBDE_MIN, DYBDE_MAX, geometry)
+bathy_poly_kong_deg_sub <- st_crop(x = bathy_poly_kong_deg, y = bbox_deg_wide)
+bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub)
+bathy_rast_df <- as.data.frame(bathy_kong_rast, xy = TRUE) |> 
+  dplyr::rename(lon = x, lat = y, depth_min = DYBDE_MIN, depth_max = DYBDE_MAX)
+
+# GEBCO
+GEBCO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
+  tidync::hyper_filter(lon = dplyr::between(lon, bbox_kong[1], bbox_kong[2]), 
+                       lat = dplyr::between(lat, bbox_kong[3], bbox_kong[4])) %>% 
+  tidync::hyper_tibble()# %>% 
+  # mutate(depth = -elevation) %>% 
+  # filter(depth > 0)
+ggplot() + geom_raster(data = GEBCO_data, aes(x = lon, y = lat, fill = elevation))
+
+# IBCAO
+IBCAO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/IBCAO/IBCAO_v4_200m.nc") |> 
+  tidync::hyper_filter(x = dplyr::between(x, min(bbox_utm[,1]), max(bbox_utm[,1])), 
+                       y = dplyr::between(y, min(bbox_utm[,2]), max(bbox_utm[,2]))) |> 
+  tidync::hyper_tibble()
+ggplot() + geom_raster(data = IBCAO_data, aes(x = x, y = y, fill = z))
+IBCAO_utm <- st_as_sf(IBCAO_data, coords = c("x", "y"), crs = 3996)
+IBCAO_deg <- st_transform(IBCAO_utm, 4326)
+IBCAO_poly <- IBCAO_deg |> 
+  mutate(z = round(z, -1)) |> 
+  # group_by(z) |> 
+  st_mul
+  st_cast("MULTIPOINT", group_or_split = TRUE) |> 
+  st_cast("MULTILINESTRING", group_or_split = TRUE) |> 
+  st_cast("MULTIPOLYGON", group_or_split = TRUE)
+ggplot() + geom_sf(data = IBCAO_poly)
+# IBCAO_rast <- st_rasterize(IBCAO_deg)
+
+IBCAO_centroid <- st_centroid(st_union(IBCAO_utm))
+plot(IBCAO_centroid)
+
+bathy_kong_grid <- st_make_grid(IBCAO_deg, cellsize = 0.01)#, what = "polygons")#, what = "centers")
+# IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(bathy_kong_grid), align = TRUE)
+IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(st_bbox(bathy_kong_grid)))
+plot(IBCAO_rast)
+
+# Convert to dataframe to save as .csv
+IBCAO_rast_df <- as.data.frame(IBCAO_rast, xy = TRUE) |> 
+  dplyr::rename(lon = x, lat = y, elevation = z)
+
+# The figure
+bathy_kong_fig <- ggplot() +
+  # geom_raster(data = IBCAO_rast_df,
+              # aes(x = lon, y = lat, fill = elevation)) +
+  geom_sf(data = IBCAO_deg, aes(colour = z)) +
+  geom_sf(data = coast_Norsk_kong_deg_sub) +
+  # scale_fill_continuous(trans = "reverse") +
+  # scale_fill_viridis_c() + 
+  labs(x = NULL, y = NULL) +
+  coord_sf(xlim = c(bbox_kong[1:2]), ylim = c(bbox_kong[3:4]), expand = F) +
+  theme(legend.position = "bottom",
+        panel.background = element_rect(colour = "black", fill = "grey70"),
+        panel.border = element_rect(colour = "black", fill = NA))
+bathy_kong_fig
+save(bathy_kong_fig, file = "figures/requests/map_kong_WP1.RData")
+ggsave(bathy_kong_fig, file = "figures/requests/map_kong_WP1.eps", width = 8, height = 6)
+
 # From Annika:
 # Nuup Kangerlua, Isfjorden and Porsangerfjorden
 # It would be great if you can add the names and locations of major settlements. 
 # In the workshop discussions, there was a fair amount of focus on land as well. 
 # Would it be possible to add topographical detail and/or key features, such as 
 # glaciers, for the land or use some other trick to make it as important as the water part?
+
 
 # Nuup Kangerlua
 # Marine terminating glaciers (NS, AS, KNS)
