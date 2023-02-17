@@ -17,6 +17,7 @@
 # Setup -------------------------------------------------------------------
 
 # Start with common project code
+# devtools:::install_github("gearslaboratory/gdalUtils")
 source("code/functions.R")
 library(gdalUtils)
 library(stars)
@@ -635,17 +636,23 @@ ggsave("figures/regions_kong.png", plot_regions_kong)
 # glaciers, for the land or use some other trick to make it as important as the water part?
 
 # Nuup Kangerlua
+# Marine terminating glaciers (NS, AS, KNS)
+# Land terminating glaciers (SS, KS, QS)
+points_nuup <- data.frame(site = c("Nuuk", "Neriunaq", "Kapisillit"),
+                          lon = c(-51.8422923, -50.3450035, -50.2744783),
+                          lat = c(64.259721, 64.4506417, 64.4328821))
 ggOceanMaps::basemap(limits = bbox_nuup, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
                      bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
-  # geom_spatial_point(aes(x = -51.8422923, y = 64.259721)) +
-  geom_spatial_label(aes(x = -51.8422923, y = 64.259721, label = "Nuuk")) +
-  geom_spatial_label(aes(x = -50.3450035, y = 64.50, label = "Neriunaq")) +
-  geom_spatial_label(aes(x = -50.2744783, y = 64.37, label = "Kapisillit")) +
+  geom_spatial_label(data = points_nuup, aes(x = lon, y = lat, label = site)) +
   labs(title = "Nuup Kangerlua", x = NULL, y = NULL) +
   theme(plot.background = element_rect(colour = NA, fill = "white"))
 ggsave("figures/requests/map_nuup_WP4.png", height = 6, width = 6)
 
-# Isfjorden
+# Svalbard/Isfjorden
+# Isfjorden, Barentsburg, Pyramiden, Ny Ålesund, Nordaustlandet, Edgeøya, Longyearbyen,
+points_sval <- data.frame(site = c(),
+                          lon = c(),
+                          lat = c())
 ggOceanMaps::basemap(limits = bbox_is_wide, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
                      bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
   geom_spatial_label(aes(x = 15.48789, y = 78.2253587, label = "Longyearbyen")) +
@@ -657,6 +664,10 @@ ggOceanMaps::basemap(limits = bbox_is_wide, bathymetry = TRUE, glaciers = TRUE, 
 ggsave("figures/requests/map_is_WP4.png", height = 6, width = 6)
 
 # Porsangerfjorden
+# Smørfjord, Holmfjord, Olderfjord, Kistrand, Igeldas, Østerbotn, Brenna, Repvåg
+points_por <- data.frame(site = c(),
+                         lon = c(),
+                         lat = c())
 ggOceanMaps::basemap(limits = bbox_por, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
                      bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
   geom_spatial_label(aes(x = 24.9, y = 70.022, label = "Lakselv")) +
