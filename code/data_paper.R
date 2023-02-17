@@ -19,6 +19,12 @@ library(ggalluvial) # For alluvial plot
 library(ggasym) # For correlation plots with multiple colour bars
 library(ggrepel) # For labels with segments
 library(treemapify) # For gridded tree map
+library(qrcode)
+
+# QR code for data paper
+# QR_data_paper <- qr_code("https://essd.copernicus.org/preprints/essd-2022-455/")
+# plot(QR_data_paper)
+# generate_svg(QR_data_paper, filename = "presentations/QR_data_paper.svg")
 
 
 # Data --------------------------------------------------------------------
