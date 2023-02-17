@@ -631,7 +631,7 @@ bbox_deg <- st_bbox(c(xmin = bbox_kong[1], ymin = bbox_kong[3],
 bbox_deg_wide <- st_bbox(c(xmin = bbox_kong_wide[1], ymin = bbox_kong_wide[3], 
                            xmax = bbox_kong_wide[2], ymax = bbox_kong_wide[4]), crs = st_crs(4326))
 # This should be improved, but will suffice for now
-bbox_utm <- as.data.frame(st_transform(st_as_sfc(bbox_deg), 3996))[[1]][[1]][[1]]
+bbox_utm <- as.data.frame(st_transform(st_as_sfc(bbox_deg_wide), 3996))[[1]][[1]][[1]]
 
 # Hi-res Coastline
 coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
@@ -653,16 +653,32 @@ GEBCO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.n
   tidync::hyper_tibble()# %>% 
   # mutate(depth = -elevation) %>% 
   # filter(depth > 0)
-ggplot() + geom_raster(data = GEBCO_data, aes(x = lon, y = lat, fill = elevation))
+# ggplot() + geom_raster(data = GEBCO_data, aes(x = lon, y = lat, fill = elevation))
 
 # IBCAO
 IBCAO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/IBCAO/IBCAO_v4_200m.nc") |> 
   tidync::hyper_filter(x = dplyr::between(x, min(bbox_utm[,1]), max(bbox_utm[,1])), 
                        y = dplyr::between(y, min(bbox_utm[,2]), max(bbox_utm[,2]))) |> 
   tidync::hyper_tibble()
-ggplot() + geom_raster(data = IBCAO_data, aes(x = x, y = y, fill = z))
+ggplot() + geom_raster(data = IBCAO_data, aes(x = x, y = y, fill = z)) + coord_sf()
+
 IBCAO_utm <- st_as_sf(IBCAO_data, coords = c("x", "y"), crs = 3996)
+
+
+
+
+IBCAO_utm_raster <- rasterFromXYZ(IBCAO_data, crs = "+init=epsg:3996")
+IBCAO_rast <- terra::rast(IBCAO_data)
+
 IBCAO_deg <- st_transform(IBCAO_utm, 4326)
+IBCAO_deg_df <- sf_to_df(IBCAO_deg, fill = TRUE) |> dplyr::select(x, y ,z)
+
+# maramp code - causes crash
+# IBCAO_bathy <- marmap::as.bathy(IBCAO_deg_df)
+# plot(IBCAO_bathy)
+# IBCAO_bathy_grid <- marmap::as.SpatialGridDataFrame(IBCAO_bathy)
+# plot(IBCAO_bathy_grid, image = TRUE, lwd = 0.2)
+# image(IBCAO_bathy_grid)
 
 IBCAO_poly <- IBCAO_deg |> 
   mutate(z = round(z, -1)) |> 
@@ -674,27 +690,31 @@ IBCAO_poly <- IBCAO_deg |>
 ggplot() + geom_sf(data = IBCAO_poly)
 # IBCAO_rast <- st_rasterize(IBCAO_deg)
 
-IBCAO_centroid <- st_centroid(st_union(IBCAO_utm))
-plot(IBCAO_centroid)
+# Pointless
+# IBCAO_centroid <- st_centroid(st_union(IBCAO_utm))
+# plot(IBCAO_centroid)
 
-bathy_kong_grid <- st_make_grid(IBCAO_deg, cellsize = 0.01)#, what = "polygons")#, what = "centers")
+# Doesn't quite fill in the pixels correctly
+bathy_kong_grid <- st_make_grid(IBCAO_deg, cellsize = 0.1)#, what = "polygons")#, what = "centers")
 # IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(bathy_kong_grid), align = TRUE)
 IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(st_bbox(bathy_kong_grid)))
+IBCAO_rast <- st_rasterize(IBCAO_utm)
 IBCAO_raster <- as(IBCAO_rast, "Raster")
-plot(IBCAO_rast)
+IBCAO_raster_deg <- projectRaster(IBCAO_raster, crs = 4326)
+IBCAO_raster_df <- as.data.frame(IBCAO_raster_deg, xy = TRUE) |> 
+  dplyr::rename(lon = x, lat = y, elevation = layer)
 
-# Convert to dataframe to save as .csv
-IBCAO_rast_df <- as.data.frame(IBCAO_rast, xy = TRUE) |> 
-  dplyr::rename(lon = x, lat = y, elevation = z)
 
-IBCAO_round <- IBCAO_rast_df |> 
-  mutate(lon = plyr::round_any(lon, 0.0125),
-         lat = plyr::round_any(lat, 0.0125)) |> 
-  group_by(lon, lat) |> 
-  summarise(elevation = mean(elevation, na.rm = TRUE), .groups = "drop")
-ggplot() + geom_raster(data = IBCAO_round, aes(x = lon, y = lat, fill = elevation))
+IBCAO_raster2 <- terra::project(IBCAO_raster, "EPSG:4326", method = "near")
 
-IBCAO_interp <- interp::interp(IBCAO_deg, z = "z")
+# Conversions
+IBCAO_utm <- st_as_sf(IBCAO_rast_df, coords = c("lon", "lat"), crs = 3996)
+IBCAO_deg <- st_transform(IBCAO_utm, 4326)
+IBCAO_rast <- st_rasterize(IBCAO_deg, template = st_as_stars(st_bbox(bathy_kong_grid)))
+IBCAO_raster <- as(IBCAO_rast, "Raster")
+IBCAO_deg_df <- sf_to_df(IBCAO_deg, fill = TRUE)
+
+# IBCAO_interp <- interp::interp(IBCAO_deg, z = "z")
 IBCAO_interp <- interp::interp(as(IBCAO_deg, "Spatial"),
                        z = "z",
                        ny = ncol(IBCAO_raster),
@@ -705,7 +725,9 @@ plot(IBCAO_interp)
 bathy_kong_fig <- ggplot() +
   # geom_raster(data = IBCAO_rast_df,
               # aes(x = lon, y = lat, fill = elevation)) +
-  geom_sf(data = IBCAO_deg, aes(colour = z)) +
+  geom_raster(data = IBCAO_raster_df,
+              aes(x = lon, y = lat, fill = elevation)) +
+  # geom_sf(data = IBCAO_deg, aes(colour = z)) +
   geom_sf(data = coast_Norsk_kong_deg_sub) +
   # scale_fill_continuous(trans = "reverse") +
   # scale_fill_viridis_c() + 
