@@ -639,20 +639,18 @@ coast_Norsk_kong_deg <- st_transform(coast_Norsk_kong, 4326)
 coast_Norsk_kong_deg_sub <- st_crop(x = coast_Norsk_kong_deg, y = bbox_deg_wide)
 
 # Bathymetry shapefiles
-bathy_Norsk_poly_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdeareal.shp")
-bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::select(DYBDE_MIN, DYBDE_MAX, geometry)
-bathy_poly_kong_deg_sub <- st_crop(x = bathy_poly_kong_deg, y = bbox_deg_wide)
-bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub)
-bathy_rast_df <- as.data.frame(bathy_kong_rast, xy = TRUE) |> 
-  dplyr::rename(lon = x, lat = y, depth_min = DYBDE_MIN, depth_max = DYBDE_MAX)
+# bathy_Norsk_poly_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdeareal.shp")
+# bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::select(DYBDE_MIN, DYBDE_MAX, geometry)
+# bathy_poly_kong_deg_sub <- st_crop(x = bathy_poly_kong_deg, y = bbox_deg_wide)
+# bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub)
+# bathy_rast_df <- as.data.frame(bathy_kong_rast, xy = TRUE) |> 
+#   dplyr::rename(lon = x, lat = y, depth_min = DYBDE_MIN, depth_max = DYBDE_MAX)
 
 # GEBCO
 GEBCO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
   tidync::hyper_filter(lon = dplyr::between(lon, bbox_kong[1], bbox_kong[2]), 
                        lat = dplyr::between(lat, bbox_kong[3], bbox_kong[4])) %>% 
-  tidync::hyper_tibble()# %>% 
-  # mutate(depth = -elevation) %>% 
-  # filter(depth > 0)
+  tidync::hyper_tibble()
 # ggplot() + geom_raster(data = GEBCO_data, aes(x = lon, y = lat, fill = elevation))
 
 # IBCAO
@@ -668,11 +666,22 @@ IBCAO_rast <- st_rasterize(IBCAO_utm)
 IBCAO_raster <- as(IBCAO_rast, "Raster")
 IBCAO_raster_deg <- projectRaster(IBCAO_raster, crs = 4326)
 IBCAO_raster_df <- as.data.frame(IBCAO_raster_deg, xy = TRUE) |> 
-  dplyr::rename(lon = x, lat = y, elevation = layer)
+  dplyr::rename(lon = x, lat = y, elevation = layer) |> 
+  filter(between(lon, bbox_kong[1], bbox_kong[2]),
+         between(lat, bbox_kong[3], bbox_kong[4])) |> 
+  mutate(elevation = round(elevation, -1))
+  # mutate(elevation = case_wh)
 
 # Colour palettes
 blue.col <- colorRampPalette(c("darkblue", "lightblue"))
 yellow.col <- colorRampPalette(c("lightyellow", "orange"))
+
+# Range of topography
+range(IBCAO_raster_df$elevation, na.rm = T)
+
+# Set bathymetry steps
+bathy_steps <- c(-400, -200, -50, 0, 50, 100, 600, 1200)
+bathy_labels <- c(-400, -200, -50, 0, 50, 100, 600, 1000)
 
 # The figure
 bathy_kong_fig <- ggplot() +
@@ -682,15 +691,25 @@ bathy_kong_fig <- ggplot() +
               aes(x = lon, y = lat, fill = elevation)) +
   # geom_sf(data = IBCAO_deg, aes(colour = z)) +
   geom_sf(data = coast_Norsk_kong_deg_sub) +
-  scale_fill_gradient2(low = "blue", high = "brown") +
-  # scale_fill_manual(values = c(blue.col(5), yellow.col(5)),
-  #                   breaks = c(-200, -100, -50, -25, -10, 0, 10, 50, 100, 500, 1000)) +
-  # scale_fill_viridis_c() + 
+  # scale_fill_gradient2(low = "blue", high = "brown") +
+  scale_fill_gradientn(colours = c("darkblue", "lightblue", "lightyellow", "orange"),
+                       #colours = c(blue.col(4), yellow.col(6)), #guide = "legend",
+                       values = c(0, 0.249, 0.25, 1),
+                       breaks = bathy_steps) +
+  # scale_fill_stepsn(colours = c(blue.col(2), yellow.col(2)), 
+                    # values = scales::rescale(c(-200, -100, -50, -25, -10, 0, 10, 50, 100, 500))) +
+  # scale_fill_manual(colours = c(blue.col(5), yellow.col(6)),
+                    # breaks = c(-400, -200, -100, -50, -25, -10, 0, 10, 50, 100, 500, 1000)) +
+  # colorspace::scale_fill_binned_divergingx(palette = c(blue.col(5), yellow.col(6))) +
+  # scale_fill_viridis_c() +
+  # guides(fill = guide_coloursteps(even.steps = F)) +
+  guides(fill = guide_colourbar(ticks.colour = "black")) +
   labs(x = NULL, y = NULL) +
   coord_sf(xlim = c(bbox_kong[1:2]), ylim = c(bbox_kong[3:4]), expand = F) +
   theme(legend.position = "bottom",
         panel.background = element_rect(colour = "black", fill = "grey70"),
-        panel.border = element_rect(colour = "black", fill = NA))
+        panel.border = element_rect(colour = "black", fill = NA),
+        legend.key.width = unit(4, "cm"))
 bathy_kong_fig
 save(bathy_kong_fig, file = "figures/requests/map_kong_WP1.RData")
 ggsave(bathy_kong_fig, file = "figures/requests/map_kong_WP1.eps", width = 8, height = 6)
