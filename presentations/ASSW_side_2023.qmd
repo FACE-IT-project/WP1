@@ -23,13 +23,13 @@ ASSW - Vienna - 2023
 
 ::: columns
 ::: {.column style="text-align: center"}
-Jean-Pierre Gattuso </br> - Lead -
+*Robert Schlegel* </br> - Data scientist -
 :::
 
 ::: {.column style="text-align: center"}
-*Robert Schlegel* </br> - Data scientist -
+Jean-Pierre Gattuso </br> - Lead -
 :::
-:::
+:::  
 
 ## Data management {.larger}
 
