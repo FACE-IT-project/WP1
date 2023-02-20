@@ -639,14 +639,6 @@ coast_Norsk_kong_deg <- st_transform(coast_Norsk_kong, 4326)
 coast_Norsk_kong_deg_sub <- st_crop(x = coast_Norsk_kong_deg, y = bbox_deg_wide)
 rm(coast_Norsk_kong, coast_Norsk_kong_deg); gc()
 
-# Bathymetry shapefiles
-# bathy_Norsk_poly_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Dybdedata/Dybdeareal.shp")
-# bathy_poly_kong_deg <- st_transform(bathy_Norsk_poly_kong, 4326) |> dplyr::select(DYBDE_MIN, DYBDE_MAX, geometry)
-# bathy_poly_kong_deg_sub <- st_crop(x = bathy_poly_kong_deg, y = bbox_deg_wide)
-# bathy_kong_rast <- st_rasterize(bathy_poly_kong_deg_sub)
-# bathy_rast_df <- as.data.frame(bathy_kong_rast, xy = TRUE) |> 
-#   dplyr::rename(lon = x, lat = y, depth_min = DYBDE_MIN, depth_max = DYBDE_MAX)
-
 # GEBCO
 # GEBCO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
 #   tidync::hyper_filter(lon = dplyr::between(lon, bbox_kong[1], bbox_kong[2]), 
@@ -732,7 +724,6 @@ ggsave(kong_bathy_fig, file = "figures/requests/map_kong_bathy_WP1.eps", width =
 # Would it be possible to add topographical detail and/or key features, such as 
 # glaciers, for the land or use some other trick to make it as important as the water part?
 
-
 # Nuup Kangerlua
 # Marine terminating glaciers (NS, AS, KNS)
 # Land terminating glaciers (SS, KS, QS)
@@ -741,39 +732,44 @@ points_nuup <- data.frame(site = c("Nuuk", "Neriunaq", "Kapisillit"),
                           lat = c(64.259721, 64.4506417, 64.4328821))
 ggOceanMaps::basemap(limits = bbox_nuup, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
                      bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
-  geom_spatial_label(data = points_nuup, aes(x = lon, y = lat, label = site)) +
+  geom_spatial_point(data = points_nuup, aes(x = lon, y = lat), size = 3) +
+  geom_spatial_text_repel(data = points_nuup, aes(x = lon, y = lat, label = site), size = 5) +
   labs(title = "Nuup Kangerlua", x = NULL, y = NULL) +
   theme(plot.background = element_rect(colour = NA, fill = "white"))
-ggsave("figures/requests/map_nuup_WP4.png", height = 6, width = 6)
+ggsave("figures/requests/map_nuup_WP4.png", height = 200, width = 200, units = "mm")
 
-# Svalbard/Isfjorden
+# Svalbard
 # Isfjorden, Barentsburg, Pyramiden, Ny Ålesund, Nordaustlandet, Edgeøya, Longyearbyen,
-points_sval <- data.frame(site = c(),
-                          lon = c(),
-                          lat = c())
-ggOceanMaps::basemap(limits = bbox_is_wide, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
+points_sval <- data.frame(site = c("Isfjorden", "Barentsburg", "Pyramiden", "Ny Ålesund", 
+                                   "Nordaustlandet", "Edgeøya", "Longyearbyen"),
+                          lon = c(14.8902883, 14.186268, 16.3262847, 11.6861781, 
+                                  20.3032202, 21.4287958, 15.48789),
+                          lat = c(78.3034181, 78.0664196, 78.6565062, 78.8756255, 
+                                  79.8401006, 77.7680091, 78.2253587))
+ggOceanMaps::basemap(limits = c(8, 23.5, 76.5, 81), bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
                      bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
-  geom_spatial_label(aes(x = 15.48789, y = 78.2253587, label = "Longyearbyen")) +
-  geom_spatial_label(aes(x = 14.186268, y = 78.0664196, label = "Barentsburg")) +
-  geom_spatial_label(aes(x = 16.3262847, y = 78.6565062, label = "Pyramiden")) +
-  geom_spatial_label(aes(x = 11.6861781, y = 78.8756255, label = "Ny-Ålesund")) +
-  labs(title = "Svalbard/Isfjorden", x = NULL, y = NULL) +
+  geom_spatial_point(data = points_sval, aes(x = lon, y = lat), size = 3) +
+  geom_spatial_text_repel(data = points_sval, aes(x = lon, y = lat, label = site), size = 5) +
+  labs(title = "Svalbard", x = NULL, y = NULL) +
   theme(plot.background = element_rect(colour = NA, fill = "white"))
-ggsave("figures/requests/map_is_WP4.png", height = 6, width = 6)
+ggsave("figures/requests/map_sval_WP4.png", height = 200, width = 200, units = "mm")
 
 # Porsangerfjorden
 # Smørfjord, Holmfjord, Olderfjord, Kistrand, Igeldas, Østerbotn, Brenna, Repvåg
-points_por <- data.frame(site = c(),
-                         lon = c(),
-                         lat = c())
+points_por <- data.frame(site = c("Lakselv", "Bevkop", "Pillavuono", "Nyby", "Børselv",
+                                  "Smørfjord", "Holmfjord", "Olderfjord", "Kistrand", 
+                                  "Igeldas", "Østerbotn", "Brenna", "Repvåg"),
+                         lon = c(24.9188931, 24.9014675, 25.0441326, 25.1235309, 25.5447693,
+                                 25.1151665, 25.4504358, 25.2787512, 25.1978622,
+                                 24.9118956, 25.1448369, 25.7423743, 25.6685029),
+                         lat = c(70.0463953, 70.2073595, 70.3154637, 70.0613209, 70.318202, 
+                                 70.4576637, 70.3672181, 70.49862, 70.438682,
+                                 70.2138445, 70.1036608, 70.5110818, 70.7474239))
 ggOceanMaps::basemap(limits = bbox_por, bathymetry = TRUE, glaciers = TRUE, legend.position = "bottom",
                      bathy.style = "poly_blues", gla.border.col = "thistle1", gla.col = "snow") +
-  geom_spatial_label(aes(x = 24.9, y = 70.022, label = "Lakselv")) +
-  geom_spatial_label(aes(x = 24.9014675, y = 70.2073595, label = "Bevkop")) +
-  geom_spatial_label(aes(x = 25.0441326, y = 70.3154637, label = "Pillavuono")) +
-  geom_spatial_label(aes(x = 25.3, y = 70.035, label = "Nyby")) +
-  geom_spatial_label(aes(x = 25.5447693, y = 70.318202, label = "Børselv")) +
+  geom_spatial_point(data = points_por, aes(x = lon, y = lat), size = 3, crs = 4326) +
+  geom_spatial_text_repel(data = points_por, aes(x = lon, y = lat, label = site), size = 5) +
   labs(title = "Porsangerfjorden", x = NULL, y = NULL) +
   theme(plot.background = element_rect(colour = NA, fill = "white"))
-ggsave("figures/requests/map_por_WP4.png", height = 6, width = 6)
+ggsave("figures/requests/map_por_WP4.png", height = 200, width = 200, units = "mm")
 
