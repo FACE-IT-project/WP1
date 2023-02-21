@@ -19,6 +19,8 @@
 # Start with common project code
 # devtools:::install_github("gearslaboratory/gdalUtils")
 source("code/functions.R")
+library(ggOceanMaps)
+library(ggOceanMapsData)
 library(gdalUtils)
 library(stars)
 library(sfheaders)
@@ -26,6 +28,9 @@ sf_use_s2(FALSE) # Fixes cropping issues with polygons
 
 # Load FACE-IT logo
 logo <- grid::rasterGrob(png::readPNG("FACE-IT_Logo_900.png"), interpolate = TRUE)
+
+# Remove scientific notation
+options(scipen=999)
 
 
 # Single points -----------------------------------------------------------
@@ -625,6 +630,14 @@ ggsave("figures/regions_kong.png", plot_regions_kong)
 # Map of Kongsfjorden (bbox only) with bathymetry sans contour lines
 # Send as .svg and .RData
 
+# ggOceaMaps version
+basemap(limits = c(10, 35, 75.5, 82), bathymetry = TRUE, shapefiles = "BarentsSea",
+        legends = FALSE, glaciers = TRUE)
+basemap(limits = c(11.00, 12.69, 78.86, 79.10), bathymetry = TRUE, shapefiles = "Svalbard",
+        legends = FALSE, glaciers = TRUE)
+basemap(limits = c(11.00, 12.69, 78.86, 79.10), bathymetry = TRUE, shapefiles = "IBCAO",
+        legends = FALSE, glaciers = TRUE)
+
 # Bounding box
 bbox_deg <- st_bbox(c(xmin = bbox_kong[1], ymin = bbox_kong[3], 
                       xmax = bbox_kong[2], ymax = bbox_kong[4]), crs = st_crs(4326))
@@ -634,9 +647,54 @@ bbox_deg_wide <- st_bbox(c(xmin = bbox_kong_wide[1], ymin = bbox_kong_wide[3],
 bbox_utm <- as.data.frame(st_transform(st_as_sfc(bbox_deg_wide), 3996))[[1]][[1]][[1]]
 
 # Hi-res Coastline
+
+# coast_Norsk_kong <- maptools::readShape("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
+
+
 coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
+# coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Landareal.shp")
+
 coast_Norsk_kong_deg <- st_transform(coast_Norsk_kong, 4326)
 coast_Norsk_kong_deg_sub <- st_crop(x = coast_Norsk_kong_deg, y = bbox_deg_wide)
+
+coast_Norsk_kong_multiline <- st_cast(coast_Norsk_kong_deg, "MULTILINESTRING")
+coast_Norsk_kong_poly <- st_cast(coast_Norsk_kong_multiline, "MULTIPOLYGON")
+
+# coast_Norsk_kong_poly <- summarise(coast_Norsk_kong_deg_sub, geometry = st_combine(geometry)) 
+
+
+# coast_Norsk_kong_poly <- summarise(coast_Norsk_kong_poly, geometry = st_combine(geometry)) 
+coast_Norsk_kong_poly <- sf::st_union(coast_Norsk_kong_deg_sub)
+coast_Norsk_kong_poly <- coast_Norsk_kong_poly[lapply(coast_Norsk_kong_poly, length) > 3]
+coast_Norsk_kong_poly <- st_cast(coast_Norsk_kong_poly, "POLYGON")
+
+plot(coast_Norsk_kong_poly)
+
+coast_Norsk_kong_df <- sfheaders::sf_to_df(sf = coast_Norsk_kong_deg_sub) |> 
+  group_by(linestring_id) |> 
+  mutate(row_count = n()) |> 
+  ungroup() |> 
+  filter(row_count >= 4)
+
+coast_Norsk_kong_multiline <- sf::st_multipolygon(x = as.list(coast_Norsk_kong_df[,c("x", "y")]), dim = "XY")
+
+coast_Norsk_kong_poly <- sf::st_cast(coast_Norsk_kong_deg_sub, to = "MULTIPOLYGON")
+coast_Norsk_kong_multiline <- sf::st_combine(coast_Norsk_kong_deg_sub)
+
+coast_Norsk_kong_poly <- sf::st_polygonize(coast_Norsk_kong_multiline)
+coast_Norsk_kong_poly <- sf::st_boundary(coast_Norsk_kong_multiline)
+coast_Norsk_kong_poly <- sf::st_line_merge(coast_Norsk_kong_multiline)
+
+coast_Norsk_kong_poly <- sfheaders::sf_polygon(obj = coast_Norsk_kong_df, 
+                                               x = "x",y = "y", polygon_id = "sfg_id")
+
+coast_Norsk_kong_poly <- sf::st_polygonize(coast_Norsk_kong_poly)
+
+plot(coast_Norsk_kong_poly)
+
+coast_Norsk_kong_point <- sf::st_cast(coast_Norsk_kong_deg_sub, to = "MULTIPOINT")
+coast_Norsk_kong_poly <- sf::st_cast(coast_Norsk_kong_deg_sub, to = "POLYGON")
+
 rm(coast_Norsk_kong, coast_Norsk_kong_deg); gc()
 
 # GEBCO
@@ -658,11 +716,11 @@ IBCAO_utm <- st_as_sf(IBCAO_data, coords = c("x", "y"), crs = 3996)
 IBCAO_rast <- st_rasterize(IBCAO_utm)
 IBCAO_raster <- as(IBCAO_rast, "Raster")
 IBCAO_raster_deg <- projectRaster(IBCAO_raster, crs = 4326)
-IBCAO_raster_df <- as.data.frame(IBCAO_raster_deg, xy = TRUE) |> 
+IBCAO_df <- as.data.frame(IBCAO_raster_deg, xy = TRUE) |> 
   dplyr::rename(lon = x, lat = y, elevation = layer) |> 
   filter(between(lon, bbox_kong[1]-0.1, bbox_kong[2]+0.1),
          between(lat, bbox_kong[3]-0.1, bbox_kong[4]+0.1)) |>
-  mutate(elevation = round(elevation, -1),
+  mutate(elev_10 = round(elevation, -1),
          elev_cut = cut(elevation, c(-400, -200, -50, -25, -10, 0, 10, 50, 100, 600, 1200)))
 rm(IBCAO_data, IBCAO_utm, IBCAO_raster_deg); gc()
 
@@ -671,7 +729,9 @@ blue.col <- colorRampPalette(c("darkblue", "lightblue"))
 yellow.col <- colorRampPalette(c("lightyellow", "orange"))
 
 # Range of topography
-range(IBCAO_raster_df$elevation, na.rm = T)
+range(IBCAO_df$elevation, na.rm = T)
+range(IBCAO_df$elev_10, na.rm = T)
+levels(IBCAO_df$elev_cut)
 
 # Set bathymetry steps
 bathy_steps <- c(-300, -200, -50, 0, 50, 100, 600, 1200)
@@ -679,7 +739,7 @@ bathy_labels <- c(-300, -200, -50, 0, 50, 100, 600, 1200)
 
 # The figure
 kong_topo_fig <- ggplot() +
-  geom_raster(data = IBCAO_raster_df,
+  geom_raster(data = IBCAO_df,
               aes(x = lon, y = lat, fill = elevation)) +
   # geom_contour_filled(data = IBCAO_raster_df, breaks = bathy_steps,
                # aes(x = lon, y = lat, z = elevation)) +
@@ -700,10 +760,11 @@ ggsave(kong_topo_fig, file = "figures/requests/map_kong_topo_WP1.eps", width = 1
 
 # Just bathymetry
 kong_bathy_fig <- ggplot() +
-  geom_raster(data = filter(IBCAO_raster_df, elevation <= 0),
+  geom_raster(data = filter(IBCAO_df, elevation <= 0),
               aes(x = lon, y = lat, fill = elevation)) +
+  # geom_sf(data = coast_Norsk_kong_poly, fill = "grey") +
   geom_sf(data = coast_Norsk_kong_deg_sub) +
-  scale_fill_gradientn(colours = c("darkblue", "lightblue", "white"),
+  scale_fill_gradientn(colours = c("darkblue", "lightblue"),
                        # values = c(0, 0.243, 0.244, 1),
                        breaks = c(-300, -200, -100, -50, -25, -10, 0)) +
   guides(fill = guide_colourbar(ticks.colour = "black", frame.colour = "black")) +
