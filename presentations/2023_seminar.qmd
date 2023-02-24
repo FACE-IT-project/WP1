@@ -14,9 +14,9 @@ format:
 editor: source
 ---
 
-## Arctic fjord data: An interactive review
+## Arctic fjord data: An interactive demo of the FACE-IT product
 
-<!-- With the key drivers of change in EU Arctic fjords identified, and the available data for them aggregated into a single product (v1.0), it is now possible to directly initiate any number of investigations into what is changing in fjords and why. A possible framework for these investigations, based on a recently published FACE-IT article, is first given to provide context. This is followed by a live interactive demonstration of the available data via the user interface created for FACE-IT researchers. The purpose of this live demonstration is two-fold: 1) to provide a common space, in real-time, for FACE-IT researchers to discuss what data they are interested in and to see what is available; and 2) for WP1 to determine which data FACE-IT researchers may want that have yet to be collected and amalgamated into the final product (v2.0). -->
+WP1 identified the key drivers of change in EU Arctic fjords and aggregated relevant data into a single data product (v1.0). This product makes it possible to initiate any number of investigations into what is changing in fjords and why. A possible framework for these investigations, based on a recently published FACE-IT review article, is first given to provide context. This is followed by a live interactive demonstration of the available data via the user interface created for FACE-IT researchers. The purpose of this live demonstration is two-fold: 1) to provide a common space, in real-time, for FACE-IT researchers to discuss which data they are interested in and to see what is available; and 2) for WP1 to determine which data FACE-IT researchers may want that have yet to be collected and amalgamated into the final product (v2.0).
 
 <!-- ## -->
 
