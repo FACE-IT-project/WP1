@@ -1,0 +1,54 @@
+---
+# title: "The changing fjords of the European Arctic: what do the data say?"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+    width: 1050
+    height: 750
+editor: source
+---
+
+## Arctic fjord data: An interactive review
+
+<!-- With the key drivers of change in EU Arctic fjords identified, and the available data for them aggregated into a single product (v1.0), it is now possible to directly initiate any number of investigations into what is changing in fjords and why. A possible framework for these investigations, based on a recently published FACE-IT article, is first given to provide context. This is followed by a live interactive demonstration of the available data via the user interface created for FACE-IT researchers. The purpose of this live demonstration is two-fold: 1) to provide a common space, in real-time, for FACE-IT researchers to discuss what data they are interested in and to see what is available; and 2) for WP1 to determine which data FACE-IT researchers may want that have yet to be collected and amalgamated into the final product (v2.0). -->
+
+<!-- ## -->
+
+<!-- <p style="font-size: 38pt"> -->
+<!-- <b>The changing fjords of the European Arctic:</b> -->
+<!-- </br> -->
+<!-- <b>what do the data say?</b> -->
+<!-- </p> -->
+
+::: columns
+::: {.column style="text-align: center"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width="350"}
+<p style="font-size:18pt">Work package one (WP1)</p>
+![](../logo/h2020.png){width="350"} 
+<p style="font-size:18pt">Funded under grant #869154</p>
+:::
+
+::: {.column style="text-align: center"}
+<p style="font-size:24pt">Robert W. Schlegel, Inka Bartsch, Kai Bischof, Lill Rastad Bjørst, Halvor Dannevig, Nora Diehl, Pedro Duarte, Grete K. Hovelsrud, Thomas Juul-Pedersen, Laurène Merillet, Cale Miller, Carina Ren, Mikael Sejr, Janne E. Søreide, Tobias R. Vonnahme, Jean-Pierre Gattuso</p>
+<p style="font-size:18pt">See abstract for full affiliations.</p>
+:::
+:::
+
+## Publications
+
+-   Coastal Futures (2023)
+![](header_reviewPaper.png)  
+-   Earth System Science Data (ESSD) (In review)
+![](header_dataPaper_review.png)  
+![](QR_reviewPaper.png){style="width: 200px; height: 200px; margin: 10px;" .absolute top="80" right="40"}  
+![](QR_dataPaper_review.png){style="width: 200px; height: 200px; margin: 10px;" .absolute top="500" right="80"}  
+
+## The FACE-IT study sites
+
+![](../figures/dp_fig_1.png){.absolute top="60" left="70"}
