@@ -9,6 +9,8 @@ format:
     theme: FACE-IT.scss
     self-contained: true
     transition: slide
+    width: 1050
+    height: 750
 editor: source
 ---
 
@@ -31,6 +33,7 @@ editor: source
 
 ::: {.column style="text-align: center"}
 <p style="font-size:24pt">Robert W. Schlegel, Inka Bartsch, Kai Bischof, Lill Rastad Bjørst, Halvor Dannevig, Nora Diehl, Pedro Duarte, Grete K. Hovelsrud, Thomas Juul-Pedersen, Laurène Merillet, Cale Miller, Carina Ren, Mikael Sejr, Janne E. Søreide, Tobias R. Vonnahme, Jean-Pierre Gattuso</p>
+<p style="font-size:18pt">See abstract for full affiliations.</p>
 :::
 :::
 
@@ -42,6 +45,10 @@ editor: source
 ![](header_dataPaper_review.png)  
 ![](QR_reviewPaper.png){style="width: 200px; height: 200px; margin: 10px;" .absolute top="80" right="40"}  
 ![](QR_dataPaper_review.png){style="width: 200px; height: 200px; margin: 10px;" .absolute top="500" right="80"}  
+
+## The FACE-IT study sites
+
+![](../figures/dp_fig_1.png){.absolute top="60" left="70"}
 
 ## Why fjords? {background-image="kong_landscape.jpg" background-color="black"}
 
@@ -188,9 +195,9 @@ __Social__
 
 ![](../figures/LOV_fig_1B.png){.absolute top="70" left="140" height="630"}
 
-## Numeric examples
+<!-- ## Numeric examples -->
 
-![](../figures/dp_fig_5.png)
+<!-- ![](../figures/dp_fig_5.png) -->
 
 ## Data access
 
@@ -202,13 +209,14 @@ Thank you for listening!
 
 ::: columns
 ::: {.column style="text-align: center"}
+</br>
 ![](../logo/profile.jpeg){width="300"}
 <br>
 Robert Schlegel
 :::
 
 ::: {.column style="text-align: center"}
-<br>
+</br></br>
 ![](../logo/Logo_Sorbonne University.png){width="500"} 
 <br>
 LOV, Sorbonne Université – CNRS, France
