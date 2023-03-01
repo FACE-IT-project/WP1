@@ -165,3 +165,21 @@ mar_full <- left_join(mar_1_proc, mar_2_proc, by = join_columns) |>
   mutate_at(12:19, ~replace_na(.,""))
 write_csv(mar_full, "~/pCloudDrive/restricted_data/Marambio/Marambio_full.csv")
 
+
+# Lebrun dataset ----------------------------------------------------------
+
+Lebrun_data <- read_csv("~/pCloudDrive/restricted_data/Lebrun/Fauna_biomass_Table.csv") |> 
+  dplyr::rename(DOI = Doi, `Cruise ID` = CruiseID, `Latitude [°N]` = Latitude, `Longitude [°E]` = Longitude,
+                `Depth min [m]` = Min_depth, `Depth max [m]` = Max_depth, 
+                `Month start` = st_month, `Month end` = end_month,
+                `Year start` = st_year, `Year end` = end_year, `Day(s)` = Day,
+                `Replicates [n]` = Replicates_number,
+                `Biomass [AFDW g/m^2]` = Biomass_gAFDW_m2, `Biomass [AFDW g/m^2 sd]` = Biomass_gAFDW_m2_sd,
+                `Biomass [C g/m^2]` = Biomass_gC_m2, `Biomass [C g/m^2 sd]` = Biomass_gC_m2_sd,
+                `Biomass [ww g/m^2]` = Biomass_ww_g_m2, `Biomass [ww g/m^2 sd]` = Biomass_ww_g_m2_sd,
+                `Abundance [ind/m^2]` = Abundance_ind_m2, `Abundance [ind/m^2 sd]` = Abundance_ind_m2_sd) |> 
+  # Requested by PANGAEA
+  mutate_at(1:29, ~as.character(.)) |> 
+  mutate_at(1:29, ~replace_na(.,""))
+write_csv(Lebrun_data, "~/pCloudDrive/restricted_data/Lebrun/Lebrun_data_tidy.csv")
+
