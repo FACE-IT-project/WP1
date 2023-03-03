@@ -662,6 +662,8 @@ coast_Norsk_kong_poly <- st_cast(coast_Norsk_kong_multiline, "MULTIPOLYGON")
 
 # coast_Norsk_kong_poly <- summarise(coast_Norsk_kong_deg_sub, geometry = st_combine(geometry)) 
 
+# Coast NPI
+kong_shape <- read_sf("~/Downloads/Coast2022.shp")
 
 # coast_Norsk_kong_poly <- summarise(coast_Norsk_kong_poly, geometry = st_combine(geometry)) 
 coast_Norsk_kong_poly <- sf::st_union(coast_Norsk_kong_deg_sub)
@@ -760,14 +762,14 @@ ggsave(kong_topo_fig, file = "figures/requests/map_kong_topo_WP1.eps", width = 1
 
 # Just bathymetry
 kong_bathy_fig <- ggplot() +
-  geom_raster(data = filter(IBCAO_df, elevation <= 0),
-              aes(x = lon, y = lat, fill = elevation)) +
+#   geom_raster(data = filter(IBCAO_df, elevation <= 0),
+#               aes(x = lon, y = lat, fill = elevation)) +
   # geom_sf(data = coast_Norsk_kong_poly, fill = "grey") +
-  geom_sf(data = coast_Norsk_kong_deg_sub) +
-  scale_fill_gradientn(colours = c("darkblue", "lightblue"),
-                       # values = c(0, 0.243, 0.244, 1),
-                       breaks = c(-300, -200, -100, -50, -25, -10, 0)) +
-  guides(fill = guide_colourbar(ticks.colour = "black", frame.colour = "black")) +
+  geom_sf(data = kong_shape) +
+  # scale_fill_gradientn(colours = c("darkblue", "lightblue"),
+  #                      # values = c(0, 0.243, 0.244, 1),
+  #                      breaks = c(-300, -200, -100, -50, -25, -10, 0)) +
+  # guides(fill = guide_colourbar(ticks.colour = "black", frame.colour = "black")) +
   labs(x = NULL, y = NULL, fill = "Elevation [m]") +
   coord_sf(xlim = c(bbox_kong[1:2]), ylim = c(bbox_kong[3:4]), expand = F) +
   theme(legend.position = "bottom",

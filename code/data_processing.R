@@ -180,6 +180,35 @@ Lebrun_data <- read_csv("~/pCloudDrive/restricted_data/Lebrun/Fauna_biomass_Tabl
                 `Abundance [ind/m^2]` = Abundance_ind_m2, `Abundance [ind/m^2 sd]` = Abundance_ind_m2_sd) |> 
   # Requested by PANGAEA
   mutate_at(1:29, ~as.character(.)) |> 
-  mutate_at(1:29, ~replace_na(.,""))
+  mutate_at(1:29, ~replace_na(., ""))
 write_csv(Lebrun_data, "~/pCloudDrive/restricted_data/Lebrun/Lebrun_data_tidy.csv")
 
+
+# Gattuso dataset ---------------------------------------------------------
+
+# Sys.setenv(TZ = 'Europe/Paris')
+# Sys.setenv(TZ = 'UTC')
+Gattuso_data1 <- read_csv("~/pCloudDrive/restricted_data/Gattuso/pangaea.csv") |> 
+  mutate(datetime = as.POSIXct(datetime, tz = "Europe/Paris")) |> 
+  mutate(datetime2 = format(datetime, tz = "Europe/Paris", usetz = TRUE)) |>
+  mutate(datetime3 = format(datetime, tz = "UTC", usetz = TRUE)) |>
+  mutate(datetime4 = as.integer(datetime))
+
+Gattuso_data2 <- read_csv("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1.csv") |> 
+  mutate(datetime = as.POSIXct(datetime, origin = "1970-01-01", tz = "Europe/Paris")) |> 
+  mutate(datetime2 = format(datetime, tz = "Europe/Paris", usetz = TRUE)) |>
+  mutate(datetime3 = format(datetime, tz = "UTC", usetz = TRUE)) |>
+  mutate(datetime4 = as.integer(datetime))
+
+Gattuso_data <- read_csv("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1.csv") |> 
+  mutate(datetime = as.POSIXct(datetime, origin = "1970-01-01", tz = "Europe/Paris")) |> 
+  # mutate(datetime = format(datetime, tz = "Europe/Paris", usetz = TRUE)) #|>
+  mutate(datetime = format(datetime, tz = "UTC", usetz = TRUE)) |>
+  separate(datetime, into = c("Date", "Time"), sep = " ") |>  
+  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) |> 
+  dplyr::select(`date/time [UTC+0]`, everything(), -Date, -Time) |> 
+  mutate_at(1:14, ~as.character(.)) |>
+  mutate_at(1:14, ~replace_na(., ""))
+
+kong_shape <- read_sf("~/Downloads/Coast2022.shp")
+plot(kong_shape)
