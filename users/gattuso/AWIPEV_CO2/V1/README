@@ -1,0 +1,28 @@
+﻿Title
+High-frequency, year-round time series of the carbonate chemistry in a high-Arctic fjord (Svalbard
+Author(s) + their e-mail(s)
+Jean-Pierre Gattuso, jean-pierre.gattuso@imev-mer.fr
+Samir Alliouane, samir.alliouane@imev-mer.fr
+Philipp Fischer, philipp.fischer@awi.de
+Abstract (i.e. https://wiki.pangaea.de/wiki/Abstract)
+The Arctic Ocean is subject to high rates of ocean warming and acidification, with critical implications for marine organisms as well as ecosystems and the services they provide. Carbonate system data in the Arctic realm are spotty in space and time and, until recently, there was no time-series station measuring the carbonate chemistry at high frequency in this region, particularly in coastal waters. We report here on the first high-frequency (1 h), multi-year (6 years) dataset of salinity, temperature, dissolved inorganic carbon, total alkalinity, CO2 partial pressure (pCO2) and pH at a coastal site (12 m) in Kongsfjorden, Svalbard. We show that the choice of formulations for calculating the dissociation constants of the carbonic acid remains unsettled, (2) the water column is generally somewhat stratified despite the shallow depth, (3) the saturation state of calcium carbonate is subject to large seasonal changes but never reaches undersaturation (Oa ranges between 1.4 and 3.0) and (4) pCO2 is lower than atmospheric CO2 at all seasons, making this site a sink for atmospheric CO2.
+Key words (5 is nice, but I don't think there is a particular number required)
+CO2; carbonate chemistry; time-series; Svalbard
+Funding Source(s)
+This work has been supported by the Coastal Observing System for Northern and Arctic Seas (COSYNA), the two Helmholtz large-scale infrastructure projects ACROSS and MOSES, the French Polar Institute (IPEV) as well as the European Union's Horizon 2020 research and innovation programme Jericho-Next (No 871153 and 951799), INTAROS (No 727890) and FACE-IT (No 869154
+A note (different from the abstract) explaining what each column shows (e.g. t_sf [°C]).
+
+    • date/time [UTC+0]: The date and time at UTC+0
+    • pressure_profiler [dbar]: hydrostatic pressure (profiler) 
+    • salinity_PSS78_profiler [unit]: salinity in situ (profiler) 
+    • salinity_PSS78_ferrybox [unit], salinity (FerryBox) 
+    • temperature_ITS90_11m [°C]: temperature in situ (static at 11 m) 
+    • temperature_ITS90_profiler [°C]: temperature in situ (profiler) 
+    • temperature_ITS90_ferrybox [°C]: temperature (FerryBox) 
+    • temperature_ITS90_seafet_profiler [°C]: temperature SeaFET (profiler) 
+    • pco2_insitu_temperature_ferrybox [uatm]: Partial pressure of CO2 (FerryBox) 
+    • ph_insitu_temperature_profiler [total scale]: pH in situ at in situ temperature (profiler) 
+    • ta_discrete [umol kg-1]: total alkalinity in situ (discrete) 
+    • dic_discrete [umol kg-1]: dissolved inorganic carbon in situ (discrete) 
+    • ph_discrete [total scale]: spectrophotometric pH in situ at in situ temperature (discrete) 
+
