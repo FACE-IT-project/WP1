@@ -43,7 +43,7 @@ options(scipen = 9999)
 Sys.setenv(TZ = "UTC")
 
 # Set system time to English
-Sys.setlocale("LC_TIME","en_GB.UTF-8")
+Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 
 # Bounding boxes
 bbox_EU <- c(-60, 60, 60, 90) # Note that this is intentionally different from the Copernicus definition of c(-25, 60, 66, 90)
