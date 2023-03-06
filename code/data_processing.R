@@ -178,10 +178,24 @@ Lebrun_data <- read_csv("~/pCloudDrive/restricted_data/Lebrun/Fauna_biomass_Tabl
                 `Biomass [C g/m^2]` = Biomass_gC_m2, `Biomass [C g/m^2 sd]` = Biomass_gC_m2_sd,
                 `Biomass [ww g/m^2]` = Biomass_ww_g_m2, `Biomass [ww g/m^2 sd]` = Biomass_ww_g_m2_sd,
                 `Abundance [ind/m^2]` = Abundance_ind_m2, `Abundance [ind/m^2 sd]` = Abundance_ind_m2_sd) |> 
+  separate(`Day(s)`, into = c("day_start", "day_end"), sep = '-', fill = "right", remove = T, convert = T) |> 
+  mutate(day_start = case_when(is.na(day_start) ~ as.integer(1), TRUE ~ day_start),
+         day_end = case_when(is.na(day_end) ~ day_start, TRUE ~ day_end),
+         month_start = match(`Month start`, tolower(month.name)),
+         month_end = match(`Month end`, tolower(month.name))) |> 
+  unite("Date/Time [start]", sep = "-", remove = T, `Year start`, month_start, day_start) |> 
+  unite("Date/Time [end]", sep = "-", remove = T, `Year end`, month_end, day_end) |> 
+  mutate(`Date/Time [start]` = as.Date(`Date/Time [start]`),
+         `Date/Time [end]` = as.Date(`Date/Time [end]`)) |> 
+  dplyr::select(-`Month start`, -`Month end`) |> 
   # Requested by PANGAEA
-  mutate_at(1:29, ~as.character(.)) |> 
-  mutate_at(1:29, ~replace_na(., ""))
+  mutate_at(1:26, ~as.character(.)) |> 
+  mutate_at(1:26, ~replace_na(., ""))
 write_csv(Lebrun_data, "~/pCloudDrive/restricted_data/Lebrun/Lebrun_data_tidy.csv")
+
+# Test visual
+ggplot(data = Lebrun_data, aes(x = `Longitude [°E]`, y = `Latitude [°N]`)) +
+  borders() + geom_point()
 
 
 # Gattuso dataset ---------------------------------------------------------
