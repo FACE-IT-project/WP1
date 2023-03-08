@@ -78,9 +78,9 @@ points_in_region <- function(region_name, data_product, border_product){
 
 # Overview
 
-The world ocean is 362,033,000 km2 (Menard & Smith, 1966 in Jakobsson et al., 2002). According to Jakobsson et al. (2002) the Arctic Ocean, as defined by the International Hydrographic Organization (1953), is 15,551,000 km2 or about 4.3% of the global ocean. 
+The world ocean is 362,033,000 km2 (Menard & Smith, 1966 in Jakobsson et al., 2002). According to Jakobsson et al. (2002) the Arctic Ocean, as defined by the International Hydrographic Organization (1953), is 15,551,000 km2 or about 4.3% of the global ocean according to Jakobsson et al. (2002). 
 
-In the present analysis, the Arctic Ocean is as defined by the International Hydrographic Organization (1953) using the following dataset:
+In the present analysis of the GLODAP and SOCAT data, the Arctic Ocean is as defined by the International Hydrographic Organization (1953) using the following dataset (Jakobsson et al., 2002 used the same definition but not the same data source):
 
 International Hydrographic Organization, IHO; Sieger, Rainer (2012): Limits of oceans and seas in digitized, machine readable form. Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research, Bremerhaven, PANGAEA, https://doi.org/10.1594/PANGAEA.777975
 
@@ -108,8 +108,10 @@ socat <- readRDS(file = "~/kDrive/zBigFilesStorage/socat/SOCATv2022.rds") %>% # 
 
 # Find marine borders for the SOCAT product and merge
 registerDoParallel(cores = 15)
-socat_regions <- plyr::ldply(unique(ocean_borders$name), points_in_region, .parallel = T, 
-                             data_product = distinct(socat[,c("lon", "lat")]), border_product = ocean_borders)
+socat_regions <- plyr::ldply(unique(ocean_borders$name), 
+                             points_in_region, .parallel = T, 
+                             data_product = distinct(socat[,c("lon", "lat")]),
+                             border_product = ocean_borders)
 
 # Process data
 socat_all <- socat %>% # whole ocean
@@ -128,7 +130,7 @@ socat_all <- socat %>% # whole ocean
       TRUE ~ ocean)) %>% 
   dplyr::mutate(ocean = case_when(ocean == "Other" & lon <= 160 & lon >= 90 & lat >= -30 & lat <= 30 ~ "East Indian Archipelago", TRUE ~ ocean))
 socat_all$ocean <- as.factor(socat_all$ocean)
-summary(socat_all$ocean)
+kableExtra::kable(summary(socat_all$ocean))
 
 # test plot
 socat_map <- socat_all %>% 
