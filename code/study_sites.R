@@ -258,19 +258,18 @@ ggsave("figures/map_all.png", map_all, height = 24, width = 16)
 ggsave("docs/assets/map_all.png", map_all, height = 24, width = 16)
 
 
-# Bathy test --------------------------------------------------------------
+# Bathy prep --------------------------------------------------------------
 
 # Test the large bathy NetCDF processed by Pedro
-
 bathy_kong <- tidync::tidync("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_kongsfjorden/kartverket_5-50m_resolution_Kongsfjorden.nc") %>% 
   tidync::hyper_tibble()
 
+# Plot data
 bathy_kong_plot <- ggplot(data = bathy_kong, aes(x = LON, y = LAT)) +
   geom_point(aes(colour = DEPTH), size = 0.001) +
   scale_colour_viridis_c() +
   labs(x = NULL, y = NULL)
 ggsave("figures/map_kong_hires_bathy.png", bathy_kong_plot, height = 10, width = 12)
-
 
 # Hi-res Kong shape files from Norsk Polarinstitut
 glacier_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/06_Norsk_Polarinsitut/NP_S100_SHP/S100_Isbreer_f.shp")
@@ -353,6 +352,49 @@ plot(bathy_kong_rast)
 
 # NB: This runs for over 10 minutes without finishing
 # bathy_kong_rast <- st_intersection(x = bathy_kong_deg_sub, y = bathy_kong_grid)
+
+# Stitch together hi-res Porsangerfjorden bathy, convert to 4326, and save
+bathy_por_inner <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/por_inner/data/xyz/xyz_0.xyz",
+                              col_names = c("x", "y", "depth"))
+bathy_por_outer <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/por_outer/data/xyz/xyz_0.xyz",
+                              col_names = c("x", "y", "depth"))
+bathy_por <- rbind(bathy_por_inner, bathy_por_outer) |> distinct()
+bathy_por_df <- convert_UTM_deg_grid(bathy_por, 25833) |> dplyr::rename(depth = layer) |> filter(depth < 0)
+ggplot(data = bathy_por_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
+write_csv(bathy_por_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/por_hires_bathy.csv")
+rm(bathy_por_inner, bathy_por_outer, bathy_por, bathy_por_df); gc()
+
+# Stitch together hi-res Isfjorden bathy
+bathy_is_inner <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/is_inner/data/xyz/xyz_0.xyz",
+                              col_names = c("x", "y", "depth"))
+bathy_is_outer <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/is_outer/data/xyz/xyz_0.xyz",
+                              col_names = c("x", "y", "depth"))
+bathy_is <- rbind(bathy_is_inner, bathy_is_outer) |> distinct()
+bathy_is_df <- convert_UTM_deg_grid(bathy_is, 25833) |> dplyr::rename(depth = layer) |> filter(depth < 0)
+ggplot(data = bathy_is_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
+write_csv(bathy_is_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/is_hires_bathy.csv")
+rm(bathy_is_inner, bathy_is_outer, bathy_is, bathy_is_df); gc()
+
+# Extract hi-res bathy for Disko Bay from IceBridge product
+# ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/maps/IceBridge/BedMachineGreenland-v5.nc")
+bbox_disko_utm <- bbox_to_UTM(bbox_disko, 3413)
+bathy_disko <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/IceBridge/BedMachineGreenland-v5.nc") |> 
+  tidync::hyper_filter(x = dplyr::between(x, min(bbox_disko_utm[,1]), max(bbox_disko_utm[,1])), 
+                       y = dplyr::between(y, min(bbox_disko_utm[,2]), max(bbox_disko_utm[,2]))) |> 
+  tidync::hyper_tibble()
+bathy_disko_df <- convert_UTM_deg_grid(bathy_disko, 3413, "bed") |> dplyr::rename(depth = layer) |> filter(depth < 0)
+ggplot(data = bathy_disko_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
+write_csv(bathy_disko_df, "~/pCloudDrive/FACE-IT_data/maps/IceBridge/disko_hires_bathy.csv")
+
+# Extract hi-res bathy for Nuup Kangerlua from IceBridge product
+bbox_nuup_utm <- bbox_to_UTM(bbox_nuup, 3413)
+bathy_nuup <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/IceBridge/BedMachineGreenland-v5.nc") |> 
+  tidync::hyper_filter(x = dplyr::between(x, min(bbox_nuup_utm[,1]), max(bbox_nuup_utm[,1])), 
+                       y = dplyr::between(y, min(bbox_nuup_utm[,2]), max(bbox_nuup_utm[,2]))) |> 
+  tidync::hyper_tibble()
+bathy_nuup_df <- convert_UTM_deg_grid(bathy_nuup, 3413, "bed") |> dplyr::rename(depth = layer) |> filter(depth < 0)
+ggplot(data = bathy_nuup_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
+write_csv(bathy_nuup_df, "~/pCloudDrive/FACE-IT_data/maps/IceBridge/nuup_hires_bathy.csv")
 
 
 # Data problems -----------------------------------------------------------
@@ -624,9 +666,8 @@ plot_regions_kong
 ggsave("figures/regions_kong.png", plot_regions_kong)
 
 
-# Map requests ------------------------------------------------------------
 
-# From Jean-Pierre
+# Jean-Pierre request -----------------------------------------------------
 # Map of Kongsfjorden (bbox only) with bathymetry sans contour lines
 # Send as .svg and .RData
 
@@ -647,57 +688,9 @@ bbox_deg_wide <- st_bbox(c(xmin = bbox_kong_wide[1], ymin = bbox_kong_wide[3],
 bbox_utm <- as.data.frame(st_transform(st_as_sfc(bbox_deg_wide), 3996))[[1]][[1]][[1]]
 
 # Hi-res Coastline
-
-# coast_Norsk_kong <- maptools::readShape("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
-
-
 coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Kystkontur.shp")
-# coast_Norsk_kong <- read_sf("~/pCloudDrive/FACE-IT_data/kongsfjorden/bathymetry_Norsk_Polarinstitut/03_Daten_Norwegian_Mapping_Authority/Kystkontur_m_flater/Landareal.shp")
-
 coast_Norsk_kong_deg <- st_transform(coast_Norsk_kong, 4326)
 coast_Norsk_kong_deg_sub <- st_crop(x = coast_Norsk_kong_deg, y = bbox_deg_wide)
-
-coast_Norsk_kong_multiline <- st_cast(coast_Norsk_kong_deg, "MULTILINESTRING")
-coast_Norsk_kong_poly <- st_cast(coast_Norsk_kong_multiline, "MULTIPOLYGON")
-
-# coast_Norsk_kong_poly <- summarise(coast_Norsk_kong_deg_sub, geometry = st_combine(geometry)) 
-
-# Coast NPI
-kong_shape <- read_sf("~/Downloads/Coast2022.shp")
-
-# coast_Norsk_kong_poly <- summarise(coast_Norsk_kong_poly, geometry = st_combine(geometry)) 
-coast_Norsk_kong_poly <- sf::st_union(coast_Norsk_kong_deg_sub)
-coast_Norsk_kong_poly <- coast_Norsk_kong_poly[lapply(coast_Norsk_kong_poly, length) > 3]
-coast_Norsk_kong_poly <- st_cast(coast_Norsk_kong_poly, "POLYGON")
-
-plot(coast_Norsk_kong_poly)
-
-coast_Norsk_kong_df <- sfheaders::sf_to_df(sf = coast_Norsk_kong_deg_sub) |> 
-  group_by(linestring_id) |> 
-  mutate(row_count = n()) |> 
-  ungroup() |> 
-  filter(row_count >= 4)
-
-coast_Norsk_kong_multiline <- sf::st_multipolygon(x = as.list(coast_Norsk_kong_df[,c("x", "y")]), dim = "XY")
-
-coast_Norsk_kong_poly <- sf::st_cast(coast_Norsk_kong_deg_sub, to = "MULTIPOLYGON")
-coast_Norsk_kong_multiline <- sf::st_combine(coast_Norsk_kong_deg_sub)
-
-coast_Norsk_kong_poly <- sf::st_polygonize(coast_Norsk_kong_multiline)
-coast_Norsk_kong_poly <- sf::st_boundary(coast_Norsk_kong_multiline)
-coast_Norsk_kong_poly <- sf::st_line_merge(coast_Norsk_kong_multiline)
-
-coast_Norsk_kong_poly <- sfheaders::sf_polygon(obj = coast_Norsk_kong_df, 
-                                               x = "x",y = "y", polygon_id = "sfg_id")
-
-coast_Norsk_kong_poly <- sf::st_polygonize(coast_Norsk_kong_poly)
-
-plot(coast_Norsk_kong_poly)
-
-coast_Norsk_kong_point <- sf::st_cast(coast_Norsk_kong_deg_sub, to = "MULTIPOINT")
-coast_Norsk_kong_poly <- sf::st_cast(coast_Norsk_kong_deg_sub, to = "POLYGON")
-
-rm(coast_Norsk_kong, coast_Norsk_kong_deg); gc()
 
 # GEBCO
 # GEBCO_data <- tidync::tidync("~/pCloudDrive/FACE-IT_data/maps/GEBCO/GEBCO_2020.nc") %>% 
@@ -780,7 +773,8 @@ kong_bathy_fig
 save(kong_bathy_fig, file = "figures/requests/map_kong_bathy_WP1.RData")
 ggsave(kong_bathy_fig, file = "figures/requests/map_kong_bathy_WP1.eps", width = 8, height = 6)
 
-# From Annika:
+
+# Annika request ----------------------------------------------------------
 # Nuup Kangerlua, Isfjorden and Porsangerfjorden
 # It would be great if you can add the names and locations of major settlements. 
 # In the workshop discussions, there was a fair amount of focus on land as well. 
