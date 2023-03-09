@@ -226,6 +226,20 @@ load_utm <- function(file_name){
     dplyr::select(lon, lat, everything())
 }
 
+# New best practice for converting UTM projected points to an even lon/lat grid
+# NB: Expects three columns; x, y, and a data column
+convert_UTM_deg_grid <- function(df, proj_base, third_col = NULL){
+  if(!is.null(third_col)) df <- df[,c("x", "y", third_col)]
+  df_utm <- st_as_sf(df, coords = c("x", "y"), crs = proj_base)
+  df_rast <- st_rasterize(df_utm)
+  df_raster <- as(df_rast, "Raster")
+  df_raster_deg <- projectRaster(df_raster, crs = 4326)
+  df_df <- as.data.frame(df_raster_deg, xy = TRUE) |> 
+    dplyr::rename(lon = x, lat = y) |> 
+    filter(!is.na(layer))
+  return(df_df)
+}
+
 # Convert from one EPSG to another
 # This is the function to convert Polar Stereographic Coordinates to Lat-Lon
 # Adapted from a script that Bernard Gentili found here: https://github.com/jenseva/projected-data-demos
@@ -354,6 +368,14 @@ bbox_wide_from_name <- function(site_abv){
   if(site_abv == "por") bbox_name <- bbox_por_wide
   # This has potentially been coded to allow an error here
   return(bbox_name)
+}
+
+# Convenience function to convert lon/lat bbox to UTM
+bbox_to_UTM <- function(bbox_base, proj_choice = 3996){
+  bbox_deg <- st_bbox(c(xmin = bbox_base[1], ymin = bbox_base[3],
+                        xmax = bbox_base[2], ymax = bbox_base[4]), crs = st_crs(4326))
+  # This should be improved, but will suffice for now
+  bbox_utm <- as.data.frame(st_transform(st_as_sfc(bbox_deg), proj_choice))[[1]][[1]][[1]]
 }
 
 # Function that takes 4 bounding box coordinates and converts them to a polygon for ggOceanMaps
