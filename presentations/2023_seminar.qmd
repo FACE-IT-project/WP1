@@ -61,7 +61,27 @@ editor: source
 
 ![](../figures/LOV_fig_1B.png){.absolute top="70" left="140"}
 
-## Example
+## Example  {background-color="#e5e5e5" transition="fade"}
+
+[Placeholder]  
+  
+This will show scatterplots showing the difference between sea ice cover and seawater temperature at the surface and at depth for West Greenland vs. ...
+
+## Example  {background-color="#e5e5e5" transition="fade"}
+
+[Placeholder]  
+  
+West Svalbard
+
+## Data access
+
+![](QR_dataAccess.png){.absolute top="70" left="200" width="600"}
+
+</br></br></br></br></br></br></br></br></br></br></br>
+
+<center>
+<p style="font-size:40pt">[193.50.85.111:3838/dataAccess/](http://193.50.85.111:3838/dataAccess/)</p>
+</center>
 
 ## {background-color="#008980"}
 

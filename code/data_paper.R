@@ -2323,3 +2323,13 @@ table_A1_plot <- ggplot() +
   theme_void()
 ggsave("figures/table_A1.png", table_A1_plot, width = 4.25, height = 21.5, dpi = 600)
 
+
+# Specific examples -------------------------------------------------------
+
+# Load data
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
+# Sea ice cover vs seawater temperature at surface and depth
+# Difference between West Greenland and West Svalbard
+
+
