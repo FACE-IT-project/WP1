@@ -1074,17 +1074,27 @@ save(all_meta, file = "data/analyses/all_meta.RData")
 # clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
 if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 
-# Remove GEM and GRDC data
-FACE_IT_v1.1 <- clean_all %>% 
-  filter(!grepl("g-e-m", URL), # Remove GEM data
-         !grepl("GRDC", URL), # Remove GRDC data
-         !grepl("Received directly from Mikael Sejr", URL)) %>%  # Remove embargoed PAR data from Mikael
+# Leave an NA shadow so users know the data exist and where to find them
+data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
+data_shadow_df <- filter(clean_all, grepl(data_shadow, URL)) |> 
+  mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
+  mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
+  distinct()
+
+# Prep for PANGAEA standard
+FACE_IT_v1.1 <- clean_all |> 
+  # Remove shadow data
+  filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
   dplyr::rename(`date/time [UTC+0]` = date, `depth [m]` = depth,
-                `longitude [°E]` = lon, `latitude [°N]` = lat) %>% 
+                `longitude [°E]` = lon, `latitude [°N]` = lat) |> 
   mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00"),
-         citation = str_replace_all(citation, ";", "."))
+         citation = str_replace_all(citation, ";", ".")) |> 
+  rbind(data_shadow_df)
 
+# Double check data shadows have been applied correctly
+filter(FACE_IT_v1.1, grepl(data_shadow, URL))
+  
 # Save as .csv
 write_csv(FACE_IT_v1.1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1.csv")
 write_csv(FACE_IT_v1.1, "data/full_data/FACE_IT_v1.1.csv")

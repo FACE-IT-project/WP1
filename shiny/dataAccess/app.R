@@ -51,6 +51,9 @@ CatColAbr <- c(
 #                     selectCat = c("cryo", "chem"),
 #                     selectDriv = c("sea ice", "nutrients"))
 
+# Embargoed data
+data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
+
 # Full data file paths
 full_data_paths <- dir("full_data", full.names = T)
 
@@ -489,11 +492,21 @@ server <- function(input, output, session) {
     # Load initial data
     df_driv <- purrr::map_dfr(file_list, read_csv_arrow)
     if(nrow(df_driv) > 0){
-      df_driv <- df_driv %>% 
-        mutate(date = as.Date(date)) %>% 
-        filter(!grepl("g-e-m", URL), # Remove GEM data
-               !grepl("GRDC", URL), # Remove GRDC data
-               !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
+      
+      # Apply data shadows
+      data_shadow_df <- filter(df_driv, grepl(data_shadow, URL)) |> 
+        mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
+        mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
+        distinct()
+      
+      # Remove embargoed data and add shadows
+      df_driv <- df_driv |> 
+        mutate(date = as.Date(date)) |> 
+        filter(!grepl(data_shadow, URL)) |> 
+        rbind(data_shadow_df)
+        # filter(!grepl("g-e-m", URL), # Remove GEM data
+        #        !grepl("GRDC", URL), # Remove GRDC data
+        #        !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
     }
     return(df_driv)
   })
