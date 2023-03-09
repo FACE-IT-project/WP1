@@ -78,9 +78,9 @@ points_in_region <- function(region_name, data_product, border_product){
 
 # Overview
 
-The world ocean is 362,033,000 km2 (Menard & Smith, 1966 in Jakobsson et al., 2002). According to Jakobsson et al. (2002) the Arctic Ocean, as defined by the International Hydrographic Organization (1953), is 15,551,000 km2 or about 4.3% of the global ocean. 
+The world ocean is 362,033,000 km2 (Menard & Smith, 1966 in Jakobsson et al., 2002). According to Jakobsson et al. (2002) the Arctic Ocean, as defined by the International Hydrographic Organization (1953), is 15,551,000 km2 or about 4.3% of the global ocean according to Jakobsson et al. (2002). 
 
-In the present analysis, the Arctic Ocean is as defined by the International Hydrographic Organization (1953) using the following dataset:
+In the present analysis of the GLODAP and SOCAT data, the Arctic Ocean is as defined by the International Hydrographic Organization (1953) using the following dataset (Jakobsson et al., 2002 used the same definition but not the same data source):
 
 International Hydrographic Organization, IHO; Sieger, Rainer (2012): Limits of oceans and seas in digitized, machine readable form. Alfred Wegener Institute, Helmholtz Centre for Polar and Marine Research, Bremerhaven, PANGAEA, https://doi.org/10.1594/PANGAEA.777975
 
@@ -97,7 +97,7 @@ Calculation of the surface area of the Arctic Ocean using GMT (script below) was
 #                            select = c("yr", "mon", "day", "longitude [dec.deg.E]", "latitude [dec.deg.N]", 
 #                                       "sample_depth [m]", "ETOPO2_depth [m]", "pCO2water_SST_wet [uatm]"), 
 #                            skip = 6626, nrows = Inf, nThread = 10, fill = TRUE)
-socat <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.rds")) %>% # whole ocean
+socat <- readRDS(file = "~/kDrive/zBigFilesStorage/socat/SOCATv2022.rds") %>% # whole ocean
   dplyr::filter(!is.na(`pCO2water_SST_wet [uatm]`)) %>% # remove NAs
   dplyr::rename(year = yr, month = mon, lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`, 
                 bottomdepth = `ETOPO2_depth [m]`, depth = `sample_depth [m]`, pco2 = `pCO2water_SST_wet [uatm]`) %>% 
@@ -108,8 +108,10 @@ socat <- readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/SOCATv2021.rds")
 
 # Find marine borders for the SOCAT product and merge
 registerDoParallel(cores = 15)
-socat_regions <- plyr::ldply(unique(ocean_borders$name), points_in_region, .parallel = T, 
-                             data_product = distinct(socat[,c("lon", "lat")]), border_product = ocean_borders)
+socat_regions <- plyr::ldply(unique(ocean_borders$name), 
+                             points_in_region, .parallel = T, 
+                             data_product = distinct(socat[,c("lon", "lat")]),
+                             border_product = ocean_borders)
 
 # Process data
 socat_all <- socat %>% # whole ocean
@@ -128,7 +130,7 @@ socat_all <- socat %>% # whole ocean
       TRUE ~ ocean)) %>% 
   dplyr::mutate(ocean = case_when(ocean == "Other" & lon <= 160 & lon >= 90 & lat >= -30 & lat <= 30 ~ "East Indian Archipelago", TRUE ~ ocean))
 socat_all$ocean <- as.factor(socat_all$ocean)
-summary(socat_all$ocean)
+kableExtra::kable(summary(socat_all$ocean))
 
 # test plot
 socat_map <- socat_all %>% 
@@ -188,7 +190,7 @@ socat_arctic_coastal_summer <- dat_mon_arctic_coastal %>%
 socat_arctic_coastal_summer_pc <- round(100 * socat_arctic_coastal_summer / sum(dat_mon_arctic_coastal$n), digits = 1)
 ```
 
-SOCAT v2021 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
+SOCAT v2022 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], including:
 
 * `r nrow(socat_arctic)` in the Arctic Ocean, or `r round(100*nrow(socat_arctic)/nrow(socat_all), digits = 1)`% of the global number of records
 * `r nrow(socat_arctic_coastal)` in the Arctic Ocean shelf waters (shallower than 200 m), or `r round(100*nrow(socat_arctic_coastal)/nrow(socat_arctic), digits = 1)`% of the number of records in the Arctic.
@@ -202,10 +204,12 @@ SOCAT v2021 has `r nrow(socat_all)` records of pCO2water_SST_wet [uatm], includi
 # The bottle data
 # This is slow
 # GLODAP_bottle <- data.table::fread(paste0(pCloud_path,"FACE-IT_data/glodap/GLODAPv2.2021_Merged_Master_File.csv"), na.strings = "-9999") 
-GLODAP_bottle <- tibble(readRDS(file = paste0(pCloud_path, "FACE-IT_data/socat/GLODAP_bottle.rds"))) %>%
+GLODAP_bottle <- tibble(readRDS(file = "~/kDrive/zBigFilesStorage/glodap/GLODAPv2.2022.rds")) %>%
   rename_with(~gsub("G2", "", .x, fixed = TRUE)) %>% 
-  dplyr::select(year, month, day, longitude, latitude, bottomdepth, depth, tco2) %>% 
-  dplyr::rename(lon = longitude, lat = latitude) 
+  dplyr::select(date, lon, lat, bottomdepth, depth, tco2) %>% 
+  dplyr::mutate(year = lubridate::year(date),
+                month = lubridate::month(date))
+#  dplyr::rename(lon = longitude, lat = latitude) 
 
 # Find marine borders for GLODAP product
 registerDoParallel(cores = 15)
@@ -250,7 +254,7 @@ glodap_arctic_coastal <- glodap_all %>%
                 bottomdepth < 200)
 
 # timeline
-dat_yr <- glodap_arctic %>% count(year)
+glodap_arctic %>% count(year)
 timel_glodap_arctic_plt <- dat_yr %>% 
   ggplot(aes(x = year, y = n)) +
   geom_point() +
@@ -290,7 +294,7 @@ glodap_arctic_coastal_summer <- dat_mon_arctic_coastal %>%
 glodap_arctic_coastal_summer_pc <- round(100 * glodap_arctic_coastal_summer / sum(dat_mon_arctic_coastal$n), digits = 1)
 ```
 
-GLODAP v2.2021 has `r nrow(glodap_all)` records of TCO2, including:
+GLODAP v2.2022 has `r nrow(glodap_all)` records of TCO2, including:
 
 * `r nrow(glodap_arctic)` in the Arctic Ocean, or `r round(100*nrow(glodap_arctic)/nrow(glodap_all), digits = 1)`% of the total number of records
 * `r nrow(glodap_arctic_coastal)` in the Arctic Ocean shelf waters (shallower than 200 m) or `r round(100*nrow(glodap_arctic_coastal)/nrow(glodap_arctic), digits = 1)`% of the total number of records in the Arctic
