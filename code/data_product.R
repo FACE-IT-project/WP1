@@ -936,6 +936,7 @@ kong_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/kongsfjorden/moo
   mutate(date_accessed = as.Date("2021-08-04"), .before = 1)
 
 ## Ferry box data
+### TODO: Remove this file and replace it with the new one that is getting published on PANGAEA
 kong_ferry <- readRDS("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_ferry.rds") %>%
   dplyr::rename(date = datetime, depth = `pressure [dbar]`) %>% 
   pivot_longer(`s_insitu [unit]`:`pH_sf [total scale]`, names_to = "variable") %>% 

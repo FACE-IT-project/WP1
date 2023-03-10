@@ -1077,7 +1077,8 @@ if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 # Leave an NA shadow so users know the data exist and where to find them
 data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
 data_shadow_df <- filter(clean_all, grepl(data_shadow, URL)) |> 
-  mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
+  mutate(lon = as.numeric(NA), lat = as.numeric(NA), 
+         date = as.Date(NA), depth = as.numeric(NA), value = as.numeric(NA)) |> 
   mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
   distinct()
 
@@ -1086,18 +1087,19 @@ FACE_IT_v1.1 <- clean_all |>
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
+  rbind(data_shadow_df) |> 
   dplyr::rename(`date/time [UTC+0]` = date, `depth [m]` = depth,
                 `longitude [°E]` = lon, `latitude [°N]` = lat) |> 
   mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00"),
-         citation = str_replace_all(citation, ";", ".")) |> 
-  rbind(data_shadow_df)
+         citation = str_replace_all(citation, ";", "."))
 
 # Double check data shadows have been applied correctly
-filter(FACE_IT_v1.1, grepl(data_shadow, URL))
-  
+test_1 <- filter(FACE_IT_v1.1, grepl(data_shadow, URL))
+rm(test_1); gc()
+
 # Save as .csv
-write_csv(FACE_IT_v1.1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1.csv")
-write_csv(FACE_IT_v1.1, "data/full_data/FACE_IT_v1.1.csv")
+write_csv_arrow(FACE_IT_v1.1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1.csv")
+write_csv_arrow(FACE_IT_v1.1, "data/full_data/FACE_IT_v1.1.csv")
 
 # Cryo data
 FACE_IT_v1.1_cryo <- filter(FACE_IT_v1.1, category == "cryo") %>% pivot_wider(names_from = variable, values_from = value)
@@ -2331,5 +2333,92 @@ if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 
 # Sea ice cover vs seawater temperature at surface and depth
 # Difference between West Greenland and West Svalbard
+demo_df <- clean_all_clean |> 
+  dplyr::select(type, site, driver, variable, date, depth, value) |> 
+  filter(site %in% c("nuup", "is"),
+         driver %in% c("sea ice", "sea temp"),
+         variable != "EsEs acc [cm]",
+         !is.na(date)) |>  
+  distinct() |> 
+  mutate(date = lubridate::round_date(date, unit = "month"),
+         month = lubridate::month(date, label = TRUE, abbr = TRUE),
+         depth = case_when(depth < 0 ~ "land",
+                           is.na(depth) ~ "surface",
+                           depth <= 10 ~ "0 to 10",
+                           depth <= 50 ~ "10 to 50",
+                           depth <= 200 ~ "50 to 200",
+                           depth > 200 ~ "+200"),
+         depth = factor(depth, levels = c("surface", "0 to 10", "10 to 50", "50 to 200", "+200"))) %>%
+  group_by(type, site, driver, variable, date, month, depth) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(value)); gc()
+unique(demo_df$site); unique(demo_df$variable); unique(demo_df$depth)
 
+# Merge sea ice onto seawater temperature for better plotting
+demo_sea_ice <- demo_df |> 
+  filter(variable == "sea ice cover [proportion]") |> 
+  pivot_wider(names_from = variable, values_from = value) |>
+  dplyr::select(-depth, -driver, -type)
+demo_wide <- demo_df |> 
+  filter(variable != "sea ice cover [proportion]",
+         type == "in situ") |> 
+  pivot_wider(names_from = variable, values_from = value) |>
+  left_join(demo_sea_ice) |> 
+  na.omit()
 
+# Seawater temperature boxplots by month
+demo_wide |> 
+  mutate(`sea ice cover [proportion]` = `sea ice cover [proportion]` * 10) |> 
+  pivot_longer(cols = c(`sea ice cover [proportion]`, `temp [°C]`), names_to = "variable", values_to = "value") |> 
+  ggplot(aes(x = month)) +
+  geom_boxplot(aes(y = value, fill = variable)) +
+  scale_y_continuous("temp [°C]",
+                     limits = c(-2, 10.5),
+                     breaks = c(0, 5, 10),
+                     sec.axis = sec_axis(name = "sea ice cover [proportion]",
+                                         trans = ~ . + 0,
+                                         breaks = c(0, 5, 10),
+                                         labels = c("0.0", "0.5", "1.0"))) +
+  facet_grid(depth~site)
+
+# Boxplots of sea ice cover
+demo_wide |> 
+  ggplot(aes(x = month)) +
+  geom_boxplot(aes(y = `sea ice cover [proportion]`, fill = month)) +
+  facet_wrap(~site) +
+  theme(legend.position = "none")
+ggsave("presentations/demo_sea_ice_cover.png", width = 8, height = 4)
+
+# Boxplots of seawater temperature
+demo_wide |> 
+  ggplot(aes(x = month)) +
+  geom_boxplot(aes(y = `temp [°C]`, fill = month)) +
+  facet_grid(depth~site) +
+  theme(legend.position = "none")
+ggsave("presentations/demo_seawater_temp.png", width = 8, height = 6)
+
+# TS of sea ice cover
+demo_wide |> 
+  ggplot(aes(x = date, y = `sea ice cover [proportion]`)) +
+  geom_point(aes(colour = month)) +
+  geom_smooth(aes(colour = month), method = "lm", se = FALSE, linewidth = 3) +
+  facet_wrap(~site)
+ggsave("presentations/demo_sea_ice_cover.png", width = 12, height = 6)
+
+# TS of seawater temp
+demo_wide |> 
+  ggplot(aes(x = date, y = `temp [°C]`)) +
+  geom_point(aes(colour = month)) +
+  geom_smooth(aes(colour = month), method = "lm", se = FALSE, linewidth = 2) +
+  facet_grid(depth~site)
+ggsave("presentations/demo_seawater_temp.png", width = 12, height = 8)
+
+# Scatterplots of seawater and sea ice cover
+ggplot(data = demo_wide, aes(x = `temp [°C]`, y = `sea ice cover [proportion]`)) +
+  geom_point(aes(colour = depth)) +
+  geom_smooth(aes(colour = depth), method = "lm", se = TRUE, linewidth = 3) +
+  scale_colour_brewer(palette = "Dark2") +
+  coord_cartesian(xlim = c(-2, 10), ylim = c(-0.02, 1.02), expand = F) +
+  facet_grid(~site) +
+  theme(legend.position = "bottom")
+ggsave("presentations/demo_ice_temp.png", width = 12, height = 6)
