@@ -172,6 +172,245 @@ coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 
 # Functions ---------------------------------------------------------------
 
+# Function for performing a more thorough query of PANGAEA data by bbox
+pg_full_search <- function(lookup_table = F, ...){
+  pg_res_all <- data.frame()
+  # query_min_score <- 100
+  query_offset <- 0
+  while(query_offset < 10000){
+    pg_res_query <- pangaear::pg_search(count = 500, offset = query_offset, ...)
+    pg_res_all <- rbind(pg_res_all, pg_res_query)
+    query_offset <- query_offset+500
+    # query_min_score <- min(pg_EU_cruise_all$score)
+  }
+  # NB: This is a start at integrating lookup tables
+  if(lookup_table){
+    pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
+      filter(grepl("station list|master tracks|metadata list|links to file", citation, ignore.case = T))
+  } else {
+    pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
+      filter(!grepl("video|photograph|photomosaic|image|station list|master tracks|aircraft|flight|
+                    |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
+      filter(!grepl("sediment|soil", citation)) %>% # Unclear if these files should be filtered as they occasionally have a few useful data
+      filter(!grepl("ACLOUD|SOCAT|GLODAP", citation)) %>% # SOCAT and GLODAP are added manually later
+      filter(!grepl("Schlegel", citation)) %>% # Prevent downloading the FACE-IT dataset
+      filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
+  }
+  return(pg_res_all)
+}
+
+# Function for printing PANGAEA meta-data
+pg_meta_print <- function(pg_doi){
+  pg_test <- pangaear::pg_data(pg_doi)
+}
+
+# Function for extracting info from PANGAEA data
+pg_dl_prep <- function(pg_dl){
+  
+  if(!exists("query_ALL")) source("code/key_drivers.R")
+  if(!exists("pg_doi_list")) pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+  
+  # Prep for error reporting
+  dl_error <- NULL
+  
+  # Extract data.frame or catch specific errors
+  if(is.data.frame(pg_dl$data)){
+    
+    # NB: This can't be done because columns won't match query_ALL$pg_col_name
+    # pg_dl$data <- janitor::clean_names(pg_dl$data)
+    
+    # Check that all columns are unique
+    # NB: There is an error in the pangaer package that does not give enough characters to columns
+    # This allows very long column names to have the units etc. cut off the end
+    # I created an issue on the GitHub page with no response...
+    if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
+      
+      # In rare cases there is a 'Latitude 2' and not 'Latitude' column
+      if("Latitude 2" %in% colnames(pg_dl$data) & sum(grepl("Latitude", colnames(pg_dl$data))) == 1){
+        colnames(pg_dl$data)[which(colnames(pg_dl$data) == "Latitude 2")] <- "Latitude"
+      }
+      
+      # Datasets publish before ~2017 may have lon/lat and Date/Time in the metadata list and not the data
+      if("metadata" %in% names(pg_dl)){
+        if("events" %in% names(pg_dl$metadata)){
+          if(is.list(pg_dl$metadata$events)){
+            pg_meta <- as_tibble(pg_dl$metadata$events)
+            if(!"Longitude" %in% colnames(pg_dl$data)){
+              if(TRUE %in% c(lon_names %in% colnames(pg_meta))){
+                pg_dl$data$Longitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lon_names)][1])
+              }
+            }
+            if(!"Latitude" %in% colnames(pg_dl$data)){
+              if(TRUE %in% c(lat_names %in% colnames(pg_meta))){
+                pg_dl$data$Latitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lat_names)][1])
+              }
+            }
+            if(!"Date/Time" %in% colnames(pg_dl$data)){
+              if("DATE/TIME" %in% colnames(pg_meta)){
+                pg_dl$data$`Date/Time` <- pg_meta$`DATE/TIME`[1]
+              }
+            }
+          }
+        }
+      }
+      
+      # Get names of desired columns
+      # NB: It is necessary to allow partial matches via grepl() because column names
+      # occasionally have notes about the data attached to them, preventing exact matches
+      # col_names_df <- tibble(names = sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1))
+      # col_idx <- col_names_df %>% 
+      #   filter(grepl(paste(query_ALL$Abbreviation, sep = "", collapse = "|"), names))
+      # col_spp <- col_idx %>% filter(grepl(paste(query_species$Abbreviation, sep = "", collapse = "|"), names))
+      # col_no_spp <- col_idx[which(!col_idx$names %in% unique(query_species$pg_col_name)),]
+      col_name <- colnames(pg_dl$data)
+      col_abb <- sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1)
+      col_abb[col_abb == "Sal ([PSU])"] <- "Sal" # One important exception
+      col_idx <- col_name[which(col_abb %in% query_ALL$Abbreviation)]
+      col_meta <- col_name[which(col_abb %in% query_Meta$Abbreviation)]
+      col_base <- col_idx[!col_idx %in% col_meta]
+      col_spp <- col_name[which(col_abb %in% query_species$Abbreviation)]
+      
+      # Get data for desired drivers, excluding species due to the width of these data
+      dl_driver <- tibble()
+      if(length(col_idx) > length(col_meta)){
+        suppressWarnings(
+          dl_driver <- pg_dl$data |> 
+            dplyr::select(dplyr::all_of(col_idx)) |> 
+            # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
+            janitor::remove_empty(which = c("rows", "cols")) |> 
+            # NB: This forcibly removes non-numeric values
+            # dplyr::mutate_at(col_base, as.numeric) |> 
+            # NB: Or rather force everything to characters and sort it out in detail later
+            dplyr::mutate_at(col_base, as.character) |> 
+            pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |> 
+            mutate(class = "base") |> 
+            filter(!is.na(value))
+        )
+      }
+      
+      # Get species values directly as a melted data.frame
+      dl_spp <- tibble()
+      if(length(col_spp) > 0){
+        dl_spp <- pg_dl$data |> 
+          dplyr::select(dplyr::all_of(c(col_meta, col_spp))) |> 
+          janitor::remove_empty(which = c("rows", "cols")) |> 
+          # NB: Force everything to characters and sort it out in detail later
+          dplyr::mutate_at(col_spp, as.character) |> 
+          pivot_longer(cols = col_spp, names_to = "name", values_to = "value")  |> 
+          mutate(class = "spp") #|> 
+        # NB: Intentionally not filtering NA as species presence might not have a value
+        # filter(!is.na(value))
+      }
+      
+      # Combine
+      dl_single <- bind_rows(dl_driver, dl_spp) |> 
+        mutate(date_accessed = as.Date(Sys.Date()),
+               URL = pg_dl$url,
+               citation = pg_dl$citation) |> 
+        dplyr::select(date_accessed, URL, citation, everything()) #|> 
+      # NB: This should no longer be necessary
+      # janitor::remove_empty(which = c("rows", "cols"))
+      
+      # Filter spatially if possible
+      if("Longitude" %in% colnames(dl_single) & "Latitude" %in% colnames(dl_single)){
+        dl_single <- dl_single |> 
+          mutate(Longitude = case_when(as.numeric(Longitude) > 180 ~ as.numeric(Longitude)-360,
+                                       TRUE ~ as.numeric(Longitude)),
+                 Latitude = as.numeric(Latitude)) |> 
+          filter(Longitude >= -60, Longitude <= 60, Latitude >= 60, Latitude <= 90)
+      }
+      
+      # Return error messages as necessary
+    } else {
+      dl_error <- "Multiple columns with same name"
+    }
+  } else {
+    dl_error <- "No data in DOI reference"
+  }
+  
+  # Determine if there are columns with desired data
+  if(is.null(dl_error)){
+    if(all(colnames(dl_single) %in% c("date_accessed", "URL", "citation", "Longitude", "Latitude", "Date/Time"))){
+      dl_error <- "No columns with drivers"
+    }
+  }
+  
+  # Create error report if necessary
+  if(!is.null(dl_error)) 
+    dl_single <- data.frame(date_accessed = as.Date(Sys.Date()),
+                            URL = pg_dl$url,
+                            citation = pg_dl$citation,
+                            Error = dl_error)
+  
+  # Exit
+  return(dl_single)
+  # rm(pg_dl, dl_error, pg_meta, col_names_df, col_idx, col_meta, col_spp, col_no_spp, dl_driver, dl_spp, dl_single); gc()
+}
+
+# Function for downloading and processing PANGAEA data for merging
+pg_dl_proc <- function(pg_doi){
+  
+  # Get data
+  dl_error <- NULL
+  suppressWarnings(
+    dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) {dl_error <<- "Cannot access data via pangaer"})
+  ); gc()
+  
+  # Extract data from multiple lists as necessary
+  if(is.null(dl_error)){
+    dl_df <- plyr::ldply(dl_dat, pg_dl_prep); gc()
+  } else {
+    dl_df <- data.frame(date_accessed = as.Date(Sys.Date()),
+                        URL = paste0("https://doi.org/",pg_doi),
+                        citation = NA,
+                        Error = dl_error)
+  }
+  
+  # Exit
+  return(dl_df)
+  # rm(pg_doi, dl_error, dl_dat, dl_df); gc()
+}
+
+# Function for automagically downloading, processing, and saving PANGAEA data
+pg_dl_save <- function(file_name){
+  
+  # Download data
+  pg_res <- plyr::ldply(pg_doi_list$doi[pg_doi_list$file == file_name], pg_dl_proc); gc()
+  
+  # Get folder name
+  if(grepl("_EU_", file_name)) file_folder <- "EU_arctic"
+  if(file_name == "pg_kong_all") file_folder <- "kongsfjorden"
+  if(file_name == "pg_is_all") file_folder <- "isfjorden"
+  if(file_name == "pg_stor_all") file_folder <- "storfjorden"
+  if(file_name == "pg_young_all") file_folder <- "young_sound"
+  if(file_name == "pg_disko_all") file_folder <- "disko_bay"
+  if(file_name == "pg_nuup_all") file_folder <- "nuup_kangerlua"
+  if(file_name == "pg_por_all") file_folder <- "porsangerfjorden"
+  
+  # Save files
+  data.table::fwrite(pg_res, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
+  data.table::fwrite(pg_res, paste0("data/pg_data/",file_name,".csv"))
+  rm(pg_res); gc()
+}
+
+# Function for quickly opening up a file based on doi
+pg_test_dl <- function(pg_doi){
+  # Get data
+  dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) stop("Download failed"))
+  dl_single <- tibble(URL = dl_dat[[1]]$url,
+                      citation = dl_dat[[1]]$citation,
+                      dl_dat[[1]]$data)
+  return(dl_single)
+}
+
+# Extract errors from large PANGAEA EU files
+pg_ref_extract <- function(pg_EU_file){
+  df <- data.table::fread(pg_EU_file, nThread = 15) %>% 
+    dplyr::select(date_accessed, URL, citation, Error) %>% 
+    distinct()
+  return(df)
+}
+
 # Find the nearest grid cells for each site
 ## NB: Requires two data.frames with lon, lat in that order
 grid_match <- function(coords_base, coords_match){

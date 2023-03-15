@@ -89,6 +89,17 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
 ## Not on pCloud as this is a large file hosted on a well known website
 # EU_GEBCO
 
+# Cryosphere
+## Sea ice concentration
+# 25 km, 1978 - 2019: daily
+# ftp://sidads.colorado.edu/pub/DATASETS/NOAA/G02202_V3/north/daily/
+# 6.25 km, possibly 10 m, 2002 - 2021: daily
+# https://seaice.uni-bremen.de/data/amsr2/
+
+# Geochemistry
+## SOCAT datasets on PANGAEA
+# Bakker et al...
+
 # Ice modelling output
 ## Not on pCloud, too large to download
 # EU_ice
