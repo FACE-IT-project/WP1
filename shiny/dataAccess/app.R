@@ -176,7 +176,8 @@ ui <- dashboardPage(
                    sidebarMenu(
                      id = "tabs",
                      menuItem("Data download interface", tabName = "download", icon = icon("download"), selected = TRUE),
-                     menuItem("Advanced search tool", tabName = "information", icon = icon("table"))
+                     menuItem("Advanced search tool", tabName = "information", icon = icon("table")),
+                     menuItem("Related publications", tabName = "publications", icon = icon("scroll"))
                    )
   ),
   
@@ -298,7 +299,7 @@ ui <- dashboardPage(
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
                                                         type = 6, color = "#b0b7be")))
-              ),
+              )
       ),
       
       # Data tables
@@ -308,7 +309,36 @@ ui <- dashboardPage(
                   DT::dataTableOutput("longVarDT")),
               box(width = 12, title = "Data availability per site", #height = "390px",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                  DT::dataTableOutput("countDrivDT"))
+                  DT::dataTableOutput("countDrivDT"))),
+      
+      # Data tables
+      tabItem(tabName = "publications",
+              fluidPage(
+                column(12,
+                       h2(tags$b("PANGAEA")),
+                       p("The data hosted on this portal are published on ",
+                         tags$a("PANGAEA", target = "_blank",
+                                href = "https://doi.pangaea.de/10.1594/PANGAEA.953115"),
+                         ", where they may be downloaded in their entirety."),
+                       h2(tags$b("ESSD")),
+                       p("For an in-depth analysis of these data, as well as the details on how they were collected, please see the paper
+                         currently in review at ",
+                         tags$a("Earth Systems Science Data (ESSD)", target = "_blank",
+                                href = "https://essd.copernicus.org/preprints/essd-2022-455/"), "."),
+                       img(src = "dp_fig_1.png", align = "center", width = "1000px"),
+                       p("Figure 1 from ESSD paper. Map of the EU Arctic showing the decadal trends in sea surface temperature (SST).
+                         Pop-out windows for each of the seven FACE-IT study sites show the annual trend in sea-ice cover days."),
+                       h2(tags$b("Coastal futures")),
+                       p("The rational for the data collected, and for how they are classified (e.g. categories + drivers) are 
+                         detailed in a publication available at ",
+                         tags$a("coastal futures", target = "_blank",
+                                href = "https://tinyurl.com/5ejsjpc7"), "."),
+                       img(src = "rp_fig_2.png", align = "center", width = "1000px"),
+                       p("Figure 2 from Coastal Futures paper. A network plot showing the trends in the 14 key drivers of
+                          change in EU Arctic fjords and what effects they are having on each other.")
+                       
+                )
+              )
       )
     )
   ),
@@ -494,19 +524,17 @@ server <- function(input, output, session) {
     if(nrow(df_driv) > 0){
       
       # Apply data shadows
-      data_shadow_df <- filter(df_driv, grepl(data_shadow, URL)) |> 
-        mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
-        mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
-        distinct()
+      # data_shadow_df <- filter(df_driv, grepl(data_shadow, URL)) |> 
+      #   mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
+      #   mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
+      #   distinct()
       
       # Remove embargoed data and add shadows
       df_driv <- df_driv |> 
         mutate(date = as.Date(date)) |> 
-        filter(!grepl(data_shadow, URL)) |> 
-        rbind(data_shadow_df)
-        # filter(!grepl("g-e-m", URL), # Remove GEM data
-        #        !grepl("GRDC", URL), # Remove GRDC data
-        #        !grepl("Received directly from Mikael Sejr", URL)) # Remove embargoed PAR data from Mikael
+        mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
+        # filter(!grepl(data_shadow, URL)) |> 
+        # rbind(data_shadow_df)
     }
     return(df_driv)
   })
@@ -524,7 +552,7 @@ server <- function(input, output, session) {
     req(df_var())
     if(length(input$selectVar) == 0){
       df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA, var_name = "No variables selected",
-                              lon = NA, lat = NA, depth = NA)
+                              lon = NA, lat = NA, depth = NA, embargo = NA)
     } else if(length(input$selectVar) > 0){
       req(input$slideDate)
       df_filter <- df_var()
@@ -545,15 +573,15 @@ server <- function(input, output, session) {
           filter(date >= input$slideDate[1] | is.na(date)) %>% 
           filter(date <= input$slideDate[2] | is.na(date))}
     } else {
-      df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA,
-                              var_name = "All data have been filtered out", lon = NA, lat = NA, depth = NA)
+      df_filter <- data.frame(date = as.Date("2000-01-01"), value = NA, var_name = "All data have been filtered out", 
+                              lon = NA, lat = NA, depth = NA, embargo = NA)
     }
     
     # Count data for map
     df_filter_map <- df_filter %>% 
       filter(!is.na(lon), !is.na(lat)) %>% 
       mutate(lon = round(lon, 2), lat = round(lat, 2)) %>% 
-      group_by(lon, lat, category, driver, variable) %>% 
+      group_by(lon, lat, category, driver, variable, embargo) %>% 
       summarise(count = n(), .groups = "drop") %>% 
       left_join(long_names, by = c("category", "driver"))
     
@@ -561,7 +589,7 @@ server <- function(input, output, session) {
     df_filter_ts <- df_filter %>% 
       filter(!is.na(date)) %>% 
       mutate(year = year(date)) %>% 
-      group_by(year, category, driver, variable) %>% 
+      group_by(year, category, driver, variable, embargo) %>% 
       summarise(count = n(), .groups = "drop") %>% 
       left_join(long_names, by = c("category", "driver"))
     
@@ -569,7 +597,7 @@ server <- function(input, output, session) {
     df_filter_depth <- df_filter %>% 
       filter(!is.na(depth)) %>% 
       mutate(depth = round(depth, -1)) %>%
-      group_by(depth, category, driver, variable) %>% 
+      group_by(depth, category, driver, variable, embargo) %>% 
       dplyr::summarise(count = n(), .groups = "drop") %>% 
       left_join(long_names, by = c("category", "driver"))
     
@@ -581,6 +609,28 @@ server <- function(input, output, session) {
     return(df_final)
   })
   
+  # Remove embargoed dat abefore downloading
+  df_dl <- eventReactive(input$filterData, {
+    req(df_filter())
+    
+    # Prep data
+    df_filter <- df_filter()[["filter_data"]]
+    
+    # Apply data shadows
+    data_shadow_df <- filter(df_filter, grepl(data_shadow, URL)) |> 
+      mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
+      mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
+      distinct()
+    
+    # Remove embargoed data and add shadows
+    df_dl <- df_filter |> 
+      filter(!grepl(data_shadow, URL)) |> 
+      rbind(data_shadow_df) |> 
+      arrange(-embargo)
+    return(df_dl)
+  })
+
+  
   
   ## Download UI -------------------------------------------------------------
   
@@ -591,9 +641,9 @@ server <- function(input, output, session) {
     },
     content <- function(file) {
       if(input$downloadFilterType == ".Rds"){
-        saveRDS(df_filter()[["filter_data"]], file = file)
+        saveRDS(df_dl(), file = file)
       } else if(input$downloadFilterType == ".csv"){
-        arrow::write_csv_arrow(df_filter()[["filter_data"]], file)
+        arrow::write_csv_arrow(df_dl(), file)
       }
     }
   )
@@ -649,13 +699,14 @@ server <- function(input, output, session) {
     if(nrow(df_filter_map) > 0){
       baseMap <- baseMap +
         geom_point(data = df_filter_map,
-                   aes(x = lon, y = lat, shape = driver, colour = variable,
+                   aes(x = lon, y = lat, shape = embargo, colour = variable,
                        text = paste0("Category: ",category_long,
                                      "<br>Driver: ",driver_long,
                                      "<br>Variable: ",variable,
                                      "<br>Lon: ",lon,
                                      "<br>Lat: ",lat,
-                                     "<br>Count: ",count)))
+                                     "<br>Count: ",count,
+                                     "<br>Embargoed: ",embargo)))
     }
     
     ggplotly(baseMap, tooltip = "text")
@@ -673,12 +724,13 @@ server <- function(input, output, session) {
     # Plot and exit
     if(nrow(df_filter_ts) > 0){
       basePlot <- ggplot(data = df_filter_ts, aes(x = year, y = log10(count))) +
-        geom_point(aes(shape = driver, colour = variable,
+        geom_point(aes(shape = embargo, colour = variable,
                        text = paste0("Category: ",category_long,
                                      "<br>Driver: ",driver_long,
                                      "<br>Variable: ",variable,
                                      "<br>Year: ",year,
-                                     "<br>Count: ",count))) +
+                                     "<br>Count: ",count,
+                                     "<br>Embargoed: ",embargo))) +
         labs(x = "Year", y = "Count (log10)", colour = "Variable") +
         theme_bw() +
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
@@ -703,12 +755,13 @@ server <- function(input, output, session) {
     # Count of data at depth by var name
     if(nrow(df_filter_depth) > 0){
       basePlot <- ggplot(df_filter_depth, aes(x = depth, y = log10(count))) +
-        geom_col(aes(fill = variable,
+        geom_col(aes(fill = variable, colour = embargo,
                      text = paste0("Category: ",category_long,
                                    "<br>Driver: ",driver_long,
                                    "<br>Variable: ",variable,
                                    "<br>Depth: ",depth,
-                                   "<br>Count: ",count))) +
+                                   "<br>Count: ",count,
+                                   "<br>Embargoed: ",embargo))) +
         scale_x_reverse() + coord_flip(expand = F) +
         labs(x = NULL, fill = "Variable", y = "Count (log10)") +
         theme_bw() +
@@ -729,19 +782,19 @@ server <- function(input, output, session) {
   # List of long names for variables
   output$filterDT <- DT::renderDataTable({
     req(input$filterData)
-    df_filter <- df_filter()[["filter_data"]]
-    df_filter_DT <- datatable(df_filter, rownames = FALSE,
-                              options = list(pageLength = 10, scrollX = TRUE, scrollY = 400, searchHighlight = TRUE,
-                                             columnDefs = list(list(
-                                               targets = c(1, 2),
-                                               render = JS(
+    df_dl <- df_dl()
+    df_dl_DT <- datatable(df_dl, rownames = FALSE,
+                          options = list(pageLength = 10, scrollX = TRUE, scrollY = 400, searchHighlight = TRUE,
+                                         columnDefs = list(list(
+                                           targets = c(1, 2),
+                                           render = JS(
                                                  "function(data, type, row, meta) {",
                                                  "return type === 'display' && data.length > 6 ?",
                                                  "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
                                                  "}")
                                              ))
                               ))
-    return(df_filter_DT)
+    return(df_dl_DT)
   })
   
   # List of long names for variables
