@@ -174,7 +174,10 @@ coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 
 # Function for performing a more thorough query of PANGAEA data by bbox
 pg_full_search <- function(lookup_table = F, ...){
+  
+  # Prep data.frame
   pg_res_all <- data.frame()
+  
   # query_min_score <- 100
   query_offset <- 0
   while(query_offset < 10000){
@@ -183,11 +186,12 @@ pg_full_search <- function(lookup_table = F, ...){
     query_offset <- query_offset+500
     # query_min_score <- min(pg_EU_cruise_all$score)
   }
+  
   # NB: This is a start at integrating lookup tables
-  if(lookup_table){
+  if(lookup_table & nrow(pg_res_all) > 0){
     pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
       filter(grepl("station list|master tracks|metadata list|links to file", citation, ignore.case = T))
-  } else {
+  } else if(nrow(pg_res_all) > 0) {
     pg_res_all <- distinct(arrange(pg_res_all, citation)) %>% 
       filter(!grepl("video|photograph|photomosaic|image|station list|master tracks|aircraft|flight|
                     |airborne|metadata list|core|links to file|Multibeam survey|Radiosonde", citation, ignore.case = T)) %>% 
@@ -196,6 +200,12 @@ pg_full_search <- function(lookup_table = F, ...){
       filter(!grepl("Schlegel", citation)) %>% # Prevent downloading the FACE-IT dataset
       filter(!grepl("WOCE", citation)) # The WOCE data have formatting issues and should be downloaded via their own portal
   }
+  
+  # Filter data if a PANGAEA DOI list is present in the environment
+  if(exists("pg_doi_list") & nrow(pg_res_all) > 0){
+    pg_res_all <- pg_res_all |> filter(!doi %in% pg_doi_list$doi)
+  }
+  
   return(pg_res_all)
 }
 
@@ -313,13 +323,14 @@ pg_dl_prep <- function(pg_dl){
       # janitor::remove_empty(which = c("rows", "cols"))
       
       # Filter spatially if possible
-      if("Longitude" %in% colnames(dl_single) & "Latitude" %in% colnames(dl_single)){
-        dl_single <- dl_single |> 
-          mutate(Longitude = case_when(as.numeric(Longitude) > 180 ~ as.numeric(Longitude)-360,
-                                       TRUE ~ as.numeric(Longitude)),
-                 Latitude = as.numeric(Latitude)) |> 
-          filter(Longitude >= -60, Longitude <= 60, Latitude >= 60, Latitude <= 90)
-      }
+      # NB: Currently (2023-03-17) not performing spatial filters at this step
+      # if("Longitude" %in% colnames(dl_single) & "Latitude" %in% colnames(dl_single)){
+      #   dl_single <- dl_single |> 
+      #     mutate(Longitude = case_when(as.numeric(Longitude) > 180 ~ as.numeric(Longitude)-360,
+      #                                  TRUE ~ as.numeric(Longitude)),
+      #            Latitude = as.numeric(Latitude)) |> 
+      #     filter(Longitude >= -60, Longitude <= 60, Latitude >= 60, Latitude <= 90)
+      # }
       
       # Return error messages as necessary
     } else {

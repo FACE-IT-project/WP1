@@ -6,6 +6,10 @@
 # Provide lists of variables that were removed
 # Correct PANGAEA values with `t [°C]` to be type 'cryo' as this is the unit for ice/snow temperature
 
+# TODO: Improve data loading feature so that datum with no lon/lat are recognised from which
+# site call they were downloaded and labelled accrodingly.
+# Otherwise all 7 site files need to be loaded to spatially filter the data for each site
+
 
 # Setup -------------------------------------------------------------------
 

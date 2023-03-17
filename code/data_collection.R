@@ -193,8 +193,8 @@ pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
 # Full PANGAEA query
 ## NB: It's possible to run this on multiple cores, but it will disable messages
-# Ir's also
-doParallel::registerDoParallel(cores = 7) # There are 14 files
+# It also might be interfering with the saving of the files in some way
+doParallel::registerDoParallel(cores = 7) # There are 7 files
 system.time(
 plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, .parallel = F) 
 ) # ~ XXX hours
