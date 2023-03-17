@@ -354,26 +354,62 @@ plot(bathy_kong_rast)
 # bathy_kong_rast <- st_intersection(x = bathy_kong_deg_sub, y = bathy_kong_grid)
 
 # Stitch together hi-res Porsangerfjorden bathy, convert to 4326, and save
-bathy_por_inner <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/por_inner/data/xyz/xyz_0.xyz",
+bathy_por_inner <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/por/por_inner/data/xyz/xyz_0.xyz",
                               col_names = c("x", "y", "depth"))
-bathy_por_outer <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/por_outer/data/xyz/xyz_0.xyz",
+bathy_por_outer <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/por/por_outer/data/xyz/xyz_0.xyz",
                               col_names = c("x", "y", "depth"))
 bathy_por <- rbind(bathy_por_inner, bathy_por_outer) |> distinct()
 bathy_por_df <- convert_UTM_deg_grid(bathy_por, 25833) |> dplyr::rename(depth = layer) |> filter(depth < 0)
 ggplot(data = bathy_por_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
-write_csv(bathy_por_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/por_hires_bathy.csv")
+write_csv(bathy_por_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/por/por_hires_bathy.csv")
 rm(bathy_por_inner, bathy_por_outer, bathy_por, bathy_por_df); gc()
 
 # Stitch together hi-res Isfjorden bathy
-bathy_is_inner <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/is_inner/data/xyz/xyz_0.xyz",
+bathy_is_inner <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/is/is_inner/data/xyz/xyz_0.xyz",
                               col_names = c("x", "y", "depth"))
-bathy_is_outer <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/is_outer/data/xyz/xyz_0.xyz",
+bathy_is_outer <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/is/is_outer/data/xyz/xyz_0.xyz",
                               col_names = c("x", "y", "depth"))
 bathy_is <- rbind(bathy_is_inner, bathy_is_outer) |> distinct()
 bathy_is_df <- convert_UTM_deg_grid(bathy_is, 25833) |> dplyr::rename(depth = layer) |> filter(depth < 0)
 ggplot(data = bathy_is_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
-write_csv(bathy_is_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/is_hires_bathy.csv")
+write_csv(bathy_is_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/is/is_hires_bathy.csv")
 rm(bathy_is_inner, bathy_is_outer, bathy_is, bathy_is_df); gc()
+
+# Stitch together hi-res Storfjorden bathy
+bathy_stor_1 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/stor/stor_1/data/xyz/xyz_0.xyz",
+                             col_names = c("x", "y", "depth"))
+bathy_stor_2 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/stor/stor_2/data/xyz/xyz_0.xyz",
+                             col_names = c("x", "y", "depth"))
+bathy_stor_3 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/stor/stor_3/data/xyz/xyz_0.xyz",
+                           col_names = c("x", "y", "depth"))
+bathy_stor <- rbind(bathy_stor_1, bathy_stor_2, bathy_stor_3) |> distinct()
+bathy_stor_df <- convert_UTM_deg_grid(bathy_stor, 25833) |> dplyr::rename(depth = layer) |> filter(depth < 0)
+ggplot(data = bathy_stor_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
+write_csv(bathy_stor_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/stor/stor_hires_bathy.csv")
+rm(bathy_stor_1, bathy_stor_2, bathy_stor_3, bathy_stor, bathy_stor_df); gc()
+
+# Stitch together hi-res Tromso bathy
+bathy_tromso_1 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_1/data/xyz/xyz_0.xyz",
+                           col_names = c("x", "y", "depth"))
+bathy_tromso_2 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_2/data/xyz/xyz_0.xyz",
+                           col_names = c("x", "y", "depth"))
+bathy_tromso_3 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_3/data/xyz/xyz_0.xyz",
+                           col_names = c("x", "y", "depth"))
+bathy_tromso_4 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_4/data/xyz/xyz_0.xyz",
+                             col_names = c("x", "y", "depth"))
+bathy_tromso_5 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_5/data/xyz/xyz_0.xyz",
+                             col_names = c("x", "y", "depth"))
+bathy_tromso_6 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_6/data/xyz/xyz_0.xyz",
+                             col_names = c("x", "y", "depth"))
+bathy_tromso_7 <- read_delim("~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_7/data/xyz/xyz_0.xyz",
+                             col_names = c("x", "y", "depth"))
+bathy_tromso <- rbind(bathy_tromso_1, bathy_tromso_2, bathy_tromso_3, bathy_tromso_4, 
+                      bathy_tromso_5, bathy_tromso_6, bathy_tromso_7) |> distinct()
+bathy_tromso_df <- convert_UTM_deg_grid(bathy_tromso, 25833) |> dplyr::rename(depth = layer) |> filter(depth < 0)
+ggplot(data = bathy_tromso_df, aes(x = lon, y = lat)) + geom_raster(aes(fill = depth))
+write_csv(bathy_tromso_df, "~/pCloudDrive/FACE-IT_data/maps/Kartverket/tromso/tromso_hires_bathy.csv")
+rm(bathy_tromso_1, bathy_tromso_2, bathy_tromso_3, bathy_tromso_4, 
+   bathy_tromso_5, bathy_tromso_6, bathy_tromso_7, bathy_tromso, bathy_tromso_df); gc()
 
 # Extract hi-res bathy for Disko Bay from IceBridge product
 # ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/maps/IceBridge/BedMachineGreenland-v5.nc")
