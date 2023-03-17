@@ -277,14 +277,15 @@ pg_dl_prep <- function(pg_dl){
           dl_driver <- pg_dl$data |> 
             dplyr::select(dplyr::all_of(col_idx)) |> 
             # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-            janitor::remove_empty(which = c("rows", "cols")) |> 
+            janitor::remove_empty(which = c("rows", "cols"))# |> 
             # NB: This forcibly removes non-numeric values
             # dplyr::mutate_at(col_base, as.numeric) |> 
             # NB: Or rather force everything to characters and sort it out in detail later
-            dplyr::mutate_at(col_base, as.character) |> 
-            pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |> 
-            mutate(class = "base") |> 
-            filter(!is.na(value))
+            # dplyr::mutate_at(col_base, as.character) |> 
+            # NB: Pivot long here. This appears to rather make the file size much larger
+            # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |> 
+            # mutate(class = "base") |> 
+            # filter(!is.na(value))
         )
       }
       
@@ -296,8 +297,8 @@ pg_dl_prep <- function(pg_dl){
           janitor::remove_empty(which = c("rows", "cols")) |> 
           # NB: Force everything to characters and sort it out in detail later
           dplyr::mutate_at(col_spp, as.character) |> 
-          pivot_longer(cols = col_spp, names_to = "name", values_to = "value")  |> 
-          mutate(class = "spp") #|> 
+          pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |> 
+          # mutate(class = "spp") #|> 
         # NB: Intentionally not filtering NA as species presence might not have a value
         # filter(!is.na(value))
       }
@@ -390,7 +391,7 @@ pg_dl_save <- function(file_name){
   # Save files
   data.table::fwrite(pg_res, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
   data.table::fwrite(pg_res, paste0("data/pg_data/",file_name,".csv"))
-  rm(pg_res); gc()
+  rm(pg_res, file_folder); gc()
 }
 
 # Function for quickly opening up a file based on doi

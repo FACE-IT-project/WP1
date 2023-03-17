@@ -25,7 +25,7 @@ lat_names <- c("LATITUDE", "Latitude", "latitude", "lat")
 
 # Set cores
 doParallel::registerDoParallel(cores = 15)
-
+#
 
 # AIS data ----------------------------------------------------------------
 
@@ -167,7 +167,7 @@ save(ice_1km_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_1km_po
 # Load PANGAEA DOI list
 pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 
-# Or regenerate list here
+# Or regenerate the PANGAEA DOI list here
 # source("code/data_query.R")
 
 # Previously downloaded PANGAEA data
@@ -192,16 +192,33 @@ pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 ### Allow a force override for this. Preferably with conditionals.
 
 # Full PANGAEA query
-doParallel::registerDoParallel(cores = 15)
+## NB: It's possible to run this on multiple cores, but it will disable messages
+# Ir's also
+doParallel::registerDoParallel(cores = 7) # There are 14 files
 system.time(
-plyr::ldply(unique(pg_doi_list$file)[c(3, 13)], pg_dl_save, .parallel = F)
+plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, .parallel = F) 
 ) # ~ XXX hours
+
+# Log size off old and new files
+pg_file_sizes <- read_csv("metadata/pg_file_sizes.csv")
+pg_file_sizes_new <- base::file.info(dir("data/pg_data", all.files = T, full.names = T, pattern = ".csv"), extra_cols = FALSE) |> 
+  tibble::rownames_to_column(var = "file_name") |> 
+  mutate(file_name = str_remove(file_name, "data/pg_data/"),
+         size = round(size/1000000,2)) |>  # Convert from bytes to megabytes
+  dplyr::rename(created = mtime) |> 
+  dplyr::select(file_name, size, created) 
+pg_file_sizes <- rbind(pg_file_sizes, pg_file_sizes_new) |> mutate_all(as.character) |> distinct()
+rm(pg_file_sizes_new)
+write_csv(pg_file_sizes, "metadata/pg_file_sizes.csv")
+
+# Test files
+test1 <- read_csv_arrow("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_chemistry_west.csv")
 
 
 # Error trapping ----------------------------------------------------------
 
 # Re-load all PANGAEA files to extract error messages
-pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
+pg_files <- dir("data/pg_data", pattern = "pg_*.csv", full.names = T)
 pg_ref_meta <- map_dfr(pg_files, pg_ref_extract)
 write_csv(pg_ref_meta, "metadata/pg_ref_meta.csv")
 rm(pg_files, pg_ref_meta); gc()
