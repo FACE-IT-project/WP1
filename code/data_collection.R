@@ -19,10 +19,6 @@
 source("code/functions.R")
 source("code/key_drivers.R")
 
-# For finding meta-data in PG files
-lon_names <- c("LONGITUDE", "Longitude", "longitude", "long", "lon")
-lat_names <- c("LATITUDE", "Latitude", "latitude", "lat")
-
 # Set cores
 doParallel::registerDoParallel(cores = 15)
 #

@@ -153,6 +153,11 @@ long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
                                          "primary production", "biomass", "species richness",
                                          "governance",  "tourism", "fisheries")))
 
+# For finding meta-data in PG files
+lon_names <- c("LONGITUDE", "Longitude", "longitude", "long", "lon")
+lat_names <- c("LATITUDE", "Latitude", "latitude", "lat")
+
+
 # Meta-data ---------------------------------------------------------------
 
 # The base global map
