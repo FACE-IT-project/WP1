@@ -448,7 +448,7 @@ load_sval_AIS <- function(file_name){
 
 # Find .csv files
 sval_AIS_dir <- dir("~/pCloudDrive/FACE-IT_data/svalbard/AIS", full.names = T, pattern = ".csv")
-sval_AIS_info <- file.info(sval_AIS_dir) |> filter(size > 0)
+sval_AIS_info <- as.data.frame(file.info(sval_AIS_dir)) |> dplyr::filter(size > 0)
 sval_AIS_files <- row.names(sval_AIS_info)
 
 # Load data
