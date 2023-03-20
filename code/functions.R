@@ -1390,8 +1390,11 @@ load_nor_hydro <- function(year_choice, date_accessed){
       res_data$ship <- as.numeric(res_data$ship)
       res_stations$Ship <- as.numeric(res_stations$Ship)
     }
-    res_raw <- left_join(res_data, res_stations, by = c("station_number" = "Station Number",
-                                                        "ship" = "Ship")) %>% 
+    res_raw <- left_join(res_data, res_stations, 
+                         by = c("station_number" = "Station Number", "ship" = "Ship")) |> #,
+                         # NB: The station list doubles without identifiers in 1958
+                         # But all of these data lay outside of the study site....
+                         # multiple = "all") %>% 
       mutate(URL = cite_info$URL[cite_info$year == year_choice],
              citation = cite_info$citation[cite_info$year == year_choice]) %>% 
       dplyr::rename(date = Date, lat = `Latitude °N`, lon = `Longitude °E`) |> 
@@ -1403,11 +1406,11 @@ load_nor_hydro <- function(year_choice, date_accessed){
   
   # Process and exit
   res <- res_raw %>% 
-    filter(sal != -9999,
-           lon >= bbox_por[1], lon <= bbox_por[2],
+    filter(lon >= bbox_por[1], lon <= bbox_por[2],
            lat >= bbox_por[3], lat <= bbox_por[4]) %>% 
     pivot_longer(all_of(col_pivot), names_to = "variable", values_to = "value") %>% 
     mutate(date_accessed = date_accessed, category = "phys",
+           value = case_when(variable == "sal" & value %in% c(-1, -9999) ~ NA, TRUE ~ value),
            variable = case_when(variable == "temp" ~ "temp [°C]", 
                                 variable == "sal" ~ "sal [PSU]",
                                 variable == "dens" ~ "dens [kg/m3]"),
