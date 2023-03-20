@@ -1130,10 +1130,16 @@ load_nor_hydro <- function(year_choice, date_accessed){
       res_data$station_number <- as.numeric(res_data$station_number)
       res_stations$`Station Number` <- as.numeric(res_stations$`Station Number`)
     }
-    res_raw <- left_join(res_data, res_stations, by = c("station_number" = "Station Number")) %>% 
+    if(typeof(res_data$ship) != typeof(res_stations$Ship)){
+      res_data$ship <- as.numeric(res_data$ship)
+      res_stations$Ship <- as.numeric(res_stations$Ship)
+    }
+    res_raw <- left_join(res_data, res_stations, by = c("station_number" = "Station Number",
+                                                        "ship" = "Ship")) %>% 
       mutate(URL = cite_info$URL[cite_info$year == year_choice],
              citation = cite_info$citation[cite_info$year == year_choice]) %>% 
-      dplyr::rename(date = Date, lat = `Latitude °N`, lon = `Longitude °E`)
+      dplyr::rename(date = Date, lat = `Latitude °N`, lon = `Longitude °E`) |> 
+      filter(depth != "****")
   }
   
   # Detect columns in data for pivoting longer
