@@ -121,6 +121,19 @@ map_hi <- read_csv_arrow("coastline_hi_sub.csv")
 # save(clean_meta, file = "~/WP1/shiny/dataAccess/clean_meta.RData")
 load("clean_meta.RData")
 
+# Load citation summary
+# if(!exists("clean_all")) load("data/analyses/clean_all.RData")
+# clean_citation <- clean_all %>%
+#   filter(site %in% long_sites$site) %>%
+#   group_by(date_accessed, URL, citation, site, category, driver) %>%
+#   summarise(count = n(), .groups = "drop") %>%
+#   left_join(long_names, by = c("category", "driver")) %>%
+#   left_join(long_sites, by = "site") %>%
+#   filter(!is.na(driver_long)) %>%
+#   dplyr::select(date_accessed, URL, citation, site_long, category_long, driver_long, count)
+# save(clean_citation, file = "~/WP1/shiny/dataAccess/clean_citation.RData")
+load("clean_citation.RData")
+
 # Load PANGAEA driver metadata sheet
 ## NB: Code only run once to get slimmed down parameter list
 # pg_parameters <- read_delim_arrow("~/WP1/metadata/pangaea_parameters.tab", delim = "\t")
@@ -304,12 +317,17 @@ ui <- dashboardPage(
       
       # Data tables
       tabItem(tabName = "information",
-              box(width = 12, title = "Full variable names", #height = "390px", 
+              box(width = 12, title = "Data availability per citation", #height = "390px",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                  DT::dataTableOutput("longVarDT")),
+                  DT::dataTableOutput("countCitationDT")),
               box(width = 12, title = "Data availability per site", #height = "390px",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                  DT::dataTableOutput("countDrivDT"))),
+                  DT::dataTableOutput("countDrivDT")),
+              box(width = 12, title = "Full variable names", #height = "390px", 
+                  status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                  DT::dataTableOutput("longVarDT"))
+              ),
+
       
       # Data tables
       tabItem(tabName = "publications",
@@ -819,6 +837,17 @@ server <- function(input, output, session) {
     return(df_meta_DT)
   })
   
+  # Count of data points per citation per site
+  output$countCitationDT <- DT::renderDataTable({
+    df_citation <- clean_citation %>% 
+      # dplyr::select(site_long, category_long, driver_long, count) %>% 
+      dplyr::rename(Citation = citation, Site = site_long, Category = category_long, Driver = driver_long, `Data points` = count) %>% 
+      arrange(Citation, Site, Category, Driver)
+    df_citation_DT <- datatable(df_citation, rownames = FALSE, 
+                                options = list(pageLength = 10, scrollX = TRUE, scrollY = 210,
+                                           searchHighlight = TRUE))
+    return(df_citation_DT)
+  })
   
   ## Instructions ------------------------------------------------------------
   
