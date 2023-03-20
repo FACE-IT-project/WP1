@@ -6,6 +6,10 @@
 # Provide lists of variables that were removed
 # Correct PANGAEA values with `t [°C]` to be type 'cryo' as this is the unit for ice/snow temperature
 
+# TODO: Improve data loading feature so that datum with no lon/lat are recognised from which
+# site call they were downloaded and labelled accrodingly.
+# Otherwise all 7 site files need to be loaded to spatially filter the data for each site
+
 
 # Setup -------------------------------------------------------------------
 
@@ -88,6 +92,17 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
 # Bathymetry data
 ## Not on pCloud as this is a large file hosted on a well known website
 # EU_GEBCO
+
+# Cryosphere
+## Sea ice concentration
+# 25 km, 1978 - 2019: daily
+# ftp://sidads.colorado.edu/pub/DATASETS/NOAA/G02202_V3/north/daily/
+# 6.25 km, possibly 10 m, 2002 - 2021: daily
+# https://seaice.uni-bremen.de/data/amsr2/
+
+# Geochemistry
+## SOCAT datasets on PANGAEA
+# Bakker et al...
 
 # Ice modelling output
 ## Not on pCloud, too large to download
