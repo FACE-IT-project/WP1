@@ -405,23 +405,24 @@ pg_dl_proc <- function(pg_doi){
 pg_dl_save <- function(file_name, doi_dl_list){
   
   # Get list of files to download
-  doi_dl <- filter(doi_dl_list[1:10,], file == file_name)
+  doi_dl <- filter(doi_dl_list, file == file_name)#[1:10,]
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F); gc()
-  
-  # Load and combine existing data
-  # if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
-  #   pg_full <- read_csv_arrow(paste0("data/pg_data/",file_name,".csv"))
-  #   pg_full <- bind_rows(pg_full, pg_res)
-  # } else {
-  #   pg_full <- pg_res
-  # }
-  # NB: Remove this after the first complete run
-  pg_full <- pg_res
+  if("Date/Time" %in% colnames(pg_res)) pg_res <- mutate(pg_res, `Date/Time` = as.character(`Date/Time`))
   
   # Get list of DOI
   pg_doi_res <- distinct(dplyr::select(pg_res, date_accessed, URL, citation))
+  
+  # Load and combine existing data
+  if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
+    pg_full <- read_csv_arrow(paste0("data/pg_data/",file_name,".csv"))
+    if("spp_value" %in% colnames(pg_full)) pg_full <- mutate(pg_full, spp_value = as.character(spp_value))
+    if("Date/Time" %in% colnames(pg_full)) pg_full <- mutate(pg_full, `Date/Time` = as.character(`Date/Time`))
+    pg_full <- distinct(bind_rows(pg_full, pg_res))
+  } else {
+    pg_full <- pg_res
+  }
   
   # Load and combine existing metadata
   if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
@@ -444,7 +445,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   write_csv(pg_doi, paste0("metadata/",file_name,"_doi.csv"))
   data.table::fwrite(pg_full, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
   data.table::fwrite(pg_full, paste0("data/pg_data/",file_name,".csv"))
-  rm(pg_res, pg_full, file_folder); gc()
+  rm(pg_res, pg_full, pg_doi_res, pg_doi, file_folder); gc()
   # rm(file_name, doi_dl_list, doi_dl, pg_res)
 }
 

@@ -167,21 +167,23 @@ pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 # source("code/data_query.R")
 
 # Load to get DOI for already downloaded data
-pg_doi_files <- map_dfr(dir("metadata/pg*doi", all.files = T, full.names = T, pattern = ".csv"), read_csv_arrow)
-# NB: not finished
+pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |> 
+  mutate(doi = str_remove(URL, "https://doi.org/"))
 
 # Strike out DOI for already downloaded data
-pg_doi_dl <- pg_doi_list #|>
-  # filter(!doi %in% pg_doi_files$doi)
+pg_doi_dl <- pg_doi_list |>
+  filter(!doi %in% pg_doi_files$doi)
 # NB: not finished
 
 # Full PANGAEA query
 ## NB: It's possible to run this on multiple cores, but it will disable messages
 doParallel::registerDoParallel(cores = 7) # There are 7 files
-# system.time(
-# plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F) 
-# ) # ~ XXX hours
-pg_dl_save(unique(pg_doi_list$file)[2], pg_doi_dl)
+system.time(
+plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F)
+) # 154 seconds for 10 DOI; ~ XXX hours
+
+# Or run one at a time
+# pg_dl_save(unique(pg_doi_list$file)[7], pg_doi_dl)
 
 # Log size off old and new files
 pg_file_sizes <- read_csv("metadata/pg_file_sizes.csv")
