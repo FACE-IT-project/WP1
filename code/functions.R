@@ -178,7 +178,7 @@ coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 # Functions ---------------------------------------------------------------
 
 # Function for performing a more thorough query of PANGAEA data by bbox
-pg_full_search <- function(lookup_table = F, ...){
+pg_full_search <- function(lookup_table = FALSE, doi_list = TRUE, ...){
   
   # Prep data.frame
   pg_res_all <- data.frame()
@@ -207,7 +207,7 @@ pg_full_search <- function(lookup_table = F, ...){
   }
   
   # Filter data if a PANGAEA DOI list is present in the environment
-  if(exists("pg_doi_list") & nrow(pg_res_all) > 0){
+  if(exists("pg_doi_list") & nrow(pg_res_all) > 0 & doi_list){
     pg_res_all <- pg_res_all |> filter(!doi %in% pg_doi_list$doi)
   }
   
@@ -220,10 +220,12 @@ pg_meta_print <- function(pg_doi){
 }
 
 # Function for extracting info from PANGAEA data
+# TODO: Consider adding a warning column if the data don't have lon/lat coords
+# Same for date and depth
 pg_dl_prep <- function(pg_dl){
   
+  # Load PANGAEA variable list if it's missing
   if(!exists("query_ALL")) source("code/key_drivers.R")
-  if(!exists("pg_doi_list")) pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
   
   # Prep for error reporting
   dl_error <- NULL
@@ -266,6 +268,16 @@ pg_dl_prep <- function(pg_dl){
               }
             }
           }
+          # NB: Still working on this...
+          # Need to figure out how to extract lon/lat etc from character vector by event.
+          # Perhaps a for loop that cycles through the second:last events and then removes
+          # the first event from the first vector.
+          # Then somehow process the text into a datamframe with column names and values.
+          # This can then be left_join() by event name
+          # if(is.character(pg_dl$metadata$events)){
+          #   event_ID <- unique(pg_dl$data$Event)
+            # event_meta <- str_split(pg_dl$metadata$events, event_ID)
+          # }
         }
       }
       
@@ -292,14 +304,14 @@ pg_dl_prep <- function(pg_dl){
           dl_driver <- pg_dl$data |> 
             dplyr::select(dplyr::all_of(col_idx)) |> 
             # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-            janitor::remove_empty(which = c("rows", "cols"))# |> 
+            janitor::remove_empty(which = c("rows", "cols")) #|> 
             # NB: This forcibly removes non-numeric values
             # dplyr::mutate_at(col_base, as.numeric) |> 
             # NB: Or rather force everything to characters and sort it out in detail later
-            # dplyr::mutate_at(col_base, as.character) |> 
+            # dplyr::mutate_at(col_base, as.character) |>
             # NB: Pivot long here. This appears to rather make the file size much larger
-            # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |> 
-            # mutate(class = "base") |> 
+            # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |>
+            # mutate(class = "base") |>
             # filter(!is.na(value))
         )
       }
@@ -312,8 +324,9 @@ pg_dl_prep <- function(pg_dl){
           janitor::remove_empty(which = c("rows", "cols")) |> 
           # NB: Force everything to characters and sort it out in detail later
           dplyr::mutate_at(col_spp, as.character) |> 
-          pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |> 
-          # mutate(class = "spp") #|> 
+          pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |>
+          # pivot_longer(cols = col_spp, names_to = "name", values_to = "value") |> 
+          # mutate(class = "spp") #|>
         # NB: Intentionally not filtering NA as species presence might not have a value
         # filter(!is.na(value))
       }
@@ -323,9 +336,9 @@ pg_dl_prep <- function(pg_dl){
         mutate(date_accessed = as.Date(Sys.Date()),
                URL = pg_dl$url,
                citation = pg_dl$citation) |> 
-        dplyr::select(date_accessed, URL, citation, everything()) #|> 
-      # NB: This should no longer be necessary
-      # janitor::remove_empty(which = c("rows", "cols"))
+        dplyr::select(date_accessed, URL, citation, everything()) |>
+        # NB: This should no longer be necessary...
+        janitor::remove_empty(which = c("rows", "cols"))
       
       # Filter spatially if possible
       # NB: Currently (2023-03-17) not performing spatial filters at this step
@@ -389,30 +402,54 @@ pg_dl_proc <- function(pg_doi){
 }
 
 # Function for automagically downloading, processing, and saving PANGAEA data
-pg_dl_save <- function(file_name){
+pg_dl_save <- function(file_name, doi_dl_list){
+  
+  # Get list of files to download
+  doi_dl <- filter(doi_dl_list[1:10,], file == file_name)
   
   # Download data
-  pg_res <- plyr::ldply(pg_doi_list$doi[pg_doi_list$file == file_name], pg_dl_proc); gc()
+  pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F); gc()
+  
+  # Load and combine existing data
+  # if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
+  #   pg_full <- read_csv_arrow(paste0("data/pg_data/",file_name,".csv"))
+  #   pg_full <- bind_rows(pg_full, pg_res)
+  # } else {
+  #   pg_full <- pg_res
+  # }
+  # NB: Remove this after the first complete run
+  pg_full <- pg_res
+  
+  # Get list of DOI
+  pg_doi_res <- distinct(dplyr::select(pg_res, date_accessed, URL, citation))
+  
+  # Load and combine existing metadata
+  if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
+    pg_doi <- read_csv_arrow(paste0("metadata/",file_name,"_doi.csv")) |> 
+      rbind(pg_doi_res)
+  } else {
+    pg_doi <- pg_doi_res
+  }
   
   # Get folder name
-  if(grepl("_EU_", file_name)) file_folder <- "EU_arctic"
-  if(file_name == "pg_kong_all") file_folder <- "kongsfjorden"
-  if(file_name == "pg_is_all") file_folder <- "isfjorden"
-  if(file_name == "pg_stor_all") file_folder <- "storfjorden"
-  if(file_name == "pg_young_all") file_folder <- "young_sound"
-  if(file_name == "pg_disko_all") file_folder <- "disko_bay"
-  if(file_name == "pg_nuup_all") file_folder <- "nuup_kangerlua"
-  if(file_name == "pg_por_all") file_folder <- "porsangerfjorden"
+  if(file_name == "pg_kong") file_folder <- "kongsfjorden"
+  if(file_name == "pg_is") file_folder <- "isfjorden"
+  if(file_name == "pg_stor") file_folder <- "storfjorden"
+  if(file_name == "pg_young") file_folder <- "young_sound"
+  if(file_name == "pg_disko") file_folder <- "disko_bay"
+  if(file_name == "pg_nuup") file_folder <- "nuup_kangerlua"
+  if(file_name == "pg_por") file_folder <- "porsangerfjorden"
   
   # Save files
-  data.table::fwrite(pg_res, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
-  data.table::fwrite(pg_res, paste0("data/pg_data/",file_name,".csv"))
-  rm(pg_res, file_folder); gc()
+  write_csv(pg_doi, paste0("metadata/",file_name,"_doi.csv"))
+  data.table::fwrite(pg_full, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
+  data.table::fwrite(pg_full, paste0("data/pg_data/",file_name,".csv"))
+  rm(pg_res, pg_full, file_folder); gc()
+  # rm(file_name, doi_dl_list, doi_dl, pg_res)
 }
 
 # Function for quickly opening up a file based on doi
 pg_test_dl <- function(pg_doi){
-  # Get data
   dl_dat <- tryCatch(pg_data(pg_doi), error = function(pg_doi) stop("Download failed"))
   dl_single <- tibble(URL = dl_dat[[1]]$url,
                       citation = dl_dat[[1]]$citation,
@@ -427,6 +464,59 @@ pg_ref_extract <- function(pg_EU_file){
     distinct()
   return(df)
 }
+
+# Quick filtering function
+# Manual tweaks will still be required after running this
+# NB: Values with no lon/lat must be removed at this step to prevent data bleed across sites
+pg_site_filter <- function(file_name, site_name){
+  
+  # Load data
+  # system.time(
+  pg_dat <- data.table::fread(file_name, nThread = 15, ) |>  # NB: Faster than read_csv_arrow()
+    filter(Error == "") |> 
+    dplyr::rename(lon = Longitude, lat = Latitude) |> 
+    mutate(site = site_name,
+           date_accessed = as.Date(date_accessed))
+  # )
+  bbox <- bbox_from_name(site_name)
+  if(grepl(site_name, file_name)){
+    pg_res <- pg_dat |> distinct()
+  } else {
+   pg_res <- pg_dat |> 
+      filter(lon >= bbox[1], lon <= bbox[2],
+             lat >= bbox[3], lat <= bbox[4]) |> 
+      janitor::remove_empty("cols") |> distinct()
+  }
+  rm(pg_dat); gc()
+  return(pg_res)
+  # rm(file_name, site_name, pg_res, bbox); gc()
+}
+
+# Function for melting columns related to a specific driver
+pg_var_melt <- function(pg_clean, key_words, var_word){
+  
+  # Message of which columns were melted
+  sub_cols <- colnames(pg_clean)[colnames(pg_clean) %in% unique(key_words)]
+  sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")]
+  print(sub_cols)
+  if(length(sub_cols) == 0) return()
+  
+  # Subset and melt data.frame
+  pg_melt <- pg_clean %>% 
+    dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, all_of(sub_cols)) %>% 
+    pivot_longer(cols = all_of(sub_cols), names_to = paste0("variable"), values_to = "value") %>% 
+    mutate(category = var_word) %>% 
+    filter(!is.na(value)) %>%
+    distinct() %>% 
+    # dplyr::select(date_accessed:depth, category, variable, value)
+    group_by(date_accessed, URL, citation, site, lon, lat, date, depth, category, variable) %>%
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
+  return(pg_melt)
+  # rm(pg_clean, key_words, var_word, sub_cols, pg_melt)
+}
+
+# Function for melting individual files from other data sources
+# single_file_var_melt <- function(){}
 
 # Find the nearest grid cells for each site
 ## NB: Requires two data.frames with lon, lat in that order
@@ -1567,7 +1657,7 @@ save_data_one <- function(sub_levels, df){
 }
 
 # Convenience function to save site products as individual files
-save_data <- function(df, data_type){
+save_data <- function(df, data_type = "full"){
   unique_levels <- df %>% 
     dplyr::select(category, driver, site) %>% 
     dplyr::filter(site %in% long_site_names$site) %>% 

@@ -7,7 +7,7 @@
 # Correct PANGAEA values with `t [°C]` to be type 'cryo' as this is the unit for ice/snow temperature
 
 # TODO: Improve data loading feature so that datum with no lon/lat are recognised from which
-# site call they were downloaded and labelled accrodingly.
+# site call they were downloaded and labelled accordingly.
 # Otherwise all 7 site files need to be loaded to spatially filter the data for each site
 
 
@@ -25,66 +25,20 @@ library(clock)
 # source("code/data_collection.R")
 # )
 
+# For processing below
+clean_cols <- c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")
+
 # PANGAEA files
 pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
-
-# Quick filtering function
-# Manual tweaks will still be required after running this
-# NB: Values with no lon/lat must be removed at this step to prevent data bleed across sites
-pg_quick_filter <- function(file_name, bbox){
-  pg_dat <- data.table::fread(file_name, nThread = 15)
-  if("Longitude" %in% colnames(pg_dat)){
-    pg_res <- pg_dat %>% dplyr::rename(lon = Longitude, lat = Latitude) %>% 
-      filter(Error == "") %>% 
-      filter(lon >= bbox[1], lon <= bbox[2],
-             lat >= bbox[3], lat <= bbox[4]) %>% 
-      janitor::remove_empty("cols") %>% 
-      distinct()
-  } else{
-    pg_res <- NULL
-  }
-  rm(pg_dat); gc()
-  return(pg_res)
-}
-
-# Function for melting columns related to a specific driver
-pg_var_melt <- function(pg_clean, key_words, var_word){
-  
-  # Message of which columns were melted
-  sub_cols <- colnames(pg_clean)[colnames(pg_clean) %in% unique(key_words)]
-  sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "lon", "lat", "date", "depth")]
-  print(sub_cols)
-  if(length(sub_cols) == 0) return()
-  
-  # Subset and melt data.frame
-  pg_melt <- pg_clean %>% 
-    dplyr::select("date_accessed", "URL", "citation", "lon", "lat", "date", "depth", all_of(sub_cols)) %>% 
-    pivot_longer(cols = all_of(sub_cols), names_to = paste0("variable"), values_to = "value") %>% 
-    mutate(category = var_word) %>% 
-    filter(!is.na(value)) %>%
-    distinct() %>% 
-    # dplyr::select(date_accessed:depth, category, variable, value)
-    group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
-    summarise(value = mean(value, na.rm = T), .groups = "drop")
-  return(pg_melt)
-}
-
-# Function for melting individual files from other data sources
-# single_file_var_melt <- function(){}
 
 
 # European Arctic ---------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
 
-# There is no EU PANGAEA product because the bits and pieces were given to the individual PG site files
-# This file is only loaded to get a summary of the data
-# pg_EU_files <- dir("data/pg_data", pattern = "pg_EU", full.names = T)
-# system.time(
-#   pg_EU <- plyr::ldply(pg_EU_files, pg_quick_filter, bbox = bbox_EU)
-# ) # 70 seconds
-# length(unique(pg_EU$citation))
-# rm(pg_EU); gc()
+# There is no EU PANGAEA product
+# Moving towards v2.0 the scraping of EU data from PANGAEA was abandoned
+# in favour of scraping at each site specifically
 
 
 ## Full product ------------------------------------------------------------
@@ -704,8 +658,8 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Load pg kong files
 system.time(
-  pg_kong_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_kong)
-) # 70 seconds
+  pg_kong_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "kong")
+) # 29 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
@@ -726,38 +680,40 @@ system.time(
 #   na.omit()
   
 # Process Kongsfjorden bbox PANGAEA data
-pg_kong_clean <- pg_kong_sub %>% 
+pg_kong_clean <- pg_kong_sub |> 
   # dplyr::select(contains(c("Qz")), everything()) %>%  # Look at specific problem columns
   # dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
   # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
   # Manually remove problematic files - no need
   # Manually remove problematic columns
   # dplyr::select(-"File start date/time", -"File stop date/time") %>%
-  mutate_all(~na_if(., '')) %>%
-  janitor::remove_empty("cols") %>%
+  mutate_if(is.character, ~na_if(., '')) |> 
+  janitor::remove_empty("cols") |> 
   # Manage lon/lat columns - no need
   # Manage date column
-  dplyr::rename(date = `Date/Time`) %>% 
+  dplyr::rename(date = `Date/Time`) |> 
   mutate(date = ifelse(date == "", NA, date),
          date = case_when(is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`,
                           TRUE ~ date),
-         date = as.Date(gsub("T.*", "", date))) %>%
+         date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
-                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
+                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
+                           TRUE ~ as.numeric(NA))) |> 
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
-                           TRUE ~ depth)) %>% 
+                           TRUE ~ depth)) |> 
   # dplyr::select(depth, everything())
   # Remove unwanted columns
   dplyr::select(-"Longitude 2", -"Latitude 2",
                 -"Date/time start", -"Date/time end",
                 -"Press [dbar]",
-                -contains(c("Depth ", "Elev ", "Elevation "))) %>%
+                -contains(c("Depth ", "Elev ", "Elevation "))) |> 
   # Finish up
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) %>% 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
+  # NB: This must be changed manually when new data are loaded
+  mutate(across(!clean_cols, as.numeric)) |>  
   janitor::remove_empty("cols")
 # colnames(pg_kong_clean)
 
@@ -769,13 +725,12 @@ pg_kong_Physical <- pg_var_melt(pg_kong_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_kong_Chemistry <- pg_var_melt(pg_kong_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio") # 0 values
+pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio")
 # Social
 pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc") # 0 values
 
 # Stack them together
-pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry,
-                     pg_kong_Biology, pg_kong_Social) %>% mutate(site = "kong")
+pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry, pg_kong_Biology, pg_kong_Social)
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
 
@@ -3649,8 +3604,10 @@ full_product_por <- rbind(dplyr::select(pg_por_ALL, -site),
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Porsanger", citation))) %>% distinct() %>% mutate(site = "por")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
-plyr::l_ply(unique(full_product_por$category), save_category, .parallel = T,
-            df = full_product_por, data_type = "full", site_name = "por")
+# save_data(full_product_por)
+# NB: This part of the pipeline has changed and no longer runs. Needs updating.
+# plyr::l_ply(unique(full_product_por$category), save_category, .parallel = T,
+#             df = full_product_por, data_type = "full")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 

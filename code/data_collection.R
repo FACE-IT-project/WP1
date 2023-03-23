@@ -13,7 +13,7 @@
 # https://cran.r-project.org/web/packages/powerjoin/readme/README.html
 # Or some other cleaning methods:
 # https://appsilon.com/data-cleaning-in-r/
-# Consider only using 'child' datafiles to avoid repeat downloads
+# Consider only using 'child' data files to avoid repeat downloads
 
 # Libraries used in this script
 source("code/functions.R")
@@ -166,34 +166,22 @@ pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 # Or regenerate the PANGAEA DOI list here
 # source("code/data_query.R")
 
-# Previously downloaded PANGAEA data
-# pg_files <- dir("~/pCloudDrive/FACE-IT_data", pattern = "pg_", recursive = T, full.names = T)
-# pg_files <- pg_files[grepl(".csv", pg_files)]
+# Load to get DOI for already downloaded data
+pg_doi_files <- map_dfr(dir("metadata/pg*doi", all.files = T, full.names = T, pattern = ".csv"), read_csv_arrow)
+# NB: not finished
 
-# Specific author queries
-# pg_Riebesell <- pg_full_search(query = "Riebesell", bbox = c(-60, 60, 60, 90))
-# pg_Fransson <- pg_full_search(query = "Fransson", bbox = c(-60, 60, 60, 90))
-# pg_Chierici <- pg_full_search(query = "Chierici", bbox = c(-60, 60, 60, 90))
-# pg_Fischer <- pg_full_search(query = "Chierici", bbox = c(-60, 60, 60, 90))
-# pg_Bouman <- pg_full_search(query = "Bouman", bbox = c(-60, 60, 60, 90))
-
-# Test specific files
-# pg_test_1 <- pg_data(doi = "10.1594/PANGAEA.857405")[[2]]$data
-# pg_test_2 <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.774421")
-# pg_test_3 <- pg_test_dl("10.1594/PANGAEA.774421")
-# pg_test_4 <- pg_dl_prep(pg_data("10.1594/PANGAEA.896828")[[1]])
-# pg_test_5 <- pg_dl_prep(pg_data("10.1594/PANGAEA.56580")[[1]])
-
-### TODO: Add check to not download data that already have a DOI in a new list of downloaded data (to create)
-### Allow a force override for this. Preferably with conditionals.
+# Strike out DOI for already downloaded data
+pg_doi_dl <- pg_doi_list #|>
+  # filter(!doi %in% pg_doi_files$doi)
+# NB: not finished
 
 # Full PANGAEA query
 ## NB: It's possible to run this on multiple cores, but it will disable messages
-# It also might be interfering with the saving of the files in some way
 doParallel::registerDoParallel(cores = 7) # There are 7 files
-system.time(
-plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, .parallel = F) 
-) # ~ XXX hours
+# system.time(
+# plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F) 
+# ) # ~ XXX hours
+pg_dl_save(unique(pg_doi_list$file)[2], pg_doi_dl)
 
 # Log size off old and new files
 pg_file_sizes <- read_csv("metadata/pg_file_sizes.csv")
@@ -208,7 +196,7 @@ rm(pg_file_sizes_new)
 write_csv(pg_file_sizes, "metadata/pg_file_sizes.csv")
 
 # Test files
-test1 <- read_csv_arrow("~/pCloudDrive/FACE-IT_data/EU_arctic/pg_EU_cruise_chemistry_west.csv")
+test1 <- read_csv_arrow("data/pg_data/pg_nuup.csv")
 
 
 # Error trapping ----------------------------------------------------------
