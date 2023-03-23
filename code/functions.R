@@ -412,6 +412,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   if("Date/Time" %in% colnames(pg_res)) pg_res <- mutate(pg_res, `Date/Time` = as.character(`Date/Time`))
   
   # Get list of DOI
+  # TODO: Insert lookup table creation here
   pg_doi_res <- distinct(dplyr::select(pg_res, date_accessed, URL, citation))
   
   # Load and combine existing data
