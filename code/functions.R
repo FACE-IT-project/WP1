@@ -408,7 +408,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   print(paste0("Started on ",file_name," at ",Sys.time()))
   
   # Get list of files to download
-  doi_dl <- filter(doi_dl_list, file == file_name)[1:30,]
+  doi_dl <- filter(doi_dl_list, file == file_name)[1:50,]
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
