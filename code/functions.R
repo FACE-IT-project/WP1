@@ -304,9 +304,9 @@ pg_dl_prep <- function(pg_dl){
           dl_driver <- pg_dl$data |> 
             dplyr::select(dplyr::all_of(col_idx)) |> 
             # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-            janitor::remove_empty(which = c("rows", "cols")) #|> 
+            janitor::remove_empty(which = c("rows", "cols")) |> 
             # NB: This forcibly removes non-numeric values
-            # dplyr::mutate_at(col_base, as.numeric) |> 
+            dplyr::mutate_at(col_base, as.numeric) #|>
             # NB: Or rather force everything to characters and sort it out in detail later
             # dplyr::mutate_at(col_base, as.character) |>
             # NB: Pivot long here. This appears to rather make the file size much larger
@@ -404,34 +404,42 @@ pg_dl_proc <- function(pg_doi){
 # Function for automagically downloading, processing, and saving PANGAEA data
 pg_dl_save <- function(file_name, doi_dl_list){
   
+  # Start message
+  print(paste0("Started on ",file_name," at ",Sys.time()))
+  
   # Get list of files to download
-  doi_dl <- filter(doi_dl_list, file == file_name)#[1:10,]
+  doi_dl <- filter(doi_dl_list, file == file_name)[1:30,]
   
   # Download data
-  pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F); gc()
-  if("Date/Time" %in% colnames(pg_res)) pg_res <- mutate(pg_res, `Date/Time` = as.character(`Date/Time`))
-  
-  # Get list of DOI
-  # TODO: Insert lookup table creation here
-  pg_doi_res <- distinct(dplyr::select(pg_res, date_accessed, URL, citation))
+  pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
+  pg_res_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_Meta$pg_col_name]
+  pg_res <- pg_res |> 
+    mutate(across(dplyr::all_of(pg_res_meta_columns), as.character))
   
   # Load and combine existing data
+  # NB: By using local files it potentially allows pCloud files to be falsely overwritten...
+  # This means that this code is currently only able to be run on the LOV computer
   if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
-    pg_full <- read_csv_arrow(paste0("data/pg_data/",file_name,".csv"))
-    if("spp_value" %in% colnames(pg_full)) pg_full <- mutate(pg_full, spp_value = as.character(spp_value))
-    if("Date/Time" %in% colnames(pg_full)) pg_full <- mutate(pg_full, `Date/Time` = as.character(`Date/Time`))
-    pg_full <- distinct(bind_rows(pg_full, pg_res))
+    if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
+      pg_lookup <- read_csv_arrow(paste0("metadata/",file_name,"_doi.csv"))
+      pg_base <- read_csv_arrow(paste0("data/pg_data/",file_name,".csv")) |> 
+        left_join(pg_lookup, by = c("meta_idx")) |> 
+        dplyr::select(date_accessed, URL, citation, everything(), -meta_idx)
+      if("spp_value" %in% colnames(pg_base)) pg_base <- mutate(pg_base, spp_value = as.character(spp_value))
+      pg_base_meta_columns <- colnames(pg_base)[colnames(pg_base) %in% query_Meta$pg_col_name]
+      pg_base <- pg_base |> 
+        mutate(across(dplyr::all_of(pg_base_meta_columns), as.character))
+      pg_full <- distinct(bind_rows(pg_base, pg_res))
+    }
   } else {
     pg_full <- pg_res
   }
   
-  # Load and combine existing metadata
-  if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
-    pg_doi <- read_csv_arrow(paste0("metadata/",file_name,"_doi.csv")) |> 
-      rbind(pg_doi_res)
-  } else {
-    pg_doi <- pg_doi_res
-  }
+  # Create and utilise metadata lookup tables
+  pg_meta <- dplyr::select(pg_full, date_accessed, URL, citation) |> 
+    distinct() |> dplyr::mutate(meta_idx = 1:n(), .before = 1)
+  pg_slim <- left_join(pg_full, pg_meta, by = c("date_accessed", "URL", "citation")) |> 
+    dplyr::select(meta_idx, everything(), -date_accessed, -URL, -citation)
   
   # Get folder name
   if(file_name == "pg_kong") file_folder <- "kongsfjorden"
@@ -443,10 +451,10 @@ pg_dl_save <- function(file_name, doi_dl_list){
   if(file_name == "pg_por") file_folder <- "porsangerfjorden"
   
   # Save files
-  write_csv(pg_doi, paste0("metadata/",file_name,"_doi.csv"))
-  data.table::fwrite(pg_full, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
-  data.table::fwrite(pg_full, paste0("data/pg_data/",file_name,".csv"))
-  rm(pg_res, pg_full, pg_doi_res, pg_doi, file_folder); gc()
+  write_csv(pg_meta, paste0("metadata/",file_name,"_doi.csv"))
+  data.table::fwrite(pg_slim, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
+  data.table::fwrite(pg_slim, paste0("data/pg_data/",file_name,".csv"))
+  rm(pg_res, pg_res_meta_columns, pg_base, pg_base_meta_columns, pg_full, pg_slim, pg_lookup, pg_meta, file_folder); gc()
   # rm(file_name, doi_dl_list, doi_dl, pg_res)
 }
 
