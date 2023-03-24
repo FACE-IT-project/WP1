@@ -12,36 +12,16 @@
   # Numbers for colours, and then a lookup table with product name via join by number
 
 ## UI features
-# Popup when data are uploaded saying how much new data has been uploaded
 # Create a NetCDF file format for saving data
-# Have a '4) Editing' tab that is password protected to go back and fix issues
-  # Make this attached to the username so that users can only edit the data they uploaded
-  # Have superusers too whose name == ALL
-  # This requires the database to have a last edited column
-  # This would be added at first upload as the upload date
-  # Have a dropdown that allowed different levels of QC: Level 0 - Level 4
-  # This would be attached to the data as a QC_level column
-  # Or have a flag column with numbers that show what the issue is
 # It would be useful for a user that the settings could be saved in between uploads:
 # https://discindo.org/post/2022-05-09-building-a-multi-session-shiny-application-with-brochure/
 
 ## Documentation
-# Spruce up the landing page with some nice pictures of the fjord
-# Add all sorts of info to the landing page that motivates people to use it
-# Provide specific info for where the data are saved, and where they will be published; a diagram could be good
-# Allow users to download a user manual
+# Somehow create an edit date log for whenever a user editsdata
 
 ## QC
-# Consider looking at the Argo standards for CTD QC - Look into the R Argo package
-  # This is unfortunately not possible to use
-# For starters would have a raw or QC flag to add to the data
-# Any changes should be communicated via a metadata output
 
 ## DOI
-# Allow for an embargo DOI option
-# Have a popup after clicking download that lists the unique DOIs of the data
-# May need another column for the DOI of data that were already published and being uploaded here afterwards
-# Authorship order could be based on the number of individual files uploaded over the year
 
 ## Data management
 # The data upload repository needs to start to be considered
@@ -49,15 +29,11 @@
   # Rather have a meta-data file ready that provides the parametres for a user to chose what to load
   # Allow filtering of download data by variable
   # Allow filter on downloading of published vs unpublished data
-# May want to implement a database of meta-data per file, as well as the raw data
-  # Via a look-up table one could then avoid having extra columns with the raw data
 # Add historic data to backend to allow users to see how their newly updated data fit into the historic data
 # Use consistent variable names via:
 # https://www.earthdata.nasa.gov/learn/find-data/idn/gcmd-keywords
 
 ## Next steps
-# Give demo at flagship meeting on Sep 27 at 11:30
-# Somehow create an edit date log for whenever a user editsdata
 
 
 # Libraries ---------------------------------------------------------------
@@ -147,7 +123,7 @@ frame_base <- ggplot() +
   coord_cartesian(xlim = c(11, 12.69), ylim = c(78.85, 79.35), expand = F) +
   labs(y = NULL, x = NULL) +
   theme_bw() +
-  theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
+  theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
         axis.text = element_text(size = 12, colour = "black"),
         axis.ticks = element_line(colour = "black"))
 
@@ -168,6 +144,17 @@ options(shiny.maxRequestSize = 50*1024^2)
 # Rounding functions
 floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
 ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
+
+## DANGER ZONE ##
+# Seriously, don't run this code...
+# Delete database
+# # database <- read_rds("data/data_base.Rds")
+# # database <- slice(database, 0)
+# # write_rds(database, "data/data_base.Rds")
+# Delete metadatabase
+# # metadatabase <- read_rds("data/meta_data_base.Rds")
+# # metadatabase <- slice(metadatabase, 0)
+# # write_rds(metadatabase, "data/meta_data_base.Rds")
 
 
 # UI ----------------------------------------------------------------------
@@ -193,6 +180,7 @@ ui <- dashboardPage(
                 menuItem("3) QC/Upload", tabName = "QCup", icon = icon("upload")),
                 menuItem("4) Edit", tabName = "edit", icon = icon("shower")),
                 menuItem("Download", tabName = "download", icon = icon("download")),
+                menuItem("Published data", tabName = "published", icon = icon("scroll")),
                 menuItem("About", tabName = "about", icon = icon("question"))),
                 
                 # The reactive controls based on the primary option chosen
@@ -317,7 +305,7 @@ ui <- dashboardPage(
                   fluidRow(column(4, shiny::textInput("allDataOwnerPerson", "Person")),
                            column(4, shiny::textInput("allDataOwnerInstitute", "Institute")),
                            column(4, shiny::textInput("allDOI", "DOI"))),
-                  h6(tags$b("Sensor:"), "Complete ID info not detected during upload."),
+                  h6(tags$b("Sensor:"), "Complete ID info if not detected during upload."),
                   fluidRow(column(4, shiny::textInput("allSensorOwner", "Owner")),
                            column(4, shiny::textInput("allSensorBrand", "Brand")),
                            column(4, shiny::textInput("allSensorNumber", "Number")))),
@@ -365,9 +353,9 @@ ui <- dashboardPage(
                            title = "Final steps",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
 
-                           h4("Remove data with the following QC flag(s)?"),
-                           selectInput("qc_flag_filter", label = "", 
-                                       choices = c("1", "2", "3"), selected = c("1", "2"), multiple = T),
+                           # h4("Remove data with the following QC flag(s)?"),
+                           # selectInput("qc_flag_filter", label = "", 
+                           #             choices = c("1", "2", "3"), selected = c("1", "2"), multiple = T),
                            
                            h4("Embargo data for two years?"),
                            h6("Data will not be published within two years from today."),
@@ -505,7 +493,24 @@ ui <- dashboardPage(
                 )
               )
       ),
+
       
+      ## Published data ----------------------------------------------------------
+
+      tabItem(tabName = "published", 
+              fluidPage(
+                column(12,
+                       h2(tags$b("Published data")),
+                       p("The data on this portal are submitted for publishing on the PANGAEA data portal at the start of the calendar year.
+                         The ranking of authors on these publications is dictated by the number of files uploaded by each. For a more in-depth
+                         explanation behind the reasoning for the publication process please see the 'About' tab."),
+                       p("As data begin to be published on PANGAEA the links will be provided here."),
+                       h2(tags$b("Metadata")),
+                       p("The full meta-database of files uploaded on this platform may be accessed with the following button."),
+                       downloadButton("metaFull", "Meta-database"),
+                )
+              )
+      ),
       
       ## App explanation ---------------------------------------------------------
       
@@ -569,7 +574,7 @@ ui <- dashboardPage(
                          tags$li("The order of the author list will be dictated by the number of provided datasets [yet to be determined].")
                          ),
                        h3(tags$b("Download the full user manual")),
-                       downloadButton("manFile", "Kong_portal_manual.docx"),
+                       downloadButton("manFile", "User manual"),
                        h3(tags$b("Acknowledgments")),
                        p("This portal was created out of the Kongsfjorden System Flagship, 
                          and developed by Robert Schlegel as a part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
@@ -873,7 +878,7 @@ server <- function(input, output, session) {
     # Upload all selected files
     df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) %>% 
       left_join(file_info_df(), by = "file_temp") %>% 
-      mutate(Uploader = reactiveValuesToList(res_auth)[[1]]) %>% 
+      mutate(Uploader = reactiveValuesToList(res_auth)[["user"]]) %>% 
       dplyr::select(Uploader, upload_date, file_name, everything(), -file_temp)
 
     # Exit
@@ -1117,7 +1122,7 @@ server <- function(input, output, session) {
       
       # If no coords, red border
       mp <- frame_base +
-        theme(panel.border = element_rect(colour = "red", size = 5))
+        theme(panel.border = element_rect(colour = "red", linewidth = 5))
       
     } else {
       
@@ -1144,7 +1149,7 @@ server <- function(input, output, session) {
         # geom_point(data = df_point, aes(x = Lon, y = Lat), size = 5, colour = "green") +
         geom_label(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = border_colour) +
         geom_text(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = "black") +
-        theme(panel.border = element_rect(colour = border_colour, size = 5))
+        theme(panel.border = element_rect(colour = border_colour, linewidth = 5))
     }
     return(mp)
   })
@@ -1161,8 +1166,8 @@ server <- function(input, output, session) {
   # Final df filtered by QC flags
   df_final <- reactive({
     req(input$file1, df_time())
-    df_final <- df_time() %>% 
-      filter(!flag %in% input$qc_flag_filter)
+    df_final <- df_time() #%>% 
+      # filter(!flag %in% input$qc_flag_filter)
     return(df_final)
   })
   
@@ -1307,11 +1312,11 @@ server <- function(input, output, session) {
   ## Edit server ------------------------------------------------------------
 
   df_meta_user <- reactive({
-    if(reactiveValuesToList(res_auth)[[1]] == "r"){
+    if(reactiveValuesToList(res_auth)[["user"]] == "r"){
       df_meta_user <- df_meta_data_base()
     } else {
       df_meta_user <- df_meta_data_base() %>% 
-        filter(Uploader == reactiveValuesToList(res_auth)[[1]])
+        filter(Uploader == reactiveValuesToList(res_auth)[["user"]])
     }
   })
 
@@ -1336,7 +1341,7 @@ server <- function(input, output, session) {
   observeEvent(input$saveEdit, {
     # Save meta-data
     df_meta_res <- meta_data_base$df %>% 
-      filter(Uploader != reactiveValuesToList(res_auth)[[1]]) %>% 
+      filter(Uploader != reactiveValuesToList(res_auth)[["user"]]) %>% 
       bind_rows(table$table2) %>% distinct()
     # df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
     write_rds(df_meta_res, file = "data/meta_data_base.Rds", compress = "gz")
@@ -1467,11 +1472,31 @@ server <- function(input, output, session) {
     return(df_filter)
   })
   
+  # Metadata of filtered data 
+  df_meta <- reactive({
+    req(input$selectEm)
+    df_filter <- df_filter()
+    
+    # Create metadata output
+    df_meta <- df_filter |> 
+      group_by(Uploader, upload_date, file_name, DOI, embargo, 
+               Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Site, 
+               total_rows, `0`, `1`, `2`, `3`) |> 
+      summarise(min_date = min(date_time, na.rm = T),
+                max_date = max(date_time, na.rm = T),
+                min_depth = min(Depth, na.rm = T),
+                max_depth = max(Depth, na.rm = T)) |> 
+      ungroup()
+    
+    # Return
+    return(df_meta)
+  })
+  
   # Show the filtered database
   output$dataBaseFilter <- DT::renderDataTable({
-    data_base_filter_DT <- datatable(df_filter(), rownames = F, 
+    data_base_meta_DT <- datatable(df_meta(), rownames = F, 
                                      options = list(pageLength = 100, scrollX = TRUE, scrollY = 250))
-    return(data_base_filter_DT)
+    return(data_base_meta_DT)
   })
   
   # Controls for X-axis of DL time series plot
@@ -1499,9 +1524,13 @@ server <- function(input, output, session) {
     if(nrow(df_filter) == 1){
       ts <- ggplot() + geom_blank()
     } else{
-      ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
+      df_filter$x_dat <- df_filter[,input$plotXDL]
+      df_filter$y_dat <- df_filter[,input$plotYDL]
+      # ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
+      ts <- ggplot(data = df_filter, aes(x = x_dat, y = y_dat)) +
         geom_point() + #geom_line() +
-        theme(panel.border = element_rect(colour = "black", size = 1, fill = NA))
+        labs(x = input$plotXDL, y = input$plotYDL) +
+        theme(panel.border = element_rect(colour = "black", linewidth = 1, fill = NA))
     }
     
     if(input$selectEm == "No"){
@@ -1523,7 +1552,7 @@ server <- function(input, output, session) {
 
       # If no coords, red border
       mp <- frame_base +
-        theme(panel.border = element_rect(colour = "red", size = 5))
+        theme(panel.border = element_rect(colour = "red", linewidth = 5))
 
     } else {
 
@@ -1550,44 +1579,45 @@ server <- function(input, output, session) {
         # geom_point(data = df_point, aes(x = Lon, y = Lat), size = 5, colour = "green") +
         geom_label(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = border_colour) +
         geom_text(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = "black") +
-        theme(panel.border = element_rect(colour = border_colour, size = 5))
+        theme(panel.border = element_rect(colour = border_colour, linewidth = 5))
     }
     return(mp)
   })
   
   # Reactive download button
   output$downloadFilterUI <- renderUI({
-    downloadButton("downloadFilter", "Download data")
+    downloadButton("downloadFilter", HTML("Download <br/> metadata"))
   })
   
   # Download handler
   output$downloadFilter <- downloadHandler(
     filename = function() {
-      paste0("Kong_CTD_data",input$downloadFilterType[1])
+      paste0("Kong_CTD_metadata",input$downloadFilterType[1])
     },
     content <- function(file) {
-      df_filter <- df_filter()
-      df_embargo <- df_filter %>%
-        filter(embargo == "No")
-      df_note <- df_filter %>%
-        filter(embargo != "No") %>% 
-        dplyr::select(Uploader, upload_date, file_name, embargo, total_rows, `0`, `1`, `2`, `3`,
-                      Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, 
-                      Site, Lon, Lat) %>% unique()
-      df_em_note <- bind_rows(df_note, df_embargo)
+      df_meta <- df_meta()
       if(input$downloadFilterType == ".Rds"){
-        saveRDS(df_em_note, file = file)
+        saveRDS(df_meta, file = file)
       } else if(input$downloadFilterType == ".csv"){
-        readr::write_csv(df_em_note, file)
+        readr::write_csv(df_meta, file)
       }
+    }
+  )
+  
+  # Download full meta-database from published data section
+  output$metaFull <- downloadHandler(
+    filename = "Kong_meta_database.csv",  # desired file name on client 
+    content = function(file) {
+      df_meta_data_base <- df_meta_data_base()
+      readr::write_csv(df_meta_data_base, file)
     }
   )
   
   # Download manual from about section
   output$manFile <- downloadHandler(
-    filename = "Kong_portal_manual.docx",  # desired file name on client 
+    filename = "Kong_portal_manual_ver1.docx",  # desired file name on client 
     content = function(con) {
-      file.copy("www/Kong_CTD_portal_manual.docx", con)
+      file.copy("www/Kong_portal_manual_ver1.docx", con)
     }
   )
   
