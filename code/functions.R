@@ -8,7 +8,6 @@
 
 # Libraries used in all other scripts
 library(tidyverse)
-library(lubridate)
 library(ncdf4)
 library(tidync)
 library(PCICt) # For 'noleap' date conversions
