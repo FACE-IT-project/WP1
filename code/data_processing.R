@@ -203,7 +203,7 @@ ggplot(data = Lebrun_data, aes(x = `Longitude [°E]`, y = `Latitude [°N]`)) +
 ## NB: These times must be in UTC
 # This is done automatically via source("code/functions.R") so shouldn't be necessary here
 # Sys.setenv(TZ = 'UTC')
-Gattuso_data <- read_csv("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1.csv") |> 
+Gattuso_data <- read_csv_arrow("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1.csv") |> 
   mutate(datetime = as.POSIXct(datetime, origin = "1970-01-01")) |> 
   separate(datetime, into = c("Date", "Time"), sep = " ") |>  
   mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) |> 
