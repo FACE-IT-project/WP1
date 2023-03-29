@@ -12,7 +12,6 @@
 
 # Maps per study site that are more zoomed out and show the coordinates labelled per corner of
 # the bounding boxes so it is more clear within what lon/lat confines the data are desired for
-# test
 
 
 # Setup -------------------------------------------------------------------
