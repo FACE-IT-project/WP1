@@ -578,8 +578,9 @@ ui <- dashboardPage(
                        h3(tags$b("Acknowledgments")),
                        p("This portal was created out of the Kongsfjorden System Flagship, 
                          and developed by Robert Schlegel as a part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
-                       img(src = "Ny-Ålesund logo_with Flagship_2.png", align = "center", width = "1000px"),
-                       img(src = "FACE-IT_h2020.png", align = "center", width = "600px")
+                       img(src = "FACE-IT_h2020.png", align = "center", width = "500px"),
+                       p(),
+                       img(src = "Ny-Ålesund logo_with Flagship_2.png", align = "center", width = "500px")
                 )
               )
       )
