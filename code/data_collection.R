@@ -17,7 +17,7 @@
 
 # Libraries used in this script
 source("code/functions.R")
-source("code/key_drivers.R") # TODO: Optimise this to not reload large files unneccesarily
+source("code/key_drivers.R") # TODO: Optimise this to not reload large files unnecessarily
 
 # Set cores
 doParallel::registerDoParallel(cores = 15)
@@ -169,20 +169,37 @@ pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
 # Load to get DOI for already downloaded data
 pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |> 
   mutate(doi = str_remove(URL, "https://doi.org/"))
+pg_downloaded <- unique(c(pg_doi_files$doi, pg_doi_files$parent_doi))
 
 # Strike out DOI for already downloaded data
 pg_doi_dl <- pg_doi_list |>
-  filter(!doi %in% pg_doi_files$doi)
+  filter(!doi %in% pg_downloaded)
 
 # Full PANGAEA query
 ## NB: It's possible to run this on multiple cores, but it will disable messages
-doParallel::registerDoParallel(cores = 7) # There are 7 files
+## Rather better not to run it in parallel as functions therein are currently set to run in parallel
+# doParallel::registerDoParallel(cores = 7) # The downloads are saved across 7 files
 system.time(
-plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F)
+  plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F)
 ) # ~160 seconds for 10 DOI for all sites; ~ XXX hours
 
 # Or run one at a time
 # pg_dl_save(unique(pg_doi_list$file)[7], pg_doi_dl)
+
+# Keep it going
+while(nrow(pg_doi_dl) > 0){
+  # Load to get DOI for already downloaded data
+  pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |> 
+    mutate(doi = str_remove(URL, "https://doi.org/"))
+  pg_downloaded <- unique(c(pg_doi_files$doi, pg_doi_files$parent_doi))
+  
+  # Strike out DOI for already downloaded data
+  pg_doi_dl <- pg_doi_list |>
+    filter(!doi %in% pg_downloaded)
+  
+  # Download and save
+  plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F)
+}
 
 # Log size off old and new files
 pg_file_sizes <- read_csv("metadata/pg_file_sizes.csv")

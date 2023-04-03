@@ -72,6 +72,8 @@ bbox_young_df <- data.frame(region = "young", lon = bbox_young[1:2], lat = bbox_
 bbox_disko_df <- data.frame(region = "disko", lon = bbox_disko[1:2], lat = bbox_disko[3:4])
 bbox_nuup_df <- data.frame(region = "nuup", lon = bbox_nuup[1:2], lat = bbox_nuup[3:4])
 bbox_por_df <- data.frame(region = "por", lon = bbox_por[1:2], lat = bbox_por[3:4])
+bbox_ALL_df <- rbind(bbox_kong_df, bbox_is_df, bbox_stor_df,
+                     bbox_young_df, bbox_disko_df, bbox_nuup_df, bbox_por_df)
 
 # Project wide category colours
 CatCol <- c(
@@ -219,8 +221,7 @@ pg_meta_print <- function(pg_doi){
 }
 
 # Function for extracting info from PANGAEA data
-# TODO: Consider adding a warning column if the data don't have lon/lat coords
-# Same for date and depth
+# TODO: Consider adding a warning column if the data don't have lon/lat, date, or depth values
 pg_dl_prep <- function(pg_dl){
   
   # Load PANGAEA variable list if it's missing
@@ -296,60 +297,74 @@ pg_dl_prep <- function(pg_dl){
       col_base <- col_idx[!col_idx %in% col_meta]
       col_spp <- col_name[which(col_abb %in% query_species$Abbreviation)]
       
-      # Get data for desired drivers, excluding species due to the width of these data
-      dl_driver <- tibble()
-      if(length(col_idx) > length(col_meta)){
-        suppressWarnings(
-          dl_driver <- pg_dl$data |> 
-            dplyr::select(dplyr::all_of(col_idx)) |> 
-            # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-            janitor::remove_empty(which = c("rows", "cols")) |> 
-            # NB: This forcibly removes non-numeric values
-            dplyr::mutate_at(col_base, as.numeric) #|>
+      # Determine if there are too many columns
+      # NB: This intentionally does not account for species columns because they will be melted
+      if(length(col_base) <= 20){
+        
+        # Get data for desired drivers, excluding species due to the width of these data
+        dl_driver <- tibble()
+        if(length(col_idx) > length(col_meta)){
+          suppressWarnings(
+            dl_driver <- pg_dl$data |> 
+              dplyr::select(dplyr::all_of(col_idx)) |> 
+              # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
+              janitor::remove_empty(which = c("rows", "cols")) |> 
+              # NB: This forcibly removes non-numeric values
+              dplyr::mutate_at(col_base, as.numeric) #|>
             # NB: Or rather force everything to characters and sort it out in detail later
             # dplyr::mutate_at(col_base, as.character) |>
             # NB: Pivot long here. This appears to rather make the file size much larger
             # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |>
             # mutate(class = "base") |>
             # filter(!is.na(value))
-        )
-      }
-      
-      # Get species values directly as a melted data.frame
-      dl_spp <- tibble()
-      if(length(col_spp) > 0){
-        dl_spp <- pg_dl$data |> 
-          dplyr::select(dplyr::all_of(c(col_meta, col_spp))) |> 
-          janitor::remove_empty(which = c("rows", "cols")) |> 
-          # NB: Force everything to characters and sort it out in detail later
-          dplyr::mutate_at(col_spp, as.character) |> 
-          pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |>
+          )
+        }
+        
+        # Get species values directly as a melted data.frame
+        dl_spp <- tibble()
+        if(length(col_spp) > 0){
+          dl_spp <- pg_dl$data |> 
+            dplyr::select(dplyr::all_of(c(col_meta, col_spp))) |> 
+            janitor::remove_empty(which = c("rows", "cols")) |> 
+            # NB: Force everything to characters and sort it out in detail later
+            dplyr::mutate_at(col_spp, as.character) |> 
+            pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |>
           # pivot_longer(cols = col_spp, names_to = "name", values_to = "value") |> 
           # mutate(class = "spp") #|>
-        # NB: Intentionally not filtering NA as species presence might not have a value
-        # filter(!is.na(value))
-      }
-      
-      # Combine
-      dl_single <- bind_rows(dl_driver, dl_spp) |> 
-        mutate(date_accessed = as.Date(Sys.Date()),
-               URL = pg_dl$url,
-               citation = pg_dl$citation) |> 
-        dplyr::select(date_accessed, URL, citation, everything()) |>
+          # NB: Intentionally not filtering NA as species presence might not have a value
+          # filter(!is.na(value))
+        }
+        
+        # Combine
+        dl_bind <- bind_rows(dl_driver, dl_spp) |> 
+          mutate(date_accessed = as.Date(Sys.Date()),
+                 Error = "None",
+                 parent_doi = pg_dl$parent_doi,
+                 URL = pg_dl$url,
+                 citation = pg_dl$citation) |> 
+          dplyr::select(date_accessed, Error, parent_doi, URL, citation, everything()) #|>
         # NB: This should no longer be necessary...
-        janitor::remove_empty(which = c("rows", "cols"))
-      
-      # Filter spatially if possible
-      # NB: Currently (2023-03-17) not performing spatial filters at this step
-      # if("Longitude" %in% colnames(dl_single) & "Latitude" %in% colnames(dl_single)){
-      #   dl_single <- dl_single |> 
-      #     mutate(Longitude = case_when(as.numeric(Longitude) > 180 ~ as.numeric(Longitude)-360,
-      #                                  TRUE ~ as.numeric(Longitude)),
-      #            Latitude = as.numeric(Latitude)) |> 
-      #     filter(Longitude >= -60, Longitude <= 60, Latitude >= 60, Latitude <= 90)
-      # }
-      
-      # Return error messages as necessary
+        # janitor::remove_empty(which = c("rows", "cols"))
+        
+        # Filter spatially if possible
+        if(all(c("Longitude", "Latitude") %in% colnames(dl_bind))){
+          if(!is.numeric(dl_bind$Longitude)) dl_bind$Longitude <- is.numeric(dl_bind$Longitude)
+          if(!is.numeric(dl_bind$Latitude)) dl_bind$Latitude <- is.numeric(dl_bind$Latitude)
+          dl_bind$Longitude <- ifelse(dl_bind$Longitude > 180, dl_bind$Longitude - 360, dl_bind$Longitude)
+          dl_no_coords <- filter(dl_bind, is.na(Longitude) | is.na(Latitude))
+          dl_coords <- plyr::ddply(bbox_ALL_df, c("region"), filter_bbox, df = dl_bind, .parallel = TRUE) |> 
+            dplyr::select(-region)
+          dl_single <- bind_rows(dl_no_coords, dl_coords) 
+        } else {
+          dl_single <- dl_bind
+        }
+        
+        # See if all of the data were filtered out
+        if(nrow(dl_single) == 0) dl_error <- "Spatial data not in any site bbox"
+
+      } else {
+        dl_error <- "More than 20 columns with data"
+      }
     } else {
       dl_error <- "Multiple columns with same name"
     }
@@ -359,7 +374,7 @@ pg_dl_prep <- function(pg_dl){
   
   # Determine if there are columns with desired data
   if(is.null(dl_error)){
-    if(all(colnames(dl_single) %in% c("date_accessed", "URL", "citation", "Longitude", "Latitude", "Date/Time"))){
+    if(all(colnames(dl_single) %in% c("date_accessed", "Error", "parent_doi", "URL", "citation", "Longitude", "Latitude", "Date/Time"))){
       dl_error <- "No columns with drivers"
     }
   }
@@ -367,13 +382,14 @@ pg_dl_prep <- function(pg_dl){
   # Create error report if necessary
   if(!is.null(dl_error)) 
     dl_single <- data.frame(date_accessed = as.Date(Sys.Date()),
+                            Error = dl_error,
+                            parent_doi = pg_dl$parent_doi,
                             URL = pg_dl$url,
-                            citation = pg_dl$citation,
-                            Error = dl_error)
+                            citation = pg_dl$citation)
   
   # Exit
   return(dl_single)
-  # rm(pg_dl, dl_error, pg_meta, col_names_df, col_idx, col_meta, col_spp, col_no_spp, dl_driver, dl_spp, dl_single); gc()
+  # rm(pg_dl, dl_error, pg_meta, col_names_df, col_idx, col_meta, col_spp, col_no_spp, dl_driver, dl_spp, dl_bind, dl_no_coords, dl_coords, dl_single); gc()
 }
 
 # Function for downloading and processing PANGAEA data for merging
@@ -387,12 +403,13 @@ pg_dl_proc <- function(pg_doi){
   
   # Extract data from multiple lists as necessary
   if(is.null(dl_error)){
-    dl_df <- plyr::ldply(dl_dat, pg_dl_prep); gc()
+    dl_df <- plyr::ldply(dl_dat, pg_dl_prep, .parallel = TRUE); gc()
   } else {
     dl_df <- data.frame(date_accessed = as.Date(Sys.Date()),
+                        Error = dl_error,
+                        parent_doi = pg_doi,
                         URL = paste0("https://doi.org/",pg_doi),
-                        citation = NA,
-                        Error = dl_error)
+                        citation = NA)
   }
   
   # Exit
@@ -407,7 +424,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   print(paste0("Started on ",file_name," at ",Sys.time()))
   
   # Get list of files to download
-  doi_dl <- filter(doi_dl_list, file == file_name)[1:50,]
+  doi_dl <- filter(doi_dl_list, file == file_name)[1:20,]
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
@@ -415,30 +432,34 @@ pg_dl_save <- function(file_name, doi_dl_list){
   pg_res <- pg_res |> 
     mutate(across(dplyr::all_of(pg_res_meta_columns), as.character))
   
-  # Load and combine existing data
-  # NB: By using local files it potentially allows pCloud files to be falsely overwritten...
-  # This means that this code is currently only able to be run on the LOV computer
-  if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
-    if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
-      pg_lookup <- read_csv_arrow(paste0("metadata/",file_name,"_doi.csv"))
-      pg_base <- read_csv_arrow(paste0("data/pg_data/",file_name,".csv")) |> 
-        left_join(pg_lookup, by = c("meta_idx")) |> 
-        dplyr::select(date_accessed, URL, citation, everything(), -meta_idx)
-      if("spp_value" %in% colnames(pg_base)) pg_base <- mutate(pg_base, spp_value = as.character(spp_value))
-      pg_base_meta_columns <- colnames(pg_base)[colnames(pg_base) %in% query_Meta$pg_col_name]
-      pg_base <- pg_base |> 
-        mutate(across(dplyr::all_of(pg_base_meta_columns), as.character))
-      pg_full <- distinct(bind_rows(pg_base, pg_res))
-    }
+  if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
+    pg_lookup <- read_csv_arrow(paste0("metadata/",file_name,"_doi.csv"))
+    pg_meta_start <- max(pg_lookup$meta_idx, na.rm = T)
   } else {
-    pg_full <- pg_res
+    pg_lookup <- data.frame()
+    pg_meta_start <- 0
   }
   
   # Create and utilise metadata lookup tables
-  pg_meta <- dplyr::select(pg_full, date_accessed, URL, citation) |> 
-    distinct() |> dplyr::mutate(meta_idx = 1:n(), .before = 1)
-  pg_slim <- left_join(pg_full, pg_meta, by = c("date_accessed", "URL", "citation")) |> 
-    dplyr::select(meta_idx, everything(), -date_accessed, -URL, -citation)
+  pg_meta_prep <- pg_res |> 
+    dplyr::select(date_accessed, Error, parent_doi, URL, citation) |> 
+    distinct() |> dplyr::mutate(meta_idx = 1:n() + pg_meta_start, .before = 1)
+  pg_meta <- distinct(bind_rows(pg_lookup, pg_meta_prep))
+  pg_slim <- pg_res |> 
+    left_join(pg_meta_prep, by = c("date_accessed", "Error", "parent_doi", "URL", "citation")) |> 
+    # NB: Currently intentionally keeping rows with all NA to link with meta_idx
+    dplyr::select(meta_idx, everything(), -date_accessed, -parent_doi, -URL, -citation, -Error)
+  
+  # Load and combine existing data
+  if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
+      pg_base <- data.table::fread(paste0("data/pg_data/",file_name,".csv"), nThread = 14); gc()
+      if("spp_value" %in% colnames(pg_base)) pg_base <- mutate(pg_base, spp_value = as.character(spp_value))
+      pg_base_meta_columns <- colnames(pg_base)[colnames(pg_base) %in% query_Meta$pg_col_name]
+      pg_base <- mutate(pg_base, across(dplyr::all_of(pg_base_meta_columns), as.character))
+      pg_full <- distinct(bind_rows(pg_base, pg_slim))
+  } else {
+    pg_full <- pg_slim
+  }
   
   # Get folder name
   if(file_name == "pg_kong") file_folder <- "kongsfjorden"
@@ -450,10 +471,10 @@ pg_dl_save <- function(file_name, doi_dl_list){
   if(file_name == "pg_por") file_folder <- "porsangerfjorden"
   
   # Save files
+  # NB: Intentionally only saving these files locally
   write_csv(pg_meta, paste0("metadata/",file_name,"_doi.csv"))
-  data.table::fwrite(pg_slim, paste0("~/pCloudDrive/FACE-IT_data/",file_folder,"/",file_name,".csv"))
-  data.table::fwrite(pg_slim, paste0("data/pg_data/",file_name,".csv"))
-  rm(pg_res, pg_res_meta_columns, pg_base, pg_base_meta_columns, pg_full, pg_slim, pg_lookup, pg_meta, file_folder); gc()
+  data.table::fwrite(pg_full, paste0("data/pg_data/",file_name,".csv"))
+  rm(pg_res, pg_res_meta_columns, pg_base, pg_base_meta_columns, pg_full, pg_slim, pg_lookup, pg_meta_prep, pg_meta, file_folder); gc()
   # rm(file_name, doi_dl_list, doi_dl, pg_res)
 }
 
@@ -943,6 +964,16 @@ long_to_short_name <- function(long_name){
   if(long_name == "Nuup Kangerlua") short_name <- "nuup"
   if(long_name == "Porsangerfjorden") short_name <- "por"
   return(short_name)
+}
+
+# Filter data by coords and site name
+## NB: Meant to be applied directly to PANGAEA data
+## This will remove data with missing lon/lat coords
+filter_bbox <- function(bbox, df){
+  df_bbox <- df %>% 
+    filter(Longitude >= bbox$lon[1], Longitude <= bbox$lon[2], 
+           Latitude >= bbox$lat[1], Latitude <= bbox$lat[2])
+  return(df_bbox)
 }
 
 # Filter data by coords and site name
