@@ -112,6 +112,59 @@ prep_bathy <- function(file_name){
 }
 
 
+# Bartsch data ------------------------------------------------------------
+
+## Light data from Inka
+# NB: The sensors get dirty throughout the year so values after the winter dark period are best to remove
+kong_light_Inka_1 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_10M_above kelp canopy_July2012-June2013_final.csv") %>% 
+  slice(1:15999) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 10) %>% 
+  dplyr::select(-`...4`) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "variable")
+kong_light_Inka_2 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_15M_3Jul2012-13Jun2013_final.csv") %>% 
+  slice(1:16074) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 15) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "variable")
+klib <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_All_Depths_4July-31July2012_final.csv") 
+kong_light_Inka_3 <- rbind(data.frame(date = klib$date, time = klib$time...2,
+                                      value = klib$`2.3 UNTEN PAR [µmol m-2 s-1]`, variable = "2.3 UNTEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...4,
+                                      value = klib$`1.7 OBEN PAR [µmol m-2 s-1]`, variable = "1.7 OBEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...6,
+                                      value = klib$`4.2 OBEN PAR [µmol m-2 s-1]`, variable = "4.2 OBEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...8,
+                                      value = klib$`4.8 UNTEN PAR [µmol m-2 s-1]`, variable = "4.8 UNTEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...10,
+                                      value = klib$`9.2 OBEN PAR [µmol m-2 s-1]`, variable = "9.2 OBEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...12,
+                                      value = klib$`9.8 UNTEN PAR [µmol m-2 s-1]`, variable = "9.8 UNTEN PAR [µmol m-2 s-1]"),
+                           data.frame(date = klib$date, time = klib$time...14,
+                                      value = klib$`14.8 PAR [µmol m-2 s-1]`, variable = "14.8 PAR [µmol m-2 s-1]")) %>% 
+  mutate(depth = case_when(grepl("14.8", variable) ~ 14.8, grepl("1.7", variable) ~ 1.7, grepl("2.3", variable) ~ 2.3, 
+                           grepl("4.2", variable) ~ 4.2, grepl("4.8", variable) ~ 4.8, grepl("9.2", variable) ~ 9.2, grepl("9.8", variable) ~ 9.8),
+         date = as.Date(date, format = "%d/%m/%Y"),
+         variable = case_when(grepl("OBEN", variable) ~ "PAR above canopy [µmol m-2 s-1]",
+                              grepl("UNTEN", variable) ~ "PAR below canopy [µmol m-2 s-1]",
+                              TRUE ~ "PAR [µmol m-2 s-1]")) %>% 
+  filter(!is.na(time)) # Missing time is also 0 values
+kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
+  mutate(note = case_when(grepl("above", variable) ~ "Above canopy",
+                          grepl("below", variable) ~ "Below canopy",
+                          TRUE ~ "No canopy"),
+         `longitude [°E]` = 11.9872, `latitude [°N]` = 78.9958,
+         date = paste(date, time, sep = "T")) %>% arrange(depth) %>% 
+  dplyr::rename(`PAR [µmol m-2 s-1]` = value, `depth [m]` = depth, `date/time [UTC+0]` = date) %>% 
+  dplyr::select(`longitude [°E]`, `latitude [°N]`, `date/time [UTC+0]`, `depth [m]`, `PAR [µmol m-2 s-1]`, note)
+# write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
+# kong_light_Inka_PG <- read_delim("~/Downloads/Kongsfjorden_Hansneset_PAR.tab", delim = "\t", skip = 20) # The published data
+kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
+  mutate(lon = 11.9872, lat = 78.9958,
+         variable = case_when(variable == "PAR [umol m-2 s-1]" ~ "PAR [µmol m-2 s-1]", TRUE ~ variable),
+         category = "phys", 
+         date_accessed = as.Date("2022-03-24"),
+         URL = "Received directly from Inka Bartsch", 
+         citation = "Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Inka_hourly); gc()
+
+
 # Marambio dataset --------------------------------------------------------
 
 # See "~/pCloudDrive/restricted_data/Marambio/.~lock.Marambio 2022_PANGEA_PALMARIA.xlsx"

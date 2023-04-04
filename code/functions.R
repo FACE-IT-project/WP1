@@ -487,12 +487,13 @@ pg_test_dl <- function(pg_doi){
   return(dl_single)
 }
 
-# Extract errors from large PANGAEA EU files
-pg_ref_extract <- function(pg_EU_file){
-  df <- data.table::fread(pg_EU_file, nThread = 15) %>% 
-    dplyr::select(date_accessed, URL, citation, Error) %>% 
-    distinct()
-  return(df)
+# Look at how long/wide downloaded files are
+pg_size <- function(df){
+  res <- df |> 
+    janitor::remove_empty(which = c("rows", "cols"))
+  res_size <- data.frame(width = ncol(res),
+                         length = nrow(res))
+  return(res_size)
 }
 
 # Quick filtering function
@@ -502,11 +503,8 @@ pg_site_filter <- function(file_name, site_name){
   
   # Load data
   # system.time(
-  pg_dat <- data.table::fread(file_name, nThread = 15, ) |>  # NB: Faster than read_csv_arrow()
-    filter(Error == "") |> 
-    dplyr::rename(lon = Longitude, lat = Latitude) |> 
-    mutate(site = site_name,
-           date_accessed = as.Date(date_accessed))
+  pg_dat <- load_pg(file_name) |>  # NB: Faster than read_csv_arrow()
+    dplyr::rename(lon = Longitude, lat = Latitude)
   # )
   bbox <- bbox_from_name(site_name)
   if(grepl(site_name, file_name)){
@@ -545,8 +543,19 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   # rm(pg_clean, key_words, var_word, sub_cols, pg_melt)
 }
 
-# Function for melting individual files from other data sources
-# single_file_var_melt <- function(){}
+# Load a PG site file and apply the name
+load_pg <- function(file_name){
+  if(grepl("meta", file_name)) {
+    site_name <- str_remove_all(file_name, "metadata/pg_|_doi.csv")
+  } else if(grepl("pg_data", file_name)) {
+    site_name <- str_remove_all(file_name, "data/pg_data/pg_|.csv")
+  } else {
+    stop("Wrong file type(s)")
+  }
+  res <- data.table::fread(file_name) |>   # NB: Faster than read_csv_arrow()
+    mutate(site = site_name, .before = 1)
+  return(res)
+}
 
 # Find the nearest grid cells for each site
 ## NB: Requires two data.frames with lon, lat in that order
@@ -978,9 +987,10 @@ filter_bbox <- function(bbox, df){
 
 # Filter data by coords and site name
 ## Helps to keep site name data without coords
-filter_site_bbox <- function(df, site_char, bbox){
+filter_site_bbox <- function(site_name, df){
+  bbox <- bbox_from_name(site_name)
   df_site <- df %>% 
-    filter(grepl(site_char, site))
+    filter(site == site_name)
   df_bbox <- df %>% 
     filter(lon >= bbox[1], lon <= bbox[2], lat >= bbox[3], lat <= bbox[4])
   df_res <- rbind(df_site, df_bbox) %>% distinct()

@@ -27,7 +27,6 @@ clean_cols <- c("date_accessed", "URL", "citation", "site", "lon", "lat", "date"
 # PANGAEA files
 pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 
-
 # European Arctic ---------------------------------------------------------
 
 ## PG product --------------------------------------------------------------
@@ -35,6 +34,10 @@ pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 # There is no EU PANGAEA product
 # Moving towards v2.0 the scraping of EU data from PANGAEA was abandoned
 # in favour of scraping at each site specifically
+
+
+# NB: If working with PANGAEA site files below, run this
+
 
 
 ## Full product ------------------------------------------------------------
@@ -49,10 +52,6 @@ pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 # ftp://sidads.colorado.edu/pub/DATASETS/NOAA/G02202_V3/north/daily/
 # 6.25 km, possibly 10 m, 2002 - 2021: daily
 # https://seaice.uni-bremen.de/data/amsr2/
-
-# Geochemistry
-## SOCAT datasets on PANGAEA
-# Bakker et al...
 
 # Ice modelling output
 ## Not on pCloud, too large to download
@@ -224,59 +223,59 @@ EU_IMR_spp_obs <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/IMR/EU_occurr
   summarise(value = 1, .groups = "drop")
 
 # SOCAT data
-EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%  
-  dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
-                depth = `sample_depth [m]`, value = `pCO2water_SST_wet [uatm]`) %>% 
-  filter(lat >= 63, value >= 0) %>% 
-  mutate(lon = case_when(lon >= 180 ~ lon-360, TRUE ~ lon)) %>% 
-  filter(lon <= 60, lon >= -60) %>% 
-  unite(yr, mon, day, sep = "-", remove = T, col = "date") %>% 
-  mutate(date = as.Date(date),
-         variable = "pCO2water_SST_wet [uatm]",
-         category = "chem",
-         date_accessed = as.Date("2021-08-06"),
-         URL = "https://www.socat.info",
-         citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
-  summarise(value = mean(value, na.rm = T), .groups = "drop")
+# EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%  
+#   dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
+#                 depth = `sample_depth [m]`, value = `pCO2water_SST_wet [uatm]`) %>% 
+#   filter(lat >= 63, value >= 0) %>% 
+#   mutate(lon = case_when(lon >= 180 ~ lon-360, TRUE ~ lon)) %>% 
+#   filter(lon <= 60, lon >= -60) %>% 
+#   unite(yr, mon, day, sep = "-", remove = T, col = "date") %>% 
+#   mutate(date = as.Date(date),
+#          variable = "pCO2water_SST_wet [uatm]",
+#          category = "chem",
+#          date_accessed = as.Date("2021-08-06"),
+#          URL = "https://www.socat.info",
+#          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
+#   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+#   summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
-# load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
+load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 
 # GLODAP data
-EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>% 
-  `colnames<-`(gsub("G2","",colnames(.))) %>% 
-  dplyr::rename(lon = longitude, lat = latitude) %>% 
-  filter(lon <= 60, lon >= -60, lat >= 63) %>% 
-  unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
-  mutate(date = as.Date(date)) %>% 
-  # NB: The counting error columns were removed here. As well as all flag and QC columns.
-  dplyr::select(lon, lat, date, depth, temperature, theta, salinity, oxygen, aou, nitrate, nitrite, silicate, 
-                phosphate, tco2, talk, fco2, fco2temp, phts25p0, phtsinsitutp, cfc11, pcfc11, cfc12, pcfc12, 
-                cfc113, pcfc113, ccl4, pccl4, sf6, psf6, c13, c14, h3, he3, he, neon, o18, toc, doc, don, tdn, chla) %>% 
-  pivot_longer(temperature:chla, names_to = "variable", values_to = "value") %>% 
-  filter(!is.na(value), value != -9999) %>% 
-  mutate(category = case_when(variable %in% c("temperature", "theta", "salinity") ~ "phys", TRUE ~ "chem"),
-         variable = case_when(variable %in% c("temperature", "theta", "fco2temp") ~ paste0(variable," [°C]"),
-                              variable %in% c("oxygen", "aou", "nitrate", "nitrite", "silicate", 
-                                              "phosphate", "tco2", "talk") ~ paste0(variable," [μmol kg-1]"),
-                              variable %in% c("fco2") ~ paste0(variable," [μatm]"),
-                              variable %in% c("cfc11", "cfc12", "cfc113", "ccl4") ~ paste0(variable," [pmol kg-1]"),
-                              variable %in% c("sf6") ~ paste0(variable," [fmol kg-1]"),
-                              variable %in% c("pcfc11", "pcfc12", "pcfc113", "pccl4", "psf6") ~ paste0(variable," [ppt]"),
-                              variable %in% c("c13", "c14", "o18") ~ paste0(variable," [‰]"),
-                              variable %in% c("h3") ~ paste0(variable," [TU]"),
-                              variable %in% c("he3") ~ paste0(variable," [%]"),
-                              variable %in% c("he", "neon") ~ paste0(variable," [nmol kg-1]"),
-                              variable %in% c("toc", "doc", "don", "tdn") ~ paste0(variable," [μmol L-1 d]"),
-                              variable %in% c("chla") ~ paste0(variable," [μg kg-1 d]"),
-                              TRUE ~ variable),
-         date_accessed = as.Date("2022-10-19"),
-         URL = "https://www.glodap.info",
-         citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
-  summarise(value = mean(value, na.rm = T), .groups = "drop")
+# EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>% 
+#   `colnames<-`(gsub("G2","",colnames(.))) %>% 
+#   dplyr::rename(lon = longitude, lat = latitude) %>% 
+#   filter(lon <= 60, lon >= -60, lat >= 63) %>% 
+#   unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
+#   mutate(date = as.Date(date)) %>% 
+#   # NB: The counting error columns were removed here. As well as all flag and QC columns.
+#   dplyr::select(lon, lat, date, depth, temperature, theta, salinity, oxygen, aou, nitrate, nitrite, silicate, 
+#                 phosphate, tco2, talk, fco2, fco2temp, phts25p0, phtsinsitutp, cfc11, pcfc11, cfc12, pcfc12, 
+#                 cfc113, pcfc113, ccl4, pccl4, sf6, psf6, c13, c14, h3, he3, he, neon, o18, toc, doc, don, tdn, chla) %>% 
+#   pivot_longer(temperature:chla, names_to = "variable", values_to = "value") %>% 
+#   filter(!is.na(value), value != -9999) %>% 
+#   mutate(category = case_when(variable %in% c("temperature", "theta", "salinity") ~ "phys", TRUE ~ "chem"),
+#          variable = case_when(variable %in% c("temperature", "theta", "fco2temp") ~ paste0(variable," [°C]"),
+#                               variable %in% c("oxygen", "aou", "nitrate", "nitrite", "silicate", 
+#                                               "phosphate", "tco2", "talk") ~ paste0(variable," [μmol kg-1]"),
+#                               variable %in% c("fco2") ~ paste0(variable," [μatm]"),
+#                               variable %in% c("cfc11", "cfc12", "cfc113", "ccl4") ~ paste0(variable," [pmol kg-1]"),
+#                               variable %in% c("sf6") ~ paste0(variable," [fmol kg-1]"),
+#                               variable %in% c("pcfc11", "pcfc12", "pcfc113", "pccl4", "psf6") ~ paste0(variable," [ppt]"),
+#                               variable %in% c("c13", "c14", "o18") ~ paste0(variable," [‰]"),
+#                               variable %in% c("h3") ~ paste0(variable," [TU]"),
+#                               variable %in% c("he3") ~ paste0(variable," [%]"),
+#                               variable %in% c("he", "neon") ~ paste0(variable," [nmol kg-1]"),
+#                               variable %in% c("toc", "doc", "don", "tdn") ~ paste0(variable," [μmol L-1 d]"),
+#                               variable %in% c("chla") ~ paste0(variable," [μg kg-1 d]"),
+#                               TRUE ~ variable),
+#          date_accessed = as.Date("2022-10-19"),
+#          URL = "https://www.glodap.info",
+#          citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>% 
+#   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+#   summarise(value = mean(value, na.rm = T), .groups = "drop")
 # save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
-# load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
+load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Combine and save
 full_product_EU <- rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, EU_green_fjords,
@@ -393,7 +392,7 @@ sval_tidewater_ablation <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fron
   mutate(date1 = as.Date(t1, origin = "0000-01-01"), 
          date2 = as.Date(t2, origin = "0000-01-01"),
          # NB: These values are generally taken over a one year period
-         # Here we take the end date as the date value vor each datum
+         # Here we take the end date as the date value for each datum
          date = date2,
          # NB: Not processing uncertainty values
          variable = case_when(variable == "thickness1" ~ "glacier ice thickness front [m]",
@@ -656,6 +655,8 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 system.time(
   pg_kong_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "kong")
 ) # 29 seconds
+
+test1 <- pg_site_filter(pg_files[2], site_name = "kong")
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
@@ -1012,56 +1013,6 @@ kong_light_Laeseke <- read_csv("~/pCloudDrive/restricted_data/Bremen/Light Data/
 # Light Data/Lydia...
 # Not loaded as these data are measurements of difference in PAR in and out of the river outflow near Ny-Alesund
 # While interesting, these data do not have lon/lat coords so are difficult to incorporate with everything else
-
-## Light data from Inka
-# NB: The sensors get dirty throughout the year so values after the winter dark period are best to remove
-kong_light_Inka_1 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_10M_above kelp canopy_July2012-June2013_final.csv") %>% 
-  slice(1:15999) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 10) %>% 
-  dplyr::select(-`...4`) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "variable")
-kong_light_Inka_2 <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_15M_3Jul2012-13Jun2013_final.csv") %>% 
-  slice(1:16074) %>% mutate(date = as.Date(date, format = "%d/%m/%Y"), depth = 15) %>% pivot_longer(`PAR [umol m-2 s-1]`, names_to = "variable")
-klib <- read_csv("~/pCloudDrive/restricted_data/Inka_PAR/PAR_Hansneset_KelpForest_All_Depths_4July-31July2012_final.csv") 
-kong_light_Inka_3 <- rbind(data.frame(date = klib$date, time = klib$time...2,
-                                      value = klib$`2.3 UNTEN PAR [µmol m-2 s-1]`, variable = "2.3 UNTEN PAR [µmol m-2 s-1]"),
-                           data.frame(date = klib$date, time = klib$time...4,
-                                      value = klib$`1.7 OBEN PAR [µmol m-2 s-1]`, variable = "1.7 OBEN PAR [µmol m-2 s-1]"),
-                           data.frame(date = klib$date, time = klib$time...6,
-                                      value = klib$`4.2 OBEN PAR [µmol m-2 s-1]`, variable = "4.2 OBEN PAR [µmol m-2 s-1]"),
-                           data.frame(date = klib$date, time = klib$time...8,
-                                      value = klib$`4.8 UNTEN PAR [µmol m-2 s-1]`, variable = "4.8 UNTEN PAR [µmol m-2 s-1]"),
-                           data.frame(date = klib$date, time = klib$time...10,
-                                      value = klib$`9.2 OBEN PAR [µmol m-2 s-1]`, variable = "9.2 OBEN PAR [µmol m-2 s-1]"),
-                           data.frame(date = klib$date, time = klib$time...12,
-                                      value = klib$`9.8 UNTEN PAR [µmol m-2 s-1]`, variable = "9.8 UNTEN PAR [µmol m-2 s-1]"),
-                           data.frame(date = klib$date, time = klib$time...14,
-                                      value = klib$`14.8 PAR [µmol m-2 s-1]`, variable = "14.8 PAR [µmol m-2 s-1]")) %>% 
-  mutate(depth = case_when(grepl("14.8", variable) ~ 14.8, grepl("1.7", variable) ~ 1.7, grepl("2.3", variable) ~ 2.3, 
-                           grepl("4.2", variable) ~ 4.2, grepl("4.8", variable) ~ 4.8, grepl("9.2", variable) ~ 9.2, grepl("9.8", variable) ~ 9.8),
-         date = as.Date(date, format = "%d/%m/%Y"),
-         variable = case_when(grepl("OBEN", variable) ~ "PAR above canopy [µmol m-2 s-1]",
-                              grepl("UNTEN", variable) ~ "PAR below canopy [µmol m-2 s-1]",
-                              TRUE ~ "PAR [µmol m-2 s-1]")) %>% 
-  filter(!is.na(time)) # Missing time is also 0 values
-kong_light_Inka_hourly <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
-  mutate(note = case_when(grepl("above", variable) ~ "Above canopy",
-                              grepl("below", variable) ~ "Below canopy",
-                              TRUE ~ "No canopy"),
-         `longitude [°E]` = 11.9872, `latitude [°N]` = 78.9958,
-         date = paste(date, time, sep = "T")) %>% arrange(depth) %>% 
-  dplyr::rename(`PAR [µmol m-2 s-1]` = value, `depth [m]` = depth, `date/time [UTC+0]` = date) %>% 
-  dplyr::select(`longitude [°E]`, `latitude [°N]`, `date/time [UTC+0]`, `depth [m]`, `PAR [µmol m-2 s-1]`, note)
-# write_delim(kong_light_Inka_hourly, "~/pCloudDrive/restricted_data/Inka_PAR/Bartsch_PAR_Hansneset.csv", delim = "\t")
-# kong_light_Inka_PG <- read_delim("~/Downloads/Kongsfjorden_Hansneset_PAR.tab", delim = "\t", skip = 20) # The published data
-kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3) %>% 
-  mutate(lon = 11.9872, lat = 78.9958,
-         variable = case_when(variable == "PAR [umol m-2 s-1]" ~ "PAR [µmol m-2 s-1]", TRUE ~ variable),
-         category = "phys", 
-         date_accessed = as.Date("2022-03-24"),
-         URL = "Received directly from Inka Bartsch", 
-         citation = "Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.") %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = mean(value, na.rm = T), .groups = "drop")
-rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Inka_hourly); gc()
 
 # PAR data from Dieter Hanelt
 ## NB: The coords that are slightly different from Hansneset are a bit of a guess RE advise from Dieter

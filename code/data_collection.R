@@ -186,7 +186,7 @@ system.time(
 # Or run one at a time
 # pg_dl_save(unique(pg_doi_list$file)[7], pg_doi_dl)
 
-# Keep it going
+# Keep it going in small chunks
 while(nrow(pg_doi_dl) > 0){
   # Load to get DOI for already downloaded data
   pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |> 
@@ -214,14 +214,84 @@ rm(pg_file_sizes_new)
 write_csv(pg_file_sizes, "metadata/pg_file_sizes.csv")
 
 # Test files
-test1 <- read_csv_arrow("data/pg_data/pg_nuup.csv")
+# test1 <- read_csv_arrow("data/pg_data/pg_is.csv")
 
 
 # Error trapping ----------------------------------------------------------
 
-# Re-load all PANGAEA files to extract error messages
-pg_files <- dir("data/pg_data", pattern = "pg_*.csv", full.names = T)
-pg_ref_meta <- map_dfr(pg_files, pg_ref_extract)
-write_csv(pg_ref_meta, "metadata/pg_ref_meta.csv")
-rm(pg_files, pg_ref_meta); gc()
+# Load all metadata files together to see errors in one dataframe by site
+pg_ALL_doi <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), load_pg)
+
+## Look for suspiciously long/wide files
+# Young Sound
+pg_young <- read_csv_arrow("data/pg_data/pg_young.csv")
+pg_young_size <- plyr::ddply(pg_young, c("meta_idx"), pg_size, .parallel = T)
+pg_young_check <- pg_ALL_doi |> 
+  filter(site == "young", meta_idx %in% c(485))
+# 485 is precipitation and wind speeds
+rm(list = ls()[grep("pg_young", ls())]); gc()
+
+# Disko Bay
+pg_disko <- read_csv_arrow("data/pg_data/pg_disko.csv")
+pg_disko_size <- plyr::ddply(pg_disko, c("meta_idx"), pg_size, .parallel = T)
+pg_disko_check <- pg_ALL_doi |> 
+  filter(site == "disko", meta_idx %in% c(1046, 635, 638, 636, 637, 639, 640))
+# 1046 is mesozooplankton size data
+# 638 is parent to 635, 637 is parent to 636, 639 is parent to 640
+pg_disko_fix <- filter(pg_disko, !meta_idx %in% c(635, 636, 640))
+write_csv_arrow(pg_disko_fix, file = "data/pg_data/pg_disko.csv")
+rm(list = ls()[grep("pg_disko", ls())]); gc()
+
+# Nuup Kangerlua
+pg_nuup <- read_csv_arrow("data/pg_data/pg_nuup.csv")
+pg_nuup_size <- plyr::ddply(pg_nuup, c("meta_idx"), pg_size, .parallel = T)
+pg_nuup_check <- pg_ALL_doi |> 
+  filter(site == "nuup", meta_idx %in% c(692, 791, 790, 789))
+# 692 is cruise CTD data
+# 791 790 789 are from the same project but different data
+rm(list = ls()[grep("pg_nuup", ls())]); gc()
+
+# Porsangerfjorden
+pg_por <- read_csv_arrow("data/pg_data/pg_por.csv")
+pg_por_size <- plyr::ddply(pg_por, c("meta_idx"), pg_size, .parallel = T)
+pg_por_check <- pg_ALL_doi |> 
+  filter(site == "por", meta_idx %in% c(54, 56, 2839:2844))
+# 54 is parent to 56, 2843 is parent to 2844, 2842 is parent to 2839, 2841 is parent to 2840
+pg_por_fix <- filter(pg_por, !meta_idx %in% c(56, 2844, 2839, 2840))
+write_csv_arrow(pg_por_fix, file = "data/pg_data/pg_por.csv")
+rm(list = ls()[grep("pg_por", ls())]); gc()
+
+# Storfjorden
+pg_stor <- read_csv_arrow("data/pg_data/pg_stor.csv")
+pg_stor_size <- plyr::ddply(pg_stor, c("meta_idx"), pg_size, .parallel = T)
+pg_stor_check <- pg_ALL_doi |> 
+  filter(site == "stor", meta_idx %in% c(1478, 1277, 1271:1273))
+# These all check out
+rm(list = ls()[grep("pg_stor", ls())]); gc()
+
+# Isfjorden
+pg_is <- data.table::fread("data/pg_data/pg_is.csv")
+pg_is_size <- plyr::ddply(pg_is, c("meta_idx"), pg_size, .parallel = T)
+pg_is_check <- pg_ALL_doi |> 
+  filter(site == "is", meta_idx %in% c(1318, 69, 264, 1185, 1191, 3967, 2710, 2711, 
+                                       2713, 2715, 2844, 3876, 4206, 3070, 4140:4253, 2809, 3849, 4171,
+                                       2772, 2860, 4222, 2744, 2808, 4170, 2875, 4237,
+                                       2729, 2797, 3841, 4159, 2738, 2810, 4172, 
+                                       2713, 2842, 4204, 2742, 2806, 3847, 4168,
+                                       2741, 2805, 4167, 2712, 2845, 3877, 4207,
+                                       2763, 2832, 3865, 4194, 2725, 2859, 3885, 4221))
+# 54 is parent to 56, 2843 is parent to 2844, 2842 is parent to 2839, 2841 is parent to 2840
+pg_is_fix <- filter(pg_is, !meta_idx %in% c(56, 2844, 2839, 2840))
+write_csv_arrow(pg_is_fix, file = "data/pg_data/pg_is.csv")
+rm(list = ls()[grep("pg_is", ls())]); gc()
+
+# Kongsfjorden
+pg_kong <- data.table::fread("data/pg_data/pg_kong.csv")
+pg_kong_size <- plyr::ddply(pg_kong, c("meta_idx"), pg_size, .parallel = T)
+pg_kong_check <- pg_ALL_doi |> 
+  filter(site == "kong", meta_idx %in% c(54, 56, 2839:2844))
+# 54 kong parent to 56, 2843 kong parent to 2844, 2842 kong parent to 2839, 2841 kong parent to 2840
+pg_kong_fix <- filter(pg_kong, !meta_idx %in% c(56, 2844, 2839, 2840))
+write_csv_arrow(pg_kong_fix, file = "data/pg_data/pg_kong.csv")
+rm(lkongt = ls()[grep("pg_kong", ls())]); gc()
 
