@@ -2420,8 +2420,8 @@ rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_mu
 
 # Load pg files and subset to Disko Bay
 system.time(
-  pg_disko_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_disko)
-) # 65 seconds
+  pg_disko_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "disko")
+) # 30 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -2440,11 +2440,12 @@ pg_disko_clean <- pg_disko_sub %>%
   # Manage lon/lat columns - no need
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
-  mutate(date = as.character(date)) %>%
+  # mutate(date = as.character(date)) %>%
   mutate(date = ifelse(date == "", NA, date),
-         date = case_when(is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
-                          is.na(date) & !is.na(Date) ~ as.character(Date),
-                          TRUE ~ date),
+         # TODO" Adress errors in date columns here
+         # date = case_when(is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
+         #                  is.na(date) & !is.na(Date) ~ as.character(Date),
+         #                  TRUE ~ date),
          date = as.Date(gsub("T.*", "", date))) %>%
   # Manage depth column
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
@@ -2452,15 +2453,18 @@ pg_disko_clean <- pg_disko_sub %>%
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
                            is.na(depth) & !is.na(`Surf elev [m]`) ~ -as.numeric(`Surf elev [m]`),
-                           is.na(depth) & !is.na(`Elev mean [m a.s.l.]`) ~ -as.numeric(`Elev mean [m a.s.l.]`),
                            TRUE ~ depth)) %>%
   # dplyr::select(depth, everything())
   # Remove unwanted columns
   # dplyr::select(-contains(c("Longitude ", "Latitude ", "Elev "))) %>%
   # Finish up
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) %>% 
-  janitor::remove_empty("cols")
+  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
+  # NB: This must be changed manually when new data are loaded
+  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  janitor::remove_empty("cols") |> 
+  # NB: Site exists earlier to reflect data from different files for metadata joining
+  mutate(site = "disko")
 # colnames(pg_disko_clean)
 
 ## Individual category data.frames
