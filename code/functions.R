@@ -282,6 +282,7 @@ pg_dl_prep <- function(pg_dl){
       }
       
       # Get names of desired columns
+      # TODO: Consider removing column notes at this step: gsub("\\] \\(.*", "\\]", colnames(pg_dl$data)
       # NB: It is necessary to allow partial matches via grepl() because column names
       # occasionally have notes about the data attached to them, preventing exact matches
       # col_names_df <- tibble(names = sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1))
@@ -424,7 +425,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   print(paste0("Started on ",file_name," at ",Sys.time()))
   
   # Get list of files to download
-  doi_dl <- filter(doi_dl_list, file == file_name)[1:20,]
+  doi_dl <- filter(doi_dl_list, file == file_name)[1:100,]
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
@@ -444,7 +445,8 @@ pg_dl_save <- function(file_name, doi_dl_list){
   pg_meta_prep <- pg_res |> 
     dplyr::select(date_accessed, Error, parent_doi, URL, citation) |> 
     distinct() |> dplyr::mutate(meta_idx = 1:n() + pg_meta_start, .before = 1)
-  pg_meta <- distinct(bind_rows(pg_lookup, pg_meta_prep))
+  pg_meta <- distinct(bind_rows(pg_lookup, pg_meta_prep)) |> 
+    filter(!is.na(parent_doi))
   pg_slim <- pg_res |> 
     left_join(pg_meta_prep, by = c("date_accessed", "Error", "parent_doi", "URL", "citation")) |> 
     # NB: Currently intentionally keeping rows with all NA to link with meta_idx
@@ -496,6 +498,33 @@ pg_size <- function(df){
   return(res_size)
 }
 
+# Find duplicate files
+pg_duplicates <- function(pg_doi_df, pg_size_df){
+  
+  # Find downloads with same length, width, and URL
+  pg_doi_duplicates <- pg_doi_df |> 
+    filter(Error == "None") |> 
+    left_join(pg_size_df, by = c("meta_idx")) |> 
+    na.omit() |> 
+    mutate(count = n(), .by = c(URL, width, length)) |>  
+    filter(count >= 2, Error == "None")
+  
+  # Determine which duplicates to keep
+  pg_doi_keep <- pg_doi_duplicates |> 
+    mutate(doi = str_remove(URL, "https://doi.org/"),
+           parent_file = case_when(parent_doi != doi ~ TRUE, TRUE ~ FALSE)) |> 
+    filter(parent_file) |> 
+    mutate(min_idx = min(meta_idx), .by = c(URL, width, length)) |> 
+    filter(meta_idx %in% min_idx)
+  
+  # Append/extract final column and exit
+  pg_res <- pg_doi_duplicates |> 
+    mutate(keep_idx = case_when(meta_idx %in% pg_doi_keep$min_idx ~ TRUE, TRUE ~ FALSE))
+  pg_vector <- pg_res$meta_idx[!pg_res$keep_idx]
+  return(pg_vector)
+  # rm(pg_doi_df, pg_size_df, pg_doi_duplicates, pg_doi_keep, pg_res, pg_vector)
+}
+
 # Quick filtering function
 # Manual tweaks will still be required after running this
 # NB: Values with no lon/lat must be removed at this step to prevent data bleed across sites
@@ -524,23 +553,41 @@ pg_site_filter <- function(file_name, site_name){
 pg_var_melt <- function(pg_clean, key_words, var_word){
   
   # Message of which columns were melted
-  sub_cols <- colnames(pg_clean)[colnames(pg_clean) %in% unique(key_words)]
+  cols_fix <- gsub("\\] \\(.*", "\\]", colnames(pg_clean))
+  pg_fix <- pg_clean; colnames(pg_fix) <- cols_fix
+  sub_cols <- colnames(pg_fix)[colnames(pg_fix) %in% unique(key_words)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")]
   print(sub_cols)
   if(length(sub_cols) == 0) return()
   
   # Subset and melt data.frame
-  pg_melt <- pg_clean %>% 
-    dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, all_of(sub_cols)) %>% 
-    pivot_longer(cols = all_of(sub_cols), names_to = paste0("variable"), values_to = "value") %>% 
-    mutate(category = var_word) %>% 
-    filter(!is.na(value)) %>%
-    distinct() %>% 
-    # dplyr::select(date_accessed:depth, category, variable, value)
-    group_by(date_accessed, URL, citation, site, lon, lat, date, depth, category, variable) %>%
+  pg_melt <- pg_fix |> 
+    dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, all_of(sub_cols)) |> 
+    pivot_longer(cols = all_of(sub_cols), names_to = "variable", values_to = "value") |> 
+    mutate(category = var_word) |> 
+    filter(!is.na(value)) |> 
+    distinct()
+  
+  # Get species data
+  if(var_word == "bio"){
+    # NB: At this point any non-numeric species values are lost
+    # Need to think about how best to approach this
+    pg_melt_bio <- pg_clean |> 
+      dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, spp_name, spp_value) |>
+      dplyr::rename(variable = spp_name, value = spp_value) |> 
+      mutate(category = var_word,
+             value = as.numeric(value)) |> 
+      filter(!is.na(value)) |> 
+      distinct()
+    pg_melt <- rbind(pg_melt, pg_melt_bio)
+  }
+  
+  # Mean values and exit
+  pg_res <- pg_melt |> 
+    group_by(date_accessed, URL, citation, site, lon, lat, date, depth, category, variable) |> 
     summarise(value = mean(value, na.rm = T), .groups = "drop")
-  return(pg_melt)
-  # rm(pg_clean, key_words, var_word, sub_cols, pg_melt)
+  return(pg_res)
+  # rm(pg_clean, key_words, var_word, sub_cols, pg_melt, pg_res)
 }
 
 # Load a PG site file and apply the name
@@ -1096,17 +1143,17 @@ CTD_to_long <- function(nc_file, var_id){
   nc_PRES <- ncdf4::ncvar_get(nc_file, varid = "PRES")
   nc_LONGITUDE <- ncdf4::ncvar_get(nc_file, varid = "LONGITUDE")
   nc_LATITUDE <- ncdf4::ncvar_get(nc_file, varid = "LATITUDE")
-  # Extract one variable and melt that it
-  nc_val <- data.frame(t(ncdf4::ncvar_get(nc_file, varid = var_id))) %>% 
-    `colnames<-`(nc_PRES) %>% 
-    cbind(nc_TIME, nc_LONGITUDE, nc_LATITUDE) %>%
-    pivot_longer(min(nc_PRES):max(nc_PRES), values_to = "value", names_to = "depth") %>% 
-    filter(!is.na(value)) %>% 
+  # Extract one variable and melt it
+  nc_val <- data.frame(t(ncdf4::ncvar_get(nc_file, varid = var_id))) |> 
+    `colnames<-`(nc_PRES) |> 
+    cbind(nc_TIME, nc_LONGITUDE, nc_LATITUDE) |> 
+    pivot_longer(min(nc_PRES):max(nc_PRES), values_to = "value", names_to = "depth") |> 
+    filter(!is.na(value)) |> 
     mutate(date = as.Date(as.POSIXct((nc_TIME*86400), origin = "1950-01-01 00:00:00"), .keep = "unused"),
-           depth = as.numeric(depth)) %>% 
+           depth = as.numeric(depth)) |> 
     dplyr::rename(lon = nc_LONGITUDE, lat = nc_LATITUDE) %>% 
-    dplyr::select(lon, lat, date, depth, value) %>% 
-    `colnames<-`(c("lon", "lat", "date", "depth", tolower(var_id))); gc()
+    summarise(value = mean(value, na.rm = T), .by = c(lon, lat, date, depth)); gc()
+  colnames(nc_val)[5] <- tolower(var_id)
   return(nc_val)
 }
 

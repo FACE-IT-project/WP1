@@ -4,7 +4,6 @@
 # TODO: Investigate PG columns that should be numeric but aren't
 # e.g. `[NO3]- [µmol/l]` for pg_nuup_clean
 # Provide lists of variables that were removed
-# Correct PANGAEA values with `t [°C]` to be type 'cryo' as this is the unit for ice/snow temperature
 
 
 # Setup -------------------------------------------------------------------
@@ -22,10 +21,15 @@ library(clock)
 # )
 
 # For processing below
-clean_cols <- c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")
+clean_cols <- c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth", "spp_name", "spp_value")
 
 # PANGAEA files
 pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
+
+# PANGAEA metadata files
+pg_meta_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), load_pg) |> 
+  dplyr::select(-Error, -parent_doi)
+
 
 # European Arctic ---------------------------------------------------------
 
@@ -34,10 +38,6 @@ pg_files <- dir("data/pg_data", pattern = "pg_", full.names = T)
 # There is no EU PANGAEA product
 # Moving towards v2.0 the scraping of EU data from PANGAEA was abandoned
 # in favour of scraping at each site specifically
-
-
-# NB: If working with PANGAEA site files below, run this
-
 
 
 ## Full product ------------------------------------------------------------
@@ -339,7 +339,7 @@ rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, s
 ## https://www.nature.com/articles/s41586-021-04314-4#data-availability
 sval_Nature_glacier_mass_base <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/Geyman_et_al_Svalbard_glacier_data_final.csv", skip = 1)
 sval_Nature_glacier_mass_latlon <- convert_epsg(x = sval_Nature_glacier_mass_base$X_center, 
-                                                y = sval_Nature_glacier_mass_base$Y_center, epsg1 = "epsg:32633")
+                                                y = sval_Nature_glacier_mass_base$Y_center, epsg1 = "epsg:32633") |> distinct()
 sval_Nature_glacier_mass <- left_join(sval_Nature_glacier_mass_base, sval_Nature_glacier_mass_latlon, 
                                       by = c("X_center" = "x", "Y_center" = "y")) %>% 
   dplyr::select(lon, lat, isTidewater:`mass_change_method2_oneSigma_1990_2010 (kg)`) %>% 
@@ -593,7 +593,7 @@ sval_guest_night_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_
   pivot_longer(Jan:Dec) %>% 
   mutate(month = match(name, month.abb),
          type = "Hotels and similar establishments",
-         residence = "Total") %>% 
+         residence = "Total") %>% pg_kong_sub
   mutate(date = as.Date(paste0(Year,"-",month,"-01")), .keep = "unused") %>% 
   dplyr::select(type, residence, date, value) %>% 
   # manually copied from: https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf
@@ -654,9 +654,7 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg kong files
 system.time(
   pg_kong_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "kong")
-) # 29 seconds
-
-test1 <- pg_site_filter(pg_files[2], site_name = "kong")
+) # 56 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
@@ -676,7 +674,7 @@ test1 <- pg_site_filter(pg_files[2], site_name = "kong")
 #   dplyr::select(URL, `T air (1) [°C]`) %>% 
 #   na.omit()
   
-# Process Kongsfjorden bbox PANGAEA data
+# Process Kongsfjorden PANGAEA data
 pg_kong_clean <- pg_kong_sub |> 
   # dplyr::select(contains(c("Qz")), everything()) %>%  # Look at specific problem columns
   # dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
@@ -690,7 +688,7 @@ pg_kong_clean <- pg_kong_sub |>
   # Manage date column
   dplyr::rename(date = `Date/Time`) |> 
   mutate(date = ifelse(date == "", NA, date),
-         date = case_when(is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`,
+         date = case_when(is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
                           TRUE ~ date),
          date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
@@ -698,8 +696,8 @@ pg_kong_clean <- pg_kong_sub |>
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
                            !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
                            TRUE ~ as.numeric(NA))) |> 
-  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
-                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
+  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
                            TRUE ~ depth)) |> 
   # dplyr::select(depth, everything())
   # Remove unwanted columns
@@ -708,10 +706,13 @@ pg_kong_clean <- pg_kong_sub |>
                 -"Press [dbar]",
                 -contains(c("Depth ", "Elev ", "Elevation "))) |> 
   # Finish up
+  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
   # NB: This must be changed manually when new data are loaded
   mutate(across(!clean_cols, as.numeric)) |>  
-  janitor::remove_empty("cols")
+  janitor::remove_empty("cols") |> 
+  # NB: Site exists earlier to reflect data from different files for metadata joining
+  mutate(site = "kong")
 # colnames(pg_kong_clean)
 
 ## Individual category data.frames
@@ -735,7 +736,7 @@ save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RD
 # pg_kong_ALL <- data.table::fread("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 
 # Check that all columns were used
-# colnames(pg_kong_clean)[!colnames(pg_kong_clean) %in% unique(pg_kong_ALL$variable)]
+colnames(pg_kong_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_kong_clean)) %in% unique(pg_kong_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
@@ -777,14 +778,13 @@ kong_zoo_data <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/kf_zooplankto
   dplyr::rename(lon = longitude, lat = latitude) %>% 
   mutate(variable = case_when(!is.na(stage) ~ paste0(species," (",stage,")"), TRUE ~ species),
          # value = value*biomass_conv, # This changes the values from ind/m3 to biomass; see Hop et al. 2019
+         depth = (from+to)/2,
          variable = paste0(variable, " [ind/m3]"),
          category = "bio",
          date_accessed = as.Date("2021-02-11"),
          URL = "https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2",
          citation = "Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.") %>% 
   filter(!is.na(value)) %>%
-  group_by(date_accessed, URL, citation, lon, lat, date, category, variable, value) %>% 
-  summarise(depth = (from+to)/2, .groups = "drop") %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
@@ -853,8 +853,8 @@ kong_CTD_database <- left_join(kong_CTD_TEMP, kong_CTD_PSAL, by = c("lon", "lat"
          variable = paste0(variable," [", units,"]"),
          category = "phys",
          date_accessed = as.Date("2021-02-11")) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
-  summarise(value = mean(value, na.rm = T), .groups = "drop")
+  # NB: Not necessary to summarise()
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 rm(kong_CTD_nc_dat, kong_CTD_TEMP, kong_CTD_PSAL, kong_CTD_CNDC); gc()
 
 ## CO2 data
@@ -1028,59 +1028,12 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
-# Light and kelp data from Sarina's 2022 paper
-## NB: Not added to meta-database or data product; waiting for manuscript publication and PANGAEA publication
-kong_NiedzKelp <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp.csv") %>% 
-  fill(Length, Width, Stipe.Length, Area.discs, µmol.0, µmol.0.h.cm, µmol.24, µmol.24.h.cm, 
-       Comp.irr, Comp.irr.log, Chla.cm.tR, Acc.cm.tR, Acc.Chla.tR, N.Perc, C.Perc, CN) %>% 
-  mutate(µmol.0 = round(µmol.0, 2), 
-         µmol.0.h.cm = round(µmol.0.h.cm, 2), 
-         Comp.irr = round(Comp.irr, 2), 
-         Chla.cm = round(Chla.cm, 2), 
-         Chla.cm.tR = round(Chla.cm.tR, 2), 
-         Acc.cm = round(Acc.cm, 2), 
-         Acc.cm.tR = round(Acc.cm.tR, 2),
-         Acc.Chla = round(Acc.Chla, 2), 
-         Acc.Chla.tR = round(Acc.Chla.tR, 2), 
-         CN = round(CN, 2)) %>% 
-  dplyr::rename(`Experiment day` = Exp.Day, `Treat temp [°C]` = Temperature,
-                `phylloid length [cm]` = Length, `phylloid width [cm]` = Width, `cauloid length [cm]` = Stipe.Length,
-                `disc area [cm-2]` = Area.discs, `FW [g]` = FW, `DW [g]` = DW, `Fv/Fm` = Fv.Fm,
-                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.0,
-                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.0.h.cm,
-                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.24,
-                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.24.h.cm,
-                `Compensation E [mol m-2 s-1]` = Comp.irr,
-                `Compensation E [log(mol m-2 s-1)]` = Comp.irr.log,
-                `Chl a [µg cm-2]` = Chla.cm, `Chl a mean [µg cm-2]` = Chla.cm.tR,
-                `Pigm acc [µg cm-2]` = Acc.cm, `Pigm acc mean [µg cm-2]` = Acc.cm.tR,
-                `Pigm acc/chl a [µg cm-2]` = Acc.Chla, `Pigm acc/chl a mean [µg cm-2]` = Acc.Chla.tR,
-                `N [%]` = N.Perc, `C [%]` = C.Perc) %>% 
-  mutate(Species = case_when(Species == "Slat" ~ "Saccharina latissima",
-                             Species == "Aesc" ~ "Alaria esculenta"))
-write_delim(kong_NiedzKelp, "~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp_PG.csv", delim = "\t")
-kong_NiedzLight <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataLight.csv")
-kong_NiedzLight_PG <- kong_NiedzLight %>% 
-  dplyr::rename(`longitude [°E]`= Longitude, `latitude [°N]` = Latitude, `depth [m]` = Depth,
-                `PAR [µmol m-2 s-1]` = PAR, `PAR [log(µmol m-2 s-1)]`= `log(PAR)`,
-                `UV-A [µmol m-2 s-1]` = UV.A, `UV-B [µmol m-2 s-1]` = UV.B, 
-                `E [µmol m-2 s-1]` = Surface.irr, Sal = Surface.Salinity) %>% 
-  mutate(DateTime = DateTime-7200) %>% # Correct from Svalbard (UTC+2) to UTC+0
-  separate(DateTime, into = c("Date", "Time"), sep = " ") %>% 
-  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) %>%
-  dplyr::select(Station, `latitude [°N]`, `longitude [°E]`, `date/time [UTC+0]`, `depth [m]`,
-                `E [µmol m-2 s-1]`, `PAR [µmol m-2 s-1]`, `PAR [log(µmol m-2 s-1)]`, 
-                `UV-A [µmol m-2 s-1]`, `UV-B [µmol m-2 s-1]`, Sal) %>% 
-  group_by(Station, `latitude [°N]`, `longitude [°E]`) %>% 
-  arrange(`depth [m]`, .by_group = TRUE) %>% ungroup()
-write_delim(kong_NiedzLight_PG, "~/pCloudDrive/restricted_data/Niedzwiedz/dataLight_PG.csv", delim = "\t")
-
 # Combine and save
 full_product_kong <- rbind(dplyr::select(pg_kong_ALL, -site), 
                            kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
                            kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
-                           kong_light_Laeseke, kong_light_Inka, kong_PAR_Dieter) %>% 
+                           kong_light_Laeseke, kong_PAR_Dieter) %>% 
   rbind(filter(dplyr::select(full_product_sval, -site), lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4])) %>% 
   rbind(filter(dplyr::select(full_product_sval, -site), grepl("Kongsfjorden", citation))) %>% distinct() %>% mutate(site = "kong")
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
@@ -1095,17 +1048,6 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Simple checks
 # full_product_kong %>% filter(grepl("Jentzsch", citation))
-
-# TODO: These files should be downloaded, but are missing from the final clean product: 
-  # https://dashboard.awi.de/?dashboard=3865
-# Philipp Fischer ferry box data - There are a couple of months of data for 2014
-# kong_fischer <- full_product_kong %>% filter(grepl("Fischer", citation))
-
-# Popova carbonate chemistry model data - No data present
-# kong_popova <- full_product_kong %>% filter(grepl("Popova", citation))
-
-# Clean up
-# rm(kong_fischer, kong_popova)
 
 
 ## Model product -----------------------------------------------------------

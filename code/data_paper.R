@@ -259,6 +259,8 @@ rm(ice_4km_prop, ice_4km_prop_long, ice_4km_trend, ice_4km_trend_long, ice_4km_s
 
 # NB: Chose not to get many variables from Geyman et al. 2021
 
+# TODO: Include `t [°C]` here
+
 # Test check for all cryo vars to make sure no glacier vars are missed
 as.vector(distinct(filter(full_product_stor, category == "cryo"), variable))
 as.vector(distinct(filter(nuup_GEM, category == "cryo"), variable))

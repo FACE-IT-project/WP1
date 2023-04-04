@@ -217,6 +217,27 @@ write_csv(pg_file_sizes, "metadata/pg_file_sizes.csv")
 # test1 <- read_csv_arrow("data/pg_data/pg_is.csv")
 
 
+# Specific DOI ------------------------------------------------------------
+
+# Load PANGAEA DOI list
+pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
+
+# Kongsfjorden data downloaded
+pg_kong_doi <- read_csv("metadata/pg_kong_doi.csv")
+pg_kong <- data.table::fread("data/pg_data/pg_kong.csv") |> 
+  left_join(pg_kong_doi, by = "meta_idx")
+
+# Fischer AWI files from: https://dashboard.awi.de/?dashboard=3865
+fischer_files <- c("10.1594/PANGAEA.896828", "10.1594/PANGAEA.896822", "10.1594/PANGAEA.896821", 
+                   "10.1594/PANGAEA.896771", "10.1594/PANGAEA.896770", "10.1594/PANGAEA.896170",
+                   "10.1594/PANGAEA.897349", "10.1594/PANGAEA.927607", "10.1594/PANGAEA.929583", "10.1594/PANGAEA.950174")
+fischer_check_list <- filter(pg_doi_list, doi %in% fischer_files)
+fischer_check_doi <- filter(pg_kong_doi, URL %in% paste0("https://doi.org/",fischer_files))
+fischer_check_dat <- filter(pg_kong, URL %in% paste0("https://doi.org/",fischer_files)) |> janitor::remove_empty()
+# NB: Appear to be missing any depth data
+# Likely need to correct this via the metadata that is embedded in the downloads
+
+
 # Error trapping ----------------------------------------------------------
 
 # Load all metadata files together to see errors in one dataframe by site
@@ -226,72 +247,78 @@ pg_ALL_doi <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "
 # Young Sound
 pg_young <- read_csv_arrow("data/pg_data/pg_young.csv")
 pg_young_size <- plyr::ddply(pg_young, c("meta_idx"), pg_size, .parallel = T)
+pg_young_dup <- pg_duplicates(filter(pg_ALL_doi, site == "young"), pg_young_size)
 pg_young_check <- pg_ALL_doi |> 
   filter(site == "young", meta_idx %in% c(485))
 # 485 is precipitation and wind speeds
+pg_young_fix <- filter(pg_young, !meta_idx %in% pg_young_dup)
+write_csv_arrow(pg_young_fix, file = "data/pg_data/pg_young.csv")
 rm(list = ls()[grep("pg_young", ls())]); gc()
 
 # Disko Bay
 pg_disko <- read_csv_arrow("data/pg_data/pg_disko.csv")
 pg_disko_size <- plyr::ddply(pg_disko, c("meta_idx"), pg_size, .parallel = T)
+pg_disko_dup <- pg_duplicates(filter(pg_ALL_doi, site == "disko"), pg_disko_size)
 pg_disko_check <- pg_ALL_doi |> 
-  filter(site == "disko", meta_idx %in% c(1046, 635, 638, 636, 637, 639, 640))
+  filter(site == "disko", meta_idx %in% c(1046))
 # 1046 is mesozooplankton size data
-# 638 is parent to 635, 637 is parent to 636, 639 is parent to 640
-pg_disko_fix <- filter(pg_disko, !meta_idx %in% c(635, 636, 640))
+pg_disko_fix <- filter(pg_disko, !meta_idx %in% pg_disko_dup)
 write_csv_arrow(pg_disko_fix, file = "data/pg_data/pg_disko.csv")
 rm(list = ls()[grep("pg_disko", ls())]); gc()
 
 # Nuup Kangerlua
 pg_nuup <- read_csv_arrow("data/pg_data/pg_nuup.csv")
 pg_nuup_size <- plyr::ddply(pg_nuup, c("meta_idx"), pg_size, .parallel = T)
+pg_nuup_dup <- pg_duplicates(filter(pg_ALL_doi, site == "nuup"), pg_nuup_size)
 pg_nuup_check <- pg_ALL_doi |> 
   filter(site == "nuup", meta_idx %in% c(692, 791, 790, 789))
 # 692 is cruise CTD data
-# 791 790 789 are from the same project but different data
+pg_nuup_fix <- filter(pg_nuup, !meta_idx %in% pg_nuup_dup)
+write_csv_arrow(pg_nuup_fix, file = "data/pg_data/pg_nuup.csv")
 rm(list = ls()[grep("pg_nuup", ls())]); gc()
 
 # Porsangerfjorden
 pg_por <- read_csv_arrow("data/pg_data/pg_por.csv")
 pg_por_size <- plyr::ddply(pg_por, c("meta_idx"), pg_size, .parallel = T)
+pg_por_dup <- pg_duplicates(filter(pg_ALL_doi, site == "por"), pg_por_size)
 pg_por_check <- pg_ALL_doi |> 
-  filter(site == "por", meta_idx %in% c(54, 56, 2839:2844))
-# 54 is parent to 56, 2843 is parent to 2844, 2842 is parent to 2839, 2841 is parent to 2840
-pg_por_fix <- filter(pg_por, !meta_idx %in% c(56, 2844, 2839, 2840))
+  filter(site == "por", meta_idx %in% c(1505))
+# 1505 is cruise data
+pg_por_fix <- filter(pg_por, !meta_idx %in% pg_por_dup)
 write_csv_arrow(pg_por_fix, file = "data/pg_data/pg_por.csv")
 rm(list = ls()[grep("pg_por", ls())]); gc()
 
 # Storfjorden
 pg_stor <- read_csv_arrow("data/pg_data/pg_stor.csv")
 pg_stor_size <- plyr::ddply(pg_stor, c("meta_idx"), pg_size, .parallel = T)
+pg_stor_dup <- pg_duplicates(filter(pg_ALL_doi, site == "stor"), pg_stor_size)
 pg_stor_check <- pg_ALL_doi |> 
   filter(site == "stor", meta_idx %in% c(1478, 1277, 1271:1273))
 # These all check out
+pg_stor_fix <- filter(pg_stor, !meta_idx %in% pg_stor_dup)
+write_csv_arrow(pg_stor_fix, file = "data/pg_data/pg_stor.csv")
 rm(list = ls()[grep("pg_stor", ls())]); gc()
 
 # Isfjorden
 pg_is <- data.table::fread("data/pg_data/pg_is.csv")
 pg_is_size <- plyr::ddply(pg_is, c("meta_idx"), pg_size, .parallel = T)
+pg_is_dup <- pg_duplicates(filter(pg_ALL_doi, site == "is"), pg_is_size)
 pg_is_check <- pg_ALL_doi |> 
-  filter(site == "is", meta_idx %in% c(1318, 69, 264, 1185, 1191, 3967, 2710, 2711, 
-                                       2713, 2715, 2844, 3876, 4206, 3070, 4140:4253, 2809, 3849, 4171,
-                                       2772, 2860, 4222, 2744, 2808, 4170, 2875, 4237,
-                                       2729, 2797, 3841, 4159, 2738, 2810, 4172, 
-                                       2713, 2842, 4204, 2742, 2806, 3847, 4168,
-                                       2741, 2805, 4167, 2712, 2845, 3877, 4207,
-                                       2763, 2832, 3865, 4194, 2725, 2859, 3885, 4221))
-# 54 is parent to 56, 2843 is parent to 2844, 2842 is parent to 2839, 2841 is parent to 2840
-pg_is_fix <- filter(pg_is, !meta_idx %in% c(56, 2844, 2839, 2840))
-write_csv_arrow(pg_is_fix, file = "data/pg_data/pg_is.csv")
+  filter(site == "is", meta_idx %in% c(1318, 69, 264, 3967, 4140, 4144))
+# These large files are Met station and Mooring data
+pg_is_fix <- filter(pg_is, !meta_idx %in% pg_is_dup)
+rm(pg_is); gc()
+data.table::fwrite(pg_is_fix, file = "data/pg_data/pg_is.csv")
 rm(list = ls()[grep("pg_is", ls())]); gc()
 
 # Kongsfjorden
 pg_kong <- data.table::fread("data/pg_data/pg_kong.csv")
 pg_kong_size <- plyr::ddply(pg_kong, c("meta_idx"), pg_size, .parallel = T)
+pg_kong_dup <- pg_duplicates(filter(pg_ALL_doi, site == "kong"), pg_kong_size)
 pg_kong_check <- pg_ALL_doi |> 
-  filter(site == "kong", meta_idx %in% c(54, 56, 2839:2844))
-# 54 kong parent to 56, 2843 kong parent to 2844, 2842 kong parent to 2839, 2841 kong parent to 2840
-pg_kong_fix <- filter(pg_kong, !meta_idx %in% c(56, 2844, 2839, 2840))
+  filter(site == "kong", meta_idx %in% c(10, 16, 35, 3240, 3655))
+# Continuous measurement data
+pg_kong_fix <- filter(pg_kong, !meta_idx %in% pg_kong_dup)
 write_csv_arrow(pg_kong_fix, file = "data/pg_data/pg_kong.csv")
 rm(lkongt = ls()[grep("pg_kong", ls())]); gc()
 

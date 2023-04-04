@@ -165,6 +165,55 @@ kong_light_Inka <- bind_rows(kong_light_Inka_1, kong_light_Inka_2, kong_light_In
 rm(kong_light_Inka_1, kong_light_Inka_2, kong_light_Inka_3, klib, kong_light_Inka_hourly); gc()
 
 
+# Niedzwiedz data ---------------------------------------------------------
+
+# Light and kelp data from Sarina's 2022 paper
+kong_NiedzKelp <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp.csv") %>% 
+  fill(Length, Width, Stipe.Length, Area.discs, µmol.0, µmol.0.h.cm, µmol.24, µmol.24.h.cm, 
+       Comp.irr, Comp.irr.log, Chla.cm.tR, Acc.cm.tR, Acc.Chla.tR, N.Perc, C.Perc, CN) %>% 
+  mutate(µmol.0 = round(µmol.0, 2), 
+         µmol.0.h.cm = round(µmol.0.h.cm, 2), 
+         Comp.irr = round(Comp.irr, 2), 
+         Chla.cm = round(Chla.cm, 2), 
+         Chla.cm.tR = round(Chla.cm.tR, 2), 
+         Acc.cm = round(Acc.cm, 2), 
+         Acc.cm.tR = round(Acc.cm.tR, 2),
+         Acc.Chla = round(Acc.Chla, 2), 
+         Acc.Chla.tR = round(Acc.Chla.tR, 2), 
+         CN = round(CN, 2)) %>% 
+  dplyr::rename(`Experiment day` = Exp.Day, `Treat temp [°C]` = Temperature,
+                `phylloid length [cm]` = Length, `phylloid width [cm]` = Width, `cauloid length [cm]` = Stipe.Length,
+                `disc area [cm-2]` = Area.discs, `FW [g]` = FW, `DW [g]` = DW, `Fv/Fm` = Fv.Fm,
+                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.0,
+                `O2 at 0 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.0.h.cm,
+                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 s-1]` = µmol.24,
+                `O2 at 24 µmol photons m-2 s-1 [µmol l-1 h-1 cm-2]` = µmol.24.h.cm,
+                `Compensation E [mol m-2 s-1]` = Comp.irr,
+                `Compensation E [log(mol m-2 s-1)]` = Comp.irr.log,
+                `Chl a [µg cm-2]` = Chla.cm, `Chl a mean [µg cm-2]` = Chla.cm.tR,
+                `Pigm acc [µg cm-2]` = Acc.cm, `Pigm acc mean [µg cm-2]` = Acc.cm.tR,
+                `Pigm acc/chl a [µg cm-2]` = Acc.Chla, `Pigm acc/chl a mean [µg cm-2]` = Acc.Chla.tR,
+                `N [%]` = N.Perc, `C [%]` = C.Perc) %>% 
+  mutate(Species = case_when(Species == "Slat" ~ "Saccharina latissima",
+                             Species == "Aesc" ~ "Alaria esculenta"))
+write_delim(kong_NiedzKelp, "~/pCloudDrive/restricted_data/Niedzwiedz/dataKelp_PG.csv", delim = "\t")
+kong_NiedzLight <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/dataLight.csv")
+kong_NiedzLight_PG <- kong_NiedzLight %>% 
+  dplyr::rename(`longitude [°E]`= Longitude, `latitude [°N]` = Latitude, `depth [m]` = Depth,
+                `PAR [µmol m-2 s-1]` = PAR, `PAR [log(µmol m-2 s-1)]`= `log(PAR)`,
+                `UV-A [µmol m-2 s-1]` = UV.A, `UV-B [µmol m-2 s-1]` = UV.B, 
+                `E [µmol m-2 s-1]` = Surface.irr, Sal = Surface.Salinity) %>% 
+  mutate(DateTime = DateTime-7200) %>% # Correct from Svalbard (UTC+2) to UTC+0
+  separate(DateTime, into = c("Date", "Time"), sep = " ") %>% 
+  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) %>%
+  dplyr::select(Station, `latitude [°N]`, `longitude [°E]`, `date/time [UTC+0]`, `depth [m]`,
+                `E [µmol m-2 s-1]`, `PAR [µmol m-2 s-1]`, `PAR [log(µmol m-2 s-1)]`, 
+                `UV-A [µmol m-2 s-1]`, `UV-B [µmol m-2 s-1]`, Sal) %>% 
+  group_by(Station, `latitude [°N]`, `longitude [°E]`) %>% 
+  arrange(`depth [m]`, .by_group = TRUE) %>% ungroup()
+write_delim(kong_NiedzLight_PG, "~/pCloudDrive/restricted_data/Niedzwiedz/dataLight_PG.csv", delim = "\t")
+
+
 # Marambio dataset --------------------------------------------------------
 
 # See "~/pCloudDrive/restricted_data/Marambio/.~lock.Marambio 2022_PANGEA_PALMARIA.xlsx"
