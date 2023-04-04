@@ -3395,8 +3395,8 @@ rm(list = grep("nor_|sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Load pg is files
 system.time(
-  pg_por_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_por)
-) # 65 seconds
+  pg_por_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "por")
+) # 30 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -3414,8 +3414,6 @@ pg_por_clean <- pg_por_sub %>%
   # Manually remove problematic columns
   # dplyr::select(-"Date/Time (The date and time the entry w...)", -"Date/Time (Moscow time)",
                 # -"Date/Time (local time)") %>%
-  mutate_all(~na_if(., '')) %>% 
-  janitor::remove_empty("cols") %>% 
   # Manage lon/lat columns - no need
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
@@ -3432,9 +3430,13 @@ pg_por_clean <- pg_por_sub %>%
   # Remove unwanted columns
   # dplyr::select(-"Longitude e", -"Latitude e", -"Press [dbar]", -contains(c("Depth ", "Elevation "))) %>%
   # Finish up
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) %>% 
-  janitor::remove_empty("cols")
+  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
+  # NB: This must be changed manually when new data are loaded
+  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  janitor::remove_empty("cols") |> 
+  # NB: Site exists earlier to reflect data from different files for metadata joining
+  mutate(site = "por")
 # colnames(pg_por_clean)
 
 ## Individual category data.frames
