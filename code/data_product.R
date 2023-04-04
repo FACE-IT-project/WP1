@@ -2747,8 +2747,8 @@ rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
 # Load pg Nuup Kangerlua files
 system.time(
-  pg_nuup_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_nuup)
-) # 91 seconds
+  pg_nuup_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "nuup")
+) # 30 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -2759,8 +2759,6 @@ pg_nuup_clean <- pg_nuup_sub %>%
   # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
   # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
   # Manually remove problematic files - no need
-  mutate_all(~na_if(., '')) %>%
-  janitor::remove_empty("cols") %>%
   # Manage lon/lat columns - no issues
   # Manage date column
   dplyr::rename(date = `Date/Time`) %>% 
@@ -2783,9 +2781,13 @@ pg_nuup_clean <- pg_nuup_sub %>%
   # Remove unwanted columns  # Manually remove problematic columns
   # dplyr::select(-contains(c("Date/", "Depth ", "Elevation ", "Elev ", "Press ", "Longitude ", "Latitude "))) %>%
   # Finish up
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) %>% 
-  janitor::remove_empty("cols")
+  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
+  # NB: This must be changed manually when new data are loaded
+  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  janitor::remove_empty("cols") |> 
+  # NB: Site exists earlier to reflect data from different files for metadata joining
+  mutate(site = "nuup")
 # colnames(pg_nuup_clean)
 
 ## Individual category data.frames
