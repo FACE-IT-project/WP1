@@ -681,9 +681,6 @@ pg_kong_clean <- pg_kong_sub |>
   # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
   # Manually remove problematic files - no need
   # Manually remove problematic columns
-  # dplyr::select(-"File start date/time", -"File stop date/time") %>%
-  mutate_if(is.character, ~na_if(., '')) |> 
-  janitor::remove_empty("cols") |> 
   # Manage lon/lat columns - no need
   # Manage date column
   dplyr::rename(date = `Date/Time`) |> 
@@ -1086,7 +1083,7 @@ pg_is_clean <- pg_is_sub |>
   # Manage date column
   dplyr::rename(date = `Date/Time`) |> 
   mutate(date = ifelse(date == "", as.character(NA), date),
-         date = case_when(date == "2008" ~ "2008-01-01", TRUE ~ date),
+         # date = case_when(date == "2008" ~ "2008-01-01", TRUE ~ date),
          date = as.Date(gsub("T.*", "", date))) |> 
   mutate(date = as.Date(date)) |> 
   # Manage depth column
@@ -1378,41 +1375,43 @@ rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## PG product --------------------------------------------------------------
 
-# Load pg ingle files
+# Load pg stor files
 system.time(
-  pg_stor_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_stor)
-) # 64 seconds
+  pg_stor_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "stor")
+) # 33 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
 # pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.778258")
 
 # Remove unneeded columns
-pg_stor_clean <- pg_stor_sub %>% 
+pg_stor_clean <- pg_stor_sub |> 
   # dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
   # Manually remove problematic files - No issues
   # Manually remove problematic columns - No issues
-  mutate_all(~na_if(., '')) %>% 
-  janitor::remove_empty("cols") %>% 
   # Manage lon/lat columns - No issues
   # Manage date column
-  dplyr::rename(date = `Date/Time`) %>% 
-  mutate(date = as.Date(gsub("T.*", "", date))) %>%
+  dplyr::rename(date = `Date/Time`) |> 
+  mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
-                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
+                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) |> 
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
                            TRUE ~ depth)) %>% 
   # Remove unwanted columns
   dplyr::select(-"Press [dbar]",- "Depth water [m]",- "Depth bot [m]",
                 -"Bathy depth interp/grid [m]",
-                -contains(c("Elev ", "Elevation ", "Latitude", "Longitude"))) %>%
+                -contains(c("Elev ", "Elevation ", "Latitude", "Longitude"))) |> 
   # Finish up
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) %>% 
-  janitor::remove_empty("cols")
+  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
+  # NB: This must be changed manually when new data are loaded
+  mutate(across(!clean_cols, as.numeric)) |>  
+  janitor::remove_empty("cols") |> 
+  # NB: Site exists earlier to reflect data from different files for metadata joining
+  mutate(site = "stor")
 # colnames(pg_stor_clean)
 
 ## Individual category data.frames
@@ -1804,42 +1803,44 @@ rm(list = grep("green_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Load pg young files
 system.time(
-  pg_young_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_young)
-) # 65 seconds
+  pg_young_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "young")
+) # 30 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
 # pg_test <- pg_dl_proc(pg_doi = pg_young_all$doi[32])
 
 # Remove unneeded columns
-pg_young_clean <- pg_young_sub %>% 
+pg_young_clean <- pg_young_sub |> 
   # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
-  dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
+  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
   # Manually remove problematic files - no need
   # Manually remove problematic columns - no need
-  mutate_all(~na_if(., '')) %>% 
-  janitor::remove_empty("cols") %>% 
   # Manage lon/lat columns - no need
   # Manage date column
-  dplyr::rename(date = `Date/Time`) %>% 
+  dplyr::rename(date = `Date/Time`) |> 
   mutate(date = ifelse(date == "", NA, date),
          date = case_when(date == "2002-05" ~ "2002-05-01",
                           # is.na(date) & !is.na(Date) ~ as.character(Date),
                           TRUE ~ date),
-         date = as.Date(gsub("T.*", "", date))) %>%
+         date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
-  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`))) %>%
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`))) |> 
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
                            TRUE ~ depth)) %>% 
   # dplyr::select(depth, everything())
   # Remove unwanted columns
   dplyr::select(-"Longitude 2", -"Latitude 2",
                 -"Date/time end",
-                -contains(c("Elevation ", "Depth "))) %>%
+                -contains(c("Elevation ", "Depth "))) |> 
   # Finish up
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) %>% 
-  janitor::remove_empty("cols")
+  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
+  # NB: This must be changed manually when new data are loaded
+  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  janitor::remove_empty("cols") |> 
+  # NB: Site exists earlier to reflect data from different files for metadata joining
+  mutate(site = "young")
 # colnames(pg_young_clean)
 
 ## Individual category data.frames
