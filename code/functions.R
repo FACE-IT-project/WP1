@@ -532,11 +532,12 @@ pg_site_filter <- function(file_name, site_name){
   
   # Load data
   # system.time(
-  pg_dat <- load_pg(file_name) |>  # NB: Faster than read_csv_arrow()
+  pg_dat <- load_pg(file_name) |>
     dplyr::rename(lon = Longitude, lat = Latitude)
   # )
+  file_site <- str_remove_all(file_name, "data/pg_data/pg_|.csv")
   bbox <- bbox_from_name(site_name)
-  if(grepl(site_name, file_name)){
+  if(file_site == site_name){
     pg_res <- pg_dat |> distinct()
   } else {
    pg_res <- pg_dat |> 
@@ -546,7 +547,7 @@ pg_site_filter <- function(file_name, site_name){
   }
   rm(pg_dat); gc()
   return(pg_res)
-  # rm(file_name, site_name, pg_res, bbox); gc()
+  # rm(file_name, site_name, pg_res, bbox, file_site); gc()
 }
 
 # Function for melting columns related to a specific driver

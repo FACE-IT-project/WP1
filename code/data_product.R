@@ -736,7 +736,7 @@ save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RD
 # pg_kong_ALL <- data.table::fread("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 
 # Check that all columns were used
-colnames(pg_kong_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_kong_clean)) %in% unique(pg_kong_ALL$variable)]
+# colnames(pg_kong_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_kong_clean)) %in% unique(pg_kong_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
@@ -1066,47 +1066,47 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Load pg is files
 system.time(
-  pg_is_sub <- plyr::ldply(pg_files, pg_quick_filter, bbox = bbox_is)
-) # 65 seconds
+  pg_is_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "is")
+) # 237 seconds - RAM limited
+gc()
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
 # pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.925759")
 # pg_test <- pg_test_dl("10.1594/PANGAEA.909130")
+# pg_test <- pg_test_dl(pg_doi = "10.1594/PANGAEA.950472")
 
 # Remove unneeded columns
-pg_is_clean <- pg_is_sub %>% 
+pg_is_clean <- pg_is_sub |> 
   # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
   # dplyr::select(contains(c("press", "depth", "elev")), everything()) %>%  # Look at specific problem columns
-  # Manually remove problematic files
-  # filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.900501", "https://doi.org/10.1594/PANGAEA.786375",
-                     # "https://doi.org/10.1594/PANGAEA.847003","https://doi.org/10.1594/PANGAEA.867207")) %>% 
-  # Manually remove problematic columns
-  # dplyr::select(-"File start date/time", -"File stop date/time") %>%
-  # mutate(date_accessed = as.Date(date_accessed)) %>% 
-  mutate_all(~na_if(., '')) %>% 
-  janitor::remove_empty("cols") %>% 
+  # Manually remove problematic files - no need
+  # Manually remove problematic columns - no need
   # Manage lon/lat columns - no need
   # Manage date column
-  dplyr::rename(date = `Date/Time`) %>% 
-  mutate(date = ifelse(date == "", NA, date),
-         date = case_when(is.na(date) & !is.na(`Sampling date`) ~ `Sampling date`,
-                          date == 2008 ~ "2008-01-01", TRUE ~ date),
-         date = as.Date(gsub("T.*", "", date))) %>%
+  dplyr::rename(date = `Date/Time`) |> 
+  mutate(date = ifelse(date == "", as.character(NA), date),
+         date = case_when(date == "2008" ~ "2008-01-01", TRUE ~ date),
+         date = as.Date(gsub("T.*", "", date))) |> 
+  mutate(date = as.Date(date)) |> 
   # Manage depth column
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
                            !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
-  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
-                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
-                           TRUE ~ depth)) %>% 
+  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
+                           TRUE ~ depth)) |> 
   # dplyr::select(depth, everything())
   # Remove unused meta columns
-  dplyr::select(-contains(c("Longitude", "Latitude", "Depth ", "Press"))) %>%
+  dplyr::select(-contains(c("Longitude", "Latitude", "Depth ", "Press"))) |> 
   # Finish up
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, everything()) %>% 
-  mutate_at(c(7:length(.)), as.numeric) %>% 
-  janitor::remove_empty("cols")
+  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
+  # NB: This must be changed manually when new data are loaded
+  mutate(across(!clean_cols, as.numeric)) |>  
+  janitor::remove_empty("cols") |> 
+  # NB: Site exists earlier to reflect data from different files for metadata joining
+  mutate(site = "is")
 # colnames(pg_is_clean)
 
 ## Individual category data.frames
@@ -1128,7 +1128,7 @@ data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.cs
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
 
 # Check that all columns were used
-# colnames(pg_is_clean)[!colnames(pg_is_clean) %in% unique(pg_is_ALL$variable)]
+# colnames(pg_is_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_is_clean)) %in% unique(pg_kong_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
