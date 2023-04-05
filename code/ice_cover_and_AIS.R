@@ -479,4 +479,14 @@ rm(sval_AIS_1, sval_AIS_2, sval_AIS_3, sval_AIS_4); gc()
 system.time(save(sval_AIS, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")) # 140 seconds, 678.1 MB
 system.time(load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")) # 27 seconds
 system.time(write_csv_arrow(sval_AIS, "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # 140 seconds, 6.1 GB
-system.time(sval_AIS <- read_csv_arrow("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # 4 seconds
+system.time(sval_AIS <- read_csv_arrow("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # xxx seconds
+
+
+# Unique MMSI -------------------------------------------------------------
+
+# Load data
+system.time(sval_AIS <- data.table::fread("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # 157 seconds
+
+# Get unique values
+sval_AIS_unique <- unique(sval_AIS$mmsi)
+data.table::fwrite(x = data.frame(mmsi = sval_AIS_unique), file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/mmsi_unique.csv")
