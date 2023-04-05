@@ -1764,7 +1764,7 @@ save_data_one <- function(sub_levels, df){
                         sub_split[2],"_", sub_split[3],".csv")
   }
   if(nrow(sub_df) == 0) return()
-  write_csv_arrow(sub_df, file_path)
+  data.table::fwrite(sub_df, file_path, nThread = 15)
   rm(sub_split, sub_df); gc()
 }
 
