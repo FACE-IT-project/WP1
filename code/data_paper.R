@@ -1,6 +1,8 @@
 # code/data_paper.R
 # The code used for the analyses in the WP1 data paper (D1.3)
 
+# It is here that the drivers are assigned to the data
+
 # Quotes are from Viitasalo and Bonsdorff (2022) unless stated otherwise
 # https://esd.copernicus.org/articles/13/711/2022/
 # "In addition, to better understand the effects of climate change on the biodiversity of the Baltic Sea, more emphasis should be placed on studies of shallow photic environments."

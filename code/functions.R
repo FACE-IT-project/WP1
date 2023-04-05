@@ -546,7 +546,11 @@ pg_site_filter <- function(file_name, site_name){
       janitor::remove_empty("cols") |> distinct()
   }
   rm(pg_dat); gc()
-  return(pg_res)
+  if(nrow(pg_res) == 0){
+    return()
+  } else {
+    return(pg_res)  
+  }
   # rm(file_name, site_name, pg_res, bbox, file_site); gc()
 }
 
@@ -1744,27 +1748,38 @@ load_GRDC <- function(file_name){
 }
 
 # Convenience function to save site products as individual files
-# This expects a list input of vectors e.g. "phys_temp_kong_clean"
+# This expects the output from save_data()
 save_data_one <- function(sub_levels, df){
   sub_split <- strsplit(sub_levels, "_")[[1]]
-  sub_df <- filter(df, category == sub_split[1], driver == sub_split[2], site == sub_split[3])
+  if(sub_split[3] == "full"){
+    sub_df <- filter(df, category == sub_split[1], site == sub_split[2])
+    file_path <- paste0("data/full_data/",sub_split[3],"_", sub_split[1],"_", sub_split[2],".csv")
+  } else if(sub_split[4] == "clean") {
+    sub_df <- filter(df, category == sub_split[1], driver == sub_split[2], site == sub_split[3])
+    file_path <- paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
+                        sub_split[2],"_", sub_split[3],".csv")
+  }
   if(nrow(sub_df) == 0) return()
-  write_csv_arrow(sub_df, paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
-                                 sub_split[2],"_", sub_split[3],".csv"))
+  write_csv_arrow(sub_df, file_path)
   rm(sub_split, sub_df); gc()
 }
 
 # Convenience function to save site products as individual files
 save_data <- function(df, data_type = "full"){
-  unique_levels <- df %>% 
-    dplyr::select(category, driver, site) %>% 
-    dplyr::filter(site %in% long_site_names$site) %>% 
-    distinct() %>% 
-    mutate(type = data_type) %>% 
-    unite(col = "all", sep = "_") %>% 
+  if(data_type == "full"){
+    select_cols <- c("category", "site") 
+  } else if(data_type == "clean") {
+    select_cols <- c("category", "driver", "site")
+  }
+  unique_levels <- df |> 
+    dplyr::select(dplyr::all_of(select_cols)) |> 
+    dplyr::filter(site %in% long_site_names$site) |> 
+    distinct() |>  
+    mutate(type = data_type) |> 
+    unite(col = "all", sep = "_")|> 
     as.list()
   purrr::walk(unique_levels[[1]], save_data_one, df = df)
-  rm(unique_levels); gc()
+  # rm(unique_levels); gc()
 }
 
 # Data summary plotting function

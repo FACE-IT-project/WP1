@@ -1,6 +1,10 @@
 # code/data_product.R
 # This script houses the code used to create data products from the many disparate files
 
+# NB: If new PANGAEA data are downloaded, it is necessary to go through the 
+# column checking (e.g. date, depth, lon/lat) process again for each PG product section
+# There is a lot of commented out code to help facilitate this process
+
 # TODO: Investigate PG columns that should be numeric but aren't
 # e.g. `[NO3]- [µmol/l]` for pg_nuup_clean
 # Provide lists of variables that were removed
@@ -3384,8 +3388,7 @@ full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_po
 data.table::fwrite(full_product_nor, "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.csv")
 save(full_product_nor, file = "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.RData")
 save(full_product_nor, file = "data/full_data/full_product_nor.RData")
-plyr::l_ply(unique(full_product_nor$category), save_category, .parallel = T,
-            df = full_product_nor, data_type = "full", site_name = "nor") # NB: Site name requires some consideration
+save_data(full_product_nor) # NB: Shouldn't save anything because no matching site names to FACE-IT 7
 rm(list = grep("nor_|sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -3398,41 +3401,41 @@ system.time(
   pg_por_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "por")
 ) # 30 seconds
 
+pg_por_sub <- pg_site_filter(pg_files[5], site_name = "por")
+
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
 # pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.869680")
 
 # Remove unneeded columns
-pg_por_clean <- pg_por_sub %>% 
-  # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
-  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
-  # Manually remove problematic files
-  # filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.900501", "https://doi.org/10.1594/PANGAEA.786375",
-  #                    "https://doi.org/10.1594/PANGAEA.847003","https://doi.org/10.1594/PANGAEA.867207",
-  #                    "https://doi.org/10.1594/PANGAEA.867215", "https://doi.org/10.1594/PANGAEA.907926",
-  #                    "https://doi.org/10.1594/PANGAEA.869680")) %>% 
-  # Manually remove problematic columns
-  # dplyr::select(-"Date/Time (The date and time the entry w...)", -"Date/Time (Moscow time)",
-                # -"Date/Time (local time)") %>%
+pg_por_clean <- pg_por_sub |> 
+  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |>   # Look at meta columns
+  dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) |> # Look at depth columns
+  # Manually remove problematic columns - no need
   # Manage lon/lat columns - no need
   # Manage date column
-  dplyr::rename(date = `Date/Time`) %>% 
+  dplyr::rename(date = `Date/Time`) |> 
   mutate(date = ifelse(date == "", NA, date),
-         # mutate(date = case_when(is.na(date) & !is.na(Date) ~ as.character(Date), TRUE ~ date)), # There is an issue with these values
-         date = as.Date(gsub("T.*", "", date))) %>%
+         date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                          nchar(date) == 7 ~ paste0(date,"-01"),
+                          is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`), 
+                          is.na(date) & !is.na(`Date/time end`) ~ as.character(`Date/time end`),
+                          TRUE ~ date)) |> 
+  mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
-  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
+  dplyr::rename(depth = `Depth [m]`) |> 
+  mutate(depth = case_when(is.na(depth) & !is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           is.na(depth) & !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
+                           TRUE ~ depth)) |> 
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
-                           TRUE ~ depth)) %>% 
-  # dplyr::select(depth, everything())
+                           TRUE ~ depth)) |> 
   # Remove unwanted columns
-  # dplyr::select(-"Longitude e", -"Latitude e", -"Press [dbar]", -contains(c("Depth ", "Elevation "))) %>%
+  dplyr::select(-contains(c("Depth ", "Elevation ", "Press "))) |> 
   # Finish up
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
-  # NB: This must be changed manually when new data are loaded
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything(), -meta_idx) |> 
+  # Manually remove problematic files - no need
   mutate(across(!all_of(clean_cols), as.numeric)) |>  
   janitor::remove_empty("cols") |> 
   # NB: Site exists earlier to reflect data from different files for metadata joining
@@ -3458,7 +3461,7 @@ data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_p
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
 # Check that all columns were used
-# colnames(pg_por_clean)[!colnames(pg_por_clean) %in% unique(pg_por_ALL$variable)]
+# colnames(pg_por_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_por_clean)) %in% unique(pg_por_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
@@ -3502,10 +3505,7 @@ full_product_por <- rbind(dplyr::select(pg_por_ALL, -site),
   rbind(filter(dplyr::select(full_product_EU, -site), grepl("Porsanger", citation))) %>% distinct() %>% mutate(site = "por")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
-# save_data(full_product_por)
-# NB: This part of the pipeline has changed and no longer runs. Needs updating.
-# plyr::l_ply(unique(full_product_por$category), save_category, .parallel = T,
-#             df = full_product_por, data_type = "full")
+save_data(full_product_por)
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
