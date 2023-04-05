@@ -98,6 +98,7 @@ pg_is_name_2 <- pg_full_search(query = "isfjorden") # 8 files
 pg_is_name_3 <- pg_full_search(query = "longyearbyen") # 1521 files
 pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3) |> 
   filter(!doi %in% c("10.1594/PANGAEA.909130", # Wide file with no date values
+                     "10.1594/PANGAEA.56770", # Moss snow line data
                      "10.1594/PANGAEA.847626", "10.1594/PANGAEA.847627")) |> # Lichen experiment datasets
   mutate(count = n(), file = "pg_is") |> 
   dplyr::select(doi, file, count) |> distinct()

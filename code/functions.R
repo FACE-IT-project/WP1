@@ -540,19 +540,24 @@ pg_site_filter <- function(file_name, site_name){
   file_site <- str_remove_all(file_name, "data/pg_data/pg_|.csv")
   bbox <- bbox_from_name(site_name)
   if(file_site == site_name){
-    pg_res <- pg_dat |> distinct()
+    pg_no_coords <- filter(pg_dat, is.na(lon) | is.na(lat))
+    pg_coords <- pg_dat |> 
+      filter(lon >= bbox[1], lon <= bbox[2],
+             lat >= bbox[3], lat <= bbox[4])
+    pg_res <- bind_rows(pg_no_coords, pg_coords)
   } else {
    pg_res <- pg_dat |> 
       filter(lon >= bbox[1], lon <= bbox[2],
-             lat >= bbox[3], lat <= bbox[4]) |> 
-      janitor::remove_empty("cols") |> distinct()
+             lat >= bbox[3], lat <= bbox[4])
   }
-  rm(pg_dat); gc()
+  
   if(nrow(pg_res) == 0){
     return()
   } else {
     pg_base_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_Meta$pg_col_name]
     pg_res <- mutate(pg_res, across(dplyr::all_of(pg_base_meta_columns), as.character))
+    pg_res <- pg_res |> 
+      janitor::remove_empty("cols") |> distinct()
     return(pg_res)  
   }
   # rm(file_name, site_name, pg_res, bbox, file_site); gc()
@@ -563,7 +568,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   
   # Message of which columns were melted
   cols_fix <- gsub("\\] \\(.*", "\\]", colnames(pg_clean))
-  pg_fix <- pg_clean; colnames(pg_fix) <- cols_fix
+  pg_fix <- pg_clean; colnames(pg_fix) <- cols_fix; rm(pg_clean); gc()
   sub_cols <- colnames(pg_fix)[colnames(pg_fix) %in% unique(key_words)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")]
   print(sub_cols)
@@ -572,7 +577,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   # Subset and melt data.frame
   pg_melt <- pg_fix |> 
     dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, all_of(sub_cols)) |> 
-    pivot_longer(cols = all_of(sub_cols), names_to = "variable", values_to = "value") |> 
+    pivot_longer(cols = dplyr::all_of(sub_cols), names_to = "variable", values_to = "value") |> 
     mutate(category = var_word) |> 
     filter(!is.na(value)) |> 
     distinct()
@@ -581,7 +586,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   if(var_word == "bio"){
     # NB: At this point any non-numeric species values are lost
     # Need to think about how best to approach this
-    pg_melt_bio <- pg_clean |> 
+    pg_melt_bio <- pg_fix |> 
       dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, spp_name, spp_value) |>
       dplyr::rename(variable = spp_name, value = spp_value) |> 
       mutate(category = var_word,
@@ -592,6 +597,7 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   }
   
   # Mean values and exit
+  rm(pg_fix); gc()
   pg_res <- pg_melt |> 
     group_by(date_accessed, URL, citation, site, lon, lat, date, depth, category, variable) |> 
     summarise(value = mean(value, na.rm = T), .groups = "drop")

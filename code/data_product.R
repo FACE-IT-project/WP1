@@ -5,10 +5,6 @@
 # column checking (e.g. date, depth, lon/lat) process again for each PG product section
 # There is a lot of commented out code to help facilitate this process
 
-# TODO: Investigate PG columns that should be numeric but aren't
-# e.g. `[NO3]- [µmol/l]` for pg_nuup_clean
-# Provide lists of variables that were removed
-
 
 # Setup -------------------------------------------------------------------
 
@@ -695,8 +691,8 @@ pg_kong_clean <- pg_kong_sub |>
          date = case_when(is.na(date) & !is.na(Date) ~ as.character(Date),
                           is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
                           is.na(date) & !is.na(`Date/time end`) ~ as.character(`Date/time end`),
-                          TRUE ~ date),
-         date = as.Date(gsub("T.*", "", date))) |> 
+                          TRUE ~ date)) |> 
+  mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
   dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`) |> 
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
@@ -1073,7 +1069,7 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg is files
 system.time(
   pg_is_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "is")
-) # 237 seconds - RAM limited
+) # 290 seconds - RAM limited
 gc()
 
 # Test problem files
@@ -1084,48 +1080,81 @@ gc()
 
 # Remove unneeded columns
 pg_is_clean <- pg_is_sub |> 
-  # dplyr::select(contains(c("date")), everything()) %>%  # Look at date columns
-  # dplyr::select(contains(c("press", "depth", "elev")), everything()) %>%  # Look at specific problem columns
+  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at date columns
+  # Remove empty columns - NB: Due to the size of the dataframe this is not possible...
+  # mutate_if(is.character, ~na_if(., '')) |>
+  # janitor::remove_empty("cols") |>
   # Manually remove problematic files - no need
   # Manually remove problematic columns - no need
   # Manage lon/lat columns - no need
   # Manage date column
-  dplyr::rename(date = `Date/Time`) |> 
-  mutate(date = ifelse(date == "", as.character(NA), date),
-         # date = case_when(date == "2008" ~ "2008-01-01", TRUE ~ date),
-         date = as.Date(gsub("T.*", "", date))) |> 
-  mutate(date = as.Date(date)) |> 
-  # Manage depth column
+  dplyr::rename(date = `Date/Time`) |>
+  mutate(date = ifelse(date == "", NA, date),
+         date = case_when(is.na(date) & !is.na(Date) ~ as.character(Date),
+                          is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
+                          is.na(date) & !is.na(`Date/time end`) ~ as.character(`Date/time end`),
+                          is.na(date) & !is.na(`Sampling date`) ~ as.character(`Sampling date`),
+                          TRUE ~ date),
+         date = ifelse(date == "", NA, date)) |>
+  mutate(date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                          nchar(date) == 7 ~ paste0(date,"-01-01"),
+                          TRUE ~ date)) |>
+  mutate(date = as.Date(gsub("T.*", "", date))); gc()
+
+# Manage depth column
+pg_is_clean <- pg_is_clean |> 
+  # dplyr::select(contains(c("depth", "press", "elev")), everything()) |> # Look at specific columns
+  dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`,
+                `Depth [m]2` = `Depth water [m] (corresponds to CTD event; mea...)`,
+                `Elevation [m a.s.l.]1` = `Elevation [m a.s.l.] (ELEVATION of CTD event, CTD/R...)`) |>
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
-                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) %>%
-  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
+                           !is.na(`Depth [m]1`) ~ as.numeric(`Depth [m]1`),
+                           !is.na(`Depth [m]2`) ~ as.numeric(`Depth [m]2`))) |>
+  mutate(depth = case_when(is.na(depth) & !is.na(`Depth top [m]`) ~ as.numeric(`Depth top [m]`),
+                           is.na(depth) & !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
+                           is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
-                           TRUE ~ depth)) |> 
-  # dplyr::select(depth, everything())
-  # Remove unused meta columns
-  # dplyr::select(-contains(c("Longitude", "Latitude"))) |> 
-  # Finish up
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.]1`) ~ -as.numeric(`Elevation [m a.s.l.]1`),
+                           TRUE ~ depth)); gc()
+# Finish up
+pg_is_clean <- pg_is_clean |> 
+  dplyr::select(-"Depth [m]1", -"Depth [m]2", -"Elevation [m a.s.l.]1",
+                -"Depth water [m]", -"Depth [m]", -"Depth [m]1", -"Depth [m]2",
+                -"Depth top [m]", -"Press [dbar]", -"Elevation [m]", -"Elevation [m a.s.l.]",
+                -contains(c("MAGT", "MAAT", # Ground temperatures
+                            "RelWindDir", "RelWindSp", "RelWindGust"))) |> # Wind values
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+  dplyr::filter(!URL %in% c("https://doi.org/10.1594/PANGAEA.56770")) |> # Firn line elevation data
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
-  # NB: This must be changed manually when new data are loaded
   mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
-  janitor::remove_empty("cols") |> 
+  # janitor::remove_empty("cols") |> # File is too large for this
   # NB: Site exists earlier to reflect data from different files for metadata joining
-  mutate(site = "is")
+  mutate(site = "is"); gc()
+rm(pg_is_sub); gc()
+# NB: This is a bad idea. Rather make the data cleaner before getting to this step.
+# system.time(
+# save(pg_is_clean, file = "data/restricted/pg_is_clean.RData")
+# ) # xxx seconds
+# system.time(
+# load("data/restricted/pg_is_clean.RData")
+# ) # xxx seconds
 # colnames(pg_is_clean)
 
 ## Individual category data.frames
 # Cryosphere
-pg_is_Cryosphere <- pg_var_melt(pg_is_clean, query_Cryosphere$pg_col_name, "cryo")
+pg_is_Cryosphere <- pg_var_melt(pg_is_clean, query_Cryosphere$pg_col_name, "cryo"); gc()
 # Physical
-pg_is_Physical <- pg_var_melt(pg_is_clean, query_Physical$pg_col_name, "phys")
+pg_is_Physical <- pg_var_melt(pg_is_clean, query_Physical$pg_col_name, "phys"); gc()
 # Carbonate chemistry
-pg_is_Chemistry <- pg_var_melt(pg_is_clean, query_Chemistry$pg_col_name, "chem")
+pg_is_Chemistry <- pg_var_melt(pg_is_clean, query_Chemistry$pg_col_name, "chem"); gc()
 # Biology
-pg_is_Biology <- pg_var_melt(pg_is_clean, query_Biology$pg_col_name, "bio")
+pg_is_Biology <- pg_var_melt(pg_is_clean, query_Biology$pg_col_name, "bio"); gc()
 # Social
-pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc") # empty
+pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc"); gc() # empty
+
+# Clean for saving
+rm(pg_is_clean); gc()
 
 # Stack them together
 pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, 
@@ -1409,7 +1438,7 @@ pg_stor_clean <- pg_stor_sub |>
                           TRUE ~ date),
          date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
                           nchar(date) == 7 ~ paste0(date,"-01-01"),
-                          TRUE ~ date),) |> 
+                          TRUE ~ date)) |> 
   mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
   dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`) |> 
@@ -1859,8 +1888,8 @@ pg_young_clean <- pg_young_sub |>
                            TRUE ~ depth)) |>  
   # dplyr::select(depth, everything())
   # Remove unwanted columns
-  dplyr::select(-"Longitude 2", -"Latitude 2",
-                -contains(c("Date/", "Elevation ", "Press "))) |> 
+  # dplyr::select(-"Longitude 2", -"Latitude 2",
+  #               -contains(c("Date/", "Elevation ", "Press "))) |>
   # Finish up
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
