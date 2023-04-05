@@ -2430,37 +2430,45 @@ system.time(
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
 # pg_test <- pg_dl_proc(pg_doi = pg_disko_all$doi[32])
-# rev(colnames(pg_disko_clean))
 
 # Remove unneeded columns
-pg_disko_clean <- pg_disko_sub %>% 
-  # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
-  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
+pg_disko_clean <- pg_disko_sub |> 
+  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at meta columns
+  dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
+  # Remove empty columns
+  mutate_if(is.character, ~na_if(., '')) |> 
+  janitor::remove_empty("cols") |> 
   # Manually remove problematic files- no need
-  # Manually remove problematic columns - these problems are dealt with later
-  # Switching out '' doesn't work due to an unidentified problem column
-  # mutate_all(~na_if(., '')) %>% 
-  # janitor::remove_empty("cols")# %>%
+  # Manually remove problematic columns - no need
   # Manage lon/lat columns - no need
   # Manage date column
-  dplyr::rename(date = `Date/Time`) %>% 
-  # mutate(date = as.character(date)) %>%
-  mutate(date = ifelse(date == "", NA, date),
-         # TODO" Adress errors in date columns here
-         # date = case_when(is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
-         #                  is.na(date) & !is.na(Date) ~ as.character(Date),
-         #                  TRUE ~ date),
-         date = as.Date(gsub("T.*", "", date))) %>%
+  dplyr::rename(date = `Date/Time`) |> 
+  mutate(date = case_when(is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`, 
+                          is.na(date) & !is.na(`Date/time end`) ~ `Date/time end`,
+                          is.na(date) & nchar(`Sampling date`) == 9 ~ sapply(str_split(`Sampling date`, "-"), "[[", 1),
+                          is.na(date) & nchar(`Sampling date`) == 4 ~ `Sampling date`,
+                          TRUE ~ date),
+         date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                          nchar(date) == 7 ~ paste0(date,"-01-01"),
+                          TRUE ~ date),
+         date = ifelse(date == "", NA, date)) |> 
+  mutate(date = as.Date(gsub("T.*", "", date))) |>
   # Manage depth column
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`))) %>%
-  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
+                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
+                           !is.na(`Depth [m] (maximum)`) ~ as.numeric(`Depth [m] (maximum)`),
+                           !is.na(`Depth [m] (mbsf)`) ~ as.numeric(`Depth [m] (mbsf)`),
+                           !is.na(`Depth [m] (in section/core)`) ~ as.numeric(`Depth [m] (in section/core)`),
+                           !is.na(`Depth water [m] (min)`) ~ as.numeric(`Depth water [m] (min)`),
+                           !is.na(`Depth water [m] (salt water)`) ~ as.numeric(`Depth water [m] (salt water)`))) |> 
+  mutate(depth = case_when(is.na(depth) & !is.na(`Depth water [m] (approximate/target depth)`) ~ as.numeric(`Depth water [m] (approximate/target depth)`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.] (Origin data)`) ~ -as.numeric(`Elevation [m a.s.l.] (Origin data)`),
                            is.na(depth) & !is.na(`Surf elev [m]`) ~ -as.numeric(`Surf elev [m]`),
-                           TRUE ~ depth)) %>%
+                           TRUE ~ depth)) |> 
   # dplyr::select(depth, everything())
   # Remove unwanted columns
-  # dplyr::select(-contains(c("Longitude ", "Latitude ", "Elev "))) %>%
+  dplyr::select(-contains(c("Longitude ", "Latitude ", "Elev "))) %>%
   # Finish up
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
@@ -2479,7 +2487,7 @@ pg_disko_Physical <- pg_var_melt(pg_disko_clean, query_Physical$pg_col_name, "ph
 # Carbonate chemistry
 pg_disko_Chemistry <- pg_var_melt(pg_disko_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_disko_Biology <- pg_var_melt(pg_disko_clean, query_Biology$pg_col_name, "bio") # empty
+pg_disko_Biology <- pg_var_melt(pg_disko_clean, query_Biology$pg_col_name, "bio")
 # Social
 pg_disko_Social <- pg_var_melt(pg_disko_clean, query_Social$pg_col_name, "soc") # empty
 
@@ -2490,7 +2498,7 @@ data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
 # Check that all columns were used
-# colnames(pg_disko_clean)[!colnames(pg_disko_clean) %in% unique(pg_disko_ALL$variable)]
+colnames(pg_disko_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_disko_clean)) %in% unique(pg_disko_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_disko",names(.GlobalEnv),value = TRUE)); gc()
@@ -2776,13 +2784,10 @@ pg_nuup_clean <- pg_nuup_sub |>
          date = ifelse(date == "", NA, date)) |> 
   mutate(date = as.Date(gsub("T.*", "", date))) |>
   # Manage depth column
-  dplyr::rename(depth = `Depth [m]`) |> 
   dplyr::rename(`Elevation [m.a.s.l.]` = `Elevation [m a.s.l.] (= m.a.s.L(Fix) + (Mid(Fix)-Mi...)`) |> 
-  mutate(depth = as.numeric(depth),
-         depth = case_when(is.na(depth) &!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           is.na(depth) &!is.na(`Depth water [m] (min)`) ~ as.numeric(`Depth water [m] (min)`),
-                           is.na(depth) &!is.na(`Depth water [m] (salt water)`) ~ as.numeric(`Depth water [m] (salt water)`),
-                           TRUE ~ depth)) |> 
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           !is.na(`Depth water [m] (min)`) ~ as.numeric(`Depth water [m] (min)`),
+                           !is.na(`Depth water [m] (salt water)`) ~ as.numeric(`Depth water [m] (salt water)`))) |> 
   mutate(depth = case_when(is.na(depth) & !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
                            is.na(depth) & !is.na(`Surf elev [m]`) ~ -as.numeric(`Surf elev [m]`),
@@ -3412,10 +3417,13 @@ system.time(
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
 # pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.869680")
 
-# Clean up for splitting into categories
+# Remove unneeded columns
 pg_por_clean <- pg_por_sub |> 
   # dplyr::select(contains(c("date", "lon", "lat")), everything()) |>   # Look at meta columns
   # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) |> # Look at depth columns
+  # Remove empty columns
+  mutate_if(is.character, ~na_if(., '')) |> 
+  janitor::remove_empty("cols") |> 
   # Manually remove problematic columns - no need
   # Manage lon/lat columns - no need
   # Manage date column
@@ -3456,7 +3464,7 @@ pg_por_Physical <- pg_var_melt(pg_por_clean, query_Physical$pg_col_name, "phys")
 # Carbonate chemistry
 pg_por_Chemistry <- pg_var_melt(pg_por_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_por_Biology <- pg_var_melt(pg_por_clean, query_Biology$pg_col_name, "bio") # empty
+pg_por_Biology <- pg_var_melt(pg_por_clean, query_Biology$pg_col_name, "bio")
 # Social
 pg_por_Social <- pg_var_melt(pg_por_clean, query_Social$pg_col_name, "soc") # empty
 
@@ -3467,7 +3475,7 @@ data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_p
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
 # Check that all columns were used
-# colnames(pg_por_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_por_clean)) %in% unique(pg_por_ALL$variable)]
+colnames(pg_por_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_por_clean)) %in% unique(pg_por_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
