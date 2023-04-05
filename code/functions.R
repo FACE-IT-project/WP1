@@ -283,6 +283,7 @@ pg_dl_prep <- function(pg_dl){
       
       # Get names of desired columns
       # TODO: Consider removing column notes at this step: gsub("\\] \\(.*", "\\]", colnames(pg_dl$data)
+      ## This could cause issues by forcing columns to have same names, e.g. Depth water [m] (min) + Depth water [m] (max)
       # NB: It is necessary to allow partial matches via grepl() because column names
       # occasionally have notes about the data attached to them, preventing exact matches
       # col_names_df <- tibble(names = sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1))
@@ -424,8 +425,11 @@ pg_dl_save <- function(file_name, doi_dl_list){
   # Start message
   print(paste0("Started on ",file_name," at ",Sys.time()))
   
+  # Load PANGAEA variable list if it's missing
+  if(!exists("query_ALL")) source("code/key_drivers.R")
+  
   # Get list of files to download
-  doi_dl <- filter(doi_dl_list, file == file_name)[1:100,]
+  doi_dl <- filter(doi_dl_list, file == file_name)[1:20,] # Small batches to avoid downloading parent duplicates
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
@@ -531,10 +535,8 @@ pg_duplicates <- function(pg_doi_df, pg_size_df){
 pg_site_filter <- function(file_name, site_name){
   
   # Load data
-  # system.time(
   pg_dat <- load_pg(file_name) |>
     dplyr::rename(lon = Longitude, lat = Latitude)
-  # )
   file_site <- str_remove_all(file_name, "data/pg_data/pg_|.csv")
   bbox <- bbox_from_name(site_name)
   if(file_site == site_name){
@@ -549,6 +551,8 @@ pg_site_filter <- function(file_name, site_name){
   if(nrow(pg_res) == 0){
     return()
   } else {
+    pg_base_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_Meta$pg_col_name]
+    pg_res <- mutate(pg_res, across(dplyr::all_of(pg_base_meta_columns), as.character))
     return(pg_res)  
   }
   # rm(file_name, site_name, pg_res, bbox, file_site); gc()
