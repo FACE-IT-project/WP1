@@ -1390,29 +1390,39 @@ system.time(
 
 # Remove unneeded columns
 pg_stor_clean <- pg_stor_sub |> 
-  # dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) %>%  # Look at depth columns
+  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at meta columns
+  dplyr::select(contains(c("press", "depth", "elev", "lon", "lat")), everything()) |> # Look at depth columns
+  # Remove empty columns
+  mutate_if(is.character, ~na_if(., '')) |> 
+  janitor::remove_empty("cols") |> 
   # Manually remove problematic files - No issues
   # Manually remove problematic columns - No issues
   # Manage lon/lat columns - No issues
   # Manage date column
   dplyr::rename(date = `Date/Time`) |> 
+  mutate(date = case_when(is.na(date) & nchar(`Sampling date`) == 9 ~ sapply(str_split(`Sampling date`, "-"), "[[", 1),
+                          TRUE ~ date),
+         date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                          nchar(date) == 7 ~ paste0(date,"-01-01"),
+                          TRUE ~ date),) |> 
   mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
+  dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`) |> 
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
-                           !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`))) |> 
-  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -`Elevation [m]`,
-                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
-                           TRUE ~ depth)) %>% 
+                           !is.na(`Depth [m]1`) ~ as.numeric(`Depth [m]1`))) |> 
+  mutate(depth = case_when(is.na(depth) & !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
+                           is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
+                           TRUE ~ depth)) |> 
+  # dplyr::select(depth, everything())
   # Remove unwanted columns
-  dplyr::select(-"Press [dbar]",- "Depth water [m]",- "Depth bot [m]",
-                -"Bathy depth interp/grid [m]",
-                -contains(c("Elev ", "Elevation ", "Latitude", "Longitude"))) |> 
+  dplyr::select(-contains(c("Elev ", "Elevation ", "Latitude", "Longitude"))) |> 
   # Finish up
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
   # NB: This must be changed manually when new data are loaded
-  mutate(across(!clean_cols, as.numeric)) |>  
+  mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
   janitor::remove_empty("cols") |> 
   # NB: Site exists earlier to reflect data from different files for metadata joining
   mutate(site = "stor")
@@ -1426,7 +1436,7 @@ pg_stor_Physical <- pg_var_melt(pg_stor_clean, query_Physical$pg_col_name, "phys
 # Carbonate chemistry
 pg_stor_Chemistry <- pg_var_melt(pg_stor_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio") # empty
+pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio")
 # Social
 pg_stor_Social <- pg_var_melt(pg_stor_clean, query_Social$pg_col_name, "soc") # empty
 
@@ -1437,7 +1447,7 @@ data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_
 save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
 # Check that all columns were used
-# colnames(pg_stor_clean)[!colnames(pg_stor_clean) %in% unique(pg_stor_ALL$variable)]
+colnames(pg_stor_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_stor_clean)) %in% unique(pg_stor_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
@@ -1478,8 +1488,7 @@ full_product_stor <- rbind(dplyr::select(pg_stor_ALL, -site),
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 save(full_product_stor, file = "data/full_data/full_product_stor.RData")
-plyr::l_ply(unique(full_product_stor$category), save_category, .parallel = T,
-            df = full_product_stor, data_type = "full", site_name = "stor")
+save_data(full_product_stor)
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 
@@ -1796,8 +1805,7 @@ full_product_green <- rbind(green_income, green_employment, green_unemployment, 
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
-plyr::l_ply(unique(full_product_green$category), save_category, .parallel = T,
-            df = full_product_green, data_type = "full", site_name = "green") # NB: Site name requires some consideration
+save_data(full_product_green) # NB: Shouldn't save anything
 rm(list = grep("green_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -1808,7 +1816,7 @@ rm(list = grep("green_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg young files
 system.time(
   pg_young_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "young")
-) # 30 seconds
+) # 29 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -1816,32 +1824,43 @@ system.time(
 
 # Remove unneeded columns
 pg_young_clean <- pg_young_sub |> 
-  # dplyr::select(contains(c("date", "lon", "lat")), everything()) %>%  # Look at meta columns
-  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
+  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at meta columns
+  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) |> # Look at depth columns
+  # Remove empty columns
+  mutate_if(is.character, ~na_if(., '')) |> 
+  janitor::remove_empty("cols") |> 
   # Manually remove problematic files - no need
   # Manually remove problematic columns - no need
   # Manage lon/lat columns - no need
   # Manage date column
   dplyr::rename(date = `Date/Time`) |> 
-  mutate(date = ifelse(date == "", NA, date),
-         date = case_when(date == "2002-05" ~ "2002-05-01",
-                          # is.na(date) & !is.na(Date) ~ as.character(Date),
+  mutate(date = case_when(is.na(date) & !is.na(`Date/time start`) ~ `Date/time start`,
+                          is.na(date) & nchar(`Sampling date`) == 9 ~ sapply(str_split(`Sampling date`, "-"), "[[", 1),
                           TRUE ~ date),
-         date = as.Date(gsub("T.*", "", date))) |> 
+         date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                          nchar(date) == 7 ~ paste0(date,"-01-01"),
+                          TRUE ~ date),
+         date = ifelse(date == "", NA, date)) |> 
+  mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
-  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`))) |> 
-  mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -`Elevation [m a.s.l.]`,
-                           TRUE ~ depth)) %>% 
+  dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`) |> 
+  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
+                           !is.na(`Depth [m]1`) ~ as.numeric(`Depth [m]1`))) |> 
+  mutate(depth = case_when(is.na(depth) & !is.na(`Depth top [m]`) ~ as.numeric(`Depth top [m]`),
+                           is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
+                           is.na(depth) & !is.na(`Elevation [m a.s.l.] (GLWD)`) ~ -as.numeric(`Elevation [m a.s.l.] (GLWD)`),
+                           TRUE ~ depth)) |>  
   # dplyr::select(depth, everything())
   # Remove unwanted columns
   dplyr::select(-"Longitude 2", -"Latitude 2",
-                -"Date/time end",
-                -contains(c("Elevation ", "Depth "))) |> 
+                -contains(c("Date/", "Elevation ", "Press "))) |> 
   # Finish up
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
   # NB: This must be changed manually when new data are loaded
-  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
   janitor::remove_empty("cols") |> 
   # NB: Site exists earlier to reflect data from different files for metadata joining
   mutate(site = "young")
@@ -1855,7 +1874,7 @@ pg_young_Physical <- pg_var_melt(pg_young_clean, query_Physical$pg_col_name, "ph
 # Carbonate chemistry
 pg_young_Chemistry <- pg_var_melt(pg_young_clean, query_Chemistry$pg_col_name, "chem")
 # Biology
-pg_young_Biology <- pg_var_melt(pg_young_clean, query_Biology$pg_col_name, "bio") # empty
+pg_young_Biology <- pg_var_melt(pg_young_clean, query_Biology$pg_col_name, "bio")
 # Social
 pg_young_Social <- pg_var_melt(pg_young_clean, query_Social$pg_col_name, "soc") # empty
 
@@ -1866,7 +1885,7 @@ data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_youn
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
 # Check that all columns were used
-# colnames(pg_young_clean)[!colnames(pg_young_clean) %in% unique(pg_young_ALL$variable)]
+colnames(pg_young_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_young_clean)) %in% unique(pg_young_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
@@ -1953,8 +1972,7 @@ full_product_young <- rbind(dplyr::select(pg_young_ALL, -site),
 data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
 save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 save(full_product_young, file = "data/full_data/full_product_young.RData")
-plyr::l_ply(unique(full_product_young$category), save_category, .parallel = T,
-            df = full_product_young, data_type = "full", site_name = "young")
+save_data(full_product_young)
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 
@@ -2434,7 +2452,7 @@ system.time(
 # Remove unneeded columns
 pg_disko_clean <- pg_disko_sub |> 
   # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at meta columns
-  dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) %>%  # Look at depth columns
+  # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) |> # Look at depth columns
   # Remove empty columns
   mutate_if(is.character, ~na_if(., '')) |> 
   janitor::remove_empty("cols") |> 
@@ -2473,7 +2491,7 @@ pg_disko_clean <- pg_disko_sub |>
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
   # NB: This must be changed manually when new data are loaded
-  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
   janitor::remove_empty("cols") |> 
   # NB: Site exists earlier to reflect data from different files for metadata joining
   mutate(site = "disko")
@@ -2550,8 +2568,7 @@ full_product_disko <- rbind(dplyr::select(pg_disko_ALL, -site),
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
-plyr::l_ply(unique(full_product_disko$category), save_category, .parallel = T,
-            df = full_product_disko, data_type = "full", site_name = "disko")
+save_data(full_product_disko)
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
@@ -2801,7 +2818,7 @@ pg_nuup_clean <- pg_nuup_sub |>
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
   # NB: This must be changed manually when new data are loaded
-  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
   janitor::remove_empty("cols") |> 
   # NB: Site exists earlier to reflect data from different files for metadata joining
   mutate(site = "nuup")
@@ -3419,7 +3436,7 @@ system.time(
 
 # Remove unneeded columns
 pg_por_clean <- pg_por_sub |> 
-  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |>   # Look at meta columns
+  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at meta columns
   # dplyr::select(contains(c("depth", "press", "bathy", "elev")), everything()) |> # Look at depth columns
   # Remove empty columns
   mutate_if(is.character, ~na_if(., '')) |> 
@@ -3436,21 +3453,21 @@ pg_por_clean <- pg_por_sub |>
                           TRUE ~ date)) |> 
   mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
-  dplyr::rename(depth = `Depth [m]`) |> 
-  mutate(depth = as.numeric(depth),
-         depth = case_when(is.na(depth) & !is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+  mutate(depth = case_when(is.na(depth) & !is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
+                           is.na(depth) & !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
                            is.na(depth) & !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
                            TRUE ~ depth)) |> 
   mutate(depth = case_when(is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
                            is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
                            TRUE ~ depth)) |> 
+  # dplyr::select(depth, everything())
   # Remove unwanted columns
   dplyr::select(-contains(c("Depth ", "Elevation ", "Press "))) |> 
   # Finish up
   left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything(), -meta_idx) |> 
   # Manually remove problematic files - no need
-  mutate(across(!all_of(clean_cols), as.numeric)) |>  
+  mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
   janitor::remove_empty("cols") |> 
   # NB: Site exists earlier to reflect data from different files for metadata joining
   mutate(site = "por")
