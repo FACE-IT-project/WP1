@@ -93,13 +93,28 @@ barents_beakedredfish <- data.frame(type = "CTD",
                          citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html\');">NPI (2022)</a>',
                          note = NA)
 
+# northeast arctic cod population
+barents_northeastcod <- data.frame(type = "CTD",
+                         data_name = "Biomass: northeast arctic cod",
+                         date_range = "1946 to 2022",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">NPI (2022)</a>',
+                         note = NA)
+
+# young herring population
+# barents_youngherring <- data.frame(type = "CTD",
+#                          data_name = "Biomass: northeast arctic cod",
+#                          date_range = "1946 to 2022",
+#                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
+#                          citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">NPI (2022)</a>',
+#                          note = NA)
 
 
 
 
 
 # Bind them together
-metadata_isfjorden <- rbind(kong_glgu, barents_polarpod, barents_capelin, barents_eiders, kong_seabirds, barents_golden_redfish, svalbard_ivorygull, barents_beakedredfish)
+metadata_isfjorden <- rbind(kong_glgu, barents_polarpod, barents_capelin, barents_eiders, kong_seabirds, barents_golden_redfish, svalbard_ivorygull, barents_beakedredfish, barents_northeastcod)
 ```
 
 ```{r isfjorden-meta-data-table}

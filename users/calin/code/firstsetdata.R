@@ -167,13 +167,31 @@ barents_beaked_redfish_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of
 # northeast arctic cod population
 # survey, specie data, 1992-2020,
 
-# barents_northeast_cod_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of-northeast-arcti.csv") #%>% 
-#   pivot_longer(cols = c(`Mature.stock`, `Immature.stock`)) %>% 
+barents_northeast_cod_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of-northeast-arcti.csv", sep = ";") %>% 
+  pivot_longer(cols = c(`Immature.stock`, `Spawning.stock`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/", 
+         citation = "Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html", 
+         lon = NA, lat = NA, depth = NA, 
+         variable = paste0("northeast arctic ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "barents sea", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# young herring population
+# # survey, specie data, 1992-2020,
+# 
+# barents_young_herring_population <- read_delim("P:/FACE-IT_data/svalbard/biomass-index-for-young.csv") #%>% 
+#   pivot_longer(cols = c(`Immature.stock`, `Spawning.stock`)) %>% 
 #   mutate(date_accessed = as.Date("2023-04-12"), 
-#          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/", 
-#          citation = "Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html", 
+#          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/", 
+#          citation = "Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html", 
 #          lon = NA, lat = NA, depth = NA, 
-#          variable = paste0("beaked redfish ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+#          variable = paste0("northeast arctic ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
 #          category = "bio",
 #          driver ="biomass",
 #          type = "in situ",
@@ -181,8 +199,6 @@ barents_beaked_redfish_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of
 #          date = as.Date(paste0(Category,"-12-31"))) %>% 
 #   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
 #   filter(!is.na(value))
-
-
 
 
 
