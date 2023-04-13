@@ -68,6 +68,14 @@ kong_calanus <- data.frame(type = "CTD",
                          note = NA)
 
 
+# kong kittiwake population
+
+kong_ritr <- data.frame(type = "CTD",
+                         data_name = "Biomass: rissa tridactyla (black-legged kittiwake)",
+                         date_range = "1988 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake//">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
+                         note = NA)
 
 
 
