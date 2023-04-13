@@ -311,6 +311,44 @@ svalbard_se_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average
   filter(!is.na(value))
 
 
+# kong  kittiwake population
+
+kong_kittiwakke_population <- read.csv("P:/FACE-IT_data/kongsfjorden/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
+  filter(name == "Ossian.Sars") %>% 
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
+         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = "kittiwake population [% average in the colony]",
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
+# is  kittiwake population
+
+is_kittiwakke_population <- read.csv("P:/FACE-IT_data/kongsfjorden/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
+  filter(name == "Tschermakfjellet"| name == "Alkhornet") %>% 
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
+         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = "kittiwake population [% average in the colony]",
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "is",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
 
 
 
@@ -327,7 +365,8 @@ kong_eiders_stock
 kong_data <- rbind(kong_glaucous_gull_population, 
                    kong_eiders_stock,
                    kong_seabird, 
-                   kong_calanus_population
+                   kong_calanus_population,
+                   kong_kittiwakke_population
                    )
 
 barents_data <- rbind(barents_polar_cod, 
@@ -345,9 +384,13 @@ svalbard_data <- rbind(svalbard_ivory_gull_population,
                        svalbard_walrus_population
                        )
 
+is_data <- rbind(is_kittiwakke_population
+                 )
+
 arctic_data <- rbind(kong_data,
                      barents_data,
                      svalbard_data,
+                     is_data
                      )
 
 
