@@ -26,41 +26,31 @@ options(DT.options = list(pageLength = 5,
 ```
 
 
-```{r isfjorden-meta-data}
+```{r kongsfjorden-meta-data}
 
-# glaucous gull population
-kong_glgu <- data.frame(type = "CTD",
-                         data_name = "Biomass: glaucous gull",
+
+# kong glaucous gull population
+
+kong_lahy <- data.frame(type = "CTD",
+                         data_name = "Biomass: larus hyperboreus (glaucous gull)",
                          date_range = "2005 to 2021",
                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/">MOSJ</a>',
                          citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html\');">NPI (2022)</a>',
                          note = NA)
 
-# polar pod population
-barents_polarpod <- data.frame(type = "CTD",
-                         data_name = "Biomass: polar cod",
-                         date_range = "1986 to 2021",
-                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea//">MOSJ</a>',
-                         citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html\');">NPI (2022)</a>',
-                         note = NA)
 
-# capelin population
-barents_capelin <- data.frame(type = "CTD",
-                         data_name = "Biomass: capelin",
-                         date_range = "1973 to 2021",
-                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea//">MOSJ</a>',
-                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html"\');">NPI (2022)</a>',
-                         note = NA)
+# kong common eiders population
 
-# common eiders population
-barents_eiders <- data.frame(type = "CTD",
-                         data_name = "Biomass: common eiders",
+kong_somobo <- data.frame(type = "CTD",
+                         data_name = "Biomass: somateria mollissima borealis (common eider)",
                          date_range = "1981 to 2022",
                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/common-eider/">MOSJ</a>',
                          citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Breeding population of common eiders in Kongsfjorden, number of breeding pairs. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/common-eider.html\');">NPI (2022)</a>',
                          note = NA)
 
-# seabird population
+
+# kong seabird population
+
 kong_seabirds <- data.frame(type = "CTD",
                          data_name = "Biomass: seabirds",
                          date_range = "2011 to 2018",
@@ -68,59 +58,156 @@ kong_seabirds <- data.frame(type = "CTD",
                          citation = '<a onclick="alert(\'Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd\');">Descamps and Strøm (2021)</a>',
                          note = NA)
 
-# golden redfish population
-barents_golden_redfish <- data.frame(type = "CTD",
-                         data_name = "Biomass: golden redfish",
-                         date_range = "1986 to 2019",
-                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/">MOSJ</a>',
-                         citation = '<a onclick="alert(\'Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL:
- https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/\');">NPI (2022)</a>',
+# kong calanus population
+
+kong_calanus <- data.frame(type = "CTD",
+                         data_name = "Biomass: calanus species",
+                         date_range = "1996 to 2020",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-species-composition-in-kongsfjorden/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Calanus species composition in Kongsfjorden. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-species-composition.html\');">NPI (2022)</a>',
                          note = NA)
 
-# ivory gull population
-svalbard_ivorygull <- data.frame(type = "CTD",
-                         data_name = "Biomass: ivory gull",
-                         date_range = "2009 to 2021",
-                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/">MOSJ</a>',
-                         citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html\');">NPI (2022)</a>',
-                         note = NA)
 
-# beaked redfish population
-barents_beakedredfish <- data.frame(type = "CTD",
-                         data_name = "Biomass: beaked redfish",
-                         date_range = "1992 to 2020",
-                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/">MOSJ</a>',
-                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html\');">NPI (2022)</a>',
-                         note = NA)
-
-# northeast arctic cod population
-barents_northeastcod <- data.frame(type = "CTD",
-                         data_name = "Biomass: northeast arctic cod",
-                         date_range = "1946 to 2022",
-                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
-                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">NPI (2022)</a>',
-                         note = NA)
-
-# young herring population
-# barents_youngherring <- data.frame(type = "CTD",
-#                          data_name = "Biomass: northeast arctic cod",
-#                          date_range = "1946 to 2022",
-#                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
-#                          citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">NPI (2022)</a>',
-#                          note = NA)
 
 
 
 
 
 # Bind them together
-metadata_isfjorden <- rbind(kong_glgu, barents_polarpod, barents_capelin, barents_eiders, kong_seabirds, barents_golden_redfish, svalbard_ivorygull, barents_beakedredfish, barents_northeastcod)
+metadata_kongsfjorden <- rbind(kong_lahy, kong_somobo, kong_seabirds, kong_calanus)
 ```
 
-```{r isfjorden-meta-data-table}
-DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
-              caption = "Table 2: Data that have been accumulated for Isfjorden. Full meta-database available via 'Data' -> 'Meta-database' tab above.")
+```{r kongsfjorden-meta-data-table}
+DT::datatable(metadata_kongsfjorden, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "Table 1: Data that have been accumulated for Kongsfjorden. Full meta-database available via 'Data' -> 'Meta-database' tab above.")
 ```
 
 <br>
 
+
+
+
+
+
+
+```{r barents-meta-data}
+
+
+# barents polar pod population
+
+barents_bosa <- data.frame(type = "CTD",
+                         data_name = "Biomass: boreogadus saida (polar cod)",
+                         date_range = "1986 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea//">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html\');">NPI (2022)</a>',
+                         note = NA)
+
+# barents capelin population
+
+barents_mavi <- data.frame(type = "CTD",
+                         data_name = "Biomass: mallotus villosus (capelin)",
+                         date_range = "1973 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea//">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html"\');">IMR (2022)</a>',
+                         note = NA)
+
+
+# barents golden redfish population
+
+barents_seno <- data.frame(type = "CTD",
+                         data_name = "Biomass: sebastes norvegicus (golden redfish)",
+                         date_range = "1986 to 2019",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL:
+https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/\');">IMR (2023)</a>',
+                         note = NA)
+
+
+# barents beaked redfish population
+
+barents_seme <- data.frame(type = "CTD",
+                         data_name = "Biomass: sebastes mentella (beaked redfish)",
+                         date_range = "1992 to 2020",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html\');">IMR (2022)</a>',
+                         note = NA)
+
+
+# barents northeast arctic cod population
+
+barents_gamo <- data.frame(type = "CTD",
+                         data_name = "Biomass: gadus morhua (northeast arctic cod)",
+                         date_range = "1946 to 2022",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
+                         note = NA)
+
+
+# barents young herring population
+
+barents_youngclha <- data.frame(type = "CTD",
+                         data_name = "Biomass: clupea harengus (young herring)",
+                         date_range = "2004 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2022). Biomass index for young herring 1–3 years in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/young-herring-population.html\');">IMR (2022)</a>',
+                         note = NA)
+
+
+
+
+# Bind them together
+metadata_barents <- rbind(barents_bosa, barents_mavi, barents_seno, barents_seme,barents_gamo, barents_youngclha)
+```
+
+```{r barents-meta-data-table}
+DT::datatable(metadata_barents, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "Table 2: Data that have been accumulated for Barents Sea. Full meta-database available via 'Data' -> 'Meta-database' tab above.")
+```
+
+<br>
+
+
+
+
+
+```{r svalbard-meta-data}
+
+# svalbard ivory gull population
+svalbard_paeb <- data.frame(type = "CTD",
+                         data_name = "Biomass: pagophila eburnea (ivory gull)",
+                         date_range = "2009 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html\');">NPI (2022)</a>',
+                         note = NA)
+
+
+# svalbard walrus population
+svalbard_odma <- data.frame(type = "CTD",
+                         data_name = "Biomass: odobenus marinus (walrus)",
+                         date_range = "1980 to 2018",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/walrus/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Walrus population in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/walrus-population.html\');">NPI (2022)</a>',
+                         note = NA)
+
+# svalbard calanus population (north and west)
+svalbard_nwcalanus <- data.frame(type = "CTD",
+                         data_name = "Biomass: calanus species (north and west)",
+                         date_range = "2009 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                         note = NA)
+
+
+
+
+
+# Bind them together
+metadata_svalbard <- rbind(svalbard_paeb, svalbard_odma, svalbard_nwcalanus)
+```
+
+```{r svalbard-meta-data-table}
+DT::datatable(metadata_svalbard, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "Table 3: Data that have been accumulated for Svalbard. Full meta-database available via 'Data' -> 'Meta-database' tab above.")
+```
+
+<br>
