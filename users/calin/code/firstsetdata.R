@@ -236,20 +236,21 @@ kong_calanus_population <- read.csv("P:/FACE-IT_data/kongsfjorden/calanus-specie
 
 # svalbard (north and west) calanus population
 
-# svalbard_nw_calanus_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>% 
-#   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>% 
-#   mutate(date_accessed = as.Date("2023-04-13"), 
-#          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/", 
-#          citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html", 
-#          lon = NA, lat = NA, depth = NA, 
-#          variable = paste0(substr(str_replace_all(tolower(name),"\\."," "),1, 30)," calanus [g/m²]"),
-#          category = "bio",
-#          driver ="biomass",
-#          type = "in situ",
-#          site = "kong", 
-#          date = as.Date(paste0(Category,"-12-31"))) #%>% 
-#   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-#   filter(!is.na(value))
+svalbard_nw_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(!name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = paste0(stri_replace_last(tolower(name),"[.]"," ")," calanus [g/m²]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong",
+         date = as.Date(paste0(Category,"-12-31"))) #%>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
 
 
 
