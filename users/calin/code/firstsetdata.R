@@ -391,6 +391,7 @@ barents_data <- rbind(barents_polar_cod,
                       barents_northeast_cod_population, 
                       barents_young_herring_population
                       )
+
 svalbard_data <- rbind(svalbard_ivory_gull_population, 
                        svalbard_nw_calanus_mm_population,
                        svalbard_nw_calanus_tot_population,
