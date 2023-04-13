@@ -8,6 +8,7 @@ library(tidyverse)
 library(janitor)
 library(ggridges)
 library(ggpubr)
+library(stringi)
 
 
 # Data --------------------------------------------------------------------
@@ -234,7 +235,7 @@ kong_calanus_population <- read.csv("P:/FACE-IT_data/kongsfjorden/calanus-specie
   filter(!is.na(value))
 
 
-# svalbard (north and west) calanus population
+# svalbard (north and west) calanus population by size
 
 svalbard_nw_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
@@ -243,14 +244,73 @@ svalbard_nw_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
          citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(stri_replace_last(tolower(name),"[.]"," ")," calanus [g/m²]"),
+         variable = paste0(substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," calanus [g/m²]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
-         site = "kong",
-         date = as.Date(paste0(Category,"-12-31"))) #%>%
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
+
+
+# svalbard (north and west) calanus population tot
+
+svalbard_nw_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = "calanus [g/m²]",
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
+# svalbard (south and east) calanus population by size
+
+svalbard_se_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(!name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = paste0(substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," calanus [g/m²]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
+# svalbard (south and east) calanus population tot
+
+svalbard_se_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = "calanus [g/m²]",
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
 
 
 
@@ -264,7 +324,31 @@ kong_eiders_stock
 
 # Datasets ----------------------------------------------------------------
 
-arctic_data <- rbind(kong_seabird,kong_eiders_stock, barents_capelin_stock,barents_polar_cod, kong_glaucous_gull_population)
+kong_data <- rbind(kong_glaucous_gull_population, 
+                   kong_eiders_stock,
+                   kong_seabird, 
+                   kong_calanus_population
+                   )
+
+barents_data <- rbind(barents_polar_cod, 
+                      barents_beaked_redfish_population, 
+                      barents_capelin_stock, 
+                      barents_golden_redfish_population, 
+                      barents_northeast_cod_population, 
+                      barents_young_herring_population
+                      )
+svalbard_data <- rbind(svalbard_ivory_gull_population, 
+                       svalbard_nw_calanus_mm_population,
+                       svalbard_nw_calanus_tot_population,
+                       svalbard_se_calanus_mm_population,
+                       svalbard_se_calanus_tot_population,
+                       svalbard_walrus_population
+                       )
+
+arctic_data <- rbind(kong_data,
+                     barents_data,
+                     svalbard_data,
+                     )
 
 
 # Figures -----------------------------------------------------------------

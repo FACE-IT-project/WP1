@@ -189,8 +189,17 @@ svalbard_odma <- data.frame(type = "CTD",
                          citation = '<a onclick="alert(\'Norwegian Polar Institute (2022). Walrus population in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/walrus-population.html\');">NPI (2022)</a>',
                          note = NA)
 
-# svalbard calanus population (north and west)
-svalbard_nwcalanus <- data.frame(type = "CTD",
+# svalbard calanus population by size (north and west)
+svalbard_nwmmcalanus <- data.frame(type = "CTD",
+                         data_name = "Biomass: calanus species size (north and west)",
+                         date_range = "2009 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                         note = NA)
+
+
+# svalbard calanus population all (north and west)
+svalbard_nwtotcalanus <- data.frame(type = "CTD",
                          data_name = "Biomass: calanus species (north and west)",
                          date_range = "2009 to 2021",
                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
@@ -198,11 +207,26 @@ svalbard_nwcalanus <- data.frame(type = "CTD",
                          note = NA)
 
 
+# svalbard calanus population by size (south and east)
+svalbard_semmcalanus <- data.frame(type = "CTD",
+                         data_name = "Biomass: calanus species size (south and east)",
+                         date_range = "1997 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                         note = NA)
 
+
+# svalbard calanus population all (south and east)
+svalbard_setotcalanus <- data.frame(type = "CTD",
+                         data_name = "Biomass: calanus species (south and east)",
+                         date_range = "1997 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                         citation = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                         note = NA)
 
 
 # Bind them together
-metadata_svalbard <- rbind(svalbard_paeb, svalbard_odma, svalbard_nwcalanus)
+metadata_svalbard <- rbind(svalbard_paeb, svalbard_odma, svalbard_nwmmcalanus, svalbard_nwtotcalanus, svalbard_semmcalanus, svalbard_setotcalanus)
 ```
 
 ```{r svalbard-meta-data-table}
