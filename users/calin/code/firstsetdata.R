@@ -13,7 +13,7 @@ library(stringi)
 
 
 
-# Svalbard area -----------------------------------------------------------
+# Data -----------------------------------------------------------
 ## Svalbard data -----------------------------------------------------------
 
 # ivory gull population
@@ -462,32 +462,6 @@ is_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillem
 
 
 
-
-# Greenland area ----------------------------------------------------------
-# is  kittiwake population
-
-is_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
-  filter(name == "Tschermakfjellet"| name == "Alkhornet") %>% 
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
-         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
-         lon = NA, lat = NA, depth = NA,
-         variable = "Rissa tridactyla (kittiwake) population [% average in the colony]",
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "is",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-## Young Sound -------------------------------------------------------------
-
-
-## Disko Bay ---------------------------------------------------------------
-
-
-## Nuup Kangerlua ----------------------------------------------------------
 
 
 
