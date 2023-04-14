@@ -29,3 +29,19 @@ test1 <- arctic_data %>%
   geom_smooth(method = "lm")
 
 test1
+
+
+# Stat --------------------------------------------------------------------
+
+test2 <- arctic_data %>% 
+  rbind(site_data) %>% 
+  filter(grepl("calanus|glaucous gull|ice",variable)) %>% 
+  # dplyr::select(type:value) %>% 
+  mutate(year = year(date),
+         month = month(date)) %>% 
+  dplyr::select(c(year, month, variable, value)) %>% 
+  pivot_wider(names_from = variable, values_from = value, values_fn = mean)
+
+cor.test(x = test2$`calanus  arctic species [%]`, 
+            y = test2$`sea ice cover [proportion]`, 
+            use = "pairwise.complete.obs" )
