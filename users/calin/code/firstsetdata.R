@@ -112,6 +112,23 @@ kong_kittiwakke_population <- read.csv("P:/FACE-IT_data/kongsfjorden/black-legge
   filter(!is.na(value))
 
 
+# kong Brünnich’s guillemot population
+
+kong_brguillemot_population <- read.csv("P:/FACE-IT_data/kongsfjorden/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) #%>%
+  filter(name == "Ossian.Sarsfjellet") %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
+         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = "kittiwake population [% average in the colony]",
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
 
 ## Barents data ------------------------------------------------------------
 
