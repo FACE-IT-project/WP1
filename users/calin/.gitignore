@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# R data files in data folder
+data/*.RData
+
+# R html files
+analysis/*.html
