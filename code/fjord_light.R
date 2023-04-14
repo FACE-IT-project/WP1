@@ -76,21 +76,24 @@ grid_size <- function(df){
   return(res)
   # rm(df, unique_lon, unique_lat, lon_half, lat_half, lon_dist, lat_dist, sq_area, res)
 }
-kong_res <- grid_size(sea_df)
 
-# Merge with coastal sub
-## Not necessary, rather just filter by depth
-coast_res <- coast_df |> 
-  left_join(kong_res)
+# Get size in square kilometres per pixel
+kong_res <- grid_size(sea_df)
 
 
 # Compare surface areas ---------------------------------------------------
 
-# PAR0m and kdpar for year 2012 as 3 columns data frame
+# PAR as 3 columns data frame
 P02012 <- flget_optics(fjorddata, "PAR0m", "Yearly", year = 2012, mode = "3col")
+P0June <- flget_optics(fjorddata, optics = "PAR0m", period = "Monthly", month = 6, mode = "3col")
+PBJune <- flget_optics(fjorddata, optics = "PARbottom", period = "Monthly", month = 6, mode = "3col")
 PB2012 <- flget_optics(fjorddata, "PARbottom", "Yearly", year = 2012, mode = "3col")
 P0global <- flget_optics(fjorddata, "PAR0m", "Global", mode = "3col")
 PBglobal <- flget_optics(fjorddata, "PARbottom", "Global", mode = "3col")
+kdglobal <- flget_optics(fjorddata, "kdpar", "Global", mode = "3col")
+
+# Equation
+bkdPAR <- left_join(kong_res, P0global)
 
 # Get surface areas from FjordLight package
 # as a function
@@ -98,6 +101,14 @@ fG <- flget_Pfunction(fjorddata, "Global", plot = FALSE)
 # then you can use it; for instance :
 irradiance_levels <- c(0.1, 1, 10)
 fG(irradiance_levels)
+
+# Internal code
+with(fjorddata, {
+  g <- fjorddata[["GlobalPfunction"]]
+  ret <- data.frame(irradianceLevel, g)
+  # names(ret) <- c("irradianceLevel", layername)
+  return(ret)
+})
 
 # As a 2 column data.frame
 f2012 <- flget_Pfunction(fjorddata, "Yearly", year = 2012, mode = "2col")
@@ -111,25 +122,27 @@ kong_surf_total <- sum(kong_res$sq_area)
 kong_surf_sea <- kong_res |> 
   filter(depth <= 0) |> 
   summarise(sq_area = sum(sq_area, na.rm = T))
+kong_surf_sea
 kong_surf_coast <- kong_res |> 
   filter(depth >= -200, depth <= 0) |> 
   summarise(sq_area = sum(sq_area, na.rm = T))
+kong_surf_coast
 
 # Manual proportions of surface > 10 PAR
-kong_global_coast_PAR10 <- P0global |> 
+kong_global_coast_PAR10 <- PBglobal |> 
   dplyr::rename(lon = longitude, lat = latitude) |> 
   left_join(kong_res) |> 
   filter(depth >= -200, depth <= 0) |> 
-  filter(PAR0m_Global >= 10) |> 
+  filter(PARbottom_Global >= 10) |>
   summarise(sq_area = sum(sq_area, na.rm = T))
 kong_global_coast_PAR10/kong_surf_coast
 
 # Manual proportions of surface > 0.1 PAR
-kong_global_coast_PAR0.1 <- P0global |> 
+kong_global_coast_PAR0.1 <- PBglobal |> 
   dplyr::rename(lon = longitude, lat = latitude) |> 
   left_join(kong_res) |> 
   filter(depth >= -200, depth <= 0) |> 
-  filter(PAR0m_Global >= 0.1) |> 
+  filter(PARbottom_Global >= 0.1) |> 
   summarise(sq_area = sum(sq_area, na.rm = T))
 kong_global_coast_PAR0.1/kong_surf_coast
 
@@ -143,3 +156,26 @@ Arctic_AM <- left_join(Arctic_land_distance, Arctic_depth, by = c("lon", "lat"))
                                         pol.x = Arctic_boundary[["lon"]], pol.y = Arctic_boundary[["lat"]])) %>% 
   filter(in_grid >= 1) %>% 
   dplyr::select(-in_grid)
+
+## Manually create regions
+# bbox_kong <- c(11, 12.69, 78.86, 79.1)
+### TODO: Probably more effective to carve out these shapes from the hi-res coastline polygons
+bbox_regions_kong <- data.frame(region = factor(c("Inner", "Mid", "Outer", "Mouth", "Discard"),
+                                                levels = c("Inner", "Mid", "Outer", "Mouth", "Discard")),
+                                lon1 = c(12.2, 11.7, 11.34, 11, 11),
+                                lon2 = c(12.69, 12.2, 11.7, 11.34, 11.5),
+                                lat1 = c(78.86, 78.86, 78.86, 78.95, 78.86),
+                                lat2 = c(79.1, 79.1, 79.1, 79.1, 78.95))
+
+## Find data in regions
+bbox_regions_kong_sub <- filter(bbox_regions_kong, region == "Inner")
+sp::point.in.polygon(point.x = full_product_kong_coords[["lon"]], point.y = full_product_kong_coords[["lat"]],
+                     pol.x = bbox_regions_kong_sub[["lon"]], pol.y = bbox_regions_kong_sub[["lat"]])
+test <- points_in_region("Outer", bbox_regions_kong, full_product_kong_coords)
+full_region_kong <- plyr::ldply(unique(bbox_regions_kong$region), points_in_region, .parallel = F, 
+                                bbox_df = bbox_regions_kong, data_df = full_product_kong_coords)
+region_labels_kong <- full_region_kong %>% 
+  group_by(region) %>% 
+  summarise(lon = mean(range(lon)),
+            lat = mean(range(lat)),
+            count = n(), .groups = "drop")
