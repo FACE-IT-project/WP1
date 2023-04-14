@@ -207,10 +207,11 @@ svalbard_walrus_population <- read_delim("P:/FACE-IT_data/svalbard/walrus-popula
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/walrus/", 
          citation = "Norwegian Polar Institute (2022). Walrus population in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/walrus-population.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = paste0(tolower(name)," [n]"),
+         type = case_when(name == "Walrus estimated numbers"~"estimated", 
+                          name == "Walrus population aerial counts"~"aerial survey"),
+         variable = "Odobenus marinus (walrus) [n]",
          category = "bio",
          driver ="biomass",
-         type = "in situ",
          site = "svalbard", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
@@ -409,6 +410,12 @@ arctic_data <- rbind(kong_data,
                      is_data
                      )
 
+
+
+
+# Save data ---------------------------------------------------------------
+
+save(arctic_data, file = "users/calin/data/arctic_data.RData")
 
 # Figures -----------------------------------------------------------------
 
