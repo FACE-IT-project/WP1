@@ -9,6 +9,8 @@ metadata/pg_EU_ref_meta.csv
 metadata/globalfishingwatch_API_key.RData
 metadata/is_gfw_database.RData
 metadata/is_mst_database.RData
+data/.*nc
+data/PAR/*.nc
 data/GLODAP_Arctic_carb_chem.csv
 data/pg_data
 data/model
