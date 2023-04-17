@@ -11,11 +11,10 @@
 
 <meta name="author" content="Robert Schlegel" />
 
-<meta name="date" content="2023-02-14" />
 
 <title>Meta-database: environmental and societal drivers of change in Arctic fjord ecosystems</title>
 
-<script src="site_libs/header-attrs-2.20/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -37,7 +36,7 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<script src="site_libs/htmlwidgets-1.6.1/htmlwidgets.js"></script>
+<script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
 <link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
 <script src="site_libs/datatables-binding-0.27/datatables.js"></script>
 <link href="site_libs/dt-core-1.12.1/css/jquery.dataTables.min.css" rel="stylesheet" />
@@ -45,8 +44,8 @@
 <script src="site_libs/dt-core-1.12.1/js/jquery.dataTables.min.js"></script>
 <link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
 <script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
-<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.2.1/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.2.1/css/v4-shims.min.css" rel="stylesheet" />
 
 <link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
 <!-- Add a small amount of space between sections. -->
@@ -412,6 +411,15 @@ div.tocify {
     <li>
       <a href="2022_summary.html">FACE-IT WP1 summary - 2022</a>
     </li>
+    <li>
+      <a href="2023_ASSW.html">ASSW - 2023</a>
+    </li>
+    <li>
+      <a href="2023_ASSW_side.html">ASSW side meeting - 2023</a>
+    </li>
+    <li>
+      <a href="2023_seminar.html">FACE-IT seminar - 2023</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -423,6 +431,9 @@ div.tocify {
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="SSC_2021.pdf">Svalbard Science Conference - 2021</a>
+    </li>
+    <li>
+      <a href="Brussels_2023.pdf">Brussels policy meeting - 2023</a>
     </li>
   </ul>
 </li>
@@ -454,7 +465,7 @@ div.tocify {
 <h1 class="title toc-ignore">Meta-database: environmental and societal
 drivers of change in Arctic fjord ecosystems</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">14 February 2023</h4>
+<h4 class="date">17 avril 2023</h4>
 
 </div>
 
@@ -462,7 +473,7 @@ drivers of change in Arctic fjord ecosystems</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -473,8 +484,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -483,13 +494,13 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-02-14
+<strong>Last updated:</strong> 2023-04-17
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span
@@ -512,18 +523,21 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
@@ -614,15 +628,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree7af571f826c23665535a2f4e50afca2f11a257e0targetblank7af571fa">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree2248d4b98d431ae623c8f159f3a09ce1618f7237targetblank2248d4ba">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/7af571f826c23665535a2f4e50afca2f11a257e0" target="_blank">7af571f</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/2248d4b98d431ae623c8f159f3a09ce1618f7237" target="_blank">2248d4b</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree7af571f826c23665535a2f4e50afca2f11a257e0targetblank7af571fa"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree2248d4b98d431ae623c8f159f3a09ce1618f7237targetblank2248d4ba"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -632,7 +646,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/7af571f826c23665535a2f4e50afca2f11a257e0" target="_blank">7af571f</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/2248d4b98d431ae623c8f159f3a09ce1618f7237" target="_blank">2248d4b</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -649,32 +663,12 @@ were generated:
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    code/ny-alesund_cc_pf_rws.R
-    Ignored:    data/MUR/
-    Ignored:    data/analyses/clean_all.RData
-    Ignored:    data/analyses/clean_all_clean.RData
-    Ignored:    data/analyses/ice_4km_proc.RData
-    Ignored:    data/full_data/
-    Ignored:    data/model/
-    Ignored:    data/pg_data/
-    Ignored:    data/restricted/
-    Ignored:    data/sst_CCI_sval.RData
-    Ignored:    data/sst_CCI_trom.RData
-    Ignored:    data/sst_gland.RData
-    Ignored:    data/sst_sval.RData
-    Ignored:    data/sst_trom.RData
-    Ignored:    metadata/globalfishingwatch_API_key.RData
-    Ignored:    metadata/is_gfw_database.RData
-    Ignored:    metadata/is_mst_database.RData
-    Ignored:    metadata/pangaea_parameters.tab
-    Ignored:    metadata/pg_EU_ref_meta.csv
-    Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
-    Ignored:    presentations/ASSW_2023.html
-    Ignored:    presentations/ASSW_side_2023.html
-    Ignored:    shiny/dataAccess/coastline_hi_sub.csv
-    Ignored:    shiny/dataAccess/full_data
-    Ignored:    shiny/kongCTD/data/data_base.Rds
-    Ignored:    shiny/test_data/
+    Ignored:    users/calin/.Rhistory
+    Ignored:    users/calin/data/
+    Ignored:    users/calin/metadata/
+
+Unstaged changes:
+    Modified:   analysis/metadatabase.Rmd
 
 </code></pre>
 <p>
@@ -720,6 +714,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/098aead3451283e29fa13d390953a12336cb72f7/docs/metadatabase.html" target="_blank">098aead</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2023-02-14
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -5353,7 +5364,7 @@ shows the area within which data were sourced.
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
 <!-- <div style="margin-right: -200px;"> -->
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-460fe95c6f4727a031e5" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-460fe95c6f4727a031e5">{"x":{"filter":"none","vertical":false,"caption":"<caption>Table 3: The datasets containing key drivers for Kongsfjorden. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.<\/caption>","data":[["Survey","Survey","Net","Bottle","CTD","CTD","","Met station","Mooring","Mooring","Cruise","In situ","In situ","In situ","In situ","Cruise","Mooring","Survey","Survey","Statistics","Remote","Remote","Remote","PANGAEA","FACE-IT"],["Sea ice: cover","Sea ice: cover","Zooplankton: species, abundance","Protist: species; nutrients; ChlA","Sea temperature; salinity","Sea temperature; salinity; alkalinity (TA); DIC","Glacier: surface, thickness, elevation","Heatflux: longwave, shortwave; Air temperature; humidity; wind","Sea temperature; salinity; turbidity; current: direction, speed; oxygen","Salinity; Seawater temperature: surface, mid, bottom; Total alkalinity; pCO2; pH ","PAR","PAR","PAR","PAR","PAR","Salinity, glacier: terminating edge","Seawater temperature; salinity; PAR; fluorescence","Macroalgae: presence, abundance; primary production","Benthic invertebrates: presence, abundance, biomass","Vessels: count, tourists arrivals: count","Sea temperature: surface","Sea temperature: surface","Sea ice: proportion cover, trend","Many","Many"],["2003 - 2019","2003 - 2021","1996 - 2016","2009 - 2014","1906 - 2016","2012 - 2014","2004 - 2016","2007 - 2016","2010 - 2013","2015 - 2021",null,null,"2021","2012 - 2013","2012",null,"2015 - 2019","1996/98 and 2012-14","1996/98 and 2012-14","2015 - 2021","1982 - 2020","1982 - 2020","2006 - 2021","1871 - 2020","1871 - 2021"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/d6d31f5b-8413-42b4-9736-db88d55816dc\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b\">NPDC<\/a>","<a onclick=\"alert('href=\"ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_A/');\">NMDC<\/a>","<a onclick=\"alert('File provided by Jean-Pierre Gattuso');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://doi.pangaea.de/10.1594/PANGAEA.945341\">PANGAEA<\/a>","<a onclick=\"alert('Received directly from Dieter Hanelt');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('https://archive.sigma2.no/welcome.xhtml; Search for Kongsfjorden');\">NIRD<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://port.kingsbay.no/statistics/\">Kings Bay<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0\">NEODC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://doi.org/10.7265/N5GT5K3K\">NSIDC<\/a>","<a onclick=\"alert('pg_kong_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_kong.csv OR full_product_kong.RData');\">See URL column<\/a>"],["<a onclick=\"alert('Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236');\">Gerland & Pavlova (2020)<\/a>","<a onclick=\"alert('Gerland, S., Pavlova, O., Marnela, M., Divine, D., Kohler, J., Renner, A. H., & Skoglund, A. (2022). Sea ice extent variability in Kongsfjorden, Svalbard during 2003-2021, based on visual observations from the mountain Zeppelinfjellet. [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.d6d31f5b');\">Gerland et al. (2022)<\/a>","<a onclick=\"alert('Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.');\">Hop et al. (2019)<\/a>","<a onclick=\"alert('Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.');\">Hegseth et al. (2019)<\/a>","<a onclick=\"alert('Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('Fransson, A., & Chierici, M. (2019). Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53');\">Fransson & Chierici (2019)<\/a>","<a onclick=\"alert('Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7');\">Lindbäck et al. (2018)<\/a>","<a onclick=\"alert('Kohler, J., Hudson, S. R., & Obleitner, F. (2017). Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.5dc31930');\">Kohler et al. (2017)<\/a>","<a onclick=\"alert('No reference provided.');\">NMDC<\/a>","Multiple pending","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.');\">Bartsch et al. (2016)<\/a>","<a onclick=\"alert('Pavlov, A. K., Leu, E., Hanelt, D., Bartsch, I., Karsten, U., Hudson, S. R., ... & Granskog, M. A. (2019). The underwater light climate in Kongsfjorden and its ecological implications. In The ecosystem of Kongsfjorden, Svalbard (pp. 137-170). Springer, Cham.');\">Pavlov et al. (2019)<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('See citation column in the data.');\">Many<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('Havenstrøm, E. (2021). Port calls in Kings Bay. https://port.kingsbay.no/statistics');\">Havenstrøm (2021)<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.');\">Merchant et al. (2019)<\/a>","<a onclick=\"alert('U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.');\">NSIDC (2010)<\/a>","<a onclick=\"alert('pg_kong_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_kong.csv/.RData');\">See citation column<\/a>"],[null,null,null,null,null,null,null,"See website for full list of variables.",null,null,"MOSJ cruise data were not able to be found.","Pavlov et al. 2019 data are not publicly available.","Field data collected by Kai's team may be available in 2022.",null,null,"TWICE cruise data not able to be sourced.",null,"Data may be available in 2023.","Data may be available in 2023.",null,null,null,null,"130 PANGAEA files.","148 files from the EU, Svalbard, and Kongsfjorden."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Source<\/th>\n      <th>Citation<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":500,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"columnDefs":[],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-460fe95c6f4727a031e5">{"x":{"filter":"none","vertical":false,"caption":"<caption>Table 3: The datasets containing key drivers for Kongsfjorden. Please see the top of this document for the column definitions. The PANGAEA and FACE-IT datasets may be explored/downloaded via the data access app.<\/caption>","data":[["Survey","Survey","Net","Bottle","CTD","CTD","","Met station","Mooring","Mooring","Cruise","In situ","In situ","In situ","In situ","Cruise","Mooring","Survey","Survey","Statistics","Remote","Remote","Remote","CTD","PANGAEA","FACE-IT"],["Sea ice: cover","Sea ice: cover","Zooplankton: species, abundance","Protist: species; nutrients; ChlA","Sea temperature; salinity","Sea temperature; salinity; alkalinity (TA); DIC","Glacier: surface, thickness, elevation","Heatflux: longwave, shortwave; Air temperature; humidity; wind","Sea temperature; salinity; turbidity; current: direction, speed; oxygen","Salinity; Seawater temperature: surface, mid, bottom; Total alkalinity; pCO2; pH ","PAR","PAR","PAR","PAR","PAR","Salinity, glacier: terminating edge","Seawater temperature; salinity; PAR; fluorescence","Macroalgae: presence, abundance; primary production","Benthic invertebrates: presence, abundance, biomass","Vessels: count, tourists arrivals: count","Sea temperature: surface","Sea temperature: surface","Sea ice: proportion cover, trend","Biomass: larus hyperboreus (glaucous gull)","Many","Many"],["2003 - 2019","2003 - 2021","1996 - 2016","2009 - 2014","1906 - 2016","2012 - 2014","2004 - 2016","2007 - 2016","2010 - 2013","2015 - 2021",null,null,"2021","2012 - 2013","2012",null,"2015 - 2019","1996/98 and 2012-14","1996/98 and 2012-14","2015 - 2021","1982 - 2020","1982 - 2020","2006 - 2021","2005 to 2021","1871 - 2020","1871 - 2021"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/74c7b236-b94d-48c5-a665-ffcd54e8e1b7\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/d6d31f5b-8413-42b4-9736-db88d55816dc\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/94b29b16-b03b-47d7-bfbc-1c3c4f7060d2\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/2bff82dc-22b9-41c0-8348-220e7d6ca4f4\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/074a215c-d1df-47a9-bea7-e0fcc37273c6\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/e53eae53-147a-45df-b473-917bb5ba1ed4\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/5dc31930-0922-4483-a1df-6f48af9e371b\">NPDC<\/a>","<a onclick=\"alert('href=\"ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/KF_201408/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201308_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201209_D/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201109_A/; ftp://ftp.nmdc.no/nmdc/UIB/Currents/moorings/SV_201009_A/');\">NMDC<\/a>","<a onclick=\"alert('File provided by Jean-Pierre Gattuso');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://doi.pangaea.de/10.1594/PANGAEA.945341\">PANGAEA<\/a>","<a onclick=\"alert('Received directly from Dieter Hanelt');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('https://archive.sigma2.no/welcome.xhtml; Search for Kongsfjorden');\">NIRD<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://port.kingsbay.no/statistics/\">Kings Bay<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0\">NEODC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://doi.org/10.7265/N5GT5K3K\">NSIDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/\">MOSJ<\/a>","<a onclick=\"alert('pg_kong_ALL.csv/.RData');\">See URL column<\/a>","<a onclick=\"alert('full_product_kong.csv OR full_product_kong.RData');\">See URL column<\/a>"],["<a onclick=\"alert('Gerland, S., & Pavlova, O. (2020). Sea ice coverage in inner Kongsfjorden, Svalbard, 2003-2019, version 1.0 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.74c7b236');\">Gerland & Pavlova (2020)<\/a>","<a onclick=\"alert('Gerland, S., Pavlova, O., Marnela, M., Divine, D., Kohler, J., Renner, A. H., & Skoglund, A. (2022). Sea ice extent variability in Kongsfjorden, Svalbard during 2003-2021, based on visual observations from the mountain Zeppelinfjellet. [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.d6d31f5b');\">Gerland et al. (2022)<\/a>","<a onclick=\"alert('Hop H, Wold A, Vihtakari M, Daase M, Kwasniewski S, Gluchowska M, Lischka S, Buchholz F, Falk-Petersen S (2019) Zooplankton in Kongsfjorden (1996-2016) in relation to climate change. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.');\">Hop et al. (2019)<\/a>","<a onclick=\"alert('Hegseth EN, Assmy P, Wiktor JM, Wiktor Jr. JM, Kristiansen S, Leu E, Tverberg V, Gabrielsen TM, Skogseth R and Cottier F (2019) Phytoplankton Seasonal Dynamics in Kongsfjorden, Svalbard and the Adjacent Shelf. In: The ecosystem of Kongsfjorden, Svalbard (eds. Hop H, Wiencke C), Advances in Polar Ecology, Springer Verlag.');\">Hegseth et al. (2019)<\/a>","<a onclick=\"alert('Skogseth, R., Tverberg, V., Walczowski, W., & Sundfjord, A. (2019). Kongsfjorden Transect CTD data 1906-2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.074a215c');\">Skogseth et al. (2019)<\/a>","<a onclick=\"alert('Fransson, A., & Chierici, M. (2019). Marine CO2 system data for the Svalbard fjord Kongsfjorden and the West-Spitsbergen shelf in July 2012-2014 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.e53eae53');\">Fransson & Chierici (2019)<\/a>","<a onclick=\"alert('Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7');\">Lindbäck et al. (2018)<\/a>","<a onclick=\"alert('Kohler, J., Hudson, S. R., & Obleitner, F. (2017). Automatic weather station data from Kongsvegen, Ny-Ålesund [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.5dc31930');\">Kohler et al. (2017)<\/a>","<a onclick=\"alert('No reference provided.');\">NMDC<\/a>","Multiple pending","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.');\">Bartsch et al. (2016)<\/a>","<a onclick=\"alert('Pavlov, A. K., Leu, E., Hanelt, D., Bartsch, I., Karsten, U., Hudson, S. R., ... & Granskog, M. A. (2019). The underwater light climate in Kongsfjorden and its ecological implications. In The ecosystem of Kongsfjorden, Svalbard (pp. 137-170). Springer, Cham.');\">Pavlov et al. (2019)<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('See citation column in the data.');\">Many<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('');\">NA<\/a>","<a onclick=\"alert('Havenstrøm, E. (2021). Port calls in Kings Bay. https://port.kingsbay.no/statistics');\">Havenstrøm (2021)<\/a>","<a onclick=\"alert('Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1');\">Huang et al. (2021)<\/a>","<a onclick=\"alert('Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.');\">Merchant et al. (2019)<\/a>","<a onclick=\"alert('U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.');\">NSIDC (2010)<\/a>","<a onclick=\"alert('Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html');\">NPI (2022)<\/a>","<a onclick=\"alert('pg_kong_ALL.csv/.RData');\">See citation column<\/a>","<a onclick=\"alert('full_product_kong.csv/.RData');\">See citation column<\/a>"],[null,null,null,null,null,null,null,"See website for full list of variables.",null,null,"MOSJ cruise data were not able to be found.","Pavlov et al. 2019 data are not publicly available.","Field data collected by Kai's team may be available in 2022.",null,null,"TWICE cruise data not able to be sourced.",null,"Data may be available in 2023.","Data may be available in 2023.",null,null,null,null,null,"130 PANGAEA files.","148 files from the EU, Svalbard, and Kongsfjorden."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Source<\/th>\n      <th>Citation<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":500,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"columnDefs":[],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <!-- </div> -->
 <p><br></p>
 </div>
@@ -5467,59 +5478,43 @@ Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.2.2 Patched (2022-11-10 r83330)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 18.04.6 LTS
+<pre><code>R version 4.2.3 (2023-03-15 ucrt)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 19045)
 
 Matrix products: default
-BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
-LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
 
 locale:
- [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8    
- [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8   
- [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
- [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+[1] LC_COLLATE=French_France.utf8  LC_CTYPE=French_France.utf8   
+[3] LC_MONETARY=French_France.utf8 LC_NUMERIC=C                  
+[5] LC_TIME=French_France.utf8    
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] kableExtra_1.3.4 DT_0.27          tidync_0.3.0     forcats_1.0.0   
- [5] stringr_1.5.0    dplyr_1.1.0      purrr_1.0.1      readr_2.1.3     
- [9] tidyr_1.3.0      tibble_3.1.8     ggplot2_3.4.1    tidyverse_1.3.2 
-[13] workflowr_1.7.0 
+ [1] kableExtra_1.3.4 DT_0.27          tidync_0.3.0     lubridate_1.9.2 
+ [5] forcats_1.0.0    stringr_1.5.0    dplyr_1.1.1      purrr_1.0.1     
+ [9] readr_2.1.4      tidyr_1.3.0      tibble_3.2.1     ggplot2_3.4.2   
+[13] tidyverse_2.0.0 
 
 loaded via a namespace (and not attached):
- [1] httr_1.4.4          sass_0.4.5          viridisLite_0.4.1  
- [4] jsonlite_1.8.4      modelr_0.1.10       bslib_0.4.2        
- [7] assertthat_0.2.1    getPass_0.2-2       googlesheets4_1.0.1
-[10] cellranger_1.1.0    yaml_2.3.7          pillar_1.8.1       
-[13] backports_1.4.1     glue_1.6.2          digest_0.6.31      
-[16] promises_1.2.0.1    rvest_1.0.3         colorspace_2.1-0   
-[19] htmltools_0.5.4     httpuv_1.6.8        pkgconfig_2.0.3    
-[22] broom_1.0.3         haven_2.5.1         webshot_0.5.4      
-[25] scales_1.2.1        svglite_2.1.1       processx_3.8.0     
-[28] whisker_0.4.1       later_1.3.0         tzdb_0.3.0         
-[31] timechange_0.2.0    git2r_0.31.0        googledrive_2.0.0  
-[34] generics_0.1.3      ellipsis_0.3.2      cachem_1.0.6       
-[37] withr_2.5.0         cli_3.6.0           magrittr_2.0.3     
-[40] crayon_1.5.2        readxl_1.4.1        evaluate_0.20      
-[43] ps_1.7.2            fs_1.6.1            ncdf4_1.21         
-[46] fansi_1.0.4         xml2_1.3.3          tools_4.2.2        
-[49] hms_1.1.2           gargle_1.3.0        lifecycle_1.0.3    
-[52] munsell_0.5.0       reprex_2.0.2        callr_3.7.3        
-[55] compiler_4.2.2      jquerylib_0.1.4     RNetCDF_2.6-2      
-[58] systemfonts_1.0.4   rlang_1.0.6         grid_4.2.2         
-[61] rstudioapi_0.14     htmlwidgets_1.6.1   crosstalk_1.2.0    
-[64] rmarkdown_2.20      gtable_0.3.1        DBI_1.1.3          
-[67] R6_2.5.1            ncmeta_0.3.5        lubridate_1.9.2    
-[70] knitr_1.42          fastmap_1.1.0       utf8_1.2.3         
-[73] rprojroot_2.0.3     stringi_1.7.12      Rcpp_1.0.10        
-[76] vctrs_0.5.2         dbplyr_2.3.0        tidyselect_1.2.0   
-[79] xfun_0.37          </code></pre>
+ [1] Rcpp_1.0.10       svglite_2.1.1     rprojroot_2.0.3   digest_0.6.31    
+ [5] utf8_1.2.3        R6_2.5.1          evaluate_0.20     httr_1.4.5       
+ [9] pillar_1.9.0      rlang_1.1.0       ncmeta_0.3.5      rstudioapi_0.14  
+[13] whisker_0.4.1     jquerylib_0.1.4   rmarkdown_2.21    webshot_0.5.4    
+[17] htmlwidgets_1.6.2 munsell_0.5.0     compiler_4.2.3    httpuv_1.6.9     
+[21] xfun_0.38         pkgconfig_2.0.3   systemfonts_1.0.4 htmltools_0.5.5  
+[25] tidyselect_1.2.0  workflowr_1.7.0   fansi_1.0.4       viridisLite_0.4.1
+[29] tzdb_0.3.0        withr_2.5.0       later_1.3.0       grid_4.2.3       
+[33] jsonlite_1.8.4    gtable_0.3.3      lifecycle_1.0.3   git2r_0.32.0     
+[37] magrittr_2.0.3    scales_1.2.1      ncdf4_1.21        cli_3.6.1        
+[41] stringi_1.7.12    cachem_1.0.7      fs_1.6.1          promises_1.2.0.1 
+[45] xml2_1.3.3        bslib_0.4.2       ellipsis_0.3.2    generics_0.1.3   
+[49] vctrs_0.6.1       tools_4.2.3       glue_1.6.2        RNetCDF_2.6-2    
+[53] crosstalk_1.2.0   hms_1.1.3         fastmap_1.1.1     yaml_2.3.7       
+[57] timechange_0.2.0  colorspace_2.1-0  rvest_1.0.3       knitr_1.42       
+[61] sass_0.4.5       </code></pre>
 </div>
 </div>
 </div>
