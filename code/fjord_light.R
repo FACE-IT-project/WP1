@@ -93,6 +93,8 @@ PBglobal <- flget_optics(fjorddata, "PARbottom", "Global", mode = "3col")
 kdglobal <- flget_optics(fjorddata, "kdpar", "Global", mode = "3col")
 
 # Equation
+# NB: Still needs work
+# PAR_Bottom = PAR0 x exp(−KdPAR × bottom_depth )
 bkdPAR <- left_join(kong_res, P0global)
 
 # Get surface areas from FjordLight package
