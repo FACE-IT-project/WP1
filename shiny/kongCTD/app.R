@@ -129,11 +129,11 @@ frame_base <- ggplot() +
 
 # login credentials
 credentials <- data.frame(
-  user = c("r", "Allison Bailey", "Clara Hoppe", "Anette", "Marine Lab", "Jean-Pierre", "Philipp", "shinymanager"), # mandatory
-  password = c("r", "R", "R", "R", "kb", "Antibes", "Argo", "12345"), # mandatory
+  user = c("r", "Allison Bailey", "Clara Hoppe", "Anette", "Marine Lab", "Jean-Pierre", "Philipp", "Divya", "shinymanager"), # mandatory
+  password = c("r", "R", "R", "R", "kb", "Antibes", "Argo", "NCPOR4321", "12345"), # mandatory
   start = c("2019-04-15"), # optional (all others)
-  expire = c(NA, NA, NA, NA, NA, NA, NA, "2023-12-31"),
-  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
+  expire = c(NA, NA, NA, NA, NA, NA, NA, NA, "2023-12-31"),
+  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
@@ -517,7 +517,7 @@ ui <- dashboardPage(
       tabItem(tabName = "about", 
               fluidPage(
                 column(12,
-                       img(src = "Portal process visualization.png", align = "center", width = "1000px"),
+                       img(src = "Portal process visualization_ver2.png", align = "center", width = "1000px"),
                        # img(src = "CTD_cast1.png", align = "center", width = "1000px"),
                        h2(tags$b("About")),
                        p("The Kongsfjorden CTD portal is developed out of a common desire by marine researchers working in Kongsfjorden, by Ny-Ålesund, Svalbard, 
