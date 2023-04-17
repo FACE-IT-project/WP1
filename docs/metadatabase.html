@@ -473,7 +473,7 @@ drivers of change in Arctic fjord ecosystems</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -484,8 +484,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -498,9 +498,9 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span
@@ -523,18 +523,21 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
@@ -625,15 +628,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree67daa2df5da73a4d0c8484cda9fbefd83feb6556targetblank67daa2da">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treee4b7365e734cce6ab9214337af11027982387f06targetblanke4b7365a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/67daa2df5da73a4d0c8484cda9fbefd83feb6556" target="_blank">67daa2d</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/e4b7365e734cce6ab9214337af11027982387f06" target="_blank">e4b7365</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree67daa2df5da73a4d0c8484cda9fbefd83feb6556targetblank67daa2da"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treee4b7365e734cce6ab9214337af11027982387f06targetblanke4b7365a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -643,7 +646,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/67daa2df5da73a4d0c8484cda9fbefd83feb6556" target="_blank">67daa2d</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/e4b7365e734cce6ab9214337af11027982387f06" target="_blank">e4b7365</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -665,8 +668,7 @@ Ignored files:
     Ignored:    users/calin/metadata/
 
 Unstaged changes:
-    Modified:   users/calin/analysis/Meta_databases.Rmd
-    Modified:   users/calin/analysis/Meta_databases.html
+    Modified:   analysis/metadatabase.Rmd
 
 </code></pre>
 <p>
@@ -712,6 +714,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/25e93e7b06ce5338cb2fbc1aa8392085ca9627d6/docs/metadatabase.html" target="_blank">25e93e7</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-04-17
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -5464,7 +5483,7 @@ href="https://www.mosj.no/en/fauna/marine/">MOSJ</a>) that are not
 listed here as they do not contain data within any of the seven fjords
 focussed on by FACE-IT.</p>
 <div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-19fc40efc4448ecf75e7" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-19fc40efc4448ecf75e7">{"x":{"filter":"none","vertical":false,"caption":"<caption>Table 1: Pan-arcitc datasets. These are generally very large files. Data within these files that overlap with study sites may be found within their aggregated datasets.<\/caption>","data":[["Gridded","Gridded","Net","Model","CTD, bottles","CTD, bottles","Ice cores","CTD","Flow meter","Model","CTD","CTD","Survey","Synthesis","Bottle","PANGAEA"],["Bathymetry","Bathymetry","Zooplankton: biodiversity","Sea ice: thickness; Snow cover: depth","Sea temperature; salinity; oxygen; nutrients","Sea temperature; salinity; nutrients","Protist: presence (%)","Sea temperature; salinity","River discharge","Sea ice: extent; mixed layer depth; seawater temperature: surface; partial pressure of CO2, dissolved inorganic carbon; pH","Sea temperature; salinity; fish: presence","Sea temperature; salinity; ChlA; PAR; turbidity","Species: presence","Partial pressure of CO2","All chemistry drivers; seawater temperature: surface, mid, bottom; salinity","Most drivers"],[null,null,"1995 - 2008","1980 - 2016","1980","1928 - 2007","1980 - 2015","1989","1877 - 2020","1950 - 2099","2017","2018","1980 - 2007","1999 - 2020","1972 - 2019","1905 - 2018"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.gebco.net/\">GEBCO<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.gebco.net/data_and_products/gridded_bathymetry_data/arctic_ocean/\">IBCAO<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/oceans/ncei/ocads/metadata/0113607.html\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.nodc.noaa.gov/archive/arc0034/0072133/\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://accession.nodc.noaa.gov/9700302\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html\">GRDC<\/a>","<a onclick=\"alert('File provided by Jean-Pierre Gattuso');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.polardata.ca/pdcsearch/PDCSearch.jsp?doi_id=13251\">PolarData<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://zenodo.org/record/5572329#.YW_ZW5uxU5m\">Zenodo<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://gbif.imr.no/ipt/resource?r=imr>IMR<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://www.socat.info\">SOCAT<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://www.glodap.info\">GLODAP<\/a>","<a onclick=\"alert('Links provided per row of data.');\">See URL column<\/a>"],["<a onclick=\"alert('GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f');\">GEBCO (2021)<\/a>","<a onclick=\"alert('Jakobsson, M., Mayer, L. A., Bringensparr, C., Castro, C. F., Mohammad, R., Johnson, P., ... & Zinglersen, K. B. (2020). The international bathymetric chart of the Arctic Ocean version 4.0. Scientific data, 7(1), 176.');\">Jakobsson et al. (2020)<\/a>","<a onclick=\"alert('Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8');\">NPI (2020)<\/a>","<a onclick=\"alert('Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a');\">Liston et al. (2016)<\/a>","<a onclick=\"alert('Anderson, Leif G. (2013). Temperature, salinity and other variables collected from discrete sample and profile observations using CTD, bottle and other instruments from the YMER in the Arctic Ocean, Barents Sea and North Greenland Sea from 1980-08-11 to 1980-09-19 (NCEI Accession 0113607). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.3334/cdiac/otg.carina_77ym19800811. Accessed [date].');\">Anderson (2013)<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.nodc.noaa.gov/archive/arc0034/0072133/1.1/data/1-data/ReadMe_Codispoti_ArcticNuts.pdf\">Multiple<\/a>","<a onclick=\"alert('Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.');\">Hop et al. (2020)<\/a>","<a onclick=\"alert('Adrov, Nickoli; Murmansk Marine Biological Institute (MMBI) (2010). Physical profile data collected from bottle casts in the Barents, Greenland, and Norweigan Seas from 1989-06-01 to 1989-09-09 (NCEI Accession 9700302). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://accession.nodc.noaa.gov/9700302. Accessed [date].');\">Adrov (2010)<\/a>","<a onclick=\"alert('Arctic Region Discharge Data (2021). The Global Runoff Data Centre, 56068 Koblenz, Germany');\">GRDC (2021)<\/a>","<a onclick=\"alert('Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.');\">Popova et al. (2014)<\/a>","<a onclick=\"alert('Bouchard, C., Chawarski, J., Geoffroy, A., & Agersted, M. (2021). Hydroacoustic data EK60 Greenland Sea August-September 2017. Waterloo, Canada: Canadian Cryospheric Information Network (CCIN). (Unpublished Data).');\">Bouchard et al. (2021)<\/a>","<a onclick=\"alert('Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329');\">Holding et al. (2021)<\/a>","<a onclick=\"alert('Sagen, H., Morvik, A. (2015). Observations of marine species [Data set]. IMR. Accessed: 2022-11-14.');\">Sagen and Morvik (2015)<\/a>","<a onclick=\"alert('Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.');\">Bakker et al. (2016)<\/a>","<a onclick=\"alert('Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2');\">2 Citations<\/a>","<a onclick=\"alert('References provided per row of data.');\">See citation column<\/a>"],[null,null,null,null,null,null,null,null,null,null,null,"<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rpubs.com/JohnnaH/798295\">Interactive map<\/a>",null,"<a onclick=\"alert('The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.');\"> Acknowledgement<\/a>",null,"These are combinations of many PANGAEA queries."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Source<\/th>\n      <th>Citation<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":500,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"columnDefs":[],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-19fc40efc4448ecf75e7">{"x":{"filter":"none","vertical":false,"caption":"<caption>Table 1: Pan-arcitc datasets. These are generally very large files. Data within these files that overlap with study sites may be found within their aggregated datasets.<\/caption>","data":[["Gridded","Gridded","Net","Model","CTD, bottles","CTD, bottles","Ice cores","CTD","Flow meter","Model","CTD","CTD","Survey","Synthesis","Bottle","In situ","In situ","In situ","In situ","In situ","In situ","PANGAEA"],["Bathymetry","Bathymetry","Zooplankton: biodiversity","Sea ice: thickness; Snow cover: depth","Sea temperature; salinity; oxygen; nutrients","Sea temperature; salinity; nutrients","Protist: presence (%)","Sea temperature; salinity","River discharge","Sea ice: extent; mixed layer depth; seawater temperature: surface; partial pressure of CO2, dissolved inorganic carbon; pH","Sea temperature; salinity; fish: presence","Sea temperature; salinity; ChlA; PAR; turbidity","Species: presence","Partial pressure of CO2","All chemistry drivers; seawater temperature: surface, mid, bottom; salinity","Biomass: Boreogadus saida (polar cod)","Biomass: Mallotus villosus (capelin)","Biomass: Sebastes norvegicus (golden redfish)","Biomass: Sebastes mentella (beaked redfish)","Biomass: Gadus morhua (northeast arctic cod)","Biomass: Clupea harengus (young herring)","Most drivers"],[null,null,"1995 - 2008","1980 - 2016","1980","1928 - 2007","1980 - 2015","1989","1877 - 2020","1950 - 2099","2017","2018","1980 - 2007","1999 - 2020","1972 - 2019","1986 to 2021","1973 to 2021","1986 to 2019","1992 to 2020","1946 to 2022","2004 to 2021","1905 - 2018"],["<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.gebco.net/\">GEBCO<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.gebco.net/data_and_products/gridded_bathymetry_data/arctic_ocean/\">IBCAO<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ncei.noaa.gov/data/oceans/ncei/ocads/metadata/0113607.html\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.nodc.noaa.gov/archive/arc0034/0072133/\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842\">NPDC<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://accession.nodc.noaa.gov/9700302\">NOAA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html\">GRDC<\/a>","<a onclick=\"alert('File provided by Jean-Pierre Gattuso');\">NA<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.polardata.ca/pdcsearch/PDCSearch.jsp?doi_id=13251\">PolarData<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://zenodo.org/record/5572329#.YW_ZW5uxU5m\">Zenodo<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://gbif.imr.no/ipt/resource?r=imr>IMR<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://www.socat.info\">SOCAT<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=https://www.glodap.info\">GLODAP<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea//\">MOSJ<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea//\">MOSJ<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/\">MOSJ<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/\">MOSJ<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/\">MOSJ<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/\">MOSJ<\/a>","<a onclick=\"alert('Links provided per row of data.');\">See URL column<\/a>"],["<a onclick=\"alert('GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f');\">GEBCO (2021)<\/a>","<a onclick=\"alert('Jakobsson, M., Mayer, L. A., Bringensparr, C., Castro, C. F., Mohammad, R., Johnson, P., ... & Zinglersen, K. B. (2020). The international bathymetric chart of the Arctic Ocean version 4.0. Scientific data, 7(1), 176.');\">Jakobsson et al. (2020)<\/a>","<a onclick=\"alert('Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8');\">NPI (2020)<\/a>","<a onclick=\"alert('Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a');\">Liston et al. (2016)<\/a>","<a onclick=\"alert('Anderson, Leif G. (2013). Temperature, salinity and other variables collected from discrete sample and profile observations using CTD, bottle and other instruments from the YMER in the Arctic Ocean, Barents Sea and North Greenland Sea from 1980-08-11 to 1980-09-19 (NCEI Accession 0113607). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.3334/cdiac/otg.carina_77ym19800811. Accessed [date].');\">Anderson (2013)<\/a>","<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.nodc.noaa.gov/archive/arc0034/0072133/1.1/data/1-data/ReadMe_Codispoti_ArcticNuts.pdf\">Multiple<\/a>","<a onclick=\"alert('Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.');\">Hop et al. (2020)<\/a>","<a onclick=\"alert('Adrov, Nickoli; Murmansk Marine Biological Institute (MMBI) (2010). Physical profile data collected from bottle casts in the Barents, Greenland, and Norweigan Seas from 1989-06-01 to 1989-09-09 (NCEI Accession 9700302). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://accession.nodc.noaa.gov/9700302. Accessed [date].');\">Adrov (2010)<\/a>","<a onclick=\"alert('Arctic Region Discharge Data (2021). The Global Runoff Data Centre, 56068 Koblenz, Germany');\">GRDC (2021)<\/a>","<a onclick=\"alert('Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.');\">Popova et al. (2014)<\/a>","<a onclick=\"alert('Bouchard, C., Chawarski, J., Geoffroy, A., & Agersted, M. (2021). Hydroacoustic data EK60 Greenland Sea August-September 2017. Waterloo, Canada: Canadian Cryospheric Information Network (CCIN). (Unpublished Data).');\">Bouchard et al. (2021)<\/a>","<a onclick=\"alert('Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329');\">Holding et al. (2021)<\/a>","<a onclick=\"alert('Sagen, H., Morvik, A. (2015). Observations of marine species [Data set]. IMR. Accessed: 2022-11-14.');\">Sagen and Morvik (2015)<\/a>","<a onclick=\"alert('Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.');\">Bakker et al. (2016)<\/a>","<a onclick=\"alert('Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2');\">2 Citations<\/a>","<a onclick=\"alert('Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html');\">NPI (2022)<\/a>","<a onclick=\"alert('Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html');\">IMR (2022)<\/a>","<a onclick=\"alert('Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/');\">IMR (2023)<\/a>","<a onclick=\"alert('Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html');\">IMR (2022)<\/a>","<a onclick=\"alert('Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html');\">IMR (2022)<\/a>","<a onclick=\"alert('Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html');\">IMR (2022)<\/a>","<a onclick=\"alert('References provided per row of data.');\">See citation column<\/a>"],[null,null,null,null,null,null,null,null,null,null,null,"<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rpubs.com/JohnnaH/798295\">Interactive map<\/a>",null,"<a onclick=\"alert('The Surface Ocean CO2 Atlas (SOCAT) is an international effort, endorsed by the International Ocean Carbon Coordination Project (IOCCP), the Surface Ocean Lower Atmosphere Study (SOLAS) and the Integrated Marine Biosphere Research (IMBeR) program, to deliver a uniformly quality-controlled surface ocean CO2 database. The many researchers and funding agencies responsible for the collection of data and quality control are thanked for their contributions to SOCAT.');\"> Acknowledgement<\/a>",null,null,null,null,null,null,null,"These are combinations of many PANGAEA queries."]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Type<\/th>\n      <th>Driver<\/th>\n      <th>Date<\/th>\n      <th>Source<\/th>\n      <th>Citation<\/th>\n      <th>Notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"deferRender":true,"scrollY":500,"scrollCollapse":true,"lengthMenu":[5,10,25,50,100],"columnDefs":[],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <p><br></p>
 </div>
 <div id="svalbard" class="section level1">
@@ -5630,25 +5649,25 @@ other attached packages:
  [1] kableExtra_1.3.4 DT_0.27          tidync_0.3.0     lubridate_1.9.2 
  [5] forcats_1.0.0    stringr_1.5.0    dplyr_1.1.1      purrr_1.0.1     
  [9] readr_2.1.4      tidyr_1.3.0      tibble_3.2.1     ggplot2_3.4.2   
-[13] tidyverse_2.0.0  workflowr_1.7.0 
+[13] tidyverse_2.0.0 
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.10       svglite_2.1.1     getPass_0.2-2     ps_1.7.4         
- [5] rprojroot_2.0.3   digest_0.6.31     utf8_1.2.3        R6_2.5.1         
- [9] evaluate_0.20     httr_1.4.5        pillar_1.9.0      rlang_1.1.0      
-[13] ncmeta_0.3.5      rstudioapi_0.14   whisker_0.4.1     callr_3.7.3      
-[17] jquerylib_0.1.4   rmarkdown_2.21    webshot_0.5.4     htmlwidgets_1.6.2
-[21] munsell_0.5.0     compiler_4.2.3    httpuv_1.6.9      xfun_0.38        
-[25] pkgconfig_2.0.3   systemfonts_1.0.4 htmltools_0.5.5   tidyselect_1.2.0 
-[29] viridisLite_0.4.1 fansi_1.0.4       tzdb_0.3.0        withr_2.5.0      
-[33] later_1.3.0       grid_4.2.3        jsonlite_1.8.4    gtable_0.3.3     
-[37] lifecycle_1.0.3   git2r_0.32.0      magrittr_2.0.3    scales_1.2.1     
-[41] ncdf4_1.21        cli_3.6.1         stringi_1.7.12    cachem_1.0.7     
-[45] fs_1.6.1          promises_1.2.0.1  xml2_1.3.3        bslib_0.4.2      
-[49] ellipsis_0.3.2    generics_0.1.3    vctrs_0.6.1       tools_4.2.3      
-[53] glue_1.6.2        RNetCDF_2.6-2     crosstalk_1.2.0   hms_1.1.3        
-[57] processx_3.8.0    fastmap_1.1.1     yaml_2.3.7        timechange_0.2.0 
-[61] colorspace_2.1-0  rvest_1.0.3       knitr_1.42        sass_0.4.5       </code></pre>
+ [1] Rcpp_1.0.10       svglite_2.1.1     rprojroot_2.0.3   digest_0.6.31    
+ [5] utf8_1.2.3        R6_2.5.1          evaluate_0.20     httr_1.4.5       
+ [9] pillar_1.9.0      rlang_1.1.0       ncmeta_0.3.5      rstudioapi_0.14  
+[13] whisker_0.4.1     jquerylib_0.1.4   rmarkdown_2.21    webshot_0.5.4    
+[17] htmlwidgets_1.6.2 munsell_0.5.0     compiler_4.2.3    httpuv_1.6.9     
+[21] xfun_0.38         pkgconfig_2.0.3   systemfonts_1.0.4 htmltools_0.5.5  
+[25] tidyselect_1.2.0  workflowr_1.7.0   fansi_1.0.4       viridisLite_0.4.1
+[29] tzdb_0.3.0        withr_2.5.0       later_1.3.0       grid_4.2.3       
+[33] jsonlite_1.8.4    gtable_0.3.3      lifecycle_1.0.3   git2r_0.32.0     
+[37] magrittr_2.0.3    scales_1.2.1      ncdf4_1.21        cli_3.6.1        
+[41] stringi_1.7.12    cachem_1.0.7      fs_1.6.1          promises_1.2.0.1 
+[45] xml2_1.3.3        bslib_0.4.2       ellipsis_0.3.2    generics_0.1.3   
+[49] vctrs_0.6.1       tools_4.2.3       glue_1.6.2        RNetCDF_2.6-2    
+[53] crosstalk_1.2.0   hms_1.1.3         fastmap_1.1.1     yaml_2.3.7       
+[57] timechange_0.2.0  colorspace_2.1-0  rvest_1.0.3       knitr_1.42       
+[61] sass_0.4.5       </code></pre>
 </div>
 </div>
 </div>

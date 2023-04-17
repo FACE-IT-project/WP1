@@ -272,6 +272,65 @@ EU_GLODAP <- data.frame(type = "Bottle",
                         reference = '<a onclick="alert(\'Olsen, A., R. M. Key, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishii, F. F. Pérez and T. Suzuki. The Global Ocean Data Analysis Project version 2 (GLODAPv2) – an internally consistent data product for the world ocean, Earth Syst. Sci. Data, 8, 297–323, 2016, doi:10.5194/essd-8-297-2016      Key, R.M., A. Olsen, S. van Heuven, S. K. Lauvset, A. Velo, X. Lin, C. Schirnick, A. Kozyr, T. Tanhua, M. Hoppema, S. Jutterström, R. Steinfeldt, E. Jeansson, M. Ishi, F. F. Perez, and T. Suzuki. 2015. Global Ocean Data Analysis Project, Version 2 (GLODAPv2), ORNL/CDIAC-162, ND-P093. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, US Department of Energy, Oak Ridge, Tennessee. doi:10.3334/CDIAC/OTG.NDP093_GLODAPv2\');">2 Citations</a>',
                         note = NA)
 
+# barents polar pod population
+barents_bosa <- data.frame(type = "In situ",
+                         data_name = "Biomass: Boreogadus saida (polar cod)",
+                         date_range = "1986 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea//">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html\');">NPI (2022)</a>',
+                         note = NA)
+
+# barents capelin population
+barents_mavi <- data.frame(type = "In situ",
+                         data_name = "Biomass: Mallotus villosus (capelin)",
+                         date_range = "1973 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea//">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html\');">IMR (2022)</a>',
+                         note = NA)
+
+# barents golden redfish population
+barents_seno <- data.frame(type = "In situ",
+                         data_name = "Biomass: Sebastes norvegicus (golden redfish)",
+                         date_range = "1986 to 2019",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/\');">IMR (2023)</a>',
+                         note = NA)
+
+# barents beaked redfish population
+barents_seme <- data.frame(type = "In situ",
+                         data_name = "Biomass: Sebastes mentella (beaked redfish)",
+                         date_range = "1992 to 2020",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html\');">IMR (2022)</a>',
+                         note = NA)
+
+# barents northeast arctic cod population
+barents_gamo <- data.frame(type = "In situ",
+                         data_name = "Biomass: Gadus morhua (northeast arctic cod)",
+                         date_range = "1946 to 2022",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
+                         note = NA)
+
+# barents young herring population
+barents_youngclha <- data.frame(type = "In situ",
+                         data_name = "Biomass: Clupea harengus (young herring)",
+                         date_range = "2004 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
+                         note = NA)
+
+
+
+
+
+
+
+
+
+
+
+
 # EU PANGAEA data products
 EU_PG <- data.frame(type = "PANGAEA",
                     data_name = "Most drivers",
@@ -287,7 +346,7 @@ EU_PG <- data.frame(type = "PANGAEA",
 # Combine
 metadata_EU_arctic <- rbind(EU_GEBCO, EU_IBCAO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, 
                             EU_NCEI_1989, EU_GRDC, EU_Popova, EU_icthyo, EU_green_fjords, EU_IMR_spp_obs,
-                            EU_SOCAT, EU_GLODAP, EU_PG)
+                            EU_SOCAT, EU_GLODAP, barents_bosa, barents_mavi, barents_seno, barents_seme, barents_gamo, barents_youngclha, EU_PG)
 ```
 
 ```{r EU-arctic-meta-data-table}
