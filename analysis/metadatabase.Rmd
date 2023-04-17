@@ -810,6 +810,17 @@ full_product_kong <- data.frame(type = "FACE-IT",
                                 reference = '<a onclick="alert(\'full_product_kong.csv/.RData\');">See citation column</a>',
                                 note = "148 files from the EU, Svalbard, and Kongsfjorden.")
 
+# kong glaucous gull population
+
+kong_lahy <- data.frame(type = "CTD",
+                         data_name = "Biomass: larus hyperboreus (glaucous gull)",
+                         date_range = "2005 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html\');">NPI (2022)</a>',
+                         note = NA)
+
+
+
 # There are a lot of Kongsfjorden data on the NAADC (https://www.chinare.org.cn/en/data)
 # Bur they are limited by single use access like the GEM data
 
@@ -818,7 +829,7 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_sea_ice_shp, kong_zoo_da
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
                                kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_bartsch, kong_hanelt, kong_TWICE,
                                kong_mooring_SAMS, kong_macroalgae, kong_benthic, kong_ship_arrivals, 
-                               kong_NOAA, kong_CCI, kong_MASIE, kong_PG, full_product_kong)
+                               kong_NOAA, kong_CCI, kong_MASIE,kong_lahy, kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
