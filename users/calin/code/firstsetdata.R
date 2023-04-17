@@ -167,6 +167,44 @@ svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-g
   filter(!is.na(value))
 
 
+# svalbard Hooded seal population
+
+  svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
+         citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = paste0(str_replace_all(tolower(name),"\\."," ")," hooded seal [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+  
+  # svalbard (east) harp seal population
+  
+  svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+    pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+    mutate(date_accessed = as.Date("2023-04-14"),
+           URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
+           citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
+           lon = NA, lat = NA, depth = NA,
+           variable = paste0(str_replace_all(tolower(name),"\\."," ")," hooded seal [n]"),
+           category = "bio",
+           driver ="biomass",
+           type = "in situ",
+           site = "svalbard",
+           date = as.Date(paste0(Category,"-12-31"))) %>%
+    dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+    filter(!is.na(value))
+
+
+
+
 
 ## Kong data ---------------------------------------------------------------
 
@@ -475,6 +513,42 @@ is_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillem
 
 
 
+
+
+# EU ----------------------------------------------------------------------
+# EU (east) harp seal population
+
+EU_epagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
+         citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the East Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = paste0(str_replace_all(tolower(name),"\\."," ")," harp seal [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "east ice",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# EU (west) harp seal population
+
+EU_wpagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-and-e (1).csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
+         citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
+         lon = NA, lat = NA, depth = NA,
+         variable = paste0(str_replace_all(tolower(name),"\\."," ")," harp seal [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "west ice",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
 
 # Other -------------------------------------------------------------------
 
