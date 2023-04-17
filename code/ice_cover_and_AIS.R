@@ -490,3 +490,15 @@ system.time(sval_AIS <- data.table::fread("~/pCloudDrive/FACE-IT_data/svalbard/A
 # Get unique values
 sval_AIS_unique <- unique(sval_AIS$mmsi)
 data.table::fwrite(x = data.frame(mmsi = sval_AIS_unique), file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/mmsi_unique.csv")
+
+# Load grouped ship types
+table_type_group <- read_csv("metadata/table_ship_type_group.csv")
+
+# Get unique cruise ship MMSI
+unique(sval_AIS$shiptype)
+sval_AIS_cruise <- sval_AIS |> 
+  filter(shiptype %in% c("Passenger/Cruise", "Passenger", "Passengers Ship", "Passenger/Cargo Ship")) |> 
+  dplyr::select(mmsi, imo_num_ais, shiptype, name_ais) |> 
+  distinct()
+data.table::fwrite(sval_AIS_cruise, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/mmsi_cruise.csv")
+
