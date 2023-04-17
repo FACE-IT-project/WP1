@@ -320,6 +320,21 @@ barents_youngclha <- data.frame(type = "In situ",
                          reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
                          note = NA)
 
+# EU (east) harp seal population
+EU_epagr <- data.frame(type = "In situ",
+                         data_name = "Biomass: Pagophilus groenlandicus (harp seal)",
+                         date_range = "1946 to 2019",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the East Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html\');">IMR (2022)</a>',
+                         note = NA)
+
+# EU (west) harp seal population
+EU_wpagr <- data.frame(type = "In situ",
+                         data_name = "Biomass: Pagophilus groenlandicus (harp seal)",
+                         date_range = "1946 to 2019",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html\');">IMR (2022)</a>',
+                         note = NA)
 
 
 
@@ -346,7 +361,8 @@ EU_PG <- data.frame(type = "PANGAEA",
 # Combine
 metadata_EU_arctic <- rbind(EU_GEBCO, EU_IBCAO, EU_zooplankton, EU_ice, EU_YMER, EU_Codispoti, EU_protists, 
                             EU_NCEI_1989, EU_GRDC, EU_Popova, EU_icthyo, EU_green_fjords, EU_IMR_spp_obs,
-                            EU_SOCAT, EU_GLODAP, barents_bosa, barents_mavi, barents_seno, barents_seme, barents_gamo, barents_youngclha, EU_PG)
+                            EU_SOCAT, EU_GLODAP, barents_bosa, barents_mavi, barents_seno, barents_seme, barents_gamo,
+                            barents_youngclha, EU_epagr, EU_wpagr, EU_PG)
 ```
 
 ```{r EU-arctic-meta-data-table}
@@ -624,13 +640,22 @@ sval_urlo <- data.frame(type = "In situ",
                          reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
                          note = NA)
 
+# svalbard hooded seal population
+sval_cycr <- data.frame(type = "In situ",
+                         data_name = "Biomass: Cystophora cristata (hooded seal)",
+                         date_range = "1946 to 2019",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html\');">IMR (2022)</a>',
+                         note = NA)
+
 
 # Combine
 metadata_svalbard <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, sval_glacier_area, sval_tidal_glacier_front,
                            sval_marine_glacier_front, sval_tidewater_ablation, sval_surface_met, sval_UNIS_database,
                            sval_seabird_database, sval_protection, sval_NICE, sval_fast, sval_biogeochemistry, 
                            sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS, sval_paeb, sval_odma, 
-                           sval_nwmmcalanus, sval_nwtotcalanus, sval_semmcalanus, sval_setotcalanus, sval_ritr, sval_urlo)
+                           sval_nwmmcalanus, sval_nwtotcalanus, sval_semmcalanus, sval_setotcalanus, sval_ritr, sval_urlo,
+                           sval_cycr)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->
