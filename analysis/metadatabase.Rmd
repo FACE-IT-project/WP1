@@ -541,6 +541,14 @@ sval_semmcalanus <- data.frame(type = "In situ",
                          reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
                          note = NA)
 
+# svalbard calanus population all (south and east)
+sval_setotcalanus <- data.frame(type = "In situ",
+                         data_name = "Biomass: Calanus species (south and east)",
+                         date_range = "1997 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                         note = NA)
+
 # svalbard kittiwake population
 sval_ritr <- data.frame(type = "In situ",
                          data_name = "Biomass: Rissa tridactyla (black-legged kittiwake)",
@@ -563,7 +571,7 @@ metadata_svalbard <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, sva
                            sval_marine_glacier_front, sval_tidewater_ablation, sval_surface_met, sval_UNIS_database,
                            sval_seabird_database, sval_protection, sval_NICE, sval_fast, sval_biogeochemistry, 
                            sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS, sval_paeb, sval_odma, 
-                           sval_nwmmcalanus, sval_nwtotcalanus, sval_semmcalanus, sval_ritr, sval_urlo)
+                           sval_nwmmcalanus, sval_nwtotcalanus, sval_semmcalanus, sval_setotcalanus, sval_ritr, sval_urlo)
 ```
 
 <!-- <div style="margin-left: -200px;"> -->
@@ -927,7 +935,8 @@ metadata_kongsfjorden <- rbind(kong_sea_ice_inner, kong_sea_ice_shp, kong_zoo_da
                                kong_CTD_CO2, kong_glacier_info, kong_weather_station, kong_mooring_GFI,
                                kong_ferry, kong_MOSJ, kong_pavlov, kong_bischoff, kong_bartsch, kong_hanelt, kong_TWICE,
                                kong_mooring_SAMS, kong_macroalgae, kong_benthic, kong_ship_arrivals, 
-                               kong_NOAA, kong_CCI, kong_MASIE,kong_lahy, kong_somobo, kong_seabirds, kong_calanus, kong_ritr, kong_urlo, kong_PG, full_product_kong)
+                               kong_NOAA, kong_CCI, kong_MASIE,kong_lahy, kong_somobo, kong_seabirds, kong_calanus, kong_ritr, kong_urlo, 
+                               kong_PG, full_product_kong)
 ```
 
 <!-- See if it's possible to have ghost columns to aid in searching for variables -->
@@ -1183,6 +1192,22 @@ is_MASIE <- data.frame(type = "Remote",
                        reference = '<a onclick="alert(\'U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. 2010, updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.\');">NSIDC (2010)</a>',
                        note = NA)
 
+# is kittiwake population
+is_ritr <- data.frame(type = "In situ",
+                         data_name = "Biomass: Rissa tridactyla (black-legged kittiwake)",
+                         date_range = "1988 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake//">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
+                         note = NA)
+
+# is brünnich’s guillemot population
+is_urlo <- data.frame(type = "In situ",
+                         data_name = "Biomass: Uria lomvia (brünnich’s guillemot)",
+                         date_range = "1988 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/">MOSJ</a>',
+                         reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
+                         note = NA)
+
 # PANGAEA data product
 is_PG <- data.frame(type = "PANGAEA",
                     data_name = "Many",
@@ -1211,7 +1236,7 @@ full_product_is <- data.frame(type = "FACE-IT",
 metadata_isfjorden <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S, 
                             is_CO2_tempelfjorden, is_IsA_CO2, is_IsA_Chla, is_IsA_light, is_IsA_bio, is_BAB_bio, is_zoo,
                             is_met_radio, is_met_airport, is_met_pyramiden, is_social, is_AIS, is_ship_arrivals, is_NOAA,
-                            is_CCI, is_MASIE, is_PG, full_product_is)
+                            is_CCI, is_MASIE, is_ritr, is_urlo, is_PG, full_product_is)
 ```
 
 ```{r isfjorden-meta-data-table}
