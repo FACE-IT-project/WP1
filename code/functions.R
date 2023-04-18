@@ -687,6 +687,17 @@ convert_UTM_deg_grid <- function(df, proj_base, third_col = NULL){
   return(df_df)
 }
 
+# Function for converting UTM to decimal degrees
+# NB: Expects an 'Easting' and 'Northing' column
+convert_UTM_deg <- function(df, utm_zone){
+  utmcoor <- sp::SpatialPoints(cbind(df$Easting, df$Northing), 
+                               proj4string = CRS(paste0("+proj=utm +zone=",utm_zone)))
+  longlatcoor <- spTransform(utmcoor, CRS("+proj=longlat"))
+  df$lon <- coordinates(longlatcoor)[,1]
+  df$lat <- coordinates(longlatcoor)[,2]
+  return(df)
+}
+
 # Convert from one EPSG to another
 # This is the function to convert Polar Stereographic Coordinates to Lat-Lon
 # Adapted from a script that Bernard Gentili found here: https://github.com/jenseva/projected-data-demos
@@ -1012,7 +1023,7 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
     # scale_fill_viridis_c(option = "E") +
     coord_quickmap(expand = F,
                    xlim = c(coords[1]-lon_pad, coords[2]+lon_pad), 
-                   ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
+                   at the next step in the process is to                 ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
     labs(x = NULL, y = NULL, fill = "depth (m)",
          subtitle = paste0("Contours at: ",paste(c(depths_sub), collapse = ", "), " m")) +
     theme(panel.border = element_rect(fill = NA, colour = "black"),
