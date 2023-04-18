@@ -2,13 +2,6 @@
 # Code used to query the PANGAEA database for available and relevant data
 # Saves the output as a spreadsheet for use in code/data_collection.R
 
-# TODO: Remove all of the EU queries
-# Rather just have independent queries per site
-# Then spatially filter the data by site where possible
-# This will directly produce a product per site
-# Which will remove one step of complexity from data_product.R
-# So have one sub-section below by site
-
 
 # Setup -------------------------------------------------------------------
 

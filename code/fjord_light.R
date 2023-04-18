@@ -4,10 +4,8 @@
 
 # Setup -------------------------------------------------------------------
 
-library(tidyverse)
+source("code/functions.R")
 library(FjordLight) # NB: Installed directly from .tar.gz
-library(geosphere)
-library(doParallel); doParallel::registerDoParallel(cores = 15)
 
 
 # Get fjord data ----------------------------------------------------------
@@ -78,7 +76,8 @@ grid_size <- function(df){
 }
 
 # Get size in square kilometres per pixel
-kong_res <- grid_size(sea_df)
+# kong_res <- grid_size(sea_df)
+load("metadata/kong_surface.RData")
 
 
 # Compare surface areas ---------------------------------------------------
@@ -151,33 +150,50 @@ kong_global_coast_PAR0.1/kong_surf_coast
 
 # Get pixels in regions ---------------------------------------------------
 
-# Combine into single file and save
-Arctic_AM <- left_join(Arctic_land_distance, Arctic_depth, by = c("lon", "lat")) %>% 
-  dplyr::select(lon, lat, everything()) %>% 
-  mutate(in_grid = sp::point.in.polygon(point.x = Arctic_land_distance[["lon"]], point.y = Arctic_land_distance[["lat"]], 
-                                        pol.x = Arctic_boundary[["lon"]], pol.y = Arctic_boundary[["lat"]])) %>% 
-  filter(in_grid >= 1) %>% 
-  dplyr::select(-in_grid)
+# Subset high-res coastline
+coastline_kong_wide <- coastline_full_df %>% 
+  filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1,
+         y >= bbox_kong[3]-1, y <= bbox_kong[4]+1) %>% 
+  dplyr::select(x, y, polygon_id) %>% 
+  dplyr::rename(lon = x, lat = y)
+coastline_kong <- coastline_full_df %>% 
+  filter(x >= bbox_kong[1], x <= bbox_kong[2],
+         y >= bbox_kong[3], y <= bbox_kong[4]) %>% 
+  dplyr::select(x, y) %>% 
+  dplyr::rename(lon = x, lat = y)
 
-## Manually create regions
-# bbox_kong <- c(11, 12.69, 78.86, 79.1)
-### TODO: Probably more effective to carve out these shapes from the hi-res coastline polygons
-bbox_regions_kong <- data.frame(region = factor(c("Inner", "Mid", "Outer", "Mouth", "Discard"),
-                                                levels = c("Inner", "Mid", "Outer", "Mouth", "Discard")),
-                                lon1 = c(12.2, 11.7, 11.34, 11, 11),
-                                lon2 = c(12.69, 12.2, 11.7, 11.34, 11.5),
-                                lat1 = c(78.86, 78.86, 78.86, 78.95, 78.86),
-                                lat2 = c(79.1, 79.1, 79.1, 79.1, 78.95))
+# Manually create regions
+kong_inner <- coastline_kong[270,] %>% 
+  rbind(data.frame(lon = c(12.36, 12.65, 12.65), lat = c(78.86, 78.86, 79.01958))) %>% 
+  rbind(coastline_kong[c(560:570, 536, 420),]) %>% 
+  rbind(data.frame(lon = 12.36003, lat = 78.945)) %>% mutate(region = "inner")
+kong_trans <- coastline_kong[c(157:270),] %>% 
+  rbind(data.frame(lon = 12.36003, lat = 78.945)) %>% 
+  rbind(coastline_kong[c(420, 536, 570:589, 500:470),]) %>% mutate(region = "transition")
+kong_middle <- coastline_kong[c(76:157, 470:500, 589:666),] %>% mutate(region = "middle")
+kong_outer <- coastline_kong[c(76, 666),] %>% rbind(data.frame(lon = 11.178, lat = 79.115)) %>% mutate(region = "outer")
+kong_shelf <- coastline_kong[1:76,] %>% 
+  rbind(data.frame(lon = c(11.178, 11.178, 11, 11, 11.72653), lat = c(79.115, 79.2, 79.2, 78.85, 78.85))) %>%  mutate(region = "shelf")
+kong_regions <- rbind(kong_inner, kong_trans, kong_middle, kong_outer, kong_shelf) %>% 
+  mutate(region = factor(region, levels = c("inner", "transition", "middle", "outer", "shelf")))
 
-## Find data in regions
-bbox_regions_kong_sub <- filter(bbox_regions_kong, region == "Inner")
-sp::point.in.polygon(point.x = full_product_kong_coords[["lon"]], point.y = full_product_kong_coords[["lat"]],
-                     pol.x = bbox_regions_kong_sub[["lon"]], pol.y = bbox_regions_kong_sub[["lat"]])
-test <- points_in_region("Outer", bbox_regions_kong, full_product_kong_coords)
-full_region_kong <- plyr::ldply(unique(bbox_regions_kong$region), points_in_region, .parallel = F, 
-                                bbox_df = bbox_regions_kong, data_df = full_product_kong_coords)
-region_labels_kong <- full_region_kong %>% 
-  group_by(region) %>% 
-  summarise(lon = mean(range(lon)),
-            lat = mean(range(lat)),
-            count = n(), .groups = "drop")
+# Find regions for hi-res pixels
+kong_hires_region <- plyr::ldply(unique(kong_regions$region), points_in_region, .parallel = F, 
+                                 bbox_df = kong_regions, data_df = sea_df)
+
+# Merge and get averages
+PBglobal_regions <- PBglobal |> 
+  dplyr::rename(lon = longitude, lat = latitude) |> 
+  left_join(kong_hires_region, by = c("lon", "lat")) |> 
+  filter(!is.na(region)) |> 
+  summarise(PARbottom_Global = mean(PARbottom_Global, na.rm = T), .by = region)
+
+# Merge and plot
+kong_regions |> 
+  left_join(PBglobal_regions, by = c("region")) |> 
+  ggplot(aes(x = lon, y = lat)) +
+  geom_polygon(aes(group = region, colour = region, fill = PARbottom_Global)) +
+  geom_polygon(data = coastline_kong_wide, aes(group = polygon_id), colour = "grey20") +
+  coord_quickmap(expand = F,
+                 xlim = c(bbox_kong[1]-0.3, bbox_kong[2]+0.3), 
+                 ylim = c(bbox_kong[3]-0.05, bbox_kong[4]+0.05))
