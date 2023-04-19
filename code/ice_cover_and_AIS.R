@@ -553,6 +553,8 @@ sval_info_clean <- sval_mst_info |>
                 name_ais, Flag, Size, length, draught, GT, DWT) |> 
   dplyr::rename(IMO_AIS = imo_num_ais, Type = shiptype, Call_sign = `Call Sign`, 
                 Name = name_ais, Length = length, Draught = draught) |> 
-  filter(!is.na(Call_sign))
+  filter(!is.na(Call_sign)) |> 
+  mutate(GT  = as.numeric(str_remove(str_remove(GT, " Tons"), ",")),
+         DWT  = as.numeric(str_remove(str_remove(DWT, " Tons"), ",")))
 write_csv(sval_info_clean, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_info_clean.csv")
 
