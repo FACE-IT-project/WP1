@@ -9,22 +9,34 @@ library(ggridges)
 library(ggpubr)
 library(stringi)
 
+
+# Formula -----------------------------------------------------------------
+# Change name to latin and english name
+source('users/calin/code/formulas.R')
+
+
 # Data --------------------------------------------------------------------
 
 ## Young -------------------------------------------------------------------
 # Bird breeding phenology nests eggs
 ## Manque : lon,lat et Species
-young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", na = c("9999-01-01","-9999"), col_types = "iccnnDDiiicc") %>%
-  pivot_longer(cols = c(`FirstEggDate`, `HatchingDate`)) %>% 
+young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
+                                    na = c("9999-01-01","-9999"), 
+                                    col_types = "iccnnDDiiicc") %>%
+  pivot_longer(cols = c(`FirstEggDate`, 
+                        `HatchingDate`)) %>% 
   dplyr::filter(name == "FirstEggDate") %>% 
   dplyr::rename(date_egg = value) %>%
-  mutate(date_enfonction = ifelse(is.na(date_egg), as.Date(paste0(Year,"-12-31")), as.Date(date_egg)),
+  mutate(date_enfonction = ifelse(is.na(date_egg), 
+                                  as.Date(paste0(Year,"-12-31")), 
+                                  as.Date(date_egg)),
          date_bon = as.Date(date_enfonction, origin),
          date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(Species," eggs laid [n]"),
+         nomsp = latin_eng(Species),
+         variable = paste0(nomsp," eggs laid [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -33,6 +45,7 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
   dplyr::rename(date = date_bon) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
+latin_eng(young_bird_nests_eggs$Species)
 
 # Bird breeding phenology nests hatching
 ## Manque : lon,lat et Species
