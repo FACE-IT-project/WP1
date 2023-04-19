@@ -23,6 +23,7 @@ str(fjorddata)
 ## Extract bathymetry
 # all depths (what = "s" ; s for Sea), as raster
 bathy_rast <- flget_bathymetry(fjorddata, what = "s", mode = "raster", PLOT = TRUE)
+bathy_df <- flget_bathymetry(fjorddata, what = "s", mode = "3col", PLOT = TRUE)
 # coastal zone [0-200m] (what = "c" ; c for Coastal), as raster
 # as 3 columns data frame (mode = "3col" : longitude, latitude, depth)
 coast_df <- flget_bathymetry(fjorddata, what = "c", mode = "3col", PLOT = FALSE) |> 
