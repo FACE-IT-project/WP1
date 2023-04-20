@@ -74,7 +74,31 @@ latin_eng <- function(nomSpecies){
 }
 
 
+
+
+
+
+
+
+latin <- function(nomSpecies){
+  # Fish
+  if(nomSpecies == "Boreogadus saida") {
+    "Boreogadus saida (polar cod)"
+  } else if(nomSpecies == "Clupea harengus") {
+    "Clupea harengus (herring)"
+  } else if(nomSpecies == "Gadus morhua") {
+    "Gadus morhua (northeast arctic cod)"
+  } else if(nomSpecies == "Mallotus villosus") {
+    "Mallotus villosus (capelin)"
+  } else if(nomSpecies == "Sebastes mentella") {
+    "Sebastes mentella (beaked redfish)"
+  } else if(nomSpecies == "Sebastes norvegicus") {
+    "Sebastes norvegicus (golden redfish)"
+  } else {"NA"}
+}
+
+
 test53 <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                      na = c("9999-01-01","-9999"), 
                      col_types = "iccnnDDiiicc") %>% 
-  mutate (test966 <- latin_eng(Species))
+  mutate (test966 <- latin(Species))
