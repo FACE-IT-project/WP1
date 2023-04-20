@@ -1,9 +1,9 @@
 # Code/species_names.R
 # function to automaticly change species latin name into its latin plus english one
 
-source('code/functions.R')
 # Set up ------------------------------------------------------------------
 
+# source('code/functions.R')
 library(tidyverse)
 
 
@@ -11,7 +11,7 @@ library(tidyverse)
 
 nom_latin_com2 <- function(nomSpecies){
   # Fish
-  if(nomSpecies == "Boreogadus saida") {"Boreogadus saida (polar cod)"}
+  if(nomSpecies == "Boreogadus saida") nomLong = "Boreogadus saida (polar cod)"
   if(nomSpecies == "Clupea harengus") {"Clupea harengus (herring)"}
   if(nomSpecies == "Gadus morhua") {"Gadus morhua (northeast arctic cod)"}
   if(nomSpecies == "Mallotus villosus") {"Mallotus villosus (capelin)"}
@@ -76,26 +76,30 @@ nom_latin_com2 <- function(nomSpecies){
   #Zooplankton
   if(nomSpecies == "Calanus finmarchicus") {"Calanus finmarchicus (atlantic calanus (zooplankton))"}
   if(nomSpecies == "Calanus glacialis") {"Calanus glacialis (arctic calanus (zooplankton))"}
+  return(nomLong)
 }
 
+# 
 
+nom_latin_com2("Boreogadus saida")
+nom_latin_com2("Alca torda")
 
-testif <- function(x){ mutate(
-  
-)
-  if (x == 1) {y =="YES"} else {
-    if (x == 2) {y =="YES2"} else {
-    NA}}
+testif <- function(x){ 
+  if (x == 1) {
+    y <- "YES"
+  } else if (x == 2) {
+    y <- "YES2"
+  } else {
+    y <- NA
+  }
   return(y)
 }
 
-
-
-
-
-
+testif(1)
 testif(2)
+testif(3)
 
+#
 
 
 
