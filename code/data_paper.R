@@ -2426,3 +2426,135 @@ ggplot(data = demo_wide, aes(x = `temp [°C]`, y = `sea ice cover [proportion]`)
   facet_grid(~site) +
   theme(legend.position = "bottom")
 ggsave("presentations/demo_ice_temp.png", width = 12, height = 6)
+
+
+# Meta-analyses -----------------------------------------------------------
+
+# Load data
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
+# Get counts of data
+clean_all_count_cat <- clean_all_clean |> 
+  summarise(count = n(), .by = c(category)) |> 
+  left_join(long_cat_names, by = "category")
+clean_all_count_cat_site <- clean_all_clean |> 
+  summarise(count = n(), .by = c(category, site)) |> 
+  left_join(long_cat_names, by = "category") |> 
+  filter(site %in% long_site_names$site) |> 
+  left_join(long_site_names, by = "site")
+clean_all_count_driv <- clean_all_clean |> 
+  summarise(count = n(), .by = c(category, driver)) |> 
+  left_join(long_driver_names, by = "driver")
+
+# Log10 of data by category
+cat_log10 <- ggplot(data = clean_all_count_cat) +
+  geom_bar(aes(x = category_long, y = count, fill = category), 
+           show.legend = FALSE, stat = "identity", colour = "black") +
+  # scale_y_log10(expand = c(0, 0), breaks = c(0, 100, 10000, 1000000)) +
+  scale_y_log10(labels = scales::comma_format(big.mark = ',',
+                                              decimal.mark = '.')) +
+  scale_fill_manual(values = CatColAbr) +
+  labs(y = "Total daily data count [log10]", x = NULL,
+       title = "Available data per category (log10 transformed)") +
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        title = element_text(size = 20),
+        panel.background = element_rect(fill = NULL, colour = "black"))
+cat_log10
+ggsave("metadata/cat_log10.png", cat_log10, width = 10, height = 6)
+
+# Count of data by category
+cat_n <- ggplot(data = clean_all_count_cat) +
+  geom_bar(aes(x = category_long, y = count, fill = category), 
+           show.legend = FALSE, stat = "identity", colour = "black") +
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',',
+                                                   decimal.mark = '.')) +
+  scale_fill_manual(values = CatColAbr) +
+  labs(y = "Total daily data count [n]", x = NULL,
+       title = "Available data per category") +
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        title = element_text(size = 20),
+        panel.background = element_rect(fill = NULL, colour = "black"))
+cat_n
+ggsave("metadata/cat_n.png", cat_n, width = 10, height = 6)
+
+# Physical data per site
+cat_n_site <- ggplot(data = filter(clean_all_count_cat_site, category == "phys")) +
+  geom_bar(aes(x = site_long, y = count, fill = site_long), 
+           stat = "identity", position = "dodge", show.legend = FALSE, colour = "black") +
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',',
+                                                   decimal.mark = '.')) +
+  scale_fill_manual(values = site_colours) +
+  labs(y = "Total daily data count [n]", x = NULL,
+       title = "Available physical data per site") +
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        axis.text.x = element_text(angle = 20, vjust = 1.0, hjust = 0.9),
+        title = element_text(size = 20),
+        panel.background = element_rect(fill = NULL, colour = "black"))
+cat_n_site
+ggsave("metadata/cat_n_site.png", cat_n_site, width = 10, height = 6)
+
+# Log10 of data by driver
+driv_log10 <- ggplot(data = clean_all_count_driv) +
+  geom_bar(aes(x = driver_long, y = count, fill = category), 
+           show.legend = FALSE, stat = "identity", colour = "black") +
+  scale_y_log10(labels = scales::comma_format(big.mark = ',',
+                                              decimal.mark = '.')) +
+  scale_fill_manual(values = CatColAbr) +
+  labs(y = "Total daily data count [log10]", x = NULL,
+       title = "Available data per driver (log10 transformed)") +
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        axis.text.x = element_text(angle = 20, vjust = 1.0, hjust = 0.9),
+        title = element_text(size = 20),
+        panel.background = element_rect(fill = NULL, colour = "black"))
+driv_log10
+ggsave("metadata/driv_log10.png", driv_log10, width = 10, height = 6)
+
+# Log10 of data by driver
+driv_n <- ggplot(data = clean_all_count_driv) +
+  geom_bar(aes(x = driver_long, y = count, fill = category), 
+           show.legend = FALSE, stat = "identity", colour = "black") +
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',',
+                                                   decimal.mark = '.')) +
+  scale_fill_manual(values = CatColAbr) +
+  labs(y = "Total daily data count [n]", x = NULL,
+       title = "Available data per driver") +
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        title = element_text(size = 20),
+        axis.text.x = element_text(angle = 20, vjust = 1.0, hjust = 0.9),
+        panel.background = element_rect(fill = NULL, colour = "black"))
+driv_n
+ggsave("metadata/driv_n.png", driv_n, width = 10, height = 6)
+
+# Daily availability of phys data
+clean_all_phys_date <- clean_all_clean |> 
+  filter(category == "phys") |> 
+  dplyr::select(category, driver, date) |> 
+  distinct() |> 
+  mutate(date_floor = floor_date(date, unit = "month")) |> 
+  summarise(monthly_count = n(), .by = c(category, driver, date_floor))
+
+# Plot data by date
+driv_date <- ggplot(data = clean_all_phys_date) +
+  geom_bar(aes(x = date_floor, y = monthly_count, fill = driver), 
+           stat = "identity", position = "dodge", show.legend = FALSE) +
+  labs(y = "Unique days of data per month [n]", x = NULL,
+       title = "Available physical data per month") +
+  scale_y_continuous(limits = c(0, 31), expand = c(0, 0)) +
+  scale_x_date(breaks = c(as.Date("1880-01-01"), as.Date("1920-01-01"), as.Date("1960-01-01"), 
+                          as.Date("1980-01-01"), as.Date("2000-01-01"), as.Date("2020-01-01"))) +
+  facet_wrap(~driver, ncol = 1) +
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 12),
+        title = element_text(size = 20),
+        strip.text = element_text(size = 12),
+        panel.background = element_rect(fill = NULL, colour = "black"),
+        legend.position = c(0.5, 0.6),
+        legend.background = element_rect(fill = NULL, colour = "black"))
+driv_date
+ggsave("metadata/driv_date.png", driv_date, width = 10, height = 6)
+
