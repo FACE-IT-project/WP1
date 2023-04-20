@@ -136,7 +136,9 @@ long_site_names <- data.frame(site = c("kong", "is", "stor", "young", "disko", "
                                        "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
                                        "Porsangerfjorden")))
 long_cat_names <- data.frame(category = c("cryo", "phys", "chem", "bio", "soc"),
-                             category_long = c("cryosphere", "physics", "chemistry", "biology", "social"))
+                             category_long = c("cryosphere", "physics", "chemistry", "biology", "social")) |> 
+  mutate(category_long = factor(category_long,
+                                levels = c("cryosphere", "physics", "chemistry", "biology", "social")))
 long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
                                            "sea temp", "salinity", "light",
                                            "carb", "nutrients", 

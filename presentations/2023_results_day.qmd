@@ -1,0 +1,72 @@
+---
+title: "Data availability in EU Arctic Fjords"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+    width: 1050
+    height: 750
+editor: source
+---
+
+## Data by category
+
+Most available data are physical.
+
+![](../metadata/cat_log10.png)
+
+
+## Data by category
+
+Without log10 transformation.
+
+![](../metadata/cat_n.png)
+
+## Data by driver
+
+Differences between drivers.
+
+![](../metadata/driv_log10.png)
+
+## Data by driver
+
+Note again the difference when not log10 transformed.
+
+![](../metadata/driv_n.png)
+
+## Data by site
+
+Large difference between sites.
+
+![](../metadata/cat_n_site.png)
+
+## Data by date
+
+Regular temperature measurements start in ~1980's, salinity ~2000's, light ~2010's.
+
+![](../metadata/driv_date.png)
+
+## Conclusions
+
+-   Most data are physical (temperature+salinity)
+-   Large difference between sites
+-   Most data start in ~2000's to 2010's
+-   These data area available via the portal
+-   Focus now is on adding data from under-represented categories and sites
+
+## Data access
+
+Thank you for listening!
+
+![](QR_dataAccess.png){.absolute top="130" left="200" width="600"}
+
+</br></br></br></br></br></br></br></br></br></br>
+
+<center>
+<p style="font-size:40pt">[193.50.85.111:3838/dataAccess/](http://193.50.85.111:3838/dataAccess/)</p>
+</center>
