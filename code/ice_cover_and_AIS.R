@@ -382,7 +382,7 @@ is_AIS_type_position <- is_AIS_data %>%
 # Create unique ship count figure
 ## boxplot
 ship_unique_box <- ggplot(data = is_AIS_unique_monthly, 
-                   aes(x = as.factor(month), y = unique_count_monthly, fill = month)) + 
+                          aes(x = as.factor(month), y = unique_count_monthly, fill = month)) + 
   geom_boxplot(aes(group = month)) + 
   scale_fill_continuous(type = "viridis") +
   # scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
@@ -394,7 +394,7 @@ ship_unique_box
 
 ## Scatterplot
 ship_unique_scatter <- ggplot(data = is_AIS_unique_monthly, 
-                       aes(x = year, y = unique_count_monthly, colour = month)) + 
+                              aes(x = year, y = unique_count_monthly, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
   scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
   scale_x_continuous(breaks = c(2012, 2015, 2018)) +
@@ -411,8 +411,8 @@ ggsave("figures/ship_count_unique_is.png", ship_unique_plot, width = 12, height 
 
 # Create ship type count figure
 ## boxplot
-ship_type_box <- ggplot(data = is_AIS_type_monthly, 
-                   aes(x = as.factor(month), y = type_group_count_monthly, fill = month)) + 
+ship_type_box <- ggplot(data = is_AIS_type_monthly,
+                        aes(x = as.factor(month), y = type_group_count_monthly, fill = month)) + 
   geom_boxplot(aes(group = month)) + 
   scale_fill_continuous(type = "viridis") +
   # scale_y_continuous(limits = c(-10, 310), breaks = c(100, 200), expand = c(0, 0)) +
@@ -425,7 +425,7 @@ ship_type_box
 
 ## Scatterplot
 ship_type_scatter <- ggplot(data = is_AIS_type_monthly, 
-                       aes(x = year, y = type_group_count_monthly, colour = month)) + 
+                            aes(x = year, y = type_group_count_monthly, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
   scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
   scale_x_continuous(breaks = c(2012, 2015, 2018)) +
