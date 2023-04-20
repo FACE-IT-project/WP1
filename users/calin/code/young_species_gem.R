@@ -97,12 +97,45 @@ young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Z
   # filter(!is.na(value))
 
   
-# Bird abundance
+# Phytoplankton biovolume
 ## Manque : lon,lat et Species
 ## Have NA value
-young_ <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv")
+young_phyto_biovolume <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv",
+                                    na = c("-1.000","-9999")) %>% 
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/B15M-2E46",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = NA, lat = NA, depth = NA,
+         nomsp = "FORMULA IN PROGRESS",
+         variable = paste0(Taxon," biolume [mm3/L]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "disko",
+         value = PhytoBiovolume) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+# filter(!is.na(value))
 
-
+# Phytoplankton biovolume
+## Manque : lon,lat et Species
+## Have NA value
+young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv",
+                                 na = c("-1.000","-9999")) %>% 
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/B15M-2E46",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = NA, lat = NA, depth = NA,
+         nomsp = "FORMULA IN PROGRESS",
+         variable = paste0(Taxon," [n/mL]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "disko",
+         value = NumberPer_mLiter) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+# filter(!is.na(value))
 
 
 
