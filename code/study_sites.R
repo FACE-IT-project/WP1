@@ -652,22 +652,23 @@ full_product_kong_coords <- full_product_kong %>%
   dplyr::select(lon, lat) %>% distinct()
 
 ## Manually create regions
-# bbox_kong <- c(11, 12.69, 78.86, 79.1)
-### TODO: Probably more effective to carve out these shapes from the hi-res coastline polygons
-bbox_regions_kong <- data.frame(region = factor(c("Inner", "Mid", "Outer", "Mouth", "Discard"),
-                                                levels = c("Inner", "Mid", "Outer", "Mouth", "Discard")),
-                                lon1 = c(12.2, 11.7, 11.34, 11, 11),
-                                lon2 = c(12.69, 12.2, 11.7, 11.34, 11.5),
-                                lat1 = c(78.86, 78.86, 78.86, 78.95, 78.86),
-                                lat2 = c(79.1, 79.1, 79.1, 79.1, 78.95))
+kong_inner <- coastline_kong[270,] %>% 
+  rbind(data.frame(lon = c(12.36, 12.65, 12.65), lat = c(78.86, 78.86, 79.01958))) %>% 
+  rbind(coastline_kong[c(560:570, 536, 420),]) %>% 
+  rbind(data.frame(lon = 12.36003, lat = 78.945)) %>% mutate(region = "inner")
+kong_trans <- coastline_kong[c(157:270),] %>% 
+  rbind(data.frame(lon = 12.36003, lat = 78.945)) %>% 
+  rbind(coastline_kong[c(420, 536, 570:589, 500:470),]) %>% mutate(region = "transition")
+kong_middle <- coastline_kong[c(76:157, 470:500, 589:666),] %>% mutate(region = "middle")
+kong_outer <- coastline_kong[c(76, 666),] %>% rbind(data.frame(lon = 11.178, lat = 79.115)) %>% mutate(region = "outer")
+kong_shelf <- coastline_kong[1:76,] %>% 
+  rbind(data.frame(lon = c(11.178, 11.178, 11, 11, 11.72653), lat = c(79.115, 79.2, 79.2, 78.85, 78.85))) %>%  mutate(region = "shelf")
+kong_regions <- rbind(kong_inner, kong_trans, kong_middle, kong_outer, kong_shelf) %>% 
+  mutate(region = factor(region, levels = c("inner", "transition", "middle", "outer", "shelf")))
 
 ## Find data in regions
-bbox_regions_kong_sub <- filter(bbox_regions_kong, region == "Inner")
-sp::point.in.polygon(point.x = full_product_kong_coords[["lon"]], point.y = full_product_kong_coords[["lat"]],
-                     pol.x = bbox_regions_kong_sub[["lon"]], pol.y = bbox_regions_kong_sub[["lat"]])
-test <- points_in_region("Outer", bbox_regions_kong, full_product_kong_coords)
-full_region_kong <- plyr::ldply(unique(bbox_regions_kong$region), points_in_region, .parallel = F, 
-                                bbox_df = bbox_regions_kong, data_df = full_product_kong_coords)
+full_region_kong <- plyr::ldply(unique(kong_regions$region), points_in_region, .parallel = F, 
+                                bbox_df = kong_regions, data_df = full_product_kong_coords)
 region_labels_kong <- full_region_kong %>% 
   group_by(region) %>% 
   summarise(lon = mean(range(lon)),
@@ -675,6 +676,7 @@ region_labels_kong <- full_region_kong %>%
             count = n(), .groups = "drop")
 
 ## Plot
+## NB: Outdated code. No longer runs.
 plot_regions_kong <- ggplot() +
   geom_polygon(data = coastline_kong, fill = "grey70", colour = "black",
                aes(x = x, y = y, group = polygon_id)) +

@@ -125,6 +125,7 @@ gfw_query <- function(df){
 # Query www.myshiptracking.com database
 # df <- is_AIS_mmsi[235,]
 # df <- data.frame(mmsi = 123456789)
+# df <- data.frame(mmsi = 248368000)
 mst_query <- function(df){
   
   # Create query
@@ -150,8 +151,38 @@ mst_query <- function(df){
   return(res)
   # rm(df, query, res, dl_error)
 }
-#
 
+# Another query for www.myshiptracking.com database
+# df <- sval_ship_unique[235,]
+# df <- data.frame(mmsi = 123456789)
+# df <- data.frame(mmsi = 248368000)
+mst_info_query <- function(df){
+  
+  # Create query
+  query <- paste0("https://www.myshiptracking.com/vessels/",df$mmsi)
+  
+  # Get data
+  dl_error <- NULL
+  suppressWarnings(
+    res <- tryCatch(readHTMLTable(readLines(con = query))[[1]], 
+                    error = function(query) {dl_error <<- "Cannot access database"})
+  )
+  
+  # Extract data from multiple lists as necessary
+  if(!is.null(dl_error)){
+    res_wide <- data.frame(MMSI = df$mmsi, Type = "Can't access")
+  } else {
+    if(is.null(res)){
+      res_wide <- data.frame(MMSI = df$mmsi, Type = "No data")
+    } else {
+      res_wide <- pivot_wider(res, names_from = V1, values_from = V2) |> 
+        cbind(df)
+    }
+  }
+  return(res_wide)
+  # rm(df, query, res, res_wide, dl_error)
+}
+#
 
 # Process ice data --------------------------------------------------------
 
@@ -485,8 +516,45 @@ system.time(sval_AIS <- read_csv_arrow("~/pCloudDrive/FACE-IT_data/svalbard/AIS/
 # Unique MMSI -------------------------------------------------------------
 
 # Load data
-system.time(sval_AIS <- data.table::fread("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # 157 seconds
+# system.time(sval_AIS <- data.table::fread("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv")) # 157 seconds
 
 # Get unique values
-sval_AIS_unique <- unique(sval_AIS$mmsi)
-data.table::fwrite(x = data.frame(mmsi = sval_AIS_unique), file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/mmsi_unique.csv")
+# sval_ship_unique <- sval_AIS |>
+#   dplyr::select(mmsi:draught) |> distinct()
+# data.table::fwrite(sval_ship_unique, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/ship_unique.csv")
+sval_ship_unique <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS/ship_unique.csv")
+
+# Get just unique AIS values
+# sval_AIS_unique <- unique(sval_AIS$mmsi)
+# data.table::fwrite(x = data.frame(mmsi = sval_AIS_unique), file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/mmsi_unique.csv")
+sval_AIS_unique <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS/mmsi_unique.csv")
+
+# Load grouped ship types
+table_type_group <- read_csv("metadata/table_ship_type_group.csv")
+
+# Get unique cruise ship MMSI
+unique(sval_AIS$shiptype)
+sval_AIS_cruise <- sval_AIS |> 
+  filter(shiptype %in% c("Passenger/Cruise", "Passenger", "Passengers Ship", "Passenger/Cargo Ship")) |> 
+  dplyr::select(mmsi, imo_num_ais, shiptype, name_ais) |> 
+  distinct()
+data.table::fwrite(sval_AIS_cruise, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/mmsi_cruise.csv")
+
+# Scrape more info from myshiptracking.com
+# NB: Only run this once.
+sval_mst_info <- plyr::ddply(sval_ship_unique, c("mmsi"), mst_info_query, .parallel = T)
+save(sval_mst_info, file = "metadata/sval_mst_info.RData")
+load("metadata/sval_mst_info.RData")
+
+# Clean up a bit to send to Morten Simonsen
+sval_info_clean <- sval_mst_info |> 
+  left_join(table_type_group[,1:2], by = c("shiptype" = "Type")) |> 
+  dplyr::select(MMSI, IMO, imo_num_ais, shiptype, Type_group, `Call Sign`, 
+                name_ais, Flag, Size, length, draught, GT, DWT) |> 
+  dplyr::rename(IMO_AIS = imo_num_ais, Type = shiptype, Call_sign = `Call Sign`, 
+                Name = name_ais, Length = length, Draught = draught) |> 
+  filter(!is.na(Call_sign)) |> 
+  mutate(GT  = as.numeric(str_remove(str_remove(GT, " Tons"), ",")),
+         DWT  = as.numeric(str_remove(str_remove(DWT, " Tons"), ",")))
+write_csv(sval_info_clean, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_info_clean.csv")
+
