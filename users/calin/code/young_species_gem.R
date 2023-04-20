@@ -20,6 +20,7 @@ source('users/calin/code/formulas.R')
 ## Young -------------------------------------------------------------------
 # Bird breeding phenology nests eggs
 ## Manque : lon,lat et Species
+## Have NA value
 young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
@@ -48,6 +49,7 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
 
 # Bird breeding phenology nests hatching
 ## Manque : lon,lat et Species
+## Have NA value
 young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
@@ -75,45 +77,52 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
 # filter(!is.na(value))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Bird breeding phenology nests hatching
+# Bird abundance
 ## Manque : lon,lat et Species
-young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", na = c("9999-01-01","-9999"), col_types = "iccnnDDiiicc") #%>%
-  pivot_longer(cols = c(`FirstEggDate`, `HatchingDate`)) %>% 
-  dplyr::filter(name == "HatchingDate") %>% 
-  dplyr::rename(date_hatch = value) %>%
-  mutate(date_enfonction = ifelse(is.na(young_bird_nests_eggs$date_hatch), as.Date(paste0(Year,"-12-31")), as.Date(date_hatch)))
-  #        date_bon = as.Date(date_enfonction, origin),
-  #        date_accessed = as.Date("2023-04-17"),
-  #        URL = "https://doi.org/10.17897/5S51-HE52",
-  #        citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
-  #        lon = NA, lat = NA, depth = NA,
-  #        variable = paste0(Species," hatch [n]"),
-  #        category = "bio",
-  #        driver ="biomass",
-  #        type = "in situ",
-  #        site = "disko",
-  #        value = PulliHatched) %>%
-  # dplyr::rename(date = date_bon) %>%
-  # dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
+## Have NA value
+young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv") %>%
+  table(young_bird_abundance$Species)
+  
+  
+  
+  
+#   pivot_longer(cols = c(`FirstEggDate`, 
+#                         `HatchingDate`)) %>% 
+#   dplyr::filter(name == "HatchingDate") %>% 
+#   dplyr::rename(date_hatch = value) %>%
+#   mutate(date_enfonction = ifelse(is.na(date_hatch), 
+#                                   as.Date(paste0(Year,"-12-31")), 
+#                                   as.Date(date_hatch)),
+#          date_bon = as.Date(date_enfonction, origin),
+#          date_accessed = as.Date("2023-04-17"),
+#          URL = "https://doi.org/10.17897/5S51-HE52",
+#          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+#          lon = NA, lat = NA, depth = NA,
+#          nomsp = "FORMULA IN PROGRESS",
+#          variable = paste0(nomsp," territory [n]"),
+#          category = "bio",
+#          driver ="biomass",
+#          type = "in situ",
+#          site = "disko",
+#          value = PulliHatched) %>%
+#   dplyr::rename(date = date_bon) %>%
+#   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+# # filter(!is.na(value))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
