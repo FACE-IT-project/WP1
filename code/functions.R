@@ -1025,7 +1025,7 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
     # scale_fill_viridis_c(option = "E") +
     coord_quickmap(expand = F,
                    xlim = c(coords[1]-lon_pad, coords[2]+lon_pad), 
-                   at the next step in the process is to                 ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
+                   ylim = c(coords[3]-lat_pad, coords[4]+lat_pad)) +
     labs(x = NULL, y = NULL, fill = "depth (m)",
          subtitle = paste0("Contours at: ",paste(c(depths_sub), collapse = ", "), " m")) +
     theme(panel.border = element_rect(fill = NA, colour = "black"),
