@@ -84,51 +84,7 @@ nom_latin_com2 <- function(nomSpecies){
 nom_latin_com2("Boreogadus saida")
 nom_latin_com2("Alca torda")
 
-<<<<<<< HEAD
-testif <- function(x){
-  if (x == 1) y <- "YES"
-  if (x == 2) y <- "YES2"
-  if (x == 3) y <- "YES3"
-  if (x == 4) y <- "YES4"
-  if (x == 5) y <- "YES5"
-  if (x == 6) y <- "YES6"
-  if (x == 7) y <- "YES7"
-  if (x == 8) y <- "YES8"
-  if (x == 9) y <- "YES9"
-  return(y)
-}
 
-
-
-
-
-testif(1)
-testif(2)
-testif(3)
-testif(4)
-testif(5)
-testif(6)
-testif(7)
-testif(8)
-testif(9)
-testif(0)
-testif(15)
-=======
-testif <- function(x){ 
-  if (x == 1) {
-    y <- "YES"
-  } else if (x == 2) {
-    y <- "YES2"
-  } else {
-    y <- NA
-  }
-  return(y)
-}
-
-testif(1)
-testif(2)
-testif(3)
->>>>>>> d85ad10981af3990c02f6255d917d5c749008e3d
 
 #
 

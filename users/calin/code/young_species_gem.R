@@ -36,7 +36,7 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
          URL = "https://doi.org/10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(Species, latin_eng),
          variable = paste0(nomsp," eggs laid [n]"),
          category = "bio",
          driver ="biomass",
@@ -65,7 +65,7 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
          URL = "https://doi.org/10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          variable = paste0(nomsp," eggs hatched [n]"),
          category = "bio",
          driver ="biomass",
@@ -85,7 +85,7 @@ young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Z
          URL = "https://doi.org/10.17897/1Z6Z-FQ32",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          variable = paste0(nomsp," [presence]"),
          category = "bio",
          driver ="biomass",
@@ -106,7 +106,7 @@ young_phyto_biovolume <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
          URL = "https://doi.org/10.17897/B15M-2E46",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          variable = paste0(Taxon," (phytoplancton) in ", Lake ," lake biolume [mm3/L]"),
          category = "bio",
          driver ="biomass",
@@ -126,7 +126,7 @@ young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zac
          URL = "https://doi.org/10.17897/B15M-2E46",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          variable = paste0(Taxon, " (phytoplancton) in ", Lake ," lake [n/mL]"),
          category = "bio",
          driver ="biomass",
@@ -148,7 +148,7 @@ young_zoo_number_LSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasi
          lon = 74.50113, 
          lat = -20.60272, 
          depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          variable = paste0(tolower(Stage), " ", Taxon, " (zooplancton) [n/L]"),
          category = "bio",
          driver ="biomass",
@@ -169,7 +169,7 @@ young_zoo_number_SSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasi
          lon = 74.49871, 
          lat = -20.60252, 
          depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          variable = paste0(tolower(Stage), " ", Taxon, " (zooplancton) [n/L]"),
          category = "bio",
          driver ="biomass",
@@ -196,7 +196,7 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
          URL = "https://doi.org/10.17897/YPNZ-VX08",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          variable = paste0(nomsp," eggs laid [n]"),
          category = "bio",
          driver ="biomass",
@@ -241,7 +241,7 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
 # Bird presence
 ## Manque : Species
 ## Have NA value
-nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>% 
+nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") #%>% 
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/DRTB-PY74",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
@@ -259,8 +259,7 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
                          lonP == "J"~64.135639,
                          lonP == "K"~64.133636,
                          lonP == "L"~64.132841,
-                         lonP == "M"~64.131031
-         ),
+                         lonP == "M"~64.131031),
          lat = case_when(lonP == "A"~-51.385105,
                          lonP == "B"~-51.391187,
                          lonP == "C"~-51.396234,
@@ -273,10 +272,9 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
                          lonP == "J"~-51.355553,
                          lonP == "K"~-51.344558,
                          lonP == "L"~-51.336278,
-                         lonP == "M"~-51.326204
-         ), 
+                         lonP == "M"~-51.326204), 
          depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(nomSpecies, latin_eng),
          age = case_when(Age == "J"~"juvenile", 
                          Age == "A"~"adult",
                          Age == "UK"~"unknown"),
@@ -330,20 +328,71 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
 
 
 
+# data set ----------------------------------------------------------------
 
-
-
-
-
-# OTHER -------------------------------------------------------------------
 young_data <- rbind(young_bird_nests_eggs, young_bird_nests_hatch,
                     young_bird_abundance,
                     young_phyto_biovolume,
                     young_phyto_number,
                     young_zoo_number_LSlake,
                     young_zoo_number_SSlake,
-                    young_bird_broods
-)
+                    young_bird_broods)
+
+nuup_data <- rbind(nuup_bird_presence)
+
+gem_data <- rbind(young_data, nuup_data) 
+
+
+gem_data_annual <- gem_data %>% 
+  mutate(year = year(date)) %>% 
+  summarise(annual_count = n(), .by = c(year, site))
+
+gem_data_species_summury <- gem_data %>% 
+  mutate(year = year(date)) %>% 
+  dplyr::select(year, variable, site) %>% 
+  distinct() %>% 
+  summarise(annual_species_count = n(), .by = c(year, site))
+
+gem_data_set_summury <- gem_data %>% 
+  mutate(year = year(date)) %>% 
+  dplyr::select(year, URL, site) %>% 
+  distinct() %>% 
+  summarise(annual_set_count = n(), .by = c(year, site))
+
+
+
+# Figures -----------------------------------------------------------------
+gem_data04 <- ggplot(gem_data_set_summury, aes(x = year, y = annual_set_count)) + 
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
+
+
+gem_data03 <- ggplot(gem_data_species_summury, aes(x = year, y = annual_species_count)) + 
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
+
+
+gem_data02 <- ggplot(gem_data_annual, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
+
+gem_data04
+
+
+gem_data01 <- ggplot(gem_data, aes(x = date, y = site, fill = site)) +
+  geom_density_ridges() +
+  theme_ridges() + 
+  theme(legend.position = "none", axis.text = element_text(size = 9)) +
+  labs(x = NULL, y = NULL)
+
+
+arctic_data2 <- ggplot(data = gem_data, aes(x = date, y = value)) +
+  geom_point(aes(color = variable)) + 
+  facet_wrap(~variable, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+
+
+# OTHER -------------------------------------------------------------------
+
+
 
 #   dplyr::rename(nomSpecies = Species) %>% 
 #   apply(young_bird_nests, margin = 2, FUN = nom_latin_com())
