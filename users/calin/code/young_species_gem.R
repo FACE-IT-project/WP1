@@ -79,21 +79,21 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
 
 # Bird abundance
 ## Manque : lon,lat et Species
-## Have NA value
+# Have NA value
 young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv") %>%
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/1Z6Z-FQ32",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
          nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," [presence]"),
+         variable = paste0(lon," [presence]"),
          category = "bio",
          driver ="biomass",
          date = as.Date(paste0(Year,"-12-31")),
          type = "in situ",
          site = "young",
-         value = 1) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+         value = 1) #%>%
+  # dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
   # filter(!is.na(value))
 
   
@@ -325,8 +325,9 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
 
 # data set ----------------------------------------------------------------
 
-young_data <- rbind(young_bird_nests_eggs, young_bird_nests_hatch,
-                    young_bird_abundance,
+young_data <- rbind(young_bird_nests_eggs, 
+                    young_bird_nests_hatch,
+                    # young_bird_abundance,
                     young_phyto_biovolume,
                     young_phyto_number,
                     young_zoo_number_LSlake,
@@ -337,18 +338,25 @@ nuup_data <- rbind(nuup_bird_presence)
 
 gem_data <- rbind(young_data, nuup_data) 
 
+EU_arctic_data
 
-gem_data_annual <- gem_data %>% 
+
+ECC_data <- rbind(gem_data, EU_arctic_data)
+
+
+
+ECC_data_annual <- ECC_data %>% 
   mutate(year = year(date)) %>% 
   summarise(annual_count = n(), .by = c(year, site))
 
-gem_data_species_summury <- gem_data %>% 
+
+ECC_data_species_summury <- ECC_data %>% 
   mutate(year = year(date)) %>% 
   dplyr::select(year, variable, site) %>% 
   distinct() %>% 
   summarise(annual_species_count = n(), .by = c(year, site))
 
-gem_data_set_summury <- gem_data %>% 
+ECC_data_set_summury <- ECC_data %>% 
   mutate(year = year(date)) %>% 
   dplyr::select(year, URL, site) %>% 
   distinct() %>% 
@@ -357,6 +365,23 @@ gem_data_set_summury <- gem_data %>%
 
 
 # Figures -----------------------------------------------------------------
+ECC_data01 <- ggplot(ECC_data_annual, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
+ECC_data01
+
+ECC_data02 <- ggplot(ECC_data_species_summury, aes(x = year, y = annual_species_count)) + 
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
+ECC_data02
+
+ECC_data03 <- ggplot(ECC_data_set_summury, aes(x = year, y = annual_set_count)) + 
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
+ECC_data03
+
+
+
+
+
+
 gem_data04 <- ggplot(gem_data_set_summury, aes(x = year, y = annual_set_count)) + 
   geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
 
