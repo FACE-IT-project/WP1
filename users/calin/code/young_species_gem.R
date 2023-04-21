@@ -285,8 +285,52 @@ nuup_bird_presence_B <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nu
          value = Number) %>%
   dplyr::rename(date = Date) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)# %>%filter(!is.na(value))
-
-
+# plot C
+## Manque : Species
+## Have NA value
+nuup_bird_presence_C <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>% 
+  filter(Point == "C") %>%
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/DRTB-PY74",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = 64.134592, 
+         lat = -51.396234, 
+         depth = NA,
+         nomsp = "FORMULA IN PROGRESS",
+         gender = case_when(Gender == "M"~"male", 
+                            Gender == "F"~"female",
+                            Gender == "UK"~"unknown"),
+         variable = paste0(gender, " ", nomsp," [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "nuup",
+         value = Number) %>%
+  dplyr::rename(date = Date) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)# %>%filter(!is.na(value))
+# plot D
+## Manque : Species
+## Have NA value
+nuup_bird_presence_D <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>% 
+  filter(Point == "D") %>%
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/DRTB-PY74",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = 64.13239, 
+         lat = -51.39359, 
+         depth = NA,
+         nomsp = "FORMULA IN PROGRESS",
+         gender = case_when(Gender == "M"~"male", 
+                            Gender == "F"~"female",
+                            Gender == "UK"~"unknown"),
+         variable = paste0(gender, " ", nomsp," [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "nuup",
+         value = Number) %>%
+  dplyr::rename(date = Date) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)# %>%filter(!is.na(value))
 
 
 
