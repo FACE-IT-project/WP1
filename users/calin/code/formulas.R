@@ -161,6 +161,7 @@ nom_lgeufhdjskcl <- function(nomSpecies){
   if(nomSpecies == "Calanus glacialis") nom_long <- "Calanus glacialis (arctic calanus (zooplankton))"
   # Other
   if(nomSpecies == "") nom_long <- " "
+  return(nom_long)
 }
 
 
@@ -168,5 +169,5 @@ nom_lgeufhdjskcl("Uria lomvia")
 
 test53 <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                      na = c("9999-01-01","-9999"), 
-                     col_types = "iccnnDDiiicc") #%>%
-  nom_long <- 1 #nom_lgeufhdjskcl("Species")
+                     col_types = "iccnnDDiiicc") %>%
+  mutate(nom_longc = nom_lgeufhdjskcl("Species"))
