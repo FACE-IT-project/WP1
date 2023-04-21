@@ -303,18 +303,6 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
 
 
 
-# plot E
-## Manque : Species
-## Have NA value
-
-
-
-
-
-
-
-
-
 
 
 
