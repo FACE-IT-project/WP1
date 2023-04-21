@@ -27,7 +27,7 @@ svalbard_ivory_gull_population <- read.csv("P:/FACE-IT_data/svalbard/the-number-
          category = "bio",
          driver ="biomass",
          type = "in situ",
-         site = "svalbard sea", 
+         site = "svalbard", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Svalbard) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
@@ -307,7 +307,7 @@ kong_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-ki
 # kong Brünnich’s guillemot population
 
 kong_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) #%>%
+  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
 filter(name == "Ossian.Sarsfjellet") %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
@@ -585,20 +585,23 @@ svalbard_data <- rbind(svalbard_ivory_gull_population,
 is_data <- rbind(is_kittiwakke_population,
                  is_brguillemot_population
                  )
+EU_data <- rbind(EU_epagr_population,
+                 EU_wpagr_population)
 
-arctic_data <- rbind(kong_data,
+EU_arctic_data <- rbind(kong_data,
                      barents_data,
                      svalbard_data,
-                     is_data
+                     is_data,
+                     EU_arctic_data
                      )
 
-arctic_data
+EU_arctic_data
 
 
 
 ## Save data ---------------------------------------------------------------
 
-save(arctic_data, file = "users/calin/data/arctic_data.RData")
+save(EU_arctic_data, file = "users/calin/data/EU_arctic_data.RData")
 
 ## Figures -----------------------------------------------------------------
 
