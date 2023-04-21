@@ -107,7 +107,7 @@ young_phyto_biovolume <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
          nomsp = "FORMULA IN PROGRESS",
-         variable = paste0(Taxon," in ", Lake ," lake biolume [mm3/L]"),
+         variable = paste0(Taxon," (phytoplancton) in ", Lake ," lake biolume [mm3/L]"),
          category = "bio",
          driver ="biomass",
          date = Date,
@@ -117,7 +117,7 @@ young_phyto_biovolume <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
 # filter(!is.na(value))
 
-# Phytoplankton biovolume
+# Phytoplankton individuals
 ## Manque : lon,lat et Species
 ## Have NA value
 young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv",
@@ -127,7 +127,7 @@ young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zac
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
          nomsp = "FORMULA IN PROGRESS",
-         variable = paste0(Taxon, " in ", Lake ," lake [n/mL]"),
+         variable = paste0(Taxon, " (phytoplancton) in ", Lake ," lake [n/mL]"),
          category = "bio",
          driver ="biomass",
          date = Date,
@@ -138,8 +138,47 @@ young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zac
 # filter(!is.na(value))
 
 
+# Zooplankton individuals LS lake
+## Have stage to change ????
+young_zoo_number_LSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Zooplankton170420231442261928.csv") %>% 
+  filter(Lake == "Langemandssø (LS)"| Lake == "Langemandssø") %>%
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/VWPC-B466",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = 74.50113, 
+         lat = -20.60272, 
+         depth = NA,
+         nomsp = "FORMULA IN PROGRESS",
+         variable = paste0(tolower(Stage), " ", Taxon, " (zooplancton) [n/L]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "disko",
+         value = NumberPerLiter) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+# filter(!is.na(value))
 
-
+# Zooplankton individuals SS lake
+## Have stage to change ????
+young_zoo_number_SSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Zooplankton170420231442261928.csv") %>% 
+  filter(!Lake == "Langemandssø (LS)"| !Lake == "Langemandssø") %>%
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/VWPC-B466",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = 74.49871, 
+         lat = -20.60252, 
+         depth = NA,
+         nomsp = "FORMULA IN PROGRESS",
+         variable = paste0(tolower(Stage), " ", Taxon, " (zooplancton) [n/L]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "disko",
+         value = NumberPerLiter) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+# filter(!is.na(value))
 
 
 
