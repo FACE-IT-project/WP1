@@ -249,7 +249,7 @@ kong_eiders_stock <- read.csv("P:/FACE-IT_data/kongsfjorden/breeding-population-
 # kong seabird
 
 kong_seabird <- read.csv("P:/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) %>%
-  remove_empty() %>% 
+  remove_empty(which = "cols") %>% 
   filter(Colony == "Kongsfjorden") %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4", 
@@ -562,16 +562,14 @@ kong_data <- rbind(kong_glaucous_gull_population,
                    kong_seabird, 
                    kong_calanus_population,
                    kong_kittiwakke_population,
-                   kong_brguillemot_population
-                   )
+                   kong_brguillemot_population)
 
 barents_data <- rbind(barents_polar_cod, 
                       barents_beaked_redfish_population, 
                       barents_capelin_stock, 
                       barents_golden_redfish_population, 
                       barents_northeast_cod_population, 
-                      barents_young_herring_population
-                      )
+                      barents_young_herring_population)
 
 svalbard_data <- rbind(svalbard_ivory_gull_population, 
                        svalbard_nw_calanus_mm_population,
@@ -579,12 +577,10 @@ svalbard_data <- rbind(svalbard_ivory_gull_population,
                        svalbard_se_calanus_mm_population,
                        svalbard_se_calanus_tot_population,
                        svalbard_walrus_population,
-                       svalbard_brguillemot_population
-                       )
+                       svalbard_brguillemot_population)
 
 is_data <- rbind(is_kittiwakke_population,
-                 is_brguillemot_population
-                 )
+                 is_brguillemot_population)
 EU_data <- rbind(EU_epagr_population,
                  EU_wpagr_population)
 
@@ -592,10 +588,8 @@ EU_arctic_data <- rbind(kong_data,
                      barents_data,
                      svalbard_data,
                      is_data,
-                     EU_arctic_data
-                     )
+                     EU_data)
 
-EU_arctic_data
 
 
 

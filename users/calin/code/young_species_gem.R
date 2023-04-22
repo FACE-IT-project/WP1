@@ -73,27 +73,32 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
          site = "young",
          value = PulliHatched) %>%
   dplyr::rename(date = date_bon) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
-# filter(!is.na(value))
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
 
 
 # Bird abundance
 ## Manque : lon,lat et Species
 # Have NA value
-young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv") %>%
+young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv",
+                                   col_types = "icinncc",
+                                   na = "-9999") %>%
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/1Z6Z-FQ32",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
          nomsp = map(Species, latin_eng),
-         variable = paste0(lon," [presence]"),
+         variable = paste0(nomsp," [presence]"),
          category = "bio",
          driver ="biomass",
          date = as.Date(paste0(Year,"-12-31")),
          type = "in situ",
          site = "young",
-         value = 1) #%>%
-  # dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+         valuez = 1) %>%
+  dplyr::group_by(date_accessed, URL, citation, lon, lat, depth, date, variable, category, driver, type, site) %>%
+  dplyr::summarise(sum(valuez)) %>%
+    mutate(value = 1) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
   # filter(!is.na(value))
 
   
@@ -290,7 +295,7 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
 
 
 
-
+  nuup_bird_presence_0 <- filter(nuup_bird_presence$value >= 1 )
 
 
 
@@ -327,7 +332,7 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
 
 young_data <- rbind(young_bird_nests_eggs, 
                     young_bird_nests_hatch,
-                    # young_bird_abundance,
+                    young_bird_abundance,
                     young_phyto_biovolume,
                     young_phyto_number,
                     young_zoo_number_LSlake,
@@ -339,6 +344,7 @@ nuup_data <- rbind(nuup_bird_presence)
 gem_data <- rbind(young_data, nuup_data) 
 
 EU_arctic_data
+
 
 
 ECC_data <- rbind(gem_data, EU_arctic_data)

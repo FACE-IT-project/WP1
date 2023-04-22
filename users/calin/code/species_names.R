@@ -11,7 +11,7 @@ library(tidyverse)
 
 nom_latin_com2 <- function(nomSpecies){
   # Fish
-  if(nomSpecies == "Boreogadus saida") nomLong = "Boreogadus saida (polar cod)"
+  if(nomSpecies == "Boreogadus saida") {"Boreogadus saida (polar cod)"}
   if(nomSpecies == "Clupea harengus") {"Clupea harengus (herring)"}
   if(nomSpecies == "Gadus morhua") {"Gadus morhua (northeast arctic cod)"}
   if(nomSpecies == "Mallotus villosus") {"Mallotus villosus (capelin)"}

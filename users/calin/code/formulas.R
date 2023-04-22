@@ -63,7 +63,7 @@ latin_eng <- function(nomSpecies){
   if(nomSpecies %in% c("Plectrophenax nivalis","SB")) nom_long <- "Plectrophenax nivalis (snow bunting)"
   if(nomSpecies == "Pluvialis apricaria") nom_long <- "Pluvialis apricaria (european golden plover)"
   if(nomSpecies == "Rissa tridactyla") nom_long <- "Rissa tridactyla (black-legged kittiwake)"
-  if(nomSpecies %in% c("Somateria mollissima", "Somateria mollissima borealis", "sommateria mollissima")) nom_long <- "Somateria mollissima (common eider)"
+  if(nomSpecies %in% c("Somateria mollissima", "Somateria mollissima borealis", "Sommateria mollissima")) nom_long <- "Somateria mollissima (common eider)"
   if(nomSpecies == "Somateria spectabilis") nom_long <- "Somateria spectabilis (king eider)"
   if(nomSpecies == "Stercorarius longicaudus") nom_long <- "Stercorarius longicaudus (long-tailed jaeger)"
   if(nomSpecies == "Stercorarius parasiticus") nom_long <- "Stercorarius parasiticus (parasitic jaeger)"
