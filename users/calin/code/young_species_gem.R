@@ -16,10 +16,8 @@ source('users/calin/code/formulas.R')
 
 
 # Data --------------------------------------------------------------------
-
-## Young -------------------------------------------------------------------
 # Bird breeding phenology nests eggs
-## Manque : lon,lat et Species
+## Manque : lon,lat
 ## Have NA value
 young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
@@ -36,20 +34,20 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
          URL = "https://doi.org/10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(Species, latin_eng),
          variable = paste0(nomsp," eggs laid [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
-         site = "disko",
+         site = "young",
          value = EggsLaid) %>%
   dplyr::rename(date = date_bon) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)# %>%
   # filter(!is.na(value))
 
 # Bird breeding phenology nests hatching
 ## Manque : lon,lat et Species
-## Have NA value
+## Have NA/0 value
 young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
@@ -65,49 +63,148 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
          URL = "https://doi.org/10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          lon = NA, lat = NA, depth = NA,
-         nomsp = "FORMULA IN PROGRESS",
+         nomsp = map(Species, latin_eng),
          variable = paste0(nomsp," eggs hatched [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
-         site = "disko",
+         site = "young",
          value = PulliHatched) %>%
   dplyr::rename(date = date_bon) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
+# Bird abundance
+## Manque : lon,lat
+young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv",
+                                   col_types = "icinncc",
+                                   na = "-9999") %>%
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/1Z6Z-FQ32",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = NA, lat = NA, depth = NA,
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp," [presence]"),
+         category = "bio",
+         driver ="biomass",
+         date = as.Date(paste0(Year,"-12-31")),
+         type = "in situ",
+         site = "young",
+         valuez = 1) %>%
+  dplyr::group_by(date_accessed, URL, citation, lon, lat, depth, date, variable, category, driver, type, site) %>%
+  dplyr::summarise(sum(valuez)) %>%
+    mutate(value = 1) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+  # filter(!is.na(value))
+
+  
+# Phytoplankton biovolume
+## Manque : lon,lat et Species
+## LAKES
+young_phyto_biovolume <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv",
+                                    na = c("-1.000","-9999")) %>% 
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/B15M-2E46",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = NA, lat = NA, depth = NA,
+         variable = paste0(Taxon," (phytoplancton) in ", Lake ," lake biolume [mm3/L]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "young",
+         value = PhytoBiovolume) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Phytoplankton individuals
+## Manque : lon,lat et Species
+## LAKES
+young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv",
+                                 na = c("-1.000","-9999", "-1")) %>% 
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/B15M-2E46",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = NA, lat = NA, depth = NA,
+         variable = paste0(Taxon, " (phytoplancton) in ", Lake ," lake [n/mL]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "young",
+         value = NumberPer_mLiter) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
+# Zooplankton individuals LS lake
+## Have stage to change ????
+## LAKES
+young_zoo_number_LSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Zooplankton170420231442261928.csv") %>% 
+  filter(Lake == "Langemandssø (LS)"| Lake == "Langemandssø") %>%
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/VWPC-B466",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = 74.50113, 
+         lat = -20.60272, 
+         depth = NA,
+         variable = paste0(tolower(Stage), " ", Taxon, " (zooplancton) [n/L]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "young",
+         value = NumberPerLiter) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
+# filter(!is.na(value))
+
+# Zooplankton individuals SS lake
+## Have stage to change ????
+## LAKES
+young_zoo_number_SSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Zooplankton170420231442261928.csv") %>% 
+  filter(!Lake == "Langemandssø (LS)"| !Lake == "Langemandssø") %>%
+  mutate(date_accessed = as.Date("2023-04-17"),
+         URL = "https://doi.org/10.17897/VWPC-B466",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = 74.49871, 
+         lat = -20.60252, 
+         depth = NA,
+         variable = paste0(tolower(Stage), " ", Taxon, " (zooplancton) [n/L]"),
+         category = "bio",
+         driver ="biomass",
+         date = Date,
+         type = "in situ",
+         site = "young",
+         value = NumberPerLiter) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
 # filter(!is.na(value))
 
 
-# Bird abundance
-## Manque : lon,lat et Species
+# Bird breeding phenology broods
+## Manque : lon,lat
 ## Have NA value
-young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv") %>%
-  table(young_bird_abundance$Species)
-  
-  
-  
-  
-#   pivot_longer(cols = c(`FirstEggDate`, 
-#                         `HatchingDate`)) %>% 
-#   dplyr::filter(name == "HatchingDate") %>% 
-#   dplyr::rename(date_hatch = value) %>%
-#   mutate(date_enfonction = ifelse(is.na(date_hatch), 
-#                                   as.Date(paste0(Year,"-12-31")), 
-#                                   as.Date(date_hatch)),
-#          date_bon = as.Date(date_enfonction, origin),
-#          date_accessed = as.Date("2023-04-17"),
-#          URL = "https://doi.org/10.17897/5S51-HE52",
-#          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
-#          lon = NA, lat = NA, depth = NA,
-#          nomsp = "FORMULA IN PROGRESS",
-#          variable = paste0(nomsp," territory [n]"),
-#          category = "bio",
-#          driver ="biomass",
-#          type = "in situ",
-#          site = "disko",
-#          value = PulliHatched) %>%
-#   dplyr::rename(date = date_bon) %>%
-#   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
-# # filter(!is.na(value))
+young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods210420231531510758.csv",
+                                na = c("9999-01-01","-9999","#REF!","01/01/9999")) %>%
+  dplyr::rename(date_egg = FirstEggDate) %>%
+  mutate(date_enfonction = ifelse(is.na(date_egg), 
+                                  as.Date(paste0(Year,"-12-31")), 
+                                  as.Date(date_egg)),
+         date_bon = as.Date(date_enfonction, origin),
+         date_accessed = as.Date("2023-04-21"),
+         URL = "https://doi.org/10.17897/YPNZ-VX08",
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         lon = NA, lat = NA, depth = NA,
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp," eggs laid [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "young",
+         value = Accuracy) %>%
+  dplyr::rename(date = date_bon) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)# %>%
+# filter(!is.na(value))
 
 
 
@@ -115,36 +212,24 @@ young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Z
 
 
 
+# data set ----------------------------------------------------------------
 
+young_GEM_data <- rbind(young_bird_nests_eggs, 
+                    young_bird_nests_hatch,
+                    young_bird_abundance,
+                    young_phyto_biovolume,
+                    young_phyto_number,
+                    young_zoo_number_LSlake,
+                    young_zoo_number_SSlake,
+                    young_bird_broods)
 
+save(young_GEM_data, file = "users/calin/data/young_GEM_data.RData")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 
 # OTHER -------------------------------------------------------------------
+
+
+
 #   dplyr::rename(nomSpecies = Species) %>% 
 #   apply(young_bird_nests, margin = 2, FUN = nom_latin_com())
 # # 

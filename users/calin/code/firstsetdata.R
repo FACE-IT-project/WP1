@@ -11,7 +11,7 @@ library(ggpubr)
 library(stringi)
 
 
-
+source('users/calin/code/formulas.R')
 
 # Data -----------------------------------------------------------
 ## Svalbard data -----------------------------------------------------------
@@ -23,11 +23,11 @@ svalbard_ivory_gull_population <- read.csv("P:/FACE-IT_data/svalbard/the-number-
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/", 
          citation = "Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = "Pagophila eburnea (ivory gull) breeding population [%]",
+         variable = "|BIR| Pagophila eburnea (ivory gull) breeding population [%]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
-         site = "svalbard sea", 
+         site = "svalbard", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Svalbard) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
@@ -44,7 +44,7 @@ svalbard_walrus_population <- read_delim("P:/FACE-IT_data/svalbard/walrus-popula
          lon = NA, lat = NA, depth = NA, 
          type = case_when(name == "Walrus estimated numbers"~"estimated", 
                           name == "Walrus population aerial counts"~"aerial survey"),
-         variable = "Odobenus marinus (walrus) [n]",
+         variable = paste0("|MAM| Odobenus marinus (walrus) ", type, " [n]"),
          category = "bio",
          driver ="biomass",
          site = "svalbard", 
@@ -62,7 +62,7 @@ svalbard_nw_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
          citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," calanus [g/m²]"),
+         variable = paste0("|ZOO| ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," calanus [g/m²]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -81,7 +81,7 @@ svalbard_nw_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
          citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "calanus [g/m²]",
+         variable = "|ZOO| calanus [g/m²]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -100,7 +100,7 @@ svalbard_se_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
          citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," calanus [g/m²]"),
+         variable = paste0("|ZOO| ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," calanus [g/m²]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -119,7 +119,7 @@ svalbard_se_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
          citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "calanus [g/m²]",
+         variable = "|ZOO| calanus [g/m²]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -138,7 +138,7 @@ svalbard_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legge
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
          citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "Rissa tridactyla (kittiwake) population [% average in the colony]",
+         variable = "|BIR| Rissa tridactyla (kittiwake) population [% average in the colony]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -157,7 +157,7 @@ svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-g
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
          citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "Uria lomvia (brünnich’s guillemot) [% average in the colony]",
+         variable = "|BIR| Uria lomvia (brünnich’s guillemot) [% average in the colony]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -175,7 +175,7 @@ svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-g
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
          citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(str_replace_all(tolower(name),"\\."," ")," hooded seal [n]"),
+         variable = paste0("|MAM| ", str_replace_all(tolower(name),"\\."," ")," Cystophora cristata (hooded seal) [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -193,7 +193,7 @@ svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-g
            URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
            citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
            lon = NA, lat = NA, depth = NA,
-           variable = paste0(str_replace_all(tolower(name),"\\."," ")," hooded seal [n]"),
+           variable = paste0("|MAM| ", str_replace_all(tolower(name),"\\."," ")," Cystophora cristata (hooded seal) [n]"),
            category = "bio",
            driver ="biomass",
            type = "in situ",
@@ -215,7 +215,7 @@ kong_glaucous_gull_population <- read_delim("P:/FACE-IT_data/kongsfjorden/glauco
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/", 
          citation = "Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = "Larus hyperboreus (glaucous gull population) [% average in the colony]",
+         variable = "|BIR| Larus hyperboreus (glaucous gull population) [% average in the colony]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -235,7 +235,7 @@ kong_eiders_stock <- read.csv("P:/FACE-IT_data/kongsfjorden/breeding-population-
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/common-eider/", 
          citation = "Norwegian Polar Institute (2022). Breeding population of common eiders in Kongsfjorden, number of breeding pairs. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/common-eider.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = "Somateria mollissima borealis (common eider) breeding pairs [n]",
+         variable = "|BIR| Somateria mollissima borealis (common eider) breeding pairs [n]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -249,14 +249,14 @@ kong_eiders_stock <- read.csv("P:/FACE-IT_data/kongsfjorden/breeding-population-
 # kong seabird
 
 kong_seabird <- read.csv("P:/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) %>%
-  remove_empty() %>% 
-  filter(Colony == "Kongsfjorden") %>% 
+  remove_empty(which = "cols") %>% 
+  filter(Colony == "Kongsfjorden")%>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4", 
          citation = "Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd", 
          lon = NA, lat = NA, depth = NA, 
-         Species = case_when(Species == "GLGU"~"Larus hyperboreus (glaucous gull)"),
-         variable = paste0(tolower(Species), " colony count [n]"),
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " colony count [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -275,7 +275,9 @@ kong_calanus_population <- read.csv("P:/FACE-IT_data/kongsfjorden/calanus-specie
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-species-composition-in-kongsfjorden/", 
          citation = "Norwegian Polar Institute (2022). Calanus species composition in Kongsfjorden. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-species-composition.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = paste0("calanus ", substr(str_replace_all(tolower(name),"\\."," "),14, 30)," [%]"),
+         sp = substr(str_replace_all(tolower(name),"\\."," "),15, 30),
+         nomsp = map(sp, latin_eng),
+         variable = paste0(nomsp, " [%]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -294,7 +296,7 @@ kong_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-ki
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
          citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "Rissa tridactyla (kittiwake) population [% average in the colony]",
+         variable = "|BIR| Rissa tridactyla (kittiwake) population [% average in the colony]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -307,13 +309,13 @@ kong_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-ki
 # kong Brünnich’s guillemot population
 
 kong_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) #%>%
+  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
 filter(name == "Ossian.Sarsfjellet") %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
          citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "Uria lomvia (brünnich’s guillemot) [% average in the colony]",
+         variable = "|BIR| Uria lomvia (brünnich’s guillemot) [% average in the colony]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -337,7 +339,7 @@ barents_polar_cod <- read.csv("P:/FACE-IT_data/svalbard/biomass-of-polar-cod-in.
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea/", 
          citation = "Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = "Boreogadus saida (polar cod) [10^6 kg]",
+         variable = "|FIS| Boreogadus saida (polar cod) [10^6 kg]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -357,7 +359,7 @@ barents_capelin_stock <- read.csv("P:/FACE-IT_data/svalbard/capelin-stock-in-the
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea/", 
          citation = "Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = paste0("Mallotus villosus (capelin) ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+         variable = paste0("|FIS| Mallotus villosus (capelin) ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -375,7 +377,7 @@ barents_golden_redfish_population <- read_delim("P:/FACE-IT_data/svalbard/stock-
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/", 
          citation = "Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/", 
          lon = NA, lat = NA, depth = NA, 
-         variable = paste0("Sebastes norvegicus (golden redfish) ", tolower(name) ," [10^3 kg]"),
+         variable = paste0("|FIS| Sebastes norvegicus (golden redfish) ", tolower(name) ," [10^3 kg]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -394,7 +396,7 @@ barents_beaked_redfish_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/", 
          citation = "Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = paste0("Sebastes mentella (beaked redfish) ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+         variable = paste0("|FIS| Sebastes mentella (beaked redfish) ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -412,7 +414,7 @@ barents_northeast_cod_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of-
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/", 
          citation = "Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html", 
          lon = NA, lat = NA, depth = NA, 
-         variable = paste0("Gadus morhua (northeast arctic) ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+         variable = paste0("|FIS| Gadus morhua (northeast arctic) ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -430,7 +432,7 @@ barents_young_herring_population <- read.csv("P:/FACE-IT_data/svalbard/biomass-i
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/",
          citation = "Institute of Marine Research (2022). Biomass index for young herring 1–3 years in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/young-herring-population.html",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(substr(str_replace_all(tolower(name),"\\."," "),2, 11)," Clupea harengus (herring) [n]"),
+         variable = paste0("|FIS| ", substr(str_replace_all(tolower(name),"\\."," "),2, 11)," Clupea harengus (herring) [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -457,7 +459,7 @@ is_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-kitt
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
          citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "Rissa tridactyla (kittiwake) population [% average in the colony]",
+         variable = "|BIR| Rissa tridactyla (kittiwake) population [% average in the colony]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -476,7 +478,7 @@ is_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillem
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
          citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
          lon = NA, lat = NA, depth = NA,
-         variable = "Uria lomvia (brünnich’s guillemot) [% average in the colony]",
+         variable = "|BIR| Uria lomvia (brünnich’s guillemot) [% average in the colony]",
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -524,7 +526,7 @@ EU_epagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-an
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
          citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the East Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(str_replace_all(tolower(name),"\\."," ")," harp seal [n]"),
+         variable = paste0("|MAM| Pagophilus groenlandicus (harp seal) ", str_replace_all(tolower(name),"\\."," ")," [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -541,7 +543,7 @@ EU_wpagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-an
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
          citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
          lon = NA, lat = NA, depth = NA,
-         variable = paste0(str_replace_all(tolower(name),"\\."," ")," harp seal [n]"),
+         variable = paste0("|MAM| Pagophilus groenlandicus (harp seal) ", str_replace_all(tolower(name),"\\."," ")," [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -562,16 +564,14 @@ kong_data <- rbind(kong_glaucous_gull_population,
                    kong_seabird, 
                    kong_calanus_population,
                    kong_kittiwakke_population,
-                   kong_brguillemot_population
-                   )
+                   kong_brguillemot_population)
 
 barents_data <- rbind(barents_polar_cod, 
                       barents_beaked_redfish_population, 
                       barents_capelin_stock, 
                       barents_golden_redfish_population, 
                       barents_northeast_cod_population, 
-                      barents_young_herring_population
-                      )
+                      barents_young_herring_population)
 
 svalbard_data <- rbind(svalbard_ivory_gull_population, 
                        svalbard_nw_calanus_mm_population,
@@ -579,55 +579,22 @@ svalbard_data <- rbind(svalbard_ivory_gull_population,
                        svalbard_se_calanus_mm_population,
                        svalbard_se_calanus_tot_population,
                        svalbard_walrus_population,
-                       svalbard_brguillemot_population
-                       )
+                       svalbard_brguillemot_population)
 
 is_data <- rbind(is_kittiwakke_population,
-                 is_brguillemot_population
-                 )
+                 is_brguillemot_population)
+EU_data <- rbind(EU_epagr_population,
+                 EU_wpagr_population)
 
-arctic_data <- rbind(kong_data,
+EU_arctic_data <- rbind(kong_data,
                      barents_data,
                      svalbard_data,
-                     is_data
-                     )
+                     is_data,
+                     EU_data)
 
-arctic_data
 
 
 
 ## Save data ---------------------------------------------------------------
 
-save(arctic_data, file = "users/calin/data/arctic_data.RData")
-
-## Figures -----------------------------------------------------------------
-
-kong_glaucous1 <- ggplot(data = kong_glaucous_gull_population, aes(x = date, y = value)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = TRUE)
-
-
-barents_capelin1 <- ggplot(data = barents_capelin_stock, aes(x = date,  y = value)) + 
-  geom_bar(stat = "identity", aes(fill = variable)) +
-  theme_bw() + 
-  theme(legend.position = c(0.75,0.75), legend.background = element_rect(color = "black")) +
-  labs(x = NULL, fill = NULL )
-
-# basic example
-arctic_data1 <- ggplot(arctic_data, aes(x = date, y = variable, fill = variable)) +
-  geom_density_ridges() +
-  theme_ridges() + 
-  theme(legend.position = "none", axis.text = element_text(size = 9)) +
-  labs(x = NULL, y = NULL)
-
-arctic_data2 <- ggplot(data = arctic_data, aes(x = date, y = value)) +
-  geom_point(aes(color = variable)) + 
-  facet_wrap(~variable, scales = "free_y") +
-  theme(legend.position = "none") +
-  labs(x = NULL, y = NULL)
-
-
-arctic_data3 <- ggarrange(arctic_data1, arctic_data2,ncol = 1, nrow = 2, labels = c("a)", "b)"),align = "hv")
-arctic_data4 <- annotate_figure(arctic_data3, top = text_grob("Summary arctic data set"))
-arctic_data4
-
+save(EU_arctic_data, file = "users/calin/data/EU_arctic_data.RData")
