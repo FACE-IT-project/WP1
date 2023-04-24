@@ -58,7 +58,7 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
          gender = case_when(Gender == "M"~"male", 
                             Gender == "F"~"female",
                             Gender == "UK"~"unknown"),
-         variable = paste0(age, " ", gender, " ", nomsp," [n]"),
+         variable = paste0(nomsp, " ", age, " ", gender," [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
