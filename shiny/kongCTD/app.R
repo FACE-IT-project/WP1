@@ -128,15 +128,31 @@ frame_base <- ggplot() +
         axis.ticks = element_line(colour = "black"))
 
 # login credentials
+load("credentials.RData")
 credentials <- data.frame(
-  user = c("r", "Allison Bailey", "Clara Hoppe", "Anette", "Marine Lab", "Jean-Pierre", "Philipp", "Divya", "shinymanager"), # mandatory
-  password = c("r", "R", "R", "R", "kb", "Antibes", "Argo", "NCPOR4321", "12345"), # mandatory
-  start = c("2019-04-15"), # optional (all others)
-  expire = c(NA, NA, NA, NA, NA, NA, NA, NA, "2023-12-31"),
-  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
+  user = c("admin", "Allison Bailey", "Clara Hoppe", "Anette", "Marine Lab", "Jean-Pierre", "Philipp", 
+           "Divya"), # mandatory
+  password = c("BermudA", "R", "R", "R", "kb", "Antibes", "Argo", "NCPOR4321"), # mandatory
+  start = c("2022-12-31"), # optional (all others)
+  expire = c("2024-12-31", NA, NA, NA, NA, NA, NA, NA),
+  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
   comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
   stringsAsFactors = FALSE
 )
+credentials$comment[2:8] <- NA
+credentials$start[8] <- "2023-04-17"
+
+# Add a new user as necessary
+cred_new <- data.frame(
+  user = "",
+  password = "",
+  start = "",
+  expire = NA, # OR set a date as above
+  admin = FALSE,
+  comment = NA
+)
+credentials <- rbind(credentials, cred_new)
+save(credentials, file = "credentials.RData")
 
 # Increase file upload size limit
 options(shiny.maxRequestSize = 50*1024^2)
