@@ -241,7 +241,7 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
 
 # data set ----------------------------------------------------------------
 
-young_data <- rbind(young_bird_nests_eggs, 
+young_GEM_data <- rbind(young_bird_nests_eggs, 
                     young_bird_nests_hatch,
                     young_bird_abundance,
                     young_phyto_biovolume,
@@ -250,86 +250,7 @@ young_data <- rbind(young_bird_nests_eggs,
                     young_zoo_number_SSlake,
                     young_bird_broods)
 
-nuup_data <- rbind(nuup_bird_presence)
-
-gem_data <- rbind(young_data, nuup_data) 
-
-EU_arctic_data
-
-
-
-ECC_data <- rbind(gem_data, EU_arctic_data) %>% 
-  mutate(lieu = case_when(site == "barents sea"~"barents sea",
-                          site == "east ice"~"barents sea",
-                          site == "is"~"is",
-                          site == "kong"~"kong",
-                          site == "nuup"~"nuup",
-                          site == "svalbard"~"svalbard",
-                          site == "west ice"~"barents sea",
-                          site == "young"~"young"))
-
-
-
-ECC_data_annual <- ECC_data %>% 
-  mutate(year = year(date)) %>% 
-  summarise(annual_count = n(), .by = c(year, lieu))
-
-
-ECC_data_annual_type <- ECC_data %>% 
-  mutate(year = year(date),
-         fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
-         mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
-         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird",
-                          grepl("|bir|", variable, fixed = TRUE) == TRUE~"Bird"),
-         zoo = case_when(grepl("Zoo", variable, fixed = TRUE) == TRUE~"Zooplankton",
-                         grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton",
-                         grepl("zoo", variable, fixed = TRUE) == TRUE~"Zooplankton"),
-         phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
-         classification = case_when(fish == "Fish"~"fish",
-                        mammal == "Mammal" ~"mammal",
-                        bird == "Bird"~"bird",
-                        zoo == "Zooplankton"~"zooplankton",
-                        phyto == "Phytoplankton"~"phytoplankton")) %>%
-  dplyr::select(year, classification, lieu) %>% 
-  summarise(annual_type_count = n(), .by = c(year, classification))
-
-ECC_data_annual_variable <- ECC_data %>% 
-  mutate(year = year(date)) %>%
-  dplyr::select(year, variable, lieu) %>% 
-  summarise(annual_type_count = n(), .by = variable)
-
-
-ECC_data_type <- ECC_data %>% 
-  mutate(year = year(date),
-         fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
-         mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
-         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird",
-                          grepl("|bir|", variable, fixed = TRUE) == TRUE~"Bird"),
-         zoo = case_when(grepl("Zoo", variable, fixed = TRUE) == TRUE~"Zooplankton",
-                         grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton",
-                         grepl("zoo", variable, fixed = TRUE) == TRUE~"Zooplankton"),
-         phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
-         classification = case_when(fish == "Fish"~"fish",
-                                    mammal == "Mammal" ~"mammal",
-                                    bird == "Bird"~"bird",
-                                    zoo == "Zooplankton"~"zooplankton",
-                                    phyto == "Phytoplankton"~"phytoplankton")) %>%
-  dplyr::select(year, classification, value) %>% 
-  summarise(type_count = n(), .by = classification)
-
-
-ECC_data_species_summury <- ECC_data %>% 
-  mutate(year = year(date)) %>% 
-  dplyr::select(year, variable, lieu) %>% 
-  distinct() %>% 
-  summarise(annual_species_count = n(), .by = c(year, lieu))
-
-ECC_data_set_summury <- ECC_data %>% 
-  mutate(year = year(date)) %>% 
-  dplyr::select(year, URL, lieu) %>% 
-  distinct() %>% 
-  summarise(annual_set_count = n(), .by = c(year, lieu))
-
+save(young_GEM_data, file = "users/calin/data/young_GEM_data.RData")
 
 
 # Figures -----------------------------------------------------------------

@@ -70,3 +70,10 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
   dplyr::rename(value = `sum(value)`) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!value == 0)
+
+
+# Data set ----------------------------------------------------------------
+
+nuup_GEM_data <- rbind(nuup_bird_presence)
+
+save(nuup_GEM_data, file = "users/calin/data/nuup_GEM_data.RData")
