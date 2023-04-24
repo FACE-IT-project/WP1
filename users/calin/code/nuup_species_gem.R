@@ -58,7 +58,7 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
          gender = case_when(Gender == "M"~"male", 
                             Gender == "F"~"female",
                             Gender == "UK"~"unknown"),
-         variable = paste0(age, " ", gender, " ", nomsp," [n]"),
+         variable = paste0(nomsp, " ", age, " ", gender," [n]"),
          category = "bio",
          driver ="biomass",
          type = "in situ",
@@ -71,6 +71,22 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!value == 0)
 
+#
+nuup_seabird_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Seabirds_Seabird_species_counts_per_colony17042023154835389.csv",
+                                 col_types = "Dicnnccciicccc") %>% 
+  mutate(date_accessed = as.Date("2023-04-17"), 
+         URL = "https://doi.org/10.17897/WKFK-SS31", 
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.", 
+         lon = Longitude, 
+         lat = Latitude, 
+         depth = NA, 
+         variable = "________________",
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "svalbard", 
+         date = as.Date(date))
+  
 
 # Data set ----------------------------------------------------------------
 
