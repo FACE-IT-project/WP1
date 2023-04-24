@@ -19,7 +19,7 @@ source('users/calin/code/formulas.R')
 
 ## YOUNG -------------------------------------------------------------------
 # Bird breeding phenology nests eggs
-## Manque : lon,lat et Species
+## Manque : lon,lat
 ## Have NA value
 young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
@@ -49,7 +49,7 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
 
 # Bird breeding phenology nests hatching
 ## Manque : lon,lat et Species
-## Have NA value
+## Have NA/0 value
 young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
@@ -78,8 +78,7 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
 
 
 # Bird abundance
-## Manque : lon,lat et Species
-# Have NA value
+## Manque : lon,lat
 young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv",
                                    col_types = "icinncc",
                                    na = "-9999") %>%
@@ -104,7 +103,7 @@ young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Z
   
 # Phytoplankton biovolume
 ## Manque : lon,lat et Species
-## Have NA value
+## LAKES
 young_phyto_biovolume <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv",
                                     na = c("-1.000","-9999")) %>% 
   mutate(date_accessed = as.Date("2023-04-17"),
@@ -123,9 +122,9 @@ young_phyto_biovolume <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
 
 # Phytoplankton individuals
 ## Manque : lon,lat et Species
-## Have NA value
+## LAKES
 young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Phytoplankton170420231440184919.csv",
-                                 na = c("-1.000","-9999")) %>% 
+                                 na = c("-1.000","-9999", "-1")) %>% 
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/B15M-2E46",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
@@ -143,6 +142,7 @@ young_phyto_number <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zac
 
 # Zooplankton individuals LS lake
 ## Have stage to change ????
+## LAKES
 young_zoo_number_LSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Zooplankton170420231442261928.csv") %>% 
   filter(Lake == "Langemandssø (LS)"| Lake == "Langemandssø") %>%
   mutate(date_accessed = as.Date("2023-04-17"),
@@ -163,6 +163,7 @@ young_zoo_number_LSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasi
 
 # Zooplankton individuals SS lake
 ## Have stage to change ????
+## LAKES
 young_zoo_number_SSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Lakes_Zooplankton170420231442261928.csv") %>% 
   filter(!Lake == "Langemandssø (LS)"| !Lake == "Langemandssø") %>%
   mutate(date_accessed = as.Date("2023-04-17"),
@@ -183,7 +184,7 @@ young_zoo_number_SSlake <- read_delim("P:/restricted_data/GEM/young/View_BioBasi
 
 
 # Bird breeding phenology broods
-## Manque : lon,lat et Species
+## Manque : lon,lat
 ## Have NA value
 young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods210420231531510758.csv",
                                 na = c("9999-01-01","-9999","#REF!","01/01/9999")) %>%
@@ -240,7 +241,6 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
 ## NUUP --------------------------------------------------------------------
 # Bird presence
 ## Manque : Species
-## Have NA value
 nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>% 
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/DRTB-PY74",
