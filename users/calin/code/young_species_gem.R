@@ -212,33 +212,6 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # data set ----------------------------------------------------------------
 
 young_GEM_data <- rbind(young_bird_nests_eggs, 
@@ -251,90 +224,6 @@ young_GEM_data <- rbind(young_bird_nests_eggs,
                     young_bird_broods)
 
 save(young_GEM_data, file = "users/calin/data/young_GEM_data.RData")
-
-
-# Figures -----------------------------------------------------------------
-ECC_data01 <- ggplot(ECC_data_annual, aes(x = year, y = annual_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
-  labs(y = "data [n]", title = "Data by site and by year", x = NULL, fill = "site") +
-  theme(legend.position = c(0.20,0.80)) +
-  scale_fill_brewer(palette="Set3")
-ECC_data01
-ggsave(ECC_data01, file = 'users/calin/figures/ECC_data01.png')
-
-ECC_data02 <- ggplot(ECC_data_species_summury, aes(x = year, y = annual_species_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
-  labs(y = "species [n]", x = NULL) +
-  theme(legend.position = c(0.20,0.80)) +
-  scale_fill_brewer(palette="Set3")
-ECC_data02
-ggsave(ECC_data02, file = 'users/calin/figures/ECC_data02.png')
-
-
-ECC_data03 <- ggplot(ECC_data_set_summury, aes(x = year, y = annual_set_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
-  labs(y = "set [n]", title = "Data by set and by year", x = NULL) +
-  theme(legend.position = c(0.20,0.80)) +
-  scale_fill_brewer(palette="Set2")
-ECC_data03
-
-ECC_data04 <- ggplot(ECC_data_annual_type, aes(x = year, y = annual_type_count)) + 
-  geom_bar(aes(fill = classification), stat = 'Identity', position = 'dodge') +
-  labs(y = "data [n]", title = "Data by classification and by year", x = NULL) +
-  theme(legend.position = c(0.20,0.80)) +
-  scale_fill_brewer(palette="Set2")
-ECC_data04
-
-ECC_data05 <- ggplot(ECC_data_type, aes(x="", y = type_count, fill=classification)) +
-  geom_bar(stat="identity", width=1, color="white") +
-  labs(fill = "species groups") +
-  coord_polar("y", start=0)+
-  theme_void() + # remove background, grid, numeric labels
-  scale_fill_brewer(palette="Set2")
-ECC_data05
-ggsave(ECC_data05, file = 'users/calin/figures/ECC_data05.png')
-
-
-ECC_data06 <- ggplot(ECC_data, aes(x = year(date), y = lieu, fill = lieu)) +
-  geom_density_ridges() +
-  theme_ridges() + 
-  theme(legend.position = "none", axis.text = element_text(size = 9)) +
-  labs(x = NULL, y = NULL) +
-  scale_fill_brewer(palette="Set3")
-ECC_data06
-ggsave(ECC_data06, file = 'users/calin/figures/ECC_data06.png')
-
-
-
-
-
-
-gem_data04 <- ggplot(gem_data_set_summury, aes(x = year, y = annual_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge')
-
-
-gem_data03 <- ggplot(gem_data_species_summury, aes(x = year, y = annual_species_count)) + 
-  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
-
-
-gem_data02 <- ggplot(gem_data_annual, aes(x = year, y = annual_count)) + 
-  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge')
-
-gem_data04
-
-
-gem_data01 <- ggplot(gem_data, aes(x = date, y = site, fill = site)) +
-  geom_density_ridges() +
-  theme_ridges() + 
-  theme(legend.position = "none", axis.text = element_text(size = 9)) +
-  labs(x = NULL, y = NULL)
-
-
-arctic_data2 <- ggplot(data = gem_data, aes(x = date, y = value)) +
-  geom_point(aes(color = variable)) + 
-  facet_wrap(~variable, scales = "free_y") +
-  theme(legend.position = "none") +
-  labs(x = NULL, y = NULL) 
 
 
 # OTHER -------------------------------------------------------------------

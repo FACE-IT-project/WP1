@@ -598,38 +598,3 @@ EU_arctic_data <- rbind(kong_data,
 ## Save data ---------------------------------------------------------------
 
 save(EU_arctic_data, file = "users/calin/data/EU_arctic_data.RData")
-
-## Figures -----------------------------------------------------------------
-
-kong_glaucous1 <- ggplot(data = kong_glaucous_gull_population, aes(x = date, y = value)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = TRUE)
-kong_glaucous1
-
-
-barents_capelin1 <- ggplot(data = barents_capelin_stock, aes(x = date,  y = value)) + 
-  geom_bar(stat = "identity", aes(fill = variable)) +
-  theme_bw() + 
-  theme(legend.position = c(0.75,0.75), legend.background = element_rect(color = "black")) +
-  labs(x = NULL, fill = NULL )
-barents_capelin1
-
-# basic example
-arctic_data1 <- ggplot(EU_arctic_data, aes(x = date, y = variable, fill = variable)) +
-  geom_density_ridges() +
-  theme_ridges() + 
-  theme(legend.position = "none", axis.text = element_text(size = 9)) +
-  labs(x = NULL, y = NULL)
-arctic_data1
-
-arctic_data2 <- ggplot(data = EU_arctic_data, aes(x = date, y = value)) +
-  geom_point(aes(color = variable)) + 
-  facet_wrap(~variable, scales = "free_y") +
-  theme(legend.position = "none") +
-  labs(x = NULL, y = NULL)
-arctic_data2
-
-arctic_data3 <- ggarrange(arctic_data1, arctic_data2,ncol = 1, nrow = 2, labels = c("a)", "b)"),align = "hv")
-arctic_data4 <- annotate_figure(arctic_data3, top = text_grob("Summary arctic data set"))
-arctic_data4
-
