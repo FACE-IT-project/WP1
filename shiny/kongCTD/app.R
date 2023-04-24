@@ -127,17 +127,6 @@ frame_base <- ggplot() +
         axis.text = element_text(size = 12, colour = "black"),
         axis.ticks = element_line(colour = "black"))
 
-# login credentials
-credentials <- data.frame(
-  user = c("r", "Allison Bailey", "Clara Hoppe", "Anette", "Marine Lab", "Jean-Pierre", "Philipp", "Divya", "shinymanager"), # mandatory
-  password = c("r", "R", "R", "R", "kb", "Antibes", "Argo", "NCPOR4321", "12345"), # mandatory
-  start = c("2019-04-15"), # optional (all others)
-  expire = c(NA, NA, NA, NA, NA, NA, NA, NA, "2023-12-31"),
-  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE),
-  comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
-  stringsAsFactors = FALSE
-)
-
 # Increase file upload size limit
 options(shiny.maxRequestSize = 50*1024^2)
 
@@ -145,16 +134,23 @@ options(shiny.maxRequestSize = 50*1024^2)
 floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
 ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
 
-## DANGER ZONE ##
-# Seriously, don't run this code...
-# Delete database
-# # database <- read_rds("data/data_base.Rds")
-# # database <- slice(database, 0)
-# # write_rds(database, "data/data_base.Rds")
-# Delete metadatabase
-# # metadatabase <- read_rds("data/meta_data_base.Rds")
-# # metadatabase <- slice(metadatabase, 0)
-# # write_rds(metadatabase, "data/meta_data_base.Rds")
+
+# Credentials -------------------------------------------------------------
+
+# login credentials
+load("credentials.RData")
+
+# Add a new user/password
+# cred_new <- data.frame(
+#   user = "",
+#   password = "",
+#   start = Sys.Date(),
+#   expire = NA, # OR set a date as above
+#   admin = FALSE,
+#   comment = NA
+# )
+# credentials <- rbind(credentials, cred_new)
+# save(credentials, file = "credentials.RData")
 
 
 # UI ----------------------------------------------------------------------
