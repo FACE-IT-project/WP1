@@ -186,7 +186,7 @@ ggsave(ECC_data06, file = 'users/calin/figures/ECC_data06.png') # Save figure
 
 
 # Density of data over years for GEM data by site
-gem_data01 <- ggplot(gem_data, aes(x = date, y = site, fill = site)) +
+gem_data01 <- ggplot(green_GEM_data, aes(x = date, y = site, fill = site)) +
   geom_density_ridges() +
   theme_ridges() + 
   theme(legend.position = "none", axis.text = element_text(size = 9)) +
