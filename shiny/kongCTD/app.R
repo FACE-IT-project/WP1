@@ -127,33 +127,6 @@ frame_base <- ggplot() +
         axis.text = element_text(size = 12, colour = "black"),
         axis.ticks = element_line(colour = "black"))
 
-# login credentials
-load("credentials.RData")
-credentials <- data.frame(
-  user = c("admin", "Allison Bailey", "Clara Hoppe", "Anette", "Marine Lab", "Jean-Pierre", "Philipp", 
-           "Divya"), # mandatory
-  password = c("BermudA", "R", "R", "R", "kb", "Antibes", "Argo", "NCPOR4321"), # mandatory
-  start = c("2022-12-31"), # optional (all others)
-  expire = c("2024-12-31", NA, NA, NA, NA, NA, NA, NA),
-  admin = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
-  comment = "Simple and secure authentification mechanism for single ‘Shiny’ applications.",
-  stringsAsFactors = FALSE
-)
-credentials$comment[2:8] <- NA
-credentials$start[8] <- "2023-04-17"
-
-# Add a new user as necessary
-cred_new <- data.frame(
-  user = "",
-  password = "",
-  start = "",
-  expire = NA, # OR set a date as above
-  admin = FALSE,
-  comment = NA
-)
-credentials <- rbind(credentials, cred_new)
-save(credentials, file = "credentials.RData")
-
 # Increase file upload size limit
 options(shiny.maxRequestSize = 50*1024^2)
 
@@ -161,16 +134,23 @@ options(shiny.maxRequestSize = 50*1024^2)
 floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
 ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
 
-## DANGER ZONE ##
-# Seriously, don't run this code...
-# Delete database
-# # database <- read_rds("data/data_base.Rds")
-# # database <- slice(database, 0)
-# # write_rds(database, "data/data_base.Rds")
-# Delete metadatabase
-# # metadatabase <- read_rds("data/meta_data_base.Rds")
-# # metadatabase <- slice(metadatabase, 0)
-# # write_rds(metadatabase, "data/meta_data_base.Rds")
+
+# Credentials -------------------------------------------------------------
+
+# login credentials
+load("credentials.RData")
+
+# Add a new user/password
+# cred_new <- data.frame(
+#   user = "",
+#   password = "",
+#   start = Sys.Date(),
+#   expire = NA, # OR set a date as above
+#   admin = FALSE,
+#   comment = NA
+# )
+# credentials <- rbind(credentials, cred_new)
+# save(credentials, file = "credentials.RData")
 
 
 # UI ----------------------------------------------------------------------
