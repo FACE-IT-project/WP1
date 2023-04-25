@@ -144,7 +144,7 @@ load("credentials.RData")
 # cred_new <- data.frame(
 #   user = "",
 #   password = "",
-#   start = Sys.Date(),
+#   start = as.character(Sys.Date()),
 #   expire = NA, # OR set a date as above
 #   admin = FALSE,
 #   comment = NA
