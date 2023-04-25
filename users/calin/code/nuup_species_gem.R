@@ -117,9 +117,32 @@ nuup_seabird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasi
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
 
+# marin mammal
+nuup_mmam_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Marine_mammals_Identification_of_Humpback_Whales_individuals_year170420231542310109.csv") %>%
+  pivot_longer(cols = c(`INDIVIDUALS`, `NEW INDIVIDUALS`, `RECATCH IND`)) %>%
+  mutate(date_accessed = as.Date("2023-04-17"), 
+         URL = "https://doi.org/10.17897/13YN-1209", 
+         citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.", 
+         lon = NA, 
+         lat = NA, 
+         depth = NA, 
+         Species = "Megaptera novaeangliae",
+         nomsp = map(Species, latin_eng),
+         type = case_when(name == "INDIVIDUALS"~"sighted",
+                          name == "NEW INDIVIDUALS"~"new individual sighted",
+                          name == "RECATCH IND"~"individual already sighted"),
+         variable = paste0(nomsp, " ", type, " [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "nuup", 
+         date = as.Date(paste0(YEAR,"-12-31"))) %>% 
+  filter(!is.na(value)) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
+
 
 # Data set ----------------------------------------------------------------
 
-nuup_GEM_data <- rbind(nuup_bird_presence)
+nuup_GEM_data <- rbind(nuup_bird_presence, nuup_seabird_count, nuup_seabird_presence)
 
 save(nuup_GEM_data, file = "users/calin/data/nuup_GEM_data.RData")

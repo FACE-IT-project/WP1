@@ -18,6 +18,7 @@ latin_eng <- function(nomSpecies){
   if(nomSpecies == "Sebastes norvegicus") nom_long <- "|FIS| Sebastes norvegicus (golden redfish)"
   # Mammal |MAM|
   if(nomSpecies == "Cystophora cristata") nom_long <- "|MAM| Cystophora cristata (hooded seal)"
+  if(nomSpecies == "Megaptera novaeangliae") nom_long <- "|MAM| Megaptera novaeangliae (humpback whale)"
   if(nomSpecies == "Odobenus marinus") nom_long <- "|MAM| Odobenus marinus (walrus)"
   if(nomSpecies == "Pagophilus groenlandicus") nom_long <- "|MAM| Pagophilus groenlandicus (harp seal)"
   if(nomSpecies == "Ursus maritimus") nom_long <- "|MAM| Ursus maritimus (polar bear)"
