@@ -54,7 +54,7 @@ latin_eng <- function(nomSpecies){
   if(nomSpecies %in% c("Larus hyperboreus", "Larus hypeboreus", "GLGU")) nom_long <- "|BIR| Larus hyperboreus (glaucous gull)"
   if(nomSpecies == "Larus marinus") nom_long <- "|BIR| Larus marinus (great black-backed gull)"
   if(nomSpecies == "Larus smithonianus") nom_long <- "|BIR| Larus smithonianus (american herring gull)"
-  if(nomSpecies == "Larus sp.") nom_long <- "|BIR| Larus sp. (gull unidentified)"
+  if(nomSpecies %in% c("Larus sp.", "Larus glaucoides/hyperboreus")) nom_long <- "|BIR| Larus sp. (gull unidentified)"
   if(nomSpecies == "Mergus serratus") nom_long <- "|BIR| Mergus serratus (red-breasted merganser)"
   if(nomSpecies %in% c("Oenanthe oenanthe","NW")) nom_long <- "|BIR| Oenanthe oenanthe (northern wheatear)"
   if(nomSpecies == "Pagophila eburnea") nom_long <- "|BIR| Pagophila eburnea (ivory gull)"
@@ -75,7 +75,7 @@ latin_eng <- function(nomSpecies){
   if(nomSpecies %in% c("Calanus finmarchicus","atlantic species")) nom_long <- "|ZOO| Calanus finmarchicus (atlantic calanus)"
   if(nomSpecies %in% c("Calanus glacialis","arctic species")) nom_long <- "|ZOO| Calanus glacialis (arctic calanus)"
   # Other
-  if(nomSpecies == "") nom_long <- " "
+  if(nomSpecies %in% c("", "NA", NA, NULL)) nom_long <- " "
   return(nom_long)
 }
 
