@@ -13,6 +13,7 @@ library(stringi)
 # Formula -----------------------------------------------------------------
 # Change name to latin and english name
 source('users/calin/code/formulas.R')
+source('users/calin/code/species_names.R')
 
 
 # Data --------------------------------------------------------------------
@@ -132,12 +133,12 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
 
 # data set ----------------------------------------------------------------
 
-young_GEM_data <- rbind(young_bird_nests_eggs, 
+young_species_GEM <- rbind(young_bird_nests_eggs, 
                     young_bird_nests_hatch,
                     young_bird_abundance,
                     young_bird_broods)
 
-save(young_GEM_data, file = "users/calin/data/young_GEM_data.RData")
+save(young_species_GEM, file = "users/calin/data/young_species_GEM.RData")
 
 
 # OTHER -------------------------------------------------------------------

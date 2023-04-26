@@ -13,8 +13,8 @@ library(stringi)
 # Load data  set ---------------------------------------------------------------
 
 load('users/calin/data/EU_arctic_data.RData') # firstsetdata data -> svalbard data
-load('users/calin/data/young_GEM_data.RData') # young_species_gem data -> young GEM data
-load('users/calin/data/nuup_GEM_data.RData') # nuup_species_gem data -> nuup GEM data
+load('users/calin/data/young_species_GEM.RData') # young_species_gem data -> young GEM data
+load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup GEM data
 
 
 # Combined data set -------------------------------------------------------

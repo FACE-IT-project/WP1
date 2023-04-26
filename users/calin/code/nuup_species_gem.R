@@ -8,6 +8,8 @@ library(janitor)
 library(ggridges)
 library(ggpubr)
 library(stringi)
+library(pangaear)
+library(rgbif)
 
 
 # Formula -----------------------------------------------------------------
@@ -141,8 +143,30 @@ nuup_mmam_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
 
+
+# PANGEA data -------------------------------------------------------------
+
+
+
+nuup_search01 <- pg_search(query = 'nuuk species')
+nuup_data01 <- pg_data(doi = nuup_search01$doi[1])
+nuup_0101 <- nuup_data01[[1]]$data
+
+nuup_search02 <- pg_search(query = 'Saha, Atal; Hauser, Lorenz; Hedeholm, Rasmus; Planque, Benjamin')
+nuup_data02 <- pg_data(doi = nuup_search02$doi[1])
+nuup_0202 <- nuup_data02[[2]]$data
+
+
+gbif_search01 <- occ_search(scientificName = "Saccharina latissima")
+gbif_data01 <- gbif_search01$data
+
+
+ggplot(data = gbif_data01, aes (x = decimalLongitude, y = decimalLatitude)) + 
+  borders()+
+  geom_point(aes(color = year(eventDate)))
+
 # Data set ----------------------------------------------------------------
 
-nuup_GEM_data <- rbind(nuup_bird_presence, nuup_seabird_count, nuup_seabird_presence)
+nuup_species_GEM <- rbind(nuup_bird_presence, nuup_seabird_count, nuup_seabird_presence, nuup_mmam_count)
 
-save(nuup_GEM_data, file = "users/calin/data/nuup_GEM_data.RData")
+save(nuup_species_GEM, file = "users/calin/data/nuup_species_GEM.RData")
