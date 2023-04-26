@@ -13,8 +13,8 @@ library(stringi)
 # Load data  set ---------------------------------------------------------------
 
 load('users/calin/data/EU_arctic_data.RData') # firstsetdata data -> svalbard data
-load('users/calin/data/young_GEM_data.RData') # young_species_gem data -> young GEM data
-load('users/calin/data/nuup_GEM_data.RData') # nuup_species_gem data -> nuup GEM data
+load('users/calin/data/young_species_GEM.RData') # young_species_gem data -> young GEM data
+load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup GEM data
 
 
 # Combined data set -------------------------------------------------------
@@ -41,20 +41,54 @@ ECC_data_annual <- ECC_data %>%
   mutate(year = year(date)) %>% 
   summarise(annual_count = n(), .by = c(year, lieu))
 
+ECC_type  <- ECC_data %>% 
+  mutate(fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
+         mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
+         sbird = case_when(grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird"),
+         nbird = case_when(grepl("|NBI|", variable, fixed = TRUE) == TRUE~"Non-sea Bird"),
+         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird"),
+         zoo = case_when(grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton"),
+         phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
+         classification = case_when(fish == "Fish"~"fish",
+                                    mammal == "Mammal" ~"mammal",
+                                    sbird == "Sea Bird"~"sea bird",
+                                    nbird == "Non-sea Bird"~"non-sea bird",
+                                    bird == "Bird"~"bird",
+                                    zoo == "Zooplankton"~"zooplankton",
+                                    phyto == "Phytoplankton"~"phytoplankton"))
+
+ECC_data_type <- ECC_data %>% 
+  mutate(fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
+         mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
+         sbird = case_when(grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird"),
+         nbird = case_when(grepl("|NBI|", variable, fixed = TRUE) == TRUE~"Non-sea Bird"),
+         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird"),
+         zoo = case_when(grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton"),
+         phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
+         classification = case_when(fish == "Fish"~"fish",
+                                    mammal == "Mammal" ~"mammal",
+                                    sbird == "Sea Bird"~"sea bird",
+                                    nbird == "Non-sea Bird"~"non-sea bird",
+                                    bird == "Bird"~"bird",
+                                    zoo == "Zooplankton"~"zooplankton",
+                                    phyto == "Phytoplankton"~"phytoplankton")) %>%
+  dplyr::select( classification, lieu) %>% 
+  summarise(type_count = n(), .by =  classification)
 
 # Data merge by species groups and summarise by year and place
 ECC_data_annual_type <- ECC_data %>% 
   mutate(year = year(date),
          fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
          mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
-         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird",
-                          grepl("|bir|", variable, fixed = TRUE) == TRUE~"Bird"),
-         zoo = case_when(grepl("Zoo", variable, fixed = TRUE) == TRUE~"Zooplankton",
-                         grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton",
-                         grepl("zoo", variable, fixed = TRUE) == TRUE~"Zooplankton"),
+         sbird = case_when(grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird"),
+         nbird = case_when(grepl("|NBI|", variable, fixed = TRUE) == TRUE~"Non-sea Bird"),
+         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird"),
+         zoo = case_when(grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton"),
          phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
          classification = case_when(fish == "Fish"~"fish",
                                     mammal == "Mammal" ~"mammal",
+                                    sbird == "Sea Bird"~"sea bird",
+                                    nbird == "Non-sea Bird"~"non-sea bird",
                                     bird == "Bird"~"bird",
                                     zoo == "Zooplankton"~"zooplankton",
                                     phyto == "Phytoplankton"~"phytoplankton")) %>%
@@ -184,6 +218,16 @@ ECC_data06 <- ggplot(ECC_data, aes(x = year(date), y = lieu, fill = lieu)) +
 ECC_data06
 ggsave(ECC_data06, file = 'users/calin/figures/ECC_data06.png') # Save figure
 
+
+# Density data by site over the years
+ECC_data07 <- ggplot(ECC_type, aes(x = year(date), y = classification, fill = classification)) +
+  geom_density_ridges() +
+  theme_ridges() + 
+  theme(legend.position = "none", axis.text = element_text(size = 9)) +
+  labs(x = NULL, y = NULL) +
+  scale_fill_brewer(palette="Set3")
+ECC_data07
+ggsave(ECC_data07, file = 'users/calin/figures/ECC_data07.png') # Save figure
 
 # Density of data over years for GEM data by site
 gem_data01 <- ggplot(green_GEM_data, aes(x = date, y = site, fill = site)) +

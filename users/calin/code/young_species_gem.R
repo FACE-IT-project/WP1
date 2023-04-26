@@ -17,9 +17,8 @@ source('users/calin/code/formulas.R')
 
 # Data --------------------------------------------------------------------
 # Bird breeding phenology nests eggs
-## Manque : lon,lat
 ## Have NA value
-young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
+young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
   convert_UTM_deg(utm_zone = 27) %>%
@@ -48,11 +47,11 @@ young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Vie
   # filter(!is.na(value))
 
 # Bird breeding phenology nests hatching
-## Manque : lon,lat et Species
 ## Have NA/0 value
 young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
+  convert_UTM_deg(utm_zone = 27) %>%
   pivot_longer(cols = c(`FirstEggDate`, 
                         `HatchingDate`)) %>% 
   dplyr::filter(name == "HatchingDate") %>% 
@@ -64,7 +63,8 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
          date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
-         lon = NA, lat = NA, depth = NA,
+         # lon = NA, lat = NA, # No longer necessary
+         depth = NA,
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp," eggs hatched [n]"),
          category = "bio",
@@ -78,14 +78,15 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
 
 
 # Bird abundance
-## Manque : lon,lat
 young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Breeding_bird_abundance170420231423146922.csv",
                                    col_types = "icinncc",
                                    na = "-9999") %>%
+  convert_UTM_deg(utm_zone = 27) %>%
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/1Z6Z-FQ32",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
-         lon = NA, lat = NA, depth = NA,
+         # lon = NA, lat = NA, # No longer necessary
+         depth = NA,
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp," [presence]"),
          category = "bio",
@@ -102,10 +103,10 @@ young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Z
 
 
 # Bird breeding phenology broods
-## Manque : lon,lat
 ## Have NA value
 young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods210420231531510758.csv",
                                 na = c("9999-01-01","-9999","#REF!","01/01/9999")) %>%
+  convert_UTM_deg(utm_zone = 27) %>%
   dplyr::rename(date_egg = FirstEggDate) %>%
   mutate(date_enfonction = ifelse(is.na(date_egg), 
                                   as.Date(paste0(Year,"-12-31")), 
@@ -114,7 +115,8 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
          date_accessed = as.Date("2023-04-21"),
          URL = "https://doi.org/10.17897/YPNZ-VX08",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
-         lon = NA, lat = NA, depth = NA,
+         # lon = NA, lat = NA, # No longer necessary
+         depth = NA,
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp," eggs laid [n]"),
          category = "bio",
@@ -134,12 +136,12 @@ young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zack
 
 # data set ----------------------------------------------------------------
 
-young_GEM_data <- rbind(young_bird_nests_eggs, 
+young_species_GEM <- rbind(young_bird_nests_eggs, 
                     young_bird_nests_hatch,
                     young_bird_abundance,
                     young_bird_broods)
 
-save(young_GEM_data, file = "users/calin/data/young_GEM_data.RData")
+save(young_species_GEM, file = "users/calin/data/young_species_GEM.RData")
 
 
 # OTHER -------------------------------------------------------------------
