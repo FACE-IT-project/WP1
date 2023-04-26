@@ -20,7 +20,7 @@ load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup 
 # Combined data set -------------------------------------------------------
 
 # Greenland GEM data
-green_GEM_data <- rbind(young_GEM_data, nuup_GEM_data)
+green_GEM_data <- rbind(young_species_GEM, nuup_species_GEM)
 
 
 # Greenland GEM and Svalbard data
