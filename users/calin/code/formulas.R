@@ -10,6 +10,7 @@ library(tidyverse)
 ## Use it as -> mutate(nomsp = map(nomSpecies, latin_eng))
 latin_eng <- function(nomSpecies){
   # Fish |FIS|
+  if(nomSpecies == "Benthosema glaciale") nom_long <- "|FIS| Benthosema glaciale (glacier lantern fish)"
   if(nomSpecies == "Boreogadus saida") nom_long <- "|FIS| Boreogadus saida (polar cod)"
   if(nomSpecies == "Clupea harengus") nom_long <- "|FIS| Clupea harengus (herring)"
   if(nomSpecies == "Gadus morhua") nom_long <- "|FIS| Gadus morhua (northeast arctic cod)"
