@@ -83,6 +83,8 @@ latin_eng <- function(nomSpecies){
   # Zooplankton |ZOO|
   if(nomSpecies %in% c("Calanus finmarchicus","atlantic species")) nom_long <- "|ZOO| Calanus finmarchicus (atlantic calanus)"
   if(nomSpecies %in% c("Calanus glacialis","arctic species")) nom_long <- "|ZOO| Calanus glacialis (arctic calanus)"
+  if(nomSpecies == "Zooplankton") nom_long <- "|ZOO| Zooplankton (Zooplankton)"
+  
   # Other
   if(nomSpecies %in% c("", "NA", "NULL")) nom_long <- NA
   return(nom_long)

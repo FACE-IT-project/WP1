@@ -167,6 +167,9 @@ ggplot(data = gbif_data01, aes (x = decimalLongitude, y = decimalLatitude)) +
 
 # Data set ----------------------------------------------------------------
 
-nuup_species_GEM <- rbind(nuup_bird_presence, nuup_seabird_count, nuup_seabird_presence, nuup_mmam_count)
+nuup_species_GEM <- rbind(nuup_bird_presence, 
+                          nuup_seabird_count, 
+                          nuup_seabird_presence, 
+                          nuup_mmam_count)
 
 save(nuup_species_GEM, file = "users/calin/data/nuup_species_GEM.RData")
