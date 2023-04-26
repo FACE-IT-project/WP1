@@ -224,11 +224,27 @@ convert_UTM_deg_grid <- function(df, proj_base, third_col = NULL){
 # Function for converting UTM to decimal degrees
 # NB: Expects an 'Easting' and 'Northing' column
 convert_UTM_deg <- function(df, utm_zone){
-  utmcoor <- sp::SpatialPoints(cbind(df$Easting, df$Northing), 
-                               proj4string = CRS(paste0("+proj=utm +zone=",utm_zone)))
-  longlatcoor <- spTransform(utmcoor, CRS("+proj=longlat"))
-  df$lon <- coordinates(longlatcoor)[,1]
-  df$lat <- coordinates(longlatcoor)[,2]
+  
+  # Fill NA with 0 for ease of use
+  df$Easting <- replace_na(df$Easting, 0)
+  df$Northing <- replace_na(df$Northing, 0)
+  
+  # Convert coordinates to lon/lat
+  suppressWarnings(
+    utmcoor <- sp::SpatialPoints(cbind(df$Easting, df$Northing), 
+                                 proj4string = sp::CRS(paste0("+proj=utm +zone=",utm_zone)))
+  )
+  suppressWarnings(
+  longlatcoor <- sp::spTransform(utmcoor, sp::CRS("+proj=longlat"))
+  )
+  
+  # Attach to data.frame and replace o with NA
+  df$lon <- sp::coordinates(longlatcoor)[,1]
+  df$lon[df$Easting == 0] <- NA
+  df$Easting[df$Easting == 0] <- NA
+  df$lat <- sp::coordinates(longlatcoor)[,2]
+  df$lat[df$Northing == 0] <- NA
+  df$Northing[df$Northing == 0] <- NA
   return(df)
 }
 
