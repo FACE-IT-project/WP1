@@ -238,7 +238,7 @@ convert_UTM_deg <- function(df, utm_zone){
   longlatcoor <- sp::spTransform(utmcoor, sp::CRS("+proj=longlat"))
   )
   
-  # Attach to data.frame and replace o with NA
+  # Attach to data.frame and replace 0 with NA
   df$lon <- sp::coordinates(longlatcoor)[,1]
   df$lon[df$Easting == 0] <- NA
   df$Easting[df$Easting == 0] <- NA
