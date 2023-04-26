@@ -81,7 +81,7 @@ CatCol <- c(
   "Physical" = "skyblue",
   "Chemistry" = "#F6EA7C",
   "Biology" = "#A2ED84",
-  "Social" = "F48080"
+  "Social" = "#F48080"
 )
 
 # Same but with abbreviations for the categories
