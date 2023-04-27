@@ -26,6 +26,7 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
                         `HatchingDate`)) %>% 
   dplyr::filter(name == "FirstEggDate") %>% 
   dplyr::rename(date_egg = value) %>%
+  # add date
   mutate(date_enfonction = ifelse(is.na(date_egg), 
                                   as.Date(paste0(Year,"-12-31")), 
                                   as.Date(date_egg)),
@@ -56,6 +57,7 @@ young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis
                         `HatchingDate`)) %>% 
   dplyr::filter(name == "HatchingDate") %>% 
   dplyr::rename(date_hatch = value) %>%
+  # add date
   mutate(date_enfonction = ifelse(is.na(date_hatch), 
                                   as.Date(paste0(Year,"-12-31")), 
                                   as.Date(date_hatch)),
@@ -97,7 +99,7 @@ young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Z
          valuez = 1) %>%
   dplyr::group_by(date_accessed, URL, citation, lon, lat, depth, date, variable, category, driver, type, site) %>%
   dplyr::summarise(sum(valuez)) %>%
-    mutate(value = 1) %>%
+  mutate(value = 1) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) #%>%
   # filter(!is.na(value))
 
