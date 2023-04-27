@@ -11,13 +11,12 @@ library(ggpubr)
 library(stringi)
 
 
-source('users/calin/code/formulas.R')
+source('users/calin/code/formulas.R') # Need to use species names
 
 # Data -----------------------------------------------------------
 ## Svalbard data -----------------------------------------------------------
 
 # ivory gull population
-
 svalbard_ivory_gull_population <- read.csv("P:/FACE-IT_data/svalbard/the-number-of-breeding-p.csv", sep = ";") %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/", 
@@ -37,7 +36,6 @@ svalbard_ivory_gull_population <- read.csv("P:/FACE-IT_data/svalbard/the-number-
 
 
 # svalbard walrus population
-
 svalbard_walrus_population <- read_delim("P:/FACE-IT_data/svalbard/walrus-population-in-sva.csv") %>% 
   pivot_longer(cols = c(`Walrus estimated numbers`, `Walrus population aerial counts`)) %>% 
   mutate(date_accessed = as.Date("2023-04-13"), 
@@ -58,7 +56,6 @@ svalbard_walrus_population <- read_delim("P:/FACE-IT_data/svalbard/walrus-popula
 
 
 # svalbard (north and west) calanus population by size
-
 svalbard_nw_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(!name == "Total") %>%
@@ -79,7 +76,6 @@ svalbard_nw_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-
 
 
 # svalbard (north and west) calanus population tot
-
 svalbard_nw_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(name == "Total") %>%
@@ -100,7 +96,6 @@ svalbard_nw_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average
 
 
 # svalbard (south and east) calanus population by size
-
 svalbard_se_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(!name == "Total") %>%
@@ -121,7 +116,6 @@ svalbard_se_calanus_mm_population <- read.csv("P:/FACE-IT_data/svalbard/average-
 
 
 # svalbard (south and east) calanus population tot
-
 svalbard_se_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(name == "Total") %>%
@@ -142,7 +136,6 @@ svalbard_se_calanus_tot_population <- read.csv("P:/FACE-IT_data/svalbard/average
 
 
 # svalbard  kittiwake population
-
 svalbard_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
   filter(name == "Bjørnøya") %>% 
@@ -163,7 +156,6 @@ svalbard_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legge
 
 
 # svalbard Brünnich’s guillemot population
-
 svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
   filter(name == "Fuglehuken") %>% 
@@ -184,8 +176,7 @@ svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-g
 
 
 # svalbard Hooded seal population
-
-  svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
@@ -202,10 +193,9 @@ svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-g
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
-  
-  # svalbard (east) harp seal population
-  
-  svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+
+# svalbard (east) harp seal population
+svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
     pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
     mutate(date_accessed = as.Date("2023-04-14"),
            URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
@@ -229,7 +219,6 @@ svalbard_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-g
 ## Kong data ---------------------------------------------------------------
 
 # kong glaucous gull population
-
 kong_glaucous_gull_population <- read_delim("P:/FACE-IT_data/kongsfjorden/glaucous-gull-population.csv") %>% 
   mutate(date_accessed = as.Date("2023-04-11"), 
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/", 
@@ -242,8 +231,7 @@ kong_glaucous_gull_population <- read_delim("P:/FACE-IT_data/kongsfjorden/glauco
          driver ="biomass",
          type = "in situ",
          site = "kong", 
-         date = as.Date(paste0(Category,"-12-31"))
-  ) %>% 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Kongsfjorden) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
@@ -251,7 +239,6 @@ kong_glaucous_gull_population <- read_delim("P:/FACE-IT_data/kongsfjorden/glauco
 
 
 # kong eiders
-
 kong_eiders_stock <- read.csv("P:/FACE-IT_data/kongsfjorden/breeding-population-of-c.csv", sep = ";") %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/common-eider/", 
@@ -271,7 +258,6 @@ kong_eiders_stock <- read.csv("P:/FACE-IT_data/kongsfjorden/breeding-population-
 
 
 # kong seabird
-
 kong_seabird <- read.csv("P:/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) %>%
   remove_empty(which = "cols") %>% 
   filter(Colony == "Kongsfjorden")%>% 
@@ -292,7 +278,6 @@ kong_seabird <- read.csv("P:/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_da
 
 
 # kong calanus population
-
 kong_calanus_population <- read.csv("P:/FACE-IT_data/kongsfjorden/calanus-species-composit.csv", sep = ";", dec = ",") %>% 
   pivot_longer(cols = c(`Proportion.of.Atlantic.species`, `Proportion.of.Arctic.species`)) %>% 
   mutate(date_accessed = as.Date("2023-04-13"), 
@@ -312,7 +297,6 @@ kong_calanus_population <- read.csv("P:/FACE-IT_data/kongsfjorden/calanus-specie
 
 
 # kong  kittiwake population
-
 kong_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
   filter(name == "Ossian.Sars") %>% 
@@ -333,7 +317,6 @@ kong_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-ki
 
 
 # kong Brünnich’s guillemot population
-
 kong_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
 filter(name == "Ossian.Sarsfjellet") %>% 
@@ -381,7 +364,6 @@ barents_polar_cod <- read.csv("P:/FACE-IT_data/svalbard/biomass-of-polar-cod-in.
 
 
 # barents capelin stock
-
 barents_capelin_stock <- read.csv("P:/FACE-IT_data/svalbard/capelin-stock-in-the-bar.csv",sep = ";" , dec = ",") %>% 
   pivot_longer(cols = c(`Mature.stock`, `Immature.stock`)) %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
@@ -401,7 +383,6 @@ barents_capelin_stock <- read.csv("P:/FACE-IT_data/svalbard/capelin-stock-in-the
 
 
 # barents golden redfish population
-
 barents_golden_redfish_population <- read_delim("P:/FACE-IT_data/svalbard/stock-of-golden-redfish.csv") %>% 
   pivot_longer(cols = c(`Mature stock`, `Immature stock`)) %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
@@ -422,7 +403,6 @@ barents_golden_redfish_population <- read_delim("P:/FACE-IT_data/svalbard/stock-
 
 
 # barents beaked redfish population
-
 barents_beaked_redfish_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of-beaked-redfish.csv", sep = ";") %>% 
   pivot_longer(cols = c(`Mature.stock`, `Immature.stock`)) %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
@@ -442,7 +422,6 @@ barents_beaked_redfish_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of
 
 
 # barents northeast arctic cod population
-
 barents_northeast_cod_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of-northeast-arcti.csv", sep = ";") %>% 
   pivot_longer(cols = c(`Immature.stock`, `Spawning.stock`)) %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
@@ -462,7 +441,6 @@ barents_northeast_cod_population <- read.csv("P:/FACE-IT_data/svalbard/stock-of-
 
 
 # barents young herring population
-
 barents_young_herring_population <- read.csv("P:/FACE-IT_data/svalbard/biomass-index-for-young.csv", sep = ";", dec = ",") %>% 
   pivot_longer(cols = c(`X1.year.olds`, `X2.year.old`, `X3.year.old`)) %>%
   mutate(date_accessed = as.Date("2023-04-13"),
@@ -490,7 +468,6 @@ barents_young_herring_population <- read.csv("P:/FACE-IT_data/svalbard/biomass-i
 ## Is data -----------------------------------------------------------------
 
 # is  kittiwake population
-
 is_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
   filter(name == "Tschermakfjellet"| name == "Alkhornet") %>% 
@@ -511,7 +488,6 @@ is_kittiwakke_population <- read.csv("P:/FACE-IT_data/svalbard/black-legged-kitt
 
 
 # is Brünnich’s guillemot population
-
 is_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
   filter(name == "Diabas"|name == "Tschermakfjellet"|name == "Alkhornet") %>% 
@@ -562,7 +538,6 @@ is_brguillemot_population <- read.csv("P:/FACE-IT_data/svalbard/brnnichs-guillem
 
 # EU ----------------------------------------------------------------------
 # EU (east) harp seal population
-
 EU_epagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
@@ -580,8 +555,8 @@ EU_epagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-an
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
-# EU (west) harp seal population
 
+# EU (west) harp seal population
 EU_wpagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-and-e (1).csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
