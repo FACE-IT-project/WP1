@@ -15,6 +15,13 @@ source('users/calin/code/formulas.R')
 nuup_search01 <- pg_search(query = 'nuuk species')
 nuup_data01 <- pg_data(doi = nuup_search01$doi[1])
 nuup_0101 <- nuup_data01[[1]]$data
+nuup_0102 <- nuup_data01[[2]]$data
+
+
+
+ggplot(data = nuup_0102, aes (x = Longitude, y = Latitude)) + 
+  borders()+
+  geom_point(aes(color = "red"))
 
 
 
