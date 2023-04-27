@@ -24,6 +24,7 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/DRTB-PY74",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
+         # gives the coordinates according to the site
          lonP = Point,
          latP = Point,
          lon = case_when(lonP == "A"~64.134685,
@@ -68,6 +69,7 @@ nuup_bird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk
          value = Number) %>%
   dplyr::rename(date = Date) %>%
   dplyr::group_by(date_accessed, URL, citation, lon, lat, depth, date, variable, category, driver, type, site) %>% 
+  # summarise data by day and variable
   dplyr::summarise(sum(value)) %>% 
   dplyr::rename(value = `sum(value)`) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
@@ -92,7 +94,7 @@ nuup_seabird_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_N
          type = "in situ",
          site = "nuup", 
          date = as.Date(Date),
-         moy = ceiling((MinNumbers+MaxNumbers)/2),
+         moy = ceiling((MinNumbers+MaxNumbers)/2), # calculates the average between the minimum and maximum values
          value = ifelse(!is.na(moy), moy, MinNumbers)) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
@@ -114,12 +116,13 @@ nuup_seabird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasi
          type = "in situ",
          site = "nuup", 
          date = as.Date(Date),
-         value = ifelse((MinNumbers == 0), 0, 1)) %>% 
+         value = ifelse((MinNumbers == 0), 0, 1)) %>% # change values to 1 if presence and 0 if absence
   filter(!nomsp == "NA") %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
 
 # marin mammal
+## Not all the data of the set have been used
 nuup_mmam_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Marine_mammals_Identification_of_Humpback_Whales_individuals_year170420231542310109.csv") %>%
   mutate(date_accessed = as.Date("2023-04-17"), 
          URL = "https://doi.org/10.17897/13YN-1209", 
