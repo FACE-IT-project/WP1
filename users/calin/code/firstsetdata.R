@@ -2,6 +2,31 @@
 # tests data first day
 
 
+
+# Each set must indicate: 
+## the date the data was accessed, 
+## the URL where to find the set, 
+## the citation, 
+## the type of data,
+## the site (kong, nuup, svalbard, is, disko, ...)
+## category (bio, cryo, social, ...), 
+## the driver (category details),
+## the variable, for bio they will start with 
+  # the latin_eng formula is used for each set, which allows the names of each 
+  # species to be modified automatically when necessary
+    # the species group, 
+    # the Latin name, 
+    # the English name,
+    # the information 
+    # the unit
+## the longitude of each data
+## the latitude of each data
+## the date of data collection
+## the water depth of each data item
+## the value
+
+
+
 # Set up ------------------------------------------------------------------
 
 library(tidyverse)
@@ -10,14 +35,15 @@ library(ggridges)
 library(ggpubr)
 library(stringi)
 
+source('users/calin/code/formulas.R') ## Need to use species names
 
-source('users/calin/code/formulas.R') # Need to use species names
 
-# Data -----------------------------------------------------------
+# Data ---------------------------------------------------------------------
 ## Svalbard data -----------------------------------------------------------
 
-# ivory gull population
-svalbard_ivory_gull_population <- read.csv("P:/FACE-IT_data/svalbard/the-number-of-breeding-p.csv", sep = ";") %>% 
+# svalbard ivory gull population
+svalbard_ivory_gull_population <- read.csv("P:/FACE-IT_data/svalbard/the-number-of-breeding-p.csv", 
+                                           sep = ";") %>% # read the csv
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/", 
          citation = "Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html", 
