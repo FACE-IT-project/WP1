@@ -138,6 +138,7 @@ ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
 # Credentials -------------------------------------------------------------
 
 # login credentials
+# setwd("shiny/kongCTD/") # If adding credentials directly
 load("credentials.RData")
 
 # Add a new user/password
