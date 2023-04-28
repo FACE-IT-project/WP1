@@ -33,7 +33,6 @@ latin_eng <- function(nomSpecies){
   if(nomSpecies == "Fulmarus glacialis") nom_long <- "|SBI| Fulmarus glacialis (northern fulmar)"
   if(nomSpecies == "Gavia adamsii") nom_long <- "|SBI| Gavia adamsii (white-billed diver)"
   if(nomSpecies == "Gavia immer") nom_long <- "|SBI| Gavia immer (great northern diver)"
-  
   if(nomSpecies == "Gulosus aristotelis") nom_long <- "|SBI| Gulosus aristotelis (european shag)"
   if(nomSpecies == "Haliaeetus albicilla") nom_long <- "|SBI| Haliaeetus albicilla (white-tailed eagle)"
   if(nomSpecies == "Larus argentatus") nom_long <- "|SBI| Larus argentatus (herring gull)"
@@ -43,16 +42,21 @@ latin_eng <- function(nomSpecies){
   if(nomSpecies == "Larus glaucoides") nom_long <- "|SBI| Larus glaucoides (iceland gull)"
   if(nomSpecies %in% c("Larus hyperboreus", "Larus hypeboreus", "GLGU")) nom_long <- "|SBI| Larus hyperboreus (glaucous gull)"
   if(nomSpecies == "Larus marinus") nom_long <- "|SBI| Larus marinus (great black-backed gull)"
+  if(nomSpecies == "Larus philadelphia") nom_long <- "|SBI| Larus philadelphia (bonaparte’s gulls)"
   if(nomSpecies == "Larus smithonianus") nom_long <- "|SBI| Larus smithonianus (american herring gull)"
   if(nomSpecies %in% c("Larus sp.", "Larus glaucoides/hyperboreus")) nom_long <- "|SBI| Larus sp. (gull unidentified)"
   if(nomSpecies == "Melanitta fusca") nom_long <- "|SBI| Melanitta fusca (velvet scoter)"
   if(nomSpecies == "Melanitta nigra") nom_long <- "|SBI| Melanitta nigra (black scoter)"
   if(nomSpecies == "Morus bassanus") nom_long <- "|SBI| Morus bassanus (northern gannet)"
+  if(nomSpecies == "Oceanodroma leucorhoa") nom_long <- "|SBI| Oceanodroma leucorhoa (leach’s storm-petrels)"
   if(nomSpecies == "Pagophila eburnea") nom_long <- "|SBI| Pagophila eburnea (ivory gull)"
+  if(nomSpecies == "Phalacrocorax auritus") nom_long <- "|SBI| Phalacrocorax auritus (double-crested cormorant)"
   if(nomSpecies == "Phalacrocorax carbo") nom_long <- "|SBI| Phalacrocorax carbo (great cormorant)"
   if(nomSpecies == "Phalaropus fulicarius") nom_long <- "|SBI| Phalaropus fulicarius (red phalarope)"
   if(nomSpecies == "Podiceps grisegena") nom_long <- "|SBI| Podiceps grisegena (red-necked grebe)"
   if(nomSpecies == "Polysticta stelleri") nom_long <- "|SBI| Polysticta stelleri (steller’s duck)"
+  if(nomSpecies == "Puffinus gravisn") nom_long <- "|SBI| Puffinus gravisn (greater shearwater)"
+  if(nomSpecies == "Puffinus puffinus") nom_long <- "|SBI| Puffinus puffinus (manx shearwater)"
   if(nomSpecies == "Rissa tridactyla") nom_long <- "|SBI| Rissa tridactyla (black-legged kittiwake)"
   if(nomSpecies %in% c("Somateria mollissima", "Somateria mollissima borealis", "Sommateria mollissima")) nom_long <- "|SBI| Somateria mollissima (common eider)"
   if(nomSpecies == "Somateria spectabilis") nom_long <- "|SBI| Somateria spectabilis (king eider)"
@@ -96,7 +100,6 @@ latin_eng <- function(nomSpecies){
   if(nomSpecies %in% c("Calanus finmarchicus","atlantic species")) nom_long <- "|ZOO| Calanus finmarchicus (atlantic calanus)"
   if(nomSpecies %in% c("Calanus glacialis","arctic species")) nom_long <- "|ZOO| Calanus glacialis (arctic calanus)"
   if(nomSpecies == "Zooplankton") nom_long <- "|ZOO| Zooplankton (Zooplankton)"
-  
   # Other
   if(nomSpecies %in% c("", "NA", "NULL")) nom_long <- NA
   return(nom_long)
