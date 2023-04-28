@@ -8,6 +8,8 @@ library(janitor)
 library(ggridges)
 library(ggpubr)
 library(stringi)
+library(ggdist)
+library(tidyquant)
 
 
 # Load data  set ---------------------------------------------------------------
@@ -229,6 +231,18 @@ ECC_data07 <- ggplot(ECC_type, aes(x = year(date), y = classification, fill = cl
 ECC_data07
 ggsave(ECC_data07, file = 'users/calin/figures/ECC_data07.png') # Save figure
 
+
+# Density [new function] data by site over the years
+ECC_data08 <- ggplot(ECC_type, aes(x = year(date), y = classification, fill = classification)) +
+  ggdist::stat_halfeye(.width = 0, point_color = NA) +
+  theme(legend.position = "none", axis.text = element_text(size = 9)) +
+  labs(x = NULL, y = NULL) +
+  scale_fill_brewer(palette = "Set3")
+ECC_data08
+ggsave(ECC_data08, file = 'users/calin/figures/ECC_data08.png') # Save figure
+
+
+
 # Density of data over years for GEM data by site
 gem_data01 <- ggplot(green_GEM_data, aes(x = date, y = site, fill = site)) +
   geom_density_ridges() +
@@ -236,3 +250,11 @@ gem_data01 <- ggplot(green_GEM_data, aes(x = date, y = site, fill = site)) +
   theme(legend.position = "none", axis.text = element_text(size = 9)) +
   labs(x = NULL, y = NULL)
 gem_data01
+
+
+# Density [new function] of data over years for GEM data by site
+gem_data02 <- ggplot(green_GEM_data, aes(x = year(date), y = site, fill = site)) +
+  ggdist::stat_halfeye(.width = 0, point_color = NA) +
+  theme(legend.position = "none", axis.text = element_text(size = 9)) +
+  labs(x = NULL, y = NULL)
+gem_data02
