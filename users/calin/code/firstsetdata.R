@@ -284,7 +284,7 @@ kong_eiders_stock <- read.csv("P:/FACE-IT_data/kongsfjorden/breeding-population-
 
 
 # kong seabird
-kong_seabird <- read.csv("P:/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) %>%
+kong_seabird <- read.csv("P:/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) #%>%
   remove_empty(which = "cols") %>% 
   filter(Colony == "Kongsfjorden")%>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
