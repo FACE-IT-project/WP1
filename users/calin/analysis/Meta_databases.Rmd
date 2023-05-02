@@ -352,4 +352,128 @@ DT::datatable(metadata_isfjorden, rownames = FALSE, escape = FALSE, colnames = D
 
 
 
+#GREENLAND
+
+#Young
+
+```{r young-meta-data}
+
+
+# young eggs
+
+young_bird_eggs <- data.frame(type = "In situ",
+                         data_name = "Biomass: Seabirds eggs",
+                         date_range = "1995 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/5S51-HE52">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark\');">GEM (2022)</a>',
+                         note = NA)
+
+
+# young hatchling
+
+young_bird_hatch <- data.frame(type = "In situ",
+                         data_name = "Biomass: Seabirds hatching eggs",
+                         date_range = "1995 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/5S51-HE52">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark\');">GEM (2022)</a>',
+                         note = NA)
+
+
+# young presence birds
+
+young_bird_presence <- data.frame(type = "In situ",
+                         data_name = "Presence: Seabirds",
+                         date_range = "1996 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/1Z6Z-FQ32">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark\');">GEM (2022)</a>',
+                         note = NA)
+
+
+# young birds broods
+
+young_bird_broods <- data.frame(type = "In situ",
+                         data_name = "Biomass: Seabirds broods",
+                         date_range = "1995 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/YPNZ-VX08">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark\');">GEM (2022)</a>',
+                         note = NA)
+
+
+
+
+
+
+
+
+
+# Bind them together
+metadata_young <- rbind(young_bird_eggs, young_bird_hatch, young_bird_presence, young_bird_broods)
+```
+
+```{r young-meta-data-table}
+DT::datatable(metadata_young, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "Table 4: Data that have been accumulated for Young. Full meta-database available via 'Data' -> 'Meta-database' tab above.")
+```
+
+<br>
+
+#Nuup
+
+```{r nuup-meta-data}
+
+
+# nuup seabird nb
+
+nuup_bird_nb <- data.frame(type = "In situ",
+                         data_name = "Biomass: Seabirds",
+                         date_range = "2008 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/DRTB-PY74">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark\');">GEM (2022)</a>',
+                         note = NA)
+
+
+# nuup seabird nb
+
+nuup_seabird_count <- data.frame(type = "In situ",
+                         data_name = "Biomass: Seabirds",
+                         date_range = "2006 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/WKFK-SS31">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.\');">GEM (2022)</a>',
+                         note = NA)
+
+
+# nuup seabird nb
+
+nuup_seabird_presence <- data.frame(type = "In situ",
+                         data_name = "Presence: Seabirds",
+                         date_range = "2006 to 2021",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/WKFK-SS31">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.\');">GEM (2022)</a>',
+                         note = NA)
+
+# nuup seabird nb
+
+nuup_mmam_count <- data.frame(type = "In situ",
+                         data_name = "Biomass: Megaptera novaeangliae (humpback whale)",
+                         date_range = "2007 to 2012",
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.17897/13YN-1209">GEM</a>',
+                         reference = '<a onclick="alert(\'Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.\');">GEM (2022)</a>',
+                         note = "Not all data were used")
+
+
+
+
+
+
+# Bind them together
+metadata_nuup <- rbind(nuup_bird_nb, nuup_seabird_count, nuup_seabird_presence, nuup_mmam_count)
+```
+
+```{r nuup-meta-data-table}
+DT::datatable(metadata_nuup, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "Table 4: Data that have been accumulated for Nuup. Full meta-database available via 'Data' -> 'Meta-database' tab above.")
+```
+
+<br>
+
 
