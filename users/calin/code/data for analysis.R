@@ -6,6 +6,74 @@ source('users/calin/code/formulas.R')
 
 library(janitor)
 
+load('users/calin/data/EU_arctic_data.RData') # firstsetdata data -> svalbard data
+load('users/calin/data/young_species_GEM.RData') # young_species_gem data -> young GEM data
+load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup GEM data
+
+
+
+Data_ori <- rbind(EU_arctic_data, young_species_GEM, nuup_species_GEM)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Data --------------------------------------------------------------------
 # Site = site name, TimeSeries_id = unique identifier for the time series, Year = survey year, Taxon = taxon name, Density = total density or biomass or number of individual of that taxon for that year. 
@@ -300,9 +368,9 @@ A_nu_mmam <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_
 data_n_for_analysis <- rbind(A_sva_iv_gull_pop, 
                              A_sva_walrus_pop,
                              A_sva_cycr_pop, 
-                             A_kong_eider_pop, 
-                             A_kong_seabird, 
-                             A_ba_yherring_pop,
+                             #A_kong_eider_pop, 
+                             #A_kong_seabird, 
+                             #A_ba_yherring_pop,
                              A_yo_b_eggs,
                              A_nu_bird_nb,
                              A_nu_seabird,
