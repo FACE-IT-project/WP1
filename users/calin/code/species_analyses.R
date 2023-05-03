@@ -17,7 +17,10 @@ library(raster)
 library(ncdf4)
 library(rgdal)
 
-
+library(metafor)
+library(rgeos)
+library(RColorBrewer)
+library(glmulti)
 
 
 
@@ -64,7 +67,7 @@ data_3kg_for_analysis
 
 # (1) Compute biodiversity metrics -----------------------------------------------------------------
 
-DATA1 <- dcast(data_n_for_analysis, Year ~ Taxon, sum, value.var = "Density") # create cross table
+DATA1 <- dcast(data_6kg_for_analysis, Year ~ Taxon, sum, value.var = "Density") # create cross table
 lastTaxon <- length(DATA1)
 firstTaxon <- 2
 
@@ -74,7 +77,7 @@ DATA1_Taxa <- subset(DATA1[,c(firstTaxon:lastTaxon)])
 DATA1$NTaxa <- specnumber(DATA1_Taxa)  # taxonomic richness
 DATA1$Simp <- diversity(DATA1_Taxa, index = "simpson") # Simpson´s taxonomic diversity
 DATA1$Abund <- rowSums (DATA1_Taxa) # Total abundance
-DATA1_Turnover <- turnover(data_n_for_analysis, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
+DATA1_Turnover <- turnover(data_6kg_for_analysis, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
 DATA1$Turnover <- c(0, DATA1_Turnover$total) # Turnover
 
 # Prepare data for next steps: 
@@ -126,4 +129,6 @@ EffectSizes_biodiv_DATA1 <- data.frame(TimeSeries = "DATA1", Site = "RMO", Count
                                        Simp_var = DATA1.trend.Simp[9],  # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
                                        Turn_S = DATA1.trend.Turnover[10],  
                                        Turn_var = DATA1.trend.Turnover[8])  # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
+
+
 
