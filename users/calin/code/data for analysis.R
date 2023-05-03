@@ -14,28 +14,69 @@ load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup 
 
 Data_ori <- rbind(EU_arctic_data, young_species_GEM, nuup_species_GEM)
 
+TEST <- Data_ori %>% 
+  filter(.by = )
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 60),
+         Taxon = stri_replace_last(Speci,"", regex = "[ ]"),
+         Year = year(date),
+         unit = case_when(grepl("[n]", variable, fixed = TRUE) == TRUE~"Fish"))
+
+x <-  "|FIS| Clupea harengus (herring) 1 year old [n]"
+gsub(".*\\[", "", x)        # Apply gsub with \\
+
+
+
+
+# [1] "bbbbbb"
+
+# Site = site name, TimeSeries_id = unique identifier for the time series, Year = survey year, Taxon = taxon name, Density = total density or biomass or number of individual of that taxon for that year.
 
 
 
 
 
 
+x <-  "|ZOO| Calanus glacialis (arctic calanus)"
+gsub("\\(.*", "", x)
+substr(gsub("\\(.*", "", x), start = 7, stop = 60)
+
+
+azerty <- substr(x = "|ZOO| Calanus glacialis (arctic calanus)", start = 7, stop = 50)
+azerty
+
+x <-  "|ZOO| Calanus glacialis (arctic calanus)"
+qsdfg <- strsplit("|ZOO| Calanus glacialis (arctic calanus)", " ")
+qsdfg
+
+
+stri_extract_all_coll(c('AaaaaaaA', 'AAAA'), 'a')
+stri_extract_first_coll(c('Yy\u00FD', 'AAA'), 'y', strength=2, locale='sk_SK')
+stri_extract_last_coll(c('Yy\u00FD', 'AAA'), 'y',  strength=1, locale='sk_SK')
+
+stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+stri_extract_first_regex('XabcdX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+stri_extract_last_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+
+stri_list2matrix(stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+')))
+stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+'), simplify=TRUE)
+stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+'), simplify=NA)
+
+stri_extract_all_fixed('abaBAba', 'Aba', case_insensitive=TRUE)
+stri_extract_all_fixed('abaBAba', 'Aba', case_insensitive=TRUE, overlap=TRUE)
 
 
 
 
 
 
+stri_extract_all('XaaaaX', regex=c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+stri_extract_all('Bartolini', coll='i')
+stri_extract_all('stringi is so good!', charclass='\\p{Zs}') # all white-spaces
 
-
-
-
-
-
-
-
-
-
+stri_extract_all_charclass(c('AbcdeFgHijK', 'abc', 'ABC'), '\\p{Ll}')
+stri_extract_all_charclass(c('AbcdeFgHijK', 'abc', 'ABC'), '\\p{Ll}', merge=FALSE)
+stri_extract_first_charclass('AaBbCc', '\\p{Ll}')
+stri_extract_last_charclass('AaBbCc', '\\p{Ll}')
 
 
 

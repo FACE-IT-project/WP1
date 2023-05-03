@@ -21,12 +21,11 @@ source('users/calin/code/formulas.R')
 young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
-  convert_UTM_deg(utm_zone = 27) %>%
+  convert_UTM_deg(utm_zone = 27) #%>%
   pivot_longer(cols = c(`FirstEggDate`, 
                         `HatchingDate`)) %>% 
   dplyr::filter(name == "FirstEggDate") %>% 
-  dplyr::rename(date_egg = value) %>%
-  # add date
+  dplyr::rename(date_egg = FirstEggDate) %>%
   mutate(date_enfonction = ifelse(is.na(date_egg), 
                                   as.Date(paste0(Year,"-12-31")), 
                                   as.Date(date_egg)),
@@ -145,6 +144,10 @@ young_species_GEM <- rbind(young_bird_nests_eggs,
 
 save(young_species_GEM, file = "users/calin/data/young_species_GEM.RData")
 
+
+young_species_GEM_analysis <- rbind(young_bird_nests_eggs, young_bird_broods)
+
+save(young_species_GEM, file = "users/calin/data/young_species_GEM_analysis.RData")
 
 # OTHER -------------------------------------------------------------------
 
