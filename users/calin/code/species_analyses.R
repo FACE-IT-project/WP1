@@ -27,51 +27,54 @@ library(glmulti)
 
 
 # Analyses ----------------------------------------------------------------
-
-# svalbard (east) harp seal population
-svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
-         citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Cystophora cristata",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Site = site name, TimeSeries_id = unique identifier for the time series, Year = survey year, Taxon = taxon name, Density = total density or biomass or number of individual of that taxon for that year. 
-clean_sva_cycr_pop <- svalbard_cycr_population %>% 
-  filter(variable == "|MAM| Cystophora cristata (hooded seal) modelled total stock size [n]") %>% 
-  dplyr::rename(Site = site, Density = value) %>% 
-  mutate(TimeSeries_id = 1,
-         Year = year(date),
-         Taxon = "Cystophora cristata") %>% 
-  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+# 
+# # svalbard (east) harp seal population
+# svalbard_cycr_population <- read.csv("P:/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+#   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+#   mutate(date_accessed = as.Date("2023-04-14"),
+#          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
+#          citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
+#          lon = NA, lat = NA, depth = NA,
+#          Species = "Cystophora cristata",
+#          nomsp = map(Species, latin_eng),
+#          variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
+#          category = "bio",
+#          driver ="biomass",
+#          type = "in situ",
+#          site = "svalbard",
+#          date = as.Date(paste0(Category,"-12-31"))) %>%
+#   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+#   filter(!is.na(value))
+# 
+# # Site = site name, TimeSeries_id = unique identifier for the time series, Year = survey year, Taxon = taxon name, Density = total density or biomass or number of individual of that taxon for that year. 
+# clean_sva_cycr_pop <- svalbard_cycr_population %>% 
+#   filter(variable == "|MAM| Cystophora cristata (hooded seal) modelled total stock size [n]") %>% 
+#   dplyr::rename(Site = site, Density = value) %>% 
+#   mutate(TimeSeries_id = 1,
+#          Year = year(date),
+#          Taxon = "Cystophora cristata") %>% 
+#   dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
 
 nuup_bird_nb
-
-DATA2 <- species_analysis_step1(data_6kg_for_analysis, "DATA5")
-DATA3 <- species_analysis_step1(data_n_for_analysis, "DATA3")
-
-DATA4 <- plyr::ddply(data_n_for_analysis,.variables = c("Site"), .fun = species_analysis_step1, tsname = "DATA3")
+DATA1 <- species_analysis_step1(NUUP_n, "DATA1")
 
 
-DATA5 <- plyr::ddply(nuup_bird_nb,.variables = c("Site"), .fun = species_analysis_step1, tsname = "DATA5")
-
-
-DATA6 <- species_analysis_step1(nuup_bird_nb, "DATA6")
+# 
+# 
+# DATA2 <- species_analysis_step1(data_6kg_for_analysis, "DATA5")
+# DATA3 <- species_analysis_step1(data_n_for_analysis, "DATA3")
+# 
+# DATA4 <- plyr::ddply(data_n_for_analysis,.variables = c("Site"), .fun = species_analysis_step1, tsname = "DATA3")
+# 
+# 
+# DATA5 <- plyr::ddply(nuup_bird_nb,.variables = c("Site"), .fun = species_analysis_step1, tsname = "DATA5")
+# 
+# 
 
 
 # (1) Compute biodiversity metrics -----------------------------------------------------------------
 
-DATA1 <- dcast(data_6kg_for_analysis, Year ~ Taxon, sum, value.var = "Density") # create cross table
+DATA1 <- dcast(data_nuup_analysis, Year ~ Taxon, sum, value.var = "Density") # create cross table
 lastTaxon <- length(DATA1)
 firstTaxon <- 2
 
@@ -81,7 +84,7 @@ DATA1_Taxa <- subset(DATA1[,c(firstTaxon:lastTaxon)])
 DATA1$NTaxa <- specnumber(DATA1_Taxa)  # taxonomic richness
 DATA1$Simp <- diversity(DATA1_Taxa, index = "simpson") # Simpson´s taxonomic diversity
 DATA1$Abund <- rowSums (DATA1_Taxa) # Total abundance
-DATA1_Turnover <- turnover(data_6kg_for_analysis, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
+DATA1_Turnover <- turnover(data_nuup_analysis, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
 DATA1$Turnover <- c(0, DATA1_Turnover$total) # Turnover
 
 # Prepare data for next steps: 

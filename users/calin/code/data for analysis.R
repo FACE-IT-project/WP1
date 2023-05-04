@@ -4,99 +4,35 @@
 # Set up ------------------------------------------------------------------
 source('users/calin/code/formulas.R')
 
+library(tidyverse)
 library(janitor)
+library(stringi)
+
 
 load('users/calin/data/EU_arctic_data.RData') # firstsetdata data -> svalbard data
 load('users/calin/data/young_species_GEM.RData') # young_species_gem data -> young GEM data
 load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup GEM data
 
-
-
 Data_ori <- rbind(EU_arctic_data, young_species_GEM, nuup_species_GEM)
 
-TEST <- Data_ori %>% 
-  filter(.by = )
-  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 60),
-         Taxon = stri_replace_last(Speci,"", regex = "[ ]"),
+
+
+
+nuup_species_GEM <- transform( nuup_species_GEM, TimeSeries_id = as.numeric(factor(`URL`))) # Create the TimeSeries_id by URL
+
+NUUP_n <- nuup_species_GEM %>% 
+  filter(!grepl('presence', variable)) %>% 
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 60), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
          Year = year(date),
-         unit = case_when(grepl("[n]", variable, fixed = TRUE) == TRUE~"Fish"))
-
-x <-  "|FIS| Clupea harengus (herring) 1 year old [n]"
-gsub(".*\\[", "", x)        # Apply gsub with \\
-
-
-nuup_bird_nb <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>%
-  mutate(Year = year(Date)) %>% 
-  dplyr::group_by(Year, Species) %>%
-  dplyr::summarise(sum(Number)) %>% 
-  dplyr::rename(Density = `sum(Number)`) %>%
-  mutate(Site = "nuup",
-         TimeSeries_id = 1,
-         Taxon = case_when(Species == "LB"~"Calcarius lapponicus", 
-                           Species == "NW"~"Oenanthe oenanthe", 
-                           Species == "RP"~"Carduelis flammea", 
-                           Species == "SB"~"Plectrophenax nivalis")) %>%
+         Site = "nuup") %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(sum(value)) %>% 
+  dplyr::rename(Density = `sum(value)`) %>%
   dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
 
-
-
-# [1] "bbbbbb"
-
+        
 # Site = site name, TimeSeries_id = unique identifier for the time series, Year = survey year, Taxon = taxon name, Density = total density or biomass or number of individual of that taxon for that year.
-
-
-
-
-
-
-x <-  "|ZOO| Calanus glacialis (arctic calanus)"
-gsub("\\(.*", "", x)
-substr(gsub("\\(.*", "", x), start = 7, stop = 60)
-
-
-azerty <- substr(x = "|ZOO| Calanus glacialis (arctic calanus)", start = 7, stop = 50)
-azerty
-
-x <-  "|ZOO| Calanus glacialis (arctic calanus)"
-qsdfg <- strsplit("|ZOO| Calanus glacialis (arctic calanus)", " ")
-qsdfg
-
-
-stri_extract_all_coll(c('AaaaaaaA', 'AAAA'), 'a')
-stri_extract_first_coll(c('Yy\u00FD', 'AAA'), 'y', strength=2, locale='sk_SK')
-stri_extract_last_coll(c('Yy\u00FD', 'AAA'), 'y',  strength=1, locale='sk_SK')
-
-stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
-stri_extract_first_regex('XabcdX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
-stri_extract_last_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
-
-stri_list2matrix(stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+')))
-stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+'), simplify=TRUE)
-stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+'), simplify=NA)
-
-stri_extract_all_fixed('abaBAba', 'Aba', case_insensitive=TRUE)
-stri_extract_all_fixed('abaBAba', 'Aba', case_insensitive=TRUE, overlap=TRUE)
-
-
-
-
-
-
-stri_extract_all('XaaaaX', regex=c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
-stri_extract_all('Bartolini', coll='i')
-stri_extract_all('stringi is so good!', charclass='\\p{Zs}') # all white-spaces
-
-stri_extract_all_charclass(c('AbcdeFgHijK', 'abc', 'ABC'), '\\p{Ll}')
-stri_extract_all_charclass(c('AbcdeFgHijK', 'abc', 'ABC'), '\\p{Ll}', merge=FALSE)
-stri_extract_first_charclass('AaBbCc', '\\p{Ll}')
-stri_extract_last_charclass('AaBbCc', '\\p{Ll}')
-
-
-
-
-
-
-
 
 
 
@@ -452,7 +388,9 @@ data_6kg_for_analysis <- rbind(A_ba_polar_cod,
 data_3kg_for_analysis <- rbind(A_ba_gfish_pop)
 
 
-
+data_nuup_analysis <- rbind(A_nu_bird_nb,
+                            A_nu_seabird,
+                            A_nu_mmam)
 
 
 

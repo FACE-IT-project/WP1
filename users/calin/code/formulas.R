@@ -247,7 +247,7 @@ species_analysis_step1 <- function(df, tsname){
   DATA1$NTaxa <- specnumber(DATA1_Taxa)  # taxonomic richness
   DATA1$Simp <- diversity(DATA1_Taxa, index = "simpson") # Simpson´s taxonomic diversity
   DATA1$Abund <- rowSums (DATA1_Taxa) # Total abundance
-  DATA1_Turnover <- turnover(data_6kg_for_analysis, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
+  DATA1_Turnover <- turnover(df, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
   DATA1$Turnover <- c(0, DATA1_Turnover$total) # Turnover
   
   # Prepare data for next steps: 
