@@ -148,34 +148,3 @@ save(young_species_GEM, file = "users/calin/data/young_species_GEM.RData")
 young_species_GEM_analysis <- rbind(young_bird_nests_eggs, young_bird_broods)
 
 save(young_species_GEM, file = "users/calin/data/young_species_GEM_analysis.RData")
-
-# OTHER -------------------------------------------------------------------
-
-
-
-#   dplyr::rename(nomSpecies = Species) %>% 
-#   apply(young_bird_nests, margin = 2, FUN = nom_latin_com())
-# # 
-# 
-# nom_latin_com(nomSpecies = Species)
-# 
-# test1 <- nom_latin_com(young_bird_nests$Species)
-# 
-# 
-# 
-
-
-# # ivory gull population
-# young_bird_brood <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods17042023135647252.csv") %>%
-#   
-#   convert_UTM_deg(utm_zone = 27)
-# 
-# 
-# young_bird_brood_coord <- young_bird_brood %>% 
-#   dplyr::select(Easting, Northing) %>% 
-#   distinct() %>% 
-#   filter(Easting >= 0)
-# 
-# young_bird_brood_dd <- 
-#   
-

@@ -12,24 +12,42 @@ library(stringi)
 load('users/calin/data/EU_arctic_data.RData') # firstsetdata data -> svalbard data
 load('users/calin/data/young_species_GEM.RData') # young_species_gem data -> young GEM data
 load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup GEM data
+load('users/calin/data/nuup_bird_nb_GEM.RData.RData') # nuup_species_gem data -> nuup GEM data
+load('users/calin/data/nuup_seabird_count_GEM.RData.RData') # nuup_species_gem data -> nuup GEM data
 
 Data_ori <- rbind(EU_arctic_data, young_species_GEM, nuup_species_GEM)
 
 
+young_species_GEM
 
 
-nuup_species_GEM <- transform( nuup_species_GEM, TimeSeries_id = as.numeric(factor(`URL`))) # Create the TimeSeries_id by URL
-
-NUUP_n <- nuup_species_GEM %>% 
-  filter(!grepl('presence', variable)) %>% 
-  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 60), # Take the latin name
+NUUP_1_n <- nuup_bird_nb_GEM %>% 
+  # transform( nuup_bird_nb_GEM, TimeSeries_id = as.numeric(factor(`URL`))) %>% 
+  # filter(!grepl('presence', variable)) %>% # Create the TimeSeries_id by URL
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
          Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
          Year = year(date),
-         Site = "nuup") %>% 
+         Site = "nuup",
+         TimeSeries_id = 1) %>% 
   dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
   dplyr::summarise(sum(value)) %>% 
   dplyr::rename(Density = `sum(value)`) %>%
   dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+
+
+YOUNG_n <- young_species_GEM %>% 
+  transform(young_species_GEM, TimeSeries_id = as.numeric(factor(`URL`))) %>% 
+  filter(!grepl('presence', variable)) %>% # Create the TimeSeries_id by URL
+  filter(!is.na(value)) %>%
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
+         Year = year(date),
+         Site = "young") %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(sum(value)) %>% 
+  dplyr::rename(Density = `sum(value)`) %>%
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+
 
         
 # Site = site name, TimeSeries_id = unique identifier for the time series, Year = survey year, Taxon = taxon name, Density = total density or biomass or number of individual of that taxon for that year.

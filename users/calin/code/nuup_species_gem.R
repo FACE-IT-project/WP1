@@ -163,3 +163,8 @@ nuup_species_GEM <- rbind(nuup_bird_nb,
                           nuup_mmam_count)
 
 save(nuup_species_GEM, file = "users/calin/data/nuup_species_GEM.RData")
+save(nuup_bird_nb, file = "users/calin/data/nuup_bird_nb_GEM.RData")
+save(nuup_seabird_count, file = "users/calin/data/nuup_seabird_count_GEM.RData")
+
+nuup_bird_nb
+nuup_seabird_count
