@@ -318,14 +318,8 @@ write_csv(Gattuso_data, "~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1_tid
 # Miller dataset ----------------------------------------------------------
 
 # Load each dataset and join
-Miller_flow <- read_csv("~/pCloudDrive/restricted_data/Miller/Flow Rate.csv", na = "NaN")# |> 
-  # pivot_longer(`C0M0_Flow rate (L min-1)`:`C3M2_Flow rate (L min-1)`) |> 
-  # separate(name, into = c("replicate", "variable"), sep = "_") |> 
-  # mutate(variable = "Flow rate [L/min]")
-Miller_O2 <- read_csv("~/pCloudDrive/restricted_data/Miller/O2.csv", na = "NaN") #|> 
-  # pivot_longer(`C0M0_% O2`:`C3M2_% O2`) |> 
-  # separate(name, into = c("replicate", "variable"), sep = "_") |> 
-  # mutate(variable = "O2 [%]")
+Miller_flow <- read_csv("~/pCloudDrive/restricted_data/Miller/Flow Rate.csv", na = c("NaN", -99))
+Miller_O2 <- read_csv("~/pCloudDrive/restricted_data/Miller/O2.csv", na = "NaN")
 Miller_sal <- read_csv("~/pCloudDrive/restricted_data/Miller/Sal.csv", na = "NaN")
 Miller_temp <- read_csv("~/pCloudDrive/restricted_data/Miller/Temp.csv", na = "NaN")
 Miller_data <- left_join(Miller_flow, Miller_O2, by = "DateTime") |> 
@@ -336,14 +330,7 @@ Miller_data <- left_join(Miller_flow, Miller_O2, by = "DateTime") |>
   dplyr::select(`date/time [UTC+0]`, `C0M0_Flow rate (L min-1)`:C3M2_Temp) |> 
   pivot_longer(`C0M0_Flow rate (L min-1)`:C3M2_Temp) |> 
   separate(name, into = c("replicate", "variable"), sep = "_") |> 
-  # mutate(variable = case_when(variable == "Flow rate (L min-1)" ~ "Flow rate [L/min]",
-  #                             variable == "% O2" ~ "O2 [%]",
-  #                             variable == "Temp" ~ "Temp [°C]",
-  #                             TRUE ~ variable)) |>  # Sal doesn't need units
   pivot_wider(names_from = variable, values_from = value) |> 
   dplyr::rename(`Flow rate [L/min]` = `Flow rate (L min-1)`, `O2 [%]` = `% O2`, `Temp [°C]` = Temp)
+write_csv(Miller_data, "~/pCloudDrive/restricted_data/Miller/Miller_tidy.csv")
 
-
-# Collect all unique date times, process, and join
-
-# Save
