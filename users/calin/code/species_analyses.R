@@ -55,12 +55,7 @@ clean_sva_cycr_pop <- svalbard_cycr_population %>%
          Taxon = "Cystophora cristata") %>% 
   dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
 
-data_n_for_analysis
-data_100_for_analysis
-data_gm_for_analysis
-data_6kg_for_analysis
-data_3kg_for_analysis
-
+nuup_bird_nb
 
 DATA2 <- species_analysis_step1(data_6kg_for_analysis, "DATA5")
 DATA3 <- species_analysis_step1(data_n_for_analysis, "DATA3")
@@ -68,6 +63,10 @@ DATA3 <- species_analysis_step1(data_n_for_analysis, "DATA3")
 DATA4 <- plyr::ddply(data_n_for_analysis,.variables = c("Site"), .fun = species_analysis_step1, tsname = "DATA3")
 
 
+DATA5 <- plyr::ddply(nuup_bird_nb,.variables = c("Site"), .fun = species_analysis_step1, tsname = "DATA5")
+
+
+DATA6 <- species_analysis_step1(nuup_bird_nb, "DATA6")
 
 
 # (1) Compute biodiversity metrics -----------------------------------------------------------------

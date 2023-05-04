@@ -25,6 +25,19 @@ x <-  "|FIS| Clupea harengus (herring) 1 year old [n]"
 gsub(".*\\[", "", x)        # Apply gsub with \\
 
 
+nuup_bird_nb <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>%
+  mutate(Year = year(Date)) %>% 
+  dplyr::group_by(Year, Species) %>%
+  dplyr::summarise(sum(Number)) %>% 
+  dplyr::rename(Density = `sum(Number)`) %>%
+  mutate(Site = "nuup",
+         TimeSeries_id = 1,
+         Taxon = case_when(Species == "LB"~"Calcarius lapponicus", 
+                           Species == "NW"~"Oenanthe oenanthe", 
+                           Species == "RP"~"Carduelis flammea", 
+                           Species == "SB"~"Plectrophenax nivalis")) %>%
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+
 
 
 # [1] "bbbbbb"
