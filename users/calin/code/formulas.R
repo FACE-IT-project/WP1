@@ -139,3 +139,168 @@ convert_UTM_deg <- function(df, utm_zone){
   return(df)
 }
 
+
+
+
+
+
+#####################################################################################################
+# This code came from : https://github.com/Biodiversity-trends-in-Europe-ILTER/R-code/blob/master/functions/My_mmkh
+# Modified version of the function mmkh (R package: modifiedmk; Patakamuri & O’Brien, 2019. Modified versions of Mann Kendall and Spearman’s Rho trend tests.)
+# The only difference from the original function is at line 87, to include S and n in the output
+#####################################################################################################
+
+My.mmkh=function (x, ci = 0.95) 
+{
+  x = x
+  z = NULL
+  z0 = NULL
+  pval = NULL
+  pval0 = NULL
+  S = 0
+  Tau = NULL
+  essf = NULL
+  ci = ci
+  if (is.vector(x) == FALSE) {
+    stop("Input data must be a vector")
+  }
+  if (any(is.finite(x) == FALSE)) {
+    x <- x[-c(which(is.finite(x) == FALSE))]
+    warning("The input vector contains non-finite numbers. An attempt was made to remove them")
+  }
+  n <- length(x)
+  V <- rep(NA, n * (n - 1)/2)
+  k = 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      k = k + 1
+      V[k] = (x[j] - x[i])/(j - i)
+    }
+  }
+  slp <- median(V, na.rm = TRUE)
+  t = 1:length(x)
+  xn <- (x[1:n]) - ((slp) * (t))
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      S = S + sign(x[j] - x[i])
+    }
+  }
+  ro <- acf(rank(xn), lag.max = (n - 1), plot = FALSE)$acf[-1]
+  sig <- qnorm((1 + ci)/2)/sqrt(n)
+  rof <- rep(NA, length(ro))
+  for (i in 1:(length(ro))) {
+    if (ro[i] > sig || ro[i] < -sig) {
+      rof[i] <- ro[i]
+    }
+    else {
+      rof[i] = 0
+    }
+  }
+  cte <- 2/(n * (n - 1) * (n - 2))
+  ess = 0
+  for (i in 1:(n - 1)) {
+    ess = ess + (n - i) * (n - i - 1) * (n - i - 2) * rof[i]
+  }
+  essf = 1 + ess * cte
+  var.S = n * (n - 1) * (2 * n + 5) * (1/18)
+  if (length(unique(x)) < n) {
+    aux <- unique(x)
+    for (i in 1:length(aux)) {
+      tie <- length(which(x == aux[i]))
+      if (tie > 1) {
+        var.S = var.S - tie * (tie - 1) * (2 * tie + 
+                                             5) * (1/18)
+      }
+    }
+  }
+  VS = var.S * essf
+  if (S == 0) {
+    z = 0
+    z0 = 0
+  }
+  if (S > 0) {
+    z = (S - 1)/sqrt(VS)
+    z0 = (S - 1)/sqrt(var.S)
+  }
+  else {
+    z = (S + 1)/sqrt(VS)
+    z0 = (S + 1)/sqrt(var.S)
+  }
+  pval = 2 * pnorm(-abs(z))
+  pval0 = 2 * pnorm(-abs(z0))
+  Tau = S/(0.5 * n * (n - 1))
+  return(c("Corrected Zc" = z, "new P-value" = pval, "N/N*" = essf, 
+           "Original Z" = z0, "old P.value" = pval0, "Tau" = Tau, 
+           "Sen s slope" = slp, "old.variance" = var.S, "new.variance" = VS, "S statistic" = S, "n" = n))
+}
+
+
+
+species_analysis_step1 <- function(df, tsname){
+  DATA1 <- dcast(df, Year ~ Taxon, sum, value.var = "Density") # create cross table
+  lastTaxon <- length(DATA1)
+  firstTaxon <- 2
+  
+  DATA1_Taxa <- as.matrix(DATA1[,c(firstTaxon:lastTaxon)])
+  DATA1_Taxa <- subset(DATA1[,c(firstTaxon:lastTaxon)]) 
+  
+  DATA1$NTaxa <- specnumber(DATA1_Taxa)  # taxonomic richness
+  DATA1$Simp <- diversity(DATA1_Taxa, index = "simpson") # Simpson´s taxonomic diversity
+  DATA1$Abund <- rowSums (DATA1_Taxa) # Total abundance
+  DATA1_Turnover <- turnover(df, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
+  DATA1$Turnover <- c(0, DATA1_Turnover$total) # Turnover
+  
+  # Prepare data for next steps: 
+  
+  start.year <- min(DATA1$Year) # set the starting year of the time series
+  end.year <- max(DATA1$Year) # set the end year of the time series
+  
+  # In case of missing data for one or more years, add a row with NAs:
+  # new.row <- head(DATA1[NA,], 1)    # creat a new row with NAs for all columns
+  # new.row["Year"] <- 1992   # assign the year without data
+  # DATA1 <- rbind(DATA1,new.row)    # attach the newly created row to the main table
+  # DATA1 <- DATA1[order(DATA1$Year),]   # order the years chronologically
+  
+  
+  
+  
+  
+  # (2) Compute the monotonic trends for each biodiversity metric ---------------
+  
+  DATA1.NTaxa <- ts(DATA1$NTaxa, start = start.year, frequency = 1) # define data as time series
+  acf(DATA1.NTaxa, na.action = na.pass) # check for temporal autocorrelation
+  pacf(DATA1.NTaxa, na.action = na.pass) # check for temporal autocorrelation
+  DATA1.trend.NTaxa <- My.mmkh(DATA1$NTaxa) # Modified Mann-Kendall Test For Serially Correlated Data Using Hamed and Rao (1998) Variance Correction Approach
+  
+  DATA1.Simp <- ts(DATA1$Simp, start=start.year, frequency=1) # define data as time series
+  acf(DATA1.Simp, na.action = na.pass) # check for temporal autocorrelation
+  pacf(DATA1.Simp, na.action = na.pass) # check for temporal autocorrelation
+  DATA1.trend.Simp <- My.mmkh(DATA1$Simp) # Modified Mann-Kendall Test For Serially Correlated Data Using Hamed and Rao (1998) Variance Correction Approach
+  
+  DATA1.Abund<- ts(DATA1$Abund, start=start.year, frequency=1) # define data as time series
+  acf(DATA1.Abund, na.action = na.pass) # check for temporal autocorrelation
+  pacf(DATA1.Abund, na.action = na.pass) # check for temporal autocorrelation
+  DATA1.trend.Abund <- My.mmkh(DATA1$Abund) # Modified Mann-Kendall Test For Serially Correlated Data Using Hamed and Rao (1998) Variance Correction Approach
+  
+  DATA1.Turnover <- ts(DATA1$Turnover, start=start.year+1, frequency=1)  # define data as time series
+  acf(DATA1.Turnover, na.action = na.pass) # check if there is temporal autocorrelation
+  pacf(DATA1.Turnover, na.action = na.pass) # check if there is temporal autocorrelation
+  DATA1.trend.Turnover <- My.mmkh(DATA1$Turnover[-1]) # Modified Mann-Kendall Test For Serially Correlated Data Using Hamed and Rao (1998) Variance Correction Approach
+  
+  # Combine results in a data frame: 
+  
+  EffectSizes_biodiv_DATA1 <- data.frame(TimeSeries = tsname, Site = df$Site[1] , Country = "DE", Lat = 50.187,	Lon = 9.100,	Alt = 122, # fill in with site information 
+                                         TaxonomicGroup = "AquaticInv", Realm = "FW", Naturalness = 3, startYear = start.year, endYear = end.year,    # fill in with site information
+                                         NTaxa_S = DATA1.trend.NTaxa[10], 
+                                         NTaxa_var = DATA1.trend.NTaxa[8], # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
+                                         Abund_S = DATA1.trend.Abund[10], 
+                                         Abund_var = DATA1.trend.Abund[8],  # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
+                                         Simp_S = DATA1.trend.Simp[10],  
+                                         Simp_var = DATA1.trend.Simp[9],  # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
+                                         Turn_S = DATA1.trend.Turnover[10],  
+                                         Turn_var = DATA1.trend.Turnover[8])  # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
+  
+}
+
+
+

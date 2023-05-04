@@ -21,12 +21,11 @@ source('users/calin/code/formulas.R')
 young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
-  convert_UTM_deg(utm_zone = 27) %>%
+  convert_UTM_deg(utm_zone = 27) #%>%
   pivot_longer(cols = c(`FirstEggDate`, 
                         `HatchingDate`)) %>% 
   dplyr::filter(name == "FirstEggDate") %>% 
-  dplyr::rename(date_egg = value) %>%
-  # add date
+  dplyr::rename(date_egg = FirstEggDate) %>%
   mutate(date_enfonction = ifelse(is.na(date_egg), 
                                   as.Date(paste0(Year,"-12-31")), 
                                   as.Date(date_egg)),
@@ -146,33 +145,6 @@ young_species_GEM <- rbind(young_bird_nests_eggs,
 save(young_species_GEM, file = "users/calin/data/young_species_GEM.RData")
 
 
-# OTHER -------------------------------------------------------------------
+young_species_GEM_analysis <- rbind(young_bird_nests_eggs, young_bird_broods)
 
-
-
-#   dplyr::rename(nomSpecies = Species) %>% 
-#   apply(young_bird_nests, margin = 2, FUN = nom_latin_com())
-# # 
-# 
-# nom_latin_com(nomSpecies = Species)
-# 
-# test1 <- nom_latin_com(young_bird_nests$Species)
-# 
-# 
-# 
-
-
-# # ivory gull population
-# young_bird_brood <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods17042023135647252.csv") %>%
-#   
-#   convert_UTM_deg(utm_zone = 27)
-# 
-# 
-# young_bird_brood_coord <- young_bird_brood %>% 
-#   dplyr::select(Easting, Northing) %>% 
-#   distinct() %>% 
-#   filter(Easting >= 0)
-# 
-# young_bird_brood_dd <- 
-#   
-
+save(young_species_GEM, file = "users/calin/data/young_species_GEM_analysis.RData")
