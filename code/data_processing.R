@@ -314,3 +314,23 @@ Gattuso_data <- read_csv_arrow("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2
   mutate_at(1:13, ~replace_na(., ""))
 write_csv(Gattuso_data, "~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1_tidy.csv")
 
+
+# Miller dataset ----------------------------------------------------------
+
+# Load each dataset and join
+Miller_flow <- read_csv("~/pCloudDrive/restricted_data/Miller/Flow Rate.csv", na = c("NaN", -99))
+Miller_O2 <- read_csv("~/pCloudDrive/restricted_data/Miller/O2.csv", na = "NaN")
+Miller_sal <- read_csv("~/pCloudDrive/restricted_data/Miller/Sal.csv", na = "NaN")
+Miller_temp <- read_csv("~/pCloudDrive/restricted_data/Miller/Temp.csv", na = "NaN")
+Miller_data <- left_join(Miller_flow, Miller_O2, by = "DateTime") |> 
+  left_join(Miller_sal, by = "DateTime") |> left_join(Miller_temp, by = "DateTime") |> 
+  separate(DateTime, into = c("date", "time"), sep = " ") |> 
+  mutate(date = as.Date(date, "%m/%d/%y"),
+         `date/time [UTC+0]` = paste(date, time, sep = "T")) |> 
+  dplyr::select(`date/time [UTC+0]`, `C0M0_Flow rate (L min-1)`:C3M2_Temp) |> 
+  pivot_longer(`C0M0_Flow rate (L min-1)`:C3M2_Temp) |> 
+  separate(name, into = c("replicate", "variable"), sep = "_") |> 
+  pivot_wider(names_from = variable, values_from = value) |> 
+  dplyr::rename(`Flow rate [L/min]` = `Flow rate (L min-1)`, `O2 [%]` = `% O2`, `Temp [°C]` = Temp)
+write_csv(Miller_data, "~/pCloudDrive/restricted_data/Miller/Miller_tidy.csv")
+
