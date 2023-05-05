@@ -23,17 +23,162 @@ library(RColorBrewer)
 library(glmulti)
 
 
-
-
+74.383333, -20.4
+64.5, -51.383333
 
 # Analyses ----------------------------------------------------------------
 
-DATA1 <- species_analysis_step1(NUUP_1_n, "DATA1")
-DATA2 <- species_analysis_step1(NUUP_2_n, "DATA2")
-DATA3 <- species_analysis_step1(YOUNG_1_n, "DATA3")
-DATA4 <- species_analysis_step1(YOUNG_2_n, "DATA4")
+## Script 01 ---------------------------------------------------------------
 
-YOUNG_n
+DATA1 <- species_analysis_step1(NUUP_1_n, "DATA1", "GREENLAND", 64.5, -51.383333, 2, "birds")
+DATA2 <- species_analysis_step1(NUUP_2_n, "DATA2",  "GREENLAND", 64.5, -51.383333, 5, "birds")
+DATA3 <- species_analysis_step1(YOUNG_1_n, "DATA3", "GREENLAND", 74.383333, -20.4, 0, "birds")
+DATA4 <- species_analysis_step1(YOUNG_2_n, "DATA4", "GREENLAND", 74.383333, -20.4, 1, "birds")
+
+DATA <- rbind(DATA2, 
+              DATA3, 
+              DATA4)
+
+# Script 02 ---------------------------------------------------------------
+
+########################################################################################################################################################################
+# Script 02 -  Meta-analysis
+# Pilotto et al. Meta-analysis of multidecadal biodiversity trends in Europe, Nature Communications
+#
+# This script includes the code for the following steps:
+#    (1) combine and merge the results obtained with script 01 for the 161 time series,
+#    (2) synthesize the results using meta-analytical models,
+#    (3) export the source data for creating the figures (to be used in Script 03),
+#    (4) run sensitivity analysis.
+#
+########################################################################################################################################################################
+
+# Transform variables (standardize continuous variables, and log- or sqrt- transform the ones that are not normally distributed)
+
+DATA$StudyLength <- 1+(DATA$endYear-DATA$startYear)
+DATA$Lat.s <- decostand(DATA$Lat, "standardize")
+DATA$StudyLength.s <- decostand(DATA$StudyLength, "standardize")
+DATA$Alt.Log.s <- decostand(log(DATA$Alt+2), "standardize")
+DATA$TMean_S.s <- decostand(sqrt(DATA$TMean_S+154), "standardize")
+DATA$Lon.s <- decostand(sqrt(DATA$Lon+9) , "standardize")
+DATA$Naturalness.s <- decostand(DATA$Naturalness, "standardize")
+DATA$PTot_S.s <- decostand(DATA$PTot_S, "standardize")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# OTHER -------------------------------------------------------------------
+
 
 #
 # 

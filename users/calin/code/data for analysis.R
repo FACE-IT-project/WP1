@@ -73,7 +73,8 @@ YOUNG_2_n <- young_bird_broods_GEM %>%
   dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
   dplyr::summarise(sum(value)) %>% 
   dplyr::rename(Density = `sum(value)`) %>%
-  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density) %>% 
+  filter(!is.na(Year))
 
 
         

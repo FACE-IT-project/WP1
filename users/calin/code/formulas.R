@@ -107,11 +107,6 @@ latin_eng <- function(nomSpecies){
 
 
 
-
-
-
-
-
 # Function for converting UTM to decimal degrees
 # NB: Expects an 'Easting' and 'Northing' column
 convert_UTM_deg <- function(df, utm_zone){
@@ -236,7 +231,7 @@ My.mmkh=function (x, ci = 0.95)
 
 
 
-species_analysis_step1 <- function(df, tsname){
+species_analysis_step1 <- function(df, tsname, country, lati, longi, alt, taxono){
   DATA1 <- dcast(df, Year ~ Taxon, sum, value.var = "Density") # create cross table
   lastTaxon <- length(DATA1)
   firstTaxon <- 2
@@ -289,8 +284,8 @@ species_analysis_step1 <- function(df, tsname){
   
   # Combine results in a data frame: 
   
-  EffectSizes_biodiv_DATA1 <- data.frame(TimeSeries = tsname, Site = df$Site[1] , Country = "DE", Lat = 50.187,	Lon = 9.100,	Alt = 122, # fill in with site information 
-                                         TaxonomicGroup = "AquaticInv", Realm = "FW", Naturalness = 3, startYear = start.year, endYear = end.year,    # fill in with site information
+  EffectSizes_biodiv_DATA1 <- data.frame(TimeSeries = tsname, Site = df$Site[1] , Country = country, Lat = lati,	Lon = longi,	Alt = alt, # fill in with site information 
+                                         TaxonomicGroup = taxono, Realm = "FW", Naturalness = 3, startYear = start.year, endYear = end.year,    # fill in with site information
                                          NTaxa_S = DATA1.trend.NTaxa[10], 
                                          NTaxa_var = DATA1.trend.NTaxa[8], # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
                                          Abund_S = DATA1.trend.Abund[10], 
@@ -303,4 +298,10 @@ species_analysis_step1 <- function(df, tsname){
 }
 
 
-
+site_coordinates <- function(df) {
+  Site <- data.frame(Site = c("nuup", "young", "Maria", "Ben", "Tina"),
+                     Lat = c(64.5, 74.383333, 32, 58, 26),
+                     Long = c(-51.383333, -20.4, 55, 78, 40)
+  )
+  print (df)
+}
