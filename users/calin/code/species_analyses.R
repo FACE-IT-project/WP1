@@ -28,10 +28,10 @@ library(glmulti)
 
 # Analyses ----------------------------------------------------------------
 
-DATA1 <- species_analysis_step1(NUUP_n, "DATA1")
-
-DATA2 <- species_analysis_step1(YOUNG_n, "DATA2")
-
+DATA1 <- species_analysis_step1(NUUP_1_n, "DATA1")
+DATA2 <- species_analysis_step1(NUUP_2_n, "DATA2")
+DATA3 <- species_analysis_step1(YOUNG_1_n, "DATA3")
+DATA4 <- species_analysis_step1(YOUNG_2_n, "DATA4")
 
 YOUNG_n
 
@@ -44,7 +44,7 @@ YOUNG_n
 
 # (1) Compute biodiversity metrics -----------------------------------------------------------------
 
-DATA1 <- dcast(data_nuup_analysis, Year ~ Taxon, sum, value.var = "Density") # create cross table
+DATA1 <- dcast(YOUNG_2_n, Year ~ Taxon, sum, value.var = "Density") # create cross table
 lastTaxon <- length(DATA1)
 firstTaxon <- 2
 
@@ -54,7 +54,7 @@ DATA1_Taxa <- subset(DATA1[,c(firstTaxon:lastTaxon)])
 DATA1$NTaxa <- specnumber(DATA1_Taxa)  # taxonomic richness
 DATA1$Simp <- diversity(DATA1_Taxa, index = "simpson") # Simpson´s taxonomic diversity
 DATA1$Abund <- rowSums (DATA1_Taxa) # Total abundance
-DATA1_Turnover <- turnover(data_nuup_analysis, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
+DATA1_Turnover <- turnover(YOUNG_2_n, time.var = "Year", species.var = "Taxon", abundance.var = "Density" , metric = "total")
 DATA1$Turnover <- c(0, DATA1_Turnover$total) # Turnover
 
 # Prepare data for next steps: 

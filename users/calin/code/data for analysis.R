@@ -12,8 +12,10 @@ library(stringi)
 load('users/calin/data/EU_arctic_data.RData') # firstsetdata data -> svalbard data
 load('users/calin/data/young_species_GEM.RData') # young_species_gem data -> young GEM data
 load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup GEM data
-load('users/calin/data/nuup_bird_nb_GEM.RData.RData') # nuup_species_gem data -> nuup GEM data
-load('users/calin/data/nuup_seabird_count_GEM.RData.RData') # nuup_species_gem data -> nuup GEM data
+load('users/calin/data/nuup_bird_nb_GEM.RData') # nuup_species_gem data -> nuup GEM data
+load('users/calin/data/nuup_seabird_count_GEM.RData') # nuup_species_gem data -> nuup GEM data
+load('users/calin/data/young_bird_nests_hatch_GEM.RData') 
+load('users/calin/data/young_bird_broods_GEM.RData')
 
 Data_ori <- rbind(EU_arctic_data, young_species_GEM, nuup_species_GEM)
 
@@ -34,15 +36,40 @@ NUUP_1_n <- nuup_bird_nb_GEM %>%
   dplyr::rename(Density = `sum(value)`) %>%
   dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
 
+NUUP_2_n <- nuup_seabird_count_GEM %>% 
+  # transform( nuup_bird_nb_GEM, TimeSeries_id = as.numeric(factor(`URL`))) %>% 
+  # filter(!grepl('presence', variable)) %>% # Create the TimeSeries_id by URL
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
+         Year = year(date),
+         Site = "nuup",
+         TimeSeries_id = 2) %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(sum(value)) %>% 
+  dplyr::rename(Density = `sum(value)`) %>%
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
 
-YOUNG_n <- young_species_GEM %>% 
-  transform(young_species_GEM, TimeSeries_id = as.numeric(factor(`URL`))) %>% 
-  filter(!grepl('presence', variable)) %>% # Create the TimeSeries_id by URL
+
+YOUNG_1_n <- young_bird_nests_hatch_GEM %>% 
   filter(!is.na(value)) %>%
   mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
          Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
          Year = year(date),
-         Site = "young") %>% 
+         Site = "young",
+         TimeSeries_id = 3) %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(sum(value)) %>% 
+  dplyr::rename(Density = `sum(value)`) %>%
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+
+
+YOUNG_2_n <- young_bird_broods_GEM %>% 
+  filter(!is.na(value)) %>%
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
+         Year = year(date),
+         Site = "young",
+         TimeSeries_id = 4) %>% 
   dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
   dplyr::summarise(sum(value)) %>% 
   dplyr::rename(Density = `sum(value)`) %>%

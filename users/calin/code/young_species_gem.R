@@ -21,7 +21,7 @@ source('users/calin/code/formulas.R')
 young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
-  convert_UTM_deg(utm_zone = 27) #%>%
+  convert_UTM_deg(utm_zone = 27) %>%
   pivot_longer(cols = c(`FirstEggDate`, 
                         `HatchingDate`)) %>% 
   dplyr::filter(name == "FirstEggDate") %>% 
@@ -48,7 +48,7 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
 
 # Bird breeding phenology nests hatching
 ## Have NA/0 value
-young_bird_nests_hatch <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
+young_bird_nests_hatch_GEM <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
   convert_UTM_deg(utm_zone = 27) %>%
@@ -105,7 +105,7 @@ young_bird_abundance <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Z
 
 # Bird breeding phenology broods
 ## Have NA value
-young_bird_broods <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods210420231531510758.csv",
+young_bird_broods_GEM <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods210420231531510758.csv",
                                 na = c("9999-01-01","-9999","#REF!","01/01/9999")) %>%
   convert_UTM_deg(utm_zone = 27) %>%
   dplyr::rename(date_egg = FirstEggDate) %>%
@@ -148,3 +148,5 @@ save(young_species_GEM, file = "users/calin/data/young_species_GEM.RData")
 young_species_GEM_analysis <- rbind(young_bird_nests_eggs, young_bird_broods)
 
 save(young_species_GEM, file = "users/calin/data/young_species_GEM_analysis.RData")
+save(young_bird_nests_hatch_GEM, file = "users/calin/data/young_bird_nests_hatch_GEM.RData")
+save(young_bird_broods_GEM, file = "users/calin/data/young_bird_broods_GEM.RData")

@@ -20,7 +20,7 @@ source('users/calin/code/formulas.R')
 # Data --------------------------------------------------------------------
 # Bird presence
 ## Manque : Species
-nuup_bird_nb <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>% 
+nuup_bird_nb_GEM <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>% 
   mutate(date_accessed = as.Date("2023-04-17"),
          URL = "https://doi.org/10.17897/DRTB-PY74",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
@@ -76,7 +76,7 @@ nuup_bird_nb <- read_delim("P:/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_
   filter(!value == 0)
 
 # Seabird counting
-nuup_seabird_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Seabirds_Seabird_species_counts_per_colony17042023154835389.csv",
+nuup_seabird_count_GEM <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Seabirds_Seabird_species_counts_per_colony17042023154835389.csv",
                                  na = c("NULL","-1", "2017-07-00")) %>% 
   filter(!is.na(Date)) %>% 
   filter(!is.na(Latin)) %>%
@@ -163,8 +163,8 @@ nuup_species_GEM <- rbind(nuup_bird_nb,
                           nuup_mmam_count)
 
 save(nuup_species_GEM, file = "users/calin/data/nuup_species_GEM.RData")
-save(nuup_bird_nb, file = "users/calin/data/nuup_bird_nb_GEM.RData")
-save(nuup_seabird_count, file = "users/calin/data/nuup_seabird_count_GEM.RData")
+save(nuup_bird_nb_GEM, file = "users/calin/data/nuup_bird_nb_GEM.RData")
+save(nuup_seabird_count_GEM, file = "users/calin/data/nuup_seabird_count_GEM.RData")
 
 nuup_bird_nb
 nuup_seabird_count
