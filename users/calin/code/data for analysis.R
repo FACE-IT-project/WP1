@@ -77,7 +77,13 @@ YOUNG_2_n <- young_bird_broods_GEM %>%
   filter(!is.na(Year))
 
 
-        
+
+save(NUUP_1_n, file = "users/calin/data/NUUP_1_n.RData")
+save(NUUP_2_n, file = "users/calin/data/NUUP_2_n.RData")
+save(YOUNG_1_n, file = "users/calin/data/YOUNG_1_n.RData")
+save(YOUNG_2_n, file = "users/calin/data/YOUNG_2_n.RData")
+
+
 # Site = site name, TimeSeries_id = unique identifier for the time series, Year = survey year, Taxon = taxon name, Density = total density or biomass or number of individual of that taxon for that year.
 
 
