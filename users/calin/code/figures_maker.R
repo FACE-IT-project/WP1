@@ -124,19 +124,19 @@ ECC_data_set_summury <- ECC_data %>%
 
 # Figures -----------------------------------------------------------------
 # Population of glaucous gull infunction of the date/year
-kong_glaucous1 <- ggplot(data = kong_glaucous_gull_population, aes(x = date, y = value)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = TRUE)
-kong_glaucous1
+# kong_glaucous1 <- ggplot(data = kong_glaucous_gull_population, aes(x = date, y = value)) +
+#   geom_point() +
+#   geom_smooth(method = "lm", se = TRUE)
+# kong_glaucous1
 
 
 # Population of caplin histogram of mature/immature stock over years
-barents_capelin1 <- ggplot(data = barents_capelin_stock, aes(x = date,  y = value)) + 
-  geom_bar(stat = "identity", aes(fill = variable)) +
-  theme_bw() + 
-  theme(legend.position = c(0.75,0.75), legend.background = element_rect(color = "black")) +
-  labs(x = NULL, fill = NULL )
-barents_capelin1
+# barents_capelin1 <- ggplot(data = barents_capelin_stock, aes(x = date,  y = value)) + 
+#   geom_bar(stat = "identity", aes(fill = variable)) +
+#   theme_bw() + 
+#   theme(legend.position = c(0.75,0.75), legend.background = element_rect(color = "black")) +
+#   labs(x = NULL, fill = NULL )
+# barents_capelin1
 
 
 # Density plot of variable over years
