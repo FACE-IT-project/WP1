@@ -22,10 +22,9 @@ young_bird_nests_eggs <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
                                     na = c("9999-01-01","-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
   convert_UTM_deg(utm_zone = 27) %>%
-  pivot_longer(cols = c(`FirstEggDate`, 
-                        `HatchingDate`)) %>% 
+  pivot_longer(cols = c(`FirstEggDate`, `HatchingDate`)) %>% 
   dplyr::filter(name == "FirstEggDate") %>% 
-  dplyr::rename(date_egg = FirstEggDate) %>%
+  dplyr::rename(date_egg = value) %>%
   mutate(date_enfonction = ifelse(is.na(date_egg), 
                                   as.Date(paste0(Year,"-12-31")), 
                                   as.Date(date_egg)),
@@ -138,15 +137,16 @@ young_bird_broods_GEM <- read_delim("P:/restricted_data/GEM/young/View_BioBasis_
 # data set ----------------------------------------------------------------
 
 young_species_GEM <- rbind(young_bird_nests_eggs, 
-                    young_bird_nests_hatch,
+                    young_bird_nests_hatch_GEM,
                     young_bird_abundance,
-                    young_bird_broods)
+                    young_bird_broods_GEM)
 
 save(young_species_GEM, file = "users/calin/data/young_species_GEM.RData")
 
 
-young_species_GEM_analysis <- rbind(young_bird_nests_eggs, young_bird_broods)
+young_species_GEM_analysis <- rbind(young_bird_nests_eggs, young_bird_broods_GEM)
 
 save(young_species_GEM, file = "users/calin/data/young_species_GEM_analysis.RData")
 save(young_bird_nests_hatch_GEM, file = "users/calin/data/young_bird_nests_hatch_GEM.RData")
 save(young_bird_broods_GEM, file = "users/calin/data/young_bird_broods_GEM.RData")
+
