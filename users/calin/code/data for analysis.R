@@ -76,7 +76,7 @@ YOUNG_2_n <- young_bird_broods_GEM %>%
   dplyr::select(Site, TimeSeries_id, Year, Taxon, Density) %>% 
   filter(!is.na(Year))
 
-
+NUUP_1_n
 
 save(NUUP_1_n, file = "users/calin/data/NUUP_1_n.RData")
 save(NUUP_2_n, file = "users/calin/data/NUUP_2_n.RData")
