@@ -160,6 +160,14 @@ long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
 lon_names <- c("LONGITUDE", "Longitude", "longitude", "long", "lon")
 lat_names <- c("LATITUDE", "Latitude", "latitude", "lat")
 
+# Nuup site coords
+nuup_bird_coords <- data.frame(Point = LETTERS[1:13],
+                               lon = c(64.134685, 64.135155, 64.134592, 64.13239, 64.131052,
+                                       64.129385, 64.131761, 64.132669, 64.134509, 64.135639,
+                                       64.133636, 64.132841, 64.131031),
+                               lat = c(-51.385105, -51.391187, -51.396234, -51.39359, -51.38916,
+                                       -51.37833, -51.379398, -51.374116, -51.363874, -51.355553,
+                                       -51.344558, -51.336278, -51.326204))
 
 # Meta-data ---------------------------------------------------------------
 
