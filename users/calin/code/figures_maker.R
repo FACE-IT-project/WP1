@@ -44,65 +44,30 @@ ECC_data_annual <- ECC_data %>%
   summarise(annual_count = n(), .by = c(year, lieu))
 
 ECC_type  <- ECC_data %>% 
-  mutate(fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
-         mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
-         sbird = case_when(grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird"),
-         nbird = case_when(grepl("|NBI|", variable, fixed = TRUE) == TRUE~"Non-sea Bird"),
-         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird"),
-         zoo = case_when(grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton"),
-         phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
-         classification = case_when(fish == "Fish"~"fish",
-                                    mammal == "Mammal" ~"mammal",
-                                    sbird == "Sea Bird"~"sea bird",
-                                    nbird == "Non-sea Bird"~"non-sea bird",
-                                    bird == "Bird"~"bird",
-                                    zoo == "Zooplankton"~"zooplankton",
-                                    phyto == "Phytoplankton"~"phytoplankton"))
+  mutate(classification = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE ~ "Fish",
+                                    grepl("|MAM|", variable, fixed = TRUE) == TRUE ~ "Mammal",
+                                    grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird",
+                                    grepl("|NBI|", variable, fixed = TRUE) == TRUE ~ "Non-sea Bird",
+                                    grepl("|BIR|", variable, fixed = TRUE) == TRUE ~ "Bird",
+                                    grepl("|ZOO|", variable, fixed = TRUE) == TRUE ~ "Zooplankton",
+                                    (grepl("phyto", variable, fixed = TRUE) == TRUE ~ "Phytoplankton")))
 
-ECC_data_type <- ECC_data %>% 
-  mutate(fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
-         mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
-         sbird = case_when(grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird"),
-         nbird = case_when(grepl("|NBI|", variable, fixed = TRUE) == TRUE~"Non-sea Bird"),
-         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird"),
-         zoo = case_when(grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton"),
-         phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
-         classification = case_when(fish == "Fish"~"fish",
-                                    mammal == "Mammal" ~"mammal",
-                                    sbird == "Sea Bird"~"sea bird",
-                                    nbird == "Non-sea Bird"~"non-sea bird",
-                                    bird == "Bird"~"bird",
-                                    zoo == "Zooplankton"~"zooplankton",
-                                    phyto == "Phytoplankton"~"phytoplankton")) %>%
-  dplyr::select( classification, lieu) %>% 
-  summarise(type_count = n(), .by =  classification)
+
+ECC_data_type <- ECC_type %>% 
+  summarise(type_count = n(), .by = classification)
+
 
 # Data merge by species groups and summarise by year and place
-ECC_data_annual_type <- ECC_data %>% 
-  mutate(year = year(date),
-         fish = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE~"Fish"),
-         mammal = case_when(grepl("|MAM|", variable, fixed = TRUE) == TRUE~"Mammal"),
-         sbird = case_when(grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird"),
-         nbird = case_when(grepl("|NBI|", variable, fixed = TRUE) == TRUE~"Non-sea Bird"),
-         bird = case_when(grepl("|BIR|", variable, fixed = TRUE) == TRUE~"Bird"),
-         zoo = case_when(grepl("|ZOO|", variable, fixed = TRUE) == TRUE~"Zooplankton"),
-         phyto = case_when(grepl("phyto", variable, fixed = TRUE) == TRUE~"Phytoplankton"),
-         classification = case_when(fish == "Fish"~"fish",
-                                    mammal == "Mammal" ~"mammal",
-                                    sbird == "Sea Bird"~"sea bird",
-                                    nbird == "Non-sea Bird"~"non-sea bird",
-                                    bird == "Bird"~"bird",
-                                    zoo == "Zooplankton"~"zooplankton",
-                                    phyto == "Phytoplankton"~"phytoplankton")) %>%
-  dplyr::select(year, classification, lieu) %>% 
+ECC_data_annual_type <- ECC_type %>% 
+  mutate(year = year(date)) %>%
   summarise(annual_type_count = n(), .by = c(year, classification))
 
 
 # Data summarise by year and variable
 ECC_data_annual_variable <- ECC_data %>% 
   mutate(year = year(date)) %>%
-  dplyr::select(year, variable, lieu) %>% 
-  summarise(annual_type_count = n(), .by = variable)
+  # dplyr::select(year, variable, lieu) %>% 
+  summarise(annual_type_count = n(), .by = c(year, variable))
 
 
 # Data summarise by year, place and species/variables
@@ -165,7 +130,7 @@ arctic_data4
 ECC_data01 <- ggplot(ECC_data_annual, aes(x = year, y = annual_count)) + 
   geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
   labs(y = "data [n]", title = "Data by site and by year", x = NULL, fill = "site") +
-  theme(legend.position = c(0.20,0.80)) +
+  theme(legend.position = c(0.20,0.80), panel.border = element_rect(colour = "black", fill = NA)) +
   scale_fill_brewer(palette="Set3")
 ECC_data01
 ggsave(ECC_data01, file = 'users/calin/figures/ECC_data01.png') # Save figure
@@ -174,7 +139,7 @@ ggsave(ECC_data01, file = 'users/calin/figures/ECC_data01.png') # Save figure
 # Bar nb species by site over the years
 ECC_data02 <- ggplot(ECC_data_species_summury, aes(x = year, y = annual_species_count)) + 
   geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
-  labs(y = "species [n]", x = NULL) +
+  labs(y = "species [n]", x = NULL, fill = "site") +
   theme(legend.position = c(0.20,0.80)) +
   scale_fill_brewer(palette="Set3")
 ECC_data02
@@ -183,8 +148,9 @@ ggsave(ECC_data02, file = 'users/calin/figures/ECC_data02.png') # Save figure
 
 # Bar nb set by site over the years
 ECC_data03 <- ggplot(ECC_data_set_summury, aes(x = year, y = annual_set_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
-  labs(y = "set [n]", title = "Data by set and by year", x = NULL) +
+  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'stack') +
+  # geom_line(aes(colour = lieu)) +
+  labs(y = "set [n]", title = "Data by set and by year", x = NULL, fill = "site") +
   theme(legend.position = c(0.20,0.80)) +
   scale_fill_brewer(palette="Set2")
 ECC_data03
@@ -201,13 +167,13 @@ ECC_data04
 
 # Bar nb species by site over the years
 ECC_data05 <- ggplot(ECC_data_type, aes(x="", y = type_count, fill=classification)) +
-  geom_bar(stat="identity", width=1, color="white") +
+  geom_bar(stat="identity", width = 1)+#, color="white") +
   labs(fill = "species groups") +
   coord_polar("y", start=0)+
   theme_void() + # remove background, grid, numeric labels
   scale_fill_brewer(palette="Set2")
 ECC_data05
-ggsave(ECC_data05, file = 'users/calin/figures/ECC_data05.png') # Save figure
+ggsave(ECC_data05, file = 'users/calin/figures/ECC_data05.png', width = 8) # Save figure
 
 
 # Density data by site over the years
@@ -234,7 +200,9 @@ ggsave(ECC_data07, file = 'users/calin/figures/ECC_data07.png') # Save figure
 
 # Density [new function] data by site over the years
 ECC_data08 <- ggplot(ECC_type, aes(x = year(date), y = classification, fill = classification)) +
+  # ggdist::geom_slabinterval() +
   ggdist::stat_halfeye(.width = 0, point_color = NA) +
+  # theme_ridges() + 
   theme(legend.position = "none", axis.text = element_text(size = 9)) +
   labs(x = NULL, y = NULL) +
   scale_fill_brewer(palette = "Set3")
@@ -258,3 +226,4 @@ gem_data02 <- ggplot(green_GEM_data, aes(x = year(date), y = site, fill = site))
   theme(legend.position = "none", axis.text = element_text(size = 9)) +
   labs(x = NULL, y = NULL)
 gem_data02
+

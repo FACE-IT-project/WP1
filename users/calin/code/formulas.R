@@ -184,10 +184,11 @@ My.mmkh=function (x, ci = 0.95)
   sig <- qnorm((1 + ci)/2)/sqrt(n)
   rof <- rep(NA, length(ro))
   for (i in 1:(length(ro))) {
-    if (ro[i] > sig || ro[i] < -sig) {
+    if (is.na(ro[i])) {
+      rof[i] = 0
+    } else if (ro[i] > sig || ro[i] < -sig) {
       rof[i] <- ro[i]
-    }
-    else {
+    } else {
       rof[i] = 0
     }
   }
@@ -216,8 +217,7 @@ My.mmkh=function (x, ci = 0.95)
   if (S > 0) {
     z = (S - 1)/sqrt(VS)
     z0 = (S - 1)/sqrt(var.S)
-  }
-  else {
+  } else {
     z = (S + 1)/sqrt(VS)
     z0 = (S + 1)/sqrt(var.S)
   }
@@ -263,8 +263,8 @@ species_analysis_step1 <- function(df, tsname, country, lati, longi, alt, taxono
   # (2) Compute the monotonic trends for each biodiversity metric ---------------
   
   DATA1.NTaxa <- ts(DATA1$NTaxa, start = start.year, frequency = 1) # define data as time series
-  acf(DATA1.NTaxa, na.action = na.pass) # check for temporal autocorrelation
-  pacf(DATA1.NTaxa, na.action = na.pass) # check for temporal autocorrelation
+  tryCatch(acf(DATA1.NTaxa, na.action = na.pass), error = function(y){y = 1})  # check for temporal autocorrelation
+  tryCatch(pacf(DATA1.NTaxa, na.action = na.pass), error = function(y){y = 1}) # check for temporal autocorrelation
   DATA1.trend.NTaxa <- My.mmkh(DATA1$NTaxa) # Modified Mann-Kendall Test For Serially Correlated Data Using Hamed and Rao (1998) Variance Correction Approach
   
   DATA1.Simp <- ts(DATA1$Simp, start=start.year, frequency=1) # define data as time series
@@ -278,8 +278,8 @@ species_analysis_step1 <- function(df, tsname, country, lati, longi, alt, taxono
   DATA1.trend.Abund <- My.mmkh(DATA1$Abund) # Modified Mann-Kendall Test For Serially Correlated Data Using Hamed and Rao (1998) Variance Correction Approach
   
   DATA1.Turnover <- ts(DATA1$Turnover, start=start.year+1, frequency=1)  # define data as time series
-  acf(DATA1.Turnover, na.action = na.pass) # check if there is temporal autocorrelation
-  pacf(DATA1.Turnover, na.action = na.pass) # check if there is temporal autocorrelation
+  tryCatch(acf(DATA1.Turnover, na.action = na.pass), error = function(y){y = 1}) # check if there is temporal autocorrelation
+  tryCatch(pacf(DATA1.Turnover, na.action = na.pass), error = function(y){y = 1}) # check if there is temporal autocorrelation
   DATA1.trend.Turnover <- My.mmkh(DATA1$Turnover[-1]) # Modified Mann-Kendall Test For Serially Correlated Data Using Hamed and Rao (1998) Variance Correction Approach
   
   # Combine results in a data frame: 

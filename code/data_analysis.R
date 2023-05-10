@@ -200,3 +200,111 @@ model_fig_trom <- model_summary(model_trom, "Tromso")
 ggsave("figures/model_trom.png", model_fig_trom, height = 8, width = 8)
 ggsave("docs/assets/model_trom.png", model_fig_trom, height = 8, width = 8)
 
+
+# Species analysis --------------------------------------------------------
+
+# Libraries
+# TODO: Verify order and necessity
+source("users/calin/code/formulas.R")
+library(vegan)
+library(codyn)
+library(reshape2)
+library(metafor)
+library(R.utils)
+library(sp)
+library(raster)
+library(ncdf4)
+library(rgdal)
+library(stringi)
+
+library(metafor)
+library(rgeos)
+library(RColorBrewer)
+library(glmulti)
+
+# Load data
+load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_bird_nb.RData")
+load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_seabird_count.RData")
+load("~/pCloudDrive/restricted_data/GEM/young/young_bird_nests_hatch.RData")
+load("~/pCloudDrive/restricted_data/GEM/young/young_bird_broods.RData")
+
+# Prep for step 1
+NUUP_1_n <- nuup_bird_nb %>% 
+  # transform( nuup_bird_nb_GEM, TimeSeries_id = as.numeric(factor(`URL`))) %>% 
+  # filter(!grepl('presence', variable)) %>% # Create the TimeSeries_id by URL
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
+         Year = year(date),
+         Site = "nuup",
+         TimeSeries_id = 1) %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(Density = sum(value), .groups = "drop") %>% 
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+
+NUUP_2_n <- nuup_seabird_count %>% 
+  # transform( nuup_bird_nb_GEM, TimeSeries_id = as.numeric(factor(`URL`))) %>% 
+  # filter(!grepl('presence', variable)) %>% # Create the TimeSeries_id by URL
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
+         Year = year(date),
+         Site = "nuup",
+         TimeSeries_id = 2) %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(Density = sum(value), .groups = "drop") %>% 
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+
+YOUNG_1_n <- young_bird_nests_hatch %>% 
+  filter(!is.na(value)) %>%
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
+         Year = year(date),
+         Site = "young",
+         TimeSeries_id = 3) %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(Density = sum(value), .groups = "drop") %>% 
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density)
+
+YOUNG_2_n <- young_bird_broods %>% 
+  filter(!is.na(value)) %>%
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80), # Take the latin name
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "), # Delete the last 'space'
+         Year = year(date),
+         Site = "young",
+         TimeSeries_id = 4) %>% 
+  dplyr::group_by(Site, TimeSeries_id, Year, Taxon) %>%
+  dplyr::summarise(Density = sum(value), .groups = "drop") %>% 
+  dplyr::select(Site, TimeSeries_id, Year, Taxon, Density) %>% 
+  filter(!is.na(Year))
+
+# Step 1
+DATA1 <- species_analysis_step1(df = NUUP_1_n, tsname = "DATA1", country = "GREENLAND", 
+                                lati = 64.5, longi = -51.383333, alt = 2, taxono = "birds")
+DATA2 <- species_analysis_step1(NUUP_2_n, "DATA2",  "GREENLAND", 64.5, -51.383333, 5, "birds")
+DATA3 <- species_analysis_step1(YOUNG_1_n, "DATA3", "GREENLAND", 74.383333, -20.4, 0, "birds")
+DATA4 <- species_analysis_step1(YOUNG_2_n, "DATA4", "GREENLAND", 74.383333, -20.4, 1, "birds")
+
+DATA <- rbind(DATA1, DATA2, DATA3, DATA4)
+
+# Step 2
+########################################################################################################################################################################
+# Script 02 -  Meta-analysis
+# Pilotto et al. Meta-analysis of multidecadal biodiversity trends in Europe, Nature Communications
+#
+# This script includes the code for the following steps:
+#    (1) combine and merge the results obtained with script 01 for the 161 time series,
+#    (2) synthesize the results using meta-analytical models,
+#    (3) export the source data for creating the figures (to be used in Script 03),
+#    (4) run sensitivity analysis.
+#
+########################################################################################################################################################################
+
+# Transform variables (standardize continuous variables, and log- or sqrt- transform the ones that are not normally distributed)
+
+DATA$StudyLength <- 1+(DATA$endYear-DATA$startYear)
+DATA$Lat.s <- decostand(DATA$Lat, "standardize")
+DATA$StudyLength.s <- decostand(DATA$StudyLength, "standardize")
+DATA$Alt.Log.s <- decostand(log(DATA$Alt+2), "standardize")
+DATA$TMean_S.s <- decostand(sqrt(DATA$TMean_S+154), "standardize")
+DATA$Lon.s <- decostand(sqrt(DATA$Lon+9) , "standardize")
+DATA$Naturalness.s <- decostand(DATA$Naturalness, "standardize")
+DATA$PTot_S.s <- decostand(DATA$PTot_S, "standardize")
