@@ -35,13 +35,15 @@ ECC_data <- rbind(green_GEM_data, EU_arctic_data) %>%
                           site == "nuup"~"nuup",
                           site == "svalbard"~"svalbard",
                           site == "west ice"~"barents sea",
-                          site == "young"~"young"))
+                          site == "young"~"young")) %>% 
+  dplyr::select(date_accessed, URL, citation, type, lieu, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::rename(site = lieu)
 
 
 # Data summarise by year and place
 ECC_data_annual <- ECC_data %>% 
   mutate(year = year(date)) %>% 
-  summarise(annual_count = n(), .by = c(year, lieu))
+  summarise(annual_count = n(), .by = c(year, site))
 
 ECC_type  <- ECC_data %>% 
   mutate(classification = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE ~ "Fish",
@@ -56,6 +58,8 @@ ECC_type  <- ECC_data %>%
 ECC_data_type <- ECC_type %>% 
   summarise(type_count = n(), .by = classification)
 
+ECC_data_type_spe <- ECC_type %>% 
+  summarise(type_count = n(), .by = c(classification, site))
 
 # Data merge by species groups and summarise by year and place
 ECC_data_annual_type <- ECC_type %>% 
@@ -73,17 +77,17 @@ ECC_data_annual_variable <- ECC_data %>%
 # Data summarise by year, place and species/variables
 ECC_data_species_summury <- ECC_data %>% 
   mutate(year = year(date)) %>% 
-  dplyr::select(year, variable, lieu) %>% 
+  dplyr::select(year, variable, site) %>% 
   distinct() %>% 
-  summarise(annual_species_count = n(), .by = c(year, lieu))
+  summarise(annual_species_count = n(), .by = c(year, site))
 
 
 # Data summarise by set of data over years and places
 ECC_data_set_summury <- ECC_data %>% 
   mutate(year = year(date)) %>% 
-  dplyr::select(year, URL, lieu) %>% 
+  dplyr::select(year, URL, site) %>% 
   distinct() %>% 
-  summarise(annual_set_count = n(), .by = c(year, lieu))
+  summarise(annual_set_count = n(), .by = c(year, site))
 
 
 
@@ -128,7 +132,7 @@ arctic_data4
 
 # Bar nb data by site over the years
 ECC_data01 <- ggplot(ECC_data_annual, aes(x = year, y = annual_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge') +
   labs(y = "data [n]", title = "Data by site and by year", x = NULL, fill = "site") +
   theme(legend.position = c(0.20,0.80), panel.border = element_rect(colour = "black", fill = NA)) +
   scale_fill_brewer(palette="Set3")
@@ -138,7 +142,7 @@ ggsave(ECC_data01, file = 'users/calin/figures/ECC_data01.png') # Save figure
 
 # Bar nb species by site over the years
 ECC_data02 <- ggplot(ECC_data_species_summury, aes(x = year, y = annual_species_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'dodge') +
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge') +
   labs(y = "species [n]", x = NULL, fill = "site") +
   theme(legend.position = c(0.20,0.80)) +
   scale_fill_brewer(palette="Set3")
@@ -148,12 +152,13 @@ ggsave(ECC_data02, file = 'users/calin/figures/ECC_data02.png') # Save figure
 
 # Bar nb set by site over the years
 ECC_data03 <- ggplot(ECC_data_set_summury, aes(x = year, y = annual_set_count)) + 
-  geom_bar(aes(fill = lieu), stat = 'Identity', position = 'stack') +
+  geom_bar(aes(fill = site), stat = 'Identity', position = 'stack') +
   # geom_line(aes(colour = lieu)) +
   labs(y = "set [n]", title = "Data by set and by year", x = NULL, fill = "site") +
   theme(legend.position = c(0.20,0.80)) +
   scale_fill_brewer(palette="Set2")
 ECC_data03
+ggsave(ECC_data03, file = 'users/calin/figures/ECC_data03.png') # Save figure
 
 
 # Bar nb data by species group over the years
@@ -177,7 +182,7 @@ ggsave(ECC_data05, file = 'users/calin/figures/ECC_data05.png', width = 8) # Sav
 
 
 # Density data by site over the years
-ECC_data06 <- ggplot(ECC_data, aes(x = year(date), y = lieu, fill = lieu)) +
+ECC_data06 <- ggplot(ECC_data, aes(x = year(date), y = site, fill = site)) +
   geom_density_ridges() +
   theme_ridges() + 
   theme(legend.position = "none", axis.text = element_text(size = 9)) +
