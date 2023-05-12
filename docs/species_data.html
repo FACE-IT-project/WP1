@@ -522,10 +522,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -618,15 +618,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree8799f10172ef452f27ca60c89843869a0b2c8c10targetblank8799f10a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treec520933ce9ab9052fc6f46f7f296ba2629fa936ftargetblankc520933a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/8799f10172ef452f27ca60c89843869a0b2c8c10" target="_blank">8799f10</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/c520933ce9ab9052fc6f46f7f296ba2629fa936f" target="_blank">c520933</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree8799f10172ef452f27ca60c89843869a0b2c8c10targetblank8799f10a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treec520933ce9ab9052fc6f46f7f296ba2629fa936ftargetblankc520933a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -636,7 +636,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/8799f10172ef452f27ca60c89843869a0b2c8c10" target="_blank">8799f10</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/c520933ce9ab9052fc6f46f7f296ba2629fa936f" target="_blank">c520933</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -657,11 +657,8 @@ Ignored files:
     Ignored:    users/calin/data/
     Ignored:    users/calin/metadata/
 
-Untracked files:
-    Untracked:  analysis/species_data.Rmd
-
 Unstaged changes:
-    Modified:   users/calin/code/figures_maker.R
+    Modified:   analysis/species_data.Rmd
 
 </code></pre>
 <p>
@@ -676,10 +673,74 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/species_data.Rmd</code>) and HTML
+(<code>docs/species_data.html</code>) files. If you’ve configured a
+remote Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/4ce558bd5db4764c7f34bc3caa46730c8ff3435b/analysis/species_data.Rmd" target="_blank">4ce558b</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-12
+</td>
+<td>
+Web site
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/4ce558bd5db4764c7f34bc3caa46730c8ff3435b/docs/species_data.html" target="_blank">4ce558b</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-12
+</td>
+<td>
+Web site
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -690,7 +751,17 @@ There are no past versions. Publish this analysis with
 <h2>Introduction</h2>
 <p>This document outline the process to amalgamate species data for
 FACE-IT project</p>
-<pre class="r"><code>load(&#39;users/calin/data/EU_arctic_data.RData&#39;)</code></pre>
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.1     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.0
+✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+✔ purrr     1.0.1     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<p><img src="assets/map_disko_bay.png" /></p>
 <div id="refs">
 
 </div>
@@ -717,17 +788,24 @@ locale:
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
+other attached packages:
+ [1] lubridate_1.9.2 forcats_1.0.0   stringr_1.5.0   dplyr_1.1.1    
+ [5] purrr_1.0.1     readr_2.1.4     tidyr_1.3.0     tibble_3.2.1   
+ [9] ggplot2_3.4.2   tidyverse_2.0.0
+
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.10      rstudioapi_0.14  knitr_1.42       magrittr_2.0.3  
- [5] workflowr_1.7.0  R6_2.5.1         rlang_1.1.0      fastmap_1.1.1   
- [9] fansi_1.0.4      stringr_1.5.0    tools_4.2.3      xfun_0.38       
-[13] utf8_1.2.3       cli_3.6.1        git2r_0.32.0     jquerylib_0.1.4 
-[17] htmltools_0.5.5  rprojroot_2.0.3  yaml_2.3.7       digest_0.6.31   
-[21] tibble_3.2.1     lifecycle_1.0.3  later_1.3.0      sass_0.4.5      
-[25] vctrs_0.6.1      promises_1.2.0.1 fs_1.6.1         cachem_1.0.7    
-[29] glue_1.6.2       evaluate_0.20    rmarkdown_2.21   stringi_1.7.12  
-[33] bslib_0.4.2      compiler_4.2.3   pillar_1.9.0     jsonlite_1.8.4  
-[37] httpuv_1.6.9     pkgconfig_2.0.3 </code></pre>
+ [1] tidyselect_1.2.0 xfun_0.38        bslib_0.4.2      colorspace_2.1-0
+ [5] vctrs_0.6.1      generics_0.1.3   htmltools_0.5.5  yaml_2.3.7      
+ [9] utf8_1.2.3       rlang_1.1.0      jquerylib_0.1.4  later_1.3.0     
+[13] pillar_1.9.0     glue_1.6.2       withr_2.5.0      lifecycle_1.0.3 
+[17] munsell_0.5.0    gtable_0.3.3     workflowr_1.7.0  evaluate_0.20   
+[21] knitr_1.42       tzdb_0.3.0       fastmap_1.1.1    httpuv_1.6.9    
+[25] fansi_1.0.4      Rcpp_1.0.10      promises_1.2.0.1 scales_1.2.1    
+[29] cachem_1.0.7     jsonlite_1.8.4   fs_1.6.1         hms_1.1.3       
+[33] digest_0.6.31    stringi_1.7.12   rprojroot_2.0.3  grid_4.2.3      
+[37] cli_3.6.1        tools_4.2.3      magrittr_2.0.3   sass_0.4.5      
+[41] whisker_0.4.1    pkgconfig_2.0.3  timechange_0.2.0 rmarkdown_2.21  
+[45] rstudioapi_0.14  R6_2.5.1         git2r_0.32.0     compiler_4.2.3  </code></pre>
 </div>
 </div>
 </div>
