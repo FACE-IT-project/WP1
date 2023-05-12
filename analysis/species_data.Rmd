@@ -19,13 +19,15 @@ This document outline the process to amalgamate species data for FACE-IT project
 ```{r echo=FALSE}
 
 library(tidyverse)
-load('../users/calin/data/EU_arctic_data.RData')
+
+
 ```
+![](assets/map_disko_bay.png)
 
 
 ```{r}
-ggplot2::ggplot(EU_arctic_data, aes(x = site, y = value, fill = site)) +
-  geom_boxplot()
+
 ```
+
 
 

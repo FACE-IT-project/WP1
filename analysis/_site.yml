@@ -17,6 +17,8 @@ navbar:
       href: model_summary.html
     - text: "SST summary"
       href: sst_summary.html
+    - text: "Species summary"
+      href: species_data.html
   # - text: "Review of drivers"
   #   href: review.html
   - text: "Talks"
