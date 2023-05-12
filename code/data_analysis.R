@@ -286,18 +286,6 @@ DATA4 <- species_analysis_step1(YOUNG_2_n, "DATA4", "GREENLAND", 74.383333, -20.
 DATA <- rbind(DATA1, DATA2, DATA3, DATA4)
 
 # Step 2
-########################################################################################################################################################################
-# Script 02 -  Meta-analysis
-# Pilotto et al. Meta-analysis of multidecadal biodiversity trends in Europe, Nature Communications
-#
-# This script includes the code for the following steps:
-#    (1) combine and merge the results obtained with script 01 for the 161 time series,
-#    (2) synthesize the results using meta-analytical models,
-#    (3) export the source data for creating the figures (to be used in Script 03),
-#    (4) run sensitivity analysis.
-#
-########################################################################################################################################################################
-
 # Transform variables (standardize continuous variables, and log- or sqrt- transform the ones that are not normally distributed)
 
 DATA$StudyLength <- 1+(DATA$endYear-DATA$startYear)
