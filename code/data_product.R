@@ -308,7 +308,7 @@ EU_epagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production
   filter(!is.na(value))
 
 # EU (west) harp seal population
-EU_wpagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production-of-pups-and-e (1).csv", sep = ";", dec = ",") %>%
+EU_wpagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
@@ -442,6 +442,7 @@ EU_species <- rbind(EU_epagr_population,
                     barents_golden_redfish_population, 
                     barents_northeast_cod_population, 
                     barents_young_herring_population)
+save(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
 
 
 # Svalbard ----------------------------------------------------------------
@@ -807,9 +808,8 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Species ----------------------------------------------------------------
 
-# svalbard ivory gull population
-svalbard_ivory_gull_population <- read.csv("~/pCloudDrive//FACE-IT_data/svalbard/the-number-of-breeding-p.csv", 
-                                           sep = ";") %>% # read the csv
+# Svalbard ivory gull population
+sval_ivory_gull_population <- read.csv("~/pCloudDrive//FACE-IT_data/svalbard/the-number-of-breeding-p.csv", sep = ";") %>% # read the csv
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/", 
          citation = "Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html", 
@@ -826,8 +826,8 @@ svalbard_ivory_gull_population <- read.csv("~/pCloudDrive//FACE-IT_data/svalbard
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
-# svalbard walrus population
-svalbard_walrus_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/walrus-population-in-sva.csv") %>% 
+# Svalbard walrus population
+sval_walrus_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/walrus-population-in-sva.csv") %>% 
   pivot_longer(cols = c(`Walrus estimated numbers`, `Walrus population aerial counts`)) %>% 
   mutate(date_accessed = as.Date("2023-04-13"), 
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/walrus/", 
@@ -845,8 +845,8 @@ svalbard_walrus_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/wa
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
-# svalbard (north and west) calanus population by size
-svalbard_nw_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
+# Svalbard (north and west) calanus population by size
+sval_nw_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(!name == "Total") %>%
   mutate(date_accessed = as.Date("2023-04-13"),
@@ -864,8 +864,8 @@ svalbard_nw_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalba
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
-# svalbard (north and west) calanus population tot
-svalbard_nw_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
+# Svalbard (north and west) calanus population tot
+sval_nw_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(name == "Total") %>%
   mutate(date_accessed = as.Date("2023-04-13"),
@@ -883,8 +883,8 @@ svalbard_nw_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalb
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
-# svalbard (south and east) calanus population by size
-svalbard_se_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
+# Svalbard (south and east) calanus population by size
+sval_se_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(!name == "Total") %>%
   mutate(date_accessed = as.Date("2023-04-13"),
@@ -903,8 +903,8 @@ svalbard_se_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalba
   filter(!is.na(value))
 
 
-# svalbard (south and east) calanus population tot
-svalbard_se_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
+# Svalbard (south and east) calanus population tot
+sval_se_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
   filter(name == "Total") %>%
   mutate(date_accessed = as.Date("2023-04-13"),
@@ -922,8 +922,8 @@ svalbard_se_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalb
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
-# svalbard  kittiwake population
-svalbard_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
+# Svalbard kittiwake population
+sval_kittiwake_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
   filter(name == "Bjørnøya") %>% 
   mutate(date_accessed = as.Date("2023-04-13"),
@@ -942,7 +942,7 @@ svalbard_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/
   filter(!is.na(value))
 
 # Svalbard Brünnich’s guillemot population
-svalbard_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
+sval_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
   filter(name == "Fuglehuken") %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
@@ -960,8 +960,8 @@ svalbard_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
-# Svalbard Hooded seal population
-svalbard_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+# Svalbard hooded seal population
+sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
@@ -979,7 +979,7 @@ svalbard_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/popula
   filter(!is.na(value))
 
 # Svalbard (east) harp seal population
-svalbard_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
@@ -997,13 +997,14 @@ svalbard_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/popula
   filter(!is.na(value))
 
 # Combine and save
-svalbard_data <- rbind(svalbard_ivory_gull_population, 
-                       svalbard_nw_calanus_mm_population,
-                       svalbard_nw_calanus_tot_population,
-                       svalbard_se_calanus_mm_population,
-                       svalbard_se_calanus_tot_population,
-                       svalbard_walrus_population,
-                       svalbard_brguillemot_population)
+sval_species <- rbind(sval_ivory_gull_population, 
+                      sval_nw_calanus_mm_population,
+                      sval_nw_calanus_tot_population,
+                      sval_se_calanus_mm_population,
+                      sval_se_calanus_tot_population,
+                      sval_walrus_population,
+                      sval_brguillemot_population)
+save(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
 
 
 # Kongsfjorden ------------------------------------------------------------
@@ -1536,12 +1537,13 @@ kong_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brn
   filter(!is.na(value))
 
 # Combine and save
-kong_data <- rbind(kong_glaucous_gull_population, 
-                   kong_eiders_stock,
-                   kong_seabird, 
-                   kong_calanus_population,
-                   kong_kittiwakke_population,
-                   kong_brguillemot_population)
+kong_species <- rbind(kong_glaucous_gull_population, 
+                      kong_eiders_stock,
+                      kong_seabird, 
+                      kong_calanus_population,
+                      kong_kittiwakke_population,
+                      kong_brguillemot_population)
+save(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
 
 
 # Isfjorden ---------------------------------------------------------------
@@ -1904,8 +1906,9 @@ is_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnni
   filter(!is.na(value))
 
 # Combine and save
-is_data <- rbind(is_kittiwakke_population,
-                 is_brguillemot_population)
+is_species <- rbind(is_kittiwakke_population,
+                    is_brguillemot_population)
+save(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
 
 
 ## Test visuals ------------------------------------------------------------
@@ -3013,7 +3016,7 @@ young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Vie
                                   as.Date(date_egg)),
          date_bon = as.Date(date_enfonction),
          date_accessed = as.Date("2023-04-17"),
-         URL = "https://doi.org/10.17897/5S51-HE52",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          # lon = NA, lat = NA, # No longer necessary
          depth = NA,
@@ -3043,7 +3046,7 @@ young_bird_nests_hatch <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Vi
                                   as.Date(date_hatch)),
          date_bon = as.Date(date_enfonction),
          date_accessed = as.Date("2023-04-17"),
-         URL = "https://doi.org/10.17897/5S51-HE52",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/5S51-HE52",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          # lon = NA, lat = NA, # No longer necessary
          depth = NA,
@@ -3064,7 +3067,7 @@ young_bird_abundance <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View
                                    na = "-9999") %>%
   convert_UTM_deg(utm_zone = 27) %>%
   mutate(date_accessed = as.Date("2023-04-17"),
-         URL = "https://doi.org/10.17897/1Z6Z-FQ32",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/1Z6Z-FQ32",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          depth = NA,
          nomsp = map(Species, latin_eng),
@@ -3091,7 +3094,7 @@ young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_Bi
                                   as.Date(date_egg)),
          date_bon = as.Date(date_enfonction),
          date_accessed = as.Date("2023-04-21"),
-         URL = "https://doi.org/10.17897/YPNZ-VX08",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/YPNZ-VX08",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          # lon = NA, lat = NA, # No longer necessary
          depth = NA,
@@ -3111,8 +3114,6 @@ young_species_GEM <- rbind(young_bird_nests_eggs,
                            young_bird_abundance,
                            young_bird_broods)
 save(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.RData")
-save(young_bird_nests_hatch, file = "~/pCloudDrive/restricted_data/GEM/young/young_bird_nests_hatch.RData")
-save(young_bird_broods, file = "~/pCloudDrive/restricted_data/GEM/young/young_bird_broods.RData")
 
 
 # Disko Bay ---------------------------------------------------------------
@@ -3862,7 +3863,7 @@ rm(list = grep("nuup_GEM",names(.GlobalEnv),value = TRUE)); gc()
 nuup_bird_nb <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_BioBasis_Nuuk_Data_Birds_Passerine_bird_abundance170420231432285653.csv") %>% 
   left_join(nuup_bird_coords, by = "Point") |> 
   mutate(date_accessed = as.Date("2023-04-17"),
-         URL = "https://doi.org/10.17897/DRTB-PY74",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/DRTB-PY74",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          depth = NA,
          nomsp = map(Species, latin_eng),
@@ -3892,7 +3893,7 @@ nuup_seabird_count <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_Ma
   filter(!is.na(Latin)) %>%
   filter(!is.na(MinNumbers)) %>%
   mutate(date_accessed = as.Date("2023-04-17"), 
-         URL = "https://doi.org/10.17897/WKFK-SS31", 
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/WKFK-SS31", 
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.", 
          lon = Longitude, 
          lat = Latitude, 
@@ -3914,7 +3915,7 @@ nuup_seabird_presence <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View
                                     na = "2017-07-00") %>% 
   filter(!is.na(Latin)) %>%
   mutate(date_accessed = as.Date("2023-04-17"), 
-         URL = "https://doi.org/10.17897/WKFK-SS31", 
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/WKFK-SS31", 
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.", 
          lon = Longitude, 
          lat = Latitude, 
@@ -3934,7 +3935,7 @@ nuup_seabird_presence <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View
 ## Not all the data of the set have been used
 nuup_mmam_count <- read_delim("~/pCloudDrive//restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Marine_mammals_Identification_of_Humpback_Whales_individuals_year170420231542310109.csv") %>%
   mutate(date_accessed = as.Date("2023-04-17"), 
-         URL = "https://doi.org/10.17897/13YN-1209", 
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/13YN-1209", 
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.", 
          lon = NA, 
          lat = NA, 
@@ -3957,8 +3958,6 @@ nuup_species_GEM <- rbind(nuup_bird_nb,
                           nuup_seabird_presence, 
                           nuup_mmam_count)
 save(nuup_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.RData")
-save(nuup_bird_nb, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_bird_nb.RData")
-save(nuup_seabird_count, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_seabird_count.RData")
 
 
 # Norway ------------------------------------------------------------------

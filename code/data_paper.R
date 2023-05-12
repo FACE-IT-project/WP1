@@ -1020,6 +1020,20 @@ clean_all <- rbind(clean_sea_ice, clean_glacier, clean_runoff,
                    clean_gov, clean_tourism, clean_fisheries) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
+# NB: Temporarily adding ECC species data here
+# This will need to be incorporated at the normal location once the pipeline is functional
+load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
+load("~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
+load("~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
+load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.RData")
+load("~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.RData")
+clean_all <- rbind(clean_all, 
+                   EU_species, sval_species,
+                   kong_species, is_species,
+                   nuup_species_GEM, young_species_GEM) |> 
+  distinct()
+
 # Save all data in one file
 save(clean_all, file = "data/analyses/clean_all.RData")
 
@@ -1098,8 +1112,8 @@ FACE_IT_v1.1 <- clean_all |>
          citation = str_replace_all(citation, ";", "."))
 
 # Double check data shadows have been applied correctly
-test_1 <- filter(FACE_IT_v1.1, grepl(data_shadow, URL))
-rm(test_1); gc()
+shadow_test <- filter(FACE_IT_v1.1, grepl(data_shadow, URL))
+rm(shadow_test); gc()
 
 # Save as .csv
 write_csv_arrow(FACE_IT_v1.1, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.1.csv")

@@ -627,7 +627,7 @@ server <- function(input, output, session) {
     return(df_final)
   })
   
-  # Remove embargoed dat abefore downloading
+  # Remove embargoed data before downloading
   df_dl <- eventReactive(input$filterData, {
     req(df_filter())
     
