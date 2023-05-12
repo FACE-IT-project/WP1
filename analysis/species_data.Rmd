@@ -1,0 +1,31 @@
+---
+title: "Species data"
+author: "Eva-Carmen Calin"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+# css: acid.css
+csl: frontiers.csl
+bibliography: FACE-IT.bib
+---
+
+# Species data
+
+## Introduction
+
+This document outline the process to amalgamate species data for FACE-IT project
+
+```{r echo=FALSE}
+
+library(tidyverse)
+load('../users/calin/data/EU_arctic_data.RData')
+```
+
+
+```{r}
+ggplot2::ggplot(EU_arctic_data, aes(x = site, y = value, fill = site)) +
+  geom_boxplot()
+```
+
+
