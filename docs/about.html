@@ -13,7 +13,7 @@
 
 <title>About</title>
 
-<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -32,8 +32,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
 
 <link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
 <!-- Add a small amount of space between sections. -->
@@ -276,6 +276,9 @@ $(document).ready(function () {
     <li>
       <a href="sst_summary.html">SST summary</a>
     </li>
+    <li>
+      <a href="species_data.html">Species summary</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -303,6 +306,15 @@ $(document).ready(function () {
     <li>
       <a href="2022_summary.html">FACE-IT WP1 summary - 2022</a>
     </li>
+    <li>
+      <a href="2023_ASSW.html">ASSW - 2023</a>
+    </li>
+    <li>
+      <a href="2023_ASSW_side.html">ASSW side meeting - 2023</a>
+    </li>
+    <li>
+      <a href="2023_seminar.html">FACE-IT seminar - 2023</a>
+    </li>
   </ul>
 </li>
 <li class="dropdown">
@@ -314,6 +326,9 @@ $(document).ready(function () {
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="SSC_2021.pdf">Svalbard Science Conference - 2021</a>
+    </li>
+    <li>
+      <a href="Brussels_2023.pdf">Brussels policy meeting - 2023</a>
     </li>
   </ul>
 </li>
@@ -371,7 +386,7 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-11-28
+<strong>Last updated:</strong> 2023-05-12
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -418,15 +433,15 @@ results.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treed966b9a51a35412c9f3bc5c0e61337182d6ec351targetblankd966b9aa">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46482617289de58b245cfa27e6c4feec45ae154etargetblank4648261a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/d966b9a51a35412c9f3bc5c0e61337182d6ec351" target="_blank">d966b9a</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/46482617289de58b245cfa27e6c4feec45ae154e" target="_blank">4648261</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treed966b9a51a35412c9f3bc5c0e61337182d6ec351targetblankd966b9aa"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree46482617289de58b245cfa27e6c4feec45ae154etargetblank4648261a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -436,7 +451,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/d966b9a51a35412c9f3bc5c0e61337182d6ec351" target="_blank">d966b9a</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/46482617289de58b245cfa27e6c4feec45ae154e" target="_blank">4648261</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -453,15 +468,33 @@ were generated:
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    .httr-oauth
+    Ignored:    code/ny-alesund_cc_pf_rws.R
+    Ignored:    data/MUR/
+    Ignored:    data/PAR/
     Ignored:    data/analyses/clean_all.RData
     Ignored:    data/analyses/clean_all_clean.RData
     Ignored:    data/analyses/ice_4km_proc.RData
+    Ignored:    data/full_data/
+    Ignored:    data/model/
+    Ignored:    data/pg_data/
+    Ignored:    data/restricted/
+    Ignored:    data/sst_CCI_sval.RData
+    Ignored:    data/sst_CCI_trom.RData
+    Ignored:    data/sst_gland.RData
+    Ignored:    data/sst_sval.RData
     Ignored:    data/sst_trom.RData
+    Ignored:    metadata/globalfishingwatch_API_key.RData
+    Ignored:    metadata/is_gfw_database.RData
+    Ignored:    metadata/is_mst_database.RData
     Ignored:    metadata/pangaea_parameters.tab
-    Ignored:    mhw-definition_1_orig.xcf
+    Ignored:    metadata/pg_EU_ref_meta.csv
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
-    Ignored:    shiny/kongCTD/.httr-oauth
+    Ignored:    presentations/2023_seminar.html
+    Ignored:    presentations/ASSW_2023.html
+    Ignored:    presentations/ASSW_side_2023.html
+    Ignored:    shiny/dataAccess/coastline_hi_sub.csv
+    Ignored:    shiny/dataAccess/full_data
+    Ignored:    shiny/kongCTD/credentials.RData
     Ignored:    shiny/kongCTD/data/data_base.Rds
     Ignored:    shiny/test_data/
 
@@ -508,6 +541,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/f59b5f2bed454083a266397a52a5d1354468fc05/docs/about.html" target="_blank">f59b5f2</a>
+</td>
+<td>
+robwschlegel
+</td>
+<td>
+2022-11-28
+</td>
+<td>
+Re-published site
+</td>
+</tr>
 <tr>
 <td>
 html
