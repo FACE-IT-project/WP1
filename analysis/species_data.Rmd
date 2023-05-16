@@ -23,6 +23,7 @@ library(tidyverse)
 
 ```
 ![](assets/map_disko_bay.png)
+![](assets/map_svalbard.png)
 
 
 ```{r}
