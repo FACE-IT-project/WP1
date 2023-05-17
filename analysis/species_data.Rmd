@@ -84,6 +84,30 @@ Once the sets are complete, an analysis of the data recovered can be made. This 
 
 # Svalbard
 
+![](docs/assets/species_svalbard_years.png)
+
+## Kongsfjorden
+
+![](docs/assets/species_kong_years.png)
+
+## Isfjorden
+
+![](docs/assets/species_is_years.png)
+
+# Barents sea
+
+![](docs/assets/species_barents_years.png)
+
+# Greenland
+
+## Young Sound
+
+![](docs/assets/species_young_years.png)
+
+## Nuup Kangerlua
+
+![](docs/assets/species_nuup_years.png)
+
 ```{r echo=FALSE}
 
 library(tidyverse)

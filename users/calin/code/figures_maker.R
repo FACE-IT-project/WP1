@@ -237,6 +237,8 @@ ECC_data01_barents <- ggplot(ECC_annual_barents, aes(x = year, y = annual_count)
   scale_fill_brewer(palette="Accent",)
 ECC_data01_barents
 ggsave(ECC_data01_barents, file = 'users/calin/figures/ECC_data01_barents.png') # Save figure
+ggsave(ECC_data01_barents, file = 'analysis/docs/species_barents_years.png') # Save figure
+
 
 
 ECC_data01_is <- ggplot(ECC_annual_is, aes(x = year, y = annual_count)) + 
@@ -246,6 +248,7 @@ ECC_data01_is <- ggplot(ECC_annual_is, aes(x = year, y = annual_count)) +
   scale_fill_brewer(palette="Accent",)
 ECC_data01_is
 ggsave(ECC_data01_is, file = 'users/calin/figures/ECC_data01_is.png') # Save figure
+ggsave(ECC_data01_is, file = 'analysis/docs/species_is_years.png') # Save figure
 
 
 
@@ -256,6 +259,7 @@ ECC_data01_kong <- ggplot(ECC_annual_kong, aes(x = year, y = annual_count)) +
   scale_fill_brewer(palette="Accent",)
 ECC_data01_kong
 ggsave(ECC_data01_kong, file = 'users/calin/figures/ECC_data01_kong.png') # Save figure
+ggsave(ECC_data01_kong, file = 'analysis/docs/species_kong_years.png') # Save figure
 
 
 
@@ -267,6 +271,7 @@ ECC_data01_nuup <- ggplot(ECC_annual_nuup, aes(x = year, y = annual_count)) +
   scale_fill_brewer(palette="Accent",)
 ECC_data01_nuup
 ggsave(ECC_data01_nuup, file = 'users/calin/figures/ECC_data01_nuup.png') # Save figure
+ggsave(ECC_data01_nuup, file = 'analysis/docs/species_nuup_years.png') # Save figure
 
 
 ECC_data01_svalbard <- ggplot(ECC_annual_svalbard, aes(x = year, y = annual_count)) + 
@@ -276,6 +281,7 @@ ECC_data01_svalbard <- ggplot(ECC_annual_svalbard, aes(x = year, y = annual_coun
   scale_fill_brewer(palette="Accent",)
 ECC_data01_svalbard
 ggsave(ECC_data01_svalbard, file = 'users/calin/figures/ECC_data01_svalbard.png') # Save figure
+ggsave(ECC_data01_svalbard, file = 'analysis/docs/species_svalbard_years.png') # Save figure
 
 
 
@@ -287,6 +293,7 @@ ECC_data01_young <- ggplot(ECC_annual_young, aes(x = year, y = annual_count)) +
   scale_fill_brewer(palette="Accent",)
 ECC_data01_young
 ggsave(ECC_data01_young, file = 'users/calin/figures/ECC_data01_young.png') # Save figure
+ggsave(ECC_data01_young, file = 'analysis/docs/species_young_years.png') # Save figure
 
 
 

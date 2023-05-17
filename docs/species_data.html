@@ -621,15 +621,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree29107e6e730ef9b73217e48e8fc2e4036604b109targetblank29107e6a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb336e80984b925772c43cba92d51afb82dbb13d4targetblankb336e80a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/29107e6e730ef9b73217e48e8fc2e4036604b109" target="_blank">29107e6</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/b336e80984b925772c43cba92d51afb82dbb13d4" target="_blank">b336e80</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree29107e6e730ef9b73217e48e8fc2e4036604b109targetblank29107e6a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb336e80984b925772c43cba92d51afb82dbb13d4targetblankb336e80a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -639,7 +639,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/29107e6e730ef9b73217e48e8fc2e4036604b109" target="_blank">29107e6</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/b336e80984b925772c43cba92d51afb82dbb13d4" target="_blank">b336e80</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -660,21 +660,8 @@ Ignored files:
     Ignored:    users/calin/data/
     Ignored:    users/calin/metadata/
 
-Untracked files:
-    Untracked:  analysis/docs/assets/species_nomenclature_naming_variable.PNG
-    Untracked:  users/calin/figures/ECC_data01_barents.png
-    Untracked:  users/calin/figures/ECC_data01_is.png
-    Untracked:  users/calin/figures/ECC_data01_nuup.png
-
 Unstaged changes:
     Modified:   analysis/species_data.Rmd
-    Modified:   users/calin/figures/ECC_data01.png
-    Modified:   users/calin/figures/ECC_data02.png
-    Modified:   users/calin/figures/ECC_data03.png
-    Modified:   users/calin/figures/ECC_data05.png
-    Modified:   users/calin/figures/ECC_data06.png
-    Modified:   users/calin/figures/ECC_data07.png
-    Modified:   users/calin/figures/ECC_data08.png
 
 </code></pre>
 <p>
@@ -720,6 +707,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/b336e80984b925772c43cba92d51afb82dbb13d4/analysis/species_data.Rmd" target="_blank">b336e80</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-17
+</td>
+<td>
+New species figures
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/ad00660b6cbabaf447784335f3eae1423312550c/analysis/species_data.Rmd" target="_blank">ad00660</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-17
+</td>
+<td>
+Summary of species data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/ad00660b6cbabaf447784335f3eae1423312550c/docs/species_data.html" target="_blank">ad00660</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-17
+</td>
+<td>
+Summary of species data
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -874,10 +912,8 @@ sites.<br />
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
-<div id="determine-which-data-is-needed-what-are-the-selection-criteria"
-class="section level3">
-<h3>Determine which data is needed, what are the selection
-criteria?</h3>
+<div id="determine-which-data-is-needed" class="section level3">
+<h3>Determine which data is needed</h3>
 <p>To meet the requirements of the FACE-IT project, the data must meet
 certain criteria. The data must be from one of the seven study sites of
 the project, in Svalbard, Greenland or Norway. Data must include species
@@ -930,8 +966,9 @@ the order by filling the following columns:</p>
 <p>All the variables follow a precise naming system. This allows to save
 their main information. For each variable we find:</p>
 <p><img
-src="docs/assets/species_nomenclature_naming_variable.PNG" /><br />
-##### Species type code</p>
+src="docs/assets/species_nomenclature_naming_variable.PNG" /></p>
+<div id="species-type-code" class="section level5">
+<h5>Species type code</h5>
 <p>For an easier use, the different species studied have been divided in
 several categories each distinguished by a three letters code: Birds,
 Poisons |FIS|, Marine mammal |MAM|, Zooplankton |ZOO| and Phytoplankton
@@ -941,6 +978,7 @@ being the study of marine species and the data collected concerning
 different types of birds. A distinction was made between marine birds
 |SBI|, land birds (non marine) |NBI| and species not yet sorted
 |BIR|.</p>
+</div>
 </div>
 </div>
 <div id="assembling-the-sets" class="section level3">
@@ -960,6 +998,29 @@ certain patterns.<br />
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
+<p><img src="docs/species_svalbard_years.png" /></p>
+<div id="kongsfjorden" class="section level2">
+<h2>Kongsfjorden</h2>
+<p><img src="docs/species_kong_years.png" /></p>
+</div>
+<div id="isfjorden" class="section level2">
+<h2>Isfjorden</h2>
+<p><img src="docs/species_is_years.png" /></p>
+</div>
+</div>
+<div id="barents-sea" class="section level1">
+<h1>Barents sea</h1>
+<p><img src="docs/species_barents_years.png" /></p>
+</div>
+<div id="greenland" class="section level1">
+<h1>Greenland</h1>
+<div id="young-sound" class="section level2">
+<h2>Young Sound</h2>
+<p><img src="docs/species_young_years.png" /></p>
+</div>
+<div id="nuup-kangerlua" class="section level2">
+<h2>Nuup Kangerlua</h2>
+<p><img src="docs/species_nuup_years.png" /></p>
 <pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.1     ✔ readr     2.1.4
 ✔ forcats   1.0.0     ✔ stringr   1.5.0
@@ -1015,6 +1076,7 @@ loaded via a namespace (and not attached):
 [37] cli_3.6.1        tools_4.2.3      magrittr_2.0.3   sass_0.4.5      
 [41] whisker_0.4.1    pkgconfig_2.0.3  timechange_0.2.0 rmarkdown_2.21  
 [45] rstudioapi_0.14  R6_2.5.1         git2r_0.32.0     compiler_4.2.3  </code></pre>
+</div>
 </div>
 </div>
 
