@@ -64,7 +64,7 @@ The data collected will be added to the ones already present on the FACE-IT proj
 
 All the variables follow a precise naming system. This allows to save their main information. For each variable we find:
 
-![](docs/assets/species_nomenclature_naming_variable.PNG)
+![](assets/species_nomenclature_naming_variable.png)
 
 ##### Species type code
 
@@ -84,39 +84,57 @@ Once the sets are complete, an analysis of the data recovered can be made. This 
 
 # Svalbard
 
-![](docs/assets/species_svalbard_years.png)
+![](assets/species_svalbard_files.png)
+
+\
+
+![](assets/svalbard_species_data.png.png)
+
+*figure 1 - a) Svalbard data count by year, b) Svalbard species biomass over year*
 
 ## Kongsfjorden
 
-![](docs/assets/species_kong_years.png)
+![](assets/species_kong_files.png)
+
+\
+![](assets/kong_species_data.png.png)
+
+*figure 2 - a) Kongsfjorden data count by year, b) Kongsfjorden species biomass over year*
 
 ## Isfjorden
 
-![](docs/assets/species_is_years.png)
+![](assets/species_is_files.png)
+
+\
+
+![](assets/is_species_data.png.png)
+
+*figure 3 - a) Isfjorden data count by year, b) Isfjorden species biomass over year*
 
 # Barents sea
 
-![](docs/assets/species_barents_years.png)
+\
+
+![](assets/species_barents_files.png)
+
+![](assets/species_barents_years.png)
 
 # Greenland
 
+\
+
 ## Young Sound
 
-![](docs/assets/species_young_years.png)
+\
+
+![](assets/species_young_files.png)
+
+![](assets/species_young_years.png)
 
 ## Nuup Kangerlua
 
-![](docs/assets/species_nuup_years.png)
+\
 
-```{r echo=FALSE}
+![](assets/species_nuup_files.png)
 
-library(tidyverse)
-
-
-```
-
-![](assets/map_disko_bay.png)
-
-```{r}
-
-```
+![](assets/species_nuup_years.png)

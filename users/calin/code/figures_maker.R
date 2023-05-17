@@ -17,7 +17,11 @@ library(tidyquant)
 load('users/calin/data/EU_arctic_data.RData') # firstsetdata data -> svalbard data
 load('users/calin/data/young_species_GEM.RData') # young_species_gem data -> young GEM data
 load('users/calin/data/nuup_species_GEM.RData') # nuup_species_gem data -> nuup GEM data
-
+load('users/calin/data/arctic_data_eu.RData')
+load('users/calin/data/is_data.RData')
+load('users/calin/data/kong_data.RData')
+load('users/calin/data/svalbard_data.RData')
+load('users/calin/data/arctic_data_eu.RData')
 
 # Combined data set -------------------------------------------------------
 
@@ -134,6 +138,7 @@ ECC_annual_young
 
 
 
+tests <- unique(ECC_data[c("URL","site")])
 
 
 
@@ -237,29 +242,15 @@ ECC_data01_barents <- ggplot(ECC_annual_barents, aes(x = year, y = annual_count)
   scale_fill_brewer(palette="Accent",)
 ECC_data01_barents
 ggsave(ECC_data01_barents, file = 'users/calin/figures/ECC_data01_barents.png') # Save figure
-ggsave(ECC_data01_barents, file = 'analysis/docs/species_barents_years.png') # Save figure
+ggsave(ECC_data01_barents, file = 'docs/assets/species_barents_years.png') # Save figure
 
 
 
-ECC_data01_is <- ggplot(ECC_annual_is, aes(x = year, y = annual_count)) + 
-  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
-  labs(y = "data [n]", title = "Isfjorden data by year", x = NULL) +
-  theme(panel.border = element_rect(colour = "black", fill = NA)) +
-  scale_fill_brewer(palette="Accent",)
-ECC_data01_is
-ggsave(ECC_data01_is, file = 'users/calin/figures/ECC_data01_is.png') # Save figure
-ggsave(ECC_data01_is, file = 'analysis/docs/species_is_years.png') # Save figure
 
 
 
-ECC_data01_kong <- ggplot(ECC_annual_kong, aes(x = year, y = annual_count)) + 
-  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
-  labs(y = "data [n]", title = "Kongsfjorden data by year", x = NULL) +
-  theme(panel.border = element_rect(colour = "black", fill = NA)) +
-  scale_fill_brewer(palette="Accent",)
-ECC_data01_kong
-ggsave(ECC_data01_kong, file = 'users/calin/figures/ECC_data01_kong.png') # Save figure
-ggsave(ECC_data01_kong, file = 'analysis/docs/species_kong_years.png') # Save figure
+
+
 
 
 
@@ -271,17 +262,10 @@ ECC_data01_nuup <- ggplot(ECC_annual_nuup, aes(x = year, y = annual_count)) +
   scale_fill_brewer(palette="Accent",)
 ECC_data01_nuup
 ggsave(ECC_data01_nuup, file = 'users/calin/figures/ECC_data01_nuup.png') # Save figure
-ggsave(ECC_data01_nuup, file = 'analysis/docs/species_nuup_years.png') # Save figure
+ggsave(ECC_data01_nuup, file = 'docs/assets/species_nuup_years.png') # Save figure
 
 
-ECC_data01_svalbard <- ggplot(ECC_annual_svalbard, aes(x = year, y = annual_count)) + 
-  geom_bar(aes(fill = classification), stat = 'Identity', position = 'dodge') +
-  labs(y = "data [n]", title = "Svalbard data by year", x = NULL) +
-  theme(panel.border = element_rect(colour = "black", fill = NA)) +
-  scale_fill_brewer(palette="Accent",)
-ECC_data01_svalbard
-ggsave(ECC_data01_svalbard, file = 'users/calin/figures/ECC_data01_svalbard.png') # Save figure
-ggsave(ECC_data01_svalbard, file = 'analysis/docs/species_svalbard_years.png') # Save figure
+
 
 
 
@@ -293,7 +277,7 @@ ECC_data01_young <- ggplot(ECC_annual_young, aes(x = year, y = annual_count)) +
   scale_fill_brewer(palette="Accent",)
 ECC_data01_young
 ggsave(ECC_data01_young, file = 'users/calin/figures/ECC_data01_young.png') # Save figure
-ggsave(ECC_data01_young, file = 'analysis/docs/species_young_years.png') # Save figure
+ggsave(ECC_data01_young, file = 'docs/assets/species_young_years.png') # Save figure
 
 
 
@@ -422,4 +406,122 @@ gem_data02 <- ggplot(green_GEM_data, aes(x = year(date), y = site, fill = site))
   theme(legend.position = "none", axis.text = element_text(size = 9)) +
   labs(x = NULL, y = NULL)
 gem_data02
+
+
+###### 
+# Species summary figures
+## Svalbard
+# data over years
+ECC_data01_svalbard <- ggplot(ECC_annual_svalbard, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'dodge') +
+  labs(y = "data [n]", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_svalbard
+
+# dot by species
+svalbards_data2 <- ggplot(data = svalbard_data, aes(x = date, y = value)) +
+  geom_point(aes(color = variable)) + 
+  facet_wrap(~variable, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+svalbards_data2
+
+# svalbard figures
+svalbard_data3 <- ggarrange(ECC_data01_svalbard, svalbards_data2,ncol = 1, nrow = 2, labels = c("a)", "b)"),align = "hv")
+svalbard_data4 <- annotate_figure(svalbard_data3, top = text_grob("Summary svalbard data set"))
+svalbard_data4
+ggsave(svalbard_data4, file = 'users/calin/figures/svalbard_species_data.png', width = 16.6,  height = 9.15) # Save figure
+ggsave(svalbard_data4, file = 'docs/assets/svalbard_species_data.png.png', width = 16.6,  height = 9.15)
+
+
+## kong
+# data over years
+ECC_data01_kong <- ggplot(ECC_annual_kong, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
+  labs(y = "data [n]", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_kong
+
+# dot by species
+kong_data2 <- ggplot(data = kong_data, aes(x = date, y = value)) +
+  geom_point(aes(color = variable)) + 
+  facet_wrap(~variable, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+kong_data2
+
+# kong figures
+kong_data3 <- ggarrange(ECC_data01_kong, kong_data2,ncol = 1, nrow = 2, labels = c("a)", "b)"),align = "hv")
+kong_data4 <- annotate_figure(kong_data3, top = text_grob("Summary Kongsfjorden data set"))
+kong_data4
+ggsave(kong_data4, file = 'users/calin/figures/kong_species_data.png', width = 16.6,  height = 9.15) # Save figure
+ggsave(kong_data4, file = 'docs/assets/kong_species_data.png.png', width = 16.6,  height = 9.15)
+
+
+## is
+# data over years
+ECC_data01_is <- ggplot(ECC_annual_is, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
+  labs(y = "data [n]", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_is
+
+# dot by species
+is_data2 <- ggplot(data = is_data, aes(x = date, y = value)) +
+  geom_point(aes(color = variable)) + 
+  facet_wrap(~variable, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+is_data2
+
+# is figures
+kong_data3 <- ggarrange(ECC_data01_is, is_data2,ncol = 1, nrow = 2, labels = c("a)", "b)"),align = "hv")
+kong_data4 <- annotate_figure(kong_data3, top = text_grob("Summary Isfjorden data set"))
+kong_data4
+ggsave(svalbard_data4, file = 'users/calin/figures/is_species_data.png', width = 16.6,  height = 9.15) # Save figure
+ggsave(svalbard_data4, file = 'docs/assets/is_species_data.png.png', width = 16.6,  height = 9.15)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+barents_data2 <- ggplot(data = barents_data, aes(x = date, y = value)) +
+  geom_point(aes(color = variable)) + 
+  facet_wrap(~variable, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+barents_data2
+
+
+nuup_data1 <- nuup_species_GEM[!str_detect(nuup_species_GEM$variable, "presence"), ]
+nuup_data3 <- nuup_data1 %>% 
+  mutate(Speci = substr(gsub("\\(.*", "", variable), start = 7, stop = 80),
+         Taxon = stri_replace_last(Speci, replacement = "", regex = " "))
+
+nuup_data2 <- ggplot(data = nuup_data3, aes(x = date, y = value)) +
+  geom_point(aes(color = Taxon)) + 
+  facet_wrap(~Taxon, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+nuup_data2
+
+
+
 

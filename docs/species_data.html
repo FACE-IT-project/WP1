@@ -621,15 +621,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb336e80984b925772c43cba92d51afb82dbb13d4targetblankb336e80a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree49a94f6efd7cf2a15452ebbde14118a13e1a7b4btargetblank49a94f6a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/b336e80984b925772c43cba92d51afb82dbb13d4" target="_blank">b336e80</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/49a94f6efd7cf2a15452ebbde14118a13e1a7b4b" target="_blank">49a94f6</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treeb336e80984b925772c43cba92d51afb82dbb13d4targetblankb336e80a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree49a94f6efd7cf2a15452ebbde14118a13e1a7b4btargetblank49a94f6a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -639,7 +639,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/b336e80984b925772c43cba92d51afb82dbb13d4" target="_blank">b336e80</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/49a94f6efd7cf2a15452ebbde14118a13e1a7b4b" target="_blank">49a94f6</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -660,8 +660,28 @@ Ignored files:
     Ignored:    users/calin/data/
     Ignored:    users/calin/metadata/
 
+Untracked files:
+    Untracked:  users/calin/figures/ECC_data01_kong.png
+    Untracked:  users/calin/figures/ECC_data01_svalbard.png
+    Untracked:  users/calin/figures/ECC_data01_young.png
+    Untracked:  users/calin/figures/is_species_data.png
+    Untracked:  users/calin/figures/kong_species_data.png
+    Untracked:  users/calin/figures/svalbard_species_data.png
+
 Unstaged changes:
+    Deleted:    analysis/docs/assets/species_barents_years.png
+    Deleted:    analysis/docs/assets/species_is_years.png
+    Deleted:    analysis/docs/assets/species_kong_years.png
+    Deleted:    analysis/docs/assets/species_nomenclature_naming_variable.PNG
+    Deleted:    analysis/docs/assets/species_nuup_years.png
+    Deleted:    analysis/docs/assets/species_svalbard_years.png
+    Deleted:    analysis/docs/assets/species_young_years.png
     Modified:   analysis/species_data.Rmd
+    Modified:   users/calin/code/figures_maker.R
+    Modified:   users/calin/code/firstsetdata.R
+    Modified:   users/calin/figures/ECC_data01_barents.png
+    Modified:   users/calin/figures/ECC_data01_is.png
+    Modified:   users/calin/figures/ECC_data01_nuup.png
 
 </code></pre>
 <p>
@@ -707,6 +727,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/49a94f6efd7cf2a15452ebbde14118a13e1a7b4b/analysis/species_data.Rmd" target="_blank">49a94f6</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-17
+</td>
+<td>
+Species summary
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/49a94f6efd7cf2a15452ebbde14118a13e1a7b4b/docs/species_data.html" target="_blank">49a94f6</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-17
+</td>
+<td>
+Species summary
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -965,8 +1019,7 @@ the order by filling the following columns:</p>
 <h4>Variable naming</h4>
 <p>All the variables follow a precise naming system. This allows to save
 their main information. For each variable we find:</p>
-<p><img
-src="docs/assets/species_nomenclature_naming_variable.PNG" /></p>
+<p><img src="assets/species_nomenclature_naming_variable.png" /></p>
 <div id="species-type-code" class="section level5">
 <h5>Species type code</h5>
 <p>For an easier use, the different species studied have been divided in
@@ -998,40 +1051,54 @@ certain patterns.<br />
 </div>
 <div id="svalbard" class="section level1">
 <h1>Svalbard</h1>
-<p><img src="docs/species_svalbard_years.png" /></p>
+<p><img src="assets/species_svalbard_files.png" /></p>
+<p><br />
+</p>
+<p><img src="assets/svalbard_species_data.png.png" /></p>
+<p><em>figure 1 - a) Svalbard data count by year, b) Svalbard species
+biomass over year</em></p>
 <div id="kongsfjorden" class="section level2">
 <h2>Kongsfjorden</h2>
-<p><img src="docs/species_kong_years.png" /></p>
+<p><img src="assets/species_kong_files.png" /></p>
+<p><br />
+<img src="assets/kong_species_data.png.png" /></p>
+<p><em>figure 2 - a) Kongsfjorden data count by year, b) Kongsfjorden
+species biomass over year</em></p>
 </div>
 <div id="isfjorden" class="section level2">
 <h2>Isfjorden</h2>
-<p><img src="docs/species_is_years.png" /></p>
+<p><img src="assets/species_is_files.png" /></p>
+<p><br />
+</p>
+<p><img src="assets/is_species_data.png.png" /></p>
+<p><em>figure 3 - a) Isfjorden data count by year, b) Isfjorden species
+biomass over year</em></p>
 </div>
 </div>
 <div id="barents-sea" class="section level1">
 <h1>Barents sea</h1>
-<p><img src="docs/species_barents_years.png" /></p>
+<p><br />
+</p>
+<p><img src="assets/species_barents_files.png" /></p>
+<p><img src="assets/species_barents_years.png" /></p>
 </div>
 <div id="greenland" class="section level1">
 <h1>Greenland</h1>
+<p><br />
+</p>
 <div id="young-sound" class="section level2">
 <h2>Young Sound</h2>
-<p><img src="docs/species_young_years.png" /></p>
+<p><br />
+</p>
+<p><img src="assets/species_young_files.png" /></p>
+<p><img src="assets/species_young_years.png" /></p>
 </div>
 <div id="nuup-kangerlua" class="section level2">
 <h2>Nuup Kangerlua</h2>
-<p><img src="docs/species_nuup_years.png" /></p>
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.1     ✔ readr     2.1.4
-✔ forcats   1.0.0     ✔ stringr   1.5.0
-✔ ggplot2   3.4.2     ✔ tibble    3.2.1
-✔ lubridate 1.9.2     ✔ tidyr     1.3.0
-✔ purrr     1.0.1     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-<p><img src="assets/map_disko_bay.png" /></p>
+<p><br />
+</p>
+<p><img src="assets/species_nuup_files.png" /></p>
+<p><img src="assets/species_nuup_years.png" /></p>
 <div id="refs">
 
 </div>
@@ -1058,24 +1125,17 @@ locale:
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
-other attached packages:
- [1] lubridate_1.9.2 forcats_1.0.0   stringr_1.5.0   dplyr_1.1.1    
- [5] purrr_1.0.1     readr_2.1.4     tidyr_1.3.0     tibble_3.2.1   
- [9] ggplot2_3.4.2   tidyverse_2.0.0
-
 loaded via a namespace (and not attached):
- [1] tidyselect_1.2.0 xfun_0.38        bslib_0.4.2      colorspace_2.1-0
- [5] vctrs_0.6.1      generics_0.1.3   htmltools_0.5.5  yaml_2.3.7      
- [9] utf8_1.2.3       rlang_1.1.0      jquerylib_0.1.4  later_1.3.0     
-[13] pillar_1.9.0     glue_1.6.2       withr_2.5.0      lifecycle_1.0.3 
-[17] munsell_0.5.0    gtable_0.3.3     workflowr_1.7.0  evaluate_0.20   
-[21] knitr_1.42       tzdb_0.3.0       fastmap_1.1.1    httpuv_1.6.9    
-[25] fansi_1.0.4      Rcpp_1.0.10      promises_1.2.0.1 scales_1.2.1    
-[29] cachem_1.0.7     jsonlite_1.8.4   fs_1.6.1         hms_1.1.3       
-[33] digest_0.6.31    stringi_1.7.12   rprojroot_2.0.3  grid_4.2.3      
-[37] cli_3.6.1        tools_4.2.3      magrittr_2.0.3   sass_0.4.5      
-[41] whisker_0.4.1    pkgconfig_2.0.3  timechange_0.2.0 rmarkdown_2.21  
-[45] rstudioapi_0.14  R6_2.5.1         git2r_0.32.0     compiler_4.2.3  </code></pre>
+ [1] Rcpp_1.0.10      rstudioapi_0.14  whisker_0.4.1    knitr_1.42      
+ [5] magrittr_2.0.3   workflowr_1.7.0  R6_2.5.1         rlang_1.1.0     
+ [9] fastmap_1.1.1    fansi_1.0.4      stringr_1.5.0    tools_4.2.3     
+[13] xfun_0.38        utf8_1.2.3       cli_3.6.1        git2r_0.32.0    
+[17] jquerylib_0.1.4  htmltools_0.5.5  rprojroot_2.0.3  yaml_2.3.7      
+[21] digest_0.6.31    tibble_3.2.1     lifecycle_1.0.3  later_1.3.0     
+[25] sass_0.4.5       vctrs_0.6.1      promises_1.2.0.1 fs_1.6.1        
+[29] cachem_1.0.7     glue_1.6.2       evaluate_0.20    rmarkdown_2.21  
+[33] stringi_1.7.12   bslib_0.4.2      compiler_4.2.3   pillar_1.9.0    
+[37] jsonlite_1.8.4   httpuv_1.6.9     pkgconfig_2.0.3 </code></pre>
 </div>
 </div>
 </div>

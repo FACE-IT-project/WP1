@@ -583,7 +583,7 @@ EU_epagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-an
 
 
 # EU (west) harp seal population
-EU_wpagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-and-e (1).csv", sep = ";", dec = ",") %>%
+EU_wpagr_population <- read.csv("P:/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
   pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
   mutate(date_accessed = as.Date("2023-04-14"),
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
@@ -640,10 +640,19 @@ EU_arctic_data <- rbind(kong_data,
                      is_data,
                      EU_data)
 
+arctic_data_eu <- rbind(barents_data, EU_data)
 
 
 
 ## Save data ---------------------------------------------------------------
 
 save(EU_arctic_data, file = "users/calin/data/EU_arctic_data.RData")
+
+save(kong_data, file = "users/calin/data/kong_data.RData")
+save(svalbard_data, file = "users/calin/data/svalbard_data.RData")
+save(is_data, file = "users/calin/data/is_data.RData")
+save(arctic_data_eu, file = "users/calin/data/arctic_data_eu.RData")
+
+
+
 
