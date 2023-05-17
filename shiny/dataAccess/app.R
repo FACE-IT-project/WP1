@@ -801,10 +801,12 @@ server <- function(input, output, session) {
   output$filterDT <- DT::renderDataTable({
     req(input$filterData)
     df_dl <- df_dl()
-    df_dl_DT <- datatable(df_dl, rownames = FALSE,
+    df_dl$URL <- paste0('<a target="_blank" rel="noopener noreferrer" href="',df_dl$URL,'">',df_dl$URL,'</a>')
+    df_dl_DT <- datatable(df_dl, rownames = FALSE, escape = FALSE,
                           options = list(pageLength = 10, scrollX = TRUE, scrollY = 400, searchHighlight = TRUE,
                                          columnDefs = list(list(
-                                           targets = c(1, 2),
+                                           # targets = c(1, 2),
+                                           targets = c(2), # Just the citation
                                            render = JS(
                                                  "function(data, type, row, meta) {",
                                                  "return type === 'display' && data.length > 6 ?",
