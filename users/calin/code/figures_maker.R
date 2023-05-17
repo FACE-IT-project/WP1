@@ -45,14 +45,100 @@ ECC_data_annual <- ECC_data %>%
   mutate(year = year(date)) %>% 
   summarise(annual_count = n(), .by = c(year, site))
 
+
+
+
+
+
 ECC_type  <- ECC_data %>% 
   mutate(classification = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE ~ "Fish",
                                     grepl("|MAM|", variable, fixed = TRUE) == TRUE ~ "Mammal",
-                                    grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Sea Bird",
-                                    grepl("|NBI|", variable, fixed = TRUE) == TRUE ~ "Non-sea Bird",
+                                    grepl("|SBI|", variable, fixed = TRUE) == TRUE~"Bird (Sea)",
+                                    grepl("|NBI|", variable, fixed = TRUE) == TRUE ~ "Bird (Non-sea)",
                                     grepl("|BIR|", variable, fixed = TRUE) == TRUE ~ "Bird",
                                     grepl("|ZOO|", variable, fixed = TRUE) == TRUE ~ "Zooplankton",
                                     (grepl("phyto", variable, fixed = TRUE) == TRUE ~ "Phytoplankton")))
+
+
+
+ECC_annual_barents <- ECC_type %>% 
+  filter(site == "barents sea") %>% 
+  mutate(year = year(date)) %>% 
+  summarise(annual_count = n(), .by = c(year,classification))
+
+ECC_annual_barents[nrow(ECC_annual_barents)+1,] <- list(1946, "Bird (Sea)", 0)
+ECC_annual_barents[nrow(ECC_annual_barents)+1,] <- list(1946, "Bird (Non-sea)", 0)
+ECC_annual_barents[nrow(ECC_annual_barents)+1,] <- list(1946, "Bird", 0)
+ECC_annual_barents[nrow(ECC_annual_barents)+1,] <- list(1946, "Zooplankton", 0)
+ECC_annual_barents
+
+
+
+ECC_annual_is <- ECC_type %>% 
+  filter(site == "is") %>% 
+  mutate(year = year(date)) %>% 
+  summarise(annual_count = n(), .by = c(year,classification))
+
+ECC_annual_is[nrow(ECC_annual_is)+1,] <- list(1988, "Bird", 0)
+ECC_annual_is[nrow(ECC_annual_is)+1,] <- list(1988, "Bird (Non-sea)", 0)
+ECC_annual_is[nrow(ECC_annual_is)+1,] <- list(1988, "Mammal", 0)
+ECC_annual_is[nrow(ECC_annual_is)+1,] <- list(1988, "Fish", 0)
+ECC_annual_is[nrow(ECC_annual_is)+1,] <- list(1988, "Zooplankton", 0)
+ECC_annual_is
+
+ECC_annual_kong <- ECC_type %>% 
+  filter(site == "kong") %>% 
+  mutate(year = year(date)) %>% 
+  summarise(annual_count = n(), .by = c(year,classification))
+
+ECC_annual_kong[nrow(ECC_annual_kong)+1,] <- list(2005, "Bird", 0)
+ECC_annual_kong[nrow(ECC_annual_kong)+1,] <- list(2005, "Bird (Non-sea)", 0)
+ECC_annual_kong[nrow(ECC_annual_kong)+1,] <- list(2005, "Mammal", 0)
+ECC_annual_kong[nrow(ECC_annual_kong)+1,] <- list(2005, "Fish", 0)
+ECC_annual_kong
+
+
+ECC_annual_nuup <- ECC_type %>% 
+  filter(site == "nuup") %>% 
+  mutate(year = year(date)) %>% 
+  summarise(annual_count = n(), .by = c(year,classification))
+
+ECC_annual_nuup[nrow(ECC_annual_nuup)+1,] <- list(2006, "Zooplankton", 0)
+ECC_annual_nuup[nrow(ECC_annual_nuup)+1,] <- list(2006, "Fish", 0)
+ECC_annual_nuup
+
+
+ECC_annual_svalbard <- ECC_type %>% 
+  filter(site == "svalbard") %>% 
+  mutate(year = year(date)) %>% 
+  summarise(annual_count = n(), .by = c(year,classification))
+
+ECC_annual_svalbard[nrow(ECC_annual_svalbard)+1,] <- list(1980, "Bird", 0)
+ECC_annual_svalbard[nrow(ECC_annual_svalbard)+1,] <- list(1980, "Bird (Non-sea)", 0)
+ECC_annual_svalbard[nrow(ECC_annual_svalbard)+1,] <- list(1980, "Fish", 0)
+ECC_annual_svalbard
+
+
+
+ECC_annual_young <- ECC_type %>% 
+  filter(site == "young") %>% 
+  mutate(year = year(date)) %>% 
+  summarise(annual_count = n(), .by = c(year,classification))
+
+ECC_annual_young[nrow(ECC_annual_young)+1,] <- list(1995, "Fish", 0)
+ECC_annual_young[nrow(ECC_annual_young)+1,] <- list(1995, "Mammal", 0)
+ECC_annual_young[nrow(ECC_annual_young)+1,] <- list(1995, "Zooplankton", 0)
+ECC_annual_young
+
+
+
+
+
+
+
+
+
+
 
 
 ECC_data_type <- ECC_type %>% 
@@ -140,6 +226,92 @@ ECC_data01
 ggsave(ECC_data01, file = 'users/calin/figures/ECC_data01.png') # Save figure
 
 
+
+
+
+
+ECC_data01_barents <- ggplot(ECC_annual_barents, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
+  labs(y = "data [n]", title = "Barents sea data by year", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_barents
+ggsave(ECC_data01_barents, file = 'users/calin/figures/ECC_data01_barents.png') # Save figure
+
+
+ECC_data01_is <- ggplot(ECC_annual_is, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
+  labs(y = "data [n]", title = "Isfjorden data by year", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_is
+ggsave(ECC_data01_is, file = 'users/calin/figures/ECC_data01_is.png') # Save figure
+
+
+
+ECC_data01_kong <- ggplot(ECC_annual_kong, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
+  labs(y = "data [n]", title = "Kongsfjorden data by year", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_kong
+ggsave(ECC_data01_kong, file = 'users/calin/figures/ECC_data01_kong.png') # Save figure
+
+
+
+
+ECC_data01_nuup <- ggplot(ECC_annual_nuup, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'dodge') +
+  labs(y = "data [n]", title = "Nuup Kangerlua data by year", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_nuup
+ggsave(ECC_data01_nuup, file = 'users/calin/figures/ECC_data01_nuup.png') # Save figure
+
+
+ECC_data01_svalbard <- ggplot(ECC_annual_svalbard, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'dodge') +
+  labs(y = "data [n]", title = "Svalbard data by year", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_svalbard
+ggsave(ECC_data01_svalbard, file = 'users/calin/figures/ECC_data01_svalbard.png') # Save figure
+
+
+
+
+ECC_data01_young <- ggplot(ECC_annual_young, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = classification), stat = 'Identity', position = 'stack') +
+  labs(y = "data [n]", title = "Young Sound data by year", x = NULL) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="Accent",)
+ECC_data01_young
+ggsave(ECC_data01_young, file = 'users/calin/figures/ECC_data01_young.png') # Save figure
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ECC_data01_young <- ggplot(ECC_data_annual, aes(x = year, y = annual_count)) + 
+  geom_bar(aes(fill = "young"), stat = 'Identity', position = 'dodge') +
+  labs(y = "data [n]", title = "Young data by year", x = NULL, fill = "site") +
+  theme(legend.position = "none", panel.border = element_rect(colour = "black", fill = NA)) +
+  scale_fill_brewer(palette="BuGn")
+ECC_data01_young
+ggsave(ECC_data01, file = 'users/calin/figures/ECC_data01.png') # Save figure
+
+
 # Bar nb species by site over the years
 ECC_data02 <- ggplot(ECC_data_species_summury, aes(x = year, y = annual_species_count)) + 
   geom_bar(aes(fill = site), stat = 'Identity', position = 'dodge') +
@@ -202,18 +374,30 @@ ECC_data07 <- ggplot(ECC_type, aes(x = year(date), y = classification, fill = cl
 ECC_data07
 ggsave(ECC_data07, file = 'users/calin/figures/ECC_data07.png') # Save figure
 
-
+mypalette <- 
 # Density [new function] data by site over the years
 ECC_data08 <- ggplot(ECC_type, aes(x = year(date), y = classification, fill = classification)) +
   # ggdist::geom_slabinterval() +
   ggdist::stat_halfeye(.width = 0, point_color = NA) +
   # theme_ridges() + 
-  theme(legend.position = "none", axis.text = element_text(size = 9)) +
+  theme(legend.position = "none", axis.text = element_text(size = 15)) +
   labs(x = NULL, y = NULL) +
-  scale_fill_brewer(palette = "Set3")
+  scale_fill_brewer(palette = "BuGn", direction = -1)
 ECC_data08
 ggsave(ECC_data08, file = 'users/calin/figures/ECC_data08.png') # Save figure
 
+
+
+ECC_data09 <- ggplot(ECC_type, aes(x = year(date), y = classification, fill = classification)) +
+  geom_violin(
+    fill = "grey72", 
+    ## remove outline
+    color = NA, 
+    ## width of violins mapped to # observations
+    ## custom bandwidth (smoothing)
+    bw = 1
+  )
+ECC_data09
 
 
 # Density of data over years for GEM data by site
