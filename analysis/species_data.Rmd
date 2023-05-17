@@ -18,7 +18,7 @@ This document outlines the process of collecting, amalgamating, and analyzing sp
 
 # Methods
 
-### Determine which data is needed, what are the selection criteria?
+### Determine which data is needed
 
 To meet the requirements of the FACE-IT project, the data must meet certain criteria. The data must be from one of the seven study sites of the project, in Svalbard, Greenland or Norway. Data must include species biomass (presence data will also be collected). The data must concern marine species such as birds, fish, mammals, zooplankton or phytoplankton.\
 
@@ -64,7 +64,8 @@ The data collected will be added to the ones already present on the FACE-IT proj
 
 All the variables follow a precise naming system. This allows to save their main information. For each variable we find:
 
-![](docs/assets/species_nomenclature_naming_variable.PNG)\
+![](docs/assets/species_nomenclature_naming_variable.PNG)
+
 ##### Species type code
 
 For an easier use, the different species studied have been divided in several categories each distinguished by a three letters code: Birds, Poisons \|FIS\|, Marine mammal \|MAM\|, Zooplankton \|ZOO\| and Phytoplankton \|PHY\|.
