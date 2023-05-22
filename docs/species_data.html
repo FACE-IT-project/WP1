@@ -458,7 +458,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Species data</h1>
 <h4 class="author">Eva-Carmen Calin</h4>
-<h4 class="date">17 mai 2023</h4>
+<h4 class="date">22 mai 2023</h4>
 
 </div>
 
@@ -466,7 +466,7 @@ div.tocify {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -477,8 +477,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -487,13 +487,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-05-17
+<strong>Last updated:</strong> 2023-05-22
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span
@@ -516,21 +516,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -621,15 +618,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree49a94f6efd7cf2a15452ebbde14118a13e1a7b4btargetblank49a94f6a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree78b0aa0e258113f158b3b5256d10f178746e9626targetblank78b0aa0a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/49a94f6efd7cf2a15452ebbde14118a13e1a7b4b" target="_blank">49a94f6</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/78b0aa0e258113f158b3b5256d10f178746e9626" target="_blank">78b0aa0</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree49a94f6efd7cf2a15452ebbde14118a13e1a7b4btargetblank49a94f6a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree78b0aa0e258113f158b3b5256d10f178746e9626targetblank78b0aa0a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -639,7 +636,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/49a94f6efd7cf2a15452ebbde14118a13e1a7b4b" target="_blank">49a94f6</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/78b0aa0e258113f158b3b5256d10f178746e9626" target="_blank">78b0aa0</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -659,29 +656,6 @@ Ignored files:
     Ignored:    users/calin/.Rhistory
     Ignored:    users/calin/data/
     Ignored:    users/calin/metadata/
-
-Untracked files:
-    Untracked:  users/calin/figures/ECC_data01_kong.png
-    Untracked:  users/calin/figures/ECC_data01_svalbard.png
-    Untracked:  users/calin/figures/ECC_data01_young.png
-    Untracked:  users/calin/figures/is_species_data.png
-    Untracked:  users/calin/figures/kong_species_data.png
-    Untracked:  users/calin/figures/svalbard_species_data.png
-
-Unstaged changes:
-    Deleted:    analysis/docs/assets/species_barents_years.png
-    Deleted:    analysis/docs/assets/species_is_years.png
-    Deleted:    analysis/docs/assets/species_kong_years.png
-    Deleted:    analysis/docs/assets/species_nomenclature_naming_variable.PNG
-    Deleted:    analysis/docs/assets/species_nuup_years.png
-    Deleted:    analysis/docs/assets/species_svalbard_years.png
-    Deleted:    analysis/docs/assets/species_young_years.png
-    Modified:   analysis/species_data.Rmd
-    Modified:   users/calin/code/figures_maker.R
-    Modified:   users/calin/code/firstsetdata.R
-    Modified:   users/calin/figures/ECC_data01_barents.png
-    Modified:   users/calin/figures/ECC_data01_is.png
-    Modified:   users/calin/figures/ECC_data01_nuup.png
 
 </code></pre>
 <p>
@@ -727,6 +701,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/33161ad5841555bf80cd1238dba11d067264ee6c/analysis/species_data.Rmd" target="_blank">33161ad</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-17
+</td>
+<td>
+Species summary
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/33161ad5841555bf80cd1238dba11d067264ee6c/docs/species_data.html" target="_blank">33161ad</a>
+</td>
+<td>
+Eccalin
+</td>
+<td>
+2023-05-17
+</td>
+<td>
+Species summary
+</td>
+</tr>
 <tr>
 <td>
 Rmd
