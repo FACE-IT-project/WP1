@@ -2239,6 +2239,18 @@ ggsave("figures/table_2.png", table_2_plot, width = 6.75, height = 1.55)
 # Load relationship data
 if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 
+# Get drivers available at each site
+driver_site <- driver_all |> 
+  filter(site %in% long_site_names$site) |> 
+  dplyr::select(site, type, category, driver, variable) |> 
+  distinct()
+
+driver_site_wide <- driver_site |> 
+  pivot_wider(names_from = site, values_from = type)
+
+driver_site_count <- driver_site |> 
+  summarise(count = n(), .by = c(type, category, driver, variable))
+
 # Get count of comparisons by site regardless of data type and depth
 driver_all_site_count <- driver_all %>% 
   dplyr::select(driver, driver_y, variable, variable_y, site) %>% 

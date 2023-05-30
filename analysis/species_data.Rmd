@@ -10,24 +10,131 @@ csl: frontiers.csl
 bibliography: FACE-IT.bib
 ---
 
-# Species data
+# Overview
 
-## Introduction
+This document outlines the process of collecting, amalgamating, and analyzing species presence data from the FACE-IT Arctic Fjords study sites.\
+\
+\
 
-This document outline the process to amalgamate species data for FACE-IT project
+# Methods
 
-```{r echo=FALSE}
+### Determine which data is needed
 
-library(tidyverse)
+To meet the requirements of the FACE-IT project, the data must meet certain criteria. The data must be from one of the seven study sites of the project, in Svalbard, Greenland or Norway. Data must include species biomass (presence data will also be collected). The data must concern marine species such as birds, fish, mammals, zooplankton or phytoplankton.\
 
+### Searching for sources
 
-```
-![](assets/map_disko_bay.png)
+To ensure data quality, it is essential to have reliable sources. For this, research and academic sites were used, in particular those of MOSJ, GEM, NPI.\
 
+### Data collection and identification
 
-```{r}
+Once the sources are found, it is important to collect the datasets that can be used for the project. Sometimes it is necessary to log in to certain websites to access the data. In order to use this data to its highest potential, it is important to determine what useful and necessary information in each dataset should be preserved. Careful consideration must be given to each set to ensure the quality of the information.\
 
-```
+### Modeling the sets
 
+The data collected will be added to the ones already present on the FACE-IT project, they will have to follow the same format and respect the order by filling the following columns:
 
+-   the date of access to the data,
 
+-   the URL where to find the set,
+
+-   the citation,
+
+-   the type of data,
+
+-   the site (kong, nuup, svalbard, is, disko, ...),
+
+-   the category (bio, cryo, social, ...),
+
+-   the driver (category details.) ),
+
+-   the variable,
+
+-   the longitude of each data,
+
+-   the latitude of each data,
+
+-   the date of collection of the data,
+
+-   the depth of water of each data,
+
+-   the value\
+
+#### Variable naming
+
+All the variables follow a precise naming system. This allows to save their main information. For each variable we find:
+
+![](assets/species_nomenclature_naming_variable.png)
+
+##### Species type code
+
+For an easier use, the different species studied have been divided in several categories each distinguished by a three letters code: Birds, Poisons \|FIS\|, Marine mammal \|MAM\|, Zooplankton \|ZOO\| and Phytoplankton \|PHY\|.
+
+For the birds, subcategories have been added. The goal of the project being the study of marine species and the data collected concerning different types of birds. A distinction was made between marine birds \|SBI\|, land birds (non marine) \|NBI\| and species not yet sorted \|BIR\|.
+
+### Assembling the sets
+
+Once the data are formatted, they are combined by geographic area, saved and added to the website.
+
+### Analyze the sets
+
+Once the sets are complete, an analysis of the data recovered can be made. This allows us to see the information collected and to highlight certain patterns.\
+\
+\
+
+# Svalbard
+
+![](assets/species_svalbard_files.png)
+
+\
+
+![](assets/svalbard_species_data.png.png)
+
+*figure 1 - a) Svalbard data count by year, b) Svalbard species biomass over year*
+
+## Kongsfjorden
+
+![](assets/species_kong_files.png)
+
+\
+![](assets/kong_species_data.png.png)
+
+*figure 2 - a) Kongsfjorden data count by year, b) Kongsfjorden species biomass over year*
+
+## Isfjorden
+
+![](assets/species_is_files.png)
+
+\
+
+![](assets/is_species_data.png.png)
+
+*figure 3 - a) Isfjorden data count by year, b) Isfjorden species biomass over year*
+
+# Barents sea
+
+\
+
+![](assets/species_barents_files.png)
+
+![](assets/species_barents_years.png)
+
+# Greenland
+
+\
+
+## Young Sound
+
+\
+
+![](assets/species_young_files.png)
+
+![](assets/species_young_years.png)
+
+## Nuup Kangerlua
+
+\
+
+![](assets/species_nuup_files.png)
+
+![](assets/species_nuup_years.png)
