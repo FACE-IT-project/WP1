@@ -10,7 +10,7 @@ navbar:
   - text: "Meta-database"
     href: metadatabase.html
   - text: "Data access"
-    href: dataAccess.html
+    href: http://193.50.85.71/shiny/dataAccess/
   - text: "Analyses"
     menu:
     - text: "Data summary"
