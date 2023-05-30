@@ -237,6 +237,10 @@ fischer_check_dat <- filter(pg_kong, URL %in% paste0("https://doi.org/",fischer_
 # NB: Appear to be missing any depth data
 # Likely need to correct this via the metadata that is embedded in the downloads
 
+# OCEANIA Zooplankton data
+test_doi <- filter(pg_kong_doi, URL == "https://doi.org/10.1594/PANGAEA.840853")
+test_doi <- filter(pg_kong_doi, grepl("Wojciech", citation))
+
 
 # Error trapping ----------------------------------------------------------
 

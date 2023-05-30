@@ -2918,14 +2918,14 @@ young_GEM_PAR_land <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zacken
 # Somehow `2013-04-28 12:00:00 stake 13` refuses to change...
 ## NB: Daily averages are not created of the ablation values here because many datum are missing lon/lat
 ## By creating daily means it clumps these values together, which is incorrect to do
-## After some reflection it was decided to keep the value smissing lon/lat because they still have date values
+## After some reflection it was decided to keep the values missing lon/lat because they still have date values
 ## Meaning that they are useful when constructing a time series of change when creating averages over the study site
 young_GEM_gmb_coords <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_Data_Glacier_ice_GPS_sites.csv") %>% 
   mutate(site_name = str_replace(site_name, "s", "stake "),
          lon = case_when(lon %in% c(-99.99, -9999) ~ as.numeric(NA), 
                          lon > 100 ~ lon/10000000, 
                          lon > 0 ~ -lon,
-                         lon > -1 ~ lon *100,
+                         lon > -1 ~ lon*100,
                          TRUE ~ lon),
          lat = case_when(lat %in% c(-99.99, -9999) ~ as.numeric(NA), 
                          lat < 70 ~ lat*100, TRUE ~ lat),
@@ -3101,7 +3101,7 @@ young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_Bi
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp," eggs laid [n]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          type = "in situ",
          site = "young",
          value = Accuracy) %>%

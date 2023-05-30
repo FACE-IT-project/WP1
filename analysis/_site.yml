@@ -9,6 +9,8 @@ navbar:
     href: key_drivers.html
   - text: "Meta-database"
     href: metadatabase.html
+  - text: "Data access"
+    href: dataAccess_iframe.html
   - text: "Analyses"
     menu:
     - text: "Data summary"
