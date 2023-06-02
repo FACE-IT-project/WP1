@@ -1940,7 +1940,7 @@ fig_4 <- ggplot(data = clean_all_annual_proc, aes(x = year, y = driver_count_sum
 ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 8)
 
 
-# Figure 5 ----------------------------------------------------------------
+# Figure S1 ---------------------------------------------------------------
 # Somehow show the relationships between drivers 
 # Importance is to show difference between sites
 # Heatmap or corplot: https://jhrcook.github.io/ggasym/index.html
@@ -1970,6 +1970,9 @@ driver_all_filter <- driver_all %>%
                                   "Q [m3/s]\nvs\nPAR [µmol m-2 s-1]",
                                   "sea ice cover [proportion]\nvs\nPAR [µmol m-2 s-1]")))
 
+# Stats for amount of overlap for drivers comparable within 4+ sites
+summary(driver_all_filter$nobs)
+
 # Test stats
 df_test <- driver_all_filter %>% 
   filter(comp == "temp [°C]\nvs\nsea ice cover [proportion]")
@@ -1981,6 +1984,56 @@ sd(df_test$slope)
 driver_all_sub <- driver_all_filter |> 
   filter(comp %in% c("temp [°C]\nvs\nsea ice cover [proportion]", "temp [°C]\nvs\nspp count [n]"))
 
+# Load cleaned up clean data
+if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+
+# Filter out seawater temperature, sea-ice cover, and spp count
+clean_sub <- clean_all_clean |> 
+  filter(variable %in% c("temp [°C]", "sea ice cover [proportion]"))#, "spp count [n]"))
+
+# Get monthly means by depth across entire site
+mean_month_depth <- clean_sub %>% 
+  dplyr::select(type, site, category, driver, variable, date, depth, value) %>% 
+  filter(!is.na(date)) %>% distinct() %>% 
+  mutate(date = lubridate::round_date(date, unit = "month"),
+         depth = case_when(is.na(depth) ~ "surface",
+                           depth <= 10 ~ "0 to 10",
+                           depth <= 50 ~ "10 to 50",
+                           depth <= 200 ~ "50 to 200",
+                           depth > 200 ~ "+200")) %>%
+  group_by(type, site, category, driver, variable, date, depth) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(value)); gc()
+
+# Extract ice only
+mean_month_depth_ice <- mean_month_depth |> 
+  filter(variable == "sea ice cover [proportion]") |> 
+  dplyr::select(site, date, variable, value) |> 
+  pivot_wider(values_from = value, names_from = variable)
+
+# Attach sea ice as it's own column for scatter plot
+mean_month_depth_wide <- mean_month_depth |> 
+  filter(variable == "temp [°C]") |>
+  pivot_wider(values_from = value, names_from = variable) |> 
+  left_join(mean_month_depth_ice, by = c("date", "site")) |> 
+  na.omit() |> 
+  left_join(long_site_names, by = "site") |> 
+  mutate(deph = factor(depth,
+                       labels = c("0 to 10", "10 to 50", "50 to 200", "+200")),
+         type = factor(type, labels = c("in situ", "CCI", "OISST")))
+
+# Scatterplot
+mean_month_depth_wide |> 
+  # filter(site == "young") |> 
+  filter(depth == "0 to 10") |> 
+  filter(type == "in situ") |> 
+  ggplot(aes(x = `temp [°C]`, y = `sea ice cover [proportion]`)) +
+  geom_point(aes(shape = type, colour = site_long)) +
+  # geom_smooth(aes(linetype = type, colour = site_long), method = "lm") +
+  scale_colour_manual("Site", values = site_colours) #+
+  # facet_wrap(~site_long)
+
+# Reduced boxplot
 driver_all_sub %>% 
   left_join(long_site_names, by = "site") |> 
   ggplot(aes(x = site, y = slope)) +
@@ -1993,7 +2046,7 @@ driver_all_sub %>%
 
 # Boxplots of slopes for each comparison
 # With the sites and depths of comparison making up the points
-fig_5 <- driver_all_filter %>% 
+fig_S1 <- driver_all_filter %>% 
   left_join(long_site_names, by = "site") %>% 
   # filter(depth == depth_y) %>% # Too restrictive
   ggplot(aes(x = comp, y = slope)) +
@@ -2017,10 +2070,10 @@ fig_5 <- driver_all_filter %>%
 # fig_5
 
 # Save
-ggsave("figures/dp_fig_5.png", fig_5, width = 12, height = 12)
+ggsave("figures/dp_fig_S1.png", fig_5, width = 12, height = 12)
 
 
-# Figure S1 ---------------------------------------------------------------
+# Figure S2 ---------------------------------------------------------------
 # A figure or table showing similarity between model and amalgamated data. 
 
 # Load cleaned up clean data
@@ -2033,7 +2086,7 @@ if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
 
 # RMSE between in situ/remote and model
-fig_S1 <- model_ALL_stats %>% 
+fig_S2 <- model_ALL_stats %>% 
   filter(type == "in situ") %>% 
   mutate(mean_mod_greater = ifelse(mean_mod > mean_dat, 1, 0)) %>% 
   left_join(long_site_names, by = "site") %>% 
@@ -2056,13 +2109,13 @@ fig_S1 <- model_ALL_stats %>%
   labs(x = "Depth", y = "Variable") +
   theme(axis.text.x = element_text(angle = 30, hjust = 1),
         panel.border = element_rect(fill = NA, colour = "black"))
-# fig_S1
+# fig_S2
 
 # Save
-ggsave("figures/dp_fig_S1.png", fig_S1, width = 7, height = 3)
+ggsave("figures/dp_fig_S2.png", fig_S1, width = 7, height = 3)
 
 
-# Figure S2 ---------------------------------------------------------------
+# Figure S3 ---------------------------------------------------------------
 # Projections of data where possible
 
 # Load relationship data
@@ -2098,7 +2151,7 @@ future_stats <- driver_all %>%
          mean_8.5 = mean_val+change_8.5)
 
 # The figure
-fig_S2 <- future_stats %>% 
+fig_S3 <- future_stats %>% 
   dplyr::select(site:depth_y, mean_val, mean_hist:mean_8.5) %>% 
   pivot_longer(cols = mean_val:mean_8.5) %>% 
   left_join(long_site_names, by = "site") %>% 
@@ -2135,8 +2188,8 @@ fig_S2 <- future_stats %>%
         legend.position = "bottom",
         legend.box = "vertical",
         panel.border = element_rect(fill = NA, colour = "black"))
-# fig_S2
-ggsave("figures/dp_fig_S2.png", fig_S2, width = 8, height = 4)
+# fig_S3
+ggsave("figures/dp_fig_S2.png", fig_S3, width = 8, height = 4)
 
 
 # Table 1 -----------------------------------------------------------------
@@ -2298,7 +2351,7 @@ table_3_plot <- ggplot() +
 ggsave("figures/table_3.png", table_3_plot, width = 5.4, height = 1.8, dpi = 600)
 
 
-# Table 4 -----------------------------------------------------------------
+# Table S1 -----------------------------------------------------------------
 # Difference in projected trends
 
 # Load relationship data
@@ -2326,7 +2379,7 @@ future_stats <- driver_all %>%
   left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth"))
 
 # The trends of the model data against those of the amalgamated data
-table_4 <- future_stats %>% 
+table_S1 <- future_stats %>% 
   dplyr::select(site, type, variable, depth, `RCP 2.6`, `RCP 4.5`, `RCP 8.5`, hist_trend) %>% 
   distinct() %>% 
   pivot_wider(names_from = type, values_from = hist_trend) %>% 
@@ -2341,13 +2394,13 @@ table_4 <- future_stats %>%
   arrange(site_long, variable) %>% 
   dplyr::rename(site = site_long) %>% 
   filter(!is.na(site), depth != "+200") 
-write_csv(table_4, "data/analyses/table_4.csv")
+write_csv(table_S1, "data/analyses/table_S1.csv")
 
 # The table
-table_4_plot <- ggplot() +
+table_S1_plot <- ggplot() +
   annotate(geom = "table", x = 0, y = 0, label = list(table_4)) +
   theme_void()
-ggsave("figures/table_4.png", table_4_plot, width = 5.8, height = 4.8, dpi = 600)
+ggsave("figures/table_S1.png", table_4_plot, width = 5.8, height = 4.8, dpi = 600)
 
 
 # Table A1 ----------------------------------------------------------------
