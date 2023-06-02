@@ -1255,7 +1255,7 @@ if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 ### Relationships from the network analysis - created via the review paper
 # We want to see which sites have what relationships, and if there are any obvious outliers
 # This is one of the main points that will feed back into the review paper
-# NB: These have laready been run and can be loaded below as `driver_alll`
+# NB: These have already been run and can be loaded below as `driver_alll`
 
 # List of drivers and variables
 unique(clean_all_clean$driver)
@@ -1408,7 +1408,7 @@ ggplot(data = df_3, aes(x = value.x, y = value.y)) +
   geom_point() + geom_smooth(method = "lm")
 
 
-# Section 5 ---------------------------------------------------------------
+# Supplementary -----------------------------------------------------------
 # Future projections of data analysed for Section 3 and relationships from Section 4
 # NB: Only necessary to run the `Setup` section
 
@@ -1977,6 +1977,20 @@ mean(df_test$slope)
 median(df_test$slope)
 sd(df_test$slope)
 
+# Filter just temp vs sea ice and temp vs spp count
+driver_all_sub <- driver_all_filter |> 
+  filter(comp %in% c("temp [°C]\nvs\nsea ice cover [proportion]", "temp [°C]\nvs\nspp count [n]"))
+
+driver_all_sub %>% 
+  left_join(long_site_names, by = "site") |> 
+  ggplot(aes(x = site, y = slope)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(aes(colour = site_long),
+              size = 3, position = position_jitter(0.3)) +
+  facet_wrap(~comp, scales = "free") +
+  labs(x = NULL, y = "Slope [Y/X]") +
+  scale_colour_manual("Site", values = site_colours)
+
 # Boxplots of slopes for each comparison
 # With the sites and depths of comparison making up the points
 fig_5 <- driver_all_filter %>% 
@@ -2006,7 +2020,7 @@ fig_5 <- driver_all_filter %>%
 ggsave("figures/dp_fig_5.png", fig_5, width = 12, height = 12)
 
 
-# Figure 6 ----------------------------------------------------------------
+# Figure S1 ---------------------------------------------------------------
 # A figure or table showing similarity between model and amalgamated data. 
 
 # Load cleaned up clean data
@@ -2019,7 +2033,7 @@ if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
 
 # RMSE between in situ/remote and model
-fig_6 <- model_ALL_stats %>% 
+fig_S1 <- model_ALL_stats %>% 
   filter(type == "in situ") %>% 
   mutate(mean_mod_greater = ifelse(mean_mod > mean_dat, 1, 0)) %>% 
   left_join(long_site_names, by = "site") %>% 
@@ -2042,13 +2056,13 @@ fig_6 <- model_ALL_stats %>%
   labs(x = "Depth", y = "Variable") +
   theme(axis.text.x = element_text(angle = 30, hjust = 1),
         panel.border = element_rect(fill = NA, colour = "black"))
-# fig_6
+# fig_S1
 
 # Save
-ggsave("figures/dp_fig_6.png", fig_6, width = 7, height = 3)
+ggsave("figures/dp_fig_S1.png", fig_S1, width = 7, height = 3)
 
 
-# Figure 7 ----------------------------------------------------------------
+# Figure S2 ---------------------------------------------------------------
 # Projections of data where possible
 
 # Load relationship data
@@ -2084,7 +2098,7 @@ future_stats <- driver_all %>%
          mean_8.5 = mean_val+change_8.5)
 
 # The figure
-fig_7 <- future_stats %>% 
+fig_S2 <- future_stats %>% 
   dplyr::select(site:depth_y, mean_val, mean_hist:mean_8.5) %>% 
   pivot_longer(cols = mean_val:mean_8.5) %>% 
   left_join(long_site_names, by = "site") %>% 
@@ -2121,8 +2135,8 @@ fig_7 <- future_stats %>%
         legend.position = "bottom",
         legend.box = "vertical",
         panel.border = element_rect(fill = NA, colour = "black"))
-# fig_7
-ggsave("figures/dp_fig_7.png", fig_7, width = 8, height = 4)
+# fig_S2
+ggsave("figures/dp_fig_S2.png", fig_S2, width = 8, height = 4)
 
 
 # Table 1 -----------------------------------------------------------------
