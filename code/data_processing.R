@@ -307,12 +307,22 @@ ggplot(data = Lebrun_data, aes(x = `Longitude [°E]`, y = `Latitude [°N]`)) +
 # Sys.setenv(TZ = 'UTC')
 Gattuso_data <- read_csv_arrow("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1.csv") |> 
   mutate(datetime = as.POSIXct(datetime, origin = "1970-01-01")) |> 
-  separate(datetime, into = c("Date", "Time"), sep = " ") |>  
+  separate(`date/time [UTC+0]`, into = c("Date", "Time"), sep = " ") |>  
   mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) |> 
   dplyr::select(`date/time [UTC+0]`, everything(), -Date, -Time) |> 
   mutate_at(1:13, ~as.character(.)) |>
   mutate_at(1:13, ~replace_na(., ""))
 write_csv(Gattuso_data, "~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v1_tidy.csv")
+
+# Version 2
+Gattuso_data2 <- read_csv_arrow("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v2.csv") |> 
+  separate(`date/time [UTC+0]`, into = c("Date", "Time"), sep = "T") |>
+  mutate(Time = case_when(Time == "NA" ~ "00:00:00", TRUE ~ Time)) |> 
+  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) |> 
+  dplyr::select(`date/time [UTC+0]`, everything(), -Date, -Time) |> 
+  mutate_at(1:13, ~as.character(.)) |>
+  mutate_at(1:13, ~replace_na(., ""))
+write_csv(Gattuso_data2, "~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v2_PG.csv")
 
 
 # Miller dataset ----------------------------------------------------------
