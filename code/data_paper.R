@@ -3,10 +3,6 @@
 
 # It is here that the drivers are assigned to the data
 
-# Quotes are from Viitasalo and Bonsdorff (2022) unless stated otherwise
-# https://esd.copernicus.org/articles/13/711/2022/
-# "In addition, to better understand the effects of climate change on the biodiversity of the Baltic Sea, more emphasis should be placed on studies of shallow photic environments."
-
 # NB: Individual clean_*_all.csv are available at ~/WP1/data/full_data/
 
 
@@ -24,15 +20,15 @@ library(treemapify) # For gridded tree map
 library(qrcode)
 
 # QR code for data paper
-# QR_data_paper <- qr_code("https://essd.copernicus.org/preprints/essd-2022-455/")
-# plot(QR_data_paper)
-# generate_svg(QR_data_paper, filename = "presentations/QR_data_paper.svg")
+QR_data_paper <- qr_code("https://essd.copernicus.org/preprints/essd-2022-455/")
+plot(QR_data_paper)
+generate_svg(QR_data_paper, filename = "presentations/QR_data_paper.svg")
 
 
 # Data --------------------------------------------------------------------
 
 # FACE-IT collected data
-## NB: It is not useful to combine all of these files into a single dataframe
+## NB: It is not useful to combine all of these files into a single mega-dataframe
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
@@ -113,16 +109,6 @@ load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
 
 
 # Section 3 ---------------------------------------------------------------
-
-# Mostly annual and monthly mean states of key drivers
-# Alongfjord gradients is about as complex as we want to get
-# Limit to the top 10 metres. Consider the bottom 10 metres.
-# Line plots comparing averages values across sites
-# Solid colour for in situ data, dashed line for NOAA, dotted for CCI
-# Also produce summary stats
-## Mean, median, min, max, skewness, kurtosis
-## Summary of data available per month/season for sites
-
 
 ## Cryosphere --------------------------------------------------------------
 
@@ -444,12 +430,8 @@ review_summary_plot(summary_sea_temp, "sea temp")
 
 ### Salinity ---------------------------------------------------------------
 
-# "Knowledge gaps include uncertainties in projecting the future salinity level, as well as stratification and potential rate of internal loading, under different climate forcings."
-# "This weakens our ability to project how pelagic productivity, fish populations and macroalgal communities may change in the future."
-# "the decline of marine taxa has usually been proposed to be linked to a decrease of salinity (Suikkanen et al., 2013; Hänninen et al., 2015)"
-
 # Get all salinity data
-# NB: Remove Sal [mg/l]
+# Remove Sal [mg/l]
 # Remove overly processed variables
 # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
 # Remove glacial drainage land stations
@@ -572,12 +554,6 @@ review_summary_plot(summary_carb, "carb")
 
 # TODO: Create report showing difference in GLODAP l and kg values
 
-# "The associated increase in N:P ratio may contribute to maintaining the “vicious circle of eutrophication”. "
-# "An increase of riverine dissolved organic matter (DOM) may also decrease primary production, but the relative importance of this process in different sea areas is not well known."
-# "Climate change will probably delay the effects of nutrient abatement and tend to keep the ecosystem in its “novel” state."
-# "However, several modelling studies conclude that nutrient reductions will be a stronger driver for ecosystem functioning of the Baltic Sea than climate change."
-# "Such studies highlight the importance of studying the Baltic Sea as an interlinked socio-ecological system."
-
 # [µmol/l] is the same as [µg-at/l]
 # [µmol/l] vs [μmol kg-1] are different, a conversion should be made between them, but they appear to be used interchangeably
 
@@ -636,10 +612,6 @@ review_summary_plot(summary_nutrients, "nutrients")
 # TODO: Look into making PP conversion calculations with existing data 
 
 # Phaeopygments etc are not measures of PP, don't need fluorescence either
-
-# "For phytoplankton, clear symptoms of climate change, such as prolongation of the growing season, are evident and can be explained by the warming, but otherwise climate effects vary from species to species and area to area."
-# "A 15-year study (2000–2014) using FerryBox observations, covering the area between Helsinki (Gulf of Finland) and Travemünde (Mecklenburg Bight), confirmed that spring bloom intensity was mainly determined by winter nutrient concentration, while bloom timing and duration co-varied with meteorological conditions." 
-# "The authors conclude that the bloom magnitude has been affected by the reduction of nutrient loading from land, while bloom phenology can also be modified by global climate change affecting seasonal oceanographic and biogeochemical processes (Groetsch et al., 2016)."
 
 # [10um] vs [GFF] are different methods and both are valid.
 # Must keep the difference between them documented.
@@ -722,17 +694,6 @@ review_summary_plot(summary_biomass, "biomass")
 # E.g. by giving all species, or just grouping by a larger taxa
 # So don't use these comparisons in the data paper
 # Just describe the data
-
-# "Several modelling studies project a decrease of phytoplankton bloom in spring and an increase in cyanobacteria blooms in summer."
-# "However, uncertainties remain because some field studies claim that cyanobacteria have not increased and some experimental studies show that responses of cyanobacteria to temperature, salinity and pH vary from species to species. "
-# "Warming of seawater in spring also speeds up zooplankton growth and shortens the time lag between phytoplankton and zooplankton peaks, which may lead to decreasing of phytoplankton in spring"
-# "In summer, a shift towards smaller-sized zooplankton and a decline of marine copepod species has been projected."
-# "In the shallower photic systems, heatwaves may produce eutrophication-like effects, e.g. overgrowth of bladderwrack by epiphytes, due to a trophic cascade."
-# "It has also been suggested that in the future climate higher temperatures and less ice will cause an earlier bloom of both diatoms and dinoflagellates, with increased dinoflagellate dominance (Hjerne et al., 2019)."
-# "Other studies did not find any explanation for the observed changes in the biovolumes of different taxa, e.g. decrease in diatoms and increase in certain dinoflagellate taxa, 
-#  and concluded that phytoplankton community in the Baltic Sea is not in a steady state (Olli et al., 2011), or noted that stochastic dynamics at local scales confound any commonalities between phytoplankton groups (Griffiths et al., 2020)."
-# "In general, heatwaves favoured crawling or burrowing predators and suspension feeders, 
-# while the abundance of detritivores decreased, suggesting a climate-induced change in dominant zoobenthic traits (Pansch et al., 2018)."
 
 # Test check for all bio vars to make sure no species assemblage vars are missed
 as.vector(distinct(filter(full_product_is, category == "bio"), variable))
@@ -1255,7 +1216,7 @@ if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 ### Relationships from the network analysis - created via the review paper
 # We want to see which sites have what relationships, and if there are any obvious outliers
 # This is one of the main points that will feed back into the review paper
-# NB: These have laready been run and can be loaded below as `driver_alll`
+# NB: These have already been run and can be loaded below as `driver_alll`
 
 # List of drivers and variables
 unique(clean_all_clean$driver)
@@ -1407,8 +1368,11 @@ broom::glance(lm(value.x ~ value.y, data = df_3))
 ggplot(data = df_3, aes(x = value.x, y = value.y)) +
   geom_point() + geom_smooth(method = "lm")
 
+# Stats for amount of overlap for drivers comparable within 4+ sites
+summary(driver_all_filter$nobs)
 
-# Section 5 ---------------------------------------------------------------
+
+# Supplementary -----------------------------------------------------------
 # Future projections of data analysed for Section 3 and relationships from Section 4
 # NB: Only necessary to run the `Setup` section
 
@@ -1416,14 +1380,6 @@ ggplot(data = df_3, aes(x = value.x, y = value.y)) +
 # These data can be downloaded from the IPCC interactive website
 # https://interactive-atlas.ipcc.ch
 # Based on the relationships elucidated in the previous section we can then look at any possibly useful projections into the future with the model data
-
-## "It has also been suggested that the various drivers of climate change may contribute to increase blooms and toxicity of cyanobacteria in the Baltic Sea. 
-## For instance, the intracellular toxin concentration of the cyanobacterium Dolichospermum sp. may increase with elevated temperature (+4∘C) (Brutemark et al., 2015; Wulff et al., 2018) and with decreased salinity (from 6 to 3) (Wulff et al., 2018)."
-## "an increase in temperature from 16 to 18–20∘C led to an earlier peak of cyanobacteria, while the biomass of cyanobacteria, especially that of nitrogen-fixer Dolichospermum sp. declined (Berner et al., 2018)."
-## "To sum up, a shift towards smaller-sized zooplankton and a stronger linkage between mesozooplankton and the microbial food web is probable in a warmer Baltic Sea."
-## "It has been projected that macroalgae will decline in hard bottoms and vascular plants increase in the more sheltered soft-bottom areas (Torn et al., 2020)."
-## "Climate change will most probably mean milder winters, and if soils remain thawed, more nutrients will leak from the terrestrial areas into the freshwater system."
-## "Several recent studies have however pointed out, for example, that macroalgae (Rothäusler et al., 2018; Rugiu et al., 2018a) and zooplankton (Karlsson and Winder, 2020) have phenotypic plasticity and potential for adaptation against gradual changes in the abiotic environment."
 
 # Load cleaned up clean data
 if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
@@ -1726,7 +1682,6 @@ fig_2_a <- ggplot(data_set_freq,
   geom_treemap_subgroup2_border() +
   geom_treemap_subgroup_border() +
   geom_treemap_subgroup_text(aes(label = driver), place = "top") +
-  # geom_treemap_subgroup2_text(aes(label = variable), place = "bottom") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual("Category",
@@ -1745,7 +1700,6 @@ fig_2_b <- ggplot(data_point_freq,
   geom_treemap_subgroup2_border() +
   geom_treemap_subgroup_border() +
   geom_treemap_subgroup_text(aes(label = driver), place = "top") +
-  # geom_treemap_subgroup2_text(aes(label = variable), place = "bottom") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual("Category",
@@ -1804,7 +1758,7 @@ season_mean_full <- expand(season_mean, season, nesting(category, driver)) %>%
 # Plot
 fig_3 <- ggplot(data = season_mean_full, aes(x = driver, y = mean_days)) +
   geom_col(position = "stack", colour = "black", aes(fill = category)) +
-  facet_wrap(~season, ncol = 1) + #guides(fill = "none") +
+  facet_wrap(~season, ncol = 1) +
   scale_y_continuous(limits = c(0, 1.1), expand = c(0, 0)) +
   labs(x = "Driver", y = "Proportion of seasonal coverage") +
   scale_fill_manual("Category",
@@ -1814,7 +1768,6 @@ fig_3 <- ggplot(data = season_mean_full, aes(x = driver, y = mean_days)) +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_rect(fill = NA, colour = "black"),
-        # plot.background = element_rect(fill = NA, colour = "black"),
         legend.background = element_rect(fill = "grey90", colour = "black"),
         legend.position = "bottom")
 # fig_3
@@ -1920,18 +1873,9 @@ fig_4 <- ggplot(data = clean_all_annual_proc, aes(x = year, y = driver_count_sum
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
-        # axis.line = element_line(colour = "black"),
-        # panel.border = element_rect(fill = NA, colour = "black"),
-        # panel.border = theme_border(type = c("bottom","right","left")),
-        # axis.line.x = element_line(color = 'black'),
-        # axis.line.y.left   = element_line(color = 'black'),
-        # axis.line.y.right  = element_line(color = 'black'),
-        # axis.text.y.right  = element_blank(),
-        # axis.ticks.y.right = element_blank(),
         strip.text = element_blank(),
         strip.background = element_blank(),
         legend.position = "bottom",
-        # legend.spacing.x = unit(0, "mm"),
         legend.background = element_rect(fill = "grey90", colour = "black"),
         legend.title = element_text(margin = margin(r = 5)))
 # fig_4
@@ -1940,7 +1884,7 @@ fig_4 <- ggplot(data = clean_all_annual_proc, aes(x = year, y = driver_count_sum
 ggsave("figures/dp_fig_4.png", fig_4, width = 7, height = 8)
 
 
-# Figure 5 ----------------------------------------------------------------
+# Figure S1 ---------------------------------------------------------------
 # Somehow show the relationships between drivers 
 # Importance is to show difference between sites
 # Heatmap or corplot: https://jhrcook.github.io/ggasym/index.html
@@ -1970,16 +1914,9 @@ driver_all_filter <- driver_all %>%
                                   "Q [m3/s]\nvs\nPAR [µmol m-2 s-1]",
                                   "sea ice cover [proportion]\nvs\nPAR [µmol m-2 s-1]")))
 
-# Test stats
-df_test <- driver_all_filter %>% 
-  filter(comp == "temp [°C]\nvs\nsea ice cover [proportion]")
-mean(df_test$slope)
-median(df_test$slope)
-sd(df_test$slope)
-
 # Boxplots of slopes for each comparison
 # With the sites and depths of comparison making up the points
-fig_5 <- driver_all_filter %>% 
+fig_S1 <- driver_all_filter %>% 
   left_join(long_site_names, by = "site") %>% 
   # filter(depth == depth_y) %>% # Too restrictive
   ggplot(aes(x = comp, y = slope)) +
@@ -2003,10 +1940,10 @@ fig_5 <- driver_all_filter %>%
 # fig_5
 
 # Save
-ggsave("figures/dp_fig_5.png", fig_5, width = 12, height = 12)
+ggsave("figures/dp_fig_S1.png", fig_5, width = 12, height = 12)
 
 
-# Figure 6 ----------------------------------------------------------------
+# Figure S2 ---------------------------------------------------------------
 # A figure or table showing similarity between model and amalgamated data. 
 
 # Load cleaned up clean data
@@ -2019,7 +1956,7 @@ if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 if(!exists("model_ALL_stats")) load("data/analyses/model_ALL_stats.RData")
 
 # RMSE between in situ/remote and model
-fig_6 <- model_ALL_stats %>% 
+fig_S2 <- model_ALL_stats %>% 
   filter(type == "in situ") %>% 
   mutate(mean_mod_greater = ifelse(mean_mod > mean_dat, 1, 0)) %>% 
   left_join(long_site_names, by = "site") %>% 
@@ -2042,13 +1979,13 @@ fig_6 <- model_ALL_stats %>%
   labs(x = "Depth", y = "Variable") +
   theme(axis.text.x = element_text(angle = 30, hjust = 1),
         panel.border = element_rect(fill = NA, colour = "black"))
-# fig_6
+# fig_S2
 
 # Save
-ggsave("figures/dp_fig_6.png", fig_6, width = 7, height = 3)
+ggsave("figures/dp_fig_S2.png", fig_S1, width = 7, height = 3)
 
 
-# Figure 7 ----------------------------------------------------------------
+# Figure S3 ---------------------------------------------------------------
 # Projections of data where possible
 
 # Load relationship data
@@ -2084,7 +2021,7 @@ future_stats <- driver_all %>%
          mean_8.5 = mean_val+change_8.5)
 
 # The figure
-fig_7 <- future_stats %>% 
+fig_S3 <- future_stats %>% 
   dplyr::select(site:depth_y, mean_val, mean_hist:mean_8.5) %>% 
   pivot_longer(cols = mean_val:mean_8.5) %>% 
   left_join(long_site_names, by = "site") %>% 
@@ -2121,8 +2058,8 @@ fig_7 <- future_stats %>%
         legend.position = "bottom",
         legend.box = "vertical",
         panel.border = element_rect(fill = NA, colour = "black"))
-# fig_7
-ggsave("figures/dp_fig_7.png", fig_7, width = 8, height = 4)
+# fig_S3
+ggsave("figures/dp_fig_S2.png", fig_S3, width = 8, height = 4)
 
 
 # Table 1 -----------------------------------------------------------------
@@ -2284,7 +2221,7 @@ table_3_plot <- ggplot() +
 ggsave("figures/table_3.png", table_3_plot, width = 5.4, height = 1.8, dpi = 600)
 
 
-# Table 4 -----------------------------------------------------------------
+# Table S1 -----------------------------------------------------------------
 # Difference in projected trends
 
 # Load relationship data
@@ -2312,7 +2249,7 @@ future_stats <- driver_all %>%
   left_join(historic_trend, by = c("site", "type", "category", "driver", "variable", "depth"))
 
 # The trends of the model data against those of the amalgamated data
-table_4 <- future_stats %>% 
+table_S1 <- future_stats %>% 
   dplyr::select(site, type, variable, depth, `RCP 2.6`, `RCP 4.5`, `RCP 8.5`, hist_trend) %>% 
   distinct() %>% 
   pivot_wider(names_from = type, values_from = hist_trend) %>% 
@@ -2327,13 +2264,13 @@ table_4 <- future_stats %>%
   arrange(site_long, variable) %>% 
   dplyr::rename(site = site_long) %>% 
   filter(!is.na(site), depth != "+200") 
-write_csv(table_4, "data/analyses/table_4.csv")
+write_csv(table_S1, "data/analyses/table_S1.csv")
 
 # The table
-table_4_plot <- ggplot() +
+table_S1_plot <- ggplot() +
   annotate(geom = "table", x = 0, y = 0, label = list(table_4)) +
   theme_void()
-ggsave("figures/table_4.png", table_4_plot, width = 5.8, height = 4.8, dpi = 600)
+ggsave("figures/table_S1.png", table_4_plot, width = 5.8, height = 4.8, dpi = 600)
 
 
 # Table A1 ----------------------------------------------------------------
