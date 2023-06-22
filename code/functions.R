@@ -6,6 +6,9 @@
 
 # Setup -------------------------------------------------------------------
 
+# Need to start phasing out rgdal and rgeos
+options("sp_evolution_status"=2)
+
 # Libraries used in all other scripts
 library(tidyverse)
 library(ncdf4)
