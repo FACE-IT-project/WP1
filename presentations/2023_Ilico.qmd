@@ -1,0 +1,76 @@
+---
+title: "Comparison of the historic record of MHW in the Med vs Arctic and global averages"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+    width: 1050
+    height: 750
+editor: source
+---
+
+## Definition
+
+Hobday et al. (2016, 2018)
+
+- Base figure
+- Category figure
+
+Schlegel et al. (2021)
+
+- MCS ice category
+
+## Previous work
+
+- heatwaveR
+- MHW Tracker
+- ML for physical drivers
+
+## Med vs global record
+
+- Figure from Garrabou 2022
+- Supp figure showing MHW days per LME
+
+## Arctic record
+
+- MCS figure(s) explaining ice edge
+
+## Importance of datasets
+
+- Figure showing difference between OISST 0.25 and high-res 0.05
+
+## Merci
+
+::: columns
+::: {.column style="text-align: center"}
+</br>
+![](../logo/profile.jpeg)
+:::
+::: {.column style="text-align: center"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width="410"}
+<p style="font-size:22pt">Work package one (WP1)</p>
+![](../logo/h2020.png){width="450"} 
+<p style="font-size:22pt">Funded under grant #869154</p>
+:::
+:::
+
+
+## Merci
+
+::: columns
+::: {.column style="text-align: center"}
+</br>
+![](../logo/profile.jpeg)
+:::
+::: {.column style="text-align: center"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width="410"}
+<p style="font-size:22pt">Work package one (WP1)</p>
+![](../logo/h2020.png){width="450"} 
+<p style="font-size:22pt">Funded under grant #869154</p>
+:::
+:::
