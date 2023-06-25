@@ -9,8 +9,8 @@ format:
     theme: FACE-IT.scss
     self-contained: true
     transition: slide
-    width: 1050
-    height: 750
+    width: 1920
+    height: 1080
 editor: source
 ---
 
@@ -20,87 +20,144 @@ editor: source
 <b>Comparison of historic MHW record in the Med vs global and Arctic</b>
 </p>
 
-## Definition {auto-animate=true auto-animate-easing="ease-in-out"}
+## Definition {transition="fade-in slide-out"}
 
 ::: {.panel-tabset}
 
 ### Base
 
-Hobday et al. (2016)
+:::: {.columns}
 
+::: {.column width="20%"}
+Hobday   
+et al. (2016)
+:::
+
+::: {.column width="80%"}
 ![](../docs/assets/mhw-definition_1_fr.png)
+:::
 
-## Definition - categories {auto-animate=true auto-animate-easing="ease-in-out"}
+::::
 
-Hobday et al. (2018)
+### Categories
 
-![](../docs/assets/WA_flame_4.png)
+:::: {.columns}
 
-## Definition - cold-spells {auto-animate=true auto-animate-easing="ease-in-out"}
+::: {.column width="20%"}
+Hobday   
+et al. (2018)
+:::
 
-Schlegel et al. (2021; Marine Cold-spells)
+::: {.column width="80%"}
+![](../docs/assets/WA_flame_4.png){width=90%}
+:::
 
-![](../../MCSglobal/figures/fig_1.png)
+::::
 
-## Definition - ice {auto-animate=true auto-animate-easing="ease-in-out"}
+### Cold-spells
 
-Schlegel et al. (2021; Marine Cold-spells)
+:::: {.columns}
 
-![](../../MCSglobal/figures/fig_7.png)
+::: {.column width="20%"}
+Schlegel et al.   
+(2021; Marine   
+Cold-spells)
+:::
 
-## Previous work - collab {auto-animate=true auto-animate-easing="ease-in-out"}
+::: {.column width="80%"}
+![](../../MCSglobal/figures/fig_1.png)    
+:::
 
-![](../docs/assets/working_group_screen_shot.png)
+::::
+
+### Ice
+
+:::: {.columns}
+
+::: {.column width="20%"}
+Schlegel et al.   
+(2021; Marine   
+Cold-spells)
+:::
+
+::: {.column width="80%"}
+![](../../MCSglobal/figures/fig_7.png)  
+:::
+
+::::
+
+:::
+
+## Previous work {transition="fade-in slide-out"}
+
+::: {.panel-tabset}
+
+### Collab
+
+![](../docs/assets/working_group_screen_shot.png){width=70%}
 <https://www.marineheatwaves.org>
 
-## Previous work - software {auto-animate=true auto-animate-easing="ease-in-out"}
+### Software
 
-R package
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+:::: {.columns}
+
+::: {.column width="20%"}
+R package  
+
+![](QR_heatwaveR.png)
+:::
+
+::: {.column width="80%" style="text-align: center"}
+![](../docs/assets/heatwaveR.png)  
+
 <https://robwschlegel.github.io/heatwaveR/>  
+:::
 
-![](../docs/assets/heatwaveR.png){.absolute top="80" left="400"  width="500"} 
-![](QR_heatwaveR.png){.absolute top="200" left="20" width="300" height="300"}
+::::
 
-## Previous work - operational {auto-animate=true auto-animate-easing="ease-in-out"}
+### Operational
 
-MHW Tracker
+MHW Tracker - <http://www.marineheatwaves.org/tracker.html>  
 
-![](MHW_Tracker_2023-06-23.gif){width="800"}  
-<http://www.marineheatwaves.org/tracker.html>  
-![](QR_MHW_tracker.png){.absolute top="100" left="700"  width="300" height="300"}
+![](MHW_Tracker_2023-06-23.gif){width=80%}  
 
-## Previous work - Stats+ML
+![](QR_MHW_tracker.png){.absolute top=10% left=80% width=20%}
 
-::: columns
-::: {.column style="text-align: center"}
+### Stats+ML
+
+:::: {.columns}
+
+::: {.column width="35%"}
 </br>
 ![](../../MHWdetection/LaTeX/fig_2.png)
 <p style="font-size:22pt">Hobday definition stress test</p>
 :::
-::: {.column style="text-align: center"}
+
+::: {.column  width="65%"}
 ![](../docs/assets/synoptic_gsl_39.png)
 <p style="font-size:22pt">Drivers of MHWs</p>
 :::
+
+::::
+
 :::
 
-
-## Med vs global {auto-animate=true auto-animate-easing="ease-in-out"}
+## Med vs global {transition="fade-in slide-out"}
 
 ![](../../MHWmed/figures/MHW_cat_historic.png)
 (Garrabou et al., 2022; Mass Med Mortality)
 
 
-## Med vs global {auto-animate=true auto-animate-easing="ease-in-out"}
+## Med vs global {transition="fade-in slide-out"}
 
 ![](../../MHWmed/figures/manu_fig_1.png)
 (Garrabou et al., 2022; Mass Med Mortality)
 
-## Med vs global {auto-animate=true auto-animate-easing="ease-in-out"}
+## Med vs global {transition="fade-in slide-out"}
 
 ![](../docs/assets/GLOBAL_MHW_duration.png)
 
-## Med vs global {auto-animate=true auto-animate-easing="ease-in-out"}
+## Med vs global {transition="fade-in slide-out"}
 
 ![](../../MHWmed/figures/Med_MHW_duration.png)
 
@@ -111,6 +168,8 @@ MHW Tracker
 
 ## Important considerations
 
+<br/><br/>
+
 ::: {.incremental}
 - Datasets can have large differences
 - Definition has large impact on results
@@ -118,31 +177,31 @@ MHW Tracker
 :::
 
 
-## Merci {auto-animate=true auto-animate-easing="ease-in-out"}
+## Merci pour votre attention {auto-animate=true}
 
 ::: columns
 ::: {.column style="text-align: center"}
 </br>
-![](../logo/profile.jpeg)
+![](../logo/profile.jpeg){width=100%}
 :::
 ::: {.column style="text-align: center"}
-![](../logo/Logo_FACE-IT_PNG_1500.png){width="410"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width=100%}
 <p style="font-size:22pt">Work package one (WP1)</p>
-![](../logo/h2020.png){width="450"} 
+![](../logo/h2020.png){width=100%}
 <p style="font-size:22pt">Funded under grant #869154</p>
 :::
 :::
 
 
-## Merci {auto-animate=true auto-animate-easing="ease-in-out"}
+## Merci pour votre attention {auto-animate=true auto-animate-easing="ease-in-out"}
 
 ::: columns
 ::: {.column style="text-align: center"}
 </br>
-![](../logo/profile.jpeg)
+![](../logo/profile.jpeg){width=100%}
 :::
 ::: {.column style="text-align: center"}
-![](../logo/Logo_IMEV.png){width="410"}
-![](../logo/Logo_Sorbonne University.png){width="450"} 
+![](../logo/Logo_IMEV.png){width=100%}
+![](../logo/Logo_Sorbonne University.png){width=100%}
 :::
 :::
