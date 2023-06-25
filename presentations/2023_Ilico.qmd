@@ -14,31 +14,81 @@ format:
 editor: source
 ---
 
-## Definition
+## Definition - base
 
-Hobday et al. (2016, 2018)
+Hobday et al. (2016)
 
-- Base figure
-- Category figure
+![](../docs/assets/mhw-definition_1_fr.png)
 
-Schlegel et al. (2021)
+## Definition - categories
 
-- MCS ice category
+Hobday et al. (2018)
 
-## Previous work
+![](../docs/assets/WA_flame_4.png)
 
-- heatwaveR
-- MHW Tracker
-- ML for physical drivers
+## Definition - cold-spells
+
+Schlegel et al. (2021; Marine Cold-spells)
+
+![](../../MCSglobal/figures/fig_1.png)
+
+## Definition - ice
+
+Schlegel et al. (2021; Marine Cold-spells)
+
+![](../../MCSglobal/figures/fig_7.png)
+
+## Previous work - collaboration
+
+![](../docs/assets/working_group_screen_shot.png)
+<www.marineheatwaves.org>
+
+## Previous work - software
+
+R package
+
+![](../docs/assets/heatwaveR.png)
+<https://robwschlegel.github.io/heatwaveR/>
+![](QR_heatwaveR.png){.absolute top="100" left="600"  width="300" height="300"}
+
+## Previous work - operational
+
+MHW Tracker
+
+<!-- Get screenshot of current event -->
+<!-- ![]() -->
+<http://www.marineheatwaves.org/tracker.html>
+
+
+## Previous work - ML
+
+Drivers of MHWs
+
+<br/>  
+
+![](../docs/assets/synoptic_gsl_39.png)
 
 ## Med vs global record
 
-- Figure from Garrabou 2022
-- Supp figure showing MHW days per LME
+![](../../MHWmed/figures/MHW_cat_historic.png)
+
+## Med vs global record
+
+![](../../MHWmed/figures/manu_fig_1.png)
+
+## Med vs global record
+
+![](../docs/assets/GLOBAL_MHW_duration.png)
+
+## Med vs global record
+
+![](../../MHWmed/figures/Med_MHW_duration.png)
 
 ## Arctic record
 
-- MCS figure(s) explaining ice edge
+![](../../MCSglobal/figures/fig_4.png)
+
+## Importance of definitions
 
 ## Importance of datasets
 
@@ -68,9 +118,7 @@ Schlegel et al. (2021)
 ![](../logo/profile.jpeg)
 :::
 ::: {.column style="text-align: center"}
-![](../logo/Logo_FACE-IT_PNG_1500.png){width="410"}
-<p style="font-size:22pt">Work package one (WP1)</p>
-![](../logo/h2020.png){width="450"} 
-<p style="font-size:22pt">Funded under grant #869154</p>
+![](../logo/Logo_IMEV.png){width="410"}
+![](../logo/Logo_Sorbonne University.png){width="450"} 
 :::
 :::
