@@ -2521,3 +2521,15 @@ driv_date <- ggplot(data = clean_all_phys_date) +
 driv_date
 ggsave("metadata/driv_date.png", driv_date, width = 10, height = 6)
 
+# Available data for drivers
+unique(clean_all_clean$driver)
+unique(clean_all_clean$variable)
+quick_plot_avail("sea ice", legend_tweak = c(0.1, 0.68))
+quick_plot_avail("glacier")
+quick_plot_avail("runoff", legend_tweak = c(0.2, 0.7))
+quick_plot_avail("salinity", legend_tweak = c(0.2, 0.5))
+quick_plot_avail("nutrients", legend_tweak = c(0.2, 0.45))
+quick_plot_avail("Chla", filter_choice = "variable", legend_tweak = c(0.2, 0.3))
+quick_plot_avail("spp rich")
+quick_plot_avail("spp count", filter_choice = "variable")
+

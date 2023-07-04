@@ -2653,6 +2653,40 @@ add_depth <- function(df){
   return(df_res)
 }
 
+# Convenience plot of available data for a given driver
+quick_plot_avail <- function(filter_name, filter_choice = "driver", legend_tweak = c(0.2, 0.8)){
+  
+  # Load data
+  if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
+  
+  # Filter data accordingly
+  if(filter_choice == "driver"){
+    avail_data <- clean_all_clean |> 
+      filter(driver == filter_name)
+  } else if(filter_choice == "variable") {
+    avail_data <- clean_all_clean |> 
+      filter(grepl(filter_name, variable))
+  } else {
+    stop("oops")
+  }
+  
+  # Create plot, save, and return the plot for viewing
+  avail_plot <- avail_data |> 
+    mutate(year = year(date)) |> 
+    summarise(daily_count = n(), .by = c("site", "year")) |> 
+    left_join(long_site_names, by = "site") |> 
+    ggplot(aes(y = site_long, x = year)) +
+    geom_point(aes(size = daily_count, colour = site_long)) +
+    scale_colour_manual(values = site_colours, guide = "none") +
+    labs(x = NULL, y = NULL, size = "Daily data/year",
+         title = paste0("Available ",filter_name," data")) +
+    theme(legend.position = legend_tweak,
+          legend.background = element_rect(colour = "black", fill  = "white"),
+          panel.border = element_rect(colour = "black", fill = NA))
+  ggsave(paste0("metadata/avail_",filter_name,".png"), avail_plot, width = 10, height = 6)
+  avail_plot
+}
+
 # Snappy little convenience function
 quick_plot_ice <- function(df, pixel_size = 5){
   if(length(unique(df$sea_ice_extent)) == 4) factor_labels <- c("ocean", "land", "sea ice", "coast")
