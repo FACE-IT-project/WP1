@@ -1,0 +1,207 @@
+---
+# title: "Comparison of the historic record of MHW in the Med vs Arctic and global averages"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+    width: 1920
+    height: 1080
+editor: source
+---
+
+# {background-color="#008980" style="text-align: center"}
+
+<p style="font-size:68pt">
+<b>Comparison of historic MHW record in the Med vs global and Arctic</b>
+</p>
+
+## Definition {transition="fade-in slide-out"}
+
+::: {.panel-tabset}
+
+### Base
+
+:::: {.columns}
+
+::: {.column width="20%"}
+Hobday   
+et al. (2016)
+:::
+
+::: {.column width="80%"}
+![](../docs/assets/mhw-definition_1_fr.png)
+:::
+
+::::
+
+### Categories
+
+:::: {.columns}
+
+::: {.column width="20%"}
+Hobday   
+et al. (2018)
+:::
+
+::: {.column width="80%"}
+![](../docs/assets/WA_flame_4.png){width=90%}
+:::
+
+::::
+
+### Cold-spells
+
+:::: {.columns}
+
+::: {.column width="20%"}
+Schlegel et al.   
+(2021; Marine   
+Cold-spells)
+:::
+
+::: {.column width="80%"}
+![](../../MCSglobal/figures/fig_1.png)    
+:::
+
+::::
+
+### Ice
+
+:::: {.columns}
+
+::: {.column width="20%"}
+Schlegel et al.   
+(2021; Marine   
+Cold-spells)
+:::
+
+::: {.column width="80%"}
+![](../../MCSglobal/figures/fig_7.png)  
+:::
+
+::::
+
+:::
+
+## Previous work {transition="fade-in slide-out"}
+
+::: {.panel-tabset}
+
+### Collab
+
+![](../docs/assets/working_group_screen_shot.png){width=70%}
+<https://www.marineheatwaves.org>
+
+### Software
+
+:::: {.columns}
+
+::: {.column width="20%"}
+R package  
+
+![](QR_heatwaveR.png)
+:::
+
+::: {.column width="80%" style="text-align: center"}
+![](../docs/assets/heatwaveR.png)  
+
+<https://robwschlegel.github.io/heatwaveR/>  
+:::
+
+::::
+
+### Operational
+
+MHW Tracker - <http://www.marineheatwaves.org/tracker.html>  
+
+![](MHW_Tracker_2023-06-23.gif){width=80%}  
+
+![](QR_MHW_tracker.png){.absolute top=10% left=80% width=20%}
+
+### Stats+ML
+
+:::: {.columns}
+
+::: {.column width="35%"}
+</br>
+![](../../MHWdetection/LaTeX/fig_2.png)
+<p style="font-size:22pt">Hobday definition stress test</p>
+:::
+
+::: {.column  width="65%"}
+![](../docs/assets/synoptic_gsl_39.png)
+<p style="font-size:22pt">Drivers of MHWs</p>
+:::
+
+::::
+
+:::
+
+## Med vs global {transition="fade-in slide-out"}
+
+![](../../MHWmed/figures/MHW_cat_historic.png)
+(Garrabou et al., 2022; Mass Med Mortality)
+
+
+## Med vs global {transition="fade-in slide-out"}
+
+![](../../MHWmed/figures/manu_fig_1.png)
+(Garrabou et al., 2022; Mass Med Mortality)
+
+## Med vs global {transition="fade-in slide-out"}
+
+![](../docs/assets/GLOBAL_MHW_duration.png)
+
+## Med vs global {transition="fade-in slide-out"}
+
+![](../../MHWmed/figures/Med_MHW_duration.png)
+
+## Arctic record
+
+![](MCS_fig_4_edit.png)  
+(Schlegel et al., 2021)
+
+## Important considerations
+
+<br/><br/>
+
+::: {.incremental}
+- Datasets can have large differences
+- Definition has large impact on results
+- Regions have different behaviours + challenges
+:::
+
+
+## Merci pour votre attention {auto-animate=true}
+
+::: columns
+::: {.column style="text-align: center"}
+</br>
+![](../logo/profile.jpeg){width=100%}
+:::
+::: {.column style="text-align: center"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width=100%}
+<p style="font-size:22pt">Work package one (WP1)</p>
+![](../logo/h2020.png){width=100%}
+<p style="font-size:22pt">Funded under grant #869154</p>
+:::
+:::
+
+
+## Merci pour votre attention {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: columns
+::: {.column style="text-align: center"}
+</br>
+![](../logo/profile.jpeg){width=100%}
+:::
+::: {.column style="text-align: center"}
+![](../logo/Logo_IMEV.png){width=100%}
+![](../logo/Logo_Sorbonne University.png){width=100%}
+:::
+:::
