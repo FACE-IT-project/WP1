@@ -60,44 +60,50 @@ server <- function(input, output) {
   output$distPlot <- renderPlotly({
     
     # Generate random numbers based on inputs
-    x <- data.frame(y = rnorm(n = input$dist_n,
+    x <- data.frame(x = rnorm(n = input$dist_n,
                               mean = input$dist_mean,
-                              sd = input$dist_sd))
+                              sd = input$dist_sd),
+                    y = "name")
     
     # For testing
-    # x <- data.frame(y = rnorm(n = 1000, mean = 2, sd = 2))
+    # x <- data.frame(x = rnorm(n = 1000, mean = 2, sd = 2), y = "name")
     
     # Get moments stats
-    x_stats <- data.frame(mean = round(mean(x$y), 2),
-                          sd = round(sd(x$y), 2),
-                          skew = round(skewness(x$y), 2),
-                          kurt = round(kurtosis(x$y), 2))
+    x_stats <- data.frame(mean = round(mean(x$x), 2),
+                          sd = round(sd(x$x), 2),
+                          skew = round(skewness(x$x), 2),
+                          kurt = round(kurtosis(x$x), 2))
+    
+    # https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html
     
     # Draw the distribution
-    dist_plot <- ggplot(data = x, aes(x = y)) +
-      geom_rug(aes(text = paste0("Temp. [°C]: ", round(y, 2)))) +
-      geom_density() +
+    dist_plot <- ggplot(data = x, aes(x = x, y = y)) +
+      geom_density_ridges(jittered_points = TRUE) +
+      # geom_rug(aes(text = paste0("Temp. [°C]: ", round(y, 2)))) +
+      # geom_density() +
       # geom_density_
-      geom_vline(aes(xintercept = x_stats$mean, 
-                     text = paste0("Mean: ",x_stats$mean)),
-                 color = "black", linetype = "dashed", linewidth = 1) +
-      geom_vline(aes(xintercept = x_stats$mean-x_stats$sd, 
-                     text = paste0("sd -1: ", x_stats$mean-x_stats$sd)),
-                 color = "blue", linetype = "dashed", linewidth = 1) +
-      geom_vline(aes(xintercept = x_stats$mean-x_stats$sd*2, 
-                     text = paste0("sd -2: ", x_stats$mean-x_stats$sd*2)),
-                 color = "darkblue", linetype = "dashed", linewidth = 1) +
-      geom_vline(aes(xintercept = x_stats$mean+x_stats$sd, 
-                     text = paste0("sd +1: ", x_stats$mean+x_stats$sd)),
-                 color = "red", linetype = "dashed", linewidth = 1) +
-      geom_vline(aes(xintercept = x_stats$mean+x_stats$sd*2, 
-                     text = paste0("sd +2: ", x_stats$mean+x_stats$sd*2)),
-                 color = "darkred", linetype = "dashed", linewidth = 1) +
-      labs(x = "Temperature [°C]", y = "Density") +
-      theme(panel.border = element_rect(colour = "black", fill = NA))
+      # geom_vline(aes(xintercept = x_stats$mean, 
+      #                text = paste0("Mean: ",x_stats$mean)),
+      #            color = "black", linetype = "dashed", linewidth = 1) +
+      # geom_vline(aes(xintercept = x_stats$mean-x_stats$sd, 
+      #                text = paste0("sd -1: ", x_stats$mean-x_stats$sd)),
+      #            color = "blue", linetype = "dashed", linewidth = 1) +
+      # geom_vline(aes(xintercept = x_stats$mean-x_stats$sd*2, 
+      #                text = paste0("sd -2: ", x_stats$mean-x_stats$sd*2)),
+      #            color = "darkblue", linetype = "dashed", linewidth = 1) +
+      # geom_vline(aes(xintercept = x_stats$mean+x_stats$sd, 
+      #                text = paste0("sd +1: ", x_stats$mean+x_stats$sd)),
+      #            color = "red", linetype = "dashed", linewidth = 1) +
+      # geom_vline(aes(xintercept = x_stats$mean+x_stats$sd*2, 
+      #                text = paste0("sd +2: ", x_stats$mean+x_stats$sd*2)),
+      #            color = "darkred", linetype = "dashed", linewidth = 1) +
+      labs(x = "Temperature [°C]", y = NULL) +
+      theme(axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            panel.border = element_rect(colour = "black", fill = NA))
+    # dist_plot
     
     # Plotly
-    # dist_plot
     ggplotly(dist_plot, tooltip = "text")
   })
 }
