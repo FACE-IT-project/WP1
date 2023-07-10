@@ -1,0 +1,126 @@
+---
+title: "Fjord intercomparisons: available data"
+format: 
+  revealjs:
+    theme: FACE-IT.scss
+    self-contained: true
+editor: source
+author: Robert Schlegel
+institute: Sorbonne - IMEV
+date: 2023-07-04
+date-format: iso
+scrollable: true
+---
+
+## Overview
+
+- This presentation focuses on which data are available for the variables of interest for a fjord intercomparison.
+- It does this by first listing what those variables are. Then shows the time period over which those data area available, with a daily sum per year and the overlap between sites.
+- __NB:__ These slides may scroll vertically.
+
+## Variables of interest
+
+-  areas, volumes, bathymetry, sil presence
+-  presence/absence of tidewater and land-terminating glaciers
+-  freshwater flows and tidal differences - so that we could compare the tidal volume exchanges with river fluxes, evaluating the relative importance of each
+-  defining which water masses dominate in the various fjords, based on temperature and salinity data
+-  nutrient data
+-  chlorophyll data
+-  zooplankton data
+-  sea ice data - extension, thickness
+-  water turbidity data
+-  any types of diversity data covering from microorganisms to invertebrates and fish
+-  seaweed data
+
+## Bathymetry etc.
+
+- I'll not show the data here, but thanks to the bottom PAR dataset project we have very high (~50-200 m) evenly gridded and complete bathymetry data for all fjords.
+- Areas and volumes could then be calculated relatively easily from these data.
+- A quick survey of FACE-IT experts should let us know which fjords have sils and which don't.
+
+## Sea ice
+
+- To my knowledge, there are no remotely sensed data on sea ice thickness.
+- Nor have I found any modelled or _in situ_ data.
+- Therefore almost all sea ice data are remotely sensed.
+- That being said, an intercomparison for this variable is simple.
+
+![](../metadata/avail_sea ice.png){style="width: 1000px; height: 600px;"}
+
+## Presence/absence and type of glacier
+
+- Glacier presence/type can be answered with expert knowledge from FACE-IT members
+- Available glacier data range from ice thickness to glacier mass balance
+- Data overlap does not necessarily mean a comparison can be made
+  
+![](../metadata/avail_glacier.png){style="width: 1000px; height: 600px;"}
+
+## Freshwater flows and tidal differences
+
+- There are a lot of runoff data, but they may measure very different things and we would have to look closely at how intercomparable they are.
+- I do not currently have any data on tifdal flows.
+- Nor any data on water movement in/out of fjords, but these data do exist via ADCP's on morrings at fjord mouth's.
+
+![](../metadata/avail_runoff.png){style="width: 1000px; height: 600px;"}
+
+## Defining water masses
+
+- Copious amounts of seawater temperature and salinity data have been collected at many depths.
+- Here I just show salinity data, because they are always collected with temperature.
+- This may require a bit of work to determine water mass from irregular _in situ_ data, but should be possible
+
+![](../metadata/avail_salinity.png){style="width: 1000px; height: 600px;"}
+
+## Light
+
+- While not on the original list, thanks to the new botttom PAR dataset it should be possible to make interesting intercomparisons of surface PAR, Kd, and bottom PAR.
+- I've not shown the data here because we are still working on them and they haven't been added to the FACE-IT dataset.
+- But here are the p-curves.
+
+![](../../fjord_PAR/figures/fig_2.png){style="width: 700px; height: 600px;"}
+
+## Water turbidity
+
+- At first it was decided to collect turbidity data.
+- But after the first round of data queries I realised that these data are scarce and not regular between sites.
+- I do have some DIC, DIM, DOM, etc. data, but they are not cleaned up so I haven't shown them here.
+- I would rather use the PAR dataset (Kd in this case) as it is much easier to work with and spatially+temporally complete for all sites.
+
+## Nutrients
+
+- Direct intercomparisons would be difficuly/impossible.
+- But it may be possible to create rough climatologies of nutrients for intercomparisons.
+- Also note that there are several different nutrients, so any overlapping data shown here are not necessarily the same variable
+
+![](../metadata/avail_nutrients.png){style="width: 1000px; height: 600px;"}
+
+## Chlorophyll data
+
+- The lack of Chla data for many sites was a surprise.
+- It should be possible to find these data for all sites.
+- Otherwise intercomparisons between multiple sites should be possible.
+
+![](../metadata/avail_Chla.png){style="width: 1000px; height: 600px;"}
+
+## Phyto/zooplankton
+
+- In v1.0 of the FACE-IT dataset it is not readily possible to separate out different taxa/species/functional groups.
+- If one knows which species one wants, they can easily be targeted.
+- However, with the exception of macroalgae, I do not have knowledge of Arctic species Latin names to filter out just plankton here.
+- The intern we had at WP1 in the spring has thought of a clever way to address this issue, which will be implemented.
+- But for now I am just showing all species counts.
+
+![](../metadata/avail_spp rich.png){style="width: 1000px; height: 600px;"}
+
+## Seaweed
+
+- There are some seaweed data available at a few sites, but these are not general comparable.
+- This would require some thought for an intercomparison.
+- Perhaps a more qualitative approach. E.g. presence/dominance of certain species.
+- I am not worried that we can find the expertise in FACE-IT to answer macroalgae questions :P
+
+## Species diversity
+
+- Everything else from microorganisms to invertebrates and fish
+- The changes to the dataset to answer the phyto/zooplankton and macroalgae questions will naturally allow us to investigate this final level.
+
