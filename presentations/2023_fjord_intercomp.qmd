@@ -88,13 +88,13 @@ scrollable: true
 
 ## Nutrients
 
-- Direct intercomparisons would be difficuly/impossible.
+- Direct intercomparisons would be difficult/impossible.
 - But it may be possible to create rough climatologies of nutrients for intercomparisons.
 - Also note that there are several different nutrients, so any overlapping data shown here are not necessarily the same variable
 
 ![](../metadata/avail_nutrients.png){style="width: 1000px; height: 600px;"}
 
-## Chlorophyll data
+## Chlorophyll
 
 - The lack of Chla data for many sites was a surprise.
 - It should be possible to find these data for all sites.
