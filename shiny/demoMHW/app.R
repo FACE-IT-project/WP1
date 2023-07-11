@@ -63,23 +63,31 @@ sst_Med <- heatwaveR::sst_Med
 # UI ----------------------------------------------------------------------
 
 # Define UI
-ui <- dashboardPage(
+ui <- navbarPage(title = "test",
     
     # The app title
-    dashboardHeader(title = "MHW demo"),
+    # TODO: Add messages etc
+    # https://rstudio.github.io/shinydashboard/structure.html
+    header = dashboardHeader(title = "MHW demo"),
     
     # The primary options
-    dashboardSidebar(
+    sidebar = dashboardSidebar(
         
         # The side bar
         sidebarMenu(id = "mainMenu",
                     
                     # The various menus
-                    menuItem("Overview", tabName = "overview", icon = icon("desktop")),
-                    menuItem("Time series", tabName = "time", icon = icon("clock")),
-                    menuItem("Statistics", tabName = "perc_base", icon = icon("percent")),
-                    menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass")),
-                    menuItem("The main event", tabName = "event", icon = icon("temperature-high"), selected = TRUE)),
+                    menuItem("Overview", icon = icon("desktop")),
+                    menuItem("Time series", tabName = "time", icon = icon("clock"),
+                             selectizeInput("seriesSelect", "Time series",
+                                            choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
+                                            selected = c("Western Australia"))),
+                    menuItem("Statistics", tabName = "perc_base", icon = icon("percent"),
+                             selectizeInput("seriesSelect2", "Time series",
+                                            choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
+                                            selected = c("Western Australia"))),
+                    menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"), selected = TRUE),
+                    menuItem("The main event", tabName = "event", icon = icon("temperature-high"))),
         
         # The reactive controls based on the primary option chosen
         # uiOutput(outputId = "sidebar_controls")),
@@ -97,24 +105,24 @@ ui <- dashboardPage(
     ),
     
     # The dashboard
-    dashboardBody(
-        tabItems(
-            
+    body = dashboardBody(
+        # tabItems(
+        tabsetPanel(
             
             ## Overview menu -----------------------------------------------------------
             
-            tabItem(tabName = "overview",
-                    fluidPage(
-                        column(12,
-                               img(src = "MHW_def.png", width = "600px", style = "float:left; margin-right: 20px;"),
-                               h1(tags$b("Overview")),
-                               h2(tags$b("Brief")),
-                               p("This demo was designed to provide a visual and interactive explanation for how one may detect
+            tabPanel(title = "Overview",
+                     fluidPage(
+                         column(12,
+                                img(src = "MHW_def.png", width = "600px", style = "float:left; margin-right: 20px;"),
+                                # h1(tags$b("Overview")),
+                                h2(tags$b("Brief")),
+                                p("This demo was designed to provide a visual and interactive explanation for how one may detect
                                  a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition."),
-                               h2(tags$b("References")),
-                               p("Hobday et al. (2016, 2018) etc.")
-                        )
-                    )
+                                h2(tags$b("References")),
+                                p("Hobday et al. (2016, 2018) etc.")
+                         )
+                     )
             ),
             
             
@@ -122,33 +130,33 @@ ui <- dashboardPage(
             
             # TODO:
             # Add radio buttons to show colour for dots by month, year, or both (maybe not both...)
-            tabItem(tabName = "time",
-                    p("Once upon a time series..."),
-                    fluidPage(
-                        column(12,
-                               box(width = 3, title = "Controls", # height = "880px",
-                                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                                   
-                                   # Site select
-                                   # uiOutput("selectSeriesUI"),
-                                   selectizeInput("seriesSelect", "Time series",
-                                                  choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                                  selected = c("Western Australia")),
-                                   
-                                   # Time select
-                                   selectizeInput("timeSelect", "Time period",
-                                                  choices = c("All", "Month", "Year", "DOY", "Day"),
-                                                  selected = c("Day")
-                                   )
-                               ),
-                               
-                               # Time series plot
-                               box(width = 9, title = "Data", 
-                                   status = "info", solidHeader = TRUE, collapsible = FALSE,
-                                   plotOutput("timePlot")
-                               )
-                        )
-                    )
+            tabPanel(title = "time",
+                     p("Once upon a time series..."),
+                     fluidPage(
+                         column(12,
+                                # box(width = 3, title = "Controls", # height = "880px",
+                                #     status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                                #     
+                                #     # Site select
+                                #     # uiOutput("selectSeriesUI"),
+                                #     selectizeInput("seriesSelect", "Time series",
+                                #                    choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
+                                #                    selected = c("Western Australia")),
+                                #     
+                                #     # Time select
+                                #     selectizeInput("timeSelect", "Time period",
+                                #                    choices = c("All", "Month", "Year", "DOY", "Day"),
+                                #                    selected = c("Day")
+                                #     )
+                                # ),
+                                
+                                # Time series plot
+                                box(width = 12, title = "Data", 
+                                    status = "info", solidHeader = TRUE, collapsible = FALSE,
+                                    plotOutput("timePlot")
+                                )
+                         )
+                     )
             ),
             
             ## Perc+base menu ----------------------------------------------------------
@@ -163,9 +171,9 @@ ui <- dashboardPage(
                                    
                                    # Site select
                                    # uiOutput("selectSeriesUI"),
-                                   selectizeInput("seriesSelect2", "Time series",
-                                                  choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                                  selected = c("Western Australia")),
+                                   # selectizeInput("seriesSelect2", "Time series",
+                                   #                choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
+                                   #                selected = c("Western Australia")),
                                    
                                    # Select baseline period
                                    shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
@@ -199,7 +207,7 @@ ui <- dashboardPage(
             
             ## Detection menu ----------------------------------------------------------
             
-            tabItem(tabName = "event",
+            tabItem(tabName = "detect",
                     fluidPage(
                         column(12,
                                # Controls
@@ -431,7 +439,7 @@ server <- function(input, output, session) {
         
         # Plot
         lolliPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
-            geom_point(aes(y = temp, colour = "temp"))
+            geom_point(aes(y = temp), colour = "blue")
         
         # Exit
         lolliPlot
@@ -451,7 +459,7 @@ server <- function(input, output, session) {
         
         # Plot
         mainPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
-            geom_point(aes(y = temp, colour = "temp"))
+            geom_point(aes(y = temp), colour = "red")
         
         # Exit
         mainPlot
