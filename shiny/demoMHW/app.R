@@ -33,6 +33,11 @@ MCS_colours <- c(
     "Extreme" = "#111433"
 )
 
+# Function for ensuring 366 DOY for non-leap years
+leap_every_year <- function(x) {
+    ifelse(yday(x) > 59 & leap_year(x) == FALSE, yday(x) + 1, yday(x))
+}
+
 
 # Data --------------------------------------------------------------------
 
@@ -58,9 +63,9 @@ ui <- dashboardPage(
                     
                     # The various menus
                     menuItem("Overview", tabName = "overview", icon = icon("desktop")),
-                    menuItem("Time", tabName = "time", icon = icon("clock"), selected = TRUE),
-                    menuItem("Perc+base", tabName = "perc_base", icon = icon("percent")),
-                    menuItem("Main event", tabName = "event", icon = icon("temperature-high"))),
+                    menuItem("Time series", tabName = "time", icon = icon("clock")),
+                    menuItem("Statistics", tabName = "perc_base", icon = icon("percent"), selected = TRUE),
+                    menuItem("The main event", tabName = "event", icon = icon("temperature-high"))),
         
         # The reactive controls based on the primary option chosen
         # uiOutput(outputId = "sidebar_controls")),
@@ -91,9 +96,9 @@ ui <- dashboardPage(
                                img(src = "MHW_def.png", width = "400px", style = "float:left; margin-right: 20px;"),
                                h2(tags$b("Brief")),
                                p("This demo was designed to provide a visual and interactive explanation for how one may detect
-                                 a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition. The "),
+                                 a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition."),
                                h2(tags$b("References")),
-                               p("Hobday et al. 2016 etc.")
+                               p("Hobday et al. (2016, 2018) etc.")
                         )
                     )
             ),
@@ -101,10 +106,12 @@ ui <- dashboardPage(
             
             ## Time menu ---------------------------------------------------------------
             
+            # TODO:
+            # Add radio buttons to show colour for dots by month, year, or both (maybe not both...)
             tabItem(tabName = "time",
                     p("Once upon a time series..."),
                     fluidPage(column(12,
-                                     box(width = 3, title = "Time choice", # height = "880px",
+                                     box(width = 3, title = "Controls", # height = "880px",
                                          status = "warning", solidHeader = TRUE, collapsible = FALSE,
                                          
                                          # Site select
@@ -118,28 +125,61 @@ ui <- dashboardPage(
                                                         choices = c("All", "Month", "Year", "DOY", "Day"),
                                                         selected = c("Day")
                                          )
-                    ),
-                    
-                    # Time series plot
-                    box(width = 9, title = "Time series", 
-                        status = "info", solidHeader = TRUE, collapsible = FALSE,
-                        plotOutput("timePlot")
-                               # shinycssloaders::withSpinner(plotlyOutput("timePlot"), 
-                               #                              type = 6, color = "#b0b7be"))
-                        )
+                                     ),
+                                     
+                                     # Time series plot
+                                     box(width = 9, title = "Data", 
+                                         status = "info", solidHeader = TRUE, collapsible = FALSE,
+                                         plotOutput("timePlot")
+                                     )
                     )
                     )
-            )#,
+            ),
             
             ## Perc+base menu ----------------------------------------------------------
             
-            # tabItem(tabName = "perc_base",
-            #         fluidPage(column(12,
-            #                          img(src = "MHW_def.png", align = "center", width = "600px")))
-            # ),
+            tabItem(tabName = "perc_base",
+                    p("Lies, damn lies, and statistics..."),
+                    fluidPage(column(12,
+                                     # Controls
+                                     box(width = 3, title = "Controls",
+                                         status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                                         
+                                         # Site select
+                                         # Perhaps rather have this be determined by the first tab
+                                         # selectizeInput("seriesSelect", "Time series",
+                                         #                choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
+                                         #                selected = c("Western Australia")
+                                         # ),
+                                         
+                                         # Select baseline period
+                                         shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
+                                                            value = c(1982, 2011), sep = ""
+                                         )#,
+                                         
+                                         # Select quantile
+                                         
+                                         # Detrend - no - linear - non-linear
+                                     ),
+                                     
+                                     # Figures - show in panel of three
+                                     # DOY panel - percentiles + trend effect
+                                     # Table of MHW metrics
+                                     box(width = 9, title = "Data", 
+                                         status = "info", solidHeader = TRUE, collapsible = FALSE,
+                                     # Overview of time series - baseline + trend
+                                         plotOutput("basePlot"),
+                                     
+                                     )
+                    )
+                    )
+                                     
+                                     
+                                    
+            )#,
             
             
-            ## Main event men-----------------------------------------------------------
+            ## Main event menu ----------------------------------------------------------
             
             # tabItem(tabName = "event",
             #         fluidPage(column(12,
@@ -154,15 +194,10 @@ ui <- dashboardPage(
 
 # Server
 server <- function(input, output) {
-
-
-    ## Time plot ---------------------------------------------------------------
     
-    # NB: Too many data points for plotly to run quickly
-    output$timePlot <- renderPlot({
+    # Base time series
+    df_site_ts <- reactive({
         req(input$seriesSelect)
-        
-        # Determine time series to use
         if(input$seriesSelect == "Western Australia"){
             df_site_ts <- sst_WA
         } else if(input$seriesSelect == "NW Atlantic"){
@@ -170,15 +205,23 @@ server <- function(input, output) {
         } else if(input$seriesSelect == "Mediterranean"){
             df_site_ts <- sst_Med
         }
+        return(df_site_ts)
+    })
+    
+    ## Time plot ---------------------------------------------------------------
+    
+    # NB: Too many data points for plotly to run quickly
+    output$timePlot <- renderPlot({
+
+        # Get time series
+        df_site_ts <- df_site_ts()
         
         # Create time columns
         df_site_ts <- df_site_ts |> 
             mutate(all = "All",
                    month = lubridate::month(t, label = TRUE),
                    year = lubridate::year(t),
-                   # NB: technically this is incorrect as it doesn't respect leap years
-                   # But it's quick and easy...
-                   doy = as.numeric(strftime(t, format = "%j")),
+                   doy = leap_every_year(t),
                    day = t)
         
         # Set t column to timeSelect
@@ -195,16 +238,77 @@ server <- function(input, output) {
             df_site_ts$t <- df_site_ts$day
         }
         
-        # Plot and exit
-        basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_point(position = "jitter") +
+        # Plot
+        timePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_point(position = "jitter") +
             theme_bw() + labs(x = NULL, y = "Temperature [°C]")
-        basePlot
-        # return(basePlot)
         
+        if(input$timeSelect %in% c("All", "Month", "Year")){
+            timePlot <- timePlot + geom_boxplot(aes(group = t), linewidth = 2,
+                                                colour = "blue", alpha = 0.2, outlier.shape = NA)
+        }
+        
+        # Exit
+        timePlot
+        # return(basePlot)
         # ggplotly(basePlot, tooltip = "text")
         
     })
     
+    
+    ## Baseline plot -----------------------------------------------------------
+    
+    output$basePlot <- renderPlot({
+        req(input$baseSelect)
+        
+        # Get time series
+        df_site_ts <- df_site_ts()
+        
+        # Filter TS by time
+        df_site_base <- df_site_ts |> 
+            filter(t >= paste0(input$baseSelect[1],"-01-01"),
+                   t <= paste0(input$baseSelect[2],"-12-31"))
+        
+        # Plot
+        basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_line() + 
+            geom_line(data = df_site_base, colour = "darkblue", size = 1.1, alpha = 0.6) +
+            geom_vline(aes(xintercept = min(df_site_base$t)), 
+                       linetype = "dashed", linewidth = 2, colour = "darkblue") +
+            geom_vline(aes(xintercept = max(df_site_base$t)), 
+                       linetype = "dashed", linewidth = 2, colour = "darkblue") +
+            geom_rug(data = df_site_base, sides = "b", colour = "darkblue") +
+            theme_bw() + labs(x = NULL, y = "Temperature [°C]")
+        
+        # Exit
+        basePlot
+    })
+    
+    ## Percentile plot ---------------------------------------------------------
+    
+    output$percPlot <- renderPlot({
+        req(input$percSelect)
+        
+        # Get time series
+        df_site_ts <- df_site_ts()
+        
+        # Filter TS by time
+        df_site_base <- df_site_ts |> 
+            filter(t >= paste0(input$baseSelect[1],"-01-01"),
+                   t <= paste0(input$baseSelect[2],"-12-31"))
+        
+        # Plot
+        percPlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_line() + 
+            geom_line(data = df_site_base, colour = "darkblue", size = 1.1, alpha = 0.6) +
+            geom_vline(aes(xintercept = min(df_site_base$t)), 
+                       linetype = "dashed", linewidth = 2, colour = "darkblue") +
+            geom_vline(aes(xintercept = max(df_site_base$t)), 
+                       linetype = "dashed", linewidth = 2, colour = "darkblue") +
+            geom_rug(data = df_site_base, sides = "b", colour = "darkblue") +
+            theme_bw() + labs(x = NULL, y = "Temperature [°C]")
+        
+        # Exit
+        percPlot
+        
+    })
 }
 
 # Run the application 
