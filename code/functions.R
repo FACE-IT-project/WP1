@@ -2683,7 +2683,8 @@ quick_plot_avail <- function(filter_name, filter_choice = "driver", legend_tweak
     scale_colour_manual(values = site_colours, guide = "none") +
     labs(x = NULL, y = NULL, size = "Daily data/year",
          title = paste0("Available ",filter_name," data")) +
-    theme(legend.position = legend_tweak,
+    theme(plot.title = element_text(size = 16),
+          legend.position = legend_tweak,
           legend.background = element_rect(colour = "black", fill  = "white"),
           panel.border = element_rect(colour = "black", fill = NA))
   ggsave(paste0("metadata/avail_",filter_name,".png"), avail_plot, width = 10, height = 6)
