@@ -1,6 +1,9 @@
 # shiny/demoMHW/app.R
 # An interactive tool to explain how MHWs are defined
 
+# TODO: Increase size of all text for all figures
+
+
 # Setup -------------------------------------------------------------------
 
 library(shiny)
@@ -31,6 +34,16 @@ MCS_colours <- c(
     "Strong" = "#85B7CC",
     "Severe" = "#4A6A94",
     "Extreme" = "#111433"
+)
+
+# Set line colours for categories
+lineColCat <- c(
+    "Temperature" = "black",
+    "Climatology" = "gray20",
+    "Threshold" = "darkgreen",
+    "2x Threshold" = "darkgreen",
+    "3x Threshold" = "darkgreen",
+    "4x Threshold" = "darkgreen"
 )
 
 # Function for ensuring 366 DOY for non-leap years
@@ -155,11 +168,17 @@ ui <- dashboardPage(
                                          # Select baseline period
                                          shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
                                                             value = c(1982, 2011), sep = ""
-                                         )#,
+                                         ),
                                          
                                          # Select quantile
+                                         shiny::numericInput("percSelect", "Percentile",
+                                                             value = 90, min = 1, max = 100
+                                         ),
                                          
                                          # Detrend - no - linear - non-linear
+                                         shiny::numericInput("trendSelect", "Detrend",
+                                                             value = 90, min = 1, max = 100
+                                         ),
                                      ),
                                      
                                      # Figures - show in panel of three
@@ -167,8 +186,9 @@ ui <- dashboardPage(
                                      # Table of MHW metrics
                                      box(width = 9, title = "Data", 
                                          status = "info", solidHeader = TRUE, collapsible = FALSE,
-                                     # Overview of time series - baseline + trend
+                                         # Overview of time series - baseline + trend
                                          plotOutput("basePlot"),
+                                         plotOutput("percPlot")
                                      
                                      )
                     )
@@ -197,7 +217,7 @@ server <- function(input, output) {
     
     # Base time series
     df_site_ts <- reactive({
-        req(input$seriesSelect)
+        req(input$seriesSelect, input$trendSelect)
         if(input$seriesSelect == "Western Australia"){
             df_site_ts <- sst_WA
         } else if(input$seriesSelect == "NW Atlantic"){
@@ -207,6 +227,60 @@ server <- function(input, output) {
         }
         return(df_site_ts)
     })
+    
+    # Apply de-trending of some sort (or don't)
+    df_site_trends <- reactive({
+        req(input$trendSelect)
+        df_site_ts <- df_site_ts()
+        if(input$trendSelect == "None"){
+            df_site_trends <- df_site_ts |> 
+                mutate(anom_mean = temp - mean(temp),
+                       anom_linear = pracma::detrend(temp)[,1])
+            gam_dat <- mgcv::gam(temp ~ t, data  = df_site_ts)
+        } else if(input$seriesSelect == "Linear"){
+            df_site_trends <- df_site_ts |> 
+                mutate
+        } else if(input$seriesSelect == "Non-linear"){
+            df_site_ts <- sst_Med
+        }
+        return(df_site_ts)
+    })
+    
+    # Filter TS by baseline
+    df_site_base <- reactive({
+        req(input$baseSelect)
+        df_site_ts <- df_site_ts()
+        df_site_base <- df_site_ts |> 
+            filter(t >= paste0(input$baseSelect[1],"-01-01"),
+                   t <= paste0(input$baseSelect[2],"-12-31"))
+        return(df_site_base)
+    })
+
+    
+    # Run ts2clm
+    df_ts2clm <- reactive({
+        req(input$baseSelect, input$percSelect)
+        df_site_ts <- df_site_ts()
+        df_ts2clm <- ts2clm(df_site_ts, 
+                            climatologyPeriod = c(paste0(input$baseSelect[1],"-01-01"),
+                                                  paste0(input$baseSelect[2],"-12-31")),
+                            pctile = input$percSelect,
+                            # For testing...
+                            # climatologyPeriod = c("1982-01-01", "2011-12-31"),
+                            # pctile = 90
+                            )
+        return(df_ts2clm)
+    })
+    
+    # Points above threshold
+    df_thresh <- reactive({
+        req(df_ts2clm)
+        df_ts2clm <- df_ts2clm()
+        df_thresh <- df_ts2clm |> filter(temp >= thresh)
+        return(df_thresh)
+    })
+    
+    
     
     ## Time plot ---------------------------------------------------------------
     
@@ -225,7 +299,6 @@ server <- function(input, output) {
                    day = t)
         
         # Set t column to timeSelect
-        # "All", "Month", "Year", "DOY", "Day"
         if(input$timeSelect == "All"){
             df_site_ts$t <- df_site_ts$all
         } else if(input$timeSelect == "Month"){
@@ -238,20 +311,23 @@ server <- function(input, output) {
             df_site_ts$t <- df_site_ts$day
         }
         
+        if(input$timeSelect == "DOY"){
+            box_line_width = 1  
+        } else {
+            box_line_width = 3
+        }
+        
         # Plot
         timePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_point(position = "jitter") +
             theme_bw() + labs(x = NULL, y = "Temperature [°C]")
         
-        if(input$timeSelect %in% c("All", "Month", "Year")){
-            timePlot <- timePlot + geom_boxplot(aes(group = t), linewidth = 2,
+        if(input$timeSelect != "Day"){
+            timePlot <- timePlot + geom_boxplot(aes(group = t), linewidth = box_line_width,
                                                 colour = "blue", alpha = 0.2, outlier.shape = NA)
         }
         
         # Exit
         timePlot
-        # return(basePlot)
-        # ggplotly(basePlot, tooltip = "text")
-        
     })
     
     
@@ -264,18 +340,21 @@ server <- function(input, output) {
         df_site_ts <- df_site_ts()
         
         # Filter TS by time
-        df_site_base <- df_site_ts |> 
-            filter(t >= paste0(input$baseSelect[1],"-01-01"),
-                   t <= paste0(input$baseSelect[2],"-12-31"))
+        df_site_base <- df_site_base()
+        
+        # Points above threshold
+        df_thresh <- df_thresh()
         
         # Plot
         basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_line() + 
-            geom_line(data = df_site_base, colour = "darkblue", size = 1.1, alpha = 0.6) +
+            geom_line(data = df_site_base, colour = "darkblue", linewidth = 1.1, alpha = 0.6) +
             geom_vline(aes(xintercept = min(df_site_base$t)), 
                        linetype = "dashed", linewidth = 2, colour = "darkblue") +
             geom_vline(aes(xintercept = max(df_site_base$t)), 
                        linetype = "dashed", linewidth = 2, colour = "darkblue") +
             geom_rug(data = df_site_base, sides = "b", colour = "darkblue") +
+            geom_point(data = df_thresh, colour = "purple") +
+            scale_x_date(expand = c(0, 0)) +
             theme_bw() + labs(x = NULL, y = "Temperature [°C]")
         
         # Exit
@@ -291,19 +370,27 @@ server <- function(input, output) {
         df_site_ts <- df_site_ts()
         
         # Filter TS by time
-        df_site_base <- df_site_ts |> 
-            filter(t >= paste0(input$baseSelect[1],"-01-01"),
-                   t <= paste0(input$baseSelect[2],"-12-31"))
+        df_site_base <- df_site_base()
+        
+        # Run ts2clm
+        df_ts2clm <- df_ts2clm()
+        
+        # Points above threshold
+        df_thresh <- df_thresh()
         
         # Plot
-        percPlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_line() + 
-            geom_line(data = df_site_base, colour = "darkblue", size = 1.1, alpha = 0.6) +
-            geom_vline(aes(xintercept = min(df_site_base$t)), 
-                       linetype = "dashed", linewidth = 2, colour = "darkblue") +
-            geom_vline(aes(xintercept = max(df_site_base$t)), 
-                       linetype = "dashed", linewidth = 2, colour = "darkblue") +
-            geom_rug(data = df_site_base, sides = "b", colour = "darkblue") +
-            theme_bw() + labs(x = NULL, y = "Temperature [°C]")
+        percPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
+            geom_point(aes(y = temp, colour = "temp")) +
+            geom_point(data = df_thresh, aes(colour = "thresh")) +
+            geom_line(aes(y = thresh, colour = "thresh"), linewidth = 1.2) +
+            geom_line(aes(y = seas, colour = "seas"), linewidth = 1.2) +
+            scale_colour_manual(name = "Values",
+                                values = c("temp" = "black", 
+                                           "thresh" =  "purple", 
+                                           "seas" = "darkblue")) +
+            scale_x_continuous(expand = c(0, 0)) +
+            labs(x = NULL, y = "Temperature [°C]") +
+            theme_bw() + theme(legend.position = "top")
         
         # Exit
         percPlot
