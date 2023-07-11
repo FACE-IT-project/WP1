@@ -76,8 +76,8 @@ ui <- dashboardPage(
                     
                     # The various menus
                     menuItem("Overview", tabName = "overview", icon = icon("desktop")),
-                    menuItem("Time series", tabName = "time", icon = icon("clock")),
-                    menuItem("Statistics", tabName = "perc_base", icon = icon("percent"), selected = TRUE),
+                    menuItem("Time series", tabName = "time", icon = icon("clock"), selected = TRUE),
+                    menuItem("Statistics", tabName = "perc_base", icon = icon("percent")),
                     menuItem("The main event", tabName = "event", icon = icon("temperature-high"))),
         
         # The reactive controls based on the primary option chosen
@@ -128,10 +128,10 @@ ui <- dashboardPage(
                                          status = "warning", solidHeader = TRUE, collapsible = FALSE,
                                          
                                          # Site select
+                                         # uiOutput("selectSeriesUI"),
                                          selectizeInput("seriesSelect", "Time series",
                                                         choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                                        selected = c("Western Australia")
-                                         ),
+                                                        selected = c("Western Australia")),
                                          
                                          # Time select
                                          selectizeInput("timeSelect", "Time period",
@@ -159,11 +159,10 @@ ui <- dashboardPage(
                                          status = "warning", solidHeader = TRUE, collapsible = FALSE,
                                          
                                          # Site select
-                                         # Perhaps rather have this be determined by the first tab
-                                         # selectizeInput("seriesSelect", "Time series",
-                                         #                choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                         #                selected = c("Western Australia")
-                                         # ),
+                                         # uiOutput("selectSeriesUI"),
+                                         selectizeInput("seriesSelect2", "Time series",
+                                                        choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
+                                                        selected = c("Western Australia")),
                                          
                                          # Select baseline period
                                          shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
@@ -176,8 +175,8 @@ ui <- dashboardPage(
                                          ),
                                          
                                          # Detrend - no - linear - non-linear
-                                         shiny::numericInput("trendSelect", "Detrend",
-                                                             value = 90, min = 1, max = 100
+                                         shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
+                                                             choices = c("No", "Yes"), selected = "No"
                                          ),
                                      ),
                                      
@@ -213,9 +212,19 @@ ui <- dashboardPage(
 # Server ------------------------------------------------------------------
 
 # Server
-server <- function(input, output) {
+server <- function(input, output, session) {
     
-    # Base time series
+
+    ## Reactive UI -------------------------------------------------------------
+
+    # Select time series
+    observe(shiny::updateSelectInput(session, "seriesSelect2", selected = input$seriesSelect))
+    observe(shiny::updateSelectInput(session, "seriesSelect", selected = input$seriesSelect2))
+    
+    
+    ## Reactive data -----------------------------------------------------------
+    
+    # Base time series and de-trending anomalies
     df_site_ts <- reactive({
         req(input$seriesSelect, input$trendSelect)
         if(input$seriesSelect == "Western Australia"){
@@ -228,39 +237,15 @@ server <- function(input, output) {
         return(df_site_ts)
     })
     
-    # Apply de-trending of some sort (or don't)
-    df_site_trends <- reactive({
-        req(input$trendSelect)
-        df_site_ts <- df_site_ts()
-        if(input$trendSelect == "None"){
-            df_site_trends <- df_site_ts |> 
-                mutate(anom_mean = temp - mean(temp),
-                       anom_linear = pracma::detrend(temp)[,1])
-            gam_dat <- mgcv::gam(temp ~ t, data  = df_site_ts)
-        } else if(input$seriesSelect == "Linear"){
-            df_site_trends <- df_site_ts |> 
-                mutate
-        } else if(input$seriesSelect == "Non-linear"){
-            df_site_ts <- sst_Med
-        }
-        return(df_site_ts)
-    })
-    
-    # Filter TS by baseline
-    df_site_base <- reactive({
-        req(input$baseSelect)
-        df_site_ts <- df_site_ts()
-        df_site_base <- df_site_ts |> 
-            filter(t >= paste0(input$baseSelect[1],"-01-01"),
-                   t <= paste0(input$baseSelect[2],"-12-31"))
-        return(df_site_base)
-    })
-
-    
     # Run ts2clm
     df_ts2clm <- reactive({
-        req(input$baseSelect, input$percSelect)
+        req(input$baseSelect, input$percSelect, input$trendSelect)
         df_site_ts <- df_site_ts()
+        if(input$trendSelect == "No"){
+            df_site_ts$temp <- df_site_ts$temp-mean(df_site_ts$temp)
+        } else if(input$trendSelect == "Yes"){
+            df_site_ts$temp <- pracma::detrend(df_site_ts$temp)[,1]
+        }
         df_ts2clm <- ts2clm(df_site_ts, 
                             climatologyPeriod = c(paste0(input$baseSelect[1],"-01-01"),
                                                   paste0(input$baseSelect[2],"-12-31")),
@@ -271,15 +256,6 @@ server <- function(input, output) {
                             )
         return(df_ts2clm)
     })
-    
-    # Points above threshold
-    df_thresh <- reactive({
-        req(df_ts2clm)
-        df_ts2clm <- df_ts2clm()
-        df_thresh <- df_ts2clm |> filter(temp >= thresh)
-        return(df_thresh)
-    })
-    
     
     
     ## Time plot ---------------------------------------------------------------
@@ -337,16 +313,18 @@ server <- function(input, output) {
         req(input$baseSelect)
         
         # Get time series
-        df_site_ts <- df_site_ts()
+        df_ts2clm <- df_ts2clm()
         
-        # Filter TS by time
-        df_site_base <- df_site_base()
-        
+        # Filter by baseline
+        df_site_base <- df_ts2clm |> 
+            filter(t >= paste0(input$baseSelect[1],"-01-01"),
+                   t <= paste0(input$baseSelect[2],"-12-31"))
+
         # Points above threshold
-        df_thresh <- df_thresh()
+        df_thresh <- df_ts2clm |> filter(temp >= thresh)
         
         # Plot
-        basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_line() + 
+        basePlot <- ggplot(data = df_ts2clm, aes(x = t, y = temp)) + geom_line() + 
             geom_line(data = df_site_base, colour = "darkblue", linewidth = 1.1, alpha = 0.6) +
             geom_vline(aes(xintercept = min(df_site_base$t)), 
                        linetype = "dashed", linewidth = 2, colour = "darkblue") +
@@ -365,18 +343,12 @@ server <- function(input, output) {
     
     output$percPlot <- renderPlot({
         req(input$percSelect)
-        
-        # Get time series
-        df_site_ts <- df_site_ts()
-        
-        # Filter TS by time
-        df_site_base <- df_site_base()
-        
+
         # Run ts2clm
         df_ts2clm <- df_ts2clm()
         
         # Points above threshold
-        df_thresh <- df_thresh()
+        df_thresh <- df_ts2clm |> filter(temp >= thresh)
         
         # Plot
         percPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
