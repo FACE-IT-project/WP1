@@ -50,76 +50,7 @@ lineColCat <- c(
 
 # Functions ---------------------------------------------------------------
 
-# Function for ensuring 366 DOY for non-leap years
-leap_every_year <- function(x) {
-  ifelse(yday(x) > 59 & leap_year(x) == FALSE, yday(x) + 1, yday(x))
-}
-
-# Time plot wrapper
-time_plot <- function(time_span, df, time_highlight){
-  
-  # Get time series and modify t columns
-  df <- df |> 
-    mutate(all = "All",
-           month = lubridate::month(t, label = TRUE),
-           year = lubridate::year(t),
-           doy = leap_every_year(t),
-           day = t)
-  
-  # Set t column to timeSelect
-  if(time_span == "All"){
-    df$t <- df$all
-  } else if(time_span == "Month"){
-    df$t <- df$month
-  } else if(time_span == "Year"){
-    df$t <- df$year
-  } else if(time_span == "DOY"){
-    df$t <- df$doy
-  } else if(time_span == "Day"){
-    df$t <- df$day
-  }
-  
-  if(time_span == "DOY"){
-    box_line_width = 0.1 
-  } else if(time_span == "Year") {
-    box_line_width = 1
-  } else if(time_span == "Month") {
-    box_line_width = 2
-  } else if(time_span == "All") {
-    box_line_width = 3
-  }
-  
-  # Base plot
-  timePlot <- ggplot(data = df, aes(x = t, y = temp)) + 
-    labs(x = NULL, y = "Temperature [°C]") + theme_bw()
-  
-  # Add points
-  if(time_highlight == "None")
-    timePlot <- timePlot + geom_point(position = "jitter")
-  if(time_highlight == "Month")
-    timePlot <- timePlot + geom_point(position = "jitter", aes(colour = month)) + 
-    scale_colour_viridis_d()
-  if(time_highlight == "Year")
-    timePlot <- timePlot + geom_point(position = "jitter", aes(colour = year)) + 
-    scale_colour_viridis_c(option = "A")
-  if(time_highlight == "DOY")
-    timePlot <- timePlot + geom_point(position = "jitter", aes(colour = doy)) + 
-    scale_colour_viridis_c(option = "B")
-  
-  # Add boxplots
-  if(time_span != "Day"){
-    timePlot <- timePlot + geom_boxplot(aes(group = t), linewidth = box_line_width,
-                                        colour = "grey", alpha = 0.2, outlier.shape = NA)
-  }
-  
-  # Scale x axis
-  if(time_span == "All")  timePlot <- timePlot + scale_x_discrete(expand = c(0, 0))
-  if(time_span %in% c("Year", "DOY"))  timePlot <- timePlot + scale_x_continuous(expand = c(0, 0))
-  if(time_span == "Day")  timePlot <- timePlot + scale_x_date(expand = c(0, 0))
-  
-  # Exit
-  timePlot
-}
+source("functions.R", local = TRUE)
 
 
 # Data --------------------------------------------------------------------
@@ -161,7 +92,7 @@ ui <- dashboardPage(
                          shiny::radioButtons("timeSelect", "Highlight time", inline = TRUE,
                                              choices = c("Month", "Year", "DOY", "None"), 
                                              selected = "None")
-                         ),
+                ),
                 
                 # Statistics menu
                 menuItem("Statistics", tabName = "perc_base", icon = icon("percent"),
@@ -174,7 +105,7 @@ ui <- dashboardPage(
                          # Detrend - no - linear - non-linear
                          shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
                                              choices = c("No", "Yes"), selected = "No")
-                         ),
+                ),
                 
                 # Detection menu
                 menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"),
@@ -183,8 +114,11 @@ ui <- dashboardPage(
                                              value = 2, min = 0, max = 366),
                          # Set max gap between MHW
                          shiny::numericInput("minDuration", "Min. duration",
-                                             value = 5, min = 1, max = 366)
-                         )#,
+                                             value = 5, min = 1, max = 366),
+                         # Show categories
+                         shiny::radioButtons("catSelect", "Categories", inline = TRUE,
+                                             choices = c("No", "Yes"), selected = "No")
+                )#,
                 
                 # The main event
                 # menuItem("The main event", tabName = "event", icon = icon("temperature-high")))
@@ -219,13 +153,13 @@ ui <- dashboardPage(
       tabPanel(title = "time",
                p("Once upon a time series..."),
                fluidRow(
-                        tabBox(width = 12, title = "", selected = "Day",
-                          tabPanel("All", withSpinner(plotOutput("allTime"), type = 6, color = "#b0b7be")),
-                          tabPanel("Month", withSpinner(plotOutput("monthTime"), type = 6, color = "#b0b7be")),
-                          tabPanel("Year", withSpinner(plotOutput("yearTime"), type = 6, color = "#b0b7be")),
-                          tabPanel("DOY", withSpinner(plotOutput("doyTime"), type = 6, color = "#b0b7be")),
-                          tabPanel("Day", withSpinner(plotOutput("dayTime"), type = 6, color = "#b0b7be"))
-                        )
+                 tabBox(width = 12, title = "", selected = "Day",
+                        tabPanel("All", withSpinner(plotOutput("allTime"), type = 6, color = "#b0b7be")),
+                        tabPanel("Month", withSpinner(plotOutput("monthTime"), type = 6, color = "#b0b7be")),
+                        tabPanel("Year", withSpinner(plotOutput("yearTime"), type = 6, color = "#b0b7be")),
+                        tabPanel("DOY", withSpinner(plotOutput("doyTime"), type = 6, color = "#b0b7be")),
+                        tabPanel("Day", withSpinner(plotOutput("dayTime"), type = 6, color = "#b0b7be"))
+                 )
                )
       ),
       
@@ -238,10 +172,10 @@ ui <- dashboardPage(
                         box(width = 12, title = "",
                             status = "info", solidHeader = FALSE, collapsible = FALSE,
                             # Overview of time series - baseline + trend
-                        # fluidRow(
+                            # fluidRow(
                             withSpinner(plotOutput("basePlot"), type = 6, color = "#b0b7be"),
-                        # ),
-                        # fluidRow(
+                            # ),
+                            # fluidRow(
                             # DOY panel - percentiles + trend effect
                             withSpinner(plotOutput("percPlot"), type = 6, color = "#b0b7be")
                         )
@@ -251,27 +185,13 @@ ui <- dashboardPage(
       
       # Detection menu
       tabPanel(title = "Detection",
-               fluidPage(
-                 column(width = 12,
-                        # Figures
-                        box(width = 12, title = "",
-                            status = "info", solidHeader = FALSE, collapsible = FALSE,
-                            # column(width = 6,
-                            # # Flame plot
-                            # withSpinner(plotOutput("flamePlot"), type = 6, color = "#b0b7be")#,
-                            # ),
-                            # column(width = 6,
-                                   # Table of MHW metrics
-                                   withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be"),
-                            # ),
-                            # column(width = 6,
-                            # Lolliplot
-                            withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be")#,
-                            )#,
-                            
-                        # )
+               fluidRow(
+                 tabBox(width = 12, title = "", selected = "Table",
+                        tabPanel("Table", withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be")),
+                        tabPanel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be")),
+                        tabPanel("Flame", withSpinner(plotlyOutput("flamePlot"), type = 6, color = "#b0b7be"))
+                        )
                  )
-               )
       ),
       
       # Main event
@@ -452,7 +372,7 @@ server <- function(input, output, session) {
   })
   
   # Show time series with events as flames
-  output$flamePlot <- renderPlot({
+  output$flamePlot <- renderPlotly({
     req(input$percSelect)
     
     # Get time series
@@ -463,50 +383,70 @@ server <- function(input, output, session) {
       geom_line(aes(y = temp, colour = "temp")) +
       geom_line(aes(y = thresh, colour = "thresh"), linewidth = 1.2, alpha = 0.2) +
       geom_line(aes(y = seas, colour = "seas"), linewidth = 1.2, alpha = 0.2) +
-      geom_flame(aes(y = temp, y2 = thresh), fill = "salmon", show.legend = T) +
+      heatwaveR::geom_flame(aes(y = temp, y2 = thresh), fill = "salmon", show.legend = T) +
       scale_colour_manual(name = "Line Colour",
                           values = c("temp" = "black", 
                                      "thresh" =  "purple", 
                                      "seas" = "darkblue")) +
-      # scale_x_date(date_labels = "%b %Y") +
       guides(colour = guide_legend(override.aes = list(fill = NA))) +
       labs(y = "Temperature [°C]", x = NULL) + theme_bw() +
       theme(legend.position = "bottom")
-    flamePlot
+    # flamePlot
     
     # Exit
-    # ggplotly(flamePlot, dynamicTicks = FALSE)
+    ggplotly(flamePlot, tooltip = "text", dynamicTicks = F) |> layout(hovermode = 'compare') 
   })
   
   # Show detected events as lollis
   output$lolliPlot <- renderPlotly({
     
     # Get time series
-    ts_data <- df_detect()$climatology
+    df_climatology <- df_detect()$climatology
     
     # Get events
-    event_data <- df_detect()$event
+    df_event <- df_detect()$event
     
     # The base lolli figure
-    suppressWarnings( # Cancel aes(text) warning
-      lolliPlot <- ggplot(data = event_data, aes(x = date_peak, y = intensity_max)) +
-        geom_segment(aes(xend = date_peak, yend = 0)) +
-        geom_hline(yintercept = 0) +
-        geom_point(fill = "salmon", shape = 21, size = 4,
-                   aes(text = paste0("Event: ",event_no,
-                                     "<br>Duration: ",duration," days",
-                                     "<br>Start Date: ", date_start,
-                                     "<br>Peak Date: ", date_peak,
-                                     "<br>End Date: ", date_end,
-                                     "<br>Mean Intensity: ",round(intensity_mean, 2),"°C",
-                                     "<br>Max. Intensity: ",round(intensity_max, 2),"°C",
-                                     "<br>Cum. Intensity: ",round(intensity_cumulative, 2),"°C"))) +
-        labs(x = NULL, y = "Max. Intensity (°C)") +
-        scale_y_continuous(limits = c(0, max(event_data$intensity_max)*1.1), expand = c(0, 0)) +
-        scale_x_date(limits = c(min(ts_data$t), max(ts_data$t)), expand = c(0, 0)) + theme_bw()
-    )
+    lolliPlot <- ggplot(data = df_event, aes(x = date_peak, y = intensity_max)) +
+      geom_segment(aes(xend = date_peak, yend = 0)) +
+      geom_hline(yintercept = 0) +
+      labs(x = NULL, y = "Max. Intensity (°C)") +
+      scale_y_continuous(limits = c(0, max(df_event$intensity_max)*1.1), expand = c(0, 0)) +
+      scale_x_date(limits = c(min(df_climatology$t), max(df_climatology$t)), expand = c(0, 0)) + theme_bw()
+    
+    # Add lolli colour
+    if(input$catSelect == "No"){
+      suppressWarnings( # Cancel aes(text) warning
+        lolliPlot <- lolliPlot +
+          geom_point(fill = "salmon", shape = 21, size = 4,
+                     aes(text = paste0("Event: ",event_no,
+                                       "<br>Duration: ",duration," days",
+                                       "<br>Start Date: ", date_start,
+                                       "<br>Peak Date: ", date_peak,
+                                       "<br>End Date: ", date_end,
+                                       "<br>Mean Intensity: ",round(intensity_mean, 2),"°C",
+                                       "<br>Max. Intensity: ",round(intensity_max, 2),"°C",
+                                       "<br>Cum. Intensity: ",round(intensity_cumulative, 2),"°C")))
+      )
+    } else if(input$catSelect == "Yes"){
+      suppressWarnings( # Cancel aes(text) warning
+        lolliPlot <- lolliPlot + 
+          geom_point(shape = 21, size = 4,
+                     aes(fill = category, 
+                         text = paste0("Event: ",event_no,
+                                       "<br>Duration: ",duration," days",
+                                       "<br>Start Date: ", date_start,
+                                       "<br>Peak Date: ", date_peak,
+                                       "<br>End Date: ", date_end,
+                                       "<br>Mean Intensity: ",round(intensity_mean, 2),"°C",
+                                       "<br>Max. Intensity: ",round(intensity_max, 2),"°C",
+                                       "<br>Cum. Intensity: ",round(intensity_cumulative, 2),"°C"))) +
+          scale_fill_manual(name = NULL, values = MHW_colours, guide = "none")
+      )
+    }
+
     # lolliPlot
-    ggplotly(lolliPlot, tooltip = "text", dynamicTicks = F)
+    ggplotly(lolliPlot, tooltip = "text", dynamicTicks = F) |> style(showlegend = FALSE)
   })
   
   # The main event plot
@@ -535,14 +475,64 @@ server <- function(input, output, session) {
   
   # The main event plot
   output$mainPlot <- renderPlot({
-    req(input$percSelect)
+    req(input$catSelect)
     
-    # Run ts2clm
-    df_ts2clm <- df_ts2clm()
+    # Get time series
+    df_climatology <- df_detect()$climatology
     
-    # Plot
-    mainPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
-      geom_point(colour = "red")
+    # Get events
+    df_event <- df_detect()$event
+    
+    # Get top event
+    
+    
+    # Annotated flame
+    flame_2 <- ggplot(data = sst_MHW_clim_top, aes(x = t, y = temp)) +
+      geom_flame(aes(y2 = thresh), n = 5, n_gap = 2) +
+      # geom_flame(data = peak_event, aes(y2 = thresh, fill = "Focal MHW"), n = 5, n_gap = 2) +
+      geom_line(aes(y = seas, col = "clima"), size = 0.7, show.legend = F) +
+      geom_line(aes(y = thresh, col = "thresh"), size = 0.7, show.legend = F) +
+      geom_line(aes(y = temp, col = "temp"), size = 0.6, show.legend = F) +
+      # Duration label
+      geom_segment(colour = "springgreen",
+                   aes(x = as.Date("2010-12-23"), xend = as.Date("2010-12-23"),
+                       y = 23.08, yend = 22.5)) +
+      geom_segment(colour = "springgreen",
+                   aes(x = as.Date("2011-04-08"), xend = as.Date("2011-04-08"),
+                       y = 24.7, yend = 22.5)) +
+      geom_segment(colour = "springgreen",
+                   aes(x = as.Date("2010-12-23"), xend = as.Date("2011-04-08"),
+                       y = 22.5, yend = 22.5)) +
+      geom_label(aes(label = "Duration = 105 days", x = as.Date("2011-02-15"), y = 22.5),
+                 colour = "springgreen", label.size = 3) +
+      geom_label(aes(label = "Duration = 105 days", x = as.Date("2011-02-15"), y = 22.5),
+                 colour = "black", label.size = 0) +
+      # Max intensity label
+      geom_segment(colour = "forestgreen",
+                   aes(x = as.Date("2011-01-15"), xend = as.Date("2011-02-28"),
+                       y = 29.74, yend = 29.74)) +
+      geom_segment(colour = "forestgreen",
+                   aes(x = as.Date("2011-02-28"), xend = as.Date("2011-02-28"),
+                       y = 23.1602, yend = 29.74)) +
+      geom_label(aes(label = "Max. Intensity = 6.58°C", x = as.Date("2011-02-01"), y = 29.4),
+                 colour = "forestgreen", label.size = 3) +
+      geom_label(aes(label = "Max. Intensity = 6.58°C", x = as.Date("2011-02-01"), y = 29.4),
+                 colour = "black", label.size = 0) +
+      # Cumulative intensity label
+      geom_label(aes(label = "Cum. Intensity = 293.21°CxDays", x = as.Date("2011-02-28"), y = 26),
+                 colour = "salmon", label.size = 3) +
+      geom_label(aes(label = "Cum. Intensity = 293.21°CxDays", x = as.Date("2011-02-28"), y = 26),
+                 colour = "black", label.size = 0) +
+      # Aesthetics
+      scale_colour_manual(name = "Line Colour",
+                          values = c("temp" = "black", 
+                                     "thresh" =  "purple", 
+                                     "seas" = "darkblue")) +
+      scale_fill_manual(name = NULL, values = fillCol,
+                        breaks = c("Focal MHW", "Other MHWs")) +
+      scale_x_date(expand = c(0, 0), date_breaks = "2 months", date_labels = "%b %Y", ) +
+      labs(x = "Date", y = "Temperature [°C]", title = "Western Australia MHW; Top event metrics") +
+      theme(panel.background = element_rect(colour = "black"))
     
     # Exit
     mainPlot
