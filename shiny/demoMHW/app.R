@@ -16,7 +16,6 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 library(lubridate)
-library(arrow)
 library(ggplot2)
 library(plotly)
 library(heatwaveR)
@@ -50,7 +49,163 @@ lineColCat <- c(
 
 # Functions ---------------------------------------------------------------
 
-source("functions.R", local = TRUE)
+# Function for ensuring 366 DOY for non-leap years
+leap_every_year <- function(x) {
+  ifelse(yday(x) > 59 & leap_year(x) == FALSE, yday(x) + 1, yday(x))
+}
+
+# Time plot wrapper
+time_plot <- function(time_span, df, time_highlight){
+  
+  # Get time series and modify t columns
+  df <- df |> 
+    mutate(all = "All",
+           month = lubridate::month(t, label = TRUE),
+           year = lubridate::year(t),
+           doy = leap_every_year(t),
+           day = t)
+  
+  # Set t column to timeSelect
+  if(time_span == "All"){
+    df$t <- df$all
+  } else if(time_span == "Month"){
+    df$t <- df$month
+  } else if(time_span == "Year"){
+    df$t <- df$year
+  } else if(time_span == "DOY"){
+    df$t <- df$doy
+  } else if(time_span == "Day"){
+    df$t <- df$day
+  }
+  
+  if(time_span == "DOY"){
+    box_line_width = 0.1 
+  } else if(time_span == "Year") {
+    box_line_width = 1
+  } else if(time_span == "Month") {
+    box_line_width = 2
+  } else if(time_span == "All") {
+    box_line_width = 3
+  }
+  
+  # Base plot
+  timePlot <- ggplot(data = df, aes(x = t, y = temp)) + 
+    labs(x = NULL, y = "Temperature [°C]") + theme_bw()
+  
+  # Add points
+  if(time_highlight == "None")
+    timePlot <- timePlot + geom_point(position = "jitter")
+  if(time_highlight == "Month")
+    timePlot <- timePlot + geom_point(position = "jitter", aes(colour = month)) + 
+    scale_colour_viridis_d()
+  if(time_highlight == "Year")
+    timePlot <- timePlot + geom_point(position = "jitter", aes(colour = year)) + 
+    scale_colour_viridis_c(option = "A")
+  if(time_highlight == "DOY")
+    timePlot <- timePlot + geom_point(position = "jitter", aes(colour = doy)) + 
+    scale_colour_viridis_c(option = "B")
+  
+  # Add boxplots
+  if(time_span != "Day"){
+    timePlot <- timePlot + geom_boxplot(aes(group = t), linewidth = box_line_width,
+                                        colour = "grey", alpha = 0.2, outlier.shape = NA)
+  }
+  
+  # Scale x axis
+  if(time_span == "All")  timePlot <- timePlot + scale_x_discrete(expand = c(0, 0))
+  if(time_span %in% c("Year", "DOY"))  timePlot <- timePlot + scale_x_continuous(expand = c(0, 0))
+  if(time_span == "Day")  timePlot <- timePlot + scale_x_date(expand = c(0, 0))
+  
+  # Exit
+  timePlot
+}
+
+# Function needed for making geom_flame() work with plotly
+geom2trace.GeomFlame <- function(data, params, p){
+  
+  x <- y <- y2 <- NULL
+  
+  # Create data.frame for ease of use
+  data1 <- data.frame(x = data[["x"]],
+                      y = data[["y"]],
+                      y2 = data[["y2"]])
+  
+  # Grab parameters
+  n <- params[["n"]]
+  n_gap <- params[["n_gap"]]
+  
+  # Find events that meet minimum length requirement
+  data_event <- heatwaveR::detect_event(data1, x = x, y = y,
+                                        seasClim = y,
+                                        threshClim = y2,
+                                        minDuration = n,
+                                        maxGap = n_gap,
+                                        protoEvents = T)
+  
+  # Detect spikes
+  data_event$screen <- base::ifelse(data_event$threshCriterion == FALSE, FALSE,
+                                    ifelse(data_event$event == FALSE, TRUE, FALSE))
+  
+  # Screen out spikes
+  data1 <- data1[data_event$screen != TRUE,]
+  
+  # Prepare to find the polygon corners
+  x1 <- data1$y
+  x2 <- data1$y2
+  
+  # # Find points where x1 is above x2.
+  above <- x1 > x2
+  above[above == TRUE] <- 1
+  above[is.na(above)] <- 0
+  
+  # Points always intersect when above=TRUE, then FALSE or reverse
+  intersect.points <- which(diff(above) != 0)
+  
+  # Find the slopes for each line segment.
+  x1.slopes <- x1[intersect.points + 1] - x1[intersect.points]
+  x2.slopes <- x2[intersect.points + 1] - x2[intersect.points]
+  
+  # # Find the intersection for each segment.
+  x.points <- intersect.points + ((x2[intersect.points] - x1[intersect.points]) / (x1.slopes - x2.slopes))
+  y.points <- x1[intersect.points] + (x1.slopes * (x.points - intersect.points))
+  
+  # Coerce x.points to the same scale as x
+  x_gap <- data1$x[2] - data1$x[1]
+  x.points <- data1$x[intersect.points] + (x_gap*(x.points - intersect.points))
+  
+  # Create new data frame and merge to introduce new rows of data
+  data2 <- data.frame(y = c(data1$y, y.points), x = c(data1$x, x.points))
+  data2 <- data2[order(data2$x),]
+  data3 <- base::merge(data1, data2, by = c("x","y"), all.y = T)
+  data3$y2[is.na(data3$y2)] <- data3$y[is.na(data3$y2)]
+  
+  # Remove missing values for better plotting
+  data3$y[data3$y < data3$y2] <- NA
+  missing_pos <- !stats::complete.cases(data3[c("x", "y", "y2")])
+  ids <- cumsum(missing_pos) + 1
+  ids[missing_pos] <- NA
+  
+  # Get the correct positions
+  positions <- data.frame(x = c(data3$x, rev(data3$x)),
+                          y = c(data3$y, rev(data3$y2)),
+                          ids = c(ids, rev(ids)))
+  
+  # Convert to a format geom2trace is happy with
+  positions <- plotly::group2NA(positions, groupNames = "ids")
+  positions <- positions[stats::complete.cases(positions$ids),]
+  positions <- dplyr::left_join(positions, data[,-c(2,3)], by = "x")
+  if(length(stats::complete.cases(positions$PANEL)) > 1) 
+    positions$PANEL <- positions$PANEL[stats::complete.cases(positions$PANEL)][1]
+  if(length(stats::complete.cases(positions$group)) > 1) 
+    positions$group <- positions$group[stats::complete.cases(positions$group)][1]
+  
+  # Run the plotly polygon code
+  if(length(unique(positions$PANEL)) == 1){
+    getFromNamespace("geom2trace.GeomPolygon", asNamespace("plotly"))(positions)
+  } else{
+    return()
+  }
+}
 
 
 # Data --------------------------------------------------------------------
@@ -373,6 +528,7 @@ server <- function(input, output, session) {
   
   # Show time series with events as flames
   output$flamePlot <- renderPlotly({
+  # flamePlot <- reactive({
     req(input$percSelect)
     
     # Get time series
@@ -394,8 +550,24 @@ server <- function(input, output, session) {
     # flamePlot
     
     # Exit
-    ggplotly(flamePlot, tooltip = "text", dynamicTicks = F) |> layout(hovermode = 'compare') 
+    ggplotly(flamePlot, tooltip = "text", dynamicTicks = F) |> layout(hovermode = 'compare')
   })
+  
+  # flamePlotly <- reactive({
+  #   
+  #   # Grab static plot
+  #   p <- flamePlot()
+  #   
+  #   # Convert to plotly
+  #   # NB: Setting dynamicTicks = T causes the flames to be rendered incorrectly
+  #   pp <- ggplotly(p, tooltip = "text", dynamicTicks = F) %>% 
+  #     layout(hovermode = 'compare') 
+  #   pp
+  # })
+  
+  # output$flamePlot <- renderPlotly({
+  #   flamePlotly()
+  # })
   
   # Show detected events as lollis
   output$lolliPlot <- renderPlotly({
@@ -484,43 +656,65 @@ server <- function(input, output, session) {
     df_event <- df_detect()$event
     
     # Get top event
+    df_event_top <- df_event |> 
+      filter(intensity_cumulative == max(intensity_cumulative))
     
+    # Get plotting parametres
+    t_min <- df_event_top$peak_date-182
+    t_max <- df_event_top$peak_date+182
+    
+    # Subset time series for faster plotting
+    df_clim_sub <- df_climatology |> 
+      filter(t >= t_min, t <= t_max)
+    
+    df_clim_top <- df_climatology |> 
+      filter(t >= df_event_top$start_date-5, t <= df_event_top$end_date+5)
+    
+    # More plotting parametres
+    temp_min <- df_clim_sub$temp[df_clim_sub$t == t_min]
+    temp_max <- df_clim_sub$temp[df_clim_sub$t == t_max]
+    temp_mean <- mean(temp_min, temp_max)
+    seas_peak <- df_clim_sub$seas[df_clim_sub$t == df_event_top$peak_date]
     
     # Annotated flame
-    flame_2 <- ggplot(data = sst_MHW_clim_top, aes(x = t, y = temp)) +
-      geom_flame(aes(y2 = thresh), n = 5, n_gap = 2) +
-      # geom_flame(data = peak_event, aes(y2 = thresh, fill = "Focal MHW"), n = 5, n_gap = 2) +
-      geom_line(aes(y = seas, col = "clima"), size = 0.7, show.legend = F) +
+    flame_2 <- ggplot(data = df_clim_sub, aes(x = t, y = temp)) +
+      geom_flame(aes(y2 = thresh, fill = "Other MHWs"), n = 5, n_gap = 2) +
+      geom_flame(data = df_event_top, aes(y2 = thresh, fill = "Focal MHW"), n = 5, n_gap = 2) +
+      geom_line(aes(y = seas, col = "clim"), size = 0.7, show.legend = F) +
       geom_line(aes(y = thresh, col = "thresh"), size = 0.7, show.legend = F) +
       geom_line(aes(y = temp, col = "temp"), size = 0.6, show.legend = F) +
       # Duration label
       geom_segment(colour = "springgreen",
-                   aes(x = as.Date("2010-12-23"), xend = as.Date("2010-12-23"),
-                       y = 23.08, yend = 22.5)) +
+                   aes(x = t_min, xend = t_max,
+                       y = temp_min, yend = temp_max)) +
       geom_segment(colour = "springgreen",
-                   aes(x = as.Date("2011-04-08"), xend = as.Date("2011-04-08"),
-                       y = 24.7, yend = 22.5)) +
+                   aes(x = t_min, xend = t_min,
+                       y = temp_min-2, yend = temp_min+2)) +
       geom_segment(colour = "springgreen",
-                   aes(x = as.Date("2010-12-23"), xend = as.Date("2011-04-08"),
-                       y = 22.5, yend = 22.5)) +
-      geom_label(aes(label = "Duration = 105 days", x = as.Date("2011-02-15"), y = 22.5),
+                   aes(x = t_max, xend = t_max,
+                       y = temp_max-2, yend = temp_max+2)) +
+      geom_label(aes(label = paste0("Duration = ",df_event_top$duration," days"), 
+                                    x = df_event_top$peak_date, y = temnp_mean),
                  colour = "springgreen", label.size = 3) +
-      geom_label(aes(label = "Duration = 105 days", x = as.Date("2011-02-15"), y = 22.5),
+      geom_label(aes(label = paste0("Duration = ",df_event_top$duration," days"), 
+                                   x = df_event_top$peak_date, y = temnp_mean),
                  colour = "black", label.size = 0) +
       # Max intensity label
       geom_segment(colour = "forestgreen",
-                   aes(x = as.Date("2011-01-15"), xend = as.Date("2011-02-28"),
-                       y = 29.74, yend = 29.74)) +
+                   aes(x = df_event_top$peak_date-5, xend = df_event_top$peak_date+5,
+                       y = df_event_top$intensity_max, df_event_top$intensity_max)) +
       geom_segment(colour = "forestgreen",
-                   aes(x = as.Date("2011-02-28"), xend = as.Date("2011-02-28"),
-                       y = 23.1602, yend = 29.74)) +
-      geom_label(aes(label = "Max. Intensity = 6.58°C", x = as.Date("2011-02-01"), y = 29.4),
+                   aes(x = df_event_top$peak_date, xend = df_event_top$peak_date,
+                       y = seas_peak, yend = df_event_top$intensity_max)) +
+      geom_label(aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
+                     x = df_event_top$peak_date, y = df_event_top$intensity_max*1.1),
                  colour = "forestgreen", label.size = 3) +
-      geom_label(aes(label = "Max. Intensity = 6.58°C", x = as.Date("2011-02-01"), y = 29.4),
+      geom_label(aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
+                     x = df_event_top$peak_date, y = df_event_top$intensity_max*1.1),
                  colour = "black", label.size = 0) +
       # Cumulative intensity label
-      geom_label(aes(label = "Cum. Intensity = 293.21°CxDays", x = as.Date("2011-02-28"), y = 26),
-                 colour = "salmon", label.size = 3) +
+      geom_label(aes(label = pasteo("Cum. Intensity = ",df_ev,"°CxDays"), x = as.Date("2011-02-28"), y = 26),
+                 colour = "red", label.size = 3) +
       geom_label(aes(label = "Cum. Intensity = 293.21°CxDays", x = as.Date("2011-02-28"), y = 26),
                  colour = "black", label.size = 0) +
       # Aesthetics
@@ -528,7 +722,7 @@ server <- function(input, output, session) {
                           values = c("temp" = "black", 
                                      "thresh" =  "purple", 
                                      "seas" = "darkblue")) +
-      scale_fill_manual(name = NULL, values = fillCol,
+      scale_fill_manual(name = NULL, values = c("red", "salmon"),
                         breaks = c("Focal MHW", "Other MHWs")) +
       scale_x_date(expand = c(0, 0), date_breaks = "2 months", date_labels = "%b %Y", ) +
       labs(x = "Date", y = "Temperature [°C]", title = "Western Australia MHW; Top event metrics") +
