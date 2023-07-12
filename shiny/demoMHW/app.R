@@ -108,7 +108,7 @@ time_plot <- function(time_span, df, time_highlight){
   # Add boxplots
   if(time_span != "Day"){
     timePlot <- timePlot + geom_boxplot(aes(group = t), linewidth = box_line_width,
-                                        colour = "grey", alpha = 0.2, outlier.shape = NA)
+                                        colour = "grey", alpha = 0.4, outlier.shape = NA)
   }
   
   # Scale x axis
@@ -264,12 +264,12 @@ ui <- dashboardPage(
                 
                 # Detection menu
                 menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"),
-                         # Set minimum MHW duration
-                         shiny::numericInput("maxGap", "Max gap",
-                                             value = 2, min = 0, max = 366),
                          # Set max gap between MHW
                          shiny::numericInput("minDuration", "Min. duration",
                                              value = 5, min = 1, max = 366),
+                         # Set minimum MHW duration
+                         shiny::numericInput("maxGap", "Max gap",
+                                             value = 2, min = 0, max = 366),
                          # Show categories
                          shiny::radioButtons("catSelect", "Categories", inline = TRUE,
                                              choices = c("No", "Yes"), selected = "No")
@@ -305,7 +305,7 @@ ui <- dashboardPage(
       ),
       
       # Time menu
-      tabPanel(title = "time",
+      tabPanel(title = "Time",
                p("Once upon a time series..."),
                fluidRow(
                  tabBox(width = 12, title = "", selected = "Day",
@@ -476,7 +476,7 @@ server <- function(input, output, session) {
     
     # Plot
     basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + geom_line() + 
-      geom_line(data = df_site_base, colour = "darkblue", linewidth = 1.1, alpha = 0.6) +
+      # geom_line(data = df_site_base, colour = "darkblue", linewidth = 1.1, alpha = 0.6) +
       geom_vline(aes(xintercept = min(df_site_base$t)), 
                  linetype = "dashed", linewidth = 2, colour = "darkblue") +
       geom_vline(aes(xintercept = max(df_site_base$t)), 
@@ -646,6 +646,9 @@ server <- function(input, output, session) {
   })
   
   # The main event plot
+  # TODO: Rather show stats as small floating coloured labels in the top left corner
+  # Highlight duration by overplotting along threshold line
+  # Add category visuals
   output$mainPlot <- renderPlot({
     req(input$catSelect)
     
@@ -658,64 +661,88 @@ server <- function(input, output, session) {
     # Get top event
     df_event_top <- df_event |> 
       filter(intensity_cumulative == max(intensity_cumulative))
+    if(nrow(df_event_top) > 1) df_event_top <- df_event_top[1,]
     
     # Get plotting parametres
-    t_min <- df_event_top$peak_date-182
-    t_max <- df_event_top$peak_date+182
+    te_min <- df_event_top$date_start
+    te_max <- df_event_top$date_end
+    ts_min <- df_event_top$date_peak-182
+    ts_max <- df_event_top$date_peak+182
+    
+    # Catch edge cases for very long events
+    while(ts_min > te_min){
+      ts_min <- ts_min-100
+    }
+    while(ts_max < te_max){
+      ts_max <- ts_max+100
+    }
     
     # Subset time series for faster plotting
     df_clim_sub <- df_climatology |> 
-      filter(t >= t_min, t <= t_max)
-    
+      filter(t >= ts_min, t <= ts_max)
     df_clim_top <- df_climatology |> 
-      filter(t >= df_event_top$start_date-5, t <= df_event_top$end_date+5)
+      filter(t >= te_min-5, t <= te_max+5)
     
-    # More plotting parametres
-    temp_min <- df_clim_sub$temp[df_clim_sub$t == t_min]
-    temp_max <- df_clim_sub$temp[df_clim_sub$t == t_max]
+    # More plotting parameters
+    temp_min <- df_clim_sub$temp[df_clim_sub$t == te_min]
+    temp_max <- df_clim_sub$temp[df_clim_sub$t == te_max]
     temp_mean <- mean(temp_min, temp_max)
-    seas_peak <- df_clim_sub$seas[df_clim_sub$t == df_event_top$peak_date]
+    seas_peak <- df_clim_sub$seas[df_clim_sub$t == df_event_top$date_peak]
+    temp_peak <- df_clim_sub$temp[df_clim_sub$t == df_event_top$date_peak]
     
     # Annotated flame
-    flame_2 <- ggplot(data = df_clim_sub, aes(x = t, y = temp)) +
+    mainPlot <- ggplot(data = df_clim_sub, aes(x = t, y = temp)) +
       geom_flame(aes(y2 = thresh, fill = "Other MHWs"), n = 5, n_gap = 2) +
-      geom_flame(data = df_event_top, aes(y2 = thresh, fill = "Focal MHW"), n = 5, n_gap = 2) +
-      geom_line(aes(y = seas, col = "clim"), size = 0.7, show.legend = F) +
-      geom_line(aes(y = thresh, col = "thresh"), size = 0.7, show.legend = F) +
-      geom_line(aes(y = temp, col = "temp"), size = 0.6, show.legend = F) +
-      # Duration label
+      geom_flame(data = df_clim_top, aes(y2 = thresh, fill = "Focal MHW"), n = 5, n_gap = 2) +
+      geom_line(aes(y = seas, colour = "clim"), linewidth = 0.7, show.legend = F) +
+      geom_line(aes(y = thresh, colour = "thresh"), linewidth = 0.7, show.legend = F) +
+      geom_line(aes(y = temp, colour = "temp"), linewidth = 0.6, show.legend = F) +
+      # Duration bar
       geom_segment(colour = "springgreen",
-                   aes(x = t_min, xend = t_max,
+                   aes(x = te_min-1, xend = te_max+1,
                        y = temp_min, yend = temp_max)) +
       geom_segment(colour = "springgreen",
-                   aes(x = t_min, xend = t_min,
-                       y = temp_min-2, yend = temp_min+2)) +
+                   aes(x = te_min-1, xend = te_min-1,
+                       y = temp_min-0.1, yend = temp_min+0.1)) +
       geom_segment(colour = "springgreen",
-                   aes(x = t_max, xend = t_max,
-                       y = temp_max-2, yend = temp_max+2)) +
-      geom_label(aes(label = paste0("Duration = ",df_event_top$duration," days"), 
-                                    x = df_event_top$peak_date, y = temnp_mean),
+                   aes(x = te_max+1, xend = te_max+1,
+                       y = temp_max-0.1, yend = temp_max+0.1)) +
+      # Duration label
+      geom_label(data = data.frame(), 
+                 aes(label = paste0("Duration = ",df_event_top$duration," days"),
+                     x = df_event_top$date_end, y = temp_max),
                  colour = "springgreen", label.size = 3) +
-      geom_label(aes(label = paste0("Duration = ",df_event_top$duration," days"), 
-                                   x = df_event_top$peak_date, y = temnp_mean),
+      geom_label(data = data.frame(), 
+                 aes(label = paste0("Duration = ",df_event_top$duration," days"),
+                     x = df_event_top$date_end, y = temp_max),
                  colour = "black", label.size = 0) +
+      # Max intensity bar
+      geom_segment(colour = "forestgreen",
+                   aes(x = df_event_top$date_peak-5, xend = df_event_top$date_peak+5,
+                       y = temp_peak, yend = temp_peak)) +
+      geom_segment(colour = "forestgreen",
+                   aes(x = df_event_top$date_peak-5, xend = df_event_top$date_peak+5,
+                       y = seas_peak, yend = seas_peak)) +
+      geom_segment(colour = "forestgreen",
+                   aes(x = df_event_top$date_peak, xend = df_event_top$date_peak,
+                       y = seas_peak, yend = temp_peak)) +
       # Max intensity label
-      geom_segment(colour = "forestgreen",
-                   aes(x = df_event_top$peak_date-5, xend = df_event_top$peak_date+5,
-                       y = df_event_top$intensity_max, df_event_top$intensity_max)) +
-      geom_segment(colour = "forestgreen",
-                   aes(x = df_event_top$peak_date, xend = df_event_top$peak_date,
-                       y = seas_peak, yend = df_event_top$intensity_max)) +
-      geom_label(aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
-                     x = df_event_top$peak_date, y = df_event_top$intensity_max*1.1),
+      geom_label(data = data.frame(), 
+                 aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
+                     x = df_event_top$date_peak, y = temp_peak*1.01),
                  colour = "forestgreen", label.size = 3) +
-      geom_label(aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
-                     x = df_event_top$peak_date, y = df_event_top$intensity_max*1.1),
+      geom_label(data = data.frame(),
+                 aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
+                     x = df_event_top$date_peak, y = temp_peak*1.01),
                  colour = "black", label.size = 0) +
       # Cumulative intensity label
-      geom_label(aes(label = pasteo("Cum. Intensity = ",df_ev,"°CxDays"), x = as.Date("2011-02-28"), y = 26),
+      geom_label(data = data.frame(),
+                 aes(label = paste0("Cum. Intensity = ",df_event_top$intensity_cumulative,"°CxDays"), 
+                     x = df_event_top$date_end, y = mean(c(temp_max, temp_peak))),
                  colour = "red", label.size = 3) +
-      geom_label(aes(label = "Cum. Intensity = 293.21°CxDays", x = as.Date("2011-02-28"), y = 26),
+      geom_label(data = data.frame(),
+                 aes(label = paste0("Cum. Intensity = ",df_event_top$intensity_cumulative,"°CxDays"), 
+                     x = df_event_top$date_end, y = mean(c(temp_max, temp_peak))),
                  colour = "black", label.size = 0) +
       # Aesthetics
       scale_colour_manual(name = "Line Colour",
@@ -724,9 +751,8 @@ server <- function(input, output, session) {
                                      "seas" = "darkblue")) +
       scale_fill_manual(name = NULL, values = c("red", "salmon"),
                         breaks = c("Focal MHW", "Other MHWs")) +
-      scale_x_date(expand = c(0, 0), date_breaks = "2 months", date_labels = "%b %Y", ) +
-      labs(x = "Date", y = "Temperature [°C]", title = "Western Australia MHW; Top event metrics") +
-      theme(panel.background = element_rect(colour = "black"))
+      scale_x_date(expand = c(0, 0), date_breaks = "2 months", date_labels = "%b %Y") +
+      labs(x = NULL, y = "Temperature [°C]") + theme_bw()
     
     # Exit
     mainPlot
