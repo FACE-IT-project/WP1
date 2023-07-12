@@ -10,6 +10,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
 library(shinyBS)
+library(shinycssloaders)
 library(DT)
 library(dplyr)
 library(tidyr)
@@ -159,7 +160,8 @@ ui <- dashboardPage(
                          # Highlight data points by time period
                          shiny::radioButtons("timeSelect", "Highlight time", inline = TRUE,
                                              choices = c("Month", "Year", "DOY", "None"), 
-                                             selected = "None")),
+                                             selected = "None")
+                         ),
                 
                 # Statistics menu
                 menuItem("Statistics", tabName = "perc_base", icon = icon("percent"),
@@ -171,7 +173,8 @@ ui <- dashboardPage(
                                              value = 90, min = 1, max = 100),
                          # Detrend - no - linear - non-linear
                          shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
-                                             choices = c("No", "Yes"), selected = "No")),
+                                             choices = c("No", "Yes"), selected = "No")
+                         ),
                 
                 # Detection menu
                 menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"),
@@ -180,10 +183,12 @@ ui <- dashboardPage(
                                              value = 2, min = 0, max = 366),
                          # Set max gap between MHW
                          shiny::numericInput("minDuration", "Min. duration",
-                                             value = 5, min = 1, max = 366)),
+                                             value = 5, min = 1, max = 366)
+                         )#,
                 
                 # The main event
-                menuItem("The main event", tabName = "event", icon = icon("temperature-high")))
+                # menuItem("The main event", tabName = "event", icon = icon("temperature-high")))
+    )
   ),
   
   
@@ -192,6 +197,7 @@ ui <- dashboardPage(
   body = dashboardBody(
     
     tabsetPanel(
+      selected = "Detection",
       
       # Accueil
       tabPanel(title = "Overview",
@@ -213,21 +219,13 @@ ui <- dashboardPage(
       tabPanel(title = "time",
                p("Once upon a time series..."),
                fluidRow(
-                 # column(12,
-                        tabBox(width = 12,
-                          title = "", selected = "Day",
-                          tabPanel("All", shinycssloaders::withSpinner(plotOutput("allTime"), 
-                                                                type = 6, color = "#b0b7be")),
-                          tabPanel("Month", shinycssloaders::withSpinner(plotOutput("monthTime"), 
-                                                                         type = 6, color = "#b0b7be")),
-                          tabPanel("Year", shinycssloaders::withSpinner(plotOutput("yearTime"), 
-                                                                        type = 6, color = "#b0b7be")),
-                          tabPanel("DOY", shinycssloaders::withSpinner(plotOutput("doyTime"), 
-                                                                       type = 6, color = "#b0b7be")),
-                          tabPanel("Day", shinycssloaders::withSpinner(plotOutput("dayTime"), 
-                                                                       type = 6, color = "#b0b7be"))
+                        tabBox(width = 12, title = "", selected = "Day",
+                          tabPanel("All", withSpinner(plotOutput("allTime"), type = 6, color = "#b0b7be")),
+                          tabPanel("Month", withSpinner(plotOutput("monthTime"), type = 6, color = "#b0b7be")),
+                          tabPanel("Year", withSpinner(plotOutput("yearTime"), type = 6, color = "#b0b7be")),
+                          tabPanel("DOY", withSpinner(plotOutput("doyTime"), type = 6, color = "#b0b7be")),
+                          tabPanel("Day", withSpinner(plotOutput("dayTime"), type = 6, color = "#b0b7be"))
                         )
-                 # )
                )
       ),
       
@@ -237,14 +235,16 @@ ui <- dashboardPage(
                fluidPage(
                  column(12,
                         # Figures
-                        box(width = 12, title = "", 
+                        box(width = 12, title = "",
                             status = "info", solidHeader = FALSE, collapsible = FALSE,
                             # Overview of time series - baseline + trend
-                            plotOutput("basePlot"),
+                        # fluidRow(
+                            withSpinner(plotOutput("basePlot"), type = 6, color = "#b0b7be"),
+                        # ),
+                        # fluidRow(
                             # DOY panel - percentiles + trend effect
-                            plotOutput("percPlot")
+                            withSpinner(plotOutput("percPlot"), type = 6, color = "#b0b7be")
                         )
-                        # TODO: Add table of MHW metrics
                  )
                )
       ),
@@ -252,31 +252,40 @@ ui <- dashboardPage(
       # Detection menu
       tabPanel(title = "Detection",
                fluidPage(
-                 column(12,
+                 column(width = 12,
                         # Figures
-                        box(width = 12, title = "Data", 
-                            status = "info", solidHeader = TRUE, collapsible = FALSE,
+                        box(width = 12, title = "",
+                            status = "info", solidHeader = FALSE, collapsible = FALSE,
+                            # column(width = 6,
+                            # # Flame plot
+                            # withSpinner(plotOutput("flamePlot"), type = 6, color = "#b0b7be")#,
+                            # ),
+                            # column(width = 6,
+                                   # Table of MHW metrics
+                                   withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be"),
+                            # ),
+                            # column(width = 6,
                             # Lolliplot
-                            plotOutput("lolliPlot")
-                        )
-                        # TODO: Add table of MHW metrics)
+                            withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be")#,
+                            )#,
+                            
+                        # )
                  )
                )
       ),
       
       # Main event
-      tabItem(title = "The main event",
-              fluidPage(
-                column(12,
-                       # Figures
-                       box(width = 9, title = "Data", 
-                           status = "info", solidHeader = TRUE, collapsible = FALSE,
-                           # Overview of time series - baseline + trend
-                           plotOutput("mainPlot")
-                       )
-                       # TODO: Add table of MHW metrics)
-                )
-              )
+      tabPanel(title = "The main event",
+               fluidPage(
+                 column(12,
+                        # Figures
+                        box(width = 12, title = "", 
+                            status = "info", solidHeader = FALSE, collapsible = FALSE,
+                            # Focus on the main event
+                            withSpinner(plotOutput("mainPlot"), type = 6, color = "#b0b7be")
+                        )
+                 )
+               )
       )
     )
   )
@@ -339,7 +348,7 @@ server <- function(input, output, session) {
   })
   
   
-  ## Plots -------------------------------------------------------------------
+  ## Plots/tables -----------------------------------------------------------
   
   # All time plot
   output$allTime <- renderPlot({
@@ -442,36 +451,98 @@ server <- function(input, output, session) {
     percPlot
   })
   
-  output$lolliPlot <- renderPlot({
+  # Show time series with events as flames
+  output$flamePlot <- renderPlot({
     req(input$percSelect)
     
-    # Run ts2clm
-    df_ts2clm <- df_ts2clm()
-    
-    # Points above threshold
-    df_thresh <- df_ts2clm |> filter(temp >= thresh)
+    # Get time series
+    df_climatology <- df_detect()$climatology
     
     # Plot
-    lolliPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
-      geom_point(aes(y = temp), colour = "blue")
+    flamePlot <- ggplot(data = df_climatology, aes(x = t)) +
+      geom_line(aes(y = temp, colour = "temp")) +
+      geom_line(aes(y = thresh, colour = "thresh"), linewidth = 1.2, alpha = 0.2) +
+      geom_line(aes(y = seas, colour = "seas"), linewidth = 1.2, alpha = 0.2) +
+      geom_flame(aes(y = temp, y2 = thresh), fill = "salmon", show.legend = T) +
+      scale_colour_manual(name = "Line Colour",
+                          values = c("temp" = "black", 
+                                     "thresh" =  "purple", 
+                                     "seas" = "darkblue")) +
+      # scale_x_date(date_labels = "%b %Y") +
+      guides(colour = guide_legend(override.aes = list(fill = NA))) +
+      labs(y = "Temperature [°C]", x = NULL) + theme_bw() +
+      theme(legend.position = "bottom")
+    flamePlot
     
     # Exit
-    lolliPlot
+    # ggplotly(flamePlot, dynamicTicks = FALSE)
   })
   
+  # Show detected events as lollis
+  output$lolliPlot <- renderPlotly({
+    
+    # Get time series
+    ts_data <- df_detect()$climatology
+    
+    # Get events
+    event_data <- df_detect()$event
+    
+    # The base lolli figure
+    suppressWarnings( # Cancel aes(text) warning
+      lolliPlot <- ggplot(data = event_data, aes(x = date_peak, y = intensity_max)) +
+        geom_segment(aes(xend = date_peak, yend = 0)) +
+        geom_hline(yintercept = 0) +
+        geom_point(fill = "salmon", shape = 21, size = 4,
+                   aes(text = paste0("Event: ",event_no,
+                                     "<br>Duration: ",duration," days",
+                                     "<br>Start Date: ", date_start,
+                                     "<br>Peak Date: ", date_peak,
+                                     "<br>End Date: ", date_end,
+                                     "<br>Mean Intensity: ",round(intensity_mean, 2),"°C",
+                                     "<br>Max. Intensity: ",round(intensity_max, 2),"°C",
+                                     "<br>Cum. Intensity: ",round(intensity_cumulative, 2),"°C"))) +
+        labs(x = NULL, y = "Max. Intensity (°C)") +
+        scale_y_continuous(limits = c(0, max(event_data$intensity_max)*1.1), expand = c(0, 0)) +
+        scale_x_date(limits = c(min(ts_data$t), max(ts_data$t)), expand = c(0, 0)) + theme_bw()
+    )
+    # lolliPlot
+    ggplotly(lolliPlot, tooltip = "text", dynamicTicks = F)
+  })
   
+  # The main event plot
+  output$detectTable <- renderDT({
+    req(input$percSelect)
+    
+    # Get event data and make it pretty
+    event_data <- df_detect()$event |> 
+      mutate(Event = "MHW") |> 
+      dplyr::rename('#' = event_no,
+                    Duration = duration,
+                    'Start Date' = date_start,
+                    'Peak Date' = date_peak,
+                    'End Date' = date_end,
+                    'Mean Intensity' = intensity_mean,
+                    'Max. Intensity' = intensity_max,
+                    'Cum. Intensity' = intensity_cumulative,
+                    Category = category) |> 
+      dplyr::arrange(`Peak Date`) |>  
+      dplyr::select(Event, `#`, Duration, `Start Date`, `Peak Date`, `End Date`,
+                    `Mean Intensity`, `Max. Intensity`, `Cum. Intensity`, Category)
+    
+    # Exit
+    DT::datatable(event_data, options = list(pageLength = 10))
+  })
+  
+  # The main event plot
   output$mainPlot <- renderPlot({
     req(input$percSelect)
     
     # Run ts2clm
     df_ts2clm <- df_ts2clm()
     
-    # Points above threshold
-    df_thresh <- df_ts2clm |> filter(temp >= thresh)
-    
     # Plot
     mainPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
-      geom_point(aes(y = temp), colour = "red")
+      geom_point(colour = "red")
     
     # Exit
     mainPlot
