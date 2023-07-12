@@ -63,54 +63,68 @@ sst_Med <- heatwaveR::sst_Med
 # UI ----------------------------------------------------------------------
 
 # Define UI
-ui <- navbarPage(title = "test",
+ui <- dashboardPage(
     
     # The app title
     # TODO: Add messages etc
     # https://rstudio.github.io/shinydashboard/structure.html
-    header = dashboardHeader(title = "MHW demo"),
+    header = dashboardHeader(title = "MHW definition"),
     
-    # The primary options
+
+    ## Sidebar -----------------------------------------------------------------
+    
     sidebar = dashboardSidebar(
         
         # The side bar
         sidebarMenu(id = "mainMenu",
                     
-                    # The various menus
-                    menuItem("Overview", icon = icon("desktop")),
+                    # The Overview
+                    menuItem("Overview", tabName = "overview", icon = icon("desktop")),
+                    
+                    # Time menu
                     menuItem("Time series", tabName = "time", icon = icon("clock"),
+                             # Select time series
                              selectizeInput("seriesSelect", "Time series",
                                             choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                            selected = c("Western Australia"))),
+                                            selected = c("Western Australia")),
+                             # Time select
+                             selectizeInput("timeSelect", "Time period",
+                                   choices = c("All", "Month", "Year", "DOY", "Day"),
+                                   selected = c("Day"))),
+                    
+                    # Statistics menu
                     menuItem("Statistics", tabName = "perc_base", icon = icon("percent"),
-                             selectizeInput("seriesSelect2", "Time series",
-                                            choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                            selected = c("Western Australia"))),
-                    menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"), selected = TRUE),
-                    menuItem("The main event", tabName = "event", icon = icon("temperature-high"))),
-        
-        # The reactive controls based on the primary option chosen
-        # uiOutput(outputId = "sidebar_controls")),
-        
-        # Instructions popup
-        br(),
-        useSweetAlert(),
-        actionBttn(
-            inputId = "info",
-            label = "Instructions",
-            icon = icon("book"),
-            style = "material-flat",
-            color = "success"
-        )
+                             # Select baseline period
+                             shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
+                                                value = c(1982, 2011), sep = ""),
+                             # Select quantile
+                             shiny::numericInput("percSelect", "Percentile",
+                                                 value = 90, min = 1, max = 100),
+                             # Detrend - no - linear - non-linear
+                             shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
+                                                 choices = c("No", "Yes"), selected = "No")),
+                    
+                    # Detection menu
+                    menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"),
+                             # Set minimum MHW duration
+                             shiny::numericInput("maxGap", "Max gap",
+                                                 value = 2, min = 0, max = 366),
+                             # Set max gap between MHW
+                             shiny::numericInput("minDuration", "Min. duration",
+                                                 value = 5, min = 1, max = 366)),
+                    
+                    # The main event
+                    menuItem("The main event", tabName = "event", icon = icon("temperature-high")))
     ),
     
-    # The dashboard
+
+    ## Body --------------------------------------------------------------------
+    
     body = dashboardBody(
-        # tabItems(
+
         tabsetPanel(
-            
-            ## Overview menu -----------------------------------------------------------
-            
+
+          # Accueil
             tabPanel(title = "Overview",
                      fluidPage(
                          column(12,
@@ -125,31 +139,13 @@ ui <- navbarPage(title = "test",
                      )
             ),
             
-            
-            ## Time menu ---------------------------------------------------------------
-            
+            # Time menu
             # TODO:
             # Add radio buttons to show colour for dots by month, year, or both (maybe not both...)
             tabPanel(title = "time",
                      p("Once upon a time series..."),
                      fluidPage(
                          column(12,
-                                # box(width = 3, title = "Controls", # height = "880px",
-                                #     status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                                #     
-                                #     # Site select
-                                #     # uiOutput("selectSeriesUI"),
-                                #     selectizeInput("seriesSelect", "Time series",
-                                #                    choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                #                    selected = c("Western Australia")),
-                                #     
-                                #     # Time select
-                                #     selectizeInput("timeSelect", "Time period",
-                                #                    choices = c("All", "Month", "Year", "DOY", "Day"),
-                                #                    selected = c("Day")
-                                #     )
-                                # ),
-                                
                                 # Time series plot
                                 box(width = 12, title = "Data", 
                                     status = "info", solidHeader = TRUE, collapsible = FALSE,
@@ -159,40 +155,13 @@ ui <- navbarPage(title = "test",
                      )
             ),
             
-            ## Perc+base menu ----------------------------------------------------------
-            
-            tabItem(tabName = "perc_base",
+            # Stats menu
+            tabPanel(title = "Statistics",
                     p("Lies, damn lies, and statistics..."),
                     fluidPage(
                         column(12,
-                               # Controls
-                               box(width = 3, title = "Controls",
-                                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                                   
-                                   # Site select
-                                   # uiOutput("selectSeriesUI"),
-                                   # selectizeInput("seriesSelect2", "Time series",
-                                   #                choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                   #                selected = c("Western Australia")),
-                                   
-                                   # Select baseline period
-                                   shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
-                                                      value = c(1982, 2011), sep = ""
-                                   ),
-                                   
-                                   # Select quantile
-                                   shiny::numericInput("percSelect", "Percentile",
-                                                       value = 90, min = 1, max = 100
-                                   ),
-                                   
-                                   # Detrend - no - linear - non-linear
-                                   shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
-                                                       choices = c("No", "Yes"), selected = "No"
-                                   ),
-                               ),
-                               
                                # Figures
-                               box(width = 9, title = "Data", 
+                               box(width = 12, title = "Data", 
                                    status = "info", solidHeader = TRUE, collapsible = FALSE,
                                    # Overview of time series - baseline + trend
                                    plotOutput("basePlot"),
@@ -201,29 +170,17 @@ ui <- navbarPage(title = "test",
                                )
                                # TODO: Add table of MHW metrics
                         )
-                    )                
+                    )
             ),
             
-            
-            ## Detection menu ----------------------------------------------------------
-            
-            tabItem(tabName = "detect",
-                    fluidPage(
+            # Detection menu
+            tabPanel(title = "Detection",
+                     fluidPage(
                         column(12,
-                               # Controls
-                               box(width = 3, title = "Controls",
-                                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                                   # Site select
-                                   # uiOutput("selectSeriesUI"),
-                                   selectizeInput("seriesSelect3", "Time series",
-                                                  choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                                  selected = c("Western Australia")),
-                               ),
-                               
                                # Figures
-                               box(width = 9, title = "Data", 
+                               box(width = 12, title = "Data", 
                                    status = "info", solidHeader = TRUE, collapsible = FALSE,
-                                   # Overview of time series - baseline + trend
+                                   # Lolliplot
                                    plotOutput("lolliPlot")
                                )
                                # TODO: Add table of MHW metrics)
@@ -231,21 +188,10 @@ ui <- navbarPage(title = "test",
                     )
             ),
             
-            ## Main event menu ----------------------------------------------------------
-            
-            tabItem(tabName = "event",
+            # Main event
+            tabItem(title = "The main event",
                     fluidPage(
                         column(12,
-                               # Controls
-                               box(width = 3, title = "Controls",
-                                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                                   # Site select
-                                   # uiOutput("selectSeriesUI"),
-                                   selectizeInput("seriesSelect3", "Time series",
-                                                  choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                                  selected = c("Western Australia")),
-                               ),
-                               
                                # Figures
                                box(width = 9, title = "Data", 
                                    status = "info", solidHeader = TRUE, collapsible = FALSE,
@@ -296,28 +242,34 @@ server <- function(input, output, session) {
         if(input$trendSelect == "No"){
             df_site_ts$temp <- df_site_ts$temp-mean(df_site_ts$temp)
         } else if(input$trendSelect == "Yes"){
-            df_site_ts$temp <- pracma::detrend(df_site_ts$temp)[,1]
+            df_site_ts$temp <- as.vector(lm(temp ~ t, df_site_ts)$residuals)
         }
         df_ts2clm <- ts2clm(df_site_ts, 
                             climatologyPeriod = c(paste0(input$baseSelect[1],"-01-01"),
                                                   paste0(input$baseSelect[2],"-12-31")),
-                            pctile = input$percSelect,
+                            pctile = input$percSelect)
                             # For testing...
                             # climatologyPeriod = c("1982-01-01", "2011-12-31"),
-                            # pctile = 90
-        )
+                            # pctile = 90)
         return(df_ts2clm)
     })
     
     # Run detect_event
     df_detect <- reactive({
-        req(input$baseSelect, input$percSelect, input$trendSelect)
-        df_detect <- detect_event()
+      req(input$baseSelect, input$percSelect, input$trendSelect)
+      df_ts2clm <- df_ts2clm()
+      df_detect <- detect_event(df_ts2clm, 
+                                # For testing...
+                                # minDuration = 5, maxGap = 2,
+                                minDuration = input$minDuration, maxGap = input$maxGap,
+                                categories = TRUE, climatology = TRUE)
+      return(df_detect)
     })
     
-    ## Time plot ---------------------------------------------------------------
+
+    ## Plots -------------------------------------------------------------------
+
     
-    # NB: Too many data points for plotly to run quickly
     output$timePlot <- renderPlot({
         
         # Get time series
@@ -363,9 +315,7 @@ server <- function(input, output, session) {
         timePlot
     })
     
-    
-    ## Baseline plot -----------------------------------------------------------
-    
+    # Plot that illustrates baseline selection
     output$basePlot <- renderPlot({
         req(input$baseSelect)
         
@@ -396,8 +346,6 @@ server <- function(input, output, session) {
         basePlot
     })
     
-    ## Percentile plot ---------------------------------------------------------
-    
     output$percPlot <- renderPlot({
         req(input$percSelect)
         
@@ -425,9 +373,6 @@ server <- function(input, output, session) {
         percPlot
     })
     
-    
-    ## Lolli plot --------------------------------------------------------------
-    
     output$lolliPlot <- renderPlot({
         req(input$percSelect)
         
@@ -445,8 +390,6 @@ server <- function(input, output, session) {
         lolliPlot
     })
     
-    
-    ## Main event plot ---------------------------------------------------------
     
     output$mainPlot <- renderPlot({
         req(input$percSelect)
