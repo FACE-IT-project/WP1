@@ -8,13 +8,10 @@
 
 library(shiny)
 library(shinydashboard)
-library(shinyWidgets)
-library(shinyBS)
+library(dashboardthemes)
 library(shinycssloaders)
 library(DT)
 library(dplyr)
-library(tidyr)
-library(purrr)
 library(lubridate)
 library(ggplot2)
 library(ggpattern)
@@ -226,6 +223,11 @@ sst_Med <- heatwaveR::sst_Med
 # Define UI
 ui <- dashboardPage(
   
+  # Change theme
+  # NB: Either change here, or in the body, not both
+  # skin = "black",
+  # “blue”, “black”, “purple”, “green”, “red”, “yellow”
+  
   # The app title
   # TODO: Add messages etc
   # https://rstudio.github.io/shinydashboard/structure.html
@@ -342,6 +344,14 @@ ui <- dashboardPage(
   ## Body --------------------------------------------------------------------
   
   body = dashboardBody(
+    
+    # Change theme
+    # NB: Either change here, or in the main page, not both
+    # blue_gradient, flat_red, grey_light, grey_dark, onenote, poor_mans_flatly, purple_gradient
+    # Decent: grey_light, grey_dark, onenote, poor_mans_flatly
+    dashboardthemes::shinyDashboardThemes(
+      theme = "poor_mans_flatly"
+    ),
     
     tabsetPanel(
       selected = "The main event",
