@@ -240,14 +240,71 @@ ui <- dashboardPage(
                 # Time menu
                 menuItem("Time series", tabName = "time", icon = icon("clock"),
                          # Select time series
-                         selectizeInput("seriesSelect", "Time series",
-                                        choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
-                                        selected = c("Western Australia")),
+                                        # choices = c("Western Australia", "NW Atlantic", "Mediterranean"),
+                         selectizeInput(
+                           inputId = "seriesSelect",
+                           label = "Select data",
+                           choices = NULL,
+                           multiple = FALSE,
+                           selected = "Western Australia",
+                           options = list(
+                             options = list(
+                               list(
+                                 hemi = "N", value = "NW Atlantic", name = "NW Atlantic", 
+                                 tooltip = "Medium events, medium interannual variability, strong linear trend"
+                               ),
+                               list(
+                                 hemi = "N", value = "Mediterranean", name = "Mediterranean", 
+                                 tooltip = "Smaller events, low interannual variability, medium linear trend"
+                               ),
+                               list(
+                                 hemi = "S", value = "Western Australia", name = "Western Australia",
+                                 tooltip = "One enormous events, high interannual variability, weak linear trend"
+                               )
+                             ),
+                             optgroups = list(
+                               list(
+                                 value = "N",  label = "Northern hemisphere",  
+                                 tooltip = "Winter in January"
+                               ),
+                               list(
+                                 value = "S",    label = "Southern hemisphere", 
+                                 tooltip = "Summer in January"
+                               )
+                             ),
+                             optgroupField = "hemi",
+                             labelField = "name",
+                             render = I(
+                               "{
+                               optgroup_header: function(data, escape) {
+                               return '<div class=\"optgroup-header\"><span ' + 
+                               'data-toggle=\"tooltip\" data-placement=\"right\" title=\"' + 
+                               data.tooltip + '\">' + escape(data.label) + '</span></div>';
+                               },
+                               option: function(data, escape) {
+                               return '<div class=\"option\"><span ' + 
+                               'data-toggle=\"tooltip\" data-placement=\"top\" title=\"' + 
+                               data.tooltip + '\">' + escape(data.name) + '</span></div>';
+                               }
+                               }"
+                               ),
+                             onDropdownOpen = I(
+                               "function() {
+                               setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
+                               }"
+                               ),
+                             onChange = I(
+                               "function() {
+                               setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
+                               }"
+                               )
+                             )
+                           ),
                          # Highlight data points by time period
                          shiny::radioButtons("timeSelect", "Highlight time", inline = TRUE,
                                              choices = c("Month", "Year", "DOY", "None"), 
                                              selected = "None")
-                ),
+                         ),
                 
                 # Statistics menu
                 menuItem("Statistics", tabName = "perc_base", icon = icon("percent"),
@@ -257,10 +314,10 @@ ui <- dashboardPage(
                          # Select quantile
                          shiny::numericInput("percSelect", "Percentile",
                                              value = 90, min = 1, max = 100),
-                         # Detrend - no - linear - non-linear
+                         # De-trend
                          shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
                                              choices = c("No", "Yes"), selected = "No")
-                ),
+                         ),
                 
                 # Detection menu
                 menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"),
@@ -273,12 +330,9 @@ ui <- dashboardPage(
                          # Show categories
                          shiny::radioButtons("catSelect", "Categories", inline = TRUE,
                                              choices = c("No", "Yes"), selected = "No")
-                )#,
-                
-                # The main event
-                # menuItem("The main event", tabName = "event", icon = icon("temperature-high")))
-    )
-  ),
+                         )
+                )
+    ),
   
   
   ## Body --------------------------------------------------------------------
@@ -286,7 +340,7 @@ ui <- dashboardPage(
   body = dashboardBody(
     
     tabsetPanel(
-      selected = "Detection",
+      selected = "Time",
       
       # Accueil
       tabPanel(title = "Overview",
