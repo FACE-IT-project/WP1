@@ -344,7 +344,7 @@ ui <- dashboardPage(
   body = dashboardBody(
     
     tabsetPanel(
-      selected = "The main event",
+      selected = "Overview",
       
       # Accueil
       tabPanel(title = "Overview",
@@ -398,8 +398,8 @@ ui <- dashboardPage(
                fluidRow(
                  tabBox(width = 12, title = "", selected = "Table",
                         tabPanel("Table", withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be")),
-                        tabPanel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be")),
-                        tabPanel("Flame", withSpinner(plotlyOutput("flamePlot"), type = 6, color = "#b0b7be"))
+                        tabPanel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be"))#,
+                        # tabPanel("Flame", withSpinner(plotly::plotlyOutput("flamePlot"), type = 6, color = "#b0b7be"))
                         )
                  )
       ),
@@ -594,7 +594,7 @@ server <- function(input, output, session) {
   })
   
   # Show time series with events as flames
-  output$flamePlot <- renderPlotly({
+  output$flamePlot <- plotly::renderPlotly({
   # flamePlot <- reactive({
     req(input$percSelect)
     
@@ -602,15 +602,20 @@ server <- function(input, output, session) {
     df_climatology <- df_detect()$climatology
     
     # Plot
-    flamePlot <- ggplot(data = df_climatology, aes(x = t)) +
-      geom_line(aes(y = temp, colour = "temp")) +
+    flamePlot <- ggplot(data = df_climatology, aes(x = t, y = temp)) +
+      heatwaveR::geom_flame(aes(y2 = thresh, fill = "MHW"), 
+                            # For testing...
+                            n = 5, n_gap = 2) +
+                            # n = input$minDuration, n_gap = input$maxGap) +
+      geom_line(aes(y = temp, colour = "temp"), linewidth = 0.6) +
       geom_line(aes(y = thresh, colour = "thresh"), linewidth = 1.2, alpha = 0.2) +
       geom_line(aes(y = seas, colour = "seas"), linewidth = 1.2, alpha = 0.2) +
-      heatwaveR::geom_flame(aes(y = temp, y2 = thresh), fill = "salmon", show.legend = T) +
       scale_colour_manual(name = "Values",
                           values = c("temp" = "black", 
                                      "thresh" =  "purple", 
                                      "seas" = "darkblue")) +
+      scale_fill_manual(name = "Events",
+                        values = c("MHW" = "salmon")) +
       scale_x_date(expand = c(0, 0)) +
       # guides(colour = guide_legend(override.aes = list(fill = NA))) +
       labs(y = "Temperature [°C]", x = NULL) + theme_bw() +
@@ -618,24 +623,9 @@ server <- function(input, output, session) {
     # flamePlot
     
     # Exit
-    ggplotly(flamePlot, tooltip = "text", dynamicTicks = F) |> layout(hovermode = 'compare')
+    p <- plotly::ggplotly(flamePlot, tooltip = "text", dynamicTicks = F) |> plotly::layout(hovermode = 'compare')
+    p
   })
-  
-  # flamePlotly <- reactive({
-  #   
-  #   # Grab static plot
-  #   p <- flamePlot()
-  #   
-  #   # Convert to plotly
-  #   # NB: Setting dynamicTicks = T causes the flames to be rendered incorrectly
-  #   pp <- ggplotly(p, tooltip = "text", dynamicTicks = F) %>% 
-  #     layout(hovermode = 'compare') 
-  #   pp
-  # })
-  
-  # output$flamePlot <- renderPlotly({
-  #   flamePlotly()
-  # })
   
   # Show detected events as lollis
   output$lolliPlot <- renderPlotly({
