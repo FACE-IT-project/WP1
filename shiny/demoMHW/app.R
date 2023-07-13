@@ -720,8 +720,12 @@ server <- function(input, output, session) {
   output$mainPlot <- renderPlot({
     req(input$catSelect)
     
-    # Get time series
-    df_climatology <- df_detect()$climatology
+    # Get time series and create category threshold values
+    df_climatology <- df_detect()$climatology |> 
+      mutate(diff = thresh-seas,
+             thresh_2x = thresh+diff,
+             thresh_3x = thresh+diff*2,
+             thresh_4x = thresh+diff*3)
     
     # Get events
     df_event <- df_detect()$event
@@ -731,7 +735,7 @@ server <- function(input, output, session) {
       filter(intensity_cumulative == max(intensity_cumulative))
     if(nrow(df_event_top) > 1) df_event_top <- df_event_top[1,]
     
-    # Get plotting parametres
+    # Get plotting parameters
     te_min <- df_event_top$date_start
     te_peak <- df_event_top$date_peak
     te_max <- df_event_top$date_end
@@ -758,61 +762,134 @@ server <- function(input, output, session) {
     temp_mean <- mean(temp_min, temp_max)
     seas_peak <- df_clim_sub$seas[df_clim_sub$t == te_peak]
     temp_peak <- df_clim_sub$temp[df_clim_sub$t == te_peak]
+    thresh_peak <- df_clim_sub$thresh[df_clim_sub$t == te_peak]
+    thresh2x_peak <- df_clim_sub$thresh_2x[df_clim_sub$t == te_peak]
+    thresh3x_peak <- df_clim_sub$thresh_3x[df_clim_sub$t == te_peak]
+    thresh4x_peak <- df_clim_sub$thresh_4x[df_clim_sub$t == te_peak]
     
-    # Annotated flame
-    # mainPlot <- 
-      ggplot(data = df_clim_sub, aes(x = t, y = temp)) +
-      geom_flame(aes(y2 = thresh, fill = "Other MHWs"), n = 5, n_gap = 2) +
-      geom_flame(data = df_clim_top, aes(y2 = thresh, fill = "Focal MHW"), n = 5, n_gap = 2) +
-      geom_line(aes(y = seas, colour = "seas"), linewidth = 0.7, show.legend = F) +
-      geom_line(aes(y = thresh, colour = "thresh"), linewidth = 0.7, show.legend = F) +
-      geom_line(aes(y = temp, colour = "temp"), linewidth = 0.6, show.legend = F) +
-      # Cumulative intensity line
-      geom_ribbon_pattern(data = df_clim_top, aes(ymin = seas, ymax = temp), 
-                          pattern_fill = "skyblue",
-                          pattern = 'stripe', fill = NA, colour  = 'black', alpha = 0.3) +
-      # Duration line
-      geom_line(data = filter(df_clim_sub, t >= te_min-1, t <= te_max+1),
-                colour = "slateblue", aes(y = thresh), linewidth = 2) +
-      # Max intensity line
-      geom_segment(colour = "navy", linewidth = 2, 
-                   arrow = arrow(ends = "both", type = "closed"),
-                   aes(x = te_peak, xend = te_peak, y = seas_peak, yend = temp_peak)) +
-      # Duration label
-      geom_label(data = data.frame(), hjust = 0,
-                 aes(label = paste0("Duration = ",df_event_top$duration," days"),
-                     x = te_max, y = temp_max),
-                 colour = "slateblue", label.size = 3) +
-      geom_label(data = data.frame(), hjust = 0,
-                 aes(label = paste0("Duration = ",df_event_top$duration," days"),
-                     x = te_max, y = temp_max),
-                 colour = "black", label.size = 0) +
-      # Max intensity label
-      geom_label(data = data.frame(), 
-                 aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
-                     x = df_event_top$date_peak, y = temp_peak*1.01),
-                 colour = "navy", label.size = 3) +
-      geom_label(data = data.frame(),
-                 aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
-                     x = df_event_top$date_peak, y = temp_peak*1.01),
-                 colour = "black", label.size = 0) +
-      # Cumulative intensity label
-      geom_label(data = data.frame(), colour = "skyblue", label.size = 3,
-                 aes(label = paste0("Cum. Intensity = ",df_event_top$intensity_cumulative,"°CxDays"), 
-                     x = df_event_top$date_end, y = mean(c(temp_max, temp_peak)))) +
-      geom_label(data = data.frame(), colour = "black", label.size = 0,
-                 aes(label = paste0("Cum. Intensity = ",df_event_top$intensity_cumulative,"°CxDays"), 
-                     x = df_event_top$date_end, y = mean(c(temp_max, temp_peak)))) +
-      # Aesthetics
-      scale_colour_manual(name = "Values",
-                          values = c("temp" = "black", 
-                                     "thresh" =  "purple", 
-                                     "seas" = "darkblue")) +
-      scale_fill_manual(name = NULL, values = c("red", "salmon"),
-                        breaks = c("Focal MHW", "Other MHWs")) +
-      scale_x_date(expand = c(0, 0), date_breaks = "2 months", date_labels = "%b %Y") +
+    # Base annotated flame
+    mainPlot <- ggplot(data = df_clim_sub, aes(x = t, y = temp)) +
+      scale_x_date(expand = c(0, 0)) +
       labs(x = NULL, y = "Temperature [°C]") + theme_bw() +
       theme(text = element_text(size = global_text))
+    
+    # Change based on category selection
+    if(input$catSelect == "No"){
+      mainPlot <- mainPlot +
+        geom_flame(aes(y2 = thresh, fill = "other MHWs"), n = 5, n_gap = 2) +
+        geom_flame(data = df_clim_top, aes(y2 = thresh, fill = "focal MHW"), n = 5, n_gap = 2) +
+        geom_line(aes(y = seas, colour = "seas"), linewidth = 1) +
+        geom_line(aes(y = thresh, colour = "thresh"), linewidth = 1) +
+        geom_line(aes(y = temp, colour = "temp"), linewidth = 0.6) +
+        # Cumulative intensity line
+        geom_ribbon_pattern(data = df_clim_top, aes(ymin = seas, ymax = temp), 
+                            pattern_fill = "skyblue",
+                            pattern = 'stripe', fill = NA, colour  = 'black', alpha = 0.3) +
+        # Duration line
+        geom_line(data = filter(df_clim_sub, t >= te_min-1, t <= te_max+1),
+                  colour = "slateblue", aes(y = thresh), linewidth = 2) +
+        # Max intensity line
+        geom_segment(colour = "navy", linewidth = 2, 
+                     arrow = arrow(ends = "both", type = "closed"),
+                     aes(x = te_peak, xend = te_peak, y = seas_peak, yend = temp_peak)) +
+        # Duration label
+        geom_label(data = data.frame(),colour = "slateblue", label.size = 3, hjust = 0, size = 6,
+                   aes(label = paste0("Duration = ",df_event_top$duration," days"), 
+                       x = te_max, y = temp_max)) +
+        geom_label(data = data.frame(), colour = "black", label.size = 0, hjust = 0, size = 6,
+                   aes(label = paste0("Duration = ",df_event_top$duration," days"),
+                       x = te_max, y = temp_max)) +
+        # Max intensity label
+        geom_label(data = data.frame(), colour = "navy", label.size = 3, size = 6,
+                   aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
+                       x = te_peak, y = temp_peak*1.01)) +
+        geom_label(data = data.frame(), colour = "black", label.size = 0, size = 6,
+                   aes(label = paste0("Max. Intensity = ",round(df_event_top$intensity_max, 2),"°C"), 
+                       x = te_peak, y = temp_peak*1.01)) +
+        # Cumulative intensity label
+        geom_label(data = data.frame(), colour = "skyblue", label.size = 3, size = 6,
+                   aes(label = paste0("Cum. Intensity = ",round(df_event_top$intensity_cumulative, 2),"°CxDays"), 
+                       x = te_max, y = mean(c(temp_max, temp_peak)))) +
+        geom_label(data = data.frame(), colour = "black", label.size = 0, size = 6,
+                   aes(label = paste0("Cum. Intensity = ",round(df_event_top$intensity_cumulative, 2),"°CxDays"), 
+                       x = te_max, y = mean(c(temp_max, temp_peak)))) +
+        # Colour palettes
+        scale_colour_manual(name = "Values",
+                            values = c("temp" = "black", 
+                                       "seas" = "darkblue",
+                                       "thresh" =  "purple"),
+                            breaks = c("temp", "seas", "thresh")) +
+        scale_fill_manual(name = "Events", 
+                          values = c("focal MHW" = "red",
+                                     "other MHWs" = "salmon"),
+                          breaks = c("focal MHW", "other MHWs")) +
+        guides(colour = guide_legend(order = 1), fill = guide_legend(order = 2))
+    } else if(input$catSelect == "Yes"){
+      mainPlot <- mainPlot +
+        geom_flame(aes(y2 = thresh, fill = "I Moderate")) +
+        geom_flame(aes(y2 = thresh_2x, fill = "II Strong")) +
+        geom_flame(aes(y2 = thresh_3x, fill = "III Severe")) +
+        geom_flame(aes(y2 = thresh_4x, fill = "IV Extreme")) +
+        geom_line(aes(y = thresh_2x, col = "2x thresh"), linewidth = 0.7, linetype = "dashed") +
+        geom_line(aes(y = thresh_3x, col = "3x thresh"), linewidth = 0.7, linetype = "dotdash") +
+        geom_line(aes(y = thresh_4x, col = "4x thresh"), linewidth = 0.7, linetype = "dotted") +
+        geom_line(aes(y = seas, col = "seas"), linewidth = 0.7) +
+        geom_line(aes(y = thresh, col = "thresh"), linewidth = 0.7) +
+        geom_line(aes(y = temp, col = "temp"), linewidth = 0.6) +
+        scale_colour_manual(name = "Values", 
+                            values = c("temp" = "black",
+                                       "seas" = "darkblue",
+                                       "thresh" = "purple",
+                                       "2x thresh" = "purple",
+                                       "3x thresh" = "purple",
+                                       "4x thresh" = "purple"),
+                            breaks = c("temp", "seas", "thresh",
+                                       "2x thresh", "3x thresh", "4x thresh")) +
+        scale_fill_manual(name = "Categories", 
+                          values = MHW_colours) +
+        guides(colour = guide_legend(order = 1, 
+                                     override.aes = list(linetype = c("solid", "solid", "solid",
+                                                                      "dashed", "dotdash", "dotted"))),
+               fill = guide_legend(order = 2))
+      
+      # Add category percent labels as necessary
+      if("I Moderate" %in% unique(df_clim_top$category)){
+        mainPlot <- mainPlot +
+          geom_label(data = data.frame(), colour = "#ffc866", label.size = 3, size = 6,
+                     aes(label = paste0("I Moderate = ", df_event_top$p_moderate,"%"), 
+                         x = te_peak, y = thresh_peak)) +
+          geom_label(data = data.frame(), colour = "black", label.size = 0, size = 6,
+                     aes(label = paste0("I Moderate = ", df_event_top$p_moderate,"%"), 
+                         x = te_peak, y = thresh_peak))
+      }
+      if("II Strong" %in% unique(df_clim_top$category)){
+        mainPlot <- mainPlot +
+          geom_label(data = data.frame(), colour = "#ff6900", label.size = 3, size = 6,
+                     aes(label = paste0("II Strong = ", df_event_top$p_strong,"%"), 
+                         x = te_peak, y = thresh2x_peak)) +
+          geom_label(data = data.frame(), colour = "black", label.size = 0, size = 6,
+                     aes(label = paste0("II Strong = ", df_event_top$p_strong,"%"), 
+                         x = te_peak, y = thresh2x_peak))
+      }
+      if("III Severe" %in% unique(df_clim_top$category)){
+        mainPlot <- mainPlot +
+          geom_label(data = data.frame(), colour = "#9e0000", label.size = 3, size = 6,
+                     aes(label = paste0("III Severe = ", df_event_top$p_severe,"%"), 
+                         x = te_peak, y = thresh3x_peak)) +
+          geom_label(data = data.frame(), colour = "black", label.size = 0, size = 6,
+                     aes(label = paste0("III Severe = ", df_event_top$p_severe,"%"), 
+                         x = te_peak, y = thresh3x_peak))
+      }
+      if("IV Extreme" %in% unique(df_clim_top$category)){
+        mainPlot <- mainPlot +
+          geom_label(data = data.frame(), colour = "#2d0000", label.size = 3, size = 6,
+                     aes(label = paste0("IV Extreme = ", df_event_top$p_extreme,"%"), 
+                         x = te_peak, y = thresh4x_peak)) +
+          geom_label(data = data.frame(), colour = "black", label.size = 0, size = 6,
+                     aes(label = paste0("IV Extreme = ", df_event_top$p_extreme,"%"), 
+                         x = te_peak, y = thresh4x_peak))
+      }
+    }
     
     # Exit
     mainPlot
