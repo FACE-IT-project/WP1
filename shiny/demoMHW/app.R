@@ -269,6 +269,9 @@ server <- function(input, output, session) {
   
   # Demo of available themes
   # bs_themer()
+  # Decent themes:
+  # journal, litera, minty, morph, spacelab, united, yeti, zephyr
+  
   
   ## Reactive UI -------------------------------------------------------------
   
@@ -731,3 +734,4 @@ server <- function(input, output, session) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
