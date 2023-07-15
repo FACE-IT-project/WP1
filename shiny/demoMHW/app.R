@@ -76,224 +76,190 @@ sst_NW_Atl <- heatwaveR::sst_NW_Atl
 sst_Med <- heatwaveR::sst_Med
 
 
+# Inputs ------------------------------------------------------------------
+
+## Time series controls
+ts_input <- list(
+  # Select time series
+  selectizeInput(
+    inputId = "seriesSelect",
+    label = "Select data",
+    choices = "Western Australia",
+    multiple = FALSE,
+    selected = "Western Australia",
+    options = list(
+      options = list(
+        list(
+          hemi = "N", value = "NW Atlantic", name = "NW Atlantic", 
+          tooltip = "Medium events, medium interannual variability, strong linear trend"
+        ),
+        list(
+          hemi = "N", value = "Mediterranean", name = "Mediterranean", 
+          tooltip = "Smaller events, low interannual variability, medium linear trend"
+        ),
+        list(
+          hemi = "S", value = "Western Australia", name = "Western Australia",
+          tooltip = "Extreme event, high interannual variability, weak linear trend"
+        )
+      ),
+      optgroups = list(
+        list(
+          value = "N",  label = "Northern hemisphere",  
+          tooltip = "Winter in January"
+        ),
+        list(
+          value = "S",    label = "Southern hemisphere", 
+          tooltip = "Summer in January"
+        )
+      ),
+      optgroupField = "hemi",
+      labelField = "name",
+      render = I(
+        "{
+        optgroup_header: function(data, escape) {
+        return '<div class=\"optgroup-header\"><span ' + 
+        'data-toggle=\"tooltip\" data-placement=\"right\" title=\"' + 
+        data.tooltip + '\">' + escape(data.label) + '</span></div>';
+        },
+        option: function(data, escape) {
+        return '<div class=\"option\"><span ' + 
+        'data-toggle=\"tooltip\" data-placement=\"top\" title=\"' + 
+        data.tooltip + '\">' + escape(data.name) + '</span></div>';
+        }
+        }"
+        ),
+      onDropdownOpen = I(
+        "function() {
+        setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
+        }"
+      ),
+      onChange = I(
+        "function() {
+        setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
+        }"
+      )
+    )
+  ),
+  
+  # Highlight data points by time period
+  shiny::radioButtons("timeSelect", "Highlight time", inline = TRUE,
+                      choices = c("Month", "Year", "DOY", "None"), 
+                      selected = "None")
+)
+
+## Statistics controls
+stats_input <- list(
+  # Select baseline period
+  shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
+                     value = c(1982, 2011), sep = ""),
+  # Select quantile
+  shiny::numericInput("percSelect", "Percentile",
+                      value = 90, min = 1, max = 100),
+  # De-trend
+  shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
+                      choices = c("No", "Yes"), selected = "No")
+)
+
+## Detection controls
+detect_input <- list(
+  # Set max gap between MHW
+  shiny::numericInput("minDuration", "Min. duration",
+                      value = 5, min = 1, max = 366),
+  # Set minimum MHW duration
+  shiny::numericInput("maxGap", "Max gap",
+                      value = 2, min = 0, max = 366),
+  # Show categories
+  shiny::radioButtons("catSelect", "Categories", inline = TRUE,
+                      choices = c("No", "Yes"), selected = "No"))
+
+
+# Cards -------------------------------------------------------------------
+
+
+cards <- list(
+  card(
+    full_screen = TRUE,
+    card_header("Welcome"),
+    img(src = "MHW_def.png", width = "600px", 
+        style = "float:left; margin-right: 20px; margin-top: 20px;"),
+    # h1(tags$b("Overview")),
+    h2(tags$b("Welcome")),
+    p("This demo was designed to provide a visual and interactive explanation for how one may detect
+                                 a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition."),
+    h2(tags$b("References")),
+    p("Hobday et al. (2016, 2018) etc.")
+  ),
+  navset_card_tab(
+    full_screen = TRUE, selected = "Day",
+    title = "Time series",
+    # p("Once upon a time series...")
+    nav_panel("All", withSpinner(plotOutput("allTime"), type = 6, color = "#b0b7be")),
+    nav_panel("Month", withSpinner(plotOutput("monthTime"), type = 6, color = "#b0b7be")),
+    nav_panel("Year", withSpinner(plotOutput("yearTime"), type = 6, color = "#b0b7be")),
+    nav_panel("DOY", withSpinner(plotOutput("doyTime"), type = 6, color = "#b0b7be")),
+    nav_panel("Day", withSpinner(plotOutput("dayTime"), type = 6, color = "#b0b7be"))
+  ),
+  card(
+    full_screen = TRUE,
+    card_header("Statistics"),
+    # p("Lies, damn lies, and statistics...")
+    # Overview of time series - baseline + trend
+    withSpinner(plotOutput("basePlot"), type = 6, color = "#b0b7be"),
+    # DOY panel - percentiles + trend effect
+    withSpinner(plotOutput("percPlot"), type = 6, color = "#b0b7be")
+  ),
+  navset_card_tab(
+    full_screen = TRUE,
+    title = "Detection",
+    nav_panel("Table", withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be")),
+    nav_panel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be"))
+  ),
+  card(
+    full_screen = TRUE,
+    card_header("The main event"),
+    # Focus on the main event
+    withSpinner(plotOutput("mainPlot"), type = 6, color = "#b0b7be")
+  )
+)
+
+
 # UI ----------------------------------------------------------------------
 
 # Define UI
-ui <- dashboardPage(
+ui <- page_navbar(
   
-  # Change theme
-  # NB: Either change here, or in the body, not both
-  # skin = "black",
-  # “blue”, “black”, “purple”, “green”, “red”, “yellow”
+  title = "MHW definition",
   
   # Bootstrap version used during development
-  # theme = bs_theme(version = 5)
+  theme = bs_theme(version = 5, bootswatch = "minty"),
   
   # Choose a specific bootstrap theme
   # theme = bs_theme(bootswatch = "minty"),
-  
-  # The app title
-  # TODO: Add messages etc
-  # https://rstudio.github.io/shinydashboard/structure.html
-  header = dashboardHeader(title = "MHW definition"),
-  
+
   
   ## Sidebar -----------------------------------------------------------------
   
-  sidebar = dashboardSidebar(
-    
-    # The side bar
-    sidebarMenu(id = "mainMenu",
-                
-                # The Overview
-                menuItem("Overview", tabName = "overview", icon = icon("desktop")),
-                
-                # Time menu
-                menuItem("Time series", tabName = "time", icon = icon("clock"),
-                         # Select time series
-                         selectizeInput(
-                           inputId = "seriesSelect",
-                           label = "Select data",
-                           choices = "Western Australia",
-                           multiple = FALSE,
-                           selected = "Western Australia",
-                           options = list(
-                             options = list(
-                               list(
-                                 hemi = "N", value = "NW Atlantic", name = "NW Atlantic", 
-                                 tooltip = "Medium events, medium interannual variability, strong linear trend"
-                               ),
-                               list(
-                                 hemi = "N", value = "Mediterranean", name = "Mediterranean", 
-                                 tooltip = "Smaller events, low interannual variability, medium linear trend"
-                               ),
-                               list(
-                                 hemi = "S", value = "Western Australia", name = "Western Australia",
-                                 tooltip = "Extreme event, high interannual variability, weak linear trend"
-                               )
-                             ),
-                             optgroups = list(
-                               list(
-                                 value = "N",  label = "Northern hemisphere",  
-                                 tooltip = "Winter in January"
-                               ),
-                               list(
-                                 value = "S",    label = "Southern hemisphere", 
-                                 tooltip = "Summer in January"
-                               )
-                             ),
-                             optgroupField = "hemi",
-                             labelField = "name",
-                             render = I(
-                               "{
-                               optgroup_header: function(data, escape) {
-                               return '<div class=\"optgroup-header\"><span ' + 
-                               'data-toggle=\"tooltip\" data-placement=\"right\" title=\"' + 
-                               data.tooltip + '\">' + escape(data.label) + '</span></div>';
-                               },
-                               option: function(data, escape) {
-                               return '<div class=\"option\"><span ' + 
-                               'data-toggle=\"tooltip\" data-placement=\"top\" title=\"' + 
-                               data.tooltip + '\">' + escape(data.name) + '</span></div>';
-                               }
-                               }"
-                               ),
-                             onDropdownOpen = I(
-                               "function() {
-                               setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
-                               }"
-                               ),
-                             onChange = I(
-                               "function() {
-                               setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
-                               }"
-                               )
-                             )
+  sidebar = bslib::sidebar(title = "Controls",
+                           accordion(
+                             accordion_panel("Time series", ts_input)
                            ),
-                         # Highlight data points by time period
-                         shiny::radioButtons("timeSelect", "Highlight time", inline = TRUE,
-                                             choices = c("Month", "Year", "DOY", "None"), 
-                                             selected = "None")
-                         ),
-                
-                # Statistics menu
-                menuItem("Statistics", tabName = "perc_base", icon = icon("percent"),
-                         # Select baseline period
-                         shiny::sliderInput("baseSelect", "Baseline", min = 1982, max = 2022, 
-                                            value = c(1982, 2011), sep = ""),
-                         # Select quantile
-                         shiny::numericInput("percSelect", "Percentile",
-                                             value = 90, min = 1, max = 100),
-                         # De-trend
-                         shiny::radioButtons("trendSelect", "Remove trend", inline = TRUE,
-                                             choices = c("No", "Yes"), selected = "No")
-                         ),
-                
-                # Detection menu
-                menuItem("Detection", tabName = "detect", icon = icon("magnifying-glass"),
-                         # Set max gap between MHW
-                         shiny::numericInput("minDuration", "Min. duration",
-                                             value = 5, min = 1, max = 366),
-                         # Set minimum MHW duration
-                         shiny::numericInput("maxGap", "Max gap",
-                                             value = 2, min = 0, max = 366),
-                         # Show categories
-                         shiny::radioButtons("catSelect", "Categories", inline = TRUE,
-                                             choices = c("No", "Yes"), selected = "No")
-                         )
-                )
-    ),
+                           accordion(
+                             accordion_panel("Statistics", stats_input)
+                           ),
+                           accordion(
+                             accordion_panel("Detection", detect_input)
+                           )
+                           ), 
   
   
   ## Body --------------------------------------------------------------------
-  
-  body = dashboardBody(
-    
-    # Change theme
-    # NB: Either change here, or in the main page, not both
-    # blue_gradient, flat_red, grey_light, grey_dark, onenote, poor_mans_flatly, purple_gradient
-    # Decent: grey_light, grey_dark, onenote, poor_mans_flatly
-    dashboardthemes::shinyDashboardThemes(
-      theme = "poor_mans_flatly"
-    ),
-    
-    tabsetPanel(
-      selected = "Overview",
-      
-      # Accueil
-      tabPanel(title = "Overview",
-               fluidPage(
-                 column(12,
-                        img(src = "MHW_def.png", width = "600px", 
-                            style = "float:left; margin-right: 20px; margin-top: 20px;"),
-                        # h1(tags$b("Overview")),
-                        h2(tags$b("Welcome")),
-                        p("This demo was designed to provide a visual and interactive explanation for how one may detect
-                                 a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition."),
-                        h2(tags$b("References")),
-                        p("Hobday et al. (2016, 2018) etc.")
-                 )
-               )
-      ),
-      
-      # Time menu
-      tabPanel(title = "Time",
-               p("Once upon a time series..."),
-               fluidRow(
-                 tabBox(width = 12, title = "", selected = "Day",
-                        tabPanel("All", withSpinner(plotOutput("allTime"), type = 6, color = "#b0b7be")),
-                        tabPanel("Month", withSpinner(plotOutput("monthTime"), type = 6, color = "#b0b7be")),
-                        tabPanel("Year", withSpinner(plotOutput("yearTime"), type = 6, color = "#b0b7be")),
-                        tabPanel("DOY", withSpinner(plotOutput("doyTime"), type = 6, color = "#b0b7be")),
-                        tabPanel("Day", withSpinner(plotOutput("dayTime"), type = 6, color = "#b0b7be"))
-                 )
-               )
-      ),
-      
-      # Stats menu
-      tabPanel(title = "Statistics",
-               p("Lies, damn lies, and statistics..."),
-               fluidPage(
-                 column(12,
-                        # Figures
-                        box(width = 12, title = "",
-                            status = "info", solidHeader = FALSE, collapsible = FALSE,
-                            # Overview of time series - baseline + trend
-                            withSpinner(plotOutput("basePlot"), type = 6, color = "#b0b7be"),
-                            # DOY panel - percentiles + trend effect
-                            withSpinner(plotOutput("percPlot"), type = 6, color = "#b0b7be")
-                        )
-                 )
-               )
-      ),
-      
-      # Detection menu
-      tabPanel(title = "Detection",
-               fluidRow(
-                 tabBox(width = 12, title = "", selected = "Table",
-                        tabPanel("Table", withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be")),
-                        tabPanel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be"))#,
-                        # tabPanel("Flame", withSpinner(plotly::plotlyOutput("flamePlot"), type = 6, color = "#b0b7be"))
-                        )
-                 )
-      ),
-      
-      # Main event
-      tabPanel(title = "The main event",
-               fluidPage(
-                 column(12,
-                        # Figures
-                        box(width = 12, title = "", 
-                            status = "info", solidHeader = FALSE, collapsible = FALSE,
-                            # Focus on the main event
-                            withSpinner(plotOutput("mainPlot"), type = 6, color = "#b0b7be")
-                        )
-                 )
-               )
-      )
-    )
+ 
+  nav_panel("Overview", cards[[1]]),
+  nav_panel("Time series", cards[[2]]),
+  nav_panel("Statistics", cards[[3]]),
+  nav_panel("Detection", cards[[4]]),
+  nav_panel("The main event", cards[[5]])
   )
-)
 
 
 # Server ------------------------------------------------------------------
@@ -404,7 +370,7 @@ server <- function(input, output, session) {
     basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + 
       geom_line(aes(colour = "temp"), linewidth = 0.5) + 
       geom_line(data = df_site_base, aes(colour = "seas"), linewidth = 0.4, alpha = 0.4) +
-      geom_hline(aes(yintercept = mean(df_site_ts$temp), colour = "mean"), linewidth = 2) +
+      geom_hline(aes(yintercept = mean(temp), colour = "mean"), linewidth = 2) +
       geom_smooth(aes(colour = "trend"),
                   method = "lm", formula = "y ~ x", se = FALSE, linewidth = 2) +
       geom_vline(aes(xintercept = min(df_site_base$t), colour = "baseline"), 
