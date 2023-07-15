@@ -1,7 +1,10 @@
 # shiny/demoMHW/app.R
 # An interactive tool to explain how MHWs are defined
 
-# TODO: Increase size of all text for all figures
+# TODO: Add quarters labels (seasons) to the DOY panel in Detection.
+# Add glossary to landing page to explain all of the terms used and provide the code keys for the rest of the figures etc
+# Consider having both DOY detection panels next to each other, with and without trend
+# Perhaps using a sliding update window widget
 
 
 # Setup -------------------------------------------------------------------
@@ -363,7 +366,7 @@ ui <- dashboardPage(
                         img(src = "MHW_def.png", width = "600px", 
                             style = "float:left; margin-right: 20px; margin-top: 20px;"),
                         # h1(tags$b("Overview")),
-                        h2(tags$b("Brief")),
+                        h2(tags$b("Welcome")),
                         p("This demo was designed to provide a visual and interactive explanation for how one may detect
                                  a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition."),
                         h2(tags$b("References")),
@@ -537,24 +540,25 @@ server <- function(input, output, session) {
     # Plot
     basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + 
       geom_line(aes(colour = "temp"), linewidth = 0.5) + 
-      # geom_line(data = df_site_base, colour = "darkblue", linewidth = 1.1, alpha = 0.6) +
+      geom_line(data = df_site_base, aes(colour = "seas"), linewidth = 0.4, alpha = 0.4) +
       geom_hline(aes(yintercept = mean(df_site_ts$temp), colour = "mean"), linewidth = 2) +
       geom_smooth(aes(colour = "trend"),
                   method = "lm", formula = "y ~ x", se = FALSE, linewidth = 2) +
-      geom_vline(aes(xintercept = min(df_site_base$t), colour = "seas"), 
+      geom_vline(aes(xintercept = min(df_site_base$t), colour = "baseline"), 
                  linetype = "dashed", linewidth = 2) +
-      geom_vline(aes(xintercept = max(df_site_base$t), colour = "seas"), 
+      geom_vline(aes(xintercept = max(df_site_base$t), colour = "baseline"), 
                  linetype = "dashed", linewidth = 2) +
-      geom_rug(data = df_site_base, sides = "b", aes(colour = "seas")) +
+      geom_rug(data = df_site_base, sides = "b", aes(colour = "baseline")) +
       geom_point(data = df_thresh_base, aes(colour = "thresh")) +
       scale_x_date(expand = c(0, 0)) +
       scale_colour_manual(name = "Values",
                           values = c("temp" = "black", 
+                                     "baseline" = "khaki",
                                      "seas" = "darkblue",
-                                     "thresh" =  "purple", 
+                                     "thresh" =  "purple",
                                      "mean" = "darkgreen",
                                      "trend" = "tomato"),
-                          breaks = c("temp", "seas", "thresh", "mean", "trend")) +
+                          breaks = c("temp", "baseline", "seas", "thresh", "mean", "trend")) +
       guides(colour = guide_legend(override.aes = list(shape = 15, size = 5))) +
       labs(x = NULL, y = "Temperature [°C]") + theme_bw() + 
       theme(legend.position = "bottom",
