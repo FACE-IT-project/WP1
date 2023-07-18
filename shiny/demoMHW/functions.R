@@ -44,8 +44,7 @@ time_plot <- function(time_span, df, time_highlight){
   
   # Base plot
   timePlot <- ggplot(data = df, aes(x = t, y = temp)) + 
-    labs(x = NULL, y = "Temperature [°C]") + theme_bw() +
-    theme(text = element_text(size = global_text))
+    labs(x = NULL, y = "Temperature [°C]") + theme_bw()
   
   # Add points
   if(time_highlight == "None")

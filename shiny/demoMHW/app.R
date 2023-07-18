@@ -9,10 +9,8 @@
 
 # Setup -------------------------------------------------------------------
 
-library(shiny)
-library(shinydashboard)
+# library(shiny)
 library(shinycssloaders)
-library(dashboardthemes)
 library(bslib)
 library(bsicons)
 library(DT)
@@ -31,8 +29,8 @@ theme_set(theme_bw(base_size = 16))
 
 # Light and dark themes
 # https://rstudio.github.io/bslib/articles/theming.html
-light <- bs_theme()
-dark <- bs_theme(bg = "black", fg = "white", primary = "purple")
+# light <- bs_theme()
+# dark <- bs_theme(bg = "black", fg = "white", primary = "purple")
 
 # The MHW category colour palette
 MHW_colours <- c(
@@ -59,10 +57,6 @@ lineColCat <- c(
   "3x Threshold" = "darkgreen",
   "4x Threshold" = "darkgreen"
 )
-
-# Set global text size
-global_text <- 18
-
 
 # Functions
 source("functions.R", local = TRUE)
@@ -175,23 +169,25 @@ detect_input <- list(
 
 # Cards -------------------------------------------------------------------
 
-
+## The main content of the app
 cards <- list(
-  card(
-    full_screen = TRUE,
-    card_header("Welcome"),
-    img(src = "MHW_def.png", width = "600px", 
-        style = "float:left; margin-right: 20px; margin-top: 20px;"),
+  page_fillable(
+    # full_screen = FALSE,
+    # card_header("Welcome"),
     # h1(tags$b("Overview")),
     h2(tags$b("Welcome")),
+    img(src = "MHW_def.png", width = "600px", 
+        style = "float:left; margin-right: 20px; margin-top: 20px;"),
     p("This demo was designed to provide a visual and interactive explanation for how one may detect
                                  a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition."),
     h2(tags$b("References")),
     p("Hobday et al. (2016, 2018) etc.")
   ),
-  navset_card_tab(
-    full_screen = TRUE, selected = "Day",
-    title = "Time series",
+  navset_card_pill(
+    # full_screen = FALSE, 
+    selected = "Day",
+    # title = "Time series",
+    sidebar = sidebar(ts_input[[2]], position = "right", open = FALSE),
     # p("Once upon a time series...")
     nav_panel("All", withSpinner(plotOutput("allTime"), type = 6, color = "#b0b7be")),
     nav_panel("Month", withSpinner(plotOutput("monthTime"), type = 6, color = "#b0b7be")),
@@ -200,24 +196,32 @@ cards <- list(
     nav_panel("Day", withSpinner(plotOutput("dayTime"), type = 6, color = "#b0b7be"))
   ),
   card(
-    full_screen = TRUE,
-    card_header("Statistics"),
+    full_screen = FALSE,
+    style = "resize:vertical;",
+    # card_header("Statistics"),
     # p("Lies, damn lies, and statistics...")
-    # Overview of time series - baseline + trend
-    withSpinner(plotOutput("basePlot"), type = 6, color = "#b0b7be"),
-    # DOY panel - percentiles + trend effect
-    withSpinner(plotOutput("percPlot"), type = 6, color = "#b0b7be")
+    card_body(
+      accordion(
+        accordion_panel(title = "Baseline",
+                        withSpinner(plotOutput("basePlot"), type = 6, color = "#b0b7be")
+        )
+      ),
+      accordion(
+        accordion_panel(title = "Threshold (percentile)",
+                        withSpinner(plotOutput("percPlot"), type = 6, color = "#b0b7be")
+        )
+      )
+    )
   ),
   navset_card_tab(
-    full_screen = TRUE,
-    title = "Detection",
+    full_screen = FALSE,
+    # title = "Detection",
     nav_panel("Table", withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be")),
-    nav_panel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be"))
+    nav_panel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be"))#,
+    # nav_panel("Flame", withSpinner(plotlyOutput("flamePlot"), type = 6, color = "#b0b7be"))
   ),
   card(
-    full_screen = TRUE,
-    card_header("The main event"),
-    # Focus on the main event
+    full_screen = FALSE,
     withSpinner(plotOutput("mainPlot"), type = 6, color = "#b0b7be")
   )
 )
@@ -232,24 +236,22 @@ ui <- page_navbar(
   
   # Bootstrap version used during development
   theme = bs_theme(version = 5, bootswatch = "minty"),
-  
-  # Choose a specific bootstrap theme
-  # theme = bs_theme(bootswatch = "minty"),
 
   
   ## Sidebar -----------------------------------------------------------------
   
   sidebar = bslib::sidebar(title = "Controls",
-                           accordion(
-                             accordion_panel("Time series", ts_input)
-                           ),
-                           accordion(
-                             accordion_panel("Statistics", stats_input)
-                           ),
-                           accordion(
-                             accordion_panel("Detection", detect_input)
-                           )
-                           ), 
+                             accordion(open = FALSE,
+                               accordion_panel("Time series", ts_input[[1]])
+                             ),
+                             accordion(open = FALSE,
+                               accordion_panel("Statistics", stats_input)
+                             ),
+                             accordion(open = FALSE,
+                               accordion_panel("Detection", detect_input)
+                             )
+                           
+  ), 
   
   
   ## Body --------------------------------------------------------------------
@@ -280,7 +282,7 @@ server <- function(input, output, session) {
   
   # Base time series and de-trending anomalies
   df_site_ts <- reactive({
-    req(input$seriesSelect, input$trendSelect)
+    req(input$seriesSelect)
     if(input$seriesSelect == "Western Australia"){
       df_site_ts <- sst_WA
     } else if(input$seriesSelect == "NW Atlantic"){
@@ -351,6 +353,7 @@ server <- function(input, output, session) {
   })
   
   # Plot that illustrates baseline selection
+  # TODO: Add switch that hides option to remove linear trend
   output$basePlot <- renderPlot({
     req(input$baseSelect)
     
@@ -373,13 +376,15 @@ server <- function(input, output, session) {
     basePlot <- ggplot(data = df_site_ts, aes(x = t, y = temp)) + 
       geom_line(aes(colour = "temp"), linewidth = 0.5) + 
       geom_line(data = df_site_base, aes(colour = "seas"), linewidth = 0.4, alpha = 0.4) +
-      geom_hline(aes(yintercept = mean(temp), colour = "mean"), linewidth = 2) +
+      geom_hline(aes(yintercept = mean(temp), colour = "mean"), 
+                 linetype = "dashed", linewidth = 2) +
       geom_smooth(aes(colour = "trend"),
-                  method = "lm", formula = "y ~ x", se = FALSE, linewidth = 2) +
+                  method = "lm", formula = "y ~ x", se = FALSE, 
+                  linetype = "dashed", linewidth = 2) +
       geom_vline(aes(xintercept = min(df_site_base$t), colour = "baseline"), 
-                 linetype = "dashed", linewidth = 2) +
+                 linetype = "solid", linewidth = 2) +
       geom_vline(aes(xintercept = max(df_site_base$t), colour = "baseline"), 
-                 linetype = "dashed", linewidth = 2) +
+                 linetype = "solid", linewidth = 2) +
       geom_rug(data = df_site_base, sides = "b", aes(colour = "baseline")) +
       geom_point(data = df_thresh_base, aes(colour = "thresh")) +
       scale_x_date(expand = c(0, 0)) +
@@ -393,8 +398,7 @@ server <- function(input, output, session) {
                           breaks = c("temp", "baseline", "seas", "thresh", "mean", "trend")) +
       guides(colour = guide_legend(override.aes = list(shape = 15, size = 5))) +
       labs(x = NULL, y = "Temperature [°C]") + theme_bw() + 
-      theme(legend.position = "bottom",
-            text = element_text(size = global_text))
+      theme(legend.position = "bottom")
     
     # Exit
     basePlot
@@ -407,8 +411,13 @@ server <- function(input, output, session) {
     # Run ts2clm
     df_ts2clm <- df_ts2clm()
     
+    # Filter by baseline
+    df_site_base <- df_ts2clm |> 
+      filter(t >= paste0(input$baseSelect[1],"-01-01"),
+             t <= paste0(input$baseSelect[2],"-12-31"))
+    
     # Points above threshold
-    df_thresh <- df_ts2clm |> filter(temp >= thresh)
+    df_thresh <- df_site_base |> filter(temp >= thresh)
     
     # Get de-trend info
     if(input$trendSelect == "No"){
@@ -418,12 +427,12 @@ server <- function(input, output, session) {
     }
     
     # Plot
-    percPlot <- ggplot(data = df_ts2clm, aes(x = doy, y = temp)) +
+    percPlot <- ggplot(data = df_site_base, aes(x = doy, y = temp)) +
       geom_point(aes(y = temp, colour = "temp")) +
       geom_point(data = df_thresh, aes(colour = "thresh")) +
-      geom_line(aes(y = thresh, colour = "thresh"), linewidth = 2) +
-      geom_line(aes(y = seas, colour = "seas"), linewidth = 2) +
-      geom_hline(aes(yintercept = 0, colour = {{ detrend }}), linewidth = 2) +
+      geom_line(aes(y = thresh, colour = "thresh"), linewidth = 4) +
+      geom_line(aes(y = seas, colour = "seas"), linewidth = 4) +
+      geom_hline(aes(yintercept = 0, colour = {{ detrend }}), linetype = "dashed", linewidth = 4) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_colour_manual(name = "Values",
                           values = c("temp" = "black", 
@@ -432,8 +441,7 @@ server <- function(input, output, session) {
                                      "mean" = "darkgreen",
                                      "trend" = "tomato")) +
       labs(x = NULL, y = "Temp. anomaly [°C]") + theme_bw() + 
-      theme(legend.position = "none",
-            text = element_text(size = global_text))
+      theme(legend.position = "none")
     
     # Exit
     percPlot
@@ -441,8 +449,7 @@ server <- function(input, output, session) {
   
   # Show time series with events as flames
   output$flamePlot <- plotly::renderPlotly({
-  # flamePlot <- reactive({
-    req(input$percSelect)
+    req(input$minDuration, input$maxGap)
     
     # Get time series
     df_climatology <- df_detect()$climatology
@@ -451,8 +458,8 @@ server <- function(input, output, session) {
     flamePlot <- ggplot(data = df_climatology, aes(x = t, y = temp)) +
       heatwaveR::geom_flame(aes(y2 = thresh, fill = "MHW"), 
                             # For testing...
-                            n = 5, n_gap = 2) +
-                            # n = input$minDuration, n_gap = input$maxGap) +
+                            # n = 5, n_gap = 2) +
+                            n = input$minDuration, n_gap = input$maxGap) +
       geom_line(aes(y = temp, colour = "temp"), linewidth = 0.6) +
       geom_line(aes(y = thresh, colour = "thresh"), linewidth = 1.2, alpha = 0.2) +
       geom_line(aes(y = seas, colour = "seas"), linewidth = 1.2, alpha = 0.2) +
@@ -550,9 +557,6 @@ server <- function(input, output, session) {
   })
   
   # The main event plot
-  # TODO: Rather show stats as small floating coloured labels in the top left corner
-  # Highlight duration by overplotting along threshold line
-  # Add category visuals
   output$mainPlot <- renderPlot({
     req(input$catSelect)
     
@@ -606,8 +610,7 @@ server <- function(input, output, session) {
     # Base annotated flame
     mainPlot <- ggplot(data = df_clim_sub, aes(x = t, y = temp)) +
       scale_x_date(expand = c(0, 0)) +
-      labs(x = NULL, y = "Temperature [°C]") + theme_bw() +
-      theme(text = element_text(size = global_text))
+      labs(x = NULL, y = "Temperature [°C]") + theme_bw()
     
     # Change based on category selection
     if(input$catSelect == "No"){
