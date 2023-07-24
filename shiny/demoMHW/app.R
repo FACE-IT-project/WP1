@@ -2,9 +2,9 @@
 # An interactive tool to explain how MHWs are defined
 
 # TODO: Add quarters labels (seasons) to the DOY panel in Detection.
-# Add glossary to landing page to explain all of the terms used and provide the code keys for the rest of the figures etc
 # Consider having both DOY detection panels next to each other, with and without trend
 # Perhaps using a sliding update window widget
+# Allow a user to upload a dataset
 
 
 # Setup -------------------------------------------------------------------
