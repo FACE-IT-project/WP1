@@ -9,7 +9,11 @@
 
 # Setup -------------------------------------------------------------------
 
+# tester...
 # library(shiny)
+# setwd("shiny/demoMHW/")
+
+# Libraries
 library(shinycssloaders)
 library(bslib)
 library(bsicons)
@@ -25,7 +29,8 @@ library(heatwaveR)
 thematic::thematic_shiny(font = "auto")
 
 # Set global ggplot2 theme
-theme_set(theme_bw(base_size = 16))
+# Unexpected behaviour
+# theme_set(theme_bw(base_size = 16))
 
 # Light and dark themes
 # https://rstudio.github.io/bslib/articles/theming.html
@@ -78,17 +83,18 @@ ts_input <- list(
   selectizeInput(
     inputId = "seriesSelect",
     label = "Select data",
-    choices = "Western Australia",
+    choices = c("Western Australia", "Mediterranean", "NW Atlantic"),
     multiple = FALSE,
     selected = "Western Australia",
+    # This is a fun addition but it's buggy and the labels often get stuck
     options = list(
       options = list(
         list(
-          hemi = "N", value = "NW Atlantic", name = "NW Atlantic", 
+          hemi = "N", value = "NW Atlantic", name = "NW Atlantic",
           tooltip = "Medium events, medium interannual variability, strong linear trend"
         ),
         list(
-          hemi = "N", value = "Mediterranean", name = "Mediterranean", 
+          hemi = "N", value = "Mediterranean", name = "Mediterranean",
           tooltip = "Smaller events, low interannual variability, medium linear trend"
         ),
         list(
@@ -98,40 +104,40 @@ ts_input <- list(
       ),
       optgroups = list(
         list(
-          value = "N",  label = "Northern hemisphere",  
+          value = "N",  label = "Northern hemisphere",
           tooltip = "Winter in January"
         ),
         list(
-          value = "S",    label = "Southern hemisphere", 
+          value = "S",    label = "Southern hemisphere",
           tooltip = "Summer in January"
         )
       ),
       optgroupField = "hemi",
-      labelField = "name",
-      render = I(
-        "{
-        optgroup_header: function(data, escape) {
-        return '<div class=\"optgroup-header\"><span ' + 
-        'data-toggle=\"tooltip\" data-placement=\"right\" title=\"' + 
-        data.tooltip + '\">' + escape(data.label) + '</span></div>';
-        },
-        option: function(data, escape) {
-        return '<div class=\"option\"><span ' + 
-        'data-toggle=\"tooltip\" data-placement=\"top\" title=\"' + 
-        data.tooltip + '\">' + escape(data.name) + '</span></div>';
-        }
-        }"
-        ),
-      onDropdownOpen = I(
-        "function() {
-        setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
-        }"
-      ),
-      onChange = I(
-        "function() {
-        setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
-        }"
-      )
+      labelField = "name"#,
+      # render = I(
+      #   "{
+      #   optgroup_header: function(data, escape) {
+      #   return '<div class=\"optgroup-header\"><span ' +
+      #   'data-toggle=\"tooltip\" data-placement=\"right\" title=\"' +
+      #   data.tooltip + '\">' + escape(data.label) + '</span></div>';
+      #   },
+      #   option: function(data, escape) {
+      #   return '<div class=\"option\"><span ' +
+      #   'data-toggle=\"tooltip\" data-placement=\"top\" title=\"' +
+      #   data.tooltip + '\">' + escape(data.name) + '</span></div>';
+      #   }
+      #   }"
+      #   ),
+      # onDropdownOpen = I(
+      #   "function() {
+      #   setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
+      #   }"
+      # ),
+      # onChange = I(
+      #   "function() {
+      #   setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
+      #   }"
+      # )
     )
   ),
   
@@ -171,44 +177,119 @@ detect_input <- list(
 
 ## The main content of the app
 cards <- list(
-  page_fillable(
-    # full_screen = FALSE,
-    # card_header("Welcome"),
-    # h1(tags$b("Overview")),
-    h2(tags$b("Welcome")),
-    img(src = "MHW_def.png", width = "600px", 
+  page_fluid(
+    
+    img(src = "MHW_def.png", width = "400px", 
         style = "float:left; margin-right: 20px; margin-top: 20px;"),
+    
+    h2(tags$b("Welcome")),
     p("This demo was designed to provide a visual and interactive explanation for how one may detect
-                                 a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition."),
+      a marine heatwave (MHW) using the Hobday et al. (2016, 2018) definition. The demo is laid out via different navigation 
+      tabs at the top of the page. These represent the three overarching steps we follow to arrive at a MHW definition. 
+      On the left of this demo is a control panel. Each dropdown control menu is named according to the navigation tab that 
+      it will effect. We start by selecting one of three time series. Then we move on to see how different statistics 
+      (e.g. baselines and percentiles) affect climatologies and thresholds. Finally we decide how long a marine heatwave should
+      be and detect all of the events in our time series that meet our criteria. The final panel 'The main event' showcases
+      the results for the largest event detected in the time series. Please see the glossary below for the definitions of the 
+      values found throughout the legends in this demo."),
+    p(tags$b("NB:")," this demo is under active development. Please send any feedback to: robert.schlegel@imev-mer.fr"),
+    
+    h2(tags$b("Glosary")),
+    p(tags$span(style = "color:black; font-size:25px; font-weight:bold;", "temp"),
+      ": The temperature values (°C) of a given time series"),
+    p(tags$span(style = "color:darkgreen; font-size:25px; font-weight:bold;", "mean"),
+      ": The overall mean value in a time series. Determined by averaging all daily data together to find a single value.
+      This is used to determine the temperature anomalies in a time series, which may be used in place of the normal 
+      temperatures depending on a given investigation. Note that this is not standard."),
+    p(tags$span(style = "color:tomato; font-size:25px; font-weight:bold;", "trend"),
+      ": The linear trend present in a time series. One may use this value instead of the mean to create de-trended
+      daily anomaly values for further MHW investigations. Note that this is not standard."),
+    p(tags$span(style = "color:goldenrod; font-size:25px; font-weight:bold;", "baseline"),
+      ": The period of time from which data are taken in order to calculate the seasonally varying climatology and threshold
+      used in the detection of MHWs."),
+    p(tags$span(style = "color:darkblue; font-size:25px; font-weight:bold;", "seas"),
+      ": The seasonally varying climatology (i.e. seasonal mean value). Typically this is calculated by taking all data 
+      within the baseline, grouping them by their day-of-year (DOY) and averaging+smoothing them with a rolling mean. 
+      The default rolling mean is a 5-day double-sided window (11 day total width), and the second smoothing pass is a 
+      15-day double-sided window (31 day total width)."),
+    p(tags$span(style = "color:purple; font-size:25px; font-weight:bold;", "thresh"),
+      ": The seasonally varying threshold. using the data within the baseline, the 90th percentile (default) is applied to find
+      the DOY value above which daily temperatures must exceed for a MHW to be detected."),
+    p(tags$span(style = "color:black; font-size:25px; font-weight:bold;", "min. duration"),
+      ": The minimum duration (days) that temperatures must consistently be above the threshold value before a MHW is detected."),
+    p(tags$span(style = "color:black; font-size:25px; font-weight:bold;", "max gap"),
+      ": Once a MHW has been detected, temperatures are allowed to dip below the threshold for this many days (default is 2) 
+      before a new event is detected. I.e. if an event is going for 7 days, then drops below the threshold for 2 days, but 
+      goes up again for 5 more days, this will be counted as a 14 day event. However, if that dip lasts for 3 days, it will 
+      be counted as two separate events."),
+    p(tags$span(style = "color:salmon; font-size:25px; font-weight:bold;", "MHW"),
+      ": An extreme event, a marine heatwave (MHW) is detected (by default) when daily temperatures are in exceedance of the 90th
+      percentile threshold for 5+ days. There are many options that can be changed to alter the detection of events, 
+      as documented above."), 
+    p(tags$span(style = "color:red; font-size:25px; font-weight:bold;", "focal MHW"),
+      ": When plotting one MHW in particular, it tends to be shown in red when other smaller events are
+      also visible in the time series."),
+    p(tags$span(style = "color:slateblue; font-size:25px; font-weight:bold;", "duration"),
+      ": The length of an MHW (days). Measured as the distance from the start date to the end date."),
+    p(tags$span(style = "color:navy; font-size:25px; font-weight:bold;", "max. intensity"),
+      ": The maximum temperature anomaly (°C) detected during a given MHW. This is measured as the distance from the 
+      seasonal climatology to the observed temperature. Note, it is a common mistake to think that this value is measured from
+      the threshold value to the observed temperaature. See the plot in 'The main event' tab for a visual explanation."),
+    p(tags$span(style = "color:skyblue; font-size:25px; font-weight:bold;", "cum. intensity"),
+      ": The sum of all temperature anomalies during an event (°C x days). Note that the temperature anomalies are the 
+      distance from the seasonal climatology to the observed temperature."),
+    p(tags$span(style = "color:#ffc866; font-size:25px; font-weight:bold;", "I Moderate"),
+      ": The least intense category of MHW. If the max. intensity of an event is not more than double the distance from the 
+      seasonal climatology to the 90th percentile threshold, the event is classified as 'I moderate'
+      For example, let's say that the seasonal climatology on the warmest day of a MHW happens to be 16°C, 
+      and the 90th percentile threshold is 18°C, this means that as long as the max. intensity is below 20°C it is considered
+      to be simply a category 1 event (I Moderate). Generally speaking these have not been associated with impactful
+      events in the literature."),
+    p(tags$span(style = "color:#ff6900; font-size:25px; font-weight:bold;", "II Strong"),
+      ": An event when the max. intensity is double, but not triple the distance from the seasonal climatology to the
+      90th percentile threshold. Using our example above, this would mean the max. intensity did not exceed 22°C.
+      Events of this magnitude tend not to be associated with long-lasting ecological impacts, but when they occur during the 
+      spring or Autumn they can have significant impacts on the phenology of local species reproduction."),
+    p(tags$span(style = "color:#9e0000; font-size:25px; font-weight:bold;", "III Severe"),
+      ": The next step up. These events are often associated with mass mortality of local species."),
+    p(tags$span(style = "color:#2d0000; font-size:25px; font-weight:bold;", "IV Extreme"),
+      ": One final step higher. The (currently) highest category value. These events have been known to crash local ecosystems.
+      Removing the established ecosystem in favour of a warmer neighbouring system. It is in this way that climate change is
+      re-writing the ecology of coastlines more rapidly than projected."),
+
     h2(tags$b("References")),
-    p("Hobday et al. (2016, 2018) etc.")
+    p("Hobday, A. J., Alexander, L. V., Perkins, S. E., Smale, D. A., Straub, S. C., Oliver, E. C., ... & Wernberg, T. 
+      (2016). A hierarchical approach to defining marine heatwaves. Progress in Oceanography, 141, 227-238."),
+    p("Hobday, A. J., Oliver, E. C., Gupta, A. S., Benthuysen, J. A., Burrows, M. T., Donat, M. G., ... & Smale, D. A. 
+      (2018). Categorizing and naming marine heatwaves. Oceanography, 31(2), 162-173.")
   ),
   navset_card_pill(
+    # height = "600px",
     # full_screen = FALSE, 
     selected = "Day",
     # title = "Time series",
     sidebar = sidebar(ts_input[[2]], position = "right", open = FALSE),
     # p("Once upon a time series...")
-    nav_panel("All", withSpinner(plotOutput("allTime"), type = 6, color = "#b0b7be")),
-    nav_panel("Month", withSpinner(plotOutput("monthTime"), type = 6, color = "#b0b7be")),
-    nav_panel("Year", withSpinner(plotOutput("yearTime"), type = 6, color = "#b0b7be")),
-    nav_panel("DOY", withSpinner(plotOutput("doyTime"), type = 6, color = "#b0b7be")),
-    nav_panel("Day", withSpinner(plotOutput("dayTime"), type = 6, color = "#b0b7be"))
+    nav_panel("All", withSpinner(plotOutput("allTime", height = "700px"), type = 6, color = "#b0b7be")),
+    nav_panel("Month", withSpinner(plotOutput("monthTime", height = "700px"), type = 6, color = "#b0b7be")),
+    nav_panel("Year", withSpinner(plotOutput("yearTime", height = "700px"), type = 6, color = "#b0b7be")),
+    nav_panel("DOY", withSpinner(plotOutput("doyTime", height = "700px"), type = 6, color = "#b0b7be")),
+    nav_panel("Day", withSpinner(plotOutput("dayTime", height = "700px"), type = 6, color = "#b0b7be"))
   ),
   card(
     full_screen = FALSE,
-    style = "resize:vertical;",
+    # style = "resize:vertical;",
     # card_header("Statistics"),
     # p("Lies, damn lies, and statistics...")
     card_body(
       accordion(
-        accordion_panel(title = "Baseline",
-                        withSpinner(plotOutput("basePlot"), type = 6, color = "#b0b7be")
+        accordion_panel(title = "Climatology (baseline)",
+                        withSpinner(plotOutput("basePlot", height = "400px"), type = 6, color = "#b0b7be")
         )
       ),
       accordion(
         accordion_panel(title = "Threshold (percentile)",
-                        withSpinner(plotOutput("percPlot"), type = 6, color = "#b0b7be")
+                        withSpinner(plotOutput("percPlot", height = "400px"), type = 6, color = "#b0b7be")
         )
       )
     )
@@ -216,13 +297,13 @@ cards <- list(
   navset_card_tab(
     full_screen = FALSE,
     # title = "Detection",
-    nav_panel("Table", withSpinner(DT::DTOutput("detectTable"), type = 6, color = "#b0b7be")),
-    nav_panel("Lolli", withSpinner(plotlyOutput("lolliPlot"), type = 6, color = "#b0b7be"))#,
+    nav_panel("Table", withSpinner(DT::DTOutput("detectTable", height = "700px"), type = 6, color = "#b0b7be")),
+    nav_panel("Lolli", withSpinner(plotlyOutput("lolliPlot", height = "700px"), type = 6, color = "#b0b7be"))#,
     # nav_panel("Flame", withSpinner(plotlyOutput("flamePlot"), type = 6, color = "#b0b7be"))
   ),
   card(
     full_screen = FALSE,
-    withSpinner(plotOutput("mainPlot"), type = 6, color = "#b0b7be")
+    withSpinner(plotOutput("mainPlot", height = "700px"), type = 6, color = "#b0b7be")
   )
 )
 
@@ -237,6 +318,9 @@ ui <- page_navbar(
   # Bootstrap version used during development
   theme = bs_theme(version = 5, bootswatch = "minty"),
 
+  # Colour baseline slider
+  shinyWidgets::setSliderColor(color = "goldenrod", sliderId = 1),
+  
   
   ## Sidebar -----------------------------------------------------------------
   
@@ -261,7 +345,8 @@ ui <- page_navbar(
   nav_panel("Statistics", cards[[3]]),
   nav_panel("Detection", cards[[4]]),
   nav_panel("The main event", cards[[5]])
-  )
+  
+)
 
 
 # Server ------------------------------------------------------------------
@@ -377,10 +462,10 @@ server <- function(input, output, session) {
       geom_line(aes(colour = "temp"), linewidth = 0.5) + 
       geom_line(data = df_site_base, aes(colour = "seas"), linewidth = 0.4, alpha = 0.4) +
       geom_hline(aes(yintercept = mean(temp), colour = "mean"), 
-                 linetype = "dashed", linewidth = 2) +
-      geom_smooth(aes(colour = "trend"),
-                  method = "lm", formula = "y ~ x", se = FALSE, 
-                  linetype = "dashed", linewidth = 2) +
+                 linetype = "dashed", linewidth = 3, alpha = 0.8) +
+      geom_line(aes(colour = "trend"),
+                stat  ="smooth", method = "lm", formula = "y ~ x",
+                linetype = "dashed", linewidth = 3, alpha = 0.8) +
       geom_vline(aes(xintercept = min(df_site_base$t), colour = "baseline"), 
                  linetype = "solid", linewidth = 2) +
       geom_vline(aes(xintercept = max(df_site_base$t), colour = "baseline"), 
@@ -390,14 +475,14 @@ server <- function(input, output, session) {
       scale_x_date(expand = c(0, 0)) +
       scale_colour_manual(name = "Values",
                           values = c("temp" = "black", 
-                                     "baseline" = "khaki",
+                                     "baseline" = "goldenrod",
                                      "seas" = "darkblue",
                                      "thresh" =  "purple",
                                      "mean" = "darkgreen",
                                      "trend" = "tomato"),
                           breaks = c("temp", "baseline", "seas", "thresh", "mean", "trend")) +
       guides(colour = guide_legend(override.aes = list(shape = 15, size = 5))) +
-      labs(x = NULL, y = "Temperature [°C]") + theme_bw() + 
+      labs(x = NULL, y = "Temperature [°C]") + theme_bw(base_size = 20) + 
       theme(legend.position = "bottom")
     
     # Exit
@@ -440,7 +525,7 @@ server <- function(input, output, session) {
                                      "seas" = "darkblue",
                                      "mean" = "darkgreen",
                                      "trend" = "tomato")) +
-      labs(x = NULL, y = "Temp. anomaly [°C]") + theme_bw() + 
+      labs(x = NULL, y = "Temp. anomaly [°C]") + theme_bw(base_size = 20) + 
       theme(legend.position = "none")
     
     # Exit
@@ -471,7 +556,7 @@ server <- function(input, output, session) {
                         values = c("MHW" = "salmon")) +
       scale_x_date(expand = c(0, 0)) +
       # guides(colour = guide_legend(override.aes = list(fill = NA))) +
-      labs(y = "Temperature [°C]", x = NULL) + theme_bw() +
+      labs(y = "Temperature [°C]", x = NULL) + theme_bw(base_size = 30) +
       theme(legend.position = "bottom")
     # flamePlot
     
@@ -495,7 +580,8 @@ server <- function(input, output, session) {
       geom_hline(yintercept = 0) +
       labs(x = NULL, y = "Max. Intensity (°C)") +
       scale_y_continuous(limits = c(0, max(df_event$intensity_max)*1.1), expand = c(0, 0)) +
-      scale_x_date(limits = c(min(df_climatology$t), max(df_climatology$t)), expand = c(0, 0)) + theme_bw()
+      scale_x_date(limits = c(min(df_climatology$t), max(df_climatology$t)), expand = c(0, 0)) + 
+      theme_bw(base_size = 30)
     
     # Add lolli colour
     if(input$catSelect == "No"){
@@ -610,7 +696,7 @@ server <- function(input, output, session) {
     # Base annotated flame
     mainPlot <- ggplot(data = df_clim_sub, aes(x = t, y = temp)) +
       scale_x_date(expand = c(0, 0)) +
-      labs(x = NULL, y = "Temperature [°C]") + theme_bw()
+      labs(x = NULL, y = "Temperature [°C]") + theme_bw(base_size = 30)
     
     # Change based on category selection
     if(input$catSelect == "No"){
@@ -662,7 +748,8 @@ server <- function(input, output, session) {
                           values = c("focal MHW" = "red",
                                      "other MHWs" = "salmon"),
                           breaks = c("focal MHW", "other MHWs")) +
-        guides(colour = guide_legend(order = 1), fill = guide_legend(order = 2))
+        guides(colour = guide_legend(order = 1, override.aes = list(linewidth = 5)), 
+               fill = guide_legend(order = 2))
     } else if(input$catSelect == "Yes"){
       mainPlot <- mainPlot +
         geom_flame(aes(y2 = thresh, fill = "I Moderate")) +
@@ -688,7 +775,8 @@ server <- function(input, output, session) {
                           values = MHW_colours) +
         guides(colour = guide_legend(order = 1, 
                                      override.aes = list(linetype = c("solid", "solid", "solid",
-                                                                      "dashed", "dotdash", "dotted"))),
+                                                                      "dashed", "dotdash", "dotted"),
+                                                         linewidth = c(5, 5, 5, 0.8, 0.8, 0.8))),
                fill = guide_legend(order = 2))
       
       # Add category percent labels as necessary
