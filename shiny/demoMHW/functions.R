@@ -11,6 +11,28 @@ leap_every_year <- function(x) {
 # Time plot wrapper
 time_plot <- function(time_span, df, time_highlight){
   
+  # Check that ts has a 't' and 'temp' column
+  col_t_error <- "Ensure uploaded time series has a date column 't'."
+  col_temp_error <- "Ensure uploaded time series has a temperature column 'temp'."
+  col_error <- NULL
+  if(!"t" %in% colnames(df)) 
+    col_error <- col_t_error
+  if(!"temp" %in% colnames(df)){
+    if(is.null(col_error)){
+      col_error <- col_temp_error
+    } else {
+      col_error <- paste0(col_t_error,"\n",col_temp_error)
+    }
+  }
+  
+  # Plot error message
+  if(!is.null(col_error)){
+    timePlot <- ggplot() + 
+      geom_text(aes(x = 1, y = 1, label = col_error), size = 12) +
+      labs(x = NULL, y = "Temperature [°C]") + theme_bw(base_size = 30)
+    return(timePlot)
+  }
+  
   # Get time series and modify t columns
   df <- df |> 
     mutate(all = "All",

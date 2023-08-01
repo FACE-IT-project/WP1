@@ -82,64 +82,33 @@ ts_input <- list(
   # Select time series
   selectizeInput(
     inputId = "seriesSelect",
-    label = "Select data",
+    label = "Select",
     choices = c("Western Australia", "Mediterranean", "NW Atlantic"),
     multiple = FALSE,
     selected = "Western Australia",
-    # This is a fun addition but it's buggy and the labels often get stuck
     options = list(
       options = list(
-        list(
-          hemi = "N", value = "NW Atlantic", name = "NW Atlantic",
-          tooltip = "Medium events, medium interannual variability, strong linear trend"
-        ),
-        list(
-          hemi = "N", value = "Mediterranean", name = "Mediterranean",
-          tooltip = "Smaller events, low interannual variability, medium linear trend"
-        ),
-        list(
-          hemi = "S", value = "Western Australia", name = "Western Australia",
-          tooltip = "Extreme event, high interannual variability, weak linear trend"
-        )
+        list(hemi = "N", value = "NW Atlantic", name = "NW Atlantic"),
+        list(hemi = "N", value = "Mediterranean", name = "Mediterranean"),
+        list(hemi = "S", value = "Western Australia", name = "Western Australia")
       ),
       optgroups = list(
-        list(
-          value = "N",  label = "Northern hemisphere",
-          tooltip = "Winter in January"
-        ),
-        list(
-          value = "S",    label = "Southern hemisphere",
-          tooltip = "Summer in January"
-        )
+        list(value = "N", label = "Northern hemisphere"),
+        list(value = "S", label = "Southern hemisphere")
       ),
       optgroupField = "hemi",
-      labelField = "name"#,
-      # render = I(
-      #   "{
-      #   optgroup_header: function(data, escape) {
-      #   return '<div class=\"optgroup-header\"><span ' +
-      #   'data-toggle=\"tooltip\" data-placement=\"right\" title=\"' +
-      #   data.tooltip + '\">' + escape(data.label) + '</span></div>';
-      #   },
-      #   option: function(data, escape) {
-      #   return '<div class=\"option\"><span ' +
-      #   'data-toggle=\"tooltip\" data-placement=\"top\" title=\"' +
-      #   data.tooltip + '\">' + escape(data.name) + '</span></div>';
-      #   }
-      #   }"
-      #   ),
-      # onDropdownOpen = I(
-      #   "function() {
-      #   setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
-      #   }"
-      # ),
-      # onChange = I(
-      #   "function() {
-      #   setTimeout(function(){$('[data-toggle=tooltip]').tooltip();}, 100);
-      #   }"
-      # )
+      labelField = "name"
     )
   ),
+  
+  # Time series upload button
+  fileInput("seriesUpload", "Upload",
+            multiple = FALSE,
+            accept = c("text/csv",
+                       "text/comma-separated-values,text/plain",
+                       ".csv"),
+            placeholder = ".csv"),
+  
   
   # Highlight data points by time period
   shiny::radioButtons("timeSelect", "Highlight time", inline = TRUE,
@@ -268,7 +237,7 @@ cards <- list(
     # full_screen = FALSE, 
     selected = "Day",
     # title = "Time series",
-    sidebar = sidebar(ts_input[[2]], position = "right", open = FALSE),
+    sidebar = sidebar(ts_input[[3]], position = "right", open = FALSE),
     # p("Once upon a time series...")
     nav_panel("All", withSpinner(plotOutput("allTime", height = "700px"), type = 6, color = "#b0b7be")),
     nav_panel("Month", withSpinner(plotOutput("monthTime", height = "700px"), type = 6, color = "#b0b7be")),
@@ -326,7 +295,9 @@ ui <- page_navbar(
   
   sidebar = bslib::sidebar(title = "Controls",
                              accordion(open = FALSE,
-                               accordion_panel("Time series", ts_input[[1]])
+                               accordion_panel("Time series", ts_input[[1]], 
+                                               p(tags$b("OR")),
+                                               ts_input[[2]])
                              ),
                              accordion(open = FALSE,
                                accordion_panel("Statistics", stats_input)
@@ -361,27 +332,49 @@ server <- function(input, output, session) {
   
   
   ## Reactive UI -------------------------------------------------------------
-  
+
   
   ## Reactive data -----------------------------------------------------------
   
-  # Base time series and de-trending anomalies
-  df_site_ts <- reactive({
+  # Base reactive for inputs and uploads
+  df_reactive <- reactiveValues(ts = sst_WA)
+  
+  # Pre-loaded time series
+  df_preload <- reactive({
     req(input$seriesSelect)
     if(input$seriesSelect == "Western Australia"){
-      df_site_ts <- sst_WA
+      df_preload <- sst_WA
     } else if(input$seriesSelect == "NW Atlantic"){
-      df_site_ts <- sst_NW_Atl
+      df_preload <- sst_NW_Atl
     } else if(input$seriesSelect == "Mediterranean"){
-      df_site_ts <- sst_Med
+      df_preload <- sst_Med
     }
-    return(df_site_ts)
+    return(df_preload)
+  })
+  
+  # Uploaded time series
+  # TODO: Add documentation somewhere instructing on the need of a 't' and 'temp' column
+  df_upload <- reactive({
+    req(input$seriesUpload)
+    df_upload <- readr::read_csv(input$seriesUpload$datapath[1])
+    return(df_upload)
+  })
+  
+  # Observe selecting
+  observeEvent(input$seriesSelect, {
+    df_reactive$ts <- df_preload()
+  })
+  
+  # Observe uploading
+  observeEvent(input$seriesUpload, {
+    df_reactive$ts <- df_upload()
   })
   
   # Run ts2clm
   df_ts2clm <- reactive({
     req(input$baseSelect, input$percSelect, input$trendSelect)
-    df_site_ts <- df_site_ts()
+    # df_site_ts <- df_site_ts()
+    df_site_ts <- df_reactive$ts
     if(input$trendSelect == "No"){
       df_site_ts$temp <- df_site_ts$temp-mean(df_site_ts$temp)
     } else if(input$trendSelect == "Yes"){
@@ -414,36 +407,36 @@ server <- function(input, output, session) {
   
   # All time plot
   output$allTime <- renderPlot({
-    time_plot("All", df_site_ts(), input$timeSelect)
+    time_plot("All", df_reactive$ts, input$timeSelect)
   })
   
   # Month time plot
   output$monthTime <- renderPlot({
-    time_plot("Month", df_site_ts(), input$timeSelect)
+    time_plot("Month", df_reactive$ts, input$timeSelect)
   })
   
   # Year time plot
   output$yearTime <- renderPlot({
-    time_plot("Year", df_site_ts(), input$timeSelect)
+    time_plot("Year", df_reactive$ts, input$timeSelect)
   })
   
   # DOY time plot
   output$doyTime <- renderPlot({
-    time_plot("DOY", df_site_ts(), input$timeSelect)
+    time_plot("DOY", df_reactive$ts, input$timeSelect)
   })
   
   # Day time plot
   output$dayTime <- renderPlot({
-    time_plot("Day", df_site_ts(), input$timeSelect)
+    time_plot("Day", df_reactive$ts, input$timeSelect)
   })
   
   # Plot that illustrates baseline selection
-  # TODO: Add switch that hides option to remove linear trend
   output$basePlot <- renderPlot({
     req(input$baseSelect)
     
     # Get base time series
-    df_site_ts <- df_site_ts()
+    # df_site_ts <- df_site_ts()
+    df_site_ts <- df_reactive$ts
     
     # Get time series with stats
     df_ts2clm <- df_ts2clm()
