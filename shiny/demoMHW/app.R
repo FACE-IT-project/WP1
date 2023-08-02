@@ -24,6 +24,7 @@ library(ggplot2)
 library(ggpattern)
 library(plotly)
 library(heatwaveR)
+library(cicerone)
 
 # Enable thematic 
 thematic::thematic_shiny(font = "auto")
@@ -162,6 +163,7 @@ cards <- list(
       the results for the largest event detected in the time series. Please see the glossary below for the definitions of the 
       values found throughout the legends in this demo."),
     p(tags$b("NB:")," this demo is under active development. Please send any feedback to: robert.schlegel@imev-mer.fr"),
+    p("Click here for a ", shinyWidgets::actionBttn("guidedTour", "Guided Tour", icon = bs_icon("map"), style = "jelly")),
     
     h2(tags$b("Glosary")),
     p(tags$span(style = "color:black; font-size:25px; font-weight:bold;", "temp"),
@@ -233,12 +235,9 @@ cards <- list(
       (2018). Categorizing and naming marine heatwaves. Oceanography, 31(2), 162-173.")
   ),
   navset_card_pill(
-    # height = "600px",
-    # full_screen = FALSE, 
+    id = "ts_cards",
     selected = "Day",
-    # title = "Time series",
     sidebar = sidebar(ts_input[[3]], position = "right", open = FALSE),
-    # p("Once upon a time series...")
     nav_panel("All", withSpinner(plotOutput("allTime", height = "700px"), type = 6, color = "#b0b7be")),
     nav_panel("Month", withSpinner(plotOutput("monthTime", height = "700px"), type = 6, color = "#b0b7be")),
     nav_panel("Year", withSpinner(plotOutput("yearTime", height = "700px"), type = 6, color = "#b0b7be")),
@@ -247,9 +246,6 @@ cards <- list(
   ),
   card(
     full_screen = FALSE,
-    # style = "resize:vertical;",
-    # card_header("Statistics"),
-    # p("Lies, damn lies, and statistics...")
     card_body(
       accordion(
         accordion_panel(title = "Climatology (baseline)",
@@ -265,10 +261,8 @@ cards <- list(
   ),
   navset_card_tab(
     full_screen = FALSE,
-    # title = "Detection",
     nav_panel("Table", withSpinner(DT::DTOutput("detectTable", height = "700px"), type = 6, color = "#b0b7be")),
-    nav_panel("Lolli", withSpinner(plotlyOutput("lolliPlot", height = "700px"), type = 6, color = "#b0b7be"))#,
-    # nav_panel("Flame", withSpinner(plotlyOutput("flamePlot"), type = 6, color = "#b0b7be"))
+    nav_panel("Lolli", withSpinner(plotlyOutput("lolliPlot", height = "700px"), type = 6, color = "#b0b7be"))
   ),
   card(
     full_screen = FALSE,
@@ -282,7 +276,9 @@ cards <- list(
 # Define UI
 ui <- page_navbar(
   
-  title = "MHW definition",
+  title = "MHW definition", 
+  header = list(use_cicerone()),
+  id = "nav_bar",
   
   # Bootstrap version used during development
   theme = bs_theme(version = 5, bootswatch = "minty"),
@@ -293,29 +289,29 @@ ui <- page_navbar(
   
   ## Sidebar -----------------------------------------------------------------
   
-  sidebar = bslib::sidebar(title = "Controls",
-                             accordion(open = FALSE,
-                               accordion_panel("Time series", ts_input[[1]], 
-                                               p(tags$b("OR")),
-                                               ts_input[[2]])
-                             ),
-                             accordion(open = FALSE,
-                               accordion_panel("Statistics", stats_input)
-                             ),
-                             accordion(open = FALSE,
-                               accordion_panel("Detection", detect_input)
-                             )
+  sidebar = bslib::sidebar(title = "Controls", id = "control_panel",
+                           accordion(open = FALSE,
+                                     accordion_panel("Time series", ts_input[[1]], 
+                                                     p(tags$b("OR")),
+                                                     ts_input[[2]])
+                           ),
+                           accordion(open = FALSE,
+                                     accordion_panel("Statistics", stats_input)
+                           ),
+                           accordion(open = FALSE,
+                                     accordion_panel("Detection", detect_input)
+                           )
                            
   ), 
   
   
   ## Body --------------------------------------------------------------------
  
-  nav_panel("Overview", cards[[1]]),
-  nav_panel("Time series", cards[[2]]),
-  nav_panel("Statistics", cards[[3]]),
-  nav_panel("Detection", cards[[4]]),
-  nav_panel("The main event", cards[[5]])
+  nav_panel("Overview", value = "overview_tab", cards[[1]]),
+  nav_panel("Time series", value = "ts_tab", cards[[2]]),
+  nav_panel("Statistics", value = "stats_tab", cards[[3]]),
+  nav_panel("Detection", value = "detect_tab", cards[[4]]),
+  nav_panel("The main event", value = "event_tab", cards[[5]])
   
 )
 
@@ -333,6 +329,10 @@ server <- function(input, output, session) {
   
   ## Reactive UI -------------------------------------------------------------
 
+  observeEvent(input$guidedTour, {
+      guide$init()$start()
+  })
+  
   
   ## Reactive data -----------------------------------------------------------
   
@@ -353,7 +353,6 @@ server <- function(input, output, session) {
   })
   
   # Uploaded time series
-  # TODO: Add documentation somewhere instructing on the need of a 't' and 'temp' column
   df_upload <- reactive({
     req(input$seriesUpload)
     df_upload <- readr::read_csv(input$seriesUpload$datapath[1])
@@ -373,7 +372,6 @@ server <- function(input, output, session) {
   # Run ts2clm
   df_ts2clm <- reactive({
     req(input$baseSelect, input$percSelect, input$trendSelect)
-    # df_site_ts <- df_site_ts()
     df_site_ts <- df_reactive$ts
     if(input$trendSelect == "No"){
       df_site_ts$temp <- df_site_ts$temp-mean(df_site_ts$temp)
@@ -435,7 +433,6 @@ server <- function(input, output, session) {
     req(input$baseSelect)
     
     # Get base time series
-    # df_site_ts <- df_site_ts()
     df_site_ts <- df_reactive$ts
     
     # Get time series with stats
@@ -523,39 +520,6 @@ server <- function(input, output, session) {
     
     # Exit
     percPlot
-  })
-  
-  # Show time series with events as flames
-  output$flamePlot <- plotly::renderPlotly({
-    req(input$minDuration, input$maxGap)
-    
-    # Get time series
-    df_climatology <- df_detect()$climatology
-    
-    # Plot
-    flamePlot <- ggplot(data = df_climatology, aes(x = t, y = temp)) +
-      heatwaveR::geom_flame(aes(y2 = thresh, fill = "MHW"), 
-                            # For testing...
-                            # n = 5, n_gap = 2) +
-                            n = input$minDuration, n_gap = input$maxGap) +
-      geom_line(aes(y = temp, colour = "temp"), linewidth = 0.6) +
-      geom_line(aes(y = thresh, colour = "thresh"), linewidth = 1.2, alpha = 0.2) +
-      geom_line(aes(y = seas, colour = "seas"), linewidth = 1.2, alpha = 0.2) +
-      scale_colour_manual(name = "Values",
-                          values = c("temp" = "black", 
-                                     "thresh" =  "purple", 
-                                     "seas" = "darkblue")) +
-      scale_fill_manual(name = "Events",
-                        values = c("MHW" = "salmon")) +
-      scale_x_date(expand = c(0, 0)) +
-      # guides(colour = guide_legend(override.aes = list(fill = NA))) +
-      labs(y = "Temperature [°C]", x = NULL) + theme_bw(base_size = 30) +
-      theme(legend.position = "bottom")
-    # flamePlot
-    
-    # Exit
-    p <- plotly::ggplotly(flamePlot, tooltip = "text", dynamicTicks = F) |> plotly::layout(hovermode = 'compare')
-    p
   })
   
   # Show detected events as lollis
@@ -658,8 +622,8 @@ server <- function(input, output, session) {
     te_min <- df_event_top$date_start
     te_peak <- df_event_top$date_peak
     te_max <- df_event_top$date_end
-    ts_min <- df_event_top$date_peak-182
-    ts_max <- df_event_top$date_peak+182
+    ts_min <- df_event_top$date_peak-364
+    ts_max <- df_event_top$date_peak+364
     
     # Catch edge cases for very long events
     while(ts_min > te_min){
