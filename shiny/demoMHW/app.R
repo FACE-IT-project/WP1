@@ -227,6 +227,14 @@ cards <- list(
       ": One final step higher. The (currently) highest category value. These events have been known to crash local ecosystems.
       Removing the established ecosystem in favour of a warmer neighbouring system. It is in this way that climate change is
       re-writing the ecology of coastlines more rapidly than projected."),
+    
+    h2(tags$b("Acknowledgement")),
+    p("The development of this application was supported by FACE-IT 
+      (The Future of Arctic Coastal Ecosystems – Identifying Transitions in Fjord Systems and Adjacent Coastal Areas). 
+      FACE-IT has received funding from the European Union’s Horizon 2020 research and innovation programme under 
+      grant agreement No 869154."),
+    img(src = "FACE-IT_Logo_900.png", width = "350px", style = "margin-bottom: 20px;"), 
+    img(src = "h2020_grant.png", width = "450px", style = "margin-bottom: 20px; margin-top: 30px;"),
 
     h2(tags$b("References")),
     p("Hobday, A. J., Alexander, L. V., Perkins, S. E., Smale, D. A., Straub, S. C., Oliver, E. C., ... & Wernberg, T. 
