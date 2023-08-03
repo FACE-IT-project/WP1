@@ -77,6 +77,10 @@ ggsave("figures/test_ts.png", height = 4, width = 8)
 
 # Extract current data for is and por -------------------------------------
 
+# NB: These files are not saved locally
+# Re-run this code to re-generate them
+
+## Isfjorden
 is_date <- tidync("~/pCloudDrive/FACE-IT_data/model/isfjorden_rcp8.5.nc") |> 
   activate("D2") |> 
   hyper_tibble() |> 
@@ -93,6 +97,7 @@ is_current <- is_data |>
   filter(RMask == 1) |> 
   dplyr::select(Long, Latt, Topo, Z, t, Udir, USpeed) |> 
   mutate(wind.uv(USpeed, Udir))
+write_csv(is_current, file = "data/is_current.csv")
 
 is_current %>%
   filter(t == "2000-01-19", Z == 0) |> 
@@ -106,3 +111,36 @@ is_current %>%
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         legend.position = "bottom", legend.key.width = unit(1, "cm"))
 ggsave("figures/is_surface.png", height = 6, width = 6)
+
+## Porsangerfjorden
+por_date <- tidync("~/pCloudDrive/FACE-IT_data/model/porsangerfjorden_rcp8.5.nc") |> 
+  activate("D2") |> 
+  hyper_tibble() |> 
+  mutate(t = as.Date(as.POSIXct(T*3600, origin = "1950-01-01 01:00"))) 
+por_meta <- tidync("~/pCloudDrive/FACE-IT_data/model/porsangerfjorden_rcp8.5.nc") |> 
+  activate("D0,D1") |> 
+  hyper_tibble() 
+por_data <- tidync("~/pCloudDrive/FACE-IT_data/model/porsangerfjorden_rcp8.5.nc") |> 
+  hyper_filter(T = between(T, 438731, 648227)) |> 
+  hyper_tibble() 
+por_current <- por_data |> 
+  left_join(por_date, by = "T") |> 
+  left_join(por_meta, by = c("X", "Y")) |> 
+  filter(RMask == 1) |> 
+  dplyr::select(Long, Latt, Topo, Z, t, Udir, USpeed) |> 
+  mutate(wind.uv(USpeed, Udir))
+write_csv(por_current, file = "data/por_current.csv")
+
+por_current %>%
+  filter(t == "2000-01-19", Z == 0) |> 
+  ggplot(aes(x = Long, y = Latt)) + 
+  geom_segment(aes(xend = Long + U, yend = Latt + V, colour = USpeed), linewidth = 2,
+               arrow = arrow(angle = 15, length = unit(0.2, "cm"), type = "open")) +
+  borders(colour = "black", size = 1) +
+  scale_colour_viridis_c() +
+  coord_cartesian(xlim = range(por_current$Long), ylim = range(por_current$Latt)) +
+  labs(y = "Latitude (°N)", x = "Longitude (°E)", colour = "Current\nspeed [m/s]    ") +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        legend.position = "bottom", legend.key.width = unit(1, "cm"))
+ggsave("figures/por_surface.png", height = 6, width = 6)
+
