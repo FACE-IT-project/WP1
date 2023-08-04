@@ -165,7 +165,7 @@ cards <- list(
     p(tags$b("NB:")," this demo is under active development. Please send any feedback to: robert.schlegel@imev-mer.fr"),
     p("Click here for a ", shinyWidgets::actionBttn("guidedTour", "Guided Tour", icon = bs_icon("map"), style = "jelly")),
     
-    h2(tags$b("Glosary")),
+    h2(tags$b("Glossary")),
     p(tags$span(style = "color:black; font-size:25px; font-weight:bold;", "temp"),
       ": The temperature values (°C) of a given time series"),
     p(tags$span(style = "color:darkgreen; font-size:25px; font-weight:bold;", "mean"),
