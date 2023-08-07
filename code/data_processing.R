@@ -347,4 +347,19 @@ write_csv(Miller_data, "~/pCloudDrive/restricted_data/Miller/Miller_tidy.csv")
 
 # Lund-Hansen -------------------------------------------------------------
 
+# Ice algae mat dataset
+ice_algae_1 <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Algae mat/aggregat_clean.csv")
+ice_algae_2 <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Algae mat/flux_clean.csv")
+ice_algae <- bind_rows(ice_algae_1, ice_algae_2) |> 
+  mutate(`date/time [UTC+0]` = paste0(Date,"T00:00:00"),
+         `Ice core depth [mm]` = case_when(is.na(`Ice core depth [mm]`) ~ `Ice core depth [cm]`/10, 
+                                           TRUE ~ `Ice core depth [mm]`),
+         `O2 conc. [%]` = case_when(is.na(`O2 conc. [%]`) ~ round(`O2 dissolved [umol/l]`/`O2 conc. [umol/l]`, 2),
+                                    TRUE ~ `O2 conc. [%]`),
+         `O2 conc. [%]` = case_when(is.infinite(`O2 conc. [%]`) ~ as.numeric(NA), TRUE ~ `O2 conc. [%]`)) |> 
+  dplyr::select(`date/time [UTC+0]`, Profile, `Ice core depth [mm]`, `Temp. [°C]`, `Salt conc. [%]`, `Salinity`, 
+                `O2 dissolved [umol/l]`, `O2 conc. [%]`, `O2 conc. [umol/l]`) |> 
+  mutate_at(1:9, ~as.character(.)) |>
+  mutate_at(1:9, ~replace_na(., ""))
+write_csv(ice_algae, "~/pCloudDrive/restricted_data/Lund-Hansen/Algae mat/algae_mat_PG.csv")
 
