@@ -19,7 +19,7 @@ if (Sys.getenv("LOGNAME") == "gattuso"){
 }
 
 # Remove scientific notation
-options(scipen=999)
+options(scipen = 999)
 
 
 # Data --------------------------------------------------------------------
@@ -79,6 +79,10 @@ ggsave("figures/test_ts.png", height = 4, width = 8)
 
 # NB: These files are not saved locally
 # Re-run this code to re-generate them
+
+# Get coordinate system
+# NB: Doesn't appear to be listed
+coord_sys <- ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/model/isfjorden_rcp8.5.nc")
 
 ## Isfjorden
 is_date <- tidync("~/pCloudDrive/FACE-IT_data/model/isfjorden_rcp8.5.nc") |> 
