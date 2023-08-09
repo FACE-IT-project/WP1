@@ -74,6 +74,7 @@ source("functions.R", local = TRUE)
 sst_WA <- heatwaveR::sst_WA
 sst_NW_Atl <- heatwaveR::sst_NW_Atl
 sst_Med <- heatwaveR::sst_Med
+sst_Kong <- readr::read_csv("sst_kong.csv")
 
 
 # Inputs ------------------------------------------------------------------
@@ -84,13 +85,14 @@ ts_input <- list(
   selectizeInput(
     inputId = "seriesSelect",
     label = "Select",
-    choices = c("Western Australia", "Mediterranean", "NW Atlantic"),
+    choices = c("Western Australia", "Mediterranean", "NW Atlantic", "Kongsfjorden"),
     multiple = FALSE,
     selected = "Western Australia",
     options = list(
       options = list(
         list(hemi = "N", value = "NW Atlantic", name = "NW Atlantic"),
         list(hemi = "N", value = "Mediterranean", name = "Mediterranean"),
+        list(hemi = "N", value = "Kongsfjorden", name = "Kongsfjorden"),
         list(hemi = "S", value = "Western Australia", name = "Western Australia")
       ),
       optgroups = list(
@@ -356,6 +358,8 @@ server <- function(input, output, session) {
       df_preload <- sst_NW_Atl
     } else if(input$seriesSelect == "Mediterranean"){
       df_preload <- sst_Med
+    } else if(input$seriesSelect == "Kongsfjorden"){
+      df_preload <- sst_Kong
     }
     return(df_preload)
   })

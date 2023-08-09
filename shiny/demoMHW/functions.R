@@ -73,7 +73,7 @@ time_plot <- function(time_span, df, time_highlight){
     timePlot <- timePlot + geom_point(position = "jitter")
   if(time_highlight == "Month")
     timePlot <- timePlot + geom_point(position = "jitter", aes(colour = month)) + 
-    scale_colour_viridis_d()
+    scale_colour_viridis_d() + guides(colour = guide_legend(override.aes = list(shape = 15, size = 10)))
   if(time_highlight == "Year")
     timePlot <- timePlot + geom_point(position = "jitter", aes(colour = year)) + 
     scale_colour_viridis_c(option = "A")
