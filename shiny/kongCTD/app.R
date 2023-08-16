@@ -36,7 +36,7 @@
 ## Next steps
 
 
-# Libraries ---------------------------------------------------------------
+# Setup -------------------------------------------------------------------
 
 # setwd("shiny/kongCTD/") # For in-app testing
 library(shiny)
@@ -51,6 +51,9 @@ library(ggplot2)
 library(lubridate)
 library(stringr)
 library(rhandsontable)
+
+# Columns not to convert to numeric during load step
+non_num_cols <- c("file_temp", "Date", "date", "Time", "time", "Timestep", "timestep", "date_time")
 
 
 # Data --------------------------------------------------------------------
@@ -77,6 +80,7 @@ library(rhandsontable)
 # file_load <- read.table("../test_data/DAU_20200804_0722_SBE_13894_001.asc", skip = 79, sep = ",", dec = ".", fileEncoding = "UTF-8", header = F, fill = T)
 # file_load <- read.table("../test_data/DAU_20200722_0804_CTD_454.txt", sep = "", skip = 30, dec = ".", fileEncoding = "latin1", header = F, fill = T)
 # file_load <- read.table("../test_data/DAU_20200722_0804_CTD_454.TOB", sep = "", skip = 30, dec = ".", fileEncoding = "latin1", header = F, fill = T)
+# file_load <- read.table("../test_data/Ctdfiler 01.08.23a.txt", skip = 3, sep = ";", dec = ",", fileEncoding = "latin1", header = T)
 
 # Testing: read text for unique identifier
 # file_text <- read_file("../test_data/August Bailey_0408_1141.txt")
@@ -133,6 +137,27 @@ options(shiny.maxRequestSize = 50*1024^2)
 # Rounding functions
 floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
 ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
+
+
+# Database ----------------------------------------------------------------
+## NB: This code is only able to be run on the Villefranche server
+## It is used to remove test files uploaded while bug hunting
+
+# Load database
+# data_base <- read_rds("../../srv/shiny-server/kongCTD/data/data_base.Rds")
+
+# Remove all 'test' data
+# unique(data_base$Uploader); unique(data_base$Owner_person); unique(data_base$Owner_institute)
+# data_base <- data_base |> filter(Owner_person != "Test")
+# write_rds(data_base, "../../srv/shiny-server/kongCTD/data/data_base.Rds")
+
+# Load meta-database
+# meta_data_base <- read_rds("../../srv/shiny-server/kongCTD/data/meta_data_base.Rds")
+
+# Remove all 'test' data
+# unique(meta_data_base$Uploader); unique(meta_data_base$Owner_person); unique(meta_data_base$Owner_institute)
+# meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test"))
+# write_rds(meta_data_base, "../../srv/shiny-server/kongCTD/data/meta_data_base.Rds")
 
 
 # Credentials -------------------------------------------------------------
@@ -760,6 +785,8 @@ server <- function(input, output, session) {
     # Reactive function that is applied to all files in upload list
     # Also need to pass the file name
     df_load_func <- function(file_temp){
+      
+      # Load data based on schema
       df <- read.table(file_temp,
                        header = upload_opts$header,
                        skip = upload_opts$skip,
@@ -770,87 +797,12 @@ server <- function(input, output, session) {
                        blank.lines.skip = TRUE,
                        fill = TRUE) %>%
         mutate(file_temp = file_temp)
-      if(input$schema == "Alt_S"){
-        df <- df %>% 
-          dplyr::rename(Salinity = `Sal.`, Temperature = Temp,
-                        Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
-          mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
-          dplyr::select(file_temp, date_time, Depth, Salinity:Density)
-      } else if(input$schema == "SAIV"){
-        # NB: As more exceptions pop up, it may be better to have a logic gate for each column name
-        # Or some other clever way to attempt soft column names changes
-        if("Sal." %in% colnames(df) & "Con." %in% colnames(df) & "Depth.u." %in% colnames(df)){
-          df <- df %>% 
-            dplyr::rename(Salinity = `Sal.`, Conductivity = `Cond.`, Temperature = Temp,
-                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
-            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
-            dplyr::select(file_temp, date_time, Depth, Salinity:Density)
-        } else if("Sal." %in% colnames(df) & !"Con." %in% colnames(df) & "Depth.u." %in% colnames(df)){
-          df <- df %>% 
-            dplyr::rename(Salinity = `Sal.`, Temperature = Temp,
-                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
-            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
-            dplyr::select(file_temp, date_time, Depth, Salinity:Density)
-        } else if("Press" %in% colnames(df)){
-          df <- df %>% 
-            dplyr::rename(Salinity = `Sal.`, Conductivity = `Cond.`, Temperature = Temp,
-                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, 
-                          # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
-                          Depth = Press) %>% 
-            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
-            dplyr::select(file_temp, date_time, Depth, Salinity:Density)
-        } else {
-          df <- df %>% 
-            dplyr::rename(Conductivity = `Cond.`, Temperature = Temp,
-                          Fluorescence_ugChla_l = `F..µg.l.`, T_FTU = `T..FTU.`, Depth = `Depth.u.`) %>% 
-            mutate(date_time = dmy_hms(paste(Date, Time, sep = " "))) %>% 
-            dplyr::select(file_temp, date_time, Depth, Conductivity:Density)
-        }
-        
-      } else if(input$schema == "RBR"){
-        df <- df %>% 
-          dplyr::rename(Fluorescence_ugChla_l = `Fluorometry.Chlorophyll`,  Specific_Conductivity = `Specific.Conductivity`,
-                        Density_Anomaly = `Density.Anomaly`, Speed_of_sound = `Speed.of.sound`) %>% 
-          mutate(date_time = dmy_hms(Timestamp)) %>% 
-          dplyr::select(file_temp, date_time, Depth, Conductivity:Fluorescence_ugChla_l, Salinity:Speed_of_sound)
-        
-      } else if(input$schema == "Sea-Bird"){
-        suppressWarnings( # Forcing numeric temperatures causes warning
-        df <- df %>% 
-          dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Salinity = V4, date = V5, time = V6) %>%
-          mutate(Temperature = as.numeric(Temperature)) %>%
-          filter(!is.na(Temperature)) %>% 
-          mutate(date_time = dmy_hms(paste0(date, time))) %>%
-          # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
-          rename(Depth = Pressure) %>% 
-          dplyr::select(file_temp, date_time, Depth, Temperature, Salinity, Conductivity)
-        )
-      } else if(input$schema == "Sea-Bird O2"){
-        suppressWarnings( # Forcing numeric temperatures causes warning
-          df <- df %>% 
-            dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Oxygen = V4, 
-                          Salinity = V5, Sound_velocity = V6, date = V7, time = V8) %>%
-            mutate(Temperature = as.numeric(Temperature)) %>%
-            filter(!is.na(Temperature)) %>% 
-            mutate(date_time = dmy_hms(paste0(date, time))) %>%
-            # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
-            rename(Depth = Pressure) %>% 
-            dplyr::select(file_temp, date_time, Depth, Temperature, Salinity, Conductivity, Oxygen, Sound_velocity)
-        )
-      } else if(input$schema == "Sea & Sun"){
-          df <- df %>% 
-            dplyr::rename(row_n = V1, date = V2, time = V3, Pressure = V4, 
-                          Temperature = V5, Conductivity = V6, Salinity = V7) %>%
-            mutate(date_time = dmy_hms(paste0(date, time)),
-                   # NB: This requires better troubleshooting
-                   Temperature = as.numeric(Temperature),
-                   Pressure = as.numeric(Pressure),
-                   Salinity = as.numeric(Salinity),
-                   Conductivity = as.numeric(Conductivity)) %>%
-            # NB: With a lack of depth data we are assuming pressure for depth to maintain consistent column names
-            rename(Depth = Pressure) %>% 
-            dplyr::select(file_temp, date_time, Depth, Temperature, Salinity, Conductivity)
-      }
+      
+      # Force numeric columns
+      skip_cols <- colnames(df)[which(colnames(df) %in% non_num_cols)]
+      suppressWarnings(
+      df <- mutate(df, across(!all_of(skip_cols), as.numeric))
+      )
       
       # Flag data
       ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
@@ -858,10 +810,20 @@ server <- function(input, output, session) {
       df_flag$flag <- 0
       if("Temperature" %in% colnames(df_flag)) 
         df_flag <- mutate(df_flag, flag = case_when(Temperature < -1.8 | Temperature > 15 ~ 1, TRUE ~ flag))
+      if("Temp" %in% colnames(df_flag)) 
+        df_flag <- mutate(df_flag, flag = case_when(Temp < -1.8 | Temp > 15 ~ 1, TRUE ~ flag))
+      if("Temp." %in% colnames(df_flag)) 
+        df_flag <- mutate(df_flag, flag = case_when(Temp. < -1.8 | Temp. > 15 ~ 1, TRUE ~ flag))
       if("Salinity" %in% colnames(df_flag)) 
         df_flag <- mutate(df_flag, flag = case_when(Salinity < 0 | Salinity > 38 ~ 1, TRUE ~ flag))
+      if("Sal" %in% colnames(df_flag)) 
+        df_flag <- mutate(df_flag, flag = case_when(Sal < 0 | Sal > 38 ~ 1, TRUE ~ flag))
+      if("Sal." %in% colnames(df_flag)) 
+        df_flag <- mutate(df_flag, flag = case_when(Sal. < 0 | Sal. > 38 ~ 1, TRUE ~ flag))
       if("Fluorescence_ugChla_l" %in% colnames(df_flag)) 
         df_flag <- mutate(df_flag, flag = case_when(Fluorescence_ugChla_l < 0 | Fluorescence_ugChla_l > 50 ~ 1, TRUE ~ flag))
+      if("F..µg.l." %in% colnames(df_flag)) 
+        df_flag <- mutate(df_flag, flag = case_when(F..µg.l. < 0 | F..µg.l. > 50 ~ 1, TRUE ~ flag))
       if("Depth" %in% colnames(df_flag)){ # NB: Intentionally last
         df_mdepth <- df_flag[df_flag$Depth == max(df_flag$Depth, na.rm = T),]
         df_flag <- mutate(df_flag, flag = case_when(Depth > 400 ~ 1, 
@@ -941,7 +903,7 @@ server <- function(input, output, session) {
                               Sensor_owner = "Kings Bay",
                               Sensor_brand = "SAIV",
                               Sensor_number = as.character(gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15))),
-                              Air_pressure = mini_df_1$Air.pressure)
+                              Air_pressure = as.numeric(mini_df_1$Air.pressure))
       } else if(str_sub(file_text, 1, 8) == "RBR data"){
         # ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
         # mini_df_1 <- read_csv("data/KB3_018630_20210416_1728.csv", n_max = 1)
