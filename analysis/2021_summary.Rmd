@@ -61,7 +61,7 @@ options(DT.options = list(pageLength = 5,
 ::::
 
 - Identify and analyse major drivers of change for fjord and adjacent socioecological systems
-- Coolect, manage, and disseminate data and analyses both within and outside the consortium
+- Collect, manage, and disseminate data and analyses both within and outside the consortium
 - Key drivers identified in WP1 form the operative base for all WPs
 
 <br>

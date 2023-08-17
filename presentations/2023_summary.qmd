@@ -1,0 +1,101 @@
+---
+# title: "FACE-IT WP1 Summary: 2022"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+editor: source
+---
+
+# FACE-IT WP1 Summary: 2023 {background-color="#008980" style="text-align: center"}
+
+</br>
+
+::: columns
+::: {.column style="text-align: center"}
+Jean-Pierre Gattuso </br> - Lead -
+:::
+
+::: {.column style="text-align: center"}
+*Robert Schlegel* </br> - Data scientist -
+:::
+:::
+
+## 
+
+![](../logo/Logo_FACE-IT_PNG_1500.png){.absolute top="-20" left="-20"  width="400" height="200"}
+![](../logo/h2020_grant.png){.absolute top="10" right="-40"  width="700" height="170"}
+
+<br>
+<br>
+<br>
+<br>
+
+1) compile data on key drivers of changes
+2) make those data openly accessible
+3) further analyses and publications
+
+## Deliverables
+
+![](WP1_table.png)
+
+## Resources
+
+Available on face-it.marum.de (NextCloud):
+
+- WP1 homepage: <https://face-it-project.github.io/WP1/index.html>
+
+- Meta-database: <https://face-it-project.github.io/WP1/metadatabase.html>
+
+- GitHub page: <https://github.com/FACE-IT-project/WP1>
+
+- Data access app: <http://193.50.85.71:3838/dataAccess>
+
+## Completed publications
+
+::: incremental
+- Schlegel et al. (2023). **Drivers of Change in Arctic Fjord Socio-ecological Systems** *Coastal futures*
+- Schlegel & Gattuso (2022, 2023). **A Dataset for Investigating Socio-ecological Changes in Arctic Fjords** *PANGAEA* *Earth System Science Data (ESSD)*
+:::
+
+## Current publications
+
+::: incremental
+- Gentili et al. (2023, in review) **FjordLight: PAR data for Arctic fjords** *PANGAEA*
+- Schlegel et al. (2023, in prep) **Underwater light environment in Arctic fjords** *Earth System Science Data (ESSD)*
+:::
+
+
+## Perspectives
+
+- WP1 support ends in July
+- Will need datasets by May to publish by July
+- Time for one or two more publications  
+-- Fjord intercomparisons  
+-- Marine heatwaves at FACE-IT sites  
+-- Other?  
+
+## {background-color="#008980"}
+
+Thank you for listening!
+
+::: columns
+::: {.column style="text-align: center"}
+![](../logo/profile.jpeg){width="300"}
+<br>
+Robert Schlegel
+:::
+
+::: {.column style="text-align: center"}
+<br>
+![](../logo/Logo_Sorbonne University.png){width="500"} 
+<br>
+LOV, Sorbonne Université – CNRS, France
+:::
+:::
+
