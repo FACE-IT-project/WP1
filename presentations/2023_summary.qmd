@@ -38,7 +38,8 @@ Jean-Pierre Gattuso </br> - Lead -
 
 1) compile data on key drivers of changes
 2) make those data openly accessible
-3) further analyses and publications
+3) archive FACE-IT data
+4) further analyses and publications
 
 ## Deliverables
 
@@ -60,7 +61,8 @@ Available on face-it.marum.de (NextCloud):
 
 ::: incremental
 - Schlegel et al. (2023). **Drivers of Change in Arctic Fjord Socio-ecological Systems** *Coastal futures*
-- Schlegel & Gattuso (2022, 2023). **A Dataset for Investigating Socio-ecological Changes in Arctic Fjords** *PANGAEA* *Earth System Science Data (ESSD)*
+- Schlegel & Gattuso (2022). **A Dataset for Investigating Socio-ecological Changes in Arctic Fjords** *PANGAEA*
+- Schlegel & Gattuso (2023). **A Dataset for Investigating Socio-ecological Changes in Arctic Fjords** *Earth System Science Data (ESSD)*
 :::
 
 ## Current publications
@@ -70,10 +72,28 @@ Available on face-it.marum.de (NextCloud):
 - Schlegel et al. (2023, in prep) **Underwater light environment in Arctic fjords** *Earth System Science Data (ESSD)*
 :::
 
+## Data archiving
+
+[Provide a count of FACE-IT publications (possibly per year), and how many of them have datasets]  
+[Show how many FACE-IT datasets have been published. Which ones are on PANGAEA vs. Zenodo vs other]  
+[Show this as a table of some sort]
+[This is a point of discussion for everyone]  
+[Provide the sentence from the DMP that outlines this criteria]  
+[This is important because we want to avoid the EU from retaining the final 10% of funds]  
+[Clarify the issue of where to finally archive the datasets with Kai before going on holiday]
+
+## FACE-IT data v2.0
+
+[Discuss the final upgrade from v1.0 to v2.0]
+[What that will entail, which data types will be upgraded or new ones included]
+[What availability will look like]
+[How future proof will the data access app be]
+[Could package the data access into R for user access]
 
 ## Perspectives
 
-- WP1 support ends in July
+- WP1 support ends in July  
+-- No more online support/maintenance  
 - Will need datasets by May to publish by July
 - Time for one or two more publications  
 -- Fjord intercomparisons  
