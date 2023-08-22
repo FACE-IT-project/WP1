@@ -365,18 +365,38 @@ write_csv(ice_algae, "~/pCloudDrive/restricted_data/Lund-Hansen/Algae mat/algae_
 
 # Photobiological
 ## Albedo
-albedo <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Albedo_Transm.csv")
+albedo <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Albedo_Transm.csv") |> 
+  dplyr::rename(`E [mW m-2 nm-1] (above ice downwelling)` = `Ed0 [mW m-2 nm-1]`,
+                `E [mW m-2 nm-1] (above ice upwelling)` = `Eu0 [mW m-2 nm-1]`,
+                `E [mW m-2 nm-1] (under ice downwelling)` = `Edi [mW m-2 nm-1]`) |> 
+  mutate_at(1:6, ~as.character(.)) |>
+  mutate_at(1:6, ~replace_na(., ""))
 write_csv(albedo, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/albedo_PG.csv")
 
-## phytoPAM
-phyto_PAM <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM.csv") |> 
-  mutate_at(1:14, ~as.character(.)) |>
-  mutate_at(1:14, ~replace_na(., ""))
-write_csv(phyto_PAM, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM_PG.csv")
-
 ## I-PAM
-I_PAM <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Diel_I-PAM.csv")
+# 19 March 2013 - Day 78
+# Φ_PSII
+I_PAM <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Diel_I-PAM.csv") |> 
+  mutate(`date/time [UTC+0]` = paste0(date,"T", time)) |> 
+  dplyr::rename(`PAR [µmol m-2 s-1]` = `Under ice PAR [µmol m-2 s-1]`,
+                `Φ_PSII [mean] (I-PAM)` = `I-PAM [avg]`, 
+                `Φ_PSII [std] (I-PAM)` = `I-PAM [std]`,
+                `Φ_PSII [mean] (Phyto-PAM)` = `Phyto-PAM [avg]`,
+                `Φ_PSII [std] (Phyto-PAM)` = `Phyto-PAM [std]`) |> 
+  dplyr::select(`date/time [UTC+0]`, `Φ_PSII [mean] (I-PAM)`, `Φ_PSII [std] (I-PAM)`,
+                `Φ_PSII [mean] (Phyto-PAM)`, `Φ_PSII [std] (Phyto-PAM)`) |> 
+  mutate_at(1:5, ~as.character(.)) |>
+  mutate_at(1:5, ~replace_na(., ""))
 write_csv(I_PAM,"~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/I-PAM_PG.csv")
+
+## phytoPAM
+phyto_PAM <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM.csv") |>
+  dplyr::select(date, type, station, `volume before species ID [ml]`, `filtered water volume [ml]`, `F`, Fm, alfa, ETRmax) |> 
+  dplyr::rename(`α [mol é mol−1 photons]` = alfa,
+                `ETR_max [µmol é m−2 s−1]` = ETRmax) |> 
+  mutate_at(1:9, ~as.character(.)) |>
+  mutate_at(1:9, ~replace_na(., ""))
+write_csv(phyto_PAM, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM_PG.csv")
 
 ## Species
 ### Load headers
@@ -391,22 +411,25 @@ header3 <- scan("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Kange
 kang_spp <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Kangerlussuaq.csv", 
                      skip = 3, col_names = paste(header1, header2, header3, sep = "__")) |> 
   dplyr::rename(Species = `Station__Dato__Value`) |> 
-  pivot_longer(cols = `2+ai__20130314__Sum [n/l]`:`2+w__20130314__Sum [carbon µg l-1] `) |> 
+  pivot_longer(cols = `2+ai__20130314__Sum [n/l]`:`2+w__20130314__Sum [carbon µg l-1]`) |> 
   separate(name, into = c("station", "Date", "units"), sep = "__") |> 
   mutate(date = as.Date(Date, "%Y%m%d"),
          `date/time [UTC+0]` = paste0(date,"T00:00:00")) |> 
   pivot_wider(values_from = "value", names_from = "units") |> 
-  dplyr::rename(`sum [n l-1]` = `Sum [n/l]`, `sum [carbon l-1]` = `Sum [carbon µg l-1] `, species = Species) |> 
-  dplyr::select(station, `date/time [UTC+0]`, species, `sum [n l-1]`, `sum [carbon l-1]`)
+  dplyr::rename(`sum [n l-1]` = `Sum [n/l]`, `sum [carbon l-1]` = `Sum [carbon µg l-1]`, species = Species) |> 
+  dplyr::select( `date/time [UTC+0]`, station, species, `sum [n l-1]`, `sum [carbon l-1]`)
 write_csv(kang_spp, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/kang_spp_PG.csv")
 
 # Upwelling irradiance
 ## TriOS
 TriOS <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Upwelling irradiance/TriOS.csv") |> 
-  mutate(`Eu-/Eu+` = as.numeric(`Eu-/Eu+`)) |> 
-  dplyr::select(`Wave length [λ]`, `Ed-`, `Ed+`, `Ed-/Ed+`, `Eu-`, `Eu+`, `Eu-/Eu+`, `Eu+/Ed+`, `Eu-/Ed-`) |> 
-  mutate_at(1:9, ~as.character(.)) |>
-  mutate_at(1:9, ~replace_na(., ""))
+  dplyr::select(`Wave length [λ]`, `Ed-`, `Ed+`, `Eu-`, `Eu+`) |>
+  dplyr::rename(`E [µmol photons m−2 s−1] (under ice no snow cover downwelling)` = `Ed-`, 
+                `E [µmol photons m−2 s−1] (under ice snow cover downwelling)` = `Ed+`, 
+                `E [µmol photons m−2 s−1] (under ice no snow cover upwelling)`= `Eu-`, 
+                `E [µmol photons m−2 s−1] (under ice snow cover upwelling)` = `Eu+`) |> 
+  mutate_at(1:5, ~as.character(.)) |>
+  mutate_at(1:5, ~replace_na(., ""))
 write_csv(TriOS, "~/pCloudDrive/restricted_data/Lund-Hansen/Upwelling irradiance/TriOS_PG.csv")
 
 ## PAR Down-Up
@@ -414,8 +437,11 @@ PAR_down_up <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Upwelling irr
   mutate(date = as.Date(paste0(Year,"-",`Julian Day`), format = "%Y-%j"),
          time = paste0(gsub("^(.{2})(.*)$", "\\1:\\2", str_pad(time, 4, pad = 0)),":00"),
          `date/time [UTC+0]` = paste0(date,"T",time)) |> 
-  dplyr::select(`date/time [UTC+0]`, `air temp [°C]`, `E(up)`, `E(ice)`, `E(down)`, `%T`, Albedo, `Ice/(Down-Up)`) |> 
-  mutate_at(1:8, ~as.character(.)) |>
-  mutate_at(1:8, ~replace_na(., ""))
+  dplyr::select(`date/time [UTC+0]`, `air temp [°C]`, Albedo, `E(down)`, `E(up)`, `E(ice)`) |>
+  dplyr::rename(`PAR [µmol photons m−2 s−1] (above ice snow cover downwelling)` = `E(down)`, 
+                `PAR [µmol photons m−2 s−1] (above ice snow cover upwelling)` = `E(up)`, 
+                `PAR [µmol photons m−2 s−1] (under ice snow cover downwelling)` = `E(ice)`) |> 
+  mutate_at(1:6, ~as.character(.)) |>
+  mutate_at(1:6, ~replace_na(., ""))
 write_csv(PAR_down_up, "~/pCloudDrive/restricted_data/Lund-Hansen/Upwelling irradiance/PAR_Down_Up_PG.csv")
 
