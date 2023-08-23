@@ -7,7 +7,7 @@
 # Setup -------------------------------------------------------------------
 
 # Need to start phasing out rgdal and rgeos
-options("sp_evolution_status"=2)
+options("sp_evolution_status" = 2)
 
 # Libraries used in all other scripts
 library(tidyverse)
@@ -24,7 +24,7 @@ library(ggraph) # Necessary to load here as one function is manually overwritten
 library(RColorBrewer)
 library(raster)
 library(rgdal)
-library(sp)
+library(sp) # This needs to be phased out...
 library(sf)
 library(circular) # For calculating mean daily wind direction from degree values
 library(pangaear)
@@ -32,7 +32,7 @@ library(arrow)
 library(doParallel); registerDoParallel(cores = 12)
 
 # Find who is the user and define the pCloud path
-if (Sys.getenv("LOGNAME") == "gattuso"){
+if(Sys.getenv("LOGNAME") == "gattuso"){
   pCloud_path = "~/pCloud\ Drive/"
 } else {
   pCloud_path = "~/pCloudDrive/" 
@@ -117,47 +117,37 @@ ice_cover_colours <- c(
 
 # Colour palette for sites
 site_colours <- c(
-  "Kongsfjorden" = "chocolate4", 
-  "Isfjorden" = "chocolate3", 
-  "Storfjorden" = "chocolate1", 
-  "Young Sound" = "springgreen4", 
+  "Kongsfjorden" = "chocolate3",# "chocolate4", 
+  "Isfjorden" = "goldenrod",# "chocolate3", 
+  "Storfjorden" = "burlywood3",# "chocolate1", 
+  "Young Sound" = "chartreuse3",# "springgreen4", 
   "Qeqertarsuup Tunua" = "springgreen3", 
-  "Nuup Kangerlua" = "springgreen1", 
-  "Porsangerfjorden" = "plum4"
+  "Nuup Kangerlua" = "palegreen1",# "springgreen1", 
+  "Porsangerfjorden" = "plum3"# "plum4"
 )
 
 # Base URL for MUR data
 base_MUR_URL <- "https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data/GDS2/L4/GLOB/JPL/MUR/v4.1"
 
 # Long names for merging
+factor_unique <- function(x) factor(x, levels = unique(x)) # Hack to assign levels easier
 long_site_names <- data.frame(site = c("kong", "is", "stor", "young", "disko", "nuup", "por"),
-                              site_long = c("Kongsfjorden", "Isfjorden", "Storfjorden",
-                                            "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
-                                            "Porsangerfjorden")) %>% 
-  mutate(site_long = factor(site_long,
-                            levels = c("Kongsfjorden", "Isfjorden", "Storfjorden",
-                                       "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
-                                       "Porsangerfjorden")))
+                              site_long = factor_unique(c("Kongsfjorden", "Isfjorden", "Storfjorden",
+                                                          "Young Sound", "Qeqertarsuup Tunua", "Nuup Kangerlua",
+                                                          "Porsangerfjorden")))
 long_cat_names <- data.frame(category = c("cryo", "phys", "chem", "bio", "soc"),
-                             category_long = c("cryosphere", "physics", "chemistry", "biology", "social")) |> 
-  mutate(category_long = factor(category_long,
-                                levels = c("cryosphere", "physics", "chemistry", "biology", "social")))
+                             category_long = factor_unique(x = c("cryosphere", "physics", 
+                                                                 "chemistry", "biology", "social")))
 long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
                                            "sea temp", "salinity", "light",
                                            "carb", "nutrients", 
                                            "prim prod", "biomass", "spp rich", 
                                            "gov", "tourism", "fisheries"),
-                                driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
-                                                "seawater temperature", "salinity", "light",
-                                                "carbonate chemistry", "nutrients",
-                                                "primary production", "biomass", "species richness",
-                                                "governance", "tourism", "fisheries")) %>% 
-  mutate(driver_long = factor(driver_long, 
-                              levels = c("sea ice", "glacier mass balance", "terrestrial runoff",
-                                         "seawater temperature", "salinity", "light",
-                                         "carbonate chemistry", "nutrients",
-                                         "primary production", "biomass", "species richness",
-                                         "governance",  "tourism", "fisheries")))
+                                driver_long = factor_unique(x = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                                                  "seawater temperature", "salinity", "light",
+                                                                  "carbonate chemistry", "nutrients",
+                                                                  "primary production", "biomass", "species richness",
+                                                                  "governance", "tourism", "fisheries")))
 
 # For finding meta-data in PG files
 lon_names <- c("LONGITUDE", "Longitude", "longitude", "long", "lon")
@@ -172,21 +162,21 @@ nuup_bird_coords <- data.frame(Point = LETTERS[1:13],
                                        -51.37833, -51.379398, -51.374116, -51.363874, -51.355553,
                                        -51.344558, -51.336278, -51.326204))
 
+
 # Meta-data ---------------------------------------------------------------
 
 # The base global map
-map_base <- readRDS("metadata/map_base.Rda")
+if(!exists("map_base")) map_base <- readRDS("metadata/map_base.Rda")
 
 ## Hi-res coastlines
 # Load shapefile
-coastline_full <- read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
+if(!exists("coastline_full")) coastline_full <- read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
 
 # Convert to data.frame
-coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
+if(!exists("coastline_full_df")) coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 
 # Full map
-# ggplot(data = coastline_full) +
-#   geom_sf()
+# ggplot(data = coastline_full) + geom_sf()
 
 
 # Functions ---------------------------------------------------------------
@@ -673,19 +663,6 @@ extract_bathy <- function(bbox, site_name, product = "GEBCO"){
   write_csv(bathy_df, paste0("~/pCloudDrive/FACE-IT_data/maps/bathy_",site_name,".csv"))
 }
 
-# Function for loading raster files with utm coords and converting to lon/lat
-load_utm <- function(file_name){
-  ras_1 <- raster(file_name)
-  crs_1 <- ras_1@crs
-  utm1 <- as.data.frame(ras_1, xy = T)
-  coordinates(utm1) <- ~x+y 
-  proj4string(utm1) <- crs_1
-  utm2 <- spTransform(utm1, CRS("+proj=longlat +datum=WGS84"))
-  utm3 <- as.data.frame(utm2) %>% 
-    dplyr::rename(lon = x, lat = y) %>% 
-    dplyr::select(lon, lat, everything())
-}
-
 # New best practice for converting UTM projected points to an even lon/lat grid
 # NB: Expects three columns; x, y, and a data column
 convert_UTM_deg_grid <- function(df, proj_base, third_col = NULL){
@@ -701,6 +678,7 @@ convert_UTM_deg_grid <- function(df, proj_base, third_col = NULL){
 }
 
 # Function for converting UTM to decimal degrees
+# NB: This will likely need to be changed RE sptail package phase out
 # NB: Expects an 'Easting' and 'Northing' column
 convert_UTM_deg <- function(df, utm_zone){
   
@@ -730,6 +708,7 @@ convert_UTM_deg <- function(df, utm_zone){
 # Convert from one EPSG to another
 # This is the function to convert Polar Stereographic Coordinates to Lat-Lon
 # Adapted from a script that Bernard Gentili found here: https://github.com/jenseva/projected-data-demos
+# NB: This will likely need to be changed RE sptail package phase out
 # x <- sval_Nature_glacier_mass$X_center
 # y <- sval_Nature_glacier_mass$Y_center
 # epsg1 <- "epsg:32633"
@@ -3061,3 +3040,4 @@ middlePathGrob <- function (x, y, id = NULL, id.lengths = NULL, arrow = NULL, st
   }
 }
 R.utils::reassignInPackage("cappedPathGrob", "ggraph", middlePathGrob)
+

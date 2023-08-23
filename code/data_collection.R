@@ -17,11 +17,12 @@
 
 # Libraries used in this script
 source("code/functions.R")
-source("code/key_drivers.R") # TODO: Optimise this to not reload large files unnecessarily
+source("code/key_drivers.R")
 
 # Set cores
 doParallel::registerDoParallel(cores = 15)
 #
+
 
 # AIS data ----------------------------------------------------------------
 
@@ -201,12 +202,12 @@ while(nrow(pg_doi_dl) > 0){
   plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F)
 }
 
-# Log size off old and new files
+# Log size of old and new files
 pg_file_sizes <- read_csv("metadata/pg_file_sizes.csv")
 pg_file_sizes_new <- base::file.info(dir("data/pg_data", all.files = T, full.names = T, pattern = ".csv"), extra_cols = FALSE) |> 
   tibble::rownames_to_column(var = "file_name") |> 
   mutate(file_name = str_remove(file_name, "data/pg_data/"),
-         size = round(size/1000000,2)) |>  # Convert from bytes to megabytes
+         size = round(size/1000000, 2)) |>  # Convert from bytes to megabytes
   dplyr::rename(created = mtime) |> 
   dplyr::select(file_name, size, created) 
 pg_file_sizes <- rbind(pg_file_sizes, pg_file_sizes_new) |> mutate_all(as.character) |> distinct()

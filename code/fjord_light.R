@@ -198,3 +198,4 @@ kong_regions |>
   coord_quickmap(expand = F,
                  xlim = c(bbox_kong[1]-0.3, bbox_kong[2]+0.3), 
                  ylim = c(bbox_kong[3]-0.05, bbox_kong[4]+0.05))
+

@@ -296,3 +296,4 @@ DATA$TMean_S.s <- decostand(sqrt(DATA$TMean_S+154), "standardize")
 DATA$Lon.s <- decostand(sqrt(DATA$Lon+9) , "standardize")
 DATA$Naturalness.s <- decostand(DATA$Naturalness, "standardize")
 DATA$PTot_S.s <- decostand(DATA$PTot_S, "standardize")
+

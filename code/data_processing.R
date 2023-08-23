@@ -101,17 +101,6 @@ GLODAP_Arctic_carb_chem <- GLODAP_Arctic_bottle_mean %>%
 write_csv(GLODAP_Arctic_carb_chem, paste0(pCloud_path,"FACE-IT_data/GLODAP_Arctic_carb_chem.csv"))
 
 
-# Shape files for bathymetry ----------------------------------------------
-
-# In order to use custom bathymetry files in ggOceanMaps one must first create 
-# matching land and glacier shapefiles
-# Below is a convenience function that does all of this when given just a single file
-# NB: This requires that one has pCloud mounted at the root directory
-prep_bathy <- function(file_name){
-  
-}
-
-
 # Bartsch data ------------------------------------------------------------
 
 ## Light data from Inka
