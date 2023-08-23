@@ -445,6 +445,7 @@ EU_species <- rbind(EU_epagr_population,
                     barents_northeast_cod_population, 
                     barents_young_herring_population)
 save(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
+write_csv(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.csv")
 
 
 ## Svalbard ----------------------------------------------------------------
@@ -1007,6 +1008,7 @@ sval_species <- rbind(sval_ivory_gull_population,
                       sval_walrus_population,
                       sval_brguillemot_population)
 save(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
+write_csv(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.csv")
 
 
 ## Kongsfjorden ------------------------------------------------------------
@@ -1536,6 +1538,7 @@ kong_species <- rbind(kong_glaucous_gull_population,
                       kong_kittiwakke_population,
                       kong_brguillemot_population)
 save(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
+write_csv(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.csv")
 
 
 ## Isfjorden ---------------------------------------------------------------
@@ -1901,6 +1904,7 @@ is_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnni
 is_species <- rbind(is_kittiwakke_population,
                     is_brguillemot_population)
 save(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
+write_csv(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.csv")
 
 
 ## Storfjorden -------------------------------------------------------------
@@ -3078,6 +3082,7 @@ young_species_GEM <- rbind(young_bird_nests_eggs,
                            young_bird_abundance,
                            young_bird_broods)
 save(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.RData")
+write_csv(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.csv")
 
 
 ## Disko Bay ---------------------------------------------------------------
@@ -3922,6 +3927,7 @@ nuup_species_GEM <- rbind(nuup_bird_nb,
                           nuup_seabird_presence, 
                           nuup_mmam_count)
 save(nuup_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.RData")
+write_csv(nuup_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.csv")
 
 
 ## Norway ------------------------------------------------------------------
