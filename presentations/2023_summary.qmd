@@ -46,16 +46,23 @@ Jean-Pierre Gattuso </br> - Lead -
 ![](WP1_table.png)
 
 ## Resources
+  
+:::{#title-slide .center}
+Available on face-it.marum.de (NextCloud)
+  
+<- WP1 homepage  
+<br/><br/>
+Meta-database ->  
+<br/><br/>
+<- GitHub page  
+<br/><br/>
+Data access app ->  
+:::
 
-Available on face-it.marum.de (NextCloud):
-
-- WP1 homepage: <https://face-it-project.github.io/WP1/index.html>
-
-- Meta-database: <https://face-it-project.github.io/WP1/metadatabase.html>
-
-- GitHub page: <https://github.com/FACE-IT-project/WP1>
-
-- Data access app: <http://193.50.85.71:3838/dataAccess>
+![](QR_WP1_home.png){.absolute top="150" left="30"  width="200" height="200"}
+![](QR_metadatabase.png){.absolute top="250" left="800" width="200" height="200"}
+![](QR_WP1_GitHub.png){.absolute top="400" left="30" width="200" height="200"}  
+![](QR_dataAccess.png){.absolute top="500" left="800" width="200" height="200"}  
 
 ## Completed publications
 
@@ -74,24 +81,43 @@ Available on face-it.marum.de (NextCloud):
 
 ## Data archiving
 
-[Provide a count of FACE-IT publications (possibly per year), and how many of them have datasets]  
-[Show how many FACE-IT datasets have been published. Which ones are on PANGAEA vs. Zenodo vs other]  
-[Show this as a table of some sort]
-[This is a point of discussion for everyone]  
-[Provide the sentence from the DMP that outlines this criteria]  
-[This is important because we want to avoid the EU from retaining the final 10% of funds]  
-[Clarify the issue of where to finally archive the datasets with Kai before going on holiday]
+From the final DMP:  
+
+_"All data generated for FACE-IT will be stored either on the PANGAEA data portal, or an established institutionally
+affiliated/supported data portal such as NPDC or GEM (but not limited to these two), for long-term storage and
+maintenance."_
+
+## Data archiving
+
+- This is important because we want to avoid the EU from retaining the final 10% of funds  
+- This is a point of discussion for everyone  
+
+## Data archiving
+
+::: incremental
+- FACE-IT publications - 32
+- FACE-IT datasets - 17
+- PANGAEA - xx
+- Institution - xx
+- Zenodo - xx
+- Other - xx
+- Unpublished - xx
+:::
 
 ## FACE-IT data v2.0
 
-[Discuss the final upgrade from v1.0 to v2.0]
-[What that will entail, which data types will be upgraded or new ones included]
-[What availability will look like]
-[How future proof will the data access app be]
-[Could package the data access into R for user access]
+::: incremental
+- Upgrades from v1.0 to v2.0  
+  - Updated/upgraded drivers
+  - Newly added drivers  
+- How future proof will the data access app be?
+- What will data availability look like?
+- Create R package for easer user access?
+:::
 
 ## Perspectives
 
+::: incremental
 - WP1 support ends in July  
 -- No more online support/maintenance  
 - Will need datasets by May to publish by July
@@ -99,6 +125,7 @@ Available on face-it.marum.de (NextCloud):
 -- Fjord intercomparisons  
 -- Marine heatwaves at FACE-IT sites  
 -- Other?  
+:::
 
 ## {background-color="#008980"}
 

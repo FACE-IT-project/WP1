@@ -61,7 +61,7 @@ navbar:
     href: https://github.com/FACE-IT-project/FACE-IT
   - icon: fas fa-book
     text: DMP
-    href: DMP_FACE-IT_initial.pdf
+    href: DMP_FACE-IT_final.pdf
 output:
   workflowr::wflow_html:
     toc: yes

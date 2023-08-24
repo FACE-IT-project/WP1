@@ -1457,7 +1457,7 @@ kong_eiders_stock <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/breeding-
 # kong seabird
 kong_seabird <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) %>%
   janitor::remove_empty(which = "cols") %>% 
-  filter(Colony == "Kongsfjorden")%>% 
+  filter(Colony == "Kongsfjorden") %>% 
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4", 
          citation = "Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd", 
