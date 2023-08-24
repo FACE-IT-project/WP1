@@ -24,5 +24,5 @@ system.time(
                                      "analysis/species_data.Rmd"
   ),
   message = "Re-built site.")
-) # 15 seconds
+) # 20 seconds
 
