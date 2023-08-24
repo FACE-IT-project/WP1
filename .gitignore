@@ -3,7 +3,6 @@
 .RData
 .Ruserdata
 *.xcf
-code/ny-alesund_cc_pf_rws.R
 metadata/pangaea_parameters.tab
 metadata/pg_EU_ref_meta.csv
 metadata/globalfishingwatch_API_key.RData
