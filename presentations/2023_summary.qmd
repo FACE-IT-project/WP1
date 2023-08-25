@@ -95,13 +95,14 @@ maintenance."_
 ## Data archiving
 
 ::: incremental
-- FACE-IT publications - 32
-- FACE-IT datasets - 17
-- PANGAEA - xx
-- Institution - xx
-- Zenodo - xx
-- Other - xx
-- Unpublished - xx
+- FACE-IT publications - 36
+- FACE-IT datasets - 32
+- PANGAEA - 9
+- Institution - 5
+- Zenodo - 8
+- Other - 3
+- Unpublished - 5
+- Not FAIR - 2
 :::
 
 ## FACE-IT data v2.0
@@ -112,7 +113,7 @@ maintenance."_
   - Newly added drivers  
 - How future proof will the data access app be?
 - What will data availability look like?
-- Create R package for easer user access?
+- Create R package for easier user access?
 :::
 
 ## Perspectives
