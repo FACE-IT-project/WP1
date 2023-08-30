@@ -178,6 +178,11 @@ if(!exists("coastline_full_df")) coastline_full_df <- sfheaders::sf_to_df(coastl
 # Full map
 # ggplot(data = coastline_full) + geom_sf()
 
+# Full category -> driver -> variable list
+# NB: This was generated a posteriori from v1.0 of the data product
+# meaning there will be issues within it that must be resolved in newer versions
+full_var_list <- read_csv("metadata/full_var_list.csv")
+
 
 # Functions ---------------------------------------------------------------
 
@@ -557,7 +562,7 @@ pg_site_filter <- function(file_name, site_name){
   if(nrow(pg_res) == 0){
     return()
   } else {
-    pg_base_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_Meta$pg_col_name]
+    pg_base_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_meta$pg_col_name]
     pg_res <- mutate(pg_res, across(dplyr::all_of(pg_base_meta_columns), as.character))
     pg_res <- pg_res |> 
       janitor::remove_empty("cols") |> distinct()
@@ -567,12 +572,16 @@ pg_site_filter <- function(file_name, site_name){
 }
 
 # Function for melting columns related to a specific driver
-pg_var_melt <- function(pg_clean, key_words, var_word){
+# pg_clean <- pg_stor_clean; query_sub <- query_phys
+pg_var_melt <- function(pg_clean, query_sub){
+  
+  # Get unique ID info
+  query_ID <- query_sub |> dplyr::select(pg_col_name, driver, category) |> distinct()
   
   # Message of which columns were melted
   cols_fix <- gsub("\\] \\(.*", "\\]", colnames(pg_clean))
   pg_fix <- pg_clean; colnames(pg_fix) <- cols_fix; rm(pg_clean); gc()
-  sub_cols <- colnames(pg_fix)[colnames(pg_fix) %in% unique(key_words)]
+  sub_cols <- colnames(pg_fix)[colnames(pg_fix) %in% unique(query_ID$pg_col_name)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")]
   print(sub_cols)
   if(length(sub_cols) == 0) return()
@@ -581,31 +590,30 @@ pg_var_melt <- function(pg_clean, key_words, var_word){
   pg_melt <- pg_fix |> 
     dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, all_of(sub_cols)) |> 
     pivot_longer(cols = dplyr::all_of(sub_cols), names_to = "variable", values_to = "value") |> 
-    mutate(category = var_word) |> 
-    filter(!is.na(value)) |> 
-    distinct()
+    filter(!is.na(value)) |> distinct() |> 
+    left_join(query_ID, by = c("variable" = "pg_col_name"))
   
   # Get species data
-  if(var_word == "bio"){
+  if(query_sub$category[1] == "bio"){
     # NB: At this point any non-numeric species values are lost
     # Need to think about how best to approach this
+    # NB: May want to use query_species as a right filter
     pg_melt_bio <- pg_fix |> 
       dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, spp_name, spp_value) |>
       dplyr::rename(variable = spp_name, value = spp_value) |> 
-      mutate(category = var_word,
-             value = as.numeric(value)) |> 
-      filter(!is.na(value)) |> 
-      distinct()
+      mutate(value = as.numeric(value),
+             driver = "biomass", category = "bio") |> 
+      filter(!is.na(value)) |> distinct()
     pg_melt <- rbind(pg_melt, pg_melt_bio)
   }
   
   # Mean values and exit
   rm(pg_fix); gc()
   pg_res <- pg_melt |> 
-    group_by(date_accessed, URL, citation, site, lon, lat, date, depth, category, variable) |> 
+    group_by(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable) |> 
     summarise(value = mean(value, na.rm = T), .groups = "drop")
   return(pg_res)
-  # rm(pg_clean, key_words, var_word, sub_cols, pg_melt, pg_res)
+  # rm(pg_clean, query_sub, sub_cols, pg_melt, pg_res)
 }
 
 # Load a PG site file and apply the name
@@ -617,7 +625,7 @@ load_pg <- function(file_name){
   } else {
     stop("Wrong file type(s)")
   }
-  res <- data.table::fread(file_name) |>   # NB: Faster than read_csv_arrow()
+  res <- data.table::fread(file_name) |> # NB: Faster than read_csv_arrow()
     mutate(site = site_name, .before = 1)
   return(res)
 }
@@ -817,6 +825,8 @@ bbox_from_name <- function(site_name){
   if(site_name %in% c("disko", "Disko Bay", "Qeqertarsuup Tunua")) bbox_name <- bbox_disko
   if(site_name %in% c("nuup", "Nuup Kangerlua")) bbox_name <- bbox_nuup
   if(site_name %in% c("por", "Porsangerfjorden")) bbox_name <- bbox_por
+  if(site_name %in% c("sval", "Svalbard")) bbox_name <- bbox_sval
+  if(site_name %in% c("EU")) bbox_name <- bbox_EU
   # This has been coded to allow an error here
   return(bbox_name)
 }
@@ -1077,6 +1087,41 @@ filter_site_bbox <- function(site_name, df){
   df_res <- rbind(df_site, df_bbox) %>% distinct()
   rm(df_site, df_bbox); gc()
   return(df_res)
+}
+
+# Filter site data based on bbox, variable, and references
+filter_site_plural <- function(site_name, base_df = NULL){
+  
+  # Assign base data if necessary
+  if(is.null(base_df)){
+    if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
+    base_df <- full_product_sval
+  }
+  
+  # Get basic info
+  if(site_name == "sval"){
+    long_name <- data.frame(site = "sval", site_long = "Svalbard")
+  } else {
+    long_name <- filter(long_site_names, site == site_name)
+  }
+  unique_var <- base_df |> dplyr::select(variable) |> distinct()
+  unique_var_site <- unique_var |> filter(grepl(long_name$site_long[1], variable))
+  unique_ref <- base_df |> dplyr::select(citation) |> distinct()
+  unique_ref_site <- unique_ref |> filter(grepl(long_name$site_long[1], citation))
+  
+  # Get bbox and filter data accordingly
+  bbox <- bbox_from_name(site_name)
+  site_bbox <- filter(base_df, lon >= bbox[1], lon <= bbox[2], lat >= bbox[3], lat <= bbox[4])
+  
+  # Check if there are variables with the long name (i.e. ship AIS data) or citations
+  site_var <- filter(base_df, variable %in% unique_var_site$variable)
+  site_ref <- filter(base_df, citation %in% unique_ref_site$citation)
+  
+  # Combine and exit
+  site_res <- rbind(site_bbox, site_var, site_ref) |> mutate(site = long_name$site[1]) |> distinct()
+  return(site_res)
+  # rm(base_df, bbox, long_name, unique_var, unique_var_site, unique_ref, unique_ref_site,
+  #    site_bbox, site_var, site_ref, site_res); gc()
 }
 
 # Function for smoother meta-data creation
@@ -2901,6 +2946,18 @@ driver2_lm <- function(driver1, driver2){
   if(nrow(df_lm) > 0) df_lm <- dplyr::select(df_lm, -var_index)
   rm(annual_screen, df_driver, df_mean_month_depth, df_var); gc()
   return(df_lm)
+}
+
+# Detect if a variable is circular and act accordingly
+mean_circular <- function(df){
+  wind_vars <- c("wind_from_direction_2m", "wind_from_direction_4m", "wind_from_direction_10m")
+  df_res <- df |> 
+    group_by(date, variable) |> 
+    summarise(value = case_when(variable %in% wind_vars ~ 
+                                  as.numeric(round(mean.circular(circular(value, units = "degrees"), na.rm = T))),
+                              TRUE ~ mean(value)), .groups = "drop") |> 
+    mutate(value = case_when(variable %in% wind_vars & value < 0 ~ value + 360, TRUE ~ value))
+  return(df_res)
 }
 
 # Network arrows grob

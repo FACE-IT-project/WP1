@@ -42,8 +42,162 @@ pg_meta_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern 
 # Moving towards v2.0 the scraping of EU data from PANGAEA was abandoned
 # in favour of scraping at each site specifically
 
+### Species ----------------------------------------------------------------
+
+# EU (east) harp seal population
+EU_epagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
+         citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the East Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Pagophilus groenlandicus",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", str_replace_all(tolower(name),"\\."," ")," [n]"),
+         category = "bio",
+         driver ="biomass",
+         site = "east ice",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# EU (west) harp seal population
+EU_wpagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
+         citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Pagophilus groenlandicus",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", str_replace_all(tolower(name),"\\."," ")," [n]"),
+         category = "bio",
+         driver ="biomass",
+         site = "west ice",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# barents polar cod biomass
+barents_polar_cod <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/biomass-of-polar-cod-in.csv", sep = ";", dec = ",") %>% 
+  mutate(date_accessed = as.Date("2023-04-11"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea/", 
+         citation = "Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Boreogadus saida",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " [10^6 kg]"),
+         category = "bio",
+         driver ="biomass",
+         site = "barents sea", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::rename(value = Biomass) %>% 
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# barents capelin stock
+barents_capelin_stock <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/capelin-stock-in-the-bar.csv",sep = ";" , dec = ",") %>% 
+  pivot_longer(cols = c(`Mature.stock`, `Immature.stock`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea/", 
+         citation = "Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Mallotus villosus",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+         category = "bio",
+         driver ="biomass",
+         site = "barents sea", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# barents golden redfish population
+barents_golden_redfish_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/stock-of-golden-redfish.csv") %>% 
+  pivot_longer(cols = c(`Mature stock`, `Immature stock`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/", 
+         citation = "Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Sebastes norvegicus",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", tolower(name) ," [10^3 kg]"),
+         category = "bio",
+         driver ="biomass",
+         site = "barents sea", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# barents beaked redfish population
+barents_beaked_redfish_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/stock-of-beaked-redfish.csv", sep = ";") %>% 
+  pivot_longer(cols = c(`Mature.stock`, `Immature.stock`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/", 
+         citation = "Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Sebastes mentella",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+         category = "bio",
+         driver ="biomass",
+         site = "barents sea", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# barents northeast arctic cod population
+barents_northeast_cod_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/stock-of-northeast-arcti.csv", sep = ";") %>% 
+  pivot_longer(cols = c(`Immature.stock`, `Spawning.stock`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/", 
+         citation = "Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Gadus morhua",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
+         category = "bio",
+         driver ="biomass",
+         site = "barents sea", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# barents young herring population
+barents_young_herring_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/biomass-index-for-young.csv", sep = ";", dec = ",") %>% 
+  pivot_longer(cols = c(`X1.year.olds`, `X2.year.old`, `X3.year.old`)) %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/",
+         citation = "Institute of Marine Research (2022). Biomass index for young herring 1–3 years in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/young-herring-population.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Clupea harengus",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", substr(str_replace_all(tolower(name),"\\."," "),2, 11)," [n]"),
+         category = "bio",
+         driver ="biomass",
+         site = "barents sea",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Combine and save
+EU_species <- rbind(EU_epagr_population,
+                    EU_wpagr_population,
+                    barents_polar_cod, 
+                    barents_beaked_redfish_population, 
+                    barents_capelin_stock, 
+                    barents_golden_redfish_population, 
+                    barents_northeast_cod_population, 
+                    barents_young_herring_population)
+save(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
+write_csv(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.csv")
+rm(list = grep("EU_|barents_",names(.GlobalEnv),value = TRUE)); gc()
+
 
 ### Full product ------------------------------------------------------------
+
+# Load species
+if(!exists("EU_species")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
 
 # Bathymetry data
 ## Not on pCloud as this is a large file hosted on a well known website
@@ -282,170 +436,14 @@ load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Combine and save
 full_product_EU <- rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, EU_green_fjords,
-                         EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP) %>% mutate(site = "EU")
+                         EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP) |> mutate(site = "EU") |> 
+  left_join(full_var_list, by = c("category", "variable")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
+  rbind(EU_species)
 data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
 save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
 save(full_product_EU, file = "data/full_data/full_product_EU.RData")
 rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
-
-
-### Species ----------------------------------------------------------------
-
-# EU (east) harp seal population
-EU_epagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
-         citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the East Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Pagophilus groenlandicus",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", str_replace_all(tolower(name),"\\."," ")," [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "east ice",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# EU (west) harp seal population
-EU_wpagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/harp-seal/",
-         citation = "Institute of Marine Research (2022). Production of pups and estimated population size for harp seal in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/harp-seal.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Pagophilus groenlandicus",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", str_replace_all(tolower(name),"\\."," ")," [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "west ice",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# barents polar cod biomass
-barents_polar_cod <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/biomass-of-polar-cod-in.csv", sep = ";", dec = ",") %>% 
-  mutate(date_accessed = as.Date("2023-04-11"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea/", 
-         citation = "Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Boreogadus saida",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " [10^6 kg]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "barents sea", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::rename(value = Biomass) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# barents capelin stock
-barents_capelin_stock <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/capelin-stock-in-the-bar.csv",sep = ";" , dec = ",") %>% 
-  pivot_longer(cols = c(`Mature.stock`, `Immature.stock`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-12"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea/", 
-         citation = "Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Mallotus villosus",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "barents sea", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# barents golden redfish population
-barents_golden_redfish_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/stock-of-golden-redfish.csv") %>% 
-  pivot_longer(cols = c(`Mature stock`, `Immature stock`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-12"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/", 
-         citation = "Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Sebastes norvegicus",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", tolower(name) ," [10^3 kg]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "barents sea", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# barents beaked redfish population
-barents_beaked_redfish_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/stock-of-beaked-redfish.csv", sep = ";") %>% 
-  pivot_longer(cols = c(`Mature.stock`, `Immature.stock`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-12"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/", 
-         citation = "Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Sebastes mentella",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "barents sea", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# barents northeast arctic cod population
-barents_northeast_cod_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/stock-of-northeast-arcti.csv", sep = ";") %>% 
-  pivot_longer(cols = c(`Immature.stock`, `Spawning.stock`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-12"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/", 
-         citation = "Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Gadus morhua",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "barents sea", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# barents young herring population
-barents_young_herring_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/biomass-index-for-young.csv", sep = ";", dec = ",") %>% 
-  pivot_longer(cols = c(`X1.year.olds`, `X2.year.old`, `X3.year.old`)) %>%
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/",
-         citation = "Institute of Marine Research (2022). Biomass index for young herring 1–3 years in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/young-herring-population.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Clupea harengus",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", substr(str_replace_all(tolower(name),"\\."," "),2, 11)," [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "barents sea",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Combine and save
-EU_species <- rbind(EU_epagr_population,
-                    EU_wpagr_population,
-                    barents_polar_cod, 
-                    barents_beaked_redfish_population, 
-                    barents_capelin_stock, 
-                    barents_golden_redfish_population, 
-                    barents_northeast_cod_population, 
-                    barents_young_herring_population)
-save(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
-write_csv(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.csv")
 
 
 ## Svalbard ----------------------------------------------------------------
@@ -456,10 +454,209 @@ write_csv(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.cs
 # Rather, all PG products are loaded for each site to get any shared data points
 
 
+### Species ----------------------------------------------------------------
+
+# Svalbard ivory gull population
+sval_ivory_gull_population <- read.csv("~/pCloudDrive//FACE-IT_data/svalbard/the-number-of-breeding-p.csv", sep = ";") %>% # read the csv
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/", 
+         citation = "Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Pagophila eburnea",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp," breeding population [%]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::rename(value = Svalbard) %>% 
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# Svalbard walrus population
+sval_walrus_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/walrus-population-in-sva.csv") %>% 
+  pivot_longer(cols = c(`Walrus estimated numbers`, `Walrus population aerial counts`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-13"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/walrus/", 
+         citation = "Norwegian Polar Institute (2022). Walrus population in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/walrus-population.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Odobenus marinus",
+         nomsp = map(Species, latin_eng),
+         type = case_when(name == "Walrus estimated numbers"~"estimated",
+                          name == "Walrus population aerial counts"~"aerial survey"),
+         variable = paste0(nomsp, " ", type, " [n]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# Svalbard (north and west) calanus population by size
+sval_nw_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(!name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Zooplankton",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," [g/m²]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Svalbard (north and west) calanus population tot
+sval_nw_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Zooplankton",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " [g/m²]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Svalbard (south and east) calanus population by size
+sval_se_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(!name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Zooplankton",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," [g/m²]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Svalbard (south and east) calanus population tot
+sval_se_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
+  filter(name == "Total") %>%
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
+         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Zooplankton",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " [g/m²]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Svalbard kittiwake population
+sval_kittiwake_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
+  filter(name == "Bjørnøya") %>% 
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
+         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Rissa tridactyla",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " population [% average in the colony]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Svalbard Brünnich’s guillemot population
+sval_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
+  filter(name == "Fuglehuken") %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
+         citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Uria lomvia",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " breeding population [%]"),
+         category = "bio",
+         driver = "biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Svalbard hooded seal population
+sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
+         citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Cystophora cristata",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
+         category = "bio",
+         driver ="biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Svalbard (east) harp seal population
+sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
+         citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Cystophora cristata",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
+         category = "bio",
+         driver ="biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Combine and save
+sval_species <- rbind(sval_ivory_gull_population, 
+                      sval_nw_calanus_mm_population,
+                      sval_nw_calanus_tot_population,
+                      sval_se_calanus_mm_population,
+                      sval_se_calanus_tot_population,
+                      sval_walrus_population,
+                      sval_brguillemot_population)
+save(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
+write_csv(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.csv")
+rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
+
+
 ### Full product ------------------------------------------------------------
 
 # Load full EU file
 if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
+# Subset to Svalbard bbox and references for data missing lon/lat coords
+sval_EU_sub <- filter_site_plural("sval", full_product_EU)
+
+# Load species
+if(!exists("sval_species")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
 
 # Glacier mass balance
 ## NB: Updated annually in May
@@ -576,14 +773,20 @@ sval_tidewater_ablation <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fron
 # Surface meteorology
 # See 'README_N-ICE_metData_v2.txt' for detailed info
 # ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc")
-sval_NICE <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") %>% 
-  hyper_tibble() %>% 
-  dplyr::rename(lon = longitude, lat = latitude) %>% 
-  unite(year, month, day, sep = "-", remove = TRUE, col = date) %>% 
-  dplyr::select(lon, lat, date, everything(), -second, -minute, -hour, -time, -unix_time,
+# NB: This takes a long time
+sval_NICE <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") |> hyper_tibble() |>  
+  dplyr::rename(lon = longitude, lat = latitude) |> 
+  unite(year, month, day, sep = "-", remove = TRUE, col = date) |>  
+  mutate(date = as.Date(date)) |> 
+  dplyr::select(lon, lat, date, everything(),
+                -second, -minute, -hour, -time, -unix_time,
                 -wind_speed_10m_flag, -wind_from_direction_10m_flag, # _flag: don't need to know about wind data interpolation status
-                -air_temperature_fill, -air_pressure_at_sea_level_fill) %>% # _fill: data seem problematic
-  group_by(lon, lat, date) %>% 
+                -air_temperature_fill, -air_pressure_at_sea_level_fill) |> # _fill: data seem problematic
+  pivot_longer(wind_from_direction_4m:relative_humidity_4m, names_to = "variable") |>  
+  filter(!is.na(value)) |> 
+  group_by(lon, lat, date, variable) |> 
+  plyr::ddply(c("variable"), mean_circular, .parallel = TRUE)
+
   summarise(air_pressure_at_sea_level = mean(air_pressure_at_sea_level, na.rm = T),
             air_temperature_2m = mean(air_temperature_2m, na.rm = T),
             air_temperature_4m = mean(air_temperature_4m, na.rm = T),
@@ -604,7 +807,6 @@ sval_NICE <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") %
   mutate(wind_from_direction_2m = case_when(wind_from_direction_2m < 0 ~ wind_from_direction_2m + 360, TRUE ~ wind_from_direction_2m),
          wind_from_direction_4m = case_when(wind_from_direction_4m < 0 ~ wind_from_direction_4m + 360, TRUE ~ wind_from_direction_4m),
          wind_from_direction_10m = case_when(wind_from_direction_10m < 0 ~ wind_from_direction_10m + 360, TRUE ~ wind_from_direction_10m)) %>% 
-  pivot_longer(air_pressure_at_sea_level:wind_from_direction_10m, names_to = "variable") %>% 
   filter(!is.na(value)) %>% 
   mutate(URL = "https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d",
          citation = "Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1",
@@ -755,7 +957,7 @@ sval_guest_night_hist <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_
   pivot_longer(Jan:Dec) %>% 
   mutate(month = match(name, month.abb),
          type = "Hotels and similar establishments",
-         residence = "Total") %>% pg_kong_sub
+         residence = "Total") %>% 
   mutate(date = as.Date(paste0(Year,"-",month,"-01")), .keep = "unused") %>% 
   dplyr::select(type, residence, date, value) %>% 
   # manually copied from: https://en.visitsvalbard.com/dbimgs/StatistikkfraVisitSvalbardASper2018forweb.pdf
@@ -781,8 +983,6 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
 # write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
 
 # AIS data
-# TODO: Change this so that the primary variable becomes the site
-# And the sub variables become the primary variable and units
 sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %>% 
   pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "var", values_to = "value") %>% 
   mutate(date = as.Date(paste0(Year,"-12-31")),
@@ -790,7 +990,6 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
          lon = NA, lat = NA, 
          date_accessed = as.Date("2020-09-30"),
          variable = paste0(Area," [",var,"]"),
-         # TODO: Are ship CO2 emissions for social or chemical data?
          category = case_when(grepl("co2|nox|sox", variable, ignore.case = T) ~ "chem",
                               grepl("PM", variable, ignore.case = T) ~ "phys", TRUE ~ "soc"),
          URL = "Received directly from Morten Simonsen",
@@ -800,215 +999,15 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
 # Combine and save
 full_product_sval <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
                            sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
-                           sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) %>% 
-  rbind(filter(dplyr::select(full_product_EU, -site), lon >= bbox_sval[1], lon <= bbox_sval[2], lat >= bbox_sval[3], lat <= bbox_sval[4])) %>% 
-  distinct() %>% mutate(site = "sval")
+                           sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) |> 
+  distinct() |> mutate(site = "sval") |> 
+  left_join(full_var_list, by = c("category", "variable")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
+  rbind(sval_species, sval_EU_sub)
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
 save(full_product_sval, file = "data/full_data/full_product_sval.RData")
 rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
-
-
-### Species ----------------------------------------------------------------
-
-# Svalbard ivory gull population
-sval_ivory_gull_population <- read.csv("~/pCloudDrive//FACE-IT_data/svalbard/the-number-of-breeding-p.csv", sep = ";") %>% # read the csv
-  mutate(date_accessed = as.Date("2023-04-12"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/", 
-         citation = "Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Pagophila eburnea",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," breeding population [%]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::rename(value = Svalbard) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# Svalbard walrus population
-sval_walrus_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/walrus-population-in-sva.csv") %>% 
-  pivot_longer(cols = c(`Walrus estimated numbers`, `Walrus population aerial counts`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-13"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/walrus/", 
-         citation = "Norwegian Polar Institute (2022). Walrus population in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/walrus-population.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Odobenus marinus",
-         nomsp = map(Species, latin_eng),
-         type = case_when(name == "Walrus estimated numbers"~"estimated", 
-                          name == "Walrus population aerial counts"~"aerial survey"),
-         variable = paste0(nomsp, " ", type, " [n]"),
-         category = "bio",
-         driver ="biomass",
-         site = "svalbard", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# Svalbard (north and west) calanus population by size
-sval_nw_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
-  filter(!name == "Total") %>%
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
-         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Zooplankton",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," [g/m²]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Svalbard (north and west) calanus population tot
-sval_nw_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
-  filter(name == "Total") %>%
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
-         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Zooplankton",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " [g/m²]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Svalbard (south and east) calanus population by size
-sval_se_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
-  filter(!name == "Total") %>%
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
-         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Zooplankton",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," [g/m²]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-
-# Svalbard (south and east) calanus population tot
-sval_se_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/average-biomass-of-zoopl (2).csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`X0.18.mm`, `X1.0.mm`, `X2.0.mm`, `Total`)) %>%
-  filter(name == "Total") %>%
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/",
-         citation = "Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Zooplankton",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " [g/m²]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Svalbard kittiwake population
-sval_kittiwake_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
-  filter(name == "Bjørnøya") %>% 
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
-         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Rissa tridactyla",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " population [% average in the colony]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Svalbard Brünnich’s guillemot population
-sval_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
-  filter(name == "Fuglehuken") %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
-         citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Uria lomvia",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding population [%]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Svalbard hooded seal population
-sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
-         citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Cystophora cristata",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Svalbard (east) harp seal population
-sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population-size-of-hoode.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Modelled.production.of.pups`, `Modelled.total.stock.size`, `Survey.counts.of.pups`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/hooded-seal/",
-         citation = "Institute of Marine Research (2022). Population size of hooded seals in the West Ice. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/hooded-seal.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Cystophora cristata",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Combine and save
-sval_species <- rbind(sval_ivory_gull_population, 
-                      sval_nw_calanus_mm_population,
-                      sval_nw_calanus_tot_population,
-                      sval_se_calanus_mm_population,
-                      sval_se_calanus_tot_population,
-                      sval_walrus_population,
-                      sval_brguillemot_population)
-save(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
-write_csv(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.csv")
 
 
 ## Kongsfjorden ------------------------------------------------------------
@@ -1018,7 +1017,7 @@ write_csv(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species
 # Load pg kong files
 system.time(
   pg_kong_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "kong")
-) # 61 seconds
+) # 64 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
@@ -1042,7 +1041,7 @@ system.time(
 pg_kong_clean <- pg_kong_sub |> 
   # dplyr::select(contains(c("Qz")), everything()) |> # Look at specific problem columns
   # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at date columns
-  dplyr::select(contains(c("depth", "press", "elev")), everything()) |> # Look at depth columns
+  # dplyr::select(contains(c("depth", "press", "elev")), everything()) |> # Look at depth columns
   # Remove empty columns
   mutate_if(is.character, ~na_if(., '')) |>
   janitor::remove_empty("cols") |>
@@ -1084,18 +1083,18 @@ pg_kong_clean <- pg_kong_sub |>
 
 ## Individual category data.frames
 # Cryosphere
-pg_kong_Cryosphere <- pg_var_melt(pg_kong_clean, query_Cryosphere$pg_col_name, "cryo")
+pg_kong_cryo <- pg_var_melt(pg_kong_clean, query_cryo)
 # Physical
-pg_kong_Physical <- pg_var_melt(pg_kong_clean, query_Physical$pg_col_name, "phys")
+pg_kong_phys <- pg_var_melt(pg_kong_clean, query_phys)
 # Carbonate chemistry
-pg_kong_Chemistry <- pg_var_melt(pg_kong_clean, query_Chemistry$pg_col_name, "chem")
+pg_kong_chem <- pg_var_melt(pg_kong_clean, query_chem)
 # Biology
-pg_kong_Biology <- pg_var_melt(pg_kong_clean, query_Biology$pg_col_name, "bio")
+pg_kong_bio <- pg_var_melt(pg_kong_clean, query_bio)
 # Social
-pg_kong_Social <- pg_var_melt(pg_kong_clean, query_Social$pg_col_name, "soc") # 0 values
+pg_kong_soc <- pg_var_melt(pg_kong_clean, query_soc) # 0 values
 
 # Stack them together
-pg_kong_ALL <- rbind(pg_kong_Cryosphere, pg_kong_Physical, pg_kong_Chemistry, pg_kong_Biology, pg_kong_Social)
+pg_kong_ALL <- rbind(pg_kong_cryo, pg_kong_phys, pg_kong_chem, pg_kong_bio, pg_kong_soc)
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
 
@@ -1107,6 +1106,131 @@ rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()
 
 # Load data to investigate
 # pg_kong_ALL <- data.table::fread("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
+
+
+### Species ----------------------------------------------------------------
+
+# kong glaucous gull population
+kong_glaucous_gull_population <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/glaucous-gull-population.csv") %>% 
+  mutate(date_accessed = as.Date("2023-04-11"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/", 
+         citation = "Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Larus hyperboreus",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " breeding population [%]"),
+         category = "bio",
+         driver ="biomass",
+         site = "kong", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::rename(value = Kongsfjorden) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# kong eiders
+kong_eiders_stock <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/breeding-population-of-c.csv", sep = ";") %>% 
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/common-eider/", 
+         citation = "Norwegian Polar Institute (2022). Breeding population of common eiders in Kongsfjorden, number of breeding pairs. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/common-eider.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = "Somateria mollissima borealis",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " breeding pairs [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::rename(value = Common.eider) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# kong seabird
+kong_seabird <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) %>%
+  janitor::remove_empty(which = "cols") %>% 
+  filter(Colony == "Kongsfjorden") %>% 
+  mutate(date_accessed = as.Date("2023-04-12"), 
+         URL = "https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4", 
+         citation = "Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd", 
+         lon = NA, lat = NA, depth = NA, 
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " colony count [n]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong", 
+         date = as.Date(paste0(YR,"-12-31"))) %>% 
+  dplyr::rename(value = Count) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# kong calanus population
+kong_calanus_population <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/calanus-species-composit.csv", sep = ";", dec = ",") %>% 
+  pivot_longer(cols = c(`Proportion.of.Atlantic.species`, `Proportion.of.Arctic.species`)) %>% 
+  mutate(date_accessed = as.Date("2023-04-13"), 
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-species-composition-in-kongsfjorden/", 
+         citation = "Norwegian Polar Institute (2022). Calanus species composition in Kongsfjorden. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-species-composition.html", 
+         lon = NA, lat = NA, depth = NA, 
+         Species = substr(str_replace_all(tolower(name),"\\."," "),15, 30),
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " [%]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong", 
+         date = as.Date(paste0(Category,"-12-31"))) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  filter(!is.na(value))
+
+# kong  kittiwake population
+kong_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
+  filter(name == "Ossian.Sars") %>% 
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
+         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Rissa tridactyla",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " population [% average in the colony]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+
+# kong Brünnich’s guillemot population
+kong_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
+  filter(name == "Ossian.Sarsfjellet") %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
+         citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Uria lomvia",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " breeding population [%]"),
+         category = "bio",
+         driver ="biomass",
+         type = "in situ",
+         site = "kong",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Combine and save
+kong_species <- rbind(kong_glaucous_gull_population, 
+                      kong_eiders_stock,
+                      kong_seabird, 
+                      kong_calanus_population,
+                      kong_kittiwakke_population,
+                      kong_brguillemot_population)
+save(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
+write_csv(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.csv")
+rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Full product ------------------------------------------------------------
@@ -1396,13 +1520,17 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Combine and save
-full_product_kong <- rbind(dplyr::select(pg_kong_ALL, -site), 
+full_product_kong <- rbind(dplyr::select(pg_kong_ALL, -site, -driver), 
                            kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla,
                            kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
                            kong_ferry, kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
-                           kong_light_Laeseke, kong_PAR_Dieter) %>% 
-  rbind(filter(dplyr::select(full_product_sval, -site), lon >= bbox_kong[1], lon <= bbox_kong[2], lat >= bbox_kong[3], lat <= bbox_kong[4])) %>% 
-  rbind(filter(dplyr::select(full_product_sval, -site), grepl("Kongsfjorden", citation))) %>% distinct() %>% mutate(site = "kong")
+                           kong_light_Laeseke, kong_PAR_Dieter) |> 
+  rbind(filter(dplyr::select(full_product_sval, -site, -driver), lon >= bbox_kong[1], lon <= bbox_kong[2], 
+               lat >= bbox_kong[3], lat <= bbox_kong[4])) |> 
+  rbind(filter(dplyr::select(full_product_sval, -site, -driver), grepl("Kongsfjorden", citation)))  |>  
+  distinct() |>  mutate(site = "kong") |> 
+  left_join(full_var_list, by = c("category", "variable")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 save(full_product_kong, file = "data/full_data/full_product_kong.RData")
@@ -1416,131 +1544,6 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 # full_product_kong %>% filter(grepl("Jentzsch", citation))
 
 
-### Species ----------------------------------------------------------------
-
-# kong glaucous gull population
-kong_glaucous_gull_population <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjorden/glaucous-gull-population.csv") %>% 
-  mutate(date_accessed = as.Date("2023-04-11"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/", 
-         citation = "Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Larus hyperboreus",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding population [%]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "kong", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::rename(value = Kongsfjorden) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# kong eiders
-kong_eiders_stock <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/breeding-population-of-c.csv", sep = ";") %>% 
-  mutate(date_accessed = as.Date("2023-04-12"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/common-eider/", 
-         citation = "Norwegian Polar Institute (2022). Breeding population of common eiders in Kongsfjorden, number of breeding pairs. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/common-eider.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = "Somateria mollissima borealis",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding pairs [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "kong", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::rename(value = Common.eider) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# kong seabird
-kong_seabird <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Descamps_Strom_Ecology_data.csv", sep = ",", skip = 3, header = TRUE) %>%
-  janitor::remove_empty(which = "cols") %>% 
-  filter(Colony == "Kongsfjorden") %>% 
-  mutate(date_accessed = as.Date("2023-04-12"), 
-         URL = "https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4", 
-         citation = "Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd", 
-         lon = NA, lat = NA, depth = NA, 
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " colony count [n]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "kong", 
-         date = as.Date(paste0(YR,"-12-31"))) %>% 
-  dplyr::rename(value = Count) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# kong calanus population
-kong_calanus_population <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/calanus-species-composit.csv", sep = ";", dec = ",") %>% 
-  pivot_longer(cols = c(`Proportion.of.Atlantic.species`, `Proportion.of.Arctic.species`)) %>% 
-  mutate(date_accessed = as.Date("2023-04-13"), 
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-species-composition-in-kongsfjorden/", 
-         citation = "Norwegian Polar Institute (2022). Calanus species composition in Kongsfjorden. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-species-composition.html", 
-         lon = NA, lat = NA, depth = NA, 
-         Species = substr(str_replace_all(tolower(name),"\\."," "),15, 30),
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " [%]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "kong", 
-         date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
-  filter(!is.na(value))
-
-# kong  kittiwake population
-kong_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
-  filter(name == "Ossian.Sars") %>% 
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
-         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Rissa tridactyla",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " population [% average in the colony]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "kong",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-
-# kong Brünnich’s guillemot population
-kong_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
-  filter(name == "Ossian.Sarsfjellet") %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
-         citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Uria lomvia",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding population [%]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "kong",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Combine and save
-kong_species <- rbind(kong_glaucous_gull_population, 
-                      kong_eiders_stock,
-                      kong_seabird, 
-                      kong_calanus_population,
-                      kong_kittiwakke_population,
-                      kong_brguillemot_population)
-save(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
-write_csv(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.csv")
-
-
 ## Isfjorden ---------------------------------------------------------------
 
 ### PG product --------------------------------------------------------------
@@ -1548,7 +1551,7 @@ write_csv(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_spe
 # Load pg is files
 system.time(
   pg_is_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "is")
-) # 290 seconds - RAM limited
+) # 366 seconds - RAM limited
 gc()
 
 # Test problem files
@@ -1611,6 +1614,7 @@ pg_is_clean <- pg_is_clean |>
   # NB: Site exists earlier to reflect data from different files for metadata joining
   mutate(site = "is"); gc()
 rm(pg_is_sub); gc()
+
 # NB: This is a bad idea. Rather make the data cleaner before getting to this step.
 # system.time(
 # save(pg_is_clean, file = "data/restricted/pg_is_clean.RData")
@@ -1622,22 +1626,21 @@ rm(pg_is_sub); gc()
 
 ## Individual category data.frames
 # Cryosphere
-pg_is_Cryosphere <- pg_var_melt(pg_is_clean, query_Cryosphere$pg_col_name, "cryo"); gc()
+pg_is_cryo <- pg_var_melt(pg_is_clean, query_cryo); gc()
 # Physical
-pg_is_Physical <- pg_var_melt(pg_is_clean, query_Physical$pg_col_name, "phys"); gc()
+pg_is_phys <- pg_var_melt(pg_is_clean, query_phys); gc()
 # Carbonate chemistry
-pg_is_Chemistry <- pg_var_melt(pg_is_clean, query_Chemistry$pg_col_name, "chem"); gc()
+pg_is_chem <- pg_var_melt(pg_is_clean, query_chem); gc()
 # Biology
-pg_is_Biology <- pg_var_melt(pg_is_clean, query_Biology$pg_col_name, "bio"); gc()
+pg_is_bio <- pg_var_melt(pg_is_clean, query_bio); gc()
 # Social
-pg_is_Social <- pg_var_melt(pg_is_clean, query_Social$pg_col_name, "soc"); gc() # empty
+pg_is_soc <- pg_var_melt(pg_is_clean, query_soc); gc() # empty
 
 # Clean for saving
 rm(pg_is_clean); gc()
 
 # Stack them together
-pg_is_ALL <- rbind(pg_is_Cryosphere, pg_is_Physical, pg_is_Chemistry, 
-                   pg_is_Biology, pg_is_Social) %>% mutate(site = "is")
+pg_is_ALL <- rbind(pg_is_cryo, pg_is_phys, pg_is_chem, pg_is_bio, pg_is_soc)
 data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.csv")
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
 
@@ -1648,11 +1651,62 @@ save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
 rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
 
 
+### Species ----------------------------------------------------------------
+
+# is  kittiwake population
+is_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
+  filter(name == "Tschermakfjellet"| name == "Alkhornet") %>% 
+  mutate(date_accessed = as.Date("2023-04-13"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
+         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Rissa tridactyla",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " population [% average in the colony]"),
+         category = "bio",
+         driver ="biomass",
+         site = "is",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# is Brünnich’s guillemot population
+is_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
+  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
+  filter(name == "Diabas"|name == "Tschermakfjellet"|name == "Alkhornet") %>% 
+  mutate(date_accessed = as.Date("2023-04-14"),
+         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
+         citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
+         lon = NA, lat = NA, depth = NA,
+         Species = "Uria lomvia",
+         nomsp = map(Species, latin_eng),
+         variable = paste0(nomsp, " breeding population [%]"),
+         category = "bio",
+         driver ="biomass",
+         site = "svalbard",
+         date = as.Date(paste0(Category,"-12-31"))) %>%
+  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  filter(!is.na(value))
+
+# Combine and save
+is_species <- rbind(is_kittiwakke_population,
+                    is_brguillemot_population)
+save(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
+write_csv(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.csv")
+
+
 ### Full product ------------------------------------------------------------
 
 # Load full Svalbard file
 ## NB: This contains the full EU Arctic data
 if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
+
+# Subset to Isfjorden bbox and references for data missing lon/lat coords
+is_sval_sub <- filter_site_plural("is")
+
+# Load species
+if(!exists("is_species")) is_species <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_species.csv")
 
 # Load PG file
 if(!exists("pg_is_ALL")) load("~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
@@ -1665,8 +1719,9 @@ is_mooring_N <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N"
 is_mooring_S <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_S", full.names = T), load_is_mooring, .parallel = T); gc()
 
 ## Mooring IFO
-is_mooring_IFO_units <- distinct(rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc")$variable,
-                                       ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617_ADCP.nc")$variable))
+is_mooring_IFO_units <- rbind(ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc")$variable,
+                              ncdump::NetCDF("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617_ADCP.nc")$variable) |> 
+  dplyr::select(-id) |> distinct()
 is_mooring_IFO <- tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc") %>% hyper_tibble() %>% 
   bind_rows(hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617_ADCP.nc"))) %>% 
   cbind(hyper_tibble(activate(tidync("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_IFO/IFO1617.nc"), "D2"))) %>% 
@@ -1844,13 +1899,12 @@ is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arriv
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
 # Combine and save
-full_product_is <- rbind(dplyr::select(pg_is_ALL, -site), 
-                         is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
+full_product_is <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
                          is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
-                         is_AIS, is_ship_arrivals) %>% 
-  rbind(filter(dplyr::select(full_product_sval, -site), lon >= bbox_is[1], lon <= bbox_is[2], lat >= bbox_is[3], lat <= bbox_is[4])) %>% 
-  rbind(filter(dplyr::select(full_product_sval, -site), grepl("Isfjorden", variable))) %>% # Shipping data 
-  rbind(filter(dplyr::select(full_product_sval, -site), grepl("Isfjorden", citation))) %>% distinct() %>% mutate(site = "is")
+                         is_AIS, is_ship_arrivals) |> mutate(site = "is") |>
+  left_join(full_var_list, by = c("category", "variable")) |> 
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
+  rbind(is_sval_sub, is_species, pg_is_ALL)
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 save(full_product_is, file = "data/full_data/full_product_is.RData")
@@ -1860,53 +1914,6 @@ rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 
 
-### Species ----------------------------------------------------------------
-
-# is  kittiwake population
-is_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-legged-kittiwake-p.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Fuglehuken`, `Bjørnøya`, `Grumant`, `Sofiekammen`, `Ossian.Sars`, `Tschermakfjellet`, `Alkhornet`, `Amsterdamya`)) %>%
-  filter(name == "Tschermakfjellet"| name == "Alkhornet") %>% 
-  mutate(date_accessed = as.Date("2023-04-13"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake/",
-         citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Rissa tridactyla",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " population [% average in the colony]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "is",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# is Brünnich’s guillemot population
-is_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
-  pivot_longer(cols = c(`Diabas`, `Alkhornet`, `Sofiekammen`, `Grumant`, `Tschermakfjellet`, `Fuglehuken`, `Ossian.Sarsfjellet`, `Bjørnøya..southern.part`, `Bjørnøya..Evjebukta`, `Jan.Mayen`)) %>%
-  filter(name == "Diabas"|name == "Tschermakfjellet"|name == "Alkhornet") %>% 
-  mutate(date_accessed = as.Date("2023-04-14"),
-         URL = "https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/",
-         citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
-         lon = NA, lat = NA, depth = NA,
-         Species = "Uria lomvia",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding population [%]"),
-         category = "bio",
-         driver ="biomass",
-         type = "in situ",
-         site = "svalbard",
-         date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
-  filter(!is.na(value))
-
-# Combine and save
-is_species <- rbind(is_kittiwakke_population,
-                    is_brguillemot_population)
-save(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
-write_csv(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.csv")
-
-
 ## Storfjorden -------------------------------------------------------------
 
 ### PG product --------------------------------------------------------------
@@ -1914,7 +1921,7 @@ write_csv(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.cs
 # Load pg stor files
 system.time(
   pg_stor_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "stor")
-) # 33 seconds
+) # 21 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -1935,7 +1942,7 @@ pg_stor_clean <- pg_stor_sub |>
   mutate(date = case_when(is.na(date) & nchar(`Sampling date`) == 9 ~ sapply(str_split(`Sampling date`, "-"), "[[", 1),
                           TRUE ~ date),
          date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
-                          nchar(date) == 7 ~ paste0(date,"-01-01"),
+                          nchar(date) == 7 ~ paste0(date,"-01"),
                           TRUE ~ date)) |> 
   mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
@@ -1962,19 +1969,18 @@ pg_stor_clean <- pg_stor_sub |>
 
 ## Individual category data.frames
 # Cryosphere
-pg_stor_Cryosphere <- pg_var_melt(pg_stor_clean, query_Cryosphere$pg_col_name, "cryo")
+pg_stor_cryo <- pg_var_melt(pg_stor_clean, query_cryo)
 # Physical
-pg_stor_Physical <- pg_var_melt(pg_stor_clean, query_Physical$pg_col_name, "phys")
+pg_stor_phys <- pg_var_melt(pg_stor_clean, query_phys)
 # Carbonate chemistry
-pg_stor_Chemistry <- pg_var_melt(pg_stor_clean, query_Chemistry$pg_col_name, "chem")
+pg_stor_chem <- pg_var_melt(pg_stor_clean, query_chem)
 # Biology
-pg_stor_Biology <- pg_var_melt(pg_stor_clean, query_Biology$pg_col_name, "bio")
+pg_stor_bio <- pg_var_melt(pg_stor_clean, query_bio)
 # Social
-pg_stor_Social <- pg_var_melt(pg_stor_clean, query_Social$pg_col_name, "soc") # empty
+pg_stor_soc <- pg_var_melt(pg_stor_clean, query_soc) # empty
 
 # Stack them together
-pg_stor_ALL <- rbind(pg_stor_Cryosphere, pg_stor_Physical, pg_stor_Chemistry,
-                     pg_stor_Biology, pg_stor_Social) %>% mutate(site = "stor")
+pg_stor_ALL <- rbind(pg_stor_cryo, pg_stor_phys, pg_stor_chem, pg_stor_bio, pg_stor_soc)
 data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.csv")
 save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
@@ -4295,9 +4301,7 @@ rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 
 
-
 # Driver oriented data products -------------------------------------------
-
 
 # It is here that the data are oriented by drivers rather than site
 

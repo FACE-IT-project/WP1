@@ -180,14 +180,15 @@ pg_doi_dl <- pg_doi_list |>
 ## NB: It's possible to run this on multiple cores, but it will disable messages
 ## Rather better not to run it in parallel as functions therein are currently set to run in parallel
 # doParallel::registerDoParallel(cores = 7) # The downloads are saved across 7 files
-system.time(
-  plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F)
-) # ~160 seconds for 10 DOI for all sites; ~ XXX hours
+# system.time(
+#   plyr::l_ply(unique(pg_doi_list$file), pg_dl_save, pg_doi_dl, .parallel = F)
+# ) # ~160 seconds for 10 DOI for all sites; ~ XXX hours
 
 # Or run one at a time
 # pg_dl_save(unique(pg_doi_list$file)[7], pg_doi_dl)
 
 # Keep it going in small chunks
+# NB: pg_dl_save() is currently set to download only 20 files per call
 while(nrow(pg_doi_dl) > 0){
   # Load to get DOI for already downloaded data
   pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |> 
