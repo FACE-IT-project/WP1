@@ -24,25 +24,33 @@ library(kableExtra) # For formatting static tables
 ![](assets/FACE-IT_Logo_900.png){ width=70% }
 </center>
 
-# Overview
+## What is FAIR?
 
-While some online data repositories (e.g. Zenodo) are very quickly and conveniently provide a DOI (therefore generally making it acceptable for project proposals etc.), many of these repositories do not ensure that the data undergo any quality control.
+As the amount of data builds ever higher and higher, it becomes more and more important that some sort of consistent scheme is followed. While there are many philosophies about what exactly this should look like. Most people now agree that the [FAIR Principles](https://www.go-fair.org/fair-principles/) provides the best overrall approach to the issue of data production, management, reuse, etc.
 
-In the FAIR data scheme, Zenodo allows for data to be Findable and Accessible. Though the findability i.e. search functionality in Zenodo is not very sophisticated, meaning that most users wouldn't find the dataset unless they have the link or they have a good idea of what they are looking for. The main issue with Zenodo comes mostly from the Interoperability and Reusability of the data. Because Zenodo has no requirements for what can be uploaded, it is a "Wild West" situation where a user never knows what exactly they may have to work with.
+In brief (and quoting from the website), **FAIR** stands for:
 
-As for PANGAEA, even though it takes much longer to get ones data hosted there, it has very strict requirements on data quality and formatting. There is a sophisticated search platform on the website, in addition to an R package that allows data searching and downloading directly from R/RStudio. Part of the quality control is ensuring that all data are classified into pre-existing names and units, helping to allow users to integrate existing datasets into their future projects. Without that the I and R of the data is greatly diminished.
+**F**indable
+"The first step in (re)using data is to find them. Metadata and data should be easy to find for both humans and computers. Machine-readable metadata are essential for automatic discovery of datasets and services, so this is an essential component of the FAIRification process."
 
-In the context of the FACE-IT project specifically, a large amount of the budget was allocated to host data on PANGAEA, and support to upload those data is reserved via WP1, which is why it is the preferred platform. Without these two things I understand why Zenodo would be preferable. It is arguably the best option when one needs only to quickly generate a DOI for a given dataset and nothing more.
+**A**ccessible
+"Once the user finds the required data, she/he/they need to know how they can be accessed, possibly including authentication and authorisation."
 
-Looking at the Zenodo website, I do see that it is funded by Horizon2020. So I see why this e-mail must seem a bit odd.
+**I**nteroperable
+"The data usually need to be integrated with other data. In addition, the data need to interoperate with applications or workflows for analysis, storage, and processing."
+
+**R**eusable
+"The ultimate goal of FAIR is to optimise the reuse of data. To achieve this, metadata and data should be well-described so that they can be replicated and/or combined in different settings."
+
+## Where is FAIR?
+
+While some online data repositories (e.g. Zenodo) can very quickly and conveniently provide a DOI (therefore generally making it acceptable for project proposals etc.), many of these repositories do not ensure that the data undergo any quality control.
+
+In the **FAIR** data scheme, Zenodo allows for data to be **F**indable and **A**ccessible, but one encounters issues mostly from the **I**nteroperability and **R**eusability of the data. Because Zenodo has no requirements for what can be uploaded, it is a "Wild West" situation where a user never knows what exactly they may have to work with.
+
+As for PANGAEA, even though it takes much longer to get ones data hosted there, it has very strict requirements on data quality and formatting. There is a sophisticated search platform on the website, in addition to an [R package](https://docs.ropensci.org/pangaear/) that allows data searching and downloading directly from R/RStudio. Part of the quality control is ensuring that all data are classified into pre-existing names and units, helping to allow users to integrate existing datasets into their future projects. Without that the **I** and **R** of the data is greatly diminished.
+
+In the context of the FACE-IT project specifically, a large amount of the budget was allocated to host data on PANGAEA, and support to upload those data is available from WP1, which is why it is the preferred platform. Without these two things it is understandable why Zenodo would be preferable. It is arguably the best option when one needs only to quickly generate a DOI for a given dataset and nothing more. Looking at the Zenodo website, one may also see that it is funded by Horizon2020.
 
 All of that being said, we are not absolutely required to host everything on PANGAEA. Other data hosting websites with some sort of institutional affiliation, for example NMDC, NPDC, SIOS, GEM, etc. are fine.
-
-## Findable
-
-## Accessible
-
-## Interoperable
-
-## Reusable
 
