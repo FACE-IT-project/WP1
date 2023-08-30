@@ -101,6 +101,152 @@ GLODAP_Arctic_carb_chem <- GLODAP_Arctic_bottle_mean %>%
 write_csv(GLODAP_Arctic_carb_chem, paste0(pCloud_path,"FACE-IT_data/GLODAP_Arctic_carb_chem.csv"))
 
 
+# MASIE 4km Ice data ------------------------------------------------------
+# NB: Sea ice data 1 km not used because 4km data has longer time series and correlates well with 1 km data
+
+# Load data
+if(!exists("ice_4km_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/ice_4km_kong.RData")
+if(!exists("ice_4km_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
+if(!exists("ice_4km_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/ice_4km_stor.RData")
+if(!exists("ice_4km_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/ice_4km_young.RData")
+if(!exists("ice_4km_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/ice_4km_disko.RData")
+if(!exists("ice_4km_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/ice_4km_nuup.RData")
+if(!exists("ice_4km_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_4km_por.RData")
+
+# Snip out bits that aren't within the sites proper
+ice_4km_kong_proc <- ice_4km_kong %>%
+  mutate(sea_ice_extent = case_when(lon <= 11.5 & lat < 78.95 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "kong")
+ice_4km_is_proc <- ice_4km_is %>%
+  mutate(sea_ice_extent = case_when(lon > 16 & lat > 78.75 ~ as.integer(5),
+                                    lon < 13.5 & lat > 78.35 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "is")
+ice_4km_stor_proc <- ice_4km_stor %>% mutate(site = "stor") # No issues
+ice_4km_young_proc <- ice_4km_young %>%
+  mutate(sea_ice_extent = case_when(lon > -21.5 & lat > 74.55 ~ as.integer(5),
+                                    lon < -21.7 & lat < 74.31 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "young")
+ice_4km_disko_proc <- ice_4km_disko %>%
+  mutate(sea_ice_extent = case_when(sea_ice_extent == 5 ~ as.integer(2), # remove lake pixels
+                                    lon > -52 & lon < -50 & lat > 70.2 ~ as.integer(5),
+                                    lon > -52.2 & lon < -50.8 & lat < 68.47 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "disko")
+ice_4km_nuup_proc <- ice_4km_nuup %>% mutate(site = "nuup") # No issues
+ice_4km_por_proc <- ice_4km_por %>%
+  mutate(sea_ice_extent = case_when(lat > 71.01 ~ as.integer(5),
+                                    lon > 26.3 & lat > 70.3 & lat < 70.75 ~ as.integer(5),
+                                    lon > 26.65 & lat > 70.75 ~ as.integer(5),
+                                    lon < 25.6 & lat > 70.75 ~ as.integer(5),
+                                    lon < 24.9 & lat > 70.55 & lat < 70.75 ~ as.integer(5),
+                                    TRUE ~ sea_ice_extent), site = "por")
+# quick_plot_ice(ice_4km_young_proc, pixel_size = 20)
+
+# Combine and save
+ice_4km_proc <- rbind(ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
+                      ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc)
+save(ice_4km_proc, file = "data/analyses/ice_4km_proc.RData")
+rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km_nuup, ice_4km_por,
+   ice_4km_kong_proc, ice_4km_is_proc, ice_4km_stor_proc, ice_4km_young_proc,
+   ice_4km_disko_proc, ice_4km_nuup_proc, ice_4km_por_proc, ice_4km_proc); gc()
+
+
+# OISST data --------------------------------------------------------------
+
+# TODO: Get data through 2022
+
+# NOAA OISST data per site
+if(!exists("sst_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_kong.RData")
+if(!exists("sst_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/sst_is.RData")
+if(!exists("sst_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/sst_stor.RData")
+if(!exists("sst_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/sst_young.RData")
+if(!exists("sst_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/sst_disko.RData")
+if(!exists("sst_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_nuup.RData")
+if(!exists("sst_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_por.RData")
+
+# Filter down to bbox
+sst_kong_bbox <- filter(sst_kong, between(lon, bbox_kong[1], bbox_kong[2]), between(lat, bbox_kong[3], bbox_kong[4]))
+sst_is_bbox <- filter(sst_is, between(lon, bbox_is[1], bbox_is[2]), between(lat, bbox_is[3], bbox_is[4]))
+sst_stor_bbox <- filter(sst_stor, between(lon, bbox_stor[1], bbox_stor[2]), between(lat, bbox_stor[3], bbox_stor[4]))
+sst_young_bbox <- filter(sst_young, between(lon, bbox_young[1], bbox_young[2]), between(lat, bbox_young[3]-0.25, bbox_young[4])) # Mouth only
+sst_disko_bbox <- filter(sst_disko, between(lon, bbox_disko[1], bbox_disko[2]), between(lat, bbox_disko[3], bbox_disko[4]))
+sst_nuup_bbox <- filter(sst_nuup, between(lon, bbox_nuup[1], bbox_nuup[2]), between(lat, bbox_nuup[3], bbox_nuup[4]))
+sst_por_bbox <- filter(sst_por, between(lon, bbox_por[1], bbox_por[2]), between(lat, bbox_por[3], bbox_por[4]))
+
+# Create site averaged time series
+OISST_kong <- area_average(sst_kong_bbox, "kong")
+OISST_is <- area_average(sst_is_bbox, "is")
+OISST_stor <- area_average(sst_stor_bbox, "stor")
+OISST_young <- area_average(sst_young_bbox, "young")
+OISST_disko <- area_average(sst_disko_bbox, "disko")
+OISST_nuup <- area_average(sst_nuup_bbox, "nuup")
+OISST_por <- area_average(sst_por_bbox, "por")
+
+# Combine and save
+OISST_all <- rbind(OISST_kong, OISST_is, OISST_stor, OISST_young, OISST_disko, OISST_nuup, OISST_por) |> filter(value > -1.8) |>
+  mutate(type = "OISST", depth = 0, lon = NA, lat = NA,
+         date_accessed = as.Date("2021-12-03"),
+         URL = "https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/",
+         citation = "Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1",
+         variable = "temp [°C]", category = "phys", driver = "sea temp") |> 
+  dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
+save(OISST_all, file = "data/analyses/OISST_all.RData")
+rm(sst_kong, sst_is, sst_stor, sst_young, sst_disko, sst_nuup, sst_por,
+   sst_kong_bbox, sst_is_bbox, sst_stor_bbox, sst_young_bbox, sst_disko_bbox, sst_nuup_bbox, sst_por_bbox,
+   OISST_kong, OISST_is, OISST_stor, OISST_young, OISST_disko, OISST_nuup, OISST_por); gc()
+
+# Comparisons of SST pixels in/out of the site bbox
+# ggplot(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
+#   geom_tile(colour = "red") +
+#   # geom_raster(distinct(sst_young_bbox[c("lon", "lat")]), aes(x = lon, y = lat)) +
+#   geom_rect(aes(xmin = bbox_young[1], xmax = bbox_young[2], 
+#                 ymin = bbox_young[3], ymax = bbox_young[4]))
+
+
+# CCI data ----------------------------------------------------------------
+
+# CCI SST extractions
+## NB: These all take ~ 5 minutes to load
+## Better to load them one at a time
+if(!exists("sst_CCI_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_CCI_kong.RData")
+if(!exists("sst_CCI_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/sst_CCI_is.RData")
+if(!exists("sst_CCI_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/sst_CCI_stor.RData")
+if(!exists("sst_CCI_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/sst_CCI_young.RData")
+if(!exists("sst_CCI_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/sst_CCI_disko.RData")
+if(!exists("sst_CCI_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/sst_CCI_nuup.RData")
+if(!exists("sst_CCI_por")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/sst_CCI_por.RData")
+
+# Filter down to bbox
+sst_CCI_kong_bbox <- filter(sst_CCI_kong, between(lon, bbox_kong[1], bbox_kong[2]), between(lat, bbox_kong[3], bbox_kong[4]))
+sst_CCI_is_bbox <- filter(sst_CCI_is, between(lon, bbox_is[1], bbox_is[2]), between(lat, bbox_is[3], bbox_is[4]))
+sst_CCI_stor_bbox <- filter(sst_CCI_stor, between(lon, bbox_stor[1], bbox_stor[2]), between(lat, bbox_stor[3], bbox_stor[4]))
+sst_CCI_young_bbox <- filter(sst_CCI_young, between(lon, bbox_young[1], bbox_young[2]), between(lat, bbox_young[3], bbox_young[4]))
+sst_CCI_disko_bbox <- filter(sst_CCI_disko, between(lon, bbox_disko[1], bbox_disko[2]), between(lat, bbox_disko[3], bbox_disko[4]))
+sst_CCI_nuup_bbox <- filter(sst_CCI_nuup, between(lon, bbox_nuup[1], bbox_nuup[2]), between(lat, bbox_nuup[3], bbox_nuup[4]))
+sst_CCI_por_bbox <- filter(sst_CCI_por, between(lon, bbox_por[1], bbox_por[2]), between(lat, bbox_por[3], bbox_por[4]))
+
+# Create site averaged time series
+CCI_kong <- area_average(sst_CCI_kong_bbox, "kong")
+CCI_is <- area_average(sst_CCI_is_bbox, "is")
+CCI_stor <- area_average(sst_CCI_stor_bbox, "stor")
+CCI_young <- area_average(sst_CCI_young_bbox, "young")
+CCI_disko <- area_average(sst_CCI_disko_bbox, "disko")
+CCI_nuup <- area_average(sst_CCI_nuup_bbox, "nuup")
+CCI_por <- area_average(sst_CCI_por_bbox, "por")
+
+# Combine and save
+CCI_all <- rbind(CCI_kong, CCI_is, CCI_stor, CCI_young, CCI_disko, CCI_nuup, CCI_por) |> filter(value > -1.8) |>
+  mutate(type = "CCI", depth = 0, lon = NA, lat = NA,
+         date_accessed = as.Date("2021-12-13"),
+         URL = "http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0",
+         citation = "Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.",
+         variable = "temp [°C]", category = "phys", driver = "sea temp") |> 
+  dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
+save(CCI_all, file = "data/analyses/CCI_all.RData")
+rm(sst_CCI_kong, sst_CCI_is, sst_CCI_stor, sst_CCI_young, sst_CCI_disko, sst_CCI_nuup, sst_CCI_por,
+   sst_CCI_kong_bbox, sst_CCI_is_bbox, sst_CCI_stor_bbox, sst_CCI_young_bbox, sst_CCI_disko_bbox, sst_CCI_nuup_bbox, sst_CCI_por_bbox,
+   CCI_kong, CCI_is, CCI_stor, CCI_young, CCI_disko, CCI_nuup, CCI_por); gc()
+
+
 # Bartsch data ------------------------------------------------------------
 
 ## Light data from Inka

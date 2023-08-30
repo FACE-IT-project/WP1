@@ -68,8 +68,10 @@ if(!exists("query_meta")){
 if(!exists("query_cryo")){
   # Glacier mass balance and other measurements
   # NB: This needs to be run first
+  # TODO: Get the correct snow/ice values from below to be in here
   query_glacier <- query_params("glacier", "glacier|glacial", "Foraminifera|glacialis")
   # Coastal ice; Fast ice; Sea ice; snow cover
+  # TODO: Be more critical about which variables get added here
   query_sea_ice <- query_params("sea ice", "ice|snow", 
                                 "abies|aegiceras|aminicenantes|avicenni|biosiliceous|bryozoa|calcite|cf[.]|Chvaleticeite|
                                 |cicendia|cicer|cichoriceae|cribricellina|Cricetidae|Cunoniceae|Cymatiosphaera|Daphne|Dehydroi|

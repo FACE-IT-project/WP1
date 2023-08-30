@@ -1804,7 +1804,8 @@ load_GRDC <- function(file_name){
   file_text <- str_split(read_file(file_name), "\r\n")
   lat <- as.numeric(gsub("[^0-9.-]", "", file_text[[1]][13]))
   lon <- as.numeric(gsub("[^0-9.-]", "", file_text[[1]][14]))
-  suppressWarnings(catch <- as.numeric(gsub("[^0-9.-]", "", file_text[[1]][15]))) # Missing catchment value warning
+  catch <- str_remove(file_text[[1]][15], "(km\xb2)")
+  suppressWarnings(catch <- as.numeric(gsub("[^0-9.-]", "", catch))) # Missing catchment value warning
   depth <- -as.numeric(gsub("[^0-9.-]", "", file_text[[1]][16]))
   if(depth == 999) depth <- NA
   suppressMessages(
@@ -1819,6 +1820,12 @@ load_GRDC <- function(file_name){
   )
   return(res)
   # rm(file_name, file_text, lat, lon, catch, depth, res); gc()
+}
+
+# Convenience wrapper for creating area averaged SST time series
+area_average <- function(df, site_name){
+  df_res <- df |> dplyr::summarise(value = mean(temp, na.rm = T), .by = c("t")) |> 
+    dplyr::rename(date = t) |> mutate(site = site_name)
 }
 
 # Convenience function to save site products as individual files
@@ -2651,6 +2658,13 @@ cat_driver_var <- function(df){
   print(unique(df$driver))
   print(unique(df$variable))
   table(df$driver, df$variable)
+}
+
+# Convenience function for seeing which variables for which categories don't have a driver
+cat_driver_miss <- function(df, cat_choice){
+  filter(df, category == cat_choice, is.na(driver)) |> 
+    dplyr::select(citation, site, category, variable) |> distinct()
+  # print(unique(df_res$variable))
 }
 
 # Add depth data manually from PANGAEA files where this info is in the meta-data
