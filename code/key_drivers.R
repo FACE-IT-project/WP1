@@ -66,6 +66,9 @@ if(!exists("query_meta")){
 
 ## Cryosphere
 if(!exists("query_cryo")){
+  # Glacier mass balance and other measurements
+  # NB: This needs to be run first
+  query_glacier <- query_params("glacier", "glacier|glacial", "Foraminifera|glacialis")
   # Coastal ice; Fast ice; Sea ice; snow cover
   query_sea_ice <- query_params("sea ice", "ice|snow", 
                                 "abies|aegiceras|aminicenantes|avicenni|biosiliceous|bryozoa|calcite|cf[.]|Chvaleticeite|
@@ -73,11 +76,11 @@ if(!exists("query_cryo")){
                                 |device|Diatoms|Digalac|foraminifera|Galact|Griceite|Hepaticeae|lattice|laonice|leontice|
                                 |Lonicera|Macellice|methyl|Monticellite|Oedicerotidae|Ovicell|Paniceae|Picea|Pluricell|distance|
                                 |Pseudotrice|Pumice|price|quartz|Radicel|Sabicea|Scolecith|Siliceous|Stauroneis|statice|
-                                |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova") 
-  # Glacier mass balance and other measurements
-  query_glacier <- query_params("glacier", "glacier|glacial", "Foraminifera|glacialis")
+                                |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova") |> 
+    filter(!Parameter %in% query_glacier$Parameter)
   # River discharge (river, discharge) including permafrost
-  query_runoff <- query_params("runoff", "river|discharge|permafrost", "Diatoms|smoke|Dust|pixel|Riversideite", "#|±")
+  query_runoff <- query_params("runoff", "river|discharge|permafrost", "Diatoms|smoke|Dust|pixel|Riversideite", "#|±") |> 
+    filter(!Parameter %in% query_glacier$Parameter)
   # Combined
   query_cryo <- rbind(query_sea_ice, query_glacier, query_runoff) |> mutate(category = "cryo")
   rm(query_sea_ice, query_glacier, query_runoff); gc()

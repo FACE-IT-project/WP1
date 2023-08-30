@@ -572,7 +572,7 @@ pg_site_filter <- function(file_name, site_name){
 }
 
 # Function for melting columns related to a specific driver
-# pg_clean <- pg_stor_clean; query_sub <- query_phys
+# pg_clean <- pg_disko_clean; query_sub <- query_cryo
 pg_var_melt <- function(pg_clean, query_sub){
   
   # Get unique ID info
@@ -1829,6 +1829,8 @@ save_data_one <- function(sub_levels, df){
     sub_df <- filter(df, category == sub_split[1], site == sub_split[2])
     file_path <- paste0("data/full_data/",sub_split[3],"_", sub_split[1],"_", sub_split[2],".csv")
   } else if(sub_split[4] == "clean") {
+    # TODO: have this split the data into the main data and a metadata lookup table and save each
+    # Or maybe not considering how small these files tend to be
     sub_df <- filter(df, category == sub_split[1], driver == sub_split[2], site == sub_split[3])
     file_path <- paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
                         sub_split[2],"_", sub_split[3],".csv")
@@ -2946,18 +2948,6 @@ driver2_lm <- function(driver1, driver2){
   if(nrow(df_lm) > 0) df_lm <- dplyr::select(df_lm, -var_index)
   rm(annual_screen, df_driver, df_mean_month_depth, df_var); gc()
   return(df_lm)
-}
-
-# Detect if a variable is circular and act accordingly
-mean_circular <- function(df){
-  wind_vars <- c("wind_from_direction_2m", "wind_from_direction_4m", "wind_from_direction_10m")
-  df_res <- df |> 
-    group_by(date, variable) |> 
-    summarise(value = case_when(variable %in% wind_vars ~ 
-                                  as.numeric(round(mean.circular(circular(value, units = "degrees"), na.rm = T))),
-                              TRUE ~ mean(value)), .groups = "drop") |> 
-    mutate(value = case_when(variable %in% wind_vars & value < 0 ~ value + 360, TRUE ~ value))
-  return(df_res)
 }
 
 # Network arrows grob

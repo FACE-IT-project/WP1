@@ -793,9 +793,8 @@ kong_ferry <- data.frame(type = "Mooring",
                          # lat_range = "78.93",
                          # depth_range = "0 - 12",
                          # file_name = '<a onclick="alert(\'kong_ferry.rds\');">1 file</a>',
-                         URL = '<a onclick="alert(\'File provided by Jean-Pierre Gattuso\');">NA</a>',
-                         reference = "Multiple pending",
-                         # reference = '<a onclick="alert(\'Gattuso, J.-P., Alliouane S., Fischer P. & Gattuso J.-P., in prep. Multiyear, high-frequency time series of the carbonate system in a coastal high Arctic station (Spitsbergen)\');">Gattuso et al. (In prep.)</a>',
+                         URL = '<a onclick="alert(\'https://doi.pangaea.de/10.1594/PANGAEA.960131\');">NA</a>',
+                         reference = '<a onclick="alert(\'Gattuso, Jean-Pierre; Alliouane, Samir; Fischer, Philipp (2023): High-frequency, year-round time series of the carbonate chemistry in a high-Arctic fjord (Svalbard) v2. PANGAEA, https://doi.org/10.1594/PANGAEA.960131\');">Gattuso et al. (2023)</a>',
                          note = NA)
 
 # MOSJ crusie data
