@@ -1488,6 +1488,11 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 # Simple checks
 # full_product_kong %>% filter(grepl("Jentzsch", citation))
 
+# Investigate kong sea temp for file size bloating
+
+# Investigate kong salinity  for file size bloating
+
+
 
 ## Isfjorden ---------------------------------------------------------------
 
@@ -1851,6 +1856,56 @@ save(full_product_is, file = "data/full_data/full_product_is.RData")
 save_data(full_product_is)
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 # if(!exists("full_product_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
+
+# Investigate is sea temp for file size bloating
+is_sea_temp_check <- full_product_is |> 
+  filter(driver == "sea temp") |> 
+  dplyr::select(citation) |> 
+  table() |> as.data.frame()
+
+is_sea_temp_check1 <- full_product_is |> 
+  filter(driver == "sea temp") |> 
+  filter(grepl("Beszczynska", citation))
+write_csv(is_sea_temp_check1, "is_sea_temp_check1.csv") # 677.4 MB
+
+is_sea_temp_check2 <- full_product_is |> 
+  filter(driver == "sea temp") |> 
+  filter(grepl("Beszczynska", citation)) |> 
+  mutate(depth = case_when(depth <= 10 ~ 0,
+                           depth <= 20 ~ 20,
+                           depth <= 50 ~ 50,
+                           depth <= 100 ~ 100,
+                           depth <= 200 ~ 200,
+                           depth <= 500 ~ 500,
+                           depth <= 1000 ~ 1000,
+                           depth <= 2000 ~ 2000,
+                           TRUE ~ as.numeric(NA))) |> 
+  filter(depth >= 0) |>
+  summarise(value = mean(value, na.rm = TRUE), 
+            .by = c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth", "category", "driver", "variable"))
+write_csv(is_sea_temp_check2, "is_sea_temp_check2.csv") # 64.8 MB
+
+is_sea_temp_test1 <- full_product_is |> 
+  filter(driver == "sea temp")
+write_csv(is_sea_temp_test1, "is_sea_temp_test1.csv") # 1.3 GB
+
+is_sea_temp_test2 <- full_product_is |> 
+  filter(driver == "sea temp") |> 
+  mutate(depth = case_when(depth <= 10 ~ 0,
+                           depth <= 20 ~ 20,
+                           depth <= 50 ~ 50,
+                           depth <= 100 ~ 100,
+                           depth <= 200 ~ 200,
+                           depth <= 500 ~ 500,
+                           depth <= 1000 ~ 1000,
+                           depth <= 2000 ~ 2000,
+                           TRUE ~ as.numeric(NA))) |> 
+  filter(depth >= 0) |>
+  summarise(value = mean(value, na.rm = TRUE), 
+            .by = c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth", "category", "driver", "variable"))
+write_csv(is_sea_temp_test2, "is_sea_temp_test2.csv") # 105.6 GB
+
+# Investigate is salinity for file size bloating
 
 
 ## Storfjorden -------------------------------------------------------------
