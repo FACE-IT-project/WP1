@@ -1828,6 +1828,26 @@ area_average <- function(df, site_name){
     dplyr::rename(date = t) |> mutate(site = site_name)
 }
 
+# Convenience wrapper to bin and average clean data by depth
+depth_bin_average <- function(df){
+  df_res <- df |> 
+    mutate(depth = case_when(depth <= 10 ~ 0,
+                             depth <= 20 ~ 20,
+                             depth <= 50 ~ 50,
+                             depth <= 100 ~ 100,
+                             depth <= 200 ~ 200,
+                             depth <= 500 ~ 500,
+                             depth <= 1000 ~ 1000,
+                             depth <= 2000 ~ 2000,
+                             TRUE ~ as.numeric(NA))) |>
+    # NB: This will remove data with NA for depth
+    filter(depth >= 0) |>
+    summarise(value = mean(value, na.rm = TRUE), 
+              .by = c("date_accessed", "URL", "citation", "type", "site", "lon", "lat", 
+                      "date", "depth", "category", "driver", "variable"))
+  return(df_res)
+}
+
 # Convenience function to save site products as individual files
 # This expects the output from save_data()
 save_data_one <- function(sub_levels, df){
