@@ -39,7 +39,7 @@ rm(is_AIS_raw_files, is_AIS_raw); gc()
 # Compile MUR data
 doParallel::registerDoParallel(cores = 15)
 system.time(
-  sst_MUR_kong_plyr <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/MUR/kong/", full.names = T, pattern = ".rds"), 
+  sst_MUR_kong_plyr <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/MUR/kong", full.names = T, pattern = ".rds"), 
                                    read_rds, .parallel = TRUE)
 ) # 53 seconds
 save(sst_MUR_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_MUR_kong.RData")

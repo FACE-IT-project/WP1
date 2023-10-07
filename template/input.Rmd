@@ -11,7 +11,7 @@ Integrate different knowledge systems, which requires flexibility.
 
 Problems + topics to be addressed. Deliverables and milestones are possible way markers. Outline which data sources are available to investigate/support the addressing of the problem.
 
-THat leads us into the drivers of change that impact the given species/concept. If we can also cover the relevant mechanisms that is even better. Trends as well. KISS.
+That leads us into the drivers of change that impact the given species/concept. If we can also cover the relevant mechanisms that is even better. Trends as well. KISS.
 
 Many publications already exist that provide this info. Need to create an online document that allows FACE-IT experts to put this info into a structured location.
 
@@ -29,7 +29,7 @@ Could also show full time series of relevant data.
 
 Show what the cascading effects may be of given drivers on the key species and other things (e.g. glacier loss on tourism).
 
-Have a text box at the end of the template that allows additional expert and community feedback. Need to allow for the input of additional drivers of change that aren;t given in the base 14.
+Have a text box at the end of the template that allows additional expert and community feedback. Need to allow for the input of additional drivers of change that aren't given in the base 14.
 
 It may be that the "effects" are more interesting than the drivers.
 
