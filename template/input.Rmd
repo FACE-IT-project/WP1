@@ -1,0 +1,37 @@
+---
+title: "A report for _`r spp_name`_"
+output: html_document
+---
+
+Need to support WP6 in making a synthesis for adaptive co-management.
+What are the requirements?
+What language will be understood on both sides.
+
+Integrate different knowledge systems, which requires flexibility.
+
+Problems + topics to be addressed. Deliverables and milestones are possible way markers. Outline which data sources are available to investigate/support the addressing of the problem.
+
+That leads us into the drivers of change that impact the given species/concept. If we can also cover the relevant mechanisms that is even better. Trends as well. KISS.
+
+Many publications already exist that provide this info. Need to create an online document that allows FACE-IT experts to put this info into a structured location.
+
+Can have a simple series of boxes in which experts say if something is increasing decreasing etc. This is for populations, stressors etc. And could have it done for each individual fjord. Also if something is important to tourism. Then a column that says if something is from expert knowledge, or directly from data. Then say who is the expert, what is the dataset.
+
+This works for species, but we would also want to allow this to work for tourism, glaciers, sea ice, and other non-species foci. 
+
+SDM of key species for their location may be of interest. Or just trends of presence within given areas.
+
+Pollution is of interest, but we have no data for that.
+
+The expert knowledge should be out front, with data in support.
+
+Could also show full time series of relevant data.
+
+Show what the cascading effects may be of given drivers on the key species and other things (e.g. glacier loss on tourism).
+
+Have a text box at the end of the template that allows additional expert and community feedback. Need to allow for the input of additional drivers of change that aren't given in the base 14.
+
+It may be that the "effects" are more interesting than the drivers.
+
+Allow a box for input on if there have been success stories for a given species.
+

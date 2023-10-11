@@ -246,6 +246,14 @@ rm(sst_CCI_kong, sst_CCI_is, sst_CCI_stor, sst_CCI_young, sst_CCI_disko, sst_CCI
    sst_CCI_kong_bbox, sst_CCI_is_bbox, sst_CCI_stor_bbox, sst_CCI_young_bbox, sst_CCI_disko_bbox, sst_CCI_nuup_bbox, sst_CCI_por_bbox,
    CCI_kong, CCI_is, CCI_stor, CCI_young, CCI_disko, CCI_nuup, CCI_por); gc()
 
+# Testing
+sst_1 <- sst_CCI_young_bbox |> filter(t == as.Date("1982-01-01"))
+ggplot(data = distinct(sst_1[c("lon", "lat")]), aes(x = lon, y = lat)) +
+  geom_rect(aes(xmin = bbox_young[1], xmax = bbox_young[2],
+                ymin = bbox_young[3], ymax = bbox_young[4])) +
+  geom_tile(colour = "red")
+
+
 
 # Bartsch data ------------------------------------------------------------
 

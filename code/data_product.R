@@ -4420,8 +4420,8 @@ miss_phys <- cat_driver_miss(full_ALL, "phys")
 
 # Load OISST and CCI data
 # Prepared in code/data_processing.R
-load("data/analyses/OISST_all.RData")
-load("data/analyses/CCI_all.RData")
+if(!exists("OISST_all")) load("data/analyses/OISST_all.RData")
+if(!exists("CCI_all")) load("data/analyses/CCI_all.RData")
 
 ## Notes on temperature variables
 # Remove air, CO2, and pH related temperature values
