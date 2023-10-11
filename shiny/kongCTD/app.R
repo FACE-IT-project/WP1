@@ -798,6 +798,22 @@ server <- function(input, output, session) {
                        fill = TRUE) %>%
         mutate(file_temp = file_temp)
       
+      # Add column names to instruments that don't have direct column headers
+      if(input$schema == "Sea-Bird"){
+        df <- df %>% 
+          dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Salinity = V4, date = V5, time = V6)
+      } else if(input$schema == "Sea-Bird O2"){
+        df <- df %>% 
+          dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Oxygen = V4, 
+                        Salinity = V5, Sound_velocity = V6, date = V7, time = V8)
+      } else if(input$schema == "Sea & Sun"){
+        df <- df %>% 
+          dplyr::rename(row_n = V1, date = V2, time = V3, Pressure = V4, 
+                        Temperature = V5, Conductivity = V6, Salinity = V7)
+      } else {
+        # Intentionally empty
+      }
+      
       # Force numeric columns
       skip_cols <- colnames(df)[which(colnames(df) %in% non_num_cols)]
       suppressWarnings(
