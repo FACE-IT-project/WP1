@@ -144,20 +144,20 @@ ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
 ## It is used to remove test files uploaded while bug hunting
 
 # Load database
-# data_base <- read_rds("../../srv/shiny-server/kongCTD/data/data_base.Rds")
+# data_base <- read_rds("../../srv/shiny-server/kongData/data_base.Rds")
 
 # Remove all 'test' data
 # unique(data_base$Uploader); unique(data_base$Owner_person); unique(data_base$Owner_institute)
 # data_base <- data_base |> filter(Owner_person != "Test")
-# write_rds(data_base, "../../srv/shiny-server/kongCTD/data/data_base.Rds")
+# write_rds(data_base, "../../srv/shiny-server/kongData/data_base.Rds")
 
 # Load meta-database
-# meta_data_base <- read_rds("../../srv/shiny-server/kongCTD/data/meta_data_base.Rds")
+# meta_data_base <- read_rds("../../srv/shiny-server/kongData/meta_data_base.Rds")
 
 # Remove all 'test' data
 # unique(meta_data_base$Uploader); unique(meta_data_base$Owner_person); unique(meta_data_base$Owner_institute)
 # meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test"))
-# write_rds(meta_data_base, "../../srv/shiny-server/kongCTD/data/meta_data_base.Rds")
+# write_rds(meta_data_base, "../../srv/shiny-server/kongData/meta_data_base.Rds")
 
 
 # Credentials -------------------------------------------------------------
@@ -263,15 +263,15 @@ ui <- dashboardPage(
                     column(6, uiOutput("skipUI"))
                   ),
                   
-                  # Select column separator and decimal place
+                  # Select column separator and text quoting
                   fluidRow(
                     column(6, uiOutput("sepUI")),
-                    column(6, uiOutput("decUI"))
+                    column(6, uiOutput("quoteUI"))
                   ),
                   
-                  # Select text quoting and file encoding
+                  # Select decimal place and file encoding
                   fluidRow(
-                    column(6, uiOutput("quoteUI")),
+                    column(6, uiOutput("decUI")),
                     column(6, uiOutput("encodingUI"))
                   )#,
                   
@@ -636,7 +636,7 @@ server <- function(input, output, session) {
   ## Load server -------------------------------------------------------------
 
   # Reactive category filters
-  upload_opts <- reactiveValues(schema = "None",
+  upload_opts <- reactiveValues(schema = "Default",
                                 header = TRUE,
                                 skip = 0,
                                 sep = ",",
@@ -662,14 +662,14 @@ server <- function(input, output, session) {
     } else if(str_sub(file_text_list[[1]][1], 1, 14) == "SSDA Sea & Sun"){
       upload_opts$schema <- "Sea & Sun"
     } else {
-      # Intentionally blank
+      upload_opts$schema <- "Default"
     }
   })
   
   # Reactive UI for file schema
   ## NB: These could potentially be moved to the UI and rather updated via observations as done in the meta section
   output$schemaUI <- renderUI({
-    selectInput("schema", "CTD type", choices = c("None", "Alt_S", "SAIV", "RBR", "Sea-Bird", "Sea-Bird O2", "Sea & Sun"), 
+    selectInput("schema", "CTD type", choices = c("Default", "Alt_S", "SAIV", "RBR", "Sea-Bird", "Sea-Bird O2", "Sea & Sun"), 
                 selected = upload_opts$schema)
   })
   
@@ -740,7 +740,8 @@ server <- function(input, output, session) {
       upload_opts$header <- FALSE; upload_opts$skip <- 30; upload_opts$sep <- ""
       upload_opts$dec <- "."; upload_opts$quote <- '"'; upload_opts$encoding <- "latin1"
     } else {
-      # Intentionally blank
+      upload_opts$header = TRUE; upload_opts$skip = 0; upload_opts$sep = ","
+      upload_opts$dec = "."; upload_opts$quote = '"'; upload_opts$encoding = "UTF-8"
     }
   })
   ## header
@@ -820,6 +821,22 @@ server <- function(input, output, session) {
       df <- mutate(df, across(!all_of(skip_cols), as.numeric))
       )
       
+      # Rename 'depth' to 'Depth'
+      names(df)[names(df) == "depth"] <- "Depth"
+      
+      # Add date_time column when possible
+      if("Date" %in% colnames(df) & "Time" %in% colnames(df))
+        df <- mutate(df, date_time = dmy_hms(paste(Date, Time, sep = " ")))
+      if("date" %in% colnames(df) & "time" %in% colnames(df)){
+        df <- mutate(df, date_time = dmy_hms(paste0(date, time)))
+        count_fail <- sum(is.na(df$date_time))
+        if(nrow(df) == count_fail){
+          df <- mutate(df, date_time = ymd_hms(paste0(date,time)))
+        }
+      }
+      if("Timestamp" %in% colnames(df))
+        df <- mutate(df, date_time = dmy_hms(Timestamp))
+      
       # Flag data
       ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
       df_flag <- df
@@ -840,7 +857,7 @@ server <- function(input, output, session) {
         df_flag <- mutate(df_flag, flag = case_when(Fluorescence_ugChla_l < 0 | Fluorescence_ugChla_l > 50 ~ 1, TRUE ~ flag))
       if("F..µg.l." %in% colnames(df_flag)) 
         df_flag <- mutate(df_flag, flag = case_when(F..µg.l. < 0 | F..µg.l. > 50 ~ 1, TRUE ~ flag))
-      if("Depth" %in% colnames(df_flag)){ # NB: Intentionally last
+      if("Depth" %in% colnames(df_flag) & "date_time" %in% colnames(df_flag)){ # NB: Intentionally last
         df_mdepth <- df_flag[df_flag$Depth == max(df_flag$Depth, na.rm = T),]
         df_flag <- mutate(df_flag, flag = case_when(Depth > 400 ~ 1, 
                                                     Depth <= 0 ~ 2,
@@ -1135,9 +1152,9 @@ server <- function(input, output, session) {
 
   # Create reactive data_base and meta_data_base objects that recognize uploads of new data
   data_base <- reactiveValues()
-  data_base$df <- read_rds("data/data_base.Rds")
+  data_base$df <- read_rds("../kongData/data_base.Rds")
   meta_data_base <- reactiveValues()
-  meta_data_base$df <- read_rds("data/meta_data_base.Rds")
+  meta_data_base$df <- read_rds("../kongData/meta_data_base.Rds")
   
   # Final df filtered by QC flags
   df_final <- reactive({
@@ -1275,13 +1292,13 @@ server <- function(input, output, session) {
   observeEvent(input$upload, {
     # Save meta-data
     df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
-    write_rds(df_meta_res, file = "data/meta_data_base.Rds", compress = "gz")
-    meta_data_base$df <- read_rds("data/meta_data_base.Rds")
+    write_rds(df_meta_res, file = "../kongData/meta_data_base.Rds", compress = "gz")
+    meta_data_base$df <- read_rds("../kongData/meta_data_base.Rds")
     
     # Save raw data
     df_data_res <- bind_rows(df_final(), data_base$df) %>% distinct()
-    write_rds(df_data_res, file = "data/data_base.Rds", compress = "gz")
-    data_base$df <- read_rds("data/data_base.Rds")
+    write_rds(df_data_res, file = "../kongData/data_base.Rds", compress = "gz")
+    data_base$df <- read_rds("../kongData/data_base.Rds")
   })
   
 
@@ -1320,8 +1337,8 @@ server <- function(input, output, session) {
       filter(Uploader != reactiveValuesToList(res_auth)[["user"]]) %>% 
       bind_rows(table$table2) %>% distinct()
     # df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
-    write_rds(df_meta_res, file = "data/meta_data_base.Rds", compress = "gz")
-    meta_data_base$df <- read_rds("data/meta_data_base.Rds")
+    write_rds(df_meta_res, file = "../kongData/meta_data_base.Rds", compress = "gz")
+    meta_data_base$df <- read_rds("../kongData/meta_data_base.Rds")
   })
   
   
