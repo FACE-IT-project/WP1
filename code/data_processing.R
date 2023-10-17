@@ -184,7 +184,7 @@ OISST_por <- area_average(sst_por_bbox, "por")
 # Combine and save
 OISST_all <- rbind(OISST_kong, OISST_is, OISST_stor, OISST_young, OISST_disko, OISST_nuup, OISST_por) |> filter(value > -1.8) |>
   mutate(type = "OISST", depth = 0, lon = NA, lat = NA,
-         date_accessed = as.Date("2021-12-03"),
+         date_accessed = as.Date("2023-10-13"),
          URL = "https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr/",
          citation = "Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., Zhang, H. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) Version 2.1. J. Climate, doi: 10.1175/JCLI-D-20-0166.1",
          variable = "temp [°C]", category = "phys", driver = "sea temp") |> 

@@ -4821,7 +4821,7 @@ save(all_ref, file = "data/analyses/all_ref.RData")
 
 ## PANGAEA file ------------------------------------------------------------
 
-# TODO: COnsider splitting these out into metadata lookup tables
+# TODO: Consider splitting these out into metadata lookup tables
 
 # Load all clean data
 # clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
