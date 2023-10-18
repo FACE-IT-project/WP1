@@ -186,6 +186,23 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # Functions ---------------------------------------------------------------
 
+# Convenience wrapper for WORMS database query
+wm_records_df <- function(sp_name){
+  URL_error <- NULL
+  
+  sp_no_sp <- trimws(gsub("sp.|spp.|-Ciliata", "", sp_name))
+  
+  sp_info <- tryCatch(wm_records_name(sp_no_sp)[1,], 
+                      error = function(sp_no_sp) {URL_error <<- "Species name doesn't match"})
+  if(is.null(URL_error)){
+    sp_res <- data.frame(species = sp_name, dplyr::select(sp_info, url, lsid))
+  } else {
+    sp_res <- data.frame(species = sp_name, url = NA, lsid = NA)
+  }
+  return(sp_res)
+  # rm(sp_name, sp_info, sp_res, URL_error); gc()
+}
+
 # Function for performing a more thorough query of PANGAEA data by bbox
 pg_full_search <- function(lookup_table = FALSE, doi_list = TRUE, ...){
   

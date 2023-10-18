@@ -16,6 +16,7 @@ source("code/functions.R")
 library(tidync)
 library(ncdump)
 library(ggOceanMaps)
+library(worrms)
 
 
 # SOCAT -------------------------------------------------------------------
@@ -550,8 +551,8 @@ header2 <- scan("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Kange
 header3 <- scan("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Kangerlussuaq.csv", 
                 skip = 2, nlines = 1, what = character(), sep = ",")
 
-### Load data and combine
-kang_spp <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Kangerlussuaq.csv", 
+### Load data and add headers
+kang_base <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Kangerlussuaq.csv", 
                      skip = 3, col_names = paste(header1, header2, header3, sep = "__")) |> 
   dplyr::rename(Species = `Station__Dato__Value`) |> 
   pivot_longer(cols = `2+ai__20130314__Sum [n/l]`:`2+w__20130314__Sum [carbon µg l-1]`) |> 
@@ -559,8 +560,38 @@ kang_spp <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/
   mutate(date = as.Date(Date, "%Y%m%d"),
          `date/time [UTC+0]` = paste0(date,"T00:00:00")) |> 
   pivot_wider(values_from = "value", names_from = "units") |> 
-  dplyr::rename(`sum [n l-1]` = `Sum [n/l]`, `sum [carbon l-1]` = `Sum [carbon µg l-1]`, species = Species) |> 
-  dplyr::select( `date/time [UTC+0]`, station, species, `sum [n l-1]`, `sum [carbon l-1]`)
+  dplyr::rename(`sum [n l-1]` = `Sum [n/l]`, `sum [carbon µg l-1]` = `Sum [carbon µg l-1]`, species = Species) |> 
+  mutate(`size class [µm]` = case_when(grepl("00-05", species) ~ "00-05",
+                                       grepl("05-10", species) ~ "05-10",
+                                       grepl("10-15", species) ~ "10-15",
+                                       grepl("15-20", species) ~ "15-20",
+                                       grepl("10-20", species) ~ "10-20",
+                                       grepl("20-50", species) ~ "20-50",
+                                       grepl("41-60", species) ~ "41-60",
+                                       grepl("< 10|<10", species) ~ "<10",
+                                       grepl("< 20|<20", species) ~ "<20",
+                                       grepl("> 20|>20", species) ~ ">20",
+                                       grepl("> 25|>25", species) ~ ">25",
+                                       grepl("> 50|>50", species) ~ ">50",
+                                       grepl("> 60|>60", species) ~ ">60",
+                                       TRUE ~ as.character(NA)),
+         species = str_remove_all(species, "<|>|00-05|05-10|10-15|10-20|15-20|20-50|41-60|10|20|25|50|60|µm"),
+         species = str_remove_all(species, "\\( \\)|\\(  \\)|\\(A\\)|-gruppen| auto"),
+         species = trimws(species))
+
+## Get species IDs
+kang_unq <- kang_base |> dplyr::select(species) |> distinct()
+kang_ID <- plyr::ldply(kang_unq$species, wm_records_df, .parallel = T)
+
+## Combine and save
+kang_spp <- left_join(kang_base, kang_ID, by = "species") |> 
+  dplyr::rename(`Species UID` = species,
+                `Species UID (URI)` = url,
+                `Species UID (Semantic URI)` = lsid) |> 
+  dplyr::select( `date/time [UTC+0]`, station, `Species UID`, `Species UID (URI)`,
+                 `Species UID (Semantic URI)`, `size class [µm]`, `sum [n l-1]`, `sum [carbon µg l-1]`) |> 
+  mutate_at(1:8, ~as.character(.)) |>
+  mutate_at(1:8, ~replace_na(., ""))
 write_csv(kang_spp, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/kang_spp_PG.csv")
 
 # Upwelling irradiance
