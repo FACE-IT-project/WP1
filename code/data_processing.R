@@ -642,38 +642,14 @@ write_csv(C_N_2021, "~/pCloudDrive/restricted_data/Duesedau/C_N_2021_PG.csv")
 
 ## Date matrix
 datenmatrix_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Datenmatrix_2021_PANGEA.csv", delim = ";") |> 
-  filter(!is.na(Year)) |> 
-  mutate(`date/time [UTC+0]` = paste0(as.Date(Sampling_Date, format = "%d.%m.%Y"), "T00:00:00"),
-         Species = gsub("'Digitate Kelps'", "Digitate Kelps", Species),
-         Quadrat_Size = case_when(Quadrat_Size == "1x1" ~ "100x100", TRUE ~ Quadrat_Size)) |> 
-  rename(`Depth [m]` = Water_Depth_m, `Individual [#]` = Individual_No, `Quadrat size [cm]` = Quadrat_Size,
-         `stipe length [cm]` = Stipe_cm, `blade length [cm]` = Blade_Length_cm, `blade width [cm]` = Blade_Width_cm,
-         `leaf area [cm^2]` = Leaf_Area_cm2, `stipe FW [g]` = Stipe_FW_g, `stipe DW [g]` = Stipe_DW_g,
-         `Holdfast FW [g]` = Holdfast_FW_g, `Holdfast DW [g]` = Holdfast_DW_g,
-         `Blade FW [g]` = Blade_FW_g, `Blade DW [g]` = Blade_DW_g,
-         `Sporophyll FW [g]` = Sporophyll_FW_g, `Sporophyll DW [g]` = Sporophyll_DW_g,
-         `Total FW [g]` = Total_FW_g, `Total DW [g]` = Total_DW_g, `Adult stipe age` = Adult_Age_Stipe) |> 
-  dplyr::select(-Year, -Side_Code, -Sampling_Date, -Horizontal_Position) |> 
-  dplyr::select(`date/time [UTC+0]`, everything()) |> 
-  mutate_at(1:23, ~as.character(.)) |>
-  mutate_at(1:23, ~replace_na(., ""))
+  mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00")) |> 
+  mutate_at(1:24, ~as.character(.)) |>
+  mutate_at(1:24, ~replace_na(., ""))
 write_csv(datenmatrix_2021, "~/pCloudDrive/restricted_data/Duesedau/datenmatrix_2021_PG.csv")
 
 ## Lower depth distributions
-lower_depth_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Lower_depth_distribution_2021_PANGEA.csv", 
-                               skip = 1, delim = ";") |>
-  pivot_longer(`Frequency_quadrat...8`:`% cover...22`) |> 
-  separate(name, into = c("variable", "Species"), sep = "\\...") |> 
-  mutate(Species = case_when(Species %in% c(8, 9, 10) ~ "Alaria esculenta",
-                             Species %in% c(11, 12, 13) ~ "Saccharina latissima",
-                             Species %in% c(14, 15, 16) ~ "Digitate kelps",
-                             Species %in% c(17, 18, 19) ~ "Desmarestia sp. (viridis and/or aculeata)",
-                             Species %in% c(20, 21, 22) ~ "Saccorhiza dermatodea"),
-         `date/time [UTC+0]` = paste0(as.Date(Date, format = "%d.%m.%Y"), "T00:00:00")) |> 
-  pivot_wider(names_from = "variable", values_from = "value") |> 
-  rename(`Depth [m]` = Water_depth_m, `Depth level [m]` = Depth_level_m, `cover [%]` = `% cover`,
-         `count [n]` = Frequency_quadrat, `Additional presence` = Additional_presence) |>
-  dplyr::select(`date/time [UTC+0]`, Transect, `Depth [m]`, `Depth level [m]`, Pebbles:Species, 
-                `count [n]`, `cover [%]`, `Additional presence`) |> 
+lower_depth_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Lower_Depth_Distribution_2021_PANGEA.csv", delim = ";") |>
+  mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00")) |> 
   arrange(`date/time [UTC+0]`, Transect, `Depth [m]`)
 write_csv(lower_depth_2021, "~/pCloudDrive/restricted_data/Duesedau/lower_depth_2021_PG.csv")
+
