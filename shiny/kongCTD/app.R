@@ -55,12 +55,13 @@ library(rhandsontable)
 # Increase file upload size limit
 options(shiny.maxRequestSize = 50*1024^2)
 
+# Columns not to convert to numeric during load step
+non_num_cols <- c("file_temp", "Date", "date", "Time", "time", 
+                  "Timestep", "timestep", "Timestamp", "timestamp", "date_time")
+
 # Rounding functions
 floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
 ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
-
-# Columns not to convert to numeric during load step
-non_num_cols <- c("file_temp", "Date", "date", "Time", "time", "Timestep", "timestep", "date_time")
 
 
 # Map ---------------------------------------------------------------------
@@ -799,94 +800,111 @@ server <- function(input, output, session) {
     return(df)
   })
   
+  # Loading function that is applied to all files in upload list
+  # NB: This must be run from within the server code chunk
+  df_load_func <- function(file_temp){
+    
+    # Load data based on schema
+    df <- read.table(file_temp,
+                     header = upload_opts$header,
+                     skip = upload_opts$skip,
+                     sep = upload_opts$sep,
+                     dec = upload_opts$dec,
+                     quote = upload_opts$quote,
+                     fileEncoding = upload_opts$encoding, 
+                     blank.lines.skip = TRUE,
+                     fill = TRUE) %>%
+      mutate(file_temp = file_temp)
+    
+    # Add column names to instruments that don't have direct column headers
+    if(input$schema == "Sea-Bird"){
+      df <- df %>% 
+        dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Salinity = V4, date = V5, time = V6)
+    } else if(input$schema == "Sea-Bird O2"){
+      df <- df %>% 
+        dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Oxygen = V4, 
+                      Salinity = V5, Sound_velocity = V6, date = V7, time = V8)
+    } else if(input$schema == "Sea & Sun"){
+      df <- df %>% 
+        dplyr::rename(row_n = V1, date = V2, time = V3, Pressure = V4, 
+                      Temperature = V5, Conductivity = V6, Salinity = V7)
+    } else {
+      # Intentionally empty
+    }
+    
+    # Rename important columns
+    names(df)[str_detect(names(df), "depth|Depth")] <- "Depth"
+    names(df)[names(df) == "timestamp"] <- "Timestamp"
+    names(df)[names(df) == "timestep"] <- "Timestep"
+    names(df)[names(df) == "date"] <- "Date"
+    names(df)[names(df) == "time"] <- "Time"
+    
+    # Force numeric columns
+    skip_cols <- colnames(df)[which(colnames(df) %in% non_num_cols)]
+    suppressWarnings(
+      df <- mutate(df, across(!all_of(skip_cols), as.numeric))
+    )
+    
+    # Add date_time column when possible
+    if("Date" %in% colnames(df) & "Time" %in% colnames(df)){
+      df <- mutate(df, date_time = dmy_hms(paste(Date, Time, sep = " ")))
+      count_fail <- sum(is.na(df$date_time))
+      if(nrow(df) == count_fail){
+        df <- mutate(df, date_time = ymd_hms(paste0(Date,Time)))
+      }
+    }
+    if("Timestamp" %in% colnames(df)){
+      df <- mutate(df, date_time = dmy_hms(Timestamp))
+      count_fail <- sum(is.na(df$date_time))
+      if(nrow(df) == count_fail){
+        df <- mutate(df, date_time = ymd_hms(Timestamp))
+      }
+    }
+    if("Timestep" %in% colnames(df)){
+      df <- mutate(df, date_time = dmy_hms(Timestep))
+      count_fail <- sum(is.na(df$date_time))
+      if(nrow(df) == count_fail){
+        df <- mutate(df, date_time = ymd_hms(Timestep))
+      }
+    }
+    
+    # Flag data
+    ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
+    df_flag <- df
+    df_flag$flag <- 0
+    if("Temperature" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Temperature < -1.8 | Temperature > 15 ~ 1, TRUE ~ flag))
+    if("Temp" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Temp < -1.8 | Temp > 15 ~ 1, TRUE ~ flag))
+    if("Temp." %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Temp. < -1.8 | Temp. > 15 ~ 1, TRUE ~ flag))
+    if("Salinity" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Salinity < 0 | Salinity > 38 ~ 1, TRUE ~ flag))
+    if("Sal" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Sal < 0 | Sal > 38 ~ 1, TRUE ~ flag))
+    if("Sal." %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Sal. < 0 | Sal. > 38 ~ 1, TRUE ~ flag))
+    if("Fluorescence_ugChla_l" %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(Fluorescence_ugChla_l < 0 | Fluorescence_ugChla_l > 50 ~ 1, TRUE ~ flag))
+    if("F..µg.l." %in% colnames(df_flag)) 
+      df_flag <- mutate(df_flag, flag = case_when(F..µg.l. < 0 | F..µg.l. > 50 ~ 1, TRUE ~ flag))
+    if("Depth" %in% colnames(df_flag) & "date_time" %in% colnames(df_flag)){ # NB: Intentionally last
+      df_mdepth <- df_flag[df_flag$Depth == max(df_flag$Depth, na.rm = T),]
+      df_flag <- mutate(df_flag, flag = case_when(Depth > 400 ~ 1, 
+                                                  Depth <= 0 ~ 2,
+                                                  date_time > df_mdepth$date_time & flag == 0 ~ 3,
+                                                  TRUE ~ flag))
+    }
+    if("date_time" %in% names(df_flag)){
+      df_flag <- df_flag |> 
+        dplyr::select(date_time, everything())
+    }
+    return(df_flag)
+  }
+  
   # Load the file with the reactive file options
   df_load <- reactive({
     req(input$file1)
-    
-    # Reactive function that is applied to all files in upload list
-    # Also need to pass the file name
-    df_load_func <- function(file_temp){
-      
-      # Load data based on schema
-      df <- read.table(file_temp,
-                       header = upload_opts$header,
-                       skip = upload_opts$skip,
-                       sep = upload_opts$sep,
-                       dec = upload_opts$dec,
-                       quote = upload_opts$quote,
-                       fileEncoding = upload_opts$encoding, 
-                       blank.lines.skip = TRUE,
-                       fill = TRUE) %>%
-        mutate(file_temp = file_temp)
-      
-      # Add column names to instruments that don't have direct column headers
-      if(input$schema == "Sea-Bird"){
-        df <- df %>% 
-          dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Salinity = V4, date = V5, time = V6)
-      } else if(input$schema == "Sea-Bird O2"){
-        df <- df %>% 
-          dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Oxygen = V4, 
-                        Salinity = V5, Sound_velocity = V6, date = V7, time = V8)
-      } else if(input$schema == "Sea & Sun"){
-        df <- df %>% 
-          dplyr::rename(row_n = V1, date = V2, time = V3, Pressure = V4, 
-                        Temperature = V5, Conductivity = V6, Salinity = V7)
-      } else {
-        # Intentionally empty
-      }
-      
-      # Force numeric columns
-      skip_cols <- colnames(df)[which(colnames(df) %in% non_num_cols)]
-      suppressWarnings(
-      df <- mutate(df, across(!all_of(skip_cols), as.numeric))
-      )
-      
-      # Rename 'depth' to 'Depth'
-      names(df)[names(df) == "depth"] <- "Depth"
-      
-      # Add date_time column when possible
-      if("Date" %in% colnames(df) & "Time" %in% colnames(df))
-        df <- mutate(df, date_time = dmy_hms(paste(Date, Time, sep = " ")))
-      if("date" %in% colnames(df) & "time" %in% colnames(df)){
-        df <- mutate(df, date_time = dmy_hms(paste0(date, time)))
-        count_fail <- sum(is.na(df$date_time))
-        if(nrow(df) == count_fail){
-          df <- mutate(df, date_time = ymd_hms(paste0(date,time)))
-        }
-      }
-      if("Timestamp" %in% colnames(df))
-        df <- mutate(df, date_time = dmy_hms(Timestamp))
-      
-      # Flag data
-      ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
-      df_flag <- df
-      df_flag$flag <- 0
-      if("Temperature" %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(Temperature < -1.8 | Temperature > 15 ~ 1, TRUE ~ flag))
-      if("Temp" %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(Temp < -1.8 | Temp > 15 ~ 1, TRUE ~ flag))
-      if("Temp." %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(Temp. < -1.8 | Temp. > 15 ~ 1, TRUE ~ flag))
-      if("Salinity" %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(Salinity < 0 | Salinity > 38 ~ 1, TRUE ~ flag))
-      if("Sal" %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(Sal < 0 | Sal > 38 ~ 1, TRUE ~ flag))
-      if("Sal." %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(Sal. < 0 | Sal. > 38 ~ 1, TRUE ~ flag))
-      if("Fluorescence_ugChla_l" %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(Fluorescence_ugChla_l < 0 | Fluorescence_ugChla_l > 50 ~ 1, TRUE ~ flag))
-      if("F..µg.l." %in% colnames(df_flag)) 
-        df_flag <- mutate(df_flag, flag = case_when(F..µg.l. < 0 | F..µg.l. > 50 ~ 1, TRUE ~ flag))
-      if("Depth" %in% colnames(df_flag) & "date_time" %in% colnames(df_flag)){ # NB: Intentionally last
-        df_mdepth <- df_flag[df_flag$Depth == max(df_flag$Depth, na.rm = T),]
-        df_flag <- mutate(df_flag, flag = case_when(Depth > 400 ~ 1, 
-                                                    Depth <= 0 ~ 2,
-                                                    date_time > df_mdepth$date_time & flag == 0 ~ 3,
-                                                    TRUE ~ flag))
-      }
-      
-      return(df_flag)
-    }
     
     # Upload all selected files
     df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) %>% 
@@ -934,57 +952,62 @@ server <- function(input, output, session) {
 
   ## Meta server -------------------------------------------------------------
 
+  # Extract meta-data from file headers
+  file_meta_func <- function(file_temp){
+    # file_text <- read_file(file_temp)
+    # # NB: This first schema procs for both SAIV and ALt_S
+    # if(str_sub(file_text, 1, 10) == "From file:") {
+    #   ins_no_raw <- sapply(str_split(file_text, "Instrument no.:"), "[[", 2)
+    #   # mini_df_1 <- read.csv("../test_data/150621_KB4.txt", nrows = 1, skip = 1, sep = ";", dec = ",")
+    #   mini_df_1 <- read.csv(file_temp, nrows = 1, skip = 1, sep = ";", dec = ",")
+    #   df_meta <- data.frame(file_temp = file_temp,
+    #                         Site = as.character(NA),
+    #                         Lon = as.numeric(NA),
+    #                         Lat = as.numeric(NA),
+    #                         Owner_person = as.character(NA),
+    #                         Owner_institute = as.character(NA),
+    #                         DOI = as.character(NA),
+    #                         Sensor_owner = "Kings Bay",
+    #                         Sensor_brand = "SAIV",
+    #                         Sensor_number = as.character(gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15))),
+    #                         Air_pressure = as.numeric(mini_df_1$Air.pressure))
+    # } else if(str_sub(file_text, 1, 8) == "RBR data") {
+    #   # ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
+    #   # mini_df_1 <- read_csv("data/KB3_018630_20210416_1728.csv", n_max = 1)
+    #   mini_df_1 <- read_csv(file_temp, n_max = 1)
+    #   df_meta <- data.frame(file_temp = file_temp,
+    #                         Site = as.character(NA),
+    #                         Lon = as.numeric(NA),
+    #                         Lat = as.numeric(NA),
+    #                         Owner_person = as.character(NA),
+    #                         Owner_institute = as.character(NA),
+    #                         DOI = as.character(NA),
+    #                         Sensor_owner = as.character(NA),
+    #                         Sensor_brand = "RBR",
+    #                         Sensor_number = as.character(mini_df_1$...4))
+    # } else {
+    # NB: THere are too many possible issues presented by harvesting meta-data from files
+    # For now it has been decided to require the user to enter this information
+    brand_meta <- upload_opts$schema
+    if(upload_opts$schema == "Sea-Bird O2") brand_meta <- "Sea-Bird"
+    if(upload_opts$schema == "Default") brand_meta <- as.character(NA)
+    df_meta <- data.frame(file_temp = file_temp,
+                          Site = as.character(NA),
+                          Lon = as.numeric(NA),
+                          Lat = as.numeric(NA),
+                          Owner_person = as.character(NA),
+                          Owner_institute = as.character(NA),
+                          DOI = as.character(NA),
+                          Sensor_owner = as.character(NA),
+                          Sensor_brand = brand_meta,
+                          Sensor_number = as.character(NA))
+    # }
+    return(df_meta)
+  }
+  
   # Create dataframe of file temp names and their metadata taken from the file headers
   file_meta_all <- reactive({
     req(input$file1)
-    
-    # Extract meta-data from file headers
-    file_meta_func <- function(file_temp){
-      file_text <- read_file(file_temp)
-      # NB: This first schema procs for both SAIV and ALt_S
-      if(str_sub(file_text, 1, 10) == "From file:"){
-        ins_no_raw <- sapply(str_split(file_text, "Instrument no.:"), "[[", 2)
-        # mini_df_1 <- read.csv("../test_data/150621_KB4.txt", nrows = 1, skip = 1, sep = ";", dec = ",")
-        mini_df_1 <- read.csv(file_temp, nrows = 1, skip = 1, sep = ";", dec = ",")
-        df_meta <- data.frame(file_temp = file_temp,
-                              Site = as.character(NA),
-                              Lon = as.numeric(NA),
-                              Lat = as.numeric(NA),
-                              Owner_person = as.character(NA),
-                              Owner_institute = as.character(NA),
-                              DOI = as.character(NA),
-                              Sensor_owner = "Kings Bay",
-                              Sensor_brand = "SAIV",
-                              Sensor_number = as.character(gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15))),
-                              Air_pressure = as.numeric(mini_df_1$Air.pressure))
-      } else if(str_sub(file_text, 1, 8) == "RBR data"){
-        # ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
-        # mini_df_1 <- read_csv("data/KB3_018630_20210416_1728.csv", n_max = 1)
-        mini_df_1 <- read_csv(file_temp, n_max = 1)
-        df_meta <- data.frame(file_temp = file_temp,
-                              Site = as.character(NA),
-                              Lon = as.numeric(NA),
-                              Lat = as.numeric(NA),
-                              Owner_person = as.character(NA),
-                              Owner_institute = as.character(NA),
-                              DOI = as.character(NA),
-                              Sensor_owner = as.character(NA),
-                              Sensor_brand = "RBR",
-                              Sensor_number = as.character(mini_df_1$...4))
-      } else {
-        df_meta <- data.frame(file_temp = file_temp,
-                              Site = as.character(NA),
-                              Lon = as.numeric(NA),
-                              Lat = as.numeric(NA),
-                              Owner_person = as.character(NA),
-                              Owner_institute = as.character(NA),
-                              DOI = as.character(NA),
-                              Sensor_owner = as.character(NA),
-                              Sensor_brand = as.character(NA),
-                              Sensor_number = as.character(NA))
-      }
-      return(df_meta)
-    }
     
     # Extract meta-data for all uploaded files
     df_meta <- purrr::map_dfr(input$file1$datapath, file_meta_func) %>% 
@@ -1001,8 +1024,8 @@ server <- function(input, output, session) {
   output$table1output <- renderRHandsontable({
     rhandsontable(file_meta_all(), stretchH = "all", useTypes = F) %>% 
       # hot_col("file_num", readOnly = TRUE) %>% 
-      hot_col("file_name", readOnly = TRUE) %>% 
-      hot_col("upload_date", readOnly = TRUE) %>% 
+      hot_col(col = "file_name", readOnly = TRUE) %>% 
+      hot_col(col = "upload_date", readOnly = TRUE) %>% 
       hot_col(col = "Sensor_number", strict = FALSE)})
   observeEvent(input$table1output, {
     df <- hot_to_r(input$table1output)
@@ -1507,8 +1530,7 @@ server <- function(input, output, session) {
       summarise(min_date = min(date_time, na.rm = T),
                 max_date = max(date_time, na.rm = T),
                 min_depth = min(Depth, na.rm = T),
-                max_depth = max(Depth, na.rm = T)) |> 
-      ungroup()
+                max_depth = max(Depth, na.rm = T), .groups = "drop")
     
     # Return
     return(df_meta)
