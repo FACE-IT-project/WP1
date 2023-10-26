@@ -53,7 +53,8 @@ library(stringr)
 library(rhandsontable)
 
 # Columns not to convert to numeric during load step
-non_num_cols <- c("file_temp", "Date", "date", "Time", "time", "Timestep", "timestep", "date_time")
+non_num_cols <- c("file_temp", "Date", "date", "Time", "time", 
+                  "Timestep", "timestep", "Timestamp", "timestamp", "date_time")
 
 
 # Data --------------------------------------------------------------------
@@ -821,21 +822,36 @@ server <- function(input, output, session) {
       df <- mutate(df, across(!all_of(skip_cols), as.numeric))
       )
       
-      # Rename 'depth' to 'Depth'
-      names(df)[names(df) == "depth"] <- "Depth"
+      # Capitalise important columns
+      names(df)[str_detect(names(df), "depth|Depth")] <- "Depth"
+      # names(df)[names(df) == "depth"] <- "Depth"
+      names(df)[names(df) == "timestep"] <- "Timestep"
+      names(df)[names(df) == "timestamp"] <- "Timestamp"
+      names(df)[names(df) == "date"] <- "Date"
+      names(df)[names(df) == "time"] <- "Time"
       
       # Add date_time column when possible
-      if("Date" %in% colnames(df) & "Time" %in% colnames(df))
+      if("Date" %in% colnames(df) & "Time" %in% colnames(df)){
         df <- mutate(df, date_time = dmy_hms(paste(Date, Time, sep = " ")))
-      if("date" %in% colnames(df) & "time" %in% colnames(df)){
-        df <- mutate(df, date_time = dmy_hms(paste0(date, time)))
         count_fail <- sum(is.na(df$date_time))
         if(nrow(df) == count_fail){
-          df <- mutate(df, date_time = ymd_hms(paste0(date,time)))
+          df <- mutate(df, date_time = ymd_hms(paste0(Date,Time)))
         }
       }
-      if("Timestamp" %in% colnames(df))
+      if("Timestep" %in% colnames(df)){
+        df <- mutate(df, date_time = dmy_hms(Timestep))
+        count_fail <- sum(is.na(df$date_time))
+        if(nrow(df) == count_fail){
+          df <- mutate(df, date_time = ymd_hms(Timestep))
+        }
+      }
+      if("Timestamp" %in% colnames(df)){
         df <- mutate(df, date_time = dmy_hms(Timestamp))
+        count_fail <- sum(is.na(df$date_time))
+        if(nrow(df) == count_fail){
+          df <- mutate(df, date_time = ymd_hms(Timestamp))
+        }
+      }
       
       # Flag data
       ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
@@ -864,7 +880,8 @@ server <- function(input, output, session) {
                                                     date_time > df_mdepth$date_time & flag == 0 ~ 3,
                                                     TRUE ~ flag))
       }
-      
+      df_flag <- df_flag |> 
+        dplyr::select(date_time, everything())
       return(df_flag)
     }
     
