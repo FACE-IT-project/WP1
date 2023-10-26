@@ -52,11 +52,90 @@ library(lubridate)
 library(stringr)
 library(rhandsontable)
 
+# Increase file upload size limit
+options(shiny.maxRequestSize = 50*1024^2)
+
+# Rounding functions
+floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
+ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
+
 # Columns not to convert to numeric during load step
 non_num_cols <- c("file_temp", "Date", "date", "Time", "time", "Timestep", "timestep", "date_time")
 
 
-# Data --------------------------------------------------------------------
+# Map ---------------------------------------------------------------------
+
+# The base land polygon
+## NB: Only needed to run following code once. It is left here for posterity.
+## Load shapefile
+# coastline_full <- sf::read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
+## Convert to data.frame
+# coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
+## Subset to Kongsfjorden area and save
+# coastline_kong <- coastline_full_df %>%
+#   filter(x >= 9, x <= 13.5, y >= 78, y <= 79.5) %>%
+#   dplyr::select(x, y, polygon_id) %>%
+#   rename(lon = x, lat = y)
+# save(coastline_kong, file = "coastline_kong.RData")
+load("coastline_kong.RData")
+
+# The base map
+frame_base <- ggplot() +
+  geom_polygon(data = coastline_kong, aes(x = lon, y = lat, group = polygon_id), 
+               fill = "grey70", colour = "black") +
+  scale_x_continuous(breaks = c(11.5, 12.0, 12.5),
+                     # position = "top",
+                     labels = scales::unit_format(suffix = "°E", accuracy = 0.1, sep = "")) +
+  scale_y_continuous(breaks = c(78.9, 79.0, 79.1, 79.2, 79.3),
+                     labels = scales::unit_format(suffix = "°N", accuracy = 0.1, sep = "")) +
+  coord_cartesian(xlim = c(11, 12.69), ylim = c(78.85, 79.35), expand = F) +
+  labs(y = NULL, x = NULL) +
+  theme_bw() +
+  theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+        axis.text = element_text(size = 12, colour = "black"),
+        axis.ticks = element_line(colour = "black"))
+
+
+# Database ----------------------------------------------------------------
+
+# This code checks for the presence of the database
+# If it doesn't find it it searches for the testing database
+# This ensures different directories for the testing app vs the real app
+if(file.exists("../../srv/shiny-server/kongData/data_base.Rds")){
+  database_dir <- dir("../../srv/shiny-server/kongData")
+  # data_base <- read_rds("../../srv/shiny-server/kongData/data_base.Rds")
+  # meta_data_base <- read_rds("../../srv/shiny-server/kongData/meta_data_base.Rds")
+  print("Loading from central database.")
+} else if(file.exists("data/test_data_base.Rds")){
+  database_dir <- dir("data", full.names = T)
+  # data_base <- read_rds(database_dir[1])
+  # meta_data_base <- read_rds(database_dir[2])
+  print("Loading from test database.")
+} else {
+  stop("No database directory detected.")
+}
+
+## NB: The following code is only able to be run on the Villefranche server
+## It is used to remove test files uploaded while bug hunting
+
+# Load database
+# data_base <- read_rds("../../srv/shiny-server/kongData/data_base.Rds")
+
+# Remove all 'test' data
+# unique(data_base$Uploader); unique(data_base$Owner_person); unique(data_base$Owner_institute)
+# data_base <- data_base |> filter(Owner_person != "Test")
+# write_rds(data_base, "../../srv/shiny-server/kongData/data_base.Rds")
+
+# Load meta-database
+# meta_data_base <- read_rds("../../srv/shiny-server/kongData/meta_data_base.Rds")
+
+# Remove all 'test' data
+# unique(meta_data_base$Uploader); unique(meta_data_base$Owner_person); unique(meta_data_base$Owner_institute)
+# meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test"))
+# write_rds(meta_data_base, "../../srv/shiny-server/kongData/meta_data_base.Rds")
+
+
+# Schema ------------------------------------------------------------------
 
 # Workflow for adding new data schema
 # 1) First figure out how to upload the file correctly via the 'file_load' examples below
@@ -101,69 +180,11 @@ non_num_cols <- c("file_temp", "Date", "date", "Time", "time", "Timestep", "time
 #                            quote = '"',
 #                            encoding = "UTF-8")
 
-# The base land polygon
-## NB: Only needed to run following code once. It is left here for posterity.
-## Load shapefile
-# coastline_full <- sf::read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
-## Convert to data.frame
-# coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
-## Subset to Kongsfjorden area and save
-# coastline_kong <- coastline_full_df %>%
-#   filter(x >= 9, x <= 13.5, y >= 78, y <= 79.5) %>%
-#   dplyr::select(x, y, polygon_id) %>%
-#   rename(lon = x, lat = y)
-# save(coastline_kong, file = "coastline_kong.RData")
-load("coastline_kong.RData")
-
-# The base map
-frame_base <- ggplot() +
-  geom_polygon(data = coastline_kong, aes(x = lon, y = lat, group = polygon_id), 
-               fill = "grey70", colour = "black") +
-  scale_x_continuous(breaks = c(11.5, 12.0, 12.5),
-                     # position = "top",
-                     labels = scales::unit_format(suffix = "°E", accuracy = 0.1, sep = "")) +
-  scale_y_continuous(breaks = c(78.9, 79.0, 79.1, 79.2, 79.3),
-                     labels = scales::unit_format(suffix = "°N", accuracy = 0.1, sep = "")) +
-  coord_cartesian(xlim = c(11, 12.69), ylim = c(78.85, 79.35), expand = F) +
-  labs(y = NULL, x = NULL) +
-  theme_bw() +
-  theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
-        axis.text = element_text(size = 12, colour = "black"),
-        axis.ticks = element_line(colour = "black"))
-
-# Increase file upload size limit
-options(shiny.maxRequestSize = 50*1024^2)
-
-# Rounding functions
-floor_dec <- function(x, level = 1) round(x - 5*10^(-level-1), level)
-ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
-
-
-# Database ----------------------------------------------------------------
-## NB: This code is only able to be run on the Villefranche server
-## It is used to remove test files uploaded while bug hunting
-
-# Load database
-# data_base <- read_rds("../../srv/shiny-server/kongData/data_base.Rds")
-
-# Remove all 'test' data
-# unique(data_base$Uploader); unique(data_base$Owner_person); unique(data_base$Owner_institute)
-# data_base <- data_base |> filter(Owner_person != "Test")
-# write_rds(data_base, "../../srv/shiny-server/kongData/data_base.Rds")
-
-# Load meta-database
-# meta_data_base <- read_rds("../../srv/shiny-server/kongData/meta_data_base.Rds")
-
-# Remove all 'test' data
-# unique(meta_data_base$Uploader); unique(meta_data_base$Owner_person); unique(meta_data_base$Owner_institute)
-# meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test"))
-# write_rds(meta_data_base, "../../srv/shiny-server/kongData/meta_data_base.Rds")
-
 
 # Credentials -------------------------------------------------------------
 
 # login credentials
-# setwd("shiny/kongCTD/") # If adding credentials directly
+# setwd("shiny/kongCTD/") # If adding credentials manually via this script
 load("credentials.RData")
 
 # Add a new user/password
@@ -219,9 +240,8 @@ ui <- dashboardPage(
       color = "success"
     ),
     
-    # Add FACE-IT logo at bottom of menu bar
-    br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), br(),
-    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+    # Add FACE-IT logo to menu bar
+    br(), br(),
     img(src = "FACE-IT_Logo_900.png", align = "centre", width = "225")
   ),
   
@@ -1152,9 +1172,9 @@ server <- function(input, output, session) {
 
   # Create reactive data_base and meta_data_base objects that recognize uploads of new data
   data_base <- reactiveValues()
-  data_base$df <- read_rds("../kongData/data_base.Rds")
+  data_base$df <- read_rds(database_dir[1])
   meta_data_base <- reactiveValues()
-  meta_data_base$df <- read_rds("../kongData/meta_data_base.Rds")
+  meta_data_base$df <- read_rds(database_dir[2])
   
   # Final df filtered by QC flags
   df_final <- reactive({
@@ -1290,15 +1310,24 @@ server <- function(input, output, session) {
   
   # When the Upload button is clicked, save df_final()
   observeEvent(input$upload, {
+    
     # Save meta-data
     df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
-    write_rds(df_meta_res, file = "../kongData/meta_data_base.Rds", compress = "gz")
-    meta_data_base$df <- read_rds("../kongData/meta_data_base.Rds")
+    write_rds(df_meta_res, file = database_dir[2], compress = "gz")
+    meta_data_base$df <- read_rds(database_dir[2])
     
     # Save raw data
     df_data_res <- bind_rows(df_final(), data_base$df) %>% distinct()
-    write_rds(df_data_res, file = "../kongData/data_base.Rds", compress = "gz")
-    data_base$df <- read_rds("../kongData/data_base.Rds")
+    write_rds(df_data_res, file = database_dir[1], compress = "gz")
+    data_base$df <- read_rds(database_dir[1])
+    
+    # Create backups if necessary/possible
+    if(file.exists("../../srv/shiny-server/kongData/data_base.Rds")){
+      write_rds(df_meta_res, compress = "gz", 
+                file = paste0("../../srv/shiny-server/kongDataBackup/meta_data_base_",Sys.Date(),".Rds"))
+      write_rds(df_data_res, compress = "gz", 
+                file = paste0("../../srv/shiny-server/kongDataBackup/data_base_",Sys.Date(),".Rds"))
+    }
   })
   
 
