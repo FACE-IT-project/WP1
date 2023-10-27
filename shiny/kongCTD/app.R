@@ -24,14 +24,10 @@
 ## DOI
 
 ## Data management
-# The data upload repository needs to start to be considered
-# Don't upload all of the data at the launch of the app
-# Rather have a meta-data file ready that provides the parametres for a user to chose what to load
-# Allow filtering of download data by variable
-# Allow filter on downloading of published vs unpublished data
-# Add historic data to backend to allow users to see how their newly updated data fit into the historic data
 # Use consistent variable names via:
 # https://www.earthdata.nasa.gov/learn/find-data/idn/gcmd-keywords
+# NB: This is currently on hold due to the infinite possible spellings that could be uploaded
+## Rather this should be done by a human during the PANGAEA publishing step
 
 ## Next steps
 
@@ -116,6 +112,7 @@ if(file.exists("../kongData/data_base.Rds")){
 
 ## NB: The following code is only able to be run on the Villefranche server
 ## It is used to remove test files uploaded while bug hunting
+## Only uncomment and run necessary code, then re-comment to prevent interfering with app
 
 # Load database
 # setwd("/srv/shiny-server/kongCTD") # For database testing
@@ -124,6 +121,7 @@ if(file.exists("../kongData/data_base.Rds")){
 # Remove all 'test' data
 # unique(data_base$Uploader); unique(data_base$Owner_person); unique(data_base$Owner_institute)
 # data_base <- data_base |> filter(Owner_person != "Test")
+# data_base <- data_base |> filter(Owner_person != "admin")
 # write_rds(data_base, "../kongData/data_base.Rds")
 
 # Load meta-database
@@ -131,7 +129,7 @@ if(file.exists("../kongData/data_base.Rds")){
 
 # Remove all 'test' data
 # unique(meta_data_base$Uploader); unique(meta_data_base$Owner_person); unique(meta_data_base$Owner_institute)
-# meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test"))
+# meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test", "admin"))
 # write_rds(meta_data_base, "../kongData/meta_data_base.Rds")
 
 # Fix bad columns - usually due to incorrect data types
@@ -242,9 +240,6 @@ ui <- dashboardPage(
                 menuItem("Published data", tabName = "published", icon = icon("scroll")),
                 menuItem("About", tabName = "about", icon = icon("question"))),
     
-    # The reactive controls based on the primary option chosen
-    # uiOutput(outputId = "sidebar_controls")),
-    
     # Instructions popup
     br(),
     useSweetAlert(),
@@ -275,12 +270,8 @@ ui <- dashboardPage(
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   
                   # Select a file
-                  # h4("Load file to begin"),
                   fileInput("file1", "Select CTD file(s) to upload (.csv or .txt)",
                             multiple = TRUE,
-                            # accept = c("text/csv",
-                            #            "text/comma-separated-values,text/plain",
-                            #            ".csv"),
                             placeholder = "Choose one or more files to begin"),
                   
                   # Select file schema
@@ -309,29 +300,17 @@ ui <- dashboardPage(
                   fluidRow(
                     column(6, uiOutput("decUI")),
                     column(6, uiOutput("encodingUI"))
-                  )#,
-                  
-                  # Horizontal line
-                  # tags$hr()#,
-                  
-                  # Hints for how to handle issues
-                  # h4("Hints"),
-                  # h6("Only one column -> Change 'Separator'"),
-                  # h6("Commas instead of decimal places -> Change 'Decimal'"),
-                  # h6("'Error: more columns than column names' -> Increase 'Skip rows'"),
-                  # h6("'Error: invalid multibyte string 6' -> Change 'Encoding'")
+                  )
               ),
               
               # The data display
               box(width = 9, 
-                  # height = "850px", 
                   title = "Uploaded data preview",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
                   DT::dataTableOutput("contents_load")),
               
               # The QC display
               box(width = 9, 
-                  # height = "850px", 
                   title = "QC flag report",
                   status = "warning", solidHeader = TRUE, collapsible = FALSE,
                   h6(tags$b("Flags:"), "0 = no problem, 1 = implausible value, 2 = above surface, 3 = upcast"),
@@ -353,9 +332,12 @@ ui <- dashboardPage(
                                                     choices = list(New = c("No name" = "No name"),
                                                                    AWI = c("Site 1" = "Site 1"),
                                                                    SAMS = c("Site 2" = "Site 2"),
-                                                                   NPI = c("Kb0" = "Kb0", "Kb1" = "Kb1", "Kb2" = "Kb2", "Kb3" = "Kb3", 
-                                                                           "Kb4" = "Kb4", "Kb5" = "Kb5", "Kb6" = "Kb6", "Kb7" = "Kb7", 
-                                                                           "Kb8" = "Kb8", "V6" = "V6", "V10" = "V10", "V12" = "V12")),
+                                                                   NPI = c("Kb0" = "Kb0", "Kb1" = "Kb1", 
+                                                                           "Kb2" = "Kb2", "Kb3" = "Kb3", 
+                                                                           "Kb4" = "Kb4", "Kb5" = "Kb5", 
+                                                                           "Kb6" = "Kb6", "Kb7" = "Kb7", 
+                                                                           "Kb8" = "Kb8", "V6" = "V6", 
+                                                                           "V10" = "V10", "V12" = "V12")),
                                                     selected = "No name")),
                            column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
                            column(4, shiny::numericInput("allLat", "Latitude", value = NA, min = 78, max = 80))),
@@ -406,14 +388,9 @@ ui <- dashboardPage(
                 
                 column(width = 4,
                        
-                       box(width = 12, 
-                           # height = "400px", 
+                       box(width = 12,
                            title = "Final steps",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                           
-                           # h4("Remove data with the following QC flag(s)?"),
-                           # selectInput("qc_flag_filter", label = "", 
-                           #             choices = c("1", "2", "3"), selected = c("1", "2"), multiple = T),
                            
                            h4("Embargo data for two years?"),
                            h6("Data will not be published within two years from today."),
@@ -427,23 +404,14 @@ ui <- dashboardPage(
                 # The data display
                 column(8,
                        
-                       # box(width = 12,
-                       #     # height = "450px",
-                       #     title = "Preview of data to be uploaded",
-                       #     status = "success", solidHeader = TRUE, collapsible = FALSE,
-                       #     DT::dataTableOutput("uploadedDT")
-                       #     ),
-                       
-                       box(width = 12, 
-                           # height = "450px", 
+                       box(width = 12,
                            title = "QC flags and missing meta-data in data to be uploaded",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            h6(tags$b("Flags:"), "0 = no problem, 1 = implausible value, 2 = above surface, 3 = upcast"),
                            DT::dataTableOutput("metaCheck")
                        ),
                        
-                       box(width = 12, 
-                           # height = "400px", 
+                       box(width = 12,
                            title = "Meta-data for full database",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("metaDataBase")
@@ -458,10 +426,8 @@ ui <- dashboardPage(
       tabItem(tabName = "edit",
               
               # The interactive table
-              box(width = 12, 
-                  # height = "375px",
-                  title = "Edit meta-data values here", 
-                  # style = 'height:250px;overflow-y: scroll;',
+              box(width = 12,
+                  title = "Edit meta-data values here",
                   status = "primary", solidHeader = TRUE, collapsible = FALSE,
                   h6("Don't forget to save the changes!"),
                   rHandsontableOutput("table2output"),
@@ -479,8 +445,7 @@ ui <- dashboardPage(
                 
                 column(width = 3,
                        
-                       box(width = 12, 
-                           # height = "870px", 
+                       box(width = 12,
                            title = "Download from database",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
                            
@@ -492,9 +457,6 @@ ui <- dashboardPage(
                            
                            ## Data owner (person)
                            uiOutput("selectDOPUI"),
-                           
-                           ## Data owner (institute) # Not needed
-                           # uiOutput("selectDOInUI"),
                            
                            ## Sensor owner
                            uiOutput("selectSOUI"),
@@ -520,7 +482,6 @@ ui <- dashboardPage(
                            
                            ### Download
                            hr(),
-                           # br(),
                            fluidRow(column(width = 6, uiOutput("downloadFilterTypeUI")),
                                     column(width = 6, uiOutput("downloadFilterUI")))
                        )
@@ -528,23 +489,19 @@ ui <- dashboardPage(
                 
                 # The data display
                 column(9,
-                       box(width = 12, 
-                           # height = "450px", 
+                       box(width = 12,
                            title = "Data selected from database",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBaseFilter")),
-                       box(width = 7, 
-                           # height = "400px", 
+                       box(width = 7,
                            title = "Time series of selected data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
                              column(2, h4("Axis controls:")),
                              column(4, uiOutput("plotXUIDL")),
                              column(4, uiOutput("plotYUIDL"))),
-                           # h6("Red dots show embargoed data"),
                            column(12, plotOutput("tsPlot", height = "250px"))),
-                       box(width = 5, 
-                           # height = "400px", 
+                       box(width = 5,
                            title = "Map of selected data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            plotOutput("mapDL", height = "330px"))
@@ -559,12 +516,15 @@ ui <- dashboardPage(
               fluidPage(
                 column(12,
                        h2(tags$b("Published data")),
-                       p("The data on this portal are submitted for publishing on the PANGAEA data portal at the start of the calendar year.
-                         The ranking of authors on these publications is dictated by the number of files uploaded by each. For a more in-depth
-                         explanation behind the reasoning for the publication process please see the 'About' tab."),
+                       p("The data on this portal are submitted for publishing on the PANGAEA 
+                       data portal at the start of the calendar year. 
+                       The ranking of authors on these publications is dictated by the number of files uploaded by each.
+                       For a more in-depth explanation behind the reasoning for the publication process please 
+                         see the 'About' tab."),
                        p("As data begin to be published on PANGAEA the links will be provided here."),
                        h2(tags$b("Metadata")),
-                       p("The full meta-database of files uploaded on this platform may be accessed with the following button."),
+                       p("The full meta-database of files uploaded on this platform may be accessed 
+                         with the following button."),
                        downloadButton("metaFull", "Meta-database"),
                 )
               )
@@ -576,27 +536,15 @@ ui <- dashboardPage(
               fluidPage(
                 column(12,
                        img(src = "Portal process visualization_ver2.png", align = "center", width = "1000px"),
-                       # img(src = "CTD_cast1.png", align = "center", width = "1000px"),
                        h2(tags$b("About")),
-                       p("The Kongsfjorden CTD portal is developed out of a common desire by marine researchers working in Kongsfjorden, by Ny-Ålesund, Svalbard, 
-                         to safeguard and collect the numerous CTD profiles collected by diverse researchers in the fjord. As a natural laboratory of Arctic change, 
-                         with many international research efforts focused on understanding the area, archiving of data is of utmost importance. 
-                         This portal allows for easy storage, standardization, and use of CTD data from Kongsfjorden, with a pipeline for annual, 
-                         open access publishing of the data to a trusted, well-established open-data-publisher, where all contributors are co-authors."),
-                       # h3(tags$b("General layout")),
-                       # tags$ul(
-                       #   tags$li("After logging in, you will see the first page of the app ( ‘1) Upload’ )."),
-                       #   tags$li("On the left, you can navigate between the different pages. To move to the next step of your data upload, you need to click on the next tab once you are finished with the current one."),
-                       #   tags$li("You can move back and forth between the different tabs without losing or having to save your data in between.")
-                       # ),
-                       # h3(tags$b("Prepare your data")),
-                       # tags$ul(
-                       #   tags$li("You can upload the raw files exported from the CTD, but do not use versions where you have manually changed the file or added additional text."),
-                       #   tags$li("Datasets can be uploaded as multiple individual txt or csv files per profile."),
-                       #   tags$li("It is easiest to upload your data sorted by station ID (if you use those) or lat long location."),
-                       #   tags$li("If you want to upload data from different stations in one go, make sure you have the lat long data for each profile available (you can copy past that data into the app)."),
-                       #   tags$li("In one upload session, only files from the same device brand and data structure can be uploaded."),
-                       # ),
+                       p("The Kongsfjorden CTD portal is developed out of a common desire by marine 
+                       researchers working in Kongsfjorden, by Ny-Ålesund, Svalbard, to safeguard and collect 
+                       the numerous CTD profiles collected by diverse researchers in the fjord. As a natural 
+                       laboratory of Arctic change, with many international research efforts focused on 
+                       understanding the area, archiving of data is of utmost importance. This portal allows 
+                       for easy storage, standardization, and use of CTD data from Kongsfjorden, with a pipeline 
+                       for annual, open access publishing of the data to a trusted, well-established 
+                         open-data-publisher, where all contributors are co-authors."),
                        h3(tags$b("Quality control (QC) flags")),
                        p("No data are removed during the upload process, but suspicious data are flagged and the user 
                          is encouraged to remove flags 1 and 2. The QC flags are:"),
@@ -615,27 +563,32 @@ ui <- dashboardPage(
                          tags$li("Turbidity: not yet implemented"),
                        ),
                        h3(tags$b("Create user account")),
-                       # tags$ul(
-                       # tags$li(
                        p("Please contact the administrator to have a new user account created. 
-                             Provide them with your name and e-mail, as well as your desired username and password."
-                         # )
-                       ),
+                             Provide them with your name and e-mail, as well as your desired username and password."),
                        h3(tags$b("Data publishing")),
                        tags$ul(
-                         tags$li("If your data has already been published, please add the DOI [DOI field still needs to be implemented] of the primary data publication when uploading the data (see 'Instructions')."),
-                         tags$li("If your data needs be published in another database first, write ‘xxx’ into the DOI field."),
-                         tags$li("In this case, your data will also not be included into the Pangaea publication of that year."),
-                         tags$li("If you do not add a DOI within 1 year, the data will be added to the next Pangaea publication with you as the primary data owner."),
-                         tags$li("In case you want your data to be published via the automated pipeline provided by the app, leave the DOI field empty."),
-                         tags$li("The data will be published together with the other data from that year with all data providers and/or data owners as coauthors [yet to be determined]."),
-                         tags$li("The order of the author list will be dictated by the number of provided datasets [yet to be determined].")
+                         tags$li("If your data has already been published, please add the DOI [DOI field still 
+                                 needs to be implemented] of the primary data publication when uploading the data 
+                                 (see 'Instructions')."),
+                         tags$li("If your data needs be published in another database first, write ‘xxx’ into 
+                                 the DOI field."),
+                         tags$li("In this case, your data will also not be included into the Pangaea publication 
+                                 of that year."),
+                         tags$li("If you do not add a DOI within 1 year, the data will be added to the next PANGAEA 
+                                 publication with you as the primary data owner."),
+                         tags$li("In case you want your data to be published via the automated pipeline provided 
+                                 by the app, leave the DOI field empty."),
+                         tags$li("The data will be published together with the other data from that year with all 
+                                 data providers and/or data owners as coauthors [yet to be determined]."),
+                         tags$li("The order of the author list will be dictated by the number of provided datasets 
+                                 [yet to be determined].")
                        ),
                        h3(tags$b("Download the full user manual")),
                        downloadButton("manFile", "User manual"),
                        h3(tags$b("Acknowledgments")),
                        p("This portal was created out of the Kongsfjorden System Flagship, 
-                         and developed by Robert Schlegel as a part of the output of WP1 of the Horizon2020 funded FACE-IT project (869154)."),
+                         and developed by Robert Schlegel as a part of the output of WP1 of the Horizon2020 
+                         funded FACE-IT project (869154)."),
                        img(src = "FACE-IT_h2020.png", align = "center", width = "500px"),
                        p(),
                        img(src = "Ny-Ålesund logo_with Flagship_2.png", align = "center", width = "500px")
@@ -691,7 +644,8 @@ server <- function(input, output, session) {
       upload_opts$schema <- "SAIV"
     } else if(str_sub(file_text_list[[1]][1], 1, 8) == "RBR data"){
       upload_opts$schema <- "RBR"
-    } else if(str_sub(file_text_list[[1]][1], 1, 10) == "* Sea-Bird" & str_sub(file_text_list[[1]][17], 1, 15) == "* output oxygen"){
+    } else if(str_sub(file_text_list[[1]][1], 1, 10) == "* Sea-Bird" & 
+              str_sub(file_text_list[[1]][17], 1, 15) == "* output oxygen"){
       upload_opts$schema <- "Sea-Bird O2"
     } else if(str_sub(file_text_list[[1]][1], 1, 10) == "* Sea-Bird"){
       upload_opts$schema <- "Sea-Bird"
@@ -935,7 +889,6 @@ server <- function(input, output, session) {
   output$contents_load <- DT::renderDataTable({
     req(input$file1)
     df_load <- df_load()
-    # file_info_df <- file_info_df()
     df_load_DT <- datatable(df_load, 
                             options = list(pageLength = 100, scrollX = TRUE, scrollY = 300))
     return(df_load_DT)
@@ -970,7 +923,7 @@ server <- function(input, output, session) {
   # Extract meta-data from file headers
   # NB: This must be run from within the server code chunk
   file_meta_func <- function(file_temp){
-    # NB: THere are too many possible issues presented by harvesting meta-data from files
+    # NB: There are too many possible issues presented by harvesting meta-data from files
     # For now it has been decided to require the user to enter this information
     brand_meta <- upload_opts$schema
     if(upload_opts$schema == "Sea-Bird O2") brand_meta <- "Sea-Bird"
@@ -1007,7 +960,6 @@ server <- function(input, output, session) {
   table <- reactiveValues()
   output$table1output <- renderRHandsontable({
     rhandsontable(file_meta_all(), stretchH = "all", useTypes = F) %>% 
-      # hot_col("file_num", readOnly = TRUE) %>% 
       hot_col(col = "file_name", readOnly = TRUE) %>% 
       hot_col(col = "upload_date", readOnly = TRUE) %>% 
       hot_col(col = "Sensor_number", strict = FALSE)})
@@ -1021,7 +973,8 @@ server <- function(input, output, session) {
   ## Site
   observeEvent(input$allSite, {
     table$table1$Site <- input$allSite
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Site), col = 3, session = session, table$table1$Site[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Site), 
+                            col = 3, session = session, table$table1$Site[1])
     if(input$allSite == "Site 1"){
       shiny::updateNumericInput(inputId = "allLon", value = 12)
       shiny::updateNumericInput(inputId = "allLat", value = 78.95)
@@ -1071,42 +1024,50 @@ server <- function(input, output, session) {
   ## Longitude
   observeEvent(input$allLon, {
     table$table1$Lon <- input$allLon
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lon), col = 4, session = session, table$table1$Lon[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lon), 
+                            col = 4, session = session, table$table1$Lon[1])
   })
   ## Latitude
   observeEvent(input$allLat, {
     table$table1$Lat <- input$allLat
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lat), col = 5, session = session, table$table1$Lat[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Lat), 
+                            col = 5, session = session, table$table1$Lat[1])
   })
   ## Data owner (person)
   observeEvent(input$allDataOwnerPerson, {
     table$table1$Owner_person <- input$allDataOwnerPerson
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Owner_person), col = 6, session = session, table$table1$Owner_person[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Owner_person), 
+                            col = 6, session = session, table$table1$Owner_person[1])
   })
   ## Data owner (institute)
   observeEvent(input$allDataOwnerInstitute, {
     table$table1$Owner_institute <- input$allDataOwnerInstitute
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Owner_institute), col = 7, session = session, table$table1$Owner_institute[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Owner_institute), 
+                            col = 7, session = session, table$table1$Owner_institute[1])
   })
   ## Data owner (institute)
   observeEvent(input$allDOI, {
     table$table1$DOI <- input$allDOI
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$DOI), col = 8, session = session, table$table1$DOI[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$DOI), 
+                            col = 8, session = session, table$table1$DOI[1])
   })
   ## Sensor owner
   observeEvent(input$allSensorOwner, {
     table$table1$Sensor_owner <- input$allSensorOwner
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_owner), col = 9, session = session, table$table1$Sensor_owner[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_owner), 
+                            col = 9, session = session, table$table1$Sensor_owner[1])
   })
   ## Sensor brand
   observeEvent(input$allSensorBrand, {
     table$table1$Sensor_brand <- input$allSensorBrand
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_brand), col = 10, session = session, table$table1$Sensor_brand[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_brand), 
+                            col = 10, session = session, table$table1$Sensor_brand[1])
   })
   ## Sensor number
   observeEvent(input$allSensorNumber, {
     table$table1$Sensor_number <- input$allSensorNumber
-    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_number), col = 11, session = session, table$table1$Sensor_number[1])
+    rhandsontable::set_data("table1output", row = 1:length(table$table1$Sensor_number), 
+                            col = 11, session = session, table$table1$Sensor_number[1])
   })
   
   # Reactive data for datatable
@@ -1216,7 +1177,8 @@ server <- function(input, output, session) {
   df_meta_check <- reactive({
     req(df_final())
     df_meta_check <- df_final() %>% 
-      dplyr::select(file_name, Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Lon, Lat) %>% 
+      dplyr::select(file_name, Owner_person, Owner_institute, Sensor_owner, 
+                    Sensor_brand, Sensor_number, Lon, Lat) %>% 
       mutate(Owner_person = case_when(is.na(Owner_person) ~ 1, TRUE ~ 0),
              Owner_institute = case_when(is.na(Owner_institute) ~ 1, TRUE ~ 0),
              # DOI = case_when(is.na(DOI) ~ 1, TRUE ~ 0), # Not required
@@ -1240,7 +1202,8 @@ server <- function(input, output, session) {
                Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
       summarise(rows_n = n(), .groups = "drop") %>% 
       left_join(df_QC_flags(), by = "file_name") %>% 
-      dplyr::select(Uploader, upload_date, file_name, total_rows, `0`, `1`, `2`, `3`, embargo, everything(), -rows_n)
+      dplyr::select(Uploader, upload_date, file_name, total_rows, 
+                    `0`, `1`, `2`, `3`, embargo, everything(), -rows_n)
     return(df_meta_final)
   })
   
@@ -1288,18 +1251,10 @@ server <- function(input, output, session) {
     return(df_meta_DT)
   })
   
-  # Show the uploaded data
-  ## NB: Not currently used
-  output$uploadedDT <- DT::renderDataTable({
-    req(input$file1, table$table1)
-    df_final <- df_meta_final() # NB: CAUTION this is intentionally wrong
-    df_final_DT <- datatable(df_final, options = list(pageLength = 100, scrollX = TRUE, scrollY = 250))
-    return(df_final_DT)
-  })
-  
   # Show the newly expanded database
   output$metaDataBase <- DT::renderDataTable({
-    mdb_DT <- datatable(df_meta_data_base(), rownames = F, options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
+    mdb_DT <- datatable(df_meta_data_base(), rownames = F, 
+                        options = list(pageLength = 20, scrollX = TRUE, scrollY = 250))
     return(mdb_DT)
   })
   
@@ -1311,7 +1266,6 @@ server <- function(input, output, session) {
       actionButton("upload", "Upload", icon = icon("upload"))
     } else {
       h6("Ensure there are no missing meta-data before upload button will appear.")
-      # actionButton("uploadFail", "Missing meta-data", icon = icon("skull"))
     }
   })
   
@@ -1372,7 +1326,6 @@ server <- function(input, output, session) {
     df_meta_res <- meta_data_base$df %>% 
       filter(Uploader != reactiveValuesToList(res_auth)[["user"]]) %>% 
       bind_rows(table$table2) %>% distinct()
-    # df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
     write_rds(df_meta_res, file = "../kongData/meta_data_base.Rds", compress = "gz")
     meta_data_base$df <- read_rds("../kongData/meta_data_base.Rds")
   })
@@ -1385,12 +1338,7 @@ server <- function(input, output, session) {
   output$selectUpUI <- renderUI({
     selectizeInput('selectUp', 'Data uploader',
                    choices = unique(df_meta_data_base()$Uploader), multiple = T,
-                   selected = unique(df_meta_data_base()$Uploader)#,
-                   # NB: If one wants to start with no values selected
-                   # options = list(
-                   #   placeholder = 'Select data uploader(s)',
-                   #   onInitialize = I('function() { this.setValue(""); }')
-                   # )
+                   selected = unique(df_meta_data_base()$Uploader)
     )
   })
   
@@ -1400,13 +1348,6 @@ server <- function(input, output, session) {
                    choices = unique(df_meta_data_base()$Owner_person), multiple = T,
                    selected = unique(df_meta_data_base()$Owner_person))
   })
-  
-  ## Subset by data owners (institute) # NB: Not needed
-  # output$selectDOInUI <- renderUI({
-  #   selectizeInput('selectDOIn', 'Data owner (institute)',
-  #                  choices = unique(df_data_base()$Owner_institute), multiple = T,
-  #                  selected = unique(df_data_base()$Owner_institute))
-  # })
   
   ## Subset by sensor owner
   output$selectSOUI <- renderUI({
@@ -1554,7 +1495,6 @@ server <- function(input, output, session) {
     } else{
       df_filter$x_dat <- df_filter[,input$plotXDL]
       df_filter$y_dat <- df_filter[,input$plotYDL]
-      # ts <- ggplot(data = df_filter, aes_string(x = input$plotXDL, y = input$plotYDL)) +
       ts <- ggplot(data = df_filter, aes(x = x_dat, y = y_dat)) +
         geom_point() + #geom_line() +
         labs(x = input$plotXDL, y = input$plotYDL) +
@@ -1650,7 +1590,6 @@ server <- function(input, output, session) {
   )
   
   
-  
   ## Instructions ------------------------------------------------------------
   
   observeEvent(input$info, {
@@ -1660,18 +1599,22 @@ server <- function(input, output, session) {
       text = tags$span(
         "The Kongsfjorden CTD data portal is laid out on a dashboard with a ",tags$em("side bar"),
         " on the left and additional controls and plots in the ",tags$em("body"),".",
-        # tags$h3(icon("bars"),"Side bar", style = "color: skyblue;"),
-        # img(src = "Portal process visualization.png", align = "center", width = "800px"),
         tags$h3(icon("desktop"),tags$b("1. Load file(s)")),  
         tags$ul(style = "text-align: justify;",
-                tags$li("In the blue box ('File format') you can identify the files you want to upload and in which format they are"),
+                tags$li("In the blue box ('File format') you can identify the files you want to upload and 
+                        in which format they are"),
                 tags$ul(
                   tags$li("Click on browse and select the file(s) you want to upload (can be multiple files at once)"),
-                  tags$li("If the software recognized the file type, it will suggest to you a pre-described file format (e.g. for SAIV or RBR), you can also select a file schema in the drop down menu"),
-                  tags$li("Alternatively, you can change the file format settings manually, and check in the green box whether your data is not shown correctly"),
-                  tags$li("f you want to upload several files for a CTD that is not a SAIV (e.g. the instrument provided by Kingsbay) or RBR instrument (e.g. the instrument operated by AWIPEV), contact us in advance to see whether it is possible to include an automated upload scheme for your instrument type")
+                  tags$li("If the software recognized the file type, it will suggest to you a pre-described file format 
+                          (e.g. for SAIV or RBR), you can also select a file schema in the drop down menu"),
+                  tags$li("Alternatively, you can change the file format settings manually, and check in the green box 
+                          whether your data is not shown correctly"),
+                  tags$li("f you want to upload several files for a CTD that is not a SAIV (e.g. the instrument provided 
+                          by Kingsbay) or RBR instrument (e.g. the instrument operated by AWIPEV), contact us in advance 
+                          to see whether it is possible to include an automated upload scheme for your instrument type")
                 ),
-                tags$li("In the green box, you can check how the data is being uploaded. Double check e.g. if decimals are displayed correctly")
+                tags$li("In the green box, you can check how the data is being uploaded. Double check e.g. if decimals 
+                        are displayed correctly")
         ),
         
         tags$h3(icon("cog"),tags$b("2. Metadata")),
@@ -1679,26 +1622,38 @@ server <- function(input, output, session) {
                 tags$li("The information to be provided in this page is critically needed to upload data"),
                 tags$li("In the red box ('Fill all values') you can add information to all currently uploaded files"),
                 tags$ul(
-                  tags$li("If your profiles have been collected at one of the pre-described stations (e.g. KB3), you can select this station from the drop down menu"),
-                  tags$li("If you select a pre-described station, lat/long values will appear in the blue box for all uploaded files"),
-                  tags$li("If your station is not in the drop down menu or if your station has no fixed ID, the individual lat/long values can be edited manually in the blue box (see below)"),
+                  tags$li("If your profiles have been collected at one of the pre-described stations (e.g. KB3), 
+                          you can select this station from the drop down menu"),
+                  tags$li("If you select a pre-described station, lat/long values will appear in the blue box for 
+                          all uploaded files"),
+                  tags$li("If your station is not in the drop down menu or if your station has no fixed ID, the 
+                          individual lat/long values can be edited manually in the blue box (see below)"),
                   tags$li("Add the name of the data owner"),
-                  tags$li("The sensor owner (e.g. Kingsbay for the SAIV data format), brand and number are pre-described based on the file structure"),
-                  tags$li("If these values are missing or incorrect, they can be changed/added in the blue box (see below) for all currently uploaded files"),
+                  tags$li("The sensor owner (e.g. Kingsbay for the SAIV data format), brand and number are 
+                          pre-described based on the file structure"),
+                  tags$li("If these values are missing or incorrect, they can be changed/added in the blue box 
+                          (see below) for all currently uploaded files"),
                 ),
-                tags$li("The blue box ('Fill individual Values') can be used to add or edit metadata for individual files (e.g. if you upload files form different stations together)"),
+                tags$li("The blue box ('Fill individual Values') can be used to add or edit metadata for 
+                        individual files (e.g. if you upload files form different stations together)"),
                 tags$ul(
-                  tags$li("This works like a normal spreadsheet (e.g. excel), where you can type, drag, and copy past from a different file)"),
-                  tags$li("If you want to upload files form different stations together, it makes sense to prepare a table with site, lat, long info that can be directly copy-pasted into this box")
+                  tags$li("This works like a normal spreadsheet (e.g. excel), where you can type, drag, 
+                          and copy past from a different file)"),
+                  tags$li("If you want to upload files form different stations together, it makes sense 
+                          to prepare a table with site, lat, long info that can be directly copy-pasted into this box")
                 ),
                 tags$li("The map (orange box) shows you the lat long position of your data"),
                 tags$ul(
-                  tags$li("If the box around the map is green, all data are within the geographic range, if it is orange some or all data are located outside"),
+                  tags$li("If the box around the map is green, all data are within the geographic range, 
+                          if it is orange some or all data are located outside"),
                   tags$li("In this case you may want to double check your lat/long entries")
                 ),
-                tags$li("If your data have already been published, please add the DOI [DOI field still needs to be implemented] of the primary data publication (in this case, the data will be accessible via the database, but will not be published in Pangaea)"),
+                tags$li("If your data have already been published, please add the DOI [DOI field still 
+                        needs to be implemented] of the primary data publication (in this case, the data 
+                        will be accessible via the database, but will not be published in Pangaea)"),
                 tags$ul(
-                  tags$li("If you want your data to be published via the automated pipeline provided by the app, leave the DOI field empty"),
+                  tags$li("If you want your data to be published via the automated pipeline provided 
+                          by the app, leave the DOI field empty"),
                   tags$li("If your data needs be published in another database first, write ‘xxx’ into the DOI field"),
                   tags$li("You can add a DOI to your dataset later via the '4) Edit' tab (see below)"),
                   tags$li("Please see the 'About' tab for more details on DOI's and publishing of data")
@@ -1717,15 +1672,20 @@ server <- function(input, output, session) {
         
         tags$h3(icon("download"),tags$b("5. Download")),
         tags$ul(style = "text-align: justify;",
-                tags$li("On this page, uploaded data (and published data with DOI [not yet implemented]) can be found and downloaded"),
-                tags$li("In the blue box (‘controls’), you can select the range of data you want to download in terms of 6 characteristics"),
+                tags$li("On this page, uploaded data (and published data with DOI [not yet implemented]) 
+                        can be found and downloaded"),
+                tags$li("In the blue box (‘controls’), you can select the range of data you want to 
+                        download in terms of 6 characteristics"),
                 tags$ul(
-                  tags$li("All data and sensor owners are displayed, but can be omitted by clicking on the name and deleting it [to be improved]"),
+                  tags$li("All data and sensor owners are displayed, but can be omitted by clicking on 
+                          the name and deleting it [to be improved]"),
                   tags$li("Deleted data or sensor owners can be added back via the appearing drop down menu"),
                   tags$li("Data can be downloaded as .csv or .rds files via the download data button"),
                 ),
-                tags$li("The selected data points are shown in the green data box and their locations are illustrated in the orange map box"),
-                tags$li("To illustrate data distribution and ranges, all selected data can be plotted in the red time series box by selecting the variables for the x and y axis of the plot")
+                tags$li("The selected data points are shown in the green data box and their locations are 
+                        illustrated in the orange map box"),
+                tags$li("To illustrate data distribution and ranges, all selected data can be plotted in 
+                        the red time series box by selecting the variables for the x and y axis of the plot")
         ),
         
         tags$h3(icon("question"),tags$b("About")),
