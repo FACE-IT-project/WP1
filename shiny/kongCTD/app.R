@@ -134,16 +134,20 @@ if(file.exists("../kongData/data_base.Rds")){
 # meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test"))
 # write_rds(meta_data_base, "../kongData/meta_data_base.Rds")
 
-# Remove/fix bad columns
-## TODO: Implement the removal of columns that start with 'X'
+# Fix bad columns - usually due to incorrect data types
 # data_base$Timestamp <- as.character(data_base$Timestamp)
+
+# Remove 'X' columns
+## These are columns that were uploaded without headers and cannot be used
+## because it is impossible to be certain what data they are
+# data_base <- dplyr::select(data_base, -starts_with("X"))
 # write_rds(data_base, "../kongData/data_base.Rds")
 
 # Calculate correct depths and times from available columns
 # TODO: Implement this
 
 # Fix meta-data-base to show all uploaded files
-# TODO: Write code that can take the datbase and meta-database to fix missing meta-data
+# TODO: Write code that can take the database and meta-database to fix missing meta-data
 # this will then allow the files to appear on the download screen
 
 
@@ -964,40 +968,8 @@ server <- function(input, output, session) {
   ## Meta server -------------------------------------------------------------
   
   # Extract meta-data from file headers
-  # NB: THis must be run from within the server code chunk
+  # NB: This must be run from within the server code chunk
   file_meta_func <- function(file_temp){
-    # file_text <- read_file(file_temp)
-    # # NB: This first schema procs for both SAIV and ALt_S
-    # if(str_sub(file_text, 1, 10) == "From file:") {
-    #   ins_no_raw <- sapply(str_split(file_text, "Instrument no.:"), "[[", 2)
-    #   # mini_df_1 <- read.csv("../test_data/150621_KB4.txt", nrows = 1, skip = 1, sep = ";", dec = ",")
-    #   mini_df_1 <- read.csv(file_temp, nrows = 1, skip = 1, sep = ";", dec = ",")
-    #   df_meta <- data.frame(file_temp = file_temp,
-    #                         Site = as.character(NA),
-    #                         Lon = as.numeric(NA),
-    #                         Lat = as.numeric(NA),
-    #                         Owner_person = as.character(NA),
-    #                         Owner_institute = as.character(NA),
-    #                         DOI = as.character(NA),
-    #                         Sensor_owner = "Kings Bay",
-    #                         Sensor_brand = "SAIV",
-    #                         Sensor_number = as.character(gsub("[^0-9.-]", "", str_sub(ins_no_raw, 1, 15))),
-    #                         Air_pressure = as.numeric(mini_df_1$Air.pressure))
-    # } else if(str_sub(file_text, 1, 8) == "RBR data") {
-    #   # ins_no_raw <- sapply(str_split(file_text, "Serial Number:"), "[[", 2)
-    #   # mini_df_1 <- read_csv("data/KB3_018630_20210416_1728.csv", n_max = 1)
-    #   mini_df_1 <- read_csv(file_temp, n_max = 1)
-    #   df_meta <- data.frame(file_temp = file_temp,
-    #                         Site = as.character(NA),
-    #                         Lon = as.numeric(NA),
-    #                         Lat = as.numeric(NA),
-    #                         Owner_person = as.character(NA),
-    #                         Owner_institute = as.character(NA),
-    #                         DOI = as.character(NA),
-    #                         Sensor_owner = as.character(NA),
-    #                         Sensor_brand = "RBR",
-    #                         Sensor_number = as.character(mini_df_1$...4))
-    # } else {
     # NB: THere are too many possible issues presented by harvesting meta-data from files
     # For now it has been decided to require the user to enter this information
     brand_meta <- upload_opts$schema
@@ -1357,11 +1329,11 @@ server <- function(input, output, session) {
     data_base$df <- read_rds(database_dir[1])
     
     # Create backups if necessary/possible
-    if(file.exists("../../srv/shiny-server/kongData/data_base.Rds")){
+    if(file.exists("../kongData/data_base.Rds")){
       write_rds(df_meta_res, compress = "gz", 
-                file = paste0("../../srv/shiny-server/kongDataBackup/meta_data_base_",Sys.Date(),".Rds"))
+                file = paste0("../kongDataBackup/meta_data_base_",Sys.Date(),".Rds"))
       write_rds(df_data_res, compress = "gz", 
-                file = paste0("../../srv/shiny-server/kongDataBackup/data_base_",Sys.Date(),".Rds"))
+                file = paste0("../kongDataBackup/data_base_",Sys.Date(),".Rds"))
     }
   })
   
