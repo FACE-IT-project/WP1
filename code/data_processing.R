@@ -522,24 +522,29 @@ write_csv(albedo, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/alb
 # Φ_PSII
 I_PAM <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/Diel_I-PAM.csv") |> 
   mutate(`date/time [UTC+0]` = paste0(date,"T", time)) |> 
-  dplyr::rename(`PAR [µmol m-2 s-1]` = `Under ice PAR [µmol m-2 s-1]`,
-                `Φ_PSII [mean] (I-PAM)` = `I-PAM [avg]`, 
-                `Φ_PSII [std] (I-PAM)` = `I-PAM [std]`,
-                `Φ_PSII [mean] (Phyto-PAM)` = `Phyto-PAM [avg]`,
-                `Φ_PSII [std] (Phyto-PAM)` = `Phyto-PAM [std]`) |> 
-  dplyr::select(`date/time [UTC+0]`, `Φ_PSII [mean] (I-PAM)`, `Φ_PSII [std] (I-PAM)`,
-                `Φ_PSII [mean] (Phyto-PAM)`, `Φ_PSII [std] (Phyto-PAM)`) |> 
-  mutate_at(1:5, ~as.character(.)) |>
-  mutate_at(1:5, ~replace_na(., ""))
+  dplyr::rename(`PAR [µmol m-2 s-1] (under ice)` = `Under ice PAR [µmol m-2 s-1]`,
+                `Φ PSII [mean] (I-PAM)` = `I-PAM [avg]`, 
+                `Φ PSII [std] (I-PAM)` = `I-PAM [std]`,
+                `Φ PSII [mean] (Phyto-PAM)` = `Phyto-PAM [avg]`,
+                `Φ PSII [std] (Phyto-PAM)` = `Phyto-PAM [std]`) |> 
+  dplyr::select(`date/time [UTC+0]`, `PAR [µmol m-2 s-1] (under ice)`,
+                `Φ PSII [mean] (I-PAM)`, `Φ PSII [std] (I-PAM)`,
+                `Φ PSII [mean] (Phyto-PAM)`, `Φ PSII [std] (Phyto-PAM)`) |> 
+  mutate_at(1:6, ~as.character(.)) |>
+  mutate_at(1:6, ~replace_na(., ""))
 write_csv(I_PAM,"~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/I-PAM_PG.csv")
 
 ## phytoPAM
 phyto_PAM <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM.csv") |>
-  dplyr::select(date, type, station, `volume before species ID [ml]`, `filtered water volume [ml]`, `F`, Fm, alfa, ETRmax) |> 
-  dplyr::rename(`α [mol é mol−1 photons]` = alfa,
-                `ETR_max [µmol é m−2 s−1]` = ETRmax) |> 
-  mutate_at(1:9, ~as.character(.)) |>
-  mutate_at(1:9, ~replace_na(., ""))
+  dplyr::select(date, type, station, `volume before species ID [ml]`, `filtered water volume [ml]`,
+                `volume filtered for chl-a [ml]`, `F`, Fm, alfa, ETRmax) |> 
+  dplyr::rename(`water sample volume before species ID [ml]` = `volume before species ID [ml]`,
+                `water sample volume after filtration for species ID [ml]` = `filtered water volume [ml]`,
+                `water sample volume filtered for chl-a [ml]` = `volume filtered for chl-a [ml]`,
+                `α [mol é mol−1 photons]` = alfa,
+                `ETR max [µmol é m−2 s−1]` = ETRmax) |> 
+  mutate_at(1:10, ~as.character(.)) |>
+  mutate_at(1:10, ~replace_na(., ""))
 write_csv(phyto_PAM, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM_PG.csv")
 
 ## Species
@@ -560,7 +565,7 @@ kang_base <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological
   mutate(date = as.Date(Date, "%Y%m%d"),
          `date/time [UTC+0]` = paste0(date,"T00:00:00")) |> 
   pivot_wider(values_from = "value", names_from = "units") |> 
-  dplyr::rename(`sum [n l-1]` = `Sum [n/l]`, `sum [carbon µg l-1]` = `Sum [carbon µg l-1]`, species = Species) |> 
+  dplyr::rename(`sum [n ml-1]` = `Sum [n/l]`, `sum [carbon µg ml-1]` = `Sum [carbon µg l-1]`, species = Species) |> 
   mutate(`size class [µm]` = case_when(grepl("00-05", species) ~ "00-05",
                                        grepl("05-10", species) ~ "05-10",
                                        grepl("10-15", species) ~ "10-15",
@@ -577,9 +582,18 @@ kang_base <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological
                                        TRUE ~ as.character(NA)),
          species = str_remove_all(species, "<|>|00-05|05-10|10-15|10-20|15-20|20-50|41-60|10|20|25|50|60|µm"),
          species = str_remove_all(species, "\\( \\)|\\(  \\)|\\(A\\)|-gruppen| auto"),
+         species = str_replace_all(species, "DIATOMOPHYCEAE", "Bacillariophyceae"),
+         species = str_replace_all(species, "kiselalger", "diatom"),
+         species = str_replace_all(species, "Nøgne furealger", "Naked dinoflagellate"),
+         species = str_replace_all(species, "Thekate furealger spp.", "Thecate dinoflagellate spp."),
          species = trimws(species))
 
 ## Get species IDs
+# Consider exceptions for:
+# Gyro-/Gymnodinium spp.
+# Gyro-/Pleurosigma spp.
+# Nitzschia clost./long.
+# Pyramimonas spp./Tetraselmis spp.
 kang_unq <- kang_base |> dplyr::select(species) |> distinct()
 kang_ID <- plyr::ldply(kang_unq$species, wm_records_df, .parallel = T)
 
@@ -589,10 +603,11 @@ kang_spp <- left_join(kang_base, kang_ID, by = "species") |>
                 `Species UID (URI)` = url,
                 `Species UID (Semantic URI)` = lsid) |> 
   dplyr::select( `date/time [UTC+0]`, station, `Species UID`, `Species UID (URI)`,
-                 `Species UID (Semantic URI)`, `size class [µm]`, `sum [n l-1]`, `sum [carbon µg l-1]`) |> 
+                 `Species UID (Semantic URI)`, `size class [µm]`, `sum [n ml-1]`, `sum [carbon µg ml-1]`) |> 
   mutate_at(1:8, ~as.character(.)) |>
   mutate_at(1:8, ~replace_na(., ""))
 write_csv(kang_spp, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/kang_spp_PG.csv")
+rm(header1, header2, header3, kang_base, kang_unq, kang_ID); gc()
 
 # Upwelling irradiance
 ## TriOS
@@ -622,34 +637,101 @@ write_csv(PAR_down_up, "~/pCloudDrive/restricted_data/Lund-Hansen/Upwelling irra
 
 # Duesedau ----------------------------------------------------------------
 
+### 2021 data
 ## Age density depth structure
-age_density_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Age_Density_2021_PANGEA.csv", delim = ";") |> 
+age_density_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/Age_Density_2021_PANGEA.csv", delim = ";") |> 
   rename_with(~ gsub("_m2", "", .x, fixed = TRUE)) |> 
   pivot_longer(Juveniles:Total_Individuals, names_to = "Age class", values_to = "count") |> 
   rename(`Depth [m]` = Water_Depth_m) |> 
   mutate(Species = gsub("_", " ", Species)) |> 
   arrange(`Depth [m]`, Replicate, Species) |> 
   dplyr::select(-Year)
-write_csv(age_density_2021, "~/pCloudDrive/restricted_data/Duesedau/age_density_2021_PG.csv")
+write_csv(age_density_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/age_density_2021_PG.csv")
 
 ## Carbon Nitrogen 
-C_N_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/C_N_2021_PANGEA.csv", delim = ";") |> 
+C_N_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/C_N_2021_PANGEA.csv", delim = ";") |> 
   rename(`Depth [m]` = Water_Depth_m, `Individual [#]` = Individual_No, 
          `C:N [ratio]` = `C:N_ratio`, `N [%]` = `%N`, `C [%]` = `%C`) |> 
   mutate(Species = gsub("_", " ", Species)) |> 
   arrange(`Depth [m]`, Replicate, Species) 
-write_csv(C_N_2021, "~/pCloudDrive/restricted_data/Duesedau/C_N_2021_PG.csv")
+write_csv(C_N_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/C_N_2021_PG.csv")
 
 ## Date matrix
-datenmatrix_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Datenmatrix_2021_PANGEA.csv", delim = ";") |> 
+datenmatrix_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/Datenmatrix_2021_PANGEA.csv", delim = ";") |> 
   mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00")) |> 
   mutate_at(1:24, ~as.character(.)) |>
   mutate_at(1:24, ~replace_na(., ""))
-write_csv(datenmatrix_2021, "~/pCloudDrive/restricted_data/Duesedau/datenmatrix_2021_PG.csv")
+write_csv(datenmatrix_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/datenmatrix_2021_PG.csv")
 
 ## Lower depth distributions
-lower_depth_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Lower_Depth_Distribution_2021_PANGEA.csv", delim = ";") |>
+lower_depth_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/Lower_Depth_Distribution_2021_PANGEA.csv", delim = ";") |>
   mutate(`date/time [UTC+0]` = paste0(`date/time [UTC+0]`,"T00:00:00")) |> 
   arrange(`date/time [UTC+0]`, Transect, `Depth [m]`)
-write_csv(lower_depth_2021, "~/pCloudDrive/restricted_data/Duesedau/lower_depth_2021_PG.csv")
+write_csv(lower_depth_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/lower_depth_2021_PG.csv")
 
+### Historic data
+## kelp fresh weight
+FW_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/FW_timeseries_Hansneset.csv", delim = ";") |> 
+  pivot_longer(Acrosiphonia_Spongomorpha:young_Laminaria_spp., values_to = "mean fresh weight [kg m-2]", names_to = "species") |> 
+  mutate(Replicate = str_remove(Replicate, "_2012|_2013|_2021"),
+         species = trimws(species),
+         species = str_replace_all(species, "_ |_", " "),
+         species = gsub("sp$", "sp\\.", species),
+         species = case_when(species == "Chordaria Dicytosiphon" ~ "Chordaria dictyosiphon",
+                             species == "Turnerella penneyi" ~ "Turnerella pennyi", TRUE ~ species))
+FW_spp <- plyr::ldply(unique(FW_historic$species), wm_records_df, .parallel = T)
+FW_historic_spp <- left_join(FW_historic, FW_spp, by = "species") |> 
+  dplyr::rename(`Species UID` = species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
+  dplyr::select(Year, `Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
+                `mean fresh weight [kg m-2]`) |> 
+  mutate_at(1:7, ~as.character(.)) |>
+  mutate_at(1:7, ~replace_na(., ""))
+write_csv(FW_historic_spp, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/FW_historic_PG.csv")
+
+## Kelp age and densities
+kelp_age_density_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/Kelp_age_density_timeseries_Hansneset.csv", delim = "\t") |> 
+  mutate(Species = str_replace_all(Species, "_", " ")) |> 
+  left_join(FW_spp, by = c("Species" = "species")) |> 
+  dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid,
+                `count [n m-2]` = `Count [m^2]`, `mean age [years m-2]` = `Mean Age [m^2]`) |> 
+  dplyr::select(Year, `Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
+                `count [n m-2]`, `mean age [years m-2]`) |> 
+  mutate_at(1:8, ~as.character(.)) |>
+  mutate_at(1:8, ~replace_na(., ""))
+write_csv(kelp_age_density_historic, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/kelp_age_density_historic_PG.csv")
+
+## Leaf area index
+LAI_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/LAI_timeseries_Hansneset.csv", delim = ";") |> 
+  mutate(Replicate = str_remove(Replicate, "_2012|_2013|_2021"),
+         Class = case_when(Class != "Rhodophyta" ~ "Phaeophyceae", TRUE ~ Class),
+         Species = gsub("sp$", "sp\\.", Species))
+LAI_spp <- plyr::ldply(unique(LAI_historic$Species), wm_records_df, .parallel = T)
+LAI_historic_spp <- left_join(LAI_historic, LAI_spp, by = c("Species" = "species")) |> 
+  dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
+  dplyr::select(Year, `Depth [m]`, Replicate, Category, Class, 
+                `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, `leaf area [m^2]`) |> 
+  mutate_at(1:9, ~as.character(.)) |>
+  mutate_at(1:9, ~replace_na(., ""))
+write_csv(LAI_historic_spp, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/LAI_historic_PG.csv")
+
+
+# Koch --------------------------------------------------------------------
+
+# Sea urchin biomass/abundance
+urchin_spp <- plyr::ldply(c("Strongylocentrotus droebachiensis", "Strongylocentrotus pallidus"), 
+                          wm_records_df, .parallel = T)
+urchin_biomass_abundance <- read_csv("~/pCloudDrive/restricted_data/Koch/SU_Biomass_Abundance_Porsanger_2022_2023_Pangaea.csv") |> 
+  mutate(Species = str_replace_all(Species, "S_droebachiensis", "Strongylocentrotus droebachiensis"),
+         Species = str_replace_all(Species, "S_pallidus", "Strongylocentrotus pallidus"),
+         Colour = str_replace_all(Colour, "pik", "pink"),
+         Notes = str_replace_all(Notes, "injurged", "injured"),
+         Notes = str_replace_all(Notes, ", dead", " - dead")) |> 
+  left_join(urchin_spp, by = c("Species" = "species")) |> 
+  dplyr::rename(Quadrat = Quadrate, Location = Lokation, `diameter [cm]` = Diameter_cm, `weight [g]` = Weight_g,
+                `Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
+  dplyr::select(Year, Location, Quadrat, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
+                Colour, `diameter [cm]`, `weight [g]`, Notes) |> 
+  mutate_at(1:10, ~as.character(.)) |>
+  mutate_at(1:10, ~replace_na(., ""))
+write_csv(urchin_biomass_abundance, "~/pCloudDrive/restricted_data/Koch/urchin_biomass_abundance_PG.csv")
+rm(urchin_spp); gc()
