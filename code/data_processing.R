@@ -16,7 +16,6 @@ source("code/functions.R")
 library(tidync)
 library(ncdump)
 library(ggOceanMaps)
-library(worrms)
 
 
 # SOCAT -------------------------------------------------------------------
@@ -536,15 +535,11 @@ write_csv(I_PAM,"~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/I-PAM
 
 ## phytoPAM
 phyto_PAM <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM.csv") |>
-  dplyr::select(date, type, station, `volume before species ID [ml]`, `filtered water volume [ml]`,
-                `volume filtered for chl-a [ml]`, `F`, Fm, alfa, ETRmax) |> 
-  dplyr::rename(`water sample volume before species ID [ml]` = `volume before species ID [ml]`,
-                `water sample volume after filtration for species ID [ml]` = `filtered water volume [ml]`,
-                `water sample volume filtered for chl-a [ml]` = `volume filtered for chl-a [ml]`,
-                `α [mol é mol−1 photons]` = alfa,
+  dplyr::select(date, type, station, `F`, Fm, alfa, ETRmax) |> 
+  dplyr::rename(`α [mol é mol−1 photons]` = alfa,
                 `ETR max [µmol é m−2 s−1]` = ETRmax) |> 
-  mutate_at(1:10, ~as.character(.)) |>
-  mutate_at(1:10, ~replace_na(., ""))
+  mutate_at(1:7, ~as.character(.)) |>
+  mutate_at(1:7, ~replace_na(., ""))
 write_csv(phyto_PAM, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/PhytoPAM_PG.csv")
 
 ## Species
@@ -599,6 +594,8 @@ kang_ID <- plyr::ldply(kang_unq$species, wm_records_df, .parallel = T)
 
 ## Combine and save
 kang_spp <- left_join(kang_base, kang_ID, by = "species") |> 
+  mutate(url = case_when(species == "Gyro-/Gymnodinium spp." ~ "https://www.marinespecies.org/aphia.php?p=taxdetails&id=109475", TRUE ~ url),
+         lsid = case_when(species == "Gyro-/Gymnodinium spp." ~ "urn:lsid:marinespecies.org:taxname:109475", TRUE ~ lsid)) |> 
   dplyr::rename(`Species UID` = species,
                 `Species UID (URI)` = url,
                 `Species UID (Semantic URI)` = lsid) |> 
@@ -674,10 +671,13 @@ write_csv(lower_depth_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_20
 FW_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/FW_timeseries_Hansneset.csv", delim = ";") |> 
   pivot_longer(Acrosiphonia_Spongomorpha:young_Laminaria_spp., values_to = "mean fresh weight [kg m-2]", names_to = "species") |> 
   mutate(Replicate = str_remove(Replicate, "_2012|_2013|_2021"),
+         Replicate = str_replace(Replicate, "Q0", "Q"),
          species = trimws(species),
          species = str_replace_all(species, "_ |_", " "),
          species = gsub("sp$", "sp\\.", species),
-         species = case_when(species == "Chordaria Dicytosiphon" ~ "Chordaria dictyosiphon",
+         species = case_when(species == "Acrosiphonia Spongomorpha" ~ "Acrosiphonia sp. and Spongomorpha sp.",
+                             species == "Chordaria Dicytosiphon" ~ "Chordaria flagelliformis with Dictyosiphon sp.",
+                             species == "young Laminaria spp." ~ "young Laminariales spp.",
                              species == "Turnerella penneyi" ~ "Turnerella pennyi", TRUE ~ species))
 FW_spp <- plyr::ldply(unique(FW_historic$species), wm_records_df, .parallel = T)
 FW_historic_spp <- left_join(FW_historic, FW_spp, by = "species") |> 
@@ -703,15 +703,16 @@ write_csv(kelp_age_density_historic, "~/pCloudDrive/restricted_data/Duesedau/Han
 ## Leaf area index
 LAI_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/LAI_timeseries_Hansneset.csv", delim = ";") |> 
   mutate(Replicate = str_remove(Replicate, "_2012|_2013|_2021"),
+         Replicate = str_replace(Replicate, "Q0", "Q"),
          Class = case_when(Class != "Rhodophyta" ~ "Phaeophyceae", TRUE ~ Class),
          Species = gsub("sp$", "sp\\.", Species))
 LAI_spp <- plyr::ldply(unique(LAI_historic$Species), wm_records_df, .parallel = T)
 LAI_historic_spp <- left_join(LAI_historic, LAI_spp, by = c("Species" = "species")) |> 
   dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
-  dplyr::select(Year, `Depth [m]`, Replicate, Category, Class, 
+  dplyr::select(Year, `Depth [m]`, Replicate,
                 `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, `leaf area [m^2]`) |> 
-  mutate_at(1:9, ~as.character(.)) |>
-  mutate_at(1:9, ~replace_na(., ""))
+  mutate_at(1:7, ~as.character(.)) |>
+  mutate_at(1:7, ~replace_na(., ""))
 write_csv(LAI_historic_spp, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/LAI_historic_PG.csv")
 
 
@@ -721,11 +722,12 @@ write_csv(LAI_historic_spp, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_hi
 urchin_spp <- plyr::ldply(c("Strongylocentrotus droebachiensis", "Strongylocentrotus pallidus"), 
                           wm_records_df, .parallel = T)
 urchin_biomass_abundance <- read_csv("~/pCloudDrive/restricted_data/Koch/SU_Biomass_Abundance_Porsanger_2022_2023_Pangaea.csv") |> 
-  mutate(Species = str_replace_all(Species, "S_droebachiensis", "Strongylocentrotus droebachiensis"),
-         Species = str_replace_all(Species, "S_pallidus", "Strongylocentrotus pallidus"),
-         Colour = str_replace_all(Colour, "pik", "pink"),
-         Notes = str_replace_all(Notes, "injurged", "injured"),
-         Notes = str_replace_all(Notes, ", dead", " - dead")) |> 
+  mutate(Colour = case_when(Colour == "pik" ~ "pink",
+                            Species == "S_pallidus" ~ "green", TRUE ~ Colour),
+         Species = case_when(Species == "S_droebachiensis" ~ "Strongylocentrotus droebachiensis",
+                             Species == "S_pallidus" ~ "Strongylocentrotus pallidus"),
+         Notes = case_when(Notes == "injurged" ~ "injured",
+                           Notes == ", dead" ~ " - dead", TRUE ~ Notes)) |> 
   left_join(urchin_spp, by = c("Species" = "species")) |> 
   dplyr::rename(Quadrat = Quadrate, Location = Lokation, `diameter [cm]` = Diameter_cm, `weight [g]` = Weight_g,
                 `Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 

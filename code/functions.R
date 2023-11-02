@@ -28,6 +28,7 @@ library(sp) # This needs to be phased out...
 library(sf)
 library(circular) # For calculating mean daily wind direction from degree values
 library(pangaear)
+library(worrms)
 library(arrow)
 library(doParallel); registerDoParallel(cores = 12)
 
