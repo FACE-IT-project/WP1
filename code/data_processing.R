@@ -591,6 +591,8 @@ kang_base <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological
 # Pyramimonas spp./Tetraselmis spp.
 kang_unq <- kang_base |> dplyr::select(species) |> distinct()
 kang_ID <- plyr::ldply(kang_unq$species, wm_records_df, .parallel = T)
+plus_ID <- plyr::ldply(c("Bacillariophyceae", "Pyramimonadales", "Chlorodendrales", "Dinoflagellata"), 
+                       wm_records_df, .parallel = T)
 
 ## Combine and save
 kang_spp <- left_join(kang_base, kang_ID, by = "species") |> 
