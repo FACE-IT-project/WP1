@@ -560,7 +560,7 @@ kang_base <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological
   mutate(date = as.Date(Date, "%Y%m%d"),
          `date/time [UTC+0]` = paste0(date,"T00:00:00")) |> 
   pivot_wider(values_from = "value", names_from = "units") |> 
-  dplyr::rename(`sum [n ml-1]` = `Sum [n/l]`, `sum [carbon µg ml-1]` = `Sum [carbon µg l-1]`, species = Species) |> 
+  dplyr::rename(`count [n/ml]` = `Sum [n/l]`, `carbon [µg/ml]` = `Sum [carbon µg l-1]`, species = Species) |> 
   mutate(`size class [µm]` = case_when(grepl("00-05", species) ~ "00-05",
                                        grepl("05-10", species) ~ "05-10",
                                        grepl("10-15", species) ~ "10-15",
@@ -581,7 +581,14 @@ kang_base <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological
          species = str_replace_all(species, "kiselalger", "diatom"),
          species = str_replace_all(species, "Nøgne furealger", "Naked dinoflagellate"),
          species = str_replace_all(species, "Thekate furealger spp.", "Thecate dinoflagellate spp."),
-         species = trimws(species))
+         species = trimws(species),
+         species_other = case_when(species == "Gyro-/Gymnodinium spp." ~ "Gymnodinium",
+                                   species %in% c("Gyro-/Pleurosigma spp.", "Nitzschia clost./long.", 
+                                                  "Pennate diatom") ~ "Bacillariophyceae",
+                                   species == "Pyramimonas spp./Tetraselmis spp." ~ "Chlorophyta",
+                                   species %in% c("Thecate dinoflagellate spp.", "Naked dinoflagellate",
+                                                  "Unknown flagellate") ~ "Dinoflagellata",
+                                   TRUE ~ species))
 
 ## Get species IDs
 # Consider exceptions for:
@@ -590,19 +597,16 @@ kang_base <- read_csv("~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological
 # Nitzschia clost./long.
 # Pyramimonas spp./Tetraselmis spp.
 kang_unq <- kang_base |> dplyr::select(species) |> distinct()
-kang_ID <- plyr::ldply(kang_unq$species, wm_records_df, .parallel = T)
-plus_ID <- plyr::ldply(c("Bacillariophyceae", "Pyramimonadales", "Chlorodendrales", "Dinoflagellata"), 
-                       wm_records_df, .parallel = T)
+kang_ID <- plyr::ldply(c(kang_unq$species, "Gymnodinium", "Bacillariophyceae", "Chlorophyta", "Dinoflagellata"),
+                       wm_records_df, .parallel = T) |> distinct()
 
 ## Combine and save
-kang_spp <- left_join(kang_base, kang_ID, by = "species") |> 
-  mutate(url = case_when(species == "Gyro-/Gymnodinium spp." ~ "https://www.marinespecies.org/aphia.php?p=taxdetails&id=109475", TRUE ~ url),
-         lsid = case_when(species == "Gyro-/Gymnodinium spp." ~ "urn:lsid:marinespecies.org:taxname:109475", TRUE ~ lsid)) |> 
+kang_spp <- left_join(kang_base, kang_ID, by = c("species_other" = "species")) |>
   dplyr::rename(`Species UID` = species,
                 `Species UID (URI)` = url,
                 `Species UID (Semantic URI)` = lsid) |> 
-  dplyr::select( `date/time [UTC+0]`, station, `Species UID`, `Species UID (URI)`,
-                 `Species UID (Semantic URI)`, `size class [µm]`, `sum [n ml-1]`, `sum [carbon µg ml-1]`) |> 
+  dplyr::select(`date/time [UTC+0]`, station, `Species UID`, `Species UID (URI)`,
+                `Species UID (Semantic URI)`, `size class [µm]`, `count [n/ml]`, `carbon [µg/ml]`) |> 
   mutate_at(1:8, ~as.character(.)) |>
   mutate_at(1:8, ~replace_na(., ""))
 write_csv(kang_spp, "~/pCloudDrive/restricted_data/Lund-Hansen/Photobiological/kang_spp_PG.csv")
