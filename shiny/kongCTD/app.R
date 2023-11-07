@@ -307,6 +307,8 @@ ui <- dashboardPage(
               box(width = 9, 
                   title = "Uploaded data preview",
                   status = "success", solidHeader = TRUE, collapsible = FALSE,
+                  h6("If the 'date_time' or 'Depth' column headers are red, please check your data files for errors and re-upload."),
+                  h6("If the 'Uploader' header is green all necessary columns were found."),
                   DT::dataTableOutput("contents_load")),
               
               # The QC display
@@ -341,7 +343,7 @@ ui <- dashboardPage(
                                                     selected = "No name")),
                            column(4, shiny::numericInput("allLon", "Longitude", value = NA, min = 10, max = 14)),
                            column(4, shiny::numericInput("allLat", "Latitude", value = NA, min = 78, max = 80))),
-                  h6(tags$b("Owner:"), "Provide information on the ownership of the data."),
+                  h6(tags$b("Owner:"), "Provide information on the ownership of the data. DOI is optional."),
                   fluidRow(column(4, shiny::textInput("allDataOwnerPerson", "Person")),
                            column(4, shiny::textInput("allDataOwnerInstitute", "Institute")),
                            column(4, shiny::textInput("allDOI", "DOI"))),
@@ -774,16 +776,27 @@ server <- function(input, output, session) {
   df_load_func <- function(file_temp){
     
     # Load data based on schema
-    df <- read.table(file_temp,
-                     header = upload_opts$header,
-                     skip = upload_opts$skip,
-                     sep = upload_opts$sep,
-                     dec = upload_opts$dec,
-                     quote = upload_opts$quote,
-                     fileEncoding = upload_opts$encoding, 
-                     blank.lines.skip = TRUE,
-                     fill = TRUE) %>%
-      mutate(file_temp = file_temp)
+    df <- tryCatch(read.table(file_temp,
+                              header = upload_opts$header,
+                              skip = upload_opts$skip,
+                              sep = upload_opts$sep,
+                              dec = upload_opts$dec,
+                              quote = upload_opts$quote,
+                              fileEncoding = upload_opts$encoding,
+                              blank.lines.skip = TRUE,
+                              fill = TRUE) %>%
+                     mutate(file_temp = file_temp), 
+                   error = function(file_temp) {df <- data.frame(file_temp = file_temp, error = "File format not understood")})
+    # df <- read.table(file_temp,
+    #                  header = upload_opts$header,
+    #                  skip = upload_opts$skip,
+    #                  sep = upload_opts$sep,
+    #                  dec = upload_opts$dec,
+    #                  quote = upload_opts$quote,
+    #                  fileEncoding = upload_opts$encoding,
+    #                  blank.lines.skip = TRUE,
+    #                  fill = TRUE) %>%
+    #   mutate(file_temp = file_temp)
     
     # Add column names to instruments that don't have direct column headers
     if(input$schema == "Sea-Bird"){
@@ -814,32 +827,44 @@ server <- function(input, output, session) {
       df <- mutate(df, across(!all_of(skip_cols), as.numeric))
     )
     
-    # Add date_time column when possible
+    # Add date_time column
     if("Date" %in% colnames(df) & "Time" %in% colnames(df)){
       df <- mutate(df, date_time = dmy_hms(paste(Date, Time, sep = " ")))
       count_fail <- sum(is.na(df$date_time))
       if(nrow(df) == count_fail){
         df <- mutate(df, date_time = ymd_hms(paste0(Date,Time)))
       }
-    }
-    if("Timestep" %in% colnames(df)){
+    } else if("Timestep" %in% colnames(df)){
       df <- mutate(df, date_time = dmy_hms(Timestep))
       count_fail <- sum(is.na(df$date_time))
       if(nrow(df) == count_fail){
         df <- mutate(df, date_time = ymd_hms(Timestep))
       }
-    }
-    if("Timestamp" %in% colnames(df)){
+    } else if("Timestamp" %in% colnames(df)){
       df <- mutate(df, date_time = dmy_hms(Timestamp))
       count_fail <- sum(is.na(df$date_time))
       if(nrow(df) == count_fail){
         df <- mutate(df, date_time = ymd_hms(Timestamp))
       }
+    } else {
+      df <- mutate(df, date_time = as.Date(NA))
     }
+    
+    # Add Depth column
+    if("Depth" %in% colnames(df)){
+      # Intentionally blank
+    } else if(length(names(df)[str_detect(names(df), "pressure|Pressure")]) > 0) {
+      names(df)[str_detect(names(df), "pressure|Pressure")] <- "Depth"
+      df <- mutate(df, Pressure_for_Depth = TRUE)
+    } else {
+      df <- mutate(df, Depth = as.numeric(NA))
+    }
+    
     
     # Flag data
     ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
-    df_flag <- df
+    df_flag <- df |> 
+      dplyr::select(date_time, Depth, everything())
     df_flag$flag <- 0
     if("Temperature" %in% colnames(df_flag)) 
       df_flag <- mutate(df_flag, flag = case_when(Temperature < -1.8 | Temperature > 15 ~ 1, TRUE ~ flag))
@@ -864,10 +889,6 @@ server <- function(input, output, session) {
                                                   date_time > df_mdepth$date_time & flag == 0 ~ 3,
                                                   TRUE ~ flag))
     }
-    if("date_time" %in% names(df_flag)){
-      df_flag <- df_flag |> 
-        dplyr::select(date_time, everything())
-    }
     return(df_flag)
   }
   
@@ -887,16 +908,43 @@ server <- function(input, output, session) {
   
   # Table showing the uploaded file
   output$contents_load <- DT::renderDataTable({
-    req(input$file1)
+    req(input$file1, df_load())
     df_load <- df_load()
+    
+    # Check for missing data
+    miss_date_time <- sum(is.na(df_load$date_time))
+    miss_Depth <- sum(is.na(df_load$Depth))
+    
+    # Detect problems in date_time and depth columns and change colours accordingly
+    if(miss_date_time > 0 & miss_Depth > 0){
+      headjs <- "function(thead) {
+        $(thead).closest('thead').find('th').eq(4).css('background-color', '#FF0000');
+        $(thead).closest('thead').find('th').eq(5).css('background-color', '#FF0000');
+      }"
+    } else if(miss_date_time > 0){
+      headjs <- "function(thead) {
+        $(thead).closest('thead').find('th').eq(4).css('background-color', '#FF0000');
+      }"
+    } else if(miss_Depth > 0){
+      headjs <- "function(thead) {
+        $(thead).closest('thead').find('th').eq(5).css('background-color', '#FF0000');
+      }"
+    } else {
+      headjs <- "function(thead) {
+        $(thead).closest('thead').find('th').eq(1).css('background-color', '#90EE90');
+      }"
+    }
+    
+    # The datatable
     df_load_DT <- datatable(df_load, 
-                            options = list(pageLength = 100, scrollX = TRUE, scrollY = 300))
+                            options = list(pageLength = 100, scrollX = TRUE, scrollY = 300,
+                                           headerCallback = JS(headjs)))
     return(df_load_DT)
   })
   
   # Flagged data summary
   output$contents_load_QC <- DT::renderDataTable({
-    req(input$file1)
+    req(input$file1, df_load())
     
     df_rows <- df_load() %>% 
       group_by(file_name) %>% 
@@ -1073,6 +1121,7 @@ server <- function(input, output, session) {
   # Reactive data for datatable
   df_time <- reactive({
     req(input$file1, table$table1$file_name, df_load())
+    # meta_table <- table$table1() # Can't be called this way
     df_meta <- as.data.frame(table$table1) %>%
       mutate(file_name = as.character(file_name)) %>% 
       mutate(upload_date = as.Date(upload_date))
@@ -1146,8 +1195,8 @@ server <- function(input, output, session) {
   
   # Final df filtered by QC flags
   df_final <- reactive({
-    req(input$file1, df_time())
-    df_final <- df_time() #%>% 
+    req(df_time())
+    df_final <- df_time() #%>%
     # filter(!flag %in% input$qc_flag_filter)
     return(df_final)
   })
@@ -1173,31 +1222,30 @@ server <- function(input, output, session) {
     return(df_QC_flags)
   })
   
-  # Check that all necessary meta-data has been provided
+  # Check that all necessary columns and meta-data have been provided
   df_meta_check <- reactive({
-    req(df_final())
-    df_meta_check <- df_final() %>% 
-      dplyr::select(file_name, Owner_person, Owner_institute, Sensor_owner, 
-                    Sensor_brand, Sensor_number, Lon, Lat) %>% 
-      mutate(Owner_person = case_when(is.na(Owner_person) ~ 1, TRUE ~ 0),
-             Owner_institute = case_when(is.na(Owner_institute) ~ 1, TRUE ~ 0),
-             # DOI = case_when(is.na(DOI) ~ 1, TRUE ~ 0), # Not required
-             Sensor_owner = case_when(is.na(Sensor_owner) ~ 1, TRUE ~ 0),
-             Sensor_brand = case_when(is.na(Sensor_brand) ~ 1, TRUE ~ 0),
-             Sensor_number = case_when(is.na(Sensor_number) ~ 1, TRUE ~ 0),
-             # Site = case_when(is.na(Site) ~ 1, TRUE ~ 0), # Not necessarily required...
-             Lon = case_when(is.na(Lon) ~ 1, TRUE ~ 0),
-             Lat = case_when(is.na(Lat) ~ 1, TRUE ~ 0)) %>% 
-      group_by(file_name) %>%
-      summarise_all(sum) %>% 
-      ungroup()
+    req(df_time())
+    df_meta_check <- df_time() %>% #df_final() %>% 
+      mutate(Owner_person = case_when(Owner_person == "" ~ as.character(NA), TRUE ~ Owner_person),
+             Owner_institute = case_when(Owner_institute == "" ~ as.character(NA), TRUE ~ Owner_institute),
+             Sensor_owner = case_when(Sensor_owner == "" ~ as.character(NA), TRUE ~ Sensor_owner),
+             Sensor_brand = case_when(Sensor_brand == "" ~ as.character(NA), TRUE ~ Sensor_brand),
+             Sensor_number = case_when(Sensor_number == "" ~ as.character(NA), TRUE ~ Sensor_number)) |> 
+      summarise(Owner_person = sum(is.na(Owner_person)),
+                Owner_institute = sum(is.na(Owner_institute)),
+                Sensor_owner = sum(is.na(Sensor_owner)),
+                Sensor_brand = sum(is.na(Sensor_brand)),
+                Sensor_number = sum(is.na(Sensor_number)),
+                Lon = sum(is.na(as.numeric(Lon))), Lat = sum(is.na(as.numeric(Lat))),
+                date_time = sum(is.na(as.Date(date_time))), 
+                Depth = sum(is.na(as.numeric(Depth))), .by = file_name)
     return(df_meta_check)
   })
   
   # Final meta-database entry
   df_meta_final <- reactive({
-    req(df_final(), df_QC_flags())
-    df_meta_final <- df_final() %>% 
+    req(df_QC_flags(), df_time())#df_final())
+    df_meta_final <- df_time() %>% #df_final() %>% 
       group_by(Uploader, upload_date, file_name, Owner_person, Owner_institute, DOI, 
                Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
       summarise(rows_n = n(), .groups = "drop") %>% 
@@ -1231,7 +1279,8 @@ server <- function(input, output, session) {
         # Define the grouping of the df
         tr(th(colspan = 3, 'Files'),
            th(colspan = 4, 'QC flags'),
-           th(colspan = 7, 'Missing meta-data')),
+           th(colspan = 7, 'Missing meta-data'),
+           th(colspan = 2, 'Missing columns')),
         # Repeat column names
         tr(lapply(colnames(df_meta), th)))
     ))
@@ -1241,6 +1290,7 @@ server <- function(input, output, session) {
         $(thead).closest('thead').find('th').eq(0).css('background-color', '#FFF570');
         $(thead).closest('thead').find('th').eq(1).css('background-color', '#FFE15C');
         $(thead).closest('thead').find('th').eq(2).css('background-color', '#FFCD48');
+        $(thead).closest('thead').find('th').eq(3).css('background-color', '#e6b01f');
       }"
     
     # The datatable
@@ -1261,7 +1311,11 @@ server <- function(input, output, session) {
   # Reactive upload button
   output$uploadButton <- renderUI({
     req(df_meta_check())
-    if(sum(select(df_meta_check(), -file_name)) == 0){
+    if(sum(select(df_meta_check(), date_time)) > 0){
+      h6("Ensure the 'date_time' column is being loaded correctly.")
+    } else if(sum(select(df_meta_check(), Depth)) > 0){
+      h6("Ensure the 'Depth' column is being loaded correctly.")
+    } else if(sum(select(df_meta_check(), -file_name)) == 0){
       h6("All good, ready for upload!")
       actionButton("upload", "Upload", icon = icon("upload"))
     } else {
