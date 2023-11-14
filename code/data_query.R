@@ -34,7 +34,11 @@ source("code/functions.R")
 ## All Young Sound data files - 707
 pg_young_bbox <- pg_full_search(query = "", bbox = c(bbox_young[1], bbox_young[3], bbox_young[2], bbox_young[4])) # 701 files
 pg_young_name_1 <- pg_full_search(query = "zackenberg") # 51 files
-pg_young_all <- rbind(pg_young_bbox, pg_young_name_1) |> 
+pg_young_name_2 <- pg_full_search(query = "tyroler") # xxx files
+pg_young_name_3 <- pg_full_search(query = "lerbugt") # xxx files
+pg_young_name_4 <- pg_full_search(query = "A.P. Olsen Ice Cap") # xxx files
+# Also consider: Freya Glacier on Clavering Island; add river to the single names above to see if they change
+pg_young_all <- rbind(pg_young_bbox, pg_young_name_1, pg_young_name_2, pg_young_name_3, pg_young_name_4) |> 
   filter(!doi %in% c("10.1594/PANGAEA.786674", # This file causes weird date issues and doesn't have any key drivers
                      "10.1594/PANGAEA.831056")) |> # Geospatial data of mass balance for Freya Glacier
   mutate(count = n(), file = "pg_young") |> 
@@ -76,6 +80,7 @@ pg_por_all <- rbind(pg_por_bbox, pg_por_name_1, pg_por_name_2) |>
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_por_all))
 
 ## All Storfjorden data files - 701
+# Check: https://toposvalbard.npolar.no/
 pg_stor_bbox <- pg_full_search(query = "", bbox = c(bbox_stor[1], bbox_stor[3], bbox_stor[2], bbox_stor[4])) # 696 files
 pg_stor_name_1 <- pg_full_search(query = "storfjord") # 9 files
 pg_stor_name_2 <- pg_full_search(query = "storfjorden") # 5 files
@@ -85,6 +90,7 @@ pg_stor_all <- rbind(pg_stor_bbox, pg_stor_name_1, pg_stor_name_2) |>
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_stor_all))
 
 ## All Isfjorden data files - 1835
+# Check: https://toposvalbard.npolar.no/
 pg_is_bbox <- pg_full_search(query = "", bbox = c(bbox_is[1], bbox_is[3], bbox_is[2], bbox_is[4])) # 472 files
 pg_is_name_1 <- pg_full_search(query = "isfjord") # 1 files
 pg_is_name_2 <- pg_full_search(query = "isfjorden") # 8 files
@@ -98,6 +104,7 @@ pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3) |>
 pg_doi_list <- distinct(rbind(pg_doi_list, pg_is_all[c("doi", "count", "file")]))
 
 ## All Kongsfjorden bbox data files - 2275
+# Check: https://toposvalbard.npolar.no/
 pg_kong_bbox <- pg_full_search(query = "", bbox = c(bbox_kong[1], bbox_kong[3], bbox_kong[2], bbox_kong[4])) # 2243 files
 pg_kong_name_1 <- pg_full_search(query = "kongsfjord") # 17 files
 pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") # 211 files
