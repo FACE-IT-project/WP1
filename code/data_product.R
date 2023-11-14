@@ -210,6 +210,9 @@ if(!exists("EU_species")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.
 # 6.25 km, possibly 10 m, 2002 - 2021: daily
 # https://seaice.uni-bremen.de/data/amsr2/
 
+## Randolph Glacier Inventory
+# https://nsidc.org/data/nsidc-0770/versions/6
+
 # Ice modelling output
 ## Not on pCloud, too large to download
 # EU_ice
@@ -657,6 +660,9 @@ sval_EU_sub <- filter_site_plural("sval", full_product_EU)
 
 # Load species
 if(!exists("sval_species")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
+
+# Glacier Area Outlines
+# https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004
 
 # Glacier mass balance
 ## NB: Updated annually in May
