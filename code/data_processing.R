@@ -356,6 +356,34 @@ kong_NiedzLight_PG <- kong_NiedzLight %>%
   arrange(`depth [m]`, .by_group = TRUE) %>% ungroup()
 write_delim(kong_NiedzLight_PG, "~/pCloudDrive/restricted_data/Niedzwiedz/dataLight_PG.csv", delim = "\t")
 
+# Greenland MHW data
+green_spp <- plyr::ldply(c("Agarum clathratum", "Saccharina latissima"), wm_records_df, .parallel = T)
+green_MHW <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/green_MHW.csv") |> 
+  mutate(Species = case_when(Species == "Slat" ~ "Saccharina latissima",
+                             Species == "Acla" ~ "Agarum clathratum"),
+         Light = case_when(Light == "Low" ~ 3, Light == "In-situ" ~ 120),
+         `date/time [UTC+0]` = paste0(lubridate::dmy(Date),"T00:00:00")) |>   
+  left_join(green_spp, by = c("Species" = "species")) |> 
+  dplyr::rename(`treatment [°C]` = TempTreatm, `treatment [µmol photons m-2 s-1]` = Light, `day [#]` = Day,
+                `temp [°C]` = Temperature, `wet weight [g]` = WetWeight, `dry weight [g]` = DryWeight,
+                `phlorotannin concentration [mg g(DW)-1]` = Phlorotannins,
+                `chl c [µg g-1]` = Chlorophyll_c2, `fucoxanthin [µg g-1]` = Fucoxanthin,
+                `violaxanthin [µg g-1]` = Violaxanthin, `antheraxanthin [µg g-1]` = Antheraxanthin,
+                `zeaxanthin [µg g-1]` = Zeaxanthin, `chl a [µg g-1]` = Chlorophyll_a,
+                `ß-carotin [µg g-1]` = ßCarotin, `xanthophyll cycle pigments [µg g-1]` = Pool,
+                `ratio xanth. to chl a` = Pool.Chla, `accessory pigments [µg g-1]` = Acc,
+                `ratio acc. pig. to chl a` = Acc.Chla,
+                `O2 conc. [µmol O2 L-1 h-1 g(WW)-1] (relative to light treatment)` = PS,
+                `O2 conc. [µmol O2 L-1 h-1 g(WW)-1] (at 0 µmol photons m-2 s-1)` = Resp,
+                `Species UID` = Species,
+                `Species UID (URI)` = url,
+                `Species UID (Semantic URI)` = lsid) |> 
+  dplyr::select(`Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, `date/time [UTC+0]`,
+                `day [#]`, Phase, everything(), -Date) |> 
+  mutate_at(11:31, ~as.character(.)) |> 
+  mutate_at(11:31, ~replace_na(.,""))
+write_csv(green_MHW, "~/pCloudDrive/restricted_data/Niedzwiedz/green_MHW_PG.csv")
+
 
 # Marambio dataset --------------------------------------------------------
 
