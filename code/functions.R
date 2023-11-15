@@ -442,6 +442,11 @@ pg_dl_proc <- function(pg_doi){
                         citation = NA)
   }
   
+  # TODO: Implementing binning and averaging by depth and date
+  # This will require the processing of these columns at this stage
+  # Which in turn requires a new meta-data harvesting of what was done
+  # and if columns are missing etc.
+  
   # Exit
   return(dl_df)
   # rm(pg_doi, dl_error, dl_dat, dl_df); gc()
@@ -2437,6 +2442,17 @@ download_MUR_ALL <- function(file_date){
   
   # exit without returning anything
   # return()
+}
+
+# Shadow data that aren't meant to be distributed
+shadow <- function(df, URL_key = "g-e-m|GRDC|Received directly from Mikael Sejr"){
+  df_shadow <- dplyr::filter(df, grepl(URL_key, URL)) |> 
+    mutate(lon = as.numeric(NA), lat = as.numeric(NA), 
+           date = as.Date(NA), depth = as.numeric(NA), value = as.numeric(NA)) |> 
+    distinct() |> 
+    # left_join(full_var_list, by = c("category", "variable")) |> 
+    mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
+    distinct()
 }
 
 # Convenience function for filtering variables for analyses

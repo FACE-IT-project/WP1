@@ -447,6 +447,13 @@ data.table::fwrite(EU_wild, "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.csv")
 save(EU_wild, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
 rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 
+# Or if only one new file etc. was added:
+# if(!exists("EU_wild")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
+# EU_wild <- rbind(new_data, EU_wild) |> distinct()
+# data.table::fwrite(EU_wild, "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.csv")
+# save(EU_wild, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
+# rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
+
 
 ### Full product ------------------------------------------------------------
 
@@ -460,7 +467,7 @@ if(!exists("EU_species")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.
 if(!exists("EU_wild")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
 
 # Combine and save
-full_product_EU <- rbind(EU_species, EU_wild)
+full_product_EU <- rbind(EU_species, EU_wild) |> distinct()
 data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
 save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
 save(full_product_EU, file = "data/full_data/full_product_EU.RData")
@@ -668,16 +675,7 @@ write_csv(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species
 rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
-
-# Load full EU file
-if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
-
-# Subset to Svalbard bbox and references for data missing lon/lat coords
-sval_EU_sub <- filter_site_plural("sval", full_product_EU)
-
-# Load species
-if(!exists("sval_species")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
+### Wild data ---------------------------------------------------------------
 
 # Glacier Area Outlines
 # https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004
@@ -992,13 +990,38 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
 # Combine and save
-full_product_sval <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
-                           sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
-                           sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) |> 
-  distinct() |> mutate(site = "sval") |> 
+sval_wild <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
+                   sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
+                   sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) |> 
+  mutate(site = "sval") |> distinct() |> 
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(sval_species, sval_EU_sub)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
+save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
+rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
+
+# See EU example if only one file is being added
+
+
+### Full product ------------------------------------------------------------
+
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
+# Subset to Svalbard bbox and references for data missing lon/lat coords
+sval_EU_sub <- filter_site_plural("sval", full_product_EU)
+
+# Load PANGAEA
+## NB: There is intentionally no PANGAEA file
+
+# Load species
+if(!exists("sval_species")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
+
+# Load wild data
+if(!exists("sval_wild")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
+
+# Combine and save
+full_product_sval <- rbind(sval_EU_sub, sval_species, sval_wild) |> mutate(site = "sval") |> distinct()
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
 save(full_product_sval, file = "data/full_data/full_product_sval.RData")
@@ -1090,6 +1113,7 @@ data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong
 save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
 
 # Check that all columns were used
+# TODO: PAR and some other variables are being missed here
 colnames(pg_kong_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_kong_clean)) %in% unique(pg_kong_ALL$variable)]
 
 # Clean up
@@ -1219,20 +1243,7 @@ write_csv(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_spe
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
-
-# Load full Svalbard file
-## NB: This contains the full EU Arctic data
-if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
-
-# Subset to Kongsfjorden bbox and references for data missing lon/lat coords
-kong_sval_sub <- filter_site_plural("kong")
-
-# Load species
-if(!exists("kong_species")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
-
-# Load PG file
-if(!exists("pg_kong_ALL")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
+### Wild data ---------------------------------------------------------------
 
 # Process individual files
 ## Sea ice cover
@@ -1494,13 +1505,40 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Combine and save
-full_product_kong <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla,
-                           kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI, 
-                           kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
-                           kong_light_Laeseke, kong_PAR_Dieter) |> mutate(site = "kong") |>
+kong_wild <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla,
+                   kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI,
+                   kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
+                   kong_light_Laeseke, kong_PAR_Dieter) |> mutate(site = "kong") |> distinct() |> 
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(kong_sval_sub, kong_species, pg_kong_ALL)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(kong_wild, "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_wild.csv")
+save(kong_wild, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_wild.RData")
+rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
+
+# See EU example if only one file is being added
+
+
+### Full product ------------------------------------------------------------
+
+# Load full Svalbard file
+## NB: This contains the full EU Arctic data
+if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
+
+# Subset to Kongsfjorden bbox and references for data missing lon/lat coords
+kong_sval_sub <- filter_site_plural("kong")
+
+# Load PG file
+if(!exists("pg_kong_ALL")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
+
+# Load species
+if(!exists("kong_species")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
+
+# Load wild data
+if(!exists("kong_wild")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_wild.RData")
+
+
+# Combine and save
+full_product_kong <- rbind(kong_sval_sub, pg_kong_ALL, kong_species, kong_wild) |> mutate(site = "kong") |> distinct()
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
 save(full_product_kong, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 save(full_product_kong, file = "data/full_data/full_product_kong.RData")
@@ -1519,9 +1557,10 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 ### PG product --------------------------------------------------------------
 
 # Load pg is files
+# TODO: There is a lot of room for improvement in this process
 system.time(
   pg_is_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "is")
-) # 366 seconds - RAM limited
+) # 421 seconds - RAM limited
 gc()
 
 # Test problem files
@@ -1610,7 +1649,8 @@ data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.cs
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
 
 # Check that all columns were used
-# colnames(pg_is_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_is_clean)) %in% unique(pg_kong_ALL$variable)]
+# TODO: Follow up on some of these
+colnames(pg_is_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_is_clean)) %in% unique(pg_kong_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
@@ -1659,22 +1699,10 @@ is_species <- rbind(is_kittiwakke_population,
                     is_brguillemot_population)
 save(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
 write_csv(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.csv")
+rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
-
-# Load full Svalbard file
-## NB: This contains the full EU Arctic data
-if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
-
-# Subset to Isfjorden bbox and references for data missing lon/lat coords
-is_sval_sub <- filter_site_plural("is")
-
-# Load species
-if(!exists("is_species")) load("~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
-
-# Load PG file
-if(!exists("pg_is_ALL")) load("~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
+### Wild data ---------------------------------------------------------------
 
 # Process individual files
 ## Mouth mooring North
@@ -1864,12 +1892,36 @@ is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arriv
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
 # Combine and save
-full_product_is <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
-                         is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
-                         is_AIS, is_ship_arrivals) |> mutate(site = "is") |>
+is_wild <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
+                 is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
+                 is_AIS, is_ship_arrivals) |> mutate(site = "is") |>
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(is_sval_sub, is_species, pg_is_ALL)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(is_wild, "~/pCloudDrive/FACE-IT_data/isfjorden/is_wild.csv")
+save(is_wild, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_wild.RData")
+rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
+
+
+### Full product ------------------------------------------------------------
+
+# Load full Svalbard file
+## NB: This contains the full EU Arctic data
+if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
+
+# Subset to Isfjorden bbox and references for data missing lon/lat coords
+is_sval_sub <- filter_site_plural("is")
+
+# Load PG file
+if(!exists("pg_is_ALL")) load("~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
+
+# Load species
+if(!exists("is_species")) load("~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
+
+# Load wild data
+if(!exists("is_wild")) load("~/pCloudDrive/FACE-IT_data/isfjorden/is_wild.RData")
+
+# Combine and save
+full_product_is <- rbind(is_sval_sub, pg_is_ALL, is_species, is_wild) |> mutate(site = "is") |> distinct()
 data.table::fwrite(full_product_is, "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.csv")
 save(full_product_is, file = "~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 save(full_product_is, file = "data/full_data/full_product_is.RData")
@@ -1950,17 +2002,7 @@ colnames(pg_stor_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_stor_clean)) %in% 
 rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
-
-# Load full Svalbard file
-## NB: This contains the full EU Arctic data
-if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
-
-# Subset to Storfjorden bbox and references for data missing lon/lat coords
-stor_sval_sub <- filter_site_plural("stor")
-
-# Load PG file
-if(!exists("pg_stor_ALL")) load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
+### Wild data ---------------------------------------------------------------
 
 # Process individual files
 ## Light data
@@ -1980,10 +2022,34 @@ stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_prope
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Combine and save
-full_product_stor <- rbind(stor_light_CTD) |> mutate(site = "stor") |>
+stor_wild <- rbind(stor_light_CTD) |> mutate(site = "stor") |> distinct() |> 
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(stor_sval_sub, pg_stor_ALL)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(stor_wild, "~/pCloudDrive/FACE-IT_data/storfjorden/stor_wild.csv")
+save(stor_wild, file = "~/pCloudDrive/FACE-IT_data/storfjorden/stor_wild.RData")
+rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
+
+
+### Full product ------------------------------------------------------------
+
+# Load full Svalbard file
+## NB: This contains the full EU Arctic data
+if(!exists("full_product_sval")) load("data/full_data/full_product_sval.RData")
+
+# Subset to Storfjorden bbox and references for data missing lon/lat coords
+stor_sval_sub <- filter_site_plural("stor")
+
+# Load PG file
+if(!exists("pg_stor_ALL")) load("~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
+
+# Load species
+## NB: There are none for this site
+
+# Load wild data
+if(!exists("stor_wild")) load("~/pCloudDrive/FACE-IT_data/storfjorden/stor_wild.RData")
+
+# Combine and save
+full_product_stor <- rbind(stor_sval_sub, pg_stor_ALL, stor_wild) |> mutate(site = "stor") |> distinct()
 data.table::fwrite(full_product_stor, "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.csv")
 save(full_product_stor, file = "~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
 save(full_product_stor, file = "data/full_data/full_product_stor.RData")
@@ -1994,12 +2060,8 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 
 ## Greenland ---------------------------------------------------------------
 
-### PG product -------------------------------------------------------------
-
-# There is no PG product for Greenland
-
-
-### Full product -----------------------------------------------------------
+# NB: There is only this one full product step for Greenland
+# These are all social data
 
 # National statistics
 ## Income
@@ -2381,22 +2443,14 @@ data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_youn
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
 # Check that all columns were used
+# TODO: Follow up on some of these
 colnames(pg_young_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_young_clean)) %in% unique(pg_young_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
-
-# Load full EU file
-if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
-
-# Subset to Young Sound bbox and references for data missing lon/lat coords
-young_EU_sub <- filter_site_plural("young", full_product_EU)
-
-# Load PG product
-if(!exists("pg_young_ALL")) load("~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
+### Wild data ---------------------------------------------------------------
 
 # Primary production data
 holding_station_idx <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_CTD_biochem.csv") %>% 
@@ -2464,16 +2518,12 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
 rm(list = grep("holding_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Combine and save
-full_product_young <- rbind(young_prim_prod) |> mutate(site = "young") |>
+young_wild <- rbind(young_prim_prod) |> mutate(site = "young") |> distinct() |> 
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(young_EU_sub, pg_young_ALL)
-data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
-save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
-save(full_product_young, file = "data/full_data/full_product_young.RData")
-save_data(full_product_young)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(young_wild, "~/pCloudDrive/FACE-IT_data/young_sound/young_wild.csv")
+save(young_wild, file = "~/pCloudDrive/FACE-IT_data/young_sound/young_wild.RData")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
-# if(!exists("full_product_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
 
 
 ### GEM ---------------------------------------------------------------------
@@ -3048,6 +3098,49 @@ write_csv(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/you
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE))
 
 
+### Full product ------------------------------------------------------------
+
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
+# Subset to Young Sound bbox and references for data missing lon/lat coords
+young_EU_sub <- filter_site_plural("young", full_product_EU)
+
+# Load Greenland data
+## NB: These are all social data, and Young Sound lays outside of any provinces
+
+# Load GEM data and create shadow
+if(!exists("young_GEM")) load("~/pCloudDrive/restricted_data/GEM/young/young_GEM.RData")
+
+# Create shadow
+young_GEM_shadow <- shadow(young_GEM)
+
+# Load GEM species data
+if(!exists("young_species_GEM")) load("~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.RData")
+
+# Create shadow
+young_species_GEM_shadow <- shadow(young_species_GEM)
+
+# Load PG product
+if(!exists("pg_young_ALL")) load("~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
+
+# Load species data
+## No non-GEM species data
+
+# Load wild data
+if(!exists("young_wild")) load("~/pCloudDrive/FACE-IT_data/young_sound/young_wild.RData")
+
+# Combine and save
+full_product_young <- rbind(young_EU_sub, young_GEM_shadow, young_species_GEM_shadow,
+                            pg_young_ALL, young_wild) |> mutate(site = "young") |> distinct()
+data.table::fwrite(full_product_young, "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.csv")
+save(full_product_young, file = "~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+save(full_product_young, file = "data/full_data/full_product_young.RData")
+save_data(full_product_young)
+rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
+# if(!exists("full_product_young")) load("~/pCloudDrive/FACE-IT_data/young_sound/full_product_young.RData")
+
+
 ## Disko Bay ---------------------------------------------------------------
 
 ### PG product --------------------------------------------------------------
@@ -3122,22 +3215,14 @@ data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
 # Check that all columns were used
+# TODO: Follow up on some of these
 colnames(pg_disko_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_disko_clean)) %in% unique(pg_disko_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_disko",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
-
-# Load full EU file
-if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
-
-# Subset to Disko Bay bbox and references for data missing lon/lat coords
-disko_EU_sub <- filter_site_plural("disko", full_product_EU)
-
-# Load PG product
-if(!exists("pg_disko_ALL")) load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
+### Wild data ---------------------------------------------------------------
 
 # Biochemistry CTD cruise
 # SANNA_2016_SBE19plus_CTD_profiles.nc
@@ -3170,16 +3255,12 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
 rm(disko_CTD_ChlA_var); gc()
 
 # Combine and save
-full_product_disko <- rbind(disko_CTD_ChlA) |> mutate(site = "disko") |>
+disko_wild <- rbind(disko_CTD_ChlA) |> mutate(site = "disko") |>
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(disko_EU_sub, pg_disko_ALL)
-data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
-save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
-save(full_product_disko, file = "data/full_data/full_product_disko.RData")
-save_data(full_product_disko)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(disko_wild, "~/pCloudDrive/FACE-IT_data/disko_bay/disko_wild.csv")
+save(disko_wild, file = "~/pCloudDrive/FACE-IT_data/disko_bay/disko_wild.RData")
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
-# if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 
 
 ### GEM ---------------------------------------------------------------------
@@ -3381,6 +3462,51 @@ save(disko_GEM, file = "data/restricted/disko_GEM.RData"); save(disko_GEM, file 
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
 
+### Full product ------------------------------------------------------------
+
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
+# Subset to Disko Bay bbox and references for data missing lon/lat coords
+disko_EU_sub <- filter_site_plural("disko", full_product_EU)
+
+# Load Greenland data
+if(!exists("full_product_green")) load("data/full_data/full_product_green.RData")
+
+# Subset to relevant Disko Bay site names
+# TODO: Still need to implement this
+
+# Load GEM data and create shadow
+if(!exists("disko_GEM")) load("~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
+
+# Create shadow
+disko_GEM_shadow <- shadow(disko_GEM)
+
+# Load GEM species data
+## No GEM species data... that seems odd...
+
+# Create shadow
+# disko_species_GEM_shadow <- shadow(disko_species_GEM)
+
+# Load PG product
+if(!exists("pg_disko_ALL")) load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
+
+# Load species data
+## No non-GEM species data
+
+# Load wild data
+if(!exists("disko_wild")) load("~/pCloudDrive/FACE-IT_data/disko_bay/disko_wild.RData")
+
+# Combine and save
+full_product_disko <- rbind(disko_EU_sub, disko_GEM_shadow, pg_disko_ALL, disko_wild) |> mutate(site = "disko") |> distinct()
+data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
+save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+save(full_product_disko, file = "data/full_data/full_product_disko.RData")
+save_data(full_product_disko)
+rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
+# if(!exists("full_product_disko")) load("~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
+
+
 ## Nuup Kangerlua ----------------------------------------------------------
 
 ### PG product --------------------------------------------------------------
@@ -3448,31 +3574,17 @@ data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nu
 save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
 # Check that all columns were used
+# TODO: Follow up on some of these
 colnames(pg_nuup_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_nuup_clean)) %in% unique(pg_nuup_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_nuup",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
+### Wild data ---------------------------------------------------------------
 
-# Load full EU file
-if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
-
-# Subset to Nuup Kangerlua bbox and references for data missing lon/lat coords
-nuup_EU_sub <- filter_site_plural("nuup", full_product_EU)
-
-# Load PG product
-if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
-
-# Combine and save
-full_product_nuup <- rbind(nuup_EU_sub, pg_nuup_ALL)
-data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
-save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
-save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
-save_data(full_product_nuup)
-rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
-# if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+# NB: Currently there are none
+## Everything comes straight from PANGAEA or GEM
 
 
 ### GEM ---------------------------------------------------------------------
@@ -3885,14 +3997,55 @@ write_csv(nuup_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE))
 
 
+### Full product ------------------------------------------------------------
+
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
+# Subset to Disko Bay bbox and references for data missing lon/lat coords
+nuup_EU_sub <- filter_site_plural("nuup", full_product_EU)
+
+# Load Greenland data
+if(!exists("full_product_green")) load("data/full_data/full_product_green.RData")
+
+# Subset to relevant Disko Bay site names
+# TODO: Still need to implement this
+
+# Load GEM data and create shadow
+if(!exists("nuup_GEM")) load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
+
+# Create shadow
+nuup_GEM_shadow <- shadow(nuup_GEM)
+
+# Load GEM species data
+if(!exists("nuup_species_GEM")) load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.RData")
+
+# Create shadow
+nuup_species_GEM_shadow <- shadow(nuup_species_GEM)
+
+# Load PG product
+if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
+
+# Load species data
+## No non-GEM species data
+
+# Load wild data
+## There are none
+
+# Combine and save
+full_product_nuup <- rbind(nuup_EU_sub, nuup_GEM_shadow, nuup_species_GEM_shadow, pg_nuup_ALL) |> mutate(site = "nuup") |> distinct()
+data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
+save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
+save_data(full_product_nuup)
+rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
+# if(!exists("full_product_nuup")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
+
+
 ## Norway ------------------------------------------------------------------
 
-### PG product -------------------------------------------------------------
-
-# There is no PG product for Norway
-
-
-### Full product -----------------------------------------------------------
+# NB: There is only the full data product for Norway
+# This is a collection of social data
 
 # National statistics
 ## Salmon exports
@@ -4198,28 +4351,19 @@ data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_p
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
 # Check that all columns were used
+# TODO: Follow up on some of these
 colnames(pg_por_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_por_clean)) %in% unique(pg_por_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
+### Species data ------------------------------------------------------------
 
-# Load full EU file
-if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+# NB: Currently there are none
 
-# Subset to Porsangerfjorden bbox and references for data missing lon/lat coords
-por_EU_sub <- filter_site_plural("por", full_product_EU)
 
-# Load full Norway file
-if(!exists("full_product_nor")) load("data/full_data/full_product_nor.RData")
-
-# Subset to Porsangerfjorden bbox and references for data missing lon/lat coords
-por_nor_sub <- filter_site_plural("por", full_product_nor)
-
-# Load PG product
-if(!exists("pg_por_ALL")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
+### Wild data ---------------------------------------------------------------
 
 ## Series of GFI moorings
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
@@ -4241,10 +4385,41 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
 por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08"))
 
 # Combine and save
-full_product_por <- rbind(por_mooring_GFI, por_sea_ice, por_hydro) |> mutate(site = "por") |>
+por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro) |> mutate(site = "por") |> distinct() |> 
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(por_EU_sub, por_nor_sub, pg_por_ALL)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(por_wild, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.csv")
+save(por_wild, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.RData")
+rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
+
+
+### Full product ------------------------------------------------------------
+
+# Load full EU file
+if(!exists("full_product_EU")) load("data/full_data/full_product_EU.RData")
+
+# Subset to Porsangerfjorden bbox and references for data missing lon/lat coords
+por_EU_sub <- filter_site_plural("por", full_product_EU)
+
+# Load full Norway file
+if(!exists("full_product_nor")) load("data/full_data/full_product_nor.RData")
+
+# Subset to Porsangerfjorden bbox and references for data missing lon/lat coords
+# TODO: Improve this to catch and convert provence etc. site names
+por_nor_sub <- filter_site_plural("por", full_product_nor)
+
+# Load PG product
+if(!exists("pg_por_ALL")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
+
+# Load species data
+## Currently none
+
+# Load wild data
+if(!exists("por_wild")) load("~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.RData")
+
+# Combine and save
+full_product_por <- rbind(por_EU_sub, por_nor_sub, pg_por_ALL, por_wild) |> mutate(site = "por") |> distinct()
+data.table::fwrite(full_product_por, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.csv")
 save(full_product_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/full_product_por.RData")
 save(full_product_por, file = "data/full_data/full_product_por.RData")
 save_data(full_product_por)
@@ -4853,14 +5028,10 @@ if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 
 # Leave an NA shadow so users know the data exist and where to find them
 data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
-data_shadow_df <- filter(clean_all, grepl(data_shadow, URL)) |> 
-  mutate(lon = as.numeric(NA), lat = as.numeric(NA), 
-         date = as.Date(NA), depth = as.numeric(NA), value = as.numeric(NA)) |> 
-  mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
-  distinct()
+data_shadow_df <- shadow(clean_all)
 
 # Prep for PANGAEA standard
-FACE_IT_v1.2 <- clean_all |> 
+FACE_IT_v1.3 <- clean_all |> 
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
@@ -4872,39 +5043,39 @@ FACE_IT_v1.2 <- clean_all |>
          citation = str_replace_all(citation, ";", "."))
 
 # Double check data shadows have been applied correctly
-shadow_test <- filter(FACE_IT_v1.2, grepl(data_shadow, URL))
+shadow_test <- filter(FACE_IT_v1.3, grepl(data_shadow, URL))
 rm(shadow_test); gc()
 
 # Save as .csv
 # NB: write_csv_arrow not currently working, file too large
-write_csv(FACE_IT_v1.2, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.2.csv")
-write_csv(FACE_IT_v1.2, "data/full_data/FACE_IT_v1.2.csv")
+write_csv(FACE_IT_v1.3, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3.csv")
+write_csv(FACE_IT_v1.3, "data/full_data/FACE_IT_v1.3.csv")
 
 # TODO: Address multiples
 # Cryo data
-FACE_IT_v1.2_cryo <- filter(FACE_IT_v1.2, category == "cryo") |>
+FACE_IT_v1.3_cryo <- filter(FACE_IT_v1.3, category == "cryo") |>
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.2_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.2_cryo.csv", delim = ";")
+write_delim(FACE_IT_v1.3_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1.2_phys <- filter(FACE_IT_v1.2, category == "phys") |> 
+FACE_IT_v1.3_phys <- filter(FACE_IT_v1.3, category == "phys") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.2_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.2_phys.csv", delim = ";")
+write_delim(FACE_IT_v1.3_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1.2_chem <- filter(FACE_IT_v1.2, category == "chem") |> 
+FACE_IT_v1.3_chem <- filter(FACE_IT_v1.3, category == "chem") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.2_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.2_chem.csv", delim = ";")
+write_delim(FACE_IT_v1.3_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1.2_bio <- filter(FACE_IT_v1.2, category == "bio") |> 
+FACE_IT_v1.3_bio <- filter(FACE_IT_v1.3, category == "bio") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.2_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.2_bio.csv", delim = ";")
+write_delim(FACE_IT_v1.3_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1.2_soc <- filter(FACE_IT_v1.2, category == "soc") |> 
+FACE_IT_v1.3_soc <- filter(FACE_IT_v1.3, category == "soc") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.2_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.2_soc.csv", delim = ";")
+write_delim(FACE_IT_v1.3_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_soc.csv", delim = ";")
 
 
 ## Additional cleaning -----------------------------------------------------
