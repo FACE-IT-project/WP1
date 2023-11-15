@@ -198,10 +198,7 @@ write_csv(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.cs
 rm(list = grep("EU_|barents_",names(.GlobalEnv),value = TRUE)); gc()
 
 
-### Full product ------------------------------------------------------------
-
-# Load species
-if(!exists("EU_species")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
+### Wild data ---------------------------------------------------------------
 
 # Bathymetry data
 ## Not on pCloud as this is a large file hosted on a well known website
@@ -442,11 +439,28 @@ load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Combine and save
-full_product_EU <- rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, EU_green_fjords,
-                         EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP) |> mutate(site = "EU") |> 
+EU_wild <- rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, EU_green_fjords,
+                 EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP) |> mutate(site = "EU") |> 
   left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value) |> 
-  rbind(EU_species)
+  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+data.table::fwrite(EU_wild, "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.csv")
+save(EU_wild, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
+rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
+
+
+### Full product ------------------------------------------------------------
+
+# Load PANGAEA
+## NB: There are intentionally none
+
+# Load species
+if(!exists("EU_species")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
+
+# Load wild data
+if(!exists("EU_wild")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
+
+# Combine and save
+full_product_EU <- rbind(EU_species, EU_wild)
 data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
 save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
 save(full_product_EU, file = "data/full_data/full_product_EU.RData")
@@ -1038,6 +1052,7 @@ pg_kong_clean <- pg_kong_sub |>
                           TRUE ~ date)) |> 
   mutate(date = as.Date(gsub("T.*", "", date))) |> 
   # Manage depth column
+  # TODO: Rather have depth columns filled in by progressively more distant choices from a pre-made list of depth column names
   dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`) |> 
   mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
                            !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
