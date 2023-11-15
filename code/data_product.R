@@ -5,6 +5,10 @@
 # column checking (e.g. date, depth, lon/lat) process again for each PG product section
 # There is a lot of commented out code to help facilitate this process
 
+# TODO: For v1.4: meta-data; Make dummy entries for all of the commented out links below
+# that have drivers/variables etc. when possible so that their meta-data can be harvested and
+# put into the new automagic database.
+
 
 # Setup -------------------------------------------------------------------
 
@@ -4244,7 +4248,6 @@ rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 # Re-load site data a necessary
 
 # FACE-IT collected data
-## NB: It is not useful to combine all of these files into a single mega-dataframe
 if(!exists("full_product_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 if(!exists("full_product_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/full_product_is.RData")
 if(!exists("full_product_stor")) load("~/pCloudDrive/FACE-IT_data/storfjorden/full_product_stor.RData")
@@ -4268,7 +4271,7 @@ if(!exists("nuup_GEM")) load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RD
 if(!exists("young_species_GEM")) load("~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.RData")
 if(!exists("nuup_species_GEM")) load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.RData")
 
-# Combine evrything into one megafile for ease of use below
+# Combine everything into one mega-file for ease of use below
 # This also ensures a project-wide standard has been maintained
 full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
                   full_product_young, full_product_disko, full_product_nuup,
