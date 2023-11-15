@@ -670,13 +670,23 @@ write_csv(PAR_down_up, "~/pCloudDrive/restricted_data/Lund-Hansen/Upwelling irra
 
 ### 2021 data
 ## Age density depth structure
+age_spp <- plyr::ldply(c("Alaria esculenta", "Laminariales", "Saccharina latissima"), wm_records_df, .parallel = T)
 age_density_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/Age_Density_2021_PANGEA.csv", delim = ";") |> 
   rename_with(~ gsub("_m2", "", .x, fixed = TRUE)) |> 
   pivot_longer(Juveniles:Total_Individuals, names_to = "Age class", values_to = "count") |> 
   rename(`Depth [m]` = Water_Depth_m) |> 
-  mutate(Species = gsub("_", " ", Species)) |> 
+  mutate(Species = gsub("_", " ", Species),
+         Species_sub = case_when(Species == "Digitate kelps" ~ "Laminariales", TRUE ~ Species)) |> 
   arrange(`Depth [m]`, Replicate, Species) |> 
-  dplyr::select(-Year)
+  left_join(age_spp, FW_spp, by = c("Species_sub" = "species")) |> 
+  pivot_wider(values_from = "count", names_from = "Age class") |> 
+  dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid,
+                `juvenile [#]` = Juveniles, `year 1 [#]` = `1year`, `year 2 [#]` = `2years`, `year 3 [#]` = `3years`,
+                `year 4 [#]` = `4years`, `year 5 [#]` = `5years`, `year 6 [#]` = `6years`,
+                `year 7 [#]` = `7years`, `year 8 [#]` = `8years`, `year 9 [#]` = `9years`,
+                `Total [#]` = `Total_Individuals`) |> 
+  dplyr::select(`Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
+                everything(), -Year, -Species_sub) 
 write_csv(age_density_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/age_density_2021_PG.csv")
 
 ## Carbon Nitrogen 
