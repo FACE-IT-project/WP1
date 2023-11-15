@@ -32,15 +32,18 @@ source("code/functions.R")
 # PANGAEA site queries ----------------------------------------------------
 
 ## All Young Sound data files - 707
+# NB: The query for 'Olsen Ice Cap' returns 12 items, but none of them are for the Young Sound feature 
 pg_young_bbox <- pg_full_search(query = "", bbox = c(bbox_young[1], bbox_young[3], bbox_young[2], bbox_young[4])) # 701 files
-pg_young_name_1 <- pg_full_search(query = "zackenberg") # 51 files
-pg_young_name_2 <- pg_full_search(query = "tyroler") # xxx files
-pg_young_name_3 <- pg_full_search(query = "lerbugt") # xxx files
-pg_young_name_4 <- pg_full_search(query = "A.P. Olsen Ice Cap") # xxx files
+pg_young_name_1 <- pg_full_search(query = "zackenberg") # 51 files - 13 if "river" is added
+pg_young_name_2 <- pg_full_search(query = "tyroler") # 0 files
+pg_young_name_3 <- pg_full_search(query = "lerbugt") # 0 files
+pg_young_name_4 <- pg_full_search(query = "Freya Glacier") # 35 files
 # Also consider: Freya Glacier on Clavering Island; add river to the single names above to see if they change
 pg_young_all <- rbind(pg_young_bbox, pg_young_name_1, pg_young_name_2, pg_young_name_3, pg_young_name_4) |> 
   filter(!doi %in% c("10.1594/PANGAEA.786674", # This file causes weird date issues and doesn't have any key drivers
-                     "10.1594/PANGAEA.831056")) |> # Geospatial data of mass balance for Freya Glacier
+                     "10.1594/PANGAEA.831056" # Geospatial data of mass balance for Freya Glacier
+                     # "10.1594/PANGAEA.842709" # OASIS seamount database
+                     )) |> 
   mutate(count = n(), file = "pg_young") |> 
   dplyr::select(doi, file, count) |> distinct()
 pg_doi_list <- distinct(pg_young_all)

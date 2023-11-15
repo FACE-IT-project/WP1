@@ -323,7 +323,7 @@ pg_dl_prep <- function(pg_dl){
       col_abb <- sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1)
       col_abb[col_abb == "Sal ([PSU])"] <- "Sal" # One important exception
       col_idx <- col_name[which(col_abb %in% query_ALL$Abbreviation)]
-      col_meta <- col_name[which(col_abb %in% query_Meta$Abbreviation)]
+      col_meta <- col_name[which(col_abb %in% query_meta$Abbreviation)]
       col_base <- col_idx[!col_idx %in% col_meta]
       col_spp <- col_name[which(col_abb %in% query_species$Abbreviation)]
       
@@ -461,7 +461,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
-  pg_res_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_Meta$pg_col_name]
+  pg_res_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_meta$pg_col_name]
   pg_res <- pg_res |> 
     mutate(across(dplyr::all_of(pg_res_meta_columns), as.character))
   
@@ -488,7 +488,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
       pg_base <- data.table::fread(paste0("data/pg_data/",file_name,".csv"), nThread = 14); gc()
       if("spp_value" %in% colnames(pg_base)) pg_base <- mutate(pg_base, spp_value = as.character(spp_value))
-      pg_base_meta_columns <- colnames(pg_base)[colnames(pg_base) %in% query_Meta$pg_col_name]
+      pg_base_meta_columns <- colnames(pg_base)[colnames(pg_base) %in% query_meta$pg_col_name]
       pg_base <- mutate(pg_base, across(dplyr::all_of(pg_base_meta_columns), as.character))
       pg_full <- distinct(bind_rows(pg_base, pg_slim))
   } else {
