@@ -688,6 +688,18 @@ age_density_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset
   dplyr::select(`Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
                 everything(), -Year, -Species_sub) 
 write_csv(age_density_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/age_density_2021_PG.csv")
+# Alternative format requested by PANGAEA
+age_density_long_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/Age_Density_2021_PANGEA.csv", delim = ";") |> 
+  rename_with(~ gsub("_m2", "", .x, fixed = TRUE)) |> 
+  pivot_longer(Juveniles:Total_Individuals, names_to = "Age class", values_to = "count") |> 
+  rename(`Depth [m]` = Water_Depth_m) |> 
+  mutate(Species = gsub("_", " ", Species),
+         `Age class` = gsub("year", " year", `Age class`),
+         `Age class` = gsub("Total_Individuals", "Total", `Age class`)) |>
+  arrange(`Depth [m]`, Replicate, Species) |>
+  pivot_wider(values_from = "count", names_from = "Species") |> 
+  dplyr::select(-Year) 
+write_csv(age_density_long_2021, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/age_density_long_2021_PG.csv")
 
 ## Carbon Nitrogen 
 C_N_2021 <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_2021/C_N_2021_PANGEA.csv", delim = ";") |> 
