@@ -230,7 +230,7 @@ ice_box
 
 ## Scatterplot
 ice_scatter <- ggplot(data = ice_4km_is_prop, aes(x = year, y = mean_prop, colour = month)) + 
-  geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
+  geom_point() + geom_smooth(method = "lm", se = FALSE, linewidth = 1.5, aes(group = month)) +
   scale_fill_discrete(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
   scale_y_continuous(breaks = c(0.25, 0.50, 0.75),
                      labels = c("25%", "50%", "75%"),
