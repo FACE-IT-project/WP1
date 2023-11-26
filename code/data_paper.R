@@ -757,7 +757,7 @@ fig_S1 <- driver_all_filter %>%
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
         panel.border = element_rect(fill = NA, colour = "black"))
-# fig_5
+# fig_S1
 
 # Save
 ggsave("figures/dp_fig_S1.png", fig_5, width = 12, height = 12)

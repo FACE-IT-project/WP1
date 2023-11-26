@@ -6,11 +6,9 @@
 # Setup -------------------------------------------------------------------
 
 # Libraries used
-library(tidyverse)
-library(arrow)
+source("code/functions.R")
 library(RCurl) # For web scraping etc.
 library(XML) # Same same
-library(doParallel); registerDoParallel(cores = 12)
 
 # Bounding boxes
 bbox_is <- c(12.97, 17.50, 77.95, 78.90)
@@ -18,10 +16,10 @@ bbox_sval <- c(9, 30, 76, 81)
 
 # Ice data
 load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_4km_is.RData")
-ice_4km_is <- ice_4km_is %>% 
+ice_4km_is <- ice_4km_is |> 
   filter(date >= as.Date("2006-01-01"), date <= as.Date("2021-12-31"))
 load("~/pCloudDrive/FACE-IT_data/isfjorden/ice_1km_is.RData")
-ice_1km_is <- ice_1km_is %>% 
+ice_1km_is <- ice_1km_is |> 
   filter(date >= as.Date("2015-01-01"), date <= as.Date("2021-12-31"))
 
 # Ice cover colours
@@ -193,10 +191,10 @@ ice_1km_is_prop <- ice_cover_prop(ice_1km_is)
 
 # Plot the monthly proportions over time
 ggplot(data = ice_4km_is_prop, aes(x = date, y = mean_prop, fill = month)) + 
-  geom_col() + scale_fill_continuous(type = "viridis")
+  geom_col() + scale_colour_discrete(type = "viridis")
 ggplot(data = ice_4km_is_prop, aes(x = year, y = mean_prop, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
-  scale_colour_continuous(type = "viridis")
+  scale_fill_discrete(type = "viridis")
 ggplot(data = ice_1km_is_prop, aes(x = date, y = mean_prop, fill = month)) + 
   geom_col() + scale_fill_continuous(type = "viridis")
 ggplot(data = ice_1km_is_prop, aes(x = year, y = mean_prop, colour = month)) + 
@@ -211,6 +209,7 @@ mean(abs(ice_1km_4km_is_prop$diff))
 range(ice_1km_4km_is_prop$diff)
 
 # Calculate annual monthly trends
+doParallel::registerDoParallel(cores = 4)
 ice_4km_is_trend <- plyr::ddply(dplyr::rename(ice_4km_is_prop, val = mean_prop), c("month"), trend_calc, .parallel = T) %>% 
   mutate(dataset = "ice 4 km")
 ice_1km_is_trend <- plyr::ddply(dplyr::rename(ice_1km_is_prop, val = mean_prop), c("month"), trend_calc, .parallel = T) %>% 
@@ -221,7 +220,7 @@ ice_1km_4km_is_trend <- rbind(ice_1km_is_trend, ice_4km_is_trend)
 ## boxplot
 ice_box <- ggplot(data = ice_4km_is_prop, aes(x = as.factor(month), y = mean_prop, fill = month)) + 
   geom_boxplot(aes(group = month)) + 
-  scale_fill_continuous(type = "viridis") +
+  scale_colour_discrete(type = "viridis") +
   scale_y_continuous(breaks = c(0.25, 0.50, 0.75),
                      labels = c("25%", "50%", "75%"),
                      limits = c(-0.02, 1.02), expand = c(0, 0)) +
@@ -232,7 +231,7 @@ ice_box
 ## Scatterplot
 ice_scatter <- ggplot(data = ice_4km_is_prop, aes(x = year, y = mean_prop, colour = month)) + 
   geom_point() + geom_smooth(method = "lm", se = F, aes(group = month)) +
-  scale_colour_continuous(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
+  scale_fill_discrete(type = "viridis", breaks = c(1:12), labels = c(1:12)) +
   scale_y_continuous(breaks = c(0.25, 0.50, 0.75),
                      labels = c("25%", "50%", "75%"),
                      limits = c(-0.02, 1.02), expand = c(0, 0)) + 
@@ -242,6 +241,9 @@ ice_scatter
 
 ## Combine
 ice_plot <- ggpubr::ggarrange(ice_box, ice_scatter, ncol = 2, align = "hv", labels = c("A)", "B)"))
+ice_plot <- ggpubr::annotate_figure(ggpubr::annotate_figure(ice_plot, top = ggpubr::text_grob("MASIE 4km ice dataset; 2006 - 2021")),
+                                                            top = ggpubr::text_grob("Isfjorden, Svalbard, monthly sea ice cover and trends", 
+                                                                      color = "black", face = "bold", size = 14))
 ice_plot
 ggsave("figures/ice_cover_is.png", ice_plot, width = 12, height = 5)
 

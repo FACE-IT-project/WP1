@@ -2866,22 +2866,22 @@ ice_trend_grid_plot <- function(plot_title, pixel_res, check_conv = FALSE,
 ice_cover_prop <- function(ice_df){
   
   # Get open water pixel count
-  water_pixels <- ice_df %>% filter(date == "2017-08-01", sea_ice_extent %in% c(1, 3)) %>% nrow()
+  water_pixels <- ice_df |> filter(date == "2017-08-01", sea_ice_extent %in% c(1, 3)) |> nrow()
   
   # Find proportion per month per year that has ice
-  ice_prop <- ice_df %>% 
+  ice_prop <- ice_df |> 
     filter(sea_ice_extent == 3,
-           date <= "2021-12-31") %>% 
-    group_by(date) %>% 
+           date <= "2021-12-31") |> 
+    # group_by(date) |> 
     summarise(count = n(),
-              prop = count/water_pixels, .groups = "drop") %>% 
+              prop = count/water_pixels, .by = "date") |> 
     # complete(date = seq.Date(min(date), max(date), by = "day")) %>% 
-    complete(date = seq.Date(min(date), max(date), by = "day")) %>% # NB: Only works with 4km data time series
-    replace(is.na(.), 0) %>% 
+    tidyr::complete(date = seq.Date(min(date), max(date), by = "day")) |>  # NB: Only works with 4km data time series
+    tidyr::replace_na(list(count = 0, prop = 0)) |>  
     mutate(date = lubridate::round_date(date, "month"),
            year = lubridate::year(date),
-           month = lubridate::month(date, abbr = TRUE, label = TRUE)) %>% 
-    group_by(year, month, date) %>% 
+           month = lubridate::month(date, abbr = TRUE, label = TRUE)) |> 
+    group_by(year, month, date) |> 
     summarise(mean_prop = round(mean(prop, na.rm = T), 2), .groups = "drop")
 }
 
