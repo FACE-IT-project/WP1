@@ -4997,7 +4997,28 @@ save(clean_all, file = "data/analyses/clean_all.RData")
 save_data(df = clean_all, data_type = "clean")
 
 
+## Meta-data ---------------------------------------------------------------
+
+if(!exists("clean_all")) load("data/analyses/clean_all.RData")
+
+# Harvest meta-data to be used in the meta-database
+
+# Site, type, driver, date (year range), source, citation, date accessed
+clean_all_meta <- clean_all |> 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, date) |> 
+  mutate(date = year(date)) |> 
+  group_by(date_accessed, URL, citation, type, site, category, driver) |> 
+  mutate(year_min = min(date), year_max = max(date)) |> dplyr::select(-date) |> 
+  ungroup() |>  distinct() |> 
+  left_join(long_cat_names, by = "category") |> left_join(long_driver_names, by = "driver") |> 
+  group_by(date_accessed, URL, citation, type, site, year_min, year_max) |> 
+  summarise(category = toString(unique(category_long)), driver = toString(unique(driver_long)), .groups = "drop")
+save(clean_all_meta, file = "data/analyses/clean_all_meta.RData")
+
+
 ## References --------------------------------------------------------------
+
+if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 
 # Save just the references
 all_ref <- dplyr::select(full_ALL, citation) |> distinct()
