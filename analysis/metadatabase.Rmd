@@ -86,21 +86,19 @@ meta_proc <- function(site_choice){
                                   grepl("ESOP Members", citation) ~ "ESOP",
                                   grepl("TRACTOR Members", citation) ~ "TRACTOR",
                                   grepl("VEINS Members", citation) ~ "VEINS",
+                                  grepl("Global Heat Flow Compilation Group", citation) ~ "WHF",
+                                  grepl("Ocean Sampling Day", citation) ~ "Ocean Sampling Day",
                                   grepl("Port of Longyearbyen", citation) ~ "Port of Longyearbyen",
-                                  grepl("Anonymous (2001):", citation) ~ "Anonymous",
+                                  grepl("Statistics Greenland", citation) ~ "Statistics Greenland",
+                                  grepl("Anonymous \\(20", citation) ~ "Anonymous",
+                                  grepl("MarineBasis|ClimateBasis|GlacioBasis|Greenland Ecosystem Monitoring Programme", citation) ~ "GEM",
                                   # NB: These should be addressed
                                   grepl("Naatsorsueqqissaartarfik", citation) ~ "Naatsorsueqqissaartarfik",
                                   #
                                   TRUE~paste0(sapply(strsplit(citation, ","), "[[", 1)," et al.")),
-           pub_year = citation %>% str_extract('\\([:digit:]+\\)'))
-           pub_year = regmatches(citation, regexec(".*\\(([0-9]+)\\).*", citation)))
-           pub_year = as.numeric(gsub(".*\\(([0-9]+)\\).*", "\\1", citation)))#,
-           pub_year = str_subset(citation, "\\(*\\)"))
-           pub_year =  sapply(strsplit(citation, "\\)"), "[[", 1),
-           pub_year =  strsplit(pub_year, "\\("))
+           pub_year = citation %>% str_extract('\\([:digit:]+\\)'),
            pub_year = case_when(is.na(pub_year) ~ "", 
-                                pub_year < 1900 ~ "", 
-                                TRUE ~ paste0(" (",pub_year,")")),
+                                TRUE ~ paste0(" ",pub_year)),
            pub_source = case_when(grepl("npolar", URL) ~ "NPI",
                                   grepl("g-e-m", URL) ~ "GEM",
                                   grepl("mosj", URL) ~ "MOSJ",
