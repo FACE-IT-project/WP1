@@ -4,17 +4,51 @@
 # automagically compiling the reports
 
 
+# TODO: Create a report on which institutes/WPs contributed the most
+# I.e. a report on the report
+
+
 # Setup -------------------------------------------------------------------
 
 source("code/functions.R")
 
+# General sections
+sections <- c("tourism", "fishery", "environment", "conclusion")
+
 # Unique species names as a vector
-spp_unique <- unique(fish_dist_coords$Species.Name[order(fish_dist_coords$Species.Name)])
+# NB: These orders are very important and must not be changed
+tour_unique <- c("Little Auk", "Puffin", "Walrus", "Whales", "Polar bears", "Kelp")
+fish_unique <- c("Cod", "Shrimp", "Flounder + Halibut", "Pollock", "Pink Salmon", "King crab", "Snow crab", "Catfish", "Seal")
+env_unique <- c("Sea ice", "Glaciers", "Pollution")
 
 
 # Survey results ----------------------------------------------------------
 
-survey_res <- read_csv("survey/Expert input.csv")
+# NB: Results from Luisa are from Luisa+Inka
+
+# Load base results in wide format
+survey_res <- read_csv("survey/Expert input.csv", name_repair = "minimal")
+
+# Manually create sub/section columns
+section_col <- rep(c(base::rep("tourism", 114), base::rep("fishery", 180), 
+                     base::rep("environment", 48), base::rep("conclusion", 3)), times = 24)
+sub_section_col <- rep(c(base::rep(tour_unique[1:5], each = 18), base::rep("Kelp", 24), 
+                         base::rep(fish_unique, each = 20), base::rep(env_unique, each = 16),
+                         base::rep("conclusion", 3)), times = 24)
+
+# Melt
+survey_long <- survey_res |> 
+  pivot_longer(`Main biome`:Challenges, names_to = "question", values_to = "response") |> 
+  mutate(section = section_col,
+         sub_section = sub_section_col)
+
+# Double up results from Luisa as they were also from Inka
+survey_double <- filter(survey_long, Name == "Luisa Düsedau")
+
+# Tidy it up
+survey_tidy <- rbind(survey_long, survey_double) |> 
+  dplyr::select(section, sub_section, question, response) |> 
+  filter(!is.na(response)) |> arrange(section, sub_section)
 
 
 # Figures -----------------------------------------------------------------
