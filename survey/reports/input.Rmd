@@ -1,0 +1,126 @@
+---
+title: "A report for _`r spp_name`_"
+output: html_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Fish pictures
+if(!exists("fish_pics_dir")) fish_pics_dir <- dir("../metadata/fish_pics", full.names = TRUE)
+
+# Load species to common name key
+if(!exists("fish_common")) fish_common <- read_csv("../metadata/fish_codes_sci_names.csv")
+
+# Fish info
+if(!exists("fish_info")) fish_info <- read_csv("../metadata/WC_Fish_data2.csv")
+
+# Load fish range
+if(!exists("fish_dist_coords")) load("../metadata/fish_dist_coords.RData")
+
+# Fish depths
+if(!exists("fish_depth_tidy")) load("../metadata/fish_depth_tidy.RData")
+
+# Fish dwelling and feeding
+if(!exists("fish_WC")) fish_WC <- read_delim("../metadata/Fish_WC.csv", delim = ";")
+
+# Fish habitat
+if(!exists("fish_habitat_tidy")) load("../metadata/fish_habitat_tidy.RData")
+
+# Fisheries data
+if(!exists("fish_eries")) fish_eries <- read_csv("../data/Full small scale basket species evaluation 2 july full.csv")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Subset by species
+spp_common <- fish_common |> 
+  filter(`SPECIES NAME` == spp_name) |> 
+  mutate(common_lower = tolower(str_remove_all(`COMMON NAME`, " ")))
+spp_pic <- fish_pics_dir[which(tolower(fish_pics_dir) == 
+                                 paste0("../metadata/fish_pics/", spp_common$common_lower,".png"))]
+spp_info <- filter(fish_info, Species.Name == spp_name)
+spp_dist_coords <- fish_dist_coords %>% 
+  filter(Species.Name == spp_name)
+spp_depths <- fish_depth_tidy %>% 
+  filter(Species == spp_name)
+spp_WC <- fish_WC %>% 
+  filter(Species == spp_name) |> 
+  pivot_longer(cols = PdBf:BdPf) |> 
+  filter(value == 1) |> 
+  mutate(name = case_when(name == "PdBf" ~ "Pelagic dwelling : Bottom feeding",
+                          name == "PdPf" ~ "Pelagic dwelling : Pelagic feeding",
+                          name == "BdBf" ~ "Bottom dwelling : Bottom feeding",
+                          name == "BdPf" ~ "Bottom dwelling : Pelagic feeding"))
+spp_habtat <- fish_habitat_tidy |> 
+  filter(spp_name == Species, value == 1)
+spp_habtat_adult <- spp_habtat |> 
+  filter(stage == "Adults")
+spp_habtat_juvenile <- spp_habtat |> 
+  filter(stage == "Juveniles")
+spp_fishery <- fish_eries |> 
+  filter(`Species Name` == spp_name) |> 
+  dplyr::select(`Species Name`, Family, `Common name`, Fishery, Assessment,
+                `Artisanal boat`:`Experimental/exploratory`) |> 
+  mutate_at(.funs = as.numeric, 
+            .vars = c("Artisanal boat", "Beach Seine", "Commercial boat", "Demersal trawl (inshore)", "Demersal trawl (offshore)", "Drift gill-nets", "Hake handline", "Hake longline", "Inshore/Estuarine Gillnets", "Midwater trawl", "Pelagic gillnets", "Pelagic longline", "Prawn trawl", "Purse seine", "Recreational boat", "Recreational shore", "Shark longline", "Shark nets", "Spearfishing", "Tuna pole", "Subsistence Shore", "Commercial shore", "Experimental/exploratory")) |> 
+  pivot_longer(`Artisanal boat`:`Experimental/exploratory`)
+```
+
+## Intro
+
+The life form `r spp_name` is known commonly as `r spp_common$'COMMON NAME' `.
+
+```{r echo=FALSE, out.width='100%'}
+if(length(spp_pic > 0)){
+  if(file.exists(spp_pic)){
+    knitr::include_graphics(spp_pic)
+    } else {
+      cat("Error in fish name")
+    }
+  } else {
+    cat("No fish pic available")
+  }
+```
+
+## Species range and catch data
+
+The range of longitude over which this species is found is `r round(spp_dist_coords$lon_west, 2)`°E to `r round(spp_dist_coords$lon_east, 2)`°E.
+
+```{r echo=FALSE, out.width='100%'}
+if(file.exists(paste0('../figures/',spp_name,'_range_catch.png'))){
+  knitr::include_graphics(paste0('../figures/',spp_name,'_range_catch.png'))
+} else {
+  cat("No figure available")
+}
+```
+
+## Info tables
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+table_1 <- tibble(Species = spp_name,
+                  # Feeding = NA,
+                  # Dwelling = NA,
+                  `Water column` = str_c(spp_WC$name, collapse = ", "),
+                  `Habitat (adult)` = str_c(spp_habtat_adult$habitat, collapse = ", "),
+                  `Habitat (juvenile)` = str_c(spp_habtat_juvenile$habitat, collapse = ", "), 
+                  Depth = paste0(spp_depths$depth_min,"-",spp_depths$depth_max," m"),
+                  Fishery = spp_info$Fishery,
+                  IUCN = spp_info$IUCN,
+                  Endemic = spp_info$`Endemic to SA`) |> 
+  distinct()
+```
+
+```{r echo=FALSE}
+knitr::kable(table_1, caption = "General information")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+table_2 <- tibble(Species = spp_name,
+                  Habitat = spp_info$Habitat,
+                  Diet = spp_info$Diet_type,
+                  Details = spp_info$Diet_detail) |> 
+  distinct()
+```
+
+```{r echo=FALSE}
+knitr::kable(table_2, caption = "Habitat and diet in detail")
+```
+
