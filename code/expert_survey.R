@@ -18,14 +18,20 @@ sections <- c("tourism", "fishery", "environment", "conclusion")
 # Unique species names as a vector
 # NB: These orders are very important and must not be changed
 tour_unique <- c("Little Auk", "Puffin", "Walrus", "Whales", "Polar bears", "Kelp")
+tour_code <- c("little_auk", "puffin", "walrus", "whales", "polar_bears", "kelp")
 fish_unique <- c("Cod", "Shrimp", "Flounder + Halibut", "Pollock", "Pink Salmon", "King crab", "Snow crab", "Catfish", "Seal")
+fish_code <- c("cod", "shrimp", "flounder_halibut", "pollock", "pink_salmon", "king_crab", "snow_crab", "catfish", "seal")
 env_unique <- c("Sea ice", "Glaciers", "Pollution")
+env_code <- c("sea_ice", "glaciers", "pollution")
 all_unique <- c(tour_unique, fish_unique, env_unique)
+all_code <- c(tour_code, fish_code, env_code)
 
 # Create data.frame
 all_df <- data.frame(index_no = 1:length(all_unique),
                      cat_name = c(rep(sections[1], 6), rep(sections[2], 9), rep(sections[3], 3)),
-                     item_name = all_unique)
+                     item_name = all_unique,
+                     item_code = all_code)
+save(all_df, file = "survey/reports/all_df.RData")
 
 
 # Survey results ----------------------------------------------------------
@@ -57,7 +63,50 @@ survey_tidy <- rbind(survey_long, survey_double) |>
   filter(!is.na(response)) |> arrange(section, sub_section)
 
 
+# Text --------------------------------------------------------------------
+
+# Save condensed text
+survey_text <- survey_tidy |> 
+  filter(section != "conclusion") |> 
+  group_by(section, sub_section, question) |> 
+  summarise(response = paste0(unique(response), collapse = ";"))
+save(survey_text, file = "survey/reports/survey_text.RData")
+load("survey/reports/survey_text.RData")
+
+# Save quotes
+survey_quotes <- survey_tidy |> 
+  filter(section == "conclusion")
+save(survey_quotes, file = "survey/reports/survey_quotes.RData")
+load("survey/reports/survey_quotes.RData")
+
+## Fishery
+
+# Main biome (include after name)
+
+# Effect of retreating sea ice
+# Effect of retreating glaciers
+# Effect of Atlantification
+
+# Main drivers
+
+# Presence in which fjord
+
+# Catch trends per fjord
+
+## Tourism
+
+# Main drivers
+
+
+## Environment
+
+
 # Figures -----------------------------------------------------------------
+
+# Extract main drivers per item
+# Get counts/votes; determine top 3
+# Get data for relevant drivers by site
+# Create small time series plots
 
 # NB: These files intentionally do not get pushed to GitHub because of .gitignore
 # Rather run this code to generate the figures locally.
@@ -71,39 +120,16 @@ setwd("survey/reports/")
 
 quarto::quarto_render(input = "input.qmd")
 
-quarto::quarto_render(input = "input.qmd",
-                      execute_params = list("cat_name" = 2021,
-                                            "item_name" = "Alabama"))
-
-## Just do the item name, can subset the other things within the document
-## Rather give the title as a text body, not the YAML title
-## Determine the zones within which things will be placed
-## Add place holders and see how it looks
-## Ned to Google how to put document in landscape and add items with exact spacing
-## Once a basic outline is good then start adding pictures for each item
-## Then start on the widgets
-## Send a demo to Greta as soon as possible via slack
-
 quarto::quarto_render(
   input = "input.qmd",
-  execute_params = list("item_name" = all_unique[1]),
-  output_file = paste0(all_unique[1], '.html')
-  )
-
-purrr::walk(all_unique[1], ~quarto::quarto_render(
-  input = "survey/reports/input.qmd",
-  execute_params = list("set_item" = .x),
-  output_file = paste0(.x, '.html')
+  execute_params = list("item_code" = all_code[1]),
+  output_file = paste0(all_code[1],".pdf")
+)
+#
+purrr::walk(all_code, ~quarto::quarto_render(
+  input = "input.qmd",
+  execute_params = list("item_code" = .x),
+  output_file = paste0(.x,".pdf")
 ))
-
-# for (item_name in all_unique[1]) {
-#   quarto::quarto_render(
-#     "survey/reports/input.Rmd",
-#     execute_params = list("set_item" = item_name),
-#     output_file = paste0(item_name, '.html')
-#     )
-#   # rmarkdown::render(
-#   #   "survey/reports/input.Rmd", output_file = paste0(item_name, '.html')
-#   # )
-# }
+#
 
