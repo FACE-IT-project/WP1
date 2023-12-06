@@ -1,7 +1,15 @@
 ---
-title: "A report for _`r spp_name`_"
-output: html_document
+title: "Expert feedback for _`r item_name`_"
+output: 
+  html_document:
+    theme: readable
 ---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = FALSE, tidy = FALSE)
+```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Fish pictures
@@ -66,7 +74,7 @@ spp_fishery <- fish_eries |>
 
 ## Intro
 
-The life form `r spp_name` is known commonly as `r spp_common$'COMMON NAME' `.
+This reports covers expert feedback on `r item_name`.
 
 ```{r echo=FALSE, out.width='100%'}
 if(length(spp_pic > 0)){
@@ -81,8 +89,6 @@ if(length(spp_pic > 0)){
 ```
 
 ## Species range and catch data
-
-The range of longitude over which this species is found is `r round(spp_dist_coords$lon_west, 2)`°E to `r round(spp_dist_coords$lon_east, 2)`°E.
 
 ```{r echo=FALSE, out.width='100%'}
 if(file.exists(paste0('../figures/',spp_name,'_range_catch.png'))){

@@ -20,6 +20,12 @@ sections <- c("tourism", "fishery", "environment", "conclusion")
 tour_unique <- c("Little Auk", "Puffin", "Walrus", "Whales", "Polar bears", "Kelp")
 fish_unique <- c("Cod", "Shrimp", "Flounder + Halibut", "Pollock", "Pink Salmon", "King crab", "Snow crab", "Catfish", "Seal")
 env_unique <- c("Sea ice", "Glaciers", "Pollution")
+all_unique <- c(tour_unique, fish_unique, env_unique)
+
+# Create data.frame
+all_df <- data.frame(index_no = 1:length(all_unique),
+                     cat_name = c(rep(sections[1], 6), rep(sections[2], 9), rep(sections[3], 3)),
+                     item_name = all_unique)
 
 
 # Survey results ----------------------------------------------------------
@@ -61,9 +67,43 @@ plyr::l_ply(unique(fish_dist_coords$Species.Name), range_map_func, .parallel = T
 
 # Reports -----------------------------------------------------------------
 
-for (spp_name in spp_unique) {
-  rmarkdown::render(
-    'reports/input.Rmd', output_file = paste0(spp_name, '.html')
+setwd("survey/reports/")
+
+quarto::quarto_render(input = "input.qmd")
+
+quarto::quarto_render(input = "input.qmd",
+                      execute_params = list("cat_name" = 2021,
+                                            "item_name" = "Alabama"))
+
+## Just do the item name, can subset the other things within the document
+## Rather give the title as a text body, not the YAML title
+## Determine the zones within which things will be placed
+## Add place holders and see how it looks
+## Ned to Google how to put document in landscape and add items with exact spacing
+## Once a basic outline is good then start adding pictures for each item
+## Then start on the widgets
+## Send a demo to Greta as soon as possible via slack
+
+quarto::quarto_render(
+  input = "input.qmd",
+  execute_params = list("item_name" = all_unique[1]),
+  output_file = paste0(all_unique[1], '.html')
   )
-}
+
+purrr::walk(all_unique[1], ~quarto::quarto_render(
+  input = "survey/reports/input.qmd",
+  execute_params = list("set_item" = .x),
+  output_file = paste0(.x, '.html')
+))
+
+# for (item_name in all_unique[1]) {
+#   quarto::quarto_render(
+#     "survey/reports/input.Rmd",
+#     execute_params = list("set_item" = item_name),
+#     output_file = paste0(item_name, '.html')
+#     )
+#   # rmarkdown::render(
+#   #   "survey/reports/input.Rmd", output_file = paste0(item_name, '.html')
+#   # )
+# }
 

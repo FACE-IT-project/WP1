@@ -34,5 +34,7 @@ data/analyses/OISST_all.RData
 data/analyses/CCI_all.RData
 data/analyses/clean_all.RData
 data/analyses/clean_all_clean.RData
+survey/reports
+!survey/reports/input.qmd
 presentations/*.html
 .httr-oauth
