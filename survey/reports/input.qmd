@@ -1,0 +1,111 @@
+---
+# title: "`r params$item_name`"
+format: pdf
+engine: knitr
+header-includes:
+  - \pagenumbering{gobble}
+  - \usepackage{wrapfig}
+latex-auto-mk: true
+latex-max-runs: 1
+execute:
+  echo: false
+  message: false
+  warning: false
+params:
+  item_code: "little_auk"
+---
+
+```{r load-text}
+# For testing
+# params$item_code <- "little_auk"
+
+# Libraries
+# library()
+
+# Load files
+load("survey_text.RData")
+load("survey_quotes.RData")
+load("all_df.RData")
+
+# Filter for given item
+item_df <- dplyr::filter(all_df, item_code == params$item_code)
+item_text <- dplyr::filter(survey_text, sub_section == item_df$item_name)
+```
+
+```{r rename-figs}
+# Rename the species picture to pic1.jpg
+# This allows the static LaTeX code to work as desired
+```
+
+
+`r item_df$item_name`
+
+<!-- # ```{r out.width='30%', out.extra='style="float:right; padding:10px"'} -->
+<!-- # knitr::include_graphics(paste0("figures/",item_df$item_code,".jpg")) -->
+<!-- # ``` -->
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \centering
+    \includegraphics[width=\linewidth]{figures/little_auk.jpg}
+  \caption{The target species.}
+\end{wrapfigure}
+
+```{r first-text}
+if(item_df$cat_name[1] == "tourism"){
+  # Tourism impacts
+  tourism_impact <- item_text[grepl("tourism", item_text$question),]
+  } else if(item_df$cat_name[1] == "fishery"){
+  # Cryosphere impacts
+    
+  } else if(item_df$cat_name[1] == "environment"){
+    
+  }
+
+# Some ideas for how to deal with automagic text
+# https://stackoverflow.com/questions/25407102/conditionally-display-a-block-of-text-in-r-markdown
+```
+
+# Impacts from tourism
+  
+\quad At sea: `r tourism_impact$response[grepl("sea",tourism_impact$question)]`
+  
+\quad On land: `r tourism_impact$response[grepl("shore",tourism_impact$question)]`
+  
+```{r driver-text}
+driver_text <- dplyr::filter(survey_text, sub_section == item_df$item_name,
+                             grepl("drivers affecting", question))
+```
+
+# Biggest influences
+
+\quad `r driver_text$response`
+
+```{r out.width='80%', fig.align="center"}
+# This widget must adapt to the top three drivers
+# Show three panels next to each other across the full width of the page
+knitr::include_graphics("figures/test_ts.png")
+```
+
+# Presence
+
+```{r out.width='40%', fig.align="left"}
+# Make this widget check the text for where the species is present
+# It would be good to also show sizes/trends on the map.
+# A simple up arrow would work
+knitr::include_graphics("figures/demo_map_raster.png")
+
+# See here for plotting mltiple plots in a grid:
+# https://stackoverflow.com/questions/49907075/rmarkdown-multiple-plots-on-same-page-with-separate-captions
+```
+
+```{r out.width='40%', fig.align="left"}
+knitr::include_graphics("figures/table_1.png")
+```
+
+# Success stories
+
+\quad `r item_text$response[grepl("Success stories?", item_text$question)]`
+
+# Quote
+
+`r survey_quotes$response[23]`
