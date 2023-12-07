@@ -17,9 +17,9 @@ sections <- c("tourism", "fishery", "environment", "conclusion")
 
 # Unique species names as a vector
 # NB: These orders are very important and must not be changed
-tour_unique <- c("Little Auk", "Puffin", "Walrus", "Whales", "Polar bears", "Kelp")
+tour_unique <- c("Little auk", "Puffin", "Walrus", "Whales", "Polar bears", "Kelp")
 tour_code <- c("little_auk", "puffin", "walrus", "whales", "polar_bears", "kelp")
-fish_unique <- c("Cod", "Shrimp", "Flounder + Halibut", "Pollock", "Pink Salmon", "King crab", "Snow crab", "Catfish", "Seal")
+fish_unique <- c("Cod", "Shrimp", "Flounder + Halibut", "Pollock", "Pink salmon", "King crab", "Snow crab", "Catfish", "Seal")
 fish_code <- c("cod", "shrimp", "flounder_halibut", "pollock", "pink_salmon", "king_crab", "snow_crab", "catfish", "seal")
 env_unique <- c("Sea ice", "Glaciers", "Pollution")
 env_code <- c("sea_ice", "glaciers", "pollution")
@@ -65,21 +65,11 @@ survey_tidy <- rbind(survey_long, survey_double) |>
 
 # Text --------------------------------------------------------------------
 
-# text_vec <- survey_text_final$response[8]
-unique_vec <- function(text_vec){
-  # split_vec <- str_split(text_vec, ";")
-  # unique_vec <- unique(unlist(split_vec))
-  # res_vec <- paste0(unique_vec, collapse = ", ")
-  res_vec <- paste0(unique(unlist(str_split(text_vec, ";"))), collapse = ", ")
-  # return(res_vec)
-  # rm(text_vec, split_vec, unique_vec, res_vec)
-}
-
 # Save condensed text
 survey_text <- survey_tidy |> 
   filter(section != "conclusion") |> 
   group_by(section, sub_section, question) |> 
-  summarise(response = paste0(unique(response), collapse = ";"), .groups = "drop") |> 
+  summarise(response = paste0(unique(response), collapse = ";"), .groups = "drop")
 save(survey_text, file = "survey/reports/survey_text.RData")
 load("survey/reports/survey_text.RData")
 
@@ -90,50 +80,90 @@ survey_text_final <- survey_text |>
                               question == "Impact from tourism at sea (i.e. ships)" ~ "Impact from tourism at sea",
                               question == "Impact from tourism on shore (i.e. humans)" ~ "Impact from tourism on land",
                               TRUE ~ question),
+                              ## Environmental category
          response = case_when(question %in% c("Glacier types present in Disko Bay",
                                               "Glacier types present in Isfjorden",
                                               "Glacier types present in Nuup Kangerlua") ~ "Land+marine terminating",
-                              sub_section == "Glaciers" & question == "Impact from tourism at sea" ~ "Low",
-                              sub_section == "Glaciers" & question == "Impact from tourism on land" ~ "Low",
+                              sub_section == "Glaciers" & question %in% c("Impact from tourism at sea",
+                                                                          "Impact from tourism on land") ~ "Low",
                               sub_section == "Glaciers" & question == "Main drivers" ~ "Sea ice;Terrestrial runoff;Seawater temperature",
-                              sub_section == "Glaciers" & question == "Other..." ~ as.character(NA),
-                              sub_section == "Pollution" & question == "Impact from tourism at sea" ~ "High + increasing",
-                              sub_section == "Pollution" & question == "Impact from tourism on land" ~ "Low + increasing",
+                              sub_section %in% c("Glaciers", "Pollution", "Sea ice", "Cod") & question == "Other..." ~ as.character(NA),
+                              sub_section == "Pollution" & question == "Impact from tourism at sea" ~ "Medium + increasing",
+                              sub_section == "Pollution" & question == "Impact from tourism on land" ~ "High + increasing",
                               sub_section == "Pollution" & question == "Impact on tourism" ~ "High",
+                              sub_section == "Pollution" & question == "Main drivers" ~ "Tourism;Fisheries;Terrestrial runoff",
+                              sub_section == "Sea ice" & question == "Impact from tourism at sea" ~ "Low / High from ships",
+                              sub_section == "Sea ice" & question == "Impact from tourism on land" ~ "Low",
+                              sub_section == "Sea ice" & question == "Main drivers" ~ "Seawater temperature",
+                              sub_section == "Sea ice" & question == "Extent in Isfjorden" ~ "20 and 40%",
+                              sub_section == "Sea ice" & question == "Touristic value" ~ "High",
+                              ## Fishery category
+                              sub_section == "Cod" & question == "Catch trend in Isfjorden" ~ "Increasing",
+                              sub_section %in% c("Cod", "Flounder + Halibut", "Pollock", "Shrimp", "Snow crab") & 
+                                question == "Landing amount coming from Isfjorden" ~ as.character(NA),
+                              sub_section == "Cod" & question == "Main drivers" ~ "Seawater temperature;Fisheries;Sea ice",
+                              sub_section == "Flounder + Halibut" & question == "Catch trend in Isfjorden" ~ "Stable",
+                              sub_section == "King crab" & question == "Catch trend in Isfjorden" ~ "Unknown",
+                              sub_section == "Pink salmon" & question == "Catch trend in Isfjorden" ~ "Increasing",
+                              sub_section == "Pink salmon" & question %in% c("Effect of atlantification",
+                                                                             "Effect of retreating sea ice") ~ "Positive",
+                              sub_section == "Pink salmon" & question %in% c("Effect of retreating glaciers") ~ "Neutral",
+                              sub_section == "Pink salmon" & question %in% c("Main biome") ~ "North Pacific/Atlantic",
+                              sub_section == "Seal" & question %in% c("Effect of atlantification",
+                                                                      "Effect of retreating glaciers",
+                                                                      "Effect of retreating sea ice") ~ "Negative",
+                              sub_section == "Seal" & question %in% c("Main biome") ~ "Arctic",
+                              sub_section == "Seal" & question == "Main drivers" ~ "Sea ice;Seawater temperature",
+                              sub_section == "Seal" & question == "Source of knowledge" ~ "Expert knowledge",
+                              sub_section == "Shrimp" & question == "Catch trend in Isfjorden" ~ "Stable",
+                              sub_section == "Snow crab" & question == "Catch trend in Isfjorden" ~ "Increasing",
+                              sub_section == "Snow crab" & question == "Main drivers" ~ "Fisheries;Seawater temperature",
+                              sub_section == "Kelp" & question %in% c("Effect of atlantification",
+                                                                      "Effect of retreating glaciers",
+                                                                      "Effect of retreating sea ice") ~ "Positive + Negative",
+                              sub_section == "Kelp" & question %in% c("Impact from tourism at sea",
+                                                                      "Impact from tourism on land") ~ "Low",
+                              sub_section == "Kelp" & question %in% c("Main biome") ~ "Temperate to Arctic",
+                              sub_section == "Kelp" & question == "Main drivers" ~ "Seawater temperature;Sea ice;Light",
+                              sub_section == "Kelp" & grepl("Population size in ", question) ~ as.character(NA),
+                              sub_section == "Kelp" & grepl("Population trend in ", question) ~ "Increasing",
+                              sub_section == "Kelp" & question == "Touristic value" ~ "Low (but could be high)",
+                              sub_section %in% c("Little auk", "Puffin") & question %in% c("Impact from tourism at sea",
+                                                                                           "Impact from tourism on land") ~ "Medium",
+                              sub_section == "Little auk" & question %in% c("Main biome") ~ "Arctic",
+                              sub_section == "Little auk" & question == "Main drivers" ~ "Sea ice;Seawater temperature;Nutrients",
+                              sub_section %in% c("Little auk", "Puffin", "Walrus", "Whales") & 
+                                question %in% c("Population size in Disko Bay",
+                                                "Population trend in Disko Bay",
+                                                "Population trend in Nuup Kangerlua",
+                                                "Population trend in Porsangerfjorden") ~ as.character(NA),
+                              sub_section == "Polar bears" & question %in% c("Impact from tourism at sea",
+                                                                            "Impact from tourism on land") ~ "Medium",
+                              sub_section == "Polar bears" & question == "Main drivers" ~ "Sea ice;Seawater temperature;Governance",
+                              sub_section == "Puffin" & question == "Main drivers" ~ "Seawater temperature;Sea ice;Light",
+                              sub_section == "Puffin" & question == "Touristic value" ~ "High",
+                              sub_section == "Walrus" & question == "Main drivers" ~ "Sea ice;Seawater temperature;Nutrients",
+                              sub_section == "Whales" & question == "Impact from tourism at sea" ~ "Medium",
+                              sub_section == "Whales" & question == "Impact from tourism on land" ~ "Low",
+                              sub_section == "Whales" & question %in% c("Main biome") ~ "North Atlantic - Arctic",
+                              sub_section == "Whales" & question == "Main drivers" ~ "Sea ice;Primary production;Fisheries",
                               TRUE ~ response)) |> 
-  group_by(section, sub_section, question) |> 
-  # mutate(response = unique_vec(response)) |>
-  mutate(response = paste0(unique(unlist(str_split(response, ";"))), collapse = ", ")) |> 
-  ungroup()# |> 
-  filter(!grepl("only for tidewater", response)) |> 
-  filter(!is.na(response))
+  group_by(section, sub_section, question) |>
+  mutate(response = paste0(unique(unlist(str_split(response, ";"))), collapse = ", ")) |>
+  ungroup() |>
+  filter(!grepl("only for tidewater|Fjord settings are relevant|Fishery is probably the main|
+                |and hence terrestrial runoff; sea ice|expertise for regarding the fishery|
+                |via the food chain|define are NOT relevant|the areas you define are", response)) |> 
+  filter(!is.na(response), response != "NA")
+save(survey_text_final, file = "survey/reports/survey_text_final.RData")
+write_csv(survey_text_final, "survey/reports/survey_text_final.csv")
+load("survey/reports/survey_text_final.RData")
 
 # Save quotes
 survey_quotes <- survey_tidy |> 
   filter(section == "conclusion")
 save(survey_quotes, file = "survey/reports/survey_quotes.RData")
 load("survey/reports/survey_quotes.RData")
-
-## Fishery
-
-# Main biome (include after name)
-
-# Effect of retreating sea ice
-# Effect of retreating glaciers
-# Effect of Atlantification
-
-# Main drivers
-
-# Presence in which fjord
-
-# Catch trends per fjord
-
-## Tourism
-
-# Main drivers
-
-
-## Environment
 
 
 # Figures -----------------------------------------------------------------
@@ -151,20 +181,5 @@ plyr::l_ply(unique(fish_dist_coords$Species.Name), range_map_func, .parallel = T
 
 # Reports -----------------------------------------------------------------
 
-setwd("survey/reports/")
-
-quarto::quarto_render(input = "input.qmd")
-
-quarto::quarto_render(
-  input = "input.qmd",
-  execute_params = list("item_code" = all_code[1]),
-  output_file = paste0(all_code[1],".pdf")
-)
-#
-purrr::walk(all_code, ~quarto::quarto_render(
-  input = "input.qmd",
-  execute_params = list("item_code" = .x),
-  output_file = paste0(.x,".pdf")
-))
-#
+# Reports compiled manually via endNote
 

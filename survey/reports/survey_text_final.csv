@@ -1,0 +1,219 @@
+section,sub_section,question,response
+environment,Glaciers,Glacier types present in Disko Bay,Land+marine terminating
+environment,Glaciers,Glacier types present in Isfjorden,Land+marine terminating
+environment,Glaciers,Glacier types present in Nuup Kangerlua,Land+marine terminating
+environment,Glaciers,Glacier types present in Porsangerfjorden,None
+environment,Glaciers,Impact from tourism at sea,Low
+environment,Glaciers,Impact from tourism on land,Low
+environment,Glaciers,Main drivers,"Sea ice, Terrestrial runoff, Seawater temperature"
+environment,Glaciers,Present in...,"Isfjorden, Disko Bay, Nuup Kangerlua"
+environment,Glaciers,Source of knowledge,"Monitoring data, Expert knowledge, best guess"
+environment,Glaciers,Touristic value,High
+environment,Glaciers,Trend in Disko Bay,Decreasing
+environment,Glaciers,Trend in Isfjorden,Decreasing
+environment,Glaciers,Trend in Nuup Kangerlua,Decreasing
+environment,Glaciers,Trend in Porsangerfjorden,Not present
+environment,Pollution,Estimate in Isfjorden,"See statistical data from ""Hold Norge Rent"""
+environment,Pollution,Impact from tourism at sea,Medium + increasing
+environment,Pollution,Impact from tourism on land,High + increasing
+environment,Pollution,Impact on tourism,High
+environment,Pollution,Main drivers,"Tourism, Fisheries, Terrestrial runoff"
+environment,Pollution,Present in...,"Isfjorden, Porsangerfjorden, Disko Bay, Nuup Kangerlua"
+environment,Pollution,Source of knowledge,"Expert knowledge, best guess"
+environment,Pollution,Trend in Disko Bay,"Unknown, Increasing"
+environment,Pollution,Trend in Isfjorden,"Unknown, Increasing"
+environment,Pollution,Trend in Nuup Kangerlua,"Unknown, Increasing"
+environment,Pollution,Trend in Porsangerfjorden,"Unknown, Increasing"
+environment,Sea ice,Extent in Disko Bay,between 30-60% approx.
+environment,Sea ice,Extent in Isfjorden,20 and 40%
+environment,Sea ice,Extent in Nuup Kangerlua,ca 15%
+environment,Sea ice,Impact from tourism at sea,Low / High from ships
+environment,Sea ice,Impact from tourism on land,Low
+environment,Sea ice,Main drivers,Seawater temperature
+environment,Sea ice,Present in...,"Isfjorden, Disko Bay, Nuup Kangerlua, Porsangerfjorden"
+environment,Sea ice,Source of knowledge,"Monitoring data, Expert knowledge, Modelled data"
+environment,Sea ice,Touristic value,High
+environment,Sea ice,Trend in Disko Bay,Decreasing
+environment,Sea ice,Trend in Isfjorden,Decreasing
+environment,Sea ice,Trend in Nuup Kangerlua,Increasing
+environment,Sea ice,Trend in Porsangerfjorden,Unknown
+fishery,Catfish,Catch trend in Isfjorden,Not present
+fishery,Catfish,Catch trend in Porsangerfjorden,Stable
+fishery,Catfish,Could enhanced regulations affect local recreational fishers in...,Porsangerfjorden
+fishery,Catfish,Effect of atlantification,Neutral
+fishery,Catfish,Effect of retreating glaciers,Neutral
+fishery,Catfish,Effect of retreating sea ice,Neutral
+fishery,Catfish,Fishery presence in...,Porsangerfjorden
+fishery,Catfish,Local interest in fishery/products in...,Porsangerfjorden
+fishery,Catfish,Main biome,North Atlantic
+fishery,Catfish,Main drivers,Fisheries
+fishery,Catfish,Source of knowledge,Expert knowledge
+fishery,Cod,Catch trend in Isfjorden,Increasing
+fishery,Cod,Catch trend in Porsangerfjorden,Stable
+fishery,Cod,Comment on main drivers,Fishery is the main driver for Atlantic cod
+fishery,Cod,Could enhanced regulations affect local recreational fishers in...,"Isfjorden, Porsangerfjorden"
+fishery,Cod,Effect of atlantification,"moving northwards, Positive"
+fishery,Cod,Effect of retreating glaciers,Neutral
+fishery,Cod,Effect of retreating sea ice,"Positive, Neutral"
+fishery,Cod,Fishery presence in...,"Isfjorden, Porsangerfjorden"
+fishery,Cod,Local interest in fishery/products in...,"Isfjorden, Porsangerfjorden"
+fishery,Cod,Main biome,"North Atlantic, Arctic"
+fishery,Cod,Main drivers,"Seawater temperature, Fisheries, Sea ice"
+fishery,Cod,Source of knowledge,"Expert knowledge, Monitoring data"
+fishery,Cod,Success stories?,"Strong fishery regulation have an impact on the population of Atlantic cod, After 2010 this has been an option before 2005 rarely any cod fisheries in Isfjorden, but also in the warm period around 1900++ also cod fishing happening."
+fishery,Flounder + Halibut,Catch trend in Isfjorden,Stable
+fishery,Flounder + Halibut,Catch trend in Porsangerfjorden,Stable
+fishery,Flounder + Halibut,Could enhanced regulations affect local recreational fishers in...,"Isfjorden, Porsangerfjorden"
+fishery,Flounder + Halibut,Effect of atlantification,Neutral
+fishery,Flounder + Halibut,Effect of retreating glaciers,Neutral
+fishery,Flounder + Halibut,Effect of retreating sea ice,Neutral
+fishery,Flounder + Halibut,Fishery presence in...,"Isfjorden, Porsangerfjorden"
+fishery,Flounder + Halibut,Local interest in fishery/products in...,"Isfjorden, Porsangerfjorden"
+fishery,Flounder + Halibut,Main biome,North Atlantic
+fishery,Flounder + Halibut,Main drivers,"Fisheries, Seawater temperature, Nutrients"
+fishery,Flounder + Halibut,Source of knowledge,Expert knowledge
+fishery,King crab,Catch trend in Isfjorden,Unknown
+fishery,King crab,Catch trend in Porsangerfjorden,Increasing
+fishery,King crab,Comment on main drivers,Invasive species that is expanding in both Norwegian Sea and Barents Sea
+fishery,King crab,Could enhanced regulations affect local recreational fishers in...,Porsangerfjorden
+fishery,King crab,Effect of atlantification,Positive
+fishery,King crab,Effect of retreating glaciers,Neutral
+fishery,King crab,Effect of retreating sea ice,Neutral
+fishery,King crab,Fishery presence in...,"Isfjorden, Porsangerfjorden"
+fishery,King crab,Landing amount coming from Isfjorden,No landing facilities in Svalbard
+fishery,King crab,Local interest in fishery/products in...,"Isfjorden, Porsangerfjorden"
+fishery,King crab,Main biome,North Atlantic
+fishery,King crab,Main drivers,Fisheries
+fishery,King crab,Source of knowledge,Expert knowledge
+fishery,Pink salmon,Catch trend in Isfjorden,Increasing
+fishery,Pink salmon,Catch trend in Porsangerfjorden,Increasing
+fishery,Pink salmon,Could enhanced regulations affect local recreational fishers in...,Porsangerfjorden
+fishery,Pink salmon,Effect of atlantification,Positive
+fishery,Pink salmon,Effect of retreating glaciers,Neutral
+fishery,Pink salmon,Effect of retreating sea ice,Positive
+fishery,Pink salmon,Fishery presence in...,Porsangerfjorden
+fishery,Pink salmon,Local interest in fishery/products in...,Porsangerfjorden
+fishery,Pink salmon,Main biome,North Pacific/Atlantic
+fishery,Pink salmon,Main drivers,"Sea ice, Primary production, Fisheries"
+fishery,Pink salmon,Other...,There is no fishery for pink salmon in the Norwegian High Arctic - but sports catches are increasing.
+fishery,Pink salmon,Source of knowledge,"Monitoring data, Expert knowledge"
+fishery,Pollock,Catch trend in Isfjorden,"Could increase in the near future, Not present"
+fishery,Pollock,Catch trend in Porsangerfjorden,Stable
+fishery,Pollock,Could enhanced regulations affect local recreational fishers in...,"Isfjorden, Porsangerfjorden"
+fishery,Pollock,Effect of atlantification,"moving northwards, Positive"
+fishery,Pollock,Effect of retreating glaciers,Neutral
+fishery,Pollock,Effect of retreating sea ice,Neutral
+fishery,Pollock,Fishery presence in...,"Isfjorden, Porsangerfjorden"
+fishery,Pollock,Local interest in fishery/products in...,"Isfjorden, Porsangerfjorden"
+fishery,Pollock,Main biome,North Atlantic
+fishery,Pollock,Main drivers,"Seawater temperature, Fisheries, Sea ice"
+fishery,Pollock,Source of knowledge,Expert knowledge
+fishery,Seal,Catch trend in Isfjorden,Unknown
+fishery,Seal,Catch trend in Porsangerfjorden,Unknown
+fishery,Seal,Comment on main drivers,Loss of sea ice is an import factor for the decrease of seals in the Arctic
+fishery,Seal,Could enhanced regulations affect local recreational fishers in...,Isfjorden
+fishery,Seal,Effect of atlantification,Negative
+fishery,Seal,Effect of retreating glaciers,Negative
+fishery,Seal,Effect of retreating sea ice,Negative
+fishery,Seal,Fishery presence in...,Isfjorden
+fishery,Seal,Local interest in fishery/products in...,Isfjorden
+fishery,Seal,Main biome,Arctic
+fishery,Seal,Main drivers,"Sea ice, Seawater temperature"
+fishery,Seal,Source of knowledge,Expert knowledge
+fishery,Shrimp,Catch trend in Isfjorden,Stable
+fishery,Shrimp,Catch trend in Porsangerfjorden,Stable
+fishery,Shrimp,Could enhanced regulations affect local recreational fishers in...,Isfjorden
+fishery,Shrimp,Effect of atlantification,Positive
+fishery,Shrimp,Effect of retreating glaciers,Neutral
+fishery,Shrimp,Effect of retreating sea ice,Positive
+fishery,Shrimp,Fishery presence in...,Isfjorden
+fishery,Shrimp,Local interest in fishery/products in...,Isfjorden
+fishery,Shrimp,Main biome,North Atlantic
+fishery,Shrimp,Main drivers,"Fisheries, Sea ice, Seawater temperature"
+fishery,Shrimp,Other...,Shrimp trawling in West and North of Svalbard
+fishery,Shrimp,Source of knowledge,Expert knowledge
+fishery,Shrimp,Success stories?,Shrimp fishery must be regulated
+fishery,Snow crab,Catch trend in Isfjorden,Increasing
+fishery,Snow crab,Catch trend in Porsangerfjorden,Increasing
+fishery,Snow crab,Comment on main drivers,the species has entered the Arctic part of the Barents Sea
+fishery,Snow crab,Could enhanced regulations affect local recreational fishers in...,"Isfjorden, Porsangerfjorden"
+fishery,Snow crab,Effect of atlantification,Neutral
+fishery,Snow crab,Effect of retreating glaciers,Neutral
+fishery,Snow crab,Effect of retreating sea ice,Neutral
+fishery,Snow crab,Fishery presence in...,"Isfjorden, Porsangerfjorden"
+fishery,Snow crab,Local interest in fishery/products in...,"Isfjorden, Porsangerfjorden"
+fishery,Snow crab,Main biome,"North Atlantic, Arctic"
+fishery,Snow crab,Main drivers,"Fisheries, Seawater temperature"
+fishery,Snow crab,Other...,Commercially attractive species
+fishery,Snow crab,Source of knowledge,Expert knowledge
+tourism,Kelp,Could enhanced regulations affect local recreational fishers in...,"Porsangerfjorden, Isfjorden"
+tourism,Kelp,Effect of atlantification,Positive + Negative
+tourism,Kelp,Effect of retreating glaciers,Positive + Negative
+tourism,Kelp,Effect of retreating sea ice,Positive + Negative
+tourism,Kelp,Fishery presence in...,"Nuup Kangerlua, Porsangerfjorden"
+tourism,Kelp,Impact from tourism at sea,Low
+tourism,Kelp,Impact from tourism on land,Low
+tourism,Kelp,Local interest in fishery/products in...,"Nuup Kangerlua, Porsangerfjorden"
+tourism,Kelp,Main biome,Temperate to Arctic
+tourism,Kelp,Main drivers,"Seawater temperature, Sea ice, Light"
+tourism,Kelp,Population presence in...,"Isfjorden, Disko Bay, Nuup Kangerlua, Porsangerfjorden"
+tourism,Kelp,Population trend in Disko Bay,Increasing
+tourism,Kelp,Population trend in Isfjorden,Increasing
+tourism,Kelp,Population trend in Nuup Kangerlua,Increasing
+tourism,Kelp,Population trend in Porsangerfjorden,Increasing
+tourism,Kelp,Source of knowledge,"Expert knowledge, Monitoring data, Expert knowledge, publications, knowledge exchange with locals, ongoing research, Modelled data"
+tourism,Kelp,Success stories?,"The overall pan-Arctic trend is positive, but rather as a general sign of borealization, so no success story from an environmental point of view. Potential for fisheries/seaweed cultivation in the high North to be explored further,  but interest for that in GL, Increase of intertidal seaweed communities in ice free areas & General biomass increase of macroalgal forests at lower depths. Positive for fish recruitment etc, not sure what is meant here"
+tourism,Kelp,Touristic value,Low (but could be high)
+tourism,Little auk,Impact from tourism at sea,Medium
+tourism,Little auk,Impact from tourism on land,Medium
+tourism,Little auk,Main biome,Arctic
+tourism,Little auk,Main drivers,"Sea ice, Seawater temperature, Nutrients"
+tourism,Little auk,Population size in Isfjorden,"1000-3000 breeding pairs (very uncertain), Approx. 20 000, small compared to earlier"
+tourism,Little auk,Population trend in Isfjorden,Decreasing
+tourism,Little auk,Source of knowledge,"Monitoring data, Expert knowledge, Info from bird scientists"
+tourism,Little auk,Species breeding in...,Isfjorden
+tourism,Little auk,Success stories?,"Show the impact of climate change on little auks in the Isfjorden (decreasing population), Population sizes in Hornsund and NW Spitsbergen keep stable"
+tourism,Little auk,Touristic value,Medium
+tourism,Polar bears,Comment on main drivers,"Loss of sea ice affect the availabilty of food for polar bears, Access and availability to main prey ring seal important for fitness"
+tourism,Polar bears,Impact from tourism at sea,Medium
+tourism,Polar bears,Impact from tourism on land,Medium
+tourism,Polar bears,Main biome,Arctic
+tourism,Polar bears,Main drivers,"Sea ice, Seawater temperature, Governance"
+tourism,Polar bears,Other...,Why don't you ask about abundance in Kongsfjorden?
+tourism,Polar bears,Population size in Isfjorden,The polar bears in Svalbard belong to the Barents Sea population. You cannot define a number for Isfjorden.
+tourism,Polar bears,Population trend in Isfjorden,"Stable, Increasing"
+tourism,Polar bears,Population trend in Porsangerfjorden,Not present
+tourism,Polar bears,Source of knowledge,"Monitoring data, Expert knowledge"
+tourism,Polar bears,Success stories?,"Since the protection of polar bears at Svalbbard the poulation has increased, More frequently seen in Isfjorden, more local bears, polar bear adapt by switching to other prey"
+tourism,Polar bears,Touristic value,High
+tourism,Puffin,Impact from tourism at sea,Medium
+tourism,Puffin,Impact from tourism on land,Medium
+tourism,Puffin,Main biome,"North Atlantic, Arctic"
+tourism,Puffin,Main drivers,"Seawater temperature, Sea ice, Light"
+tourism,Puffin,Population size in Isfjorden,"2000 breeding pairs (approx.), Approx. 4000-5000, do not know,  breed in Deltaneset"
+tourism,Puffin,Population trend in Isfjorden,"Increasing, Unknown"
+tourism,Puffin,Source of knowledge,"Monitoring data, Expert knowledge"
+tourism,Puffin,Species breeding in...,Isfjorden
+tourism,Puffin,Success stories?,"Due to climate change this species is increasing, Seem to improve with warmer climate - more fish prey"
+tourism,Puffin,Touristic value,High
+tourism,Walrus,Comment on main drivers,"Nutrients(food availability), Population been so low for a long time - now slowly recovering"
+tourism,Walrus,Impact from tourism at sea,"Low, High"
+tourism,Walrus,Impact from tourism on land,"Low, High"
+tourism,Walrus,Main biome,Arctic
+tourism,Walrus,Main drivers,"Sea ice, Seawater temperature, Nutrients"
+tourism,Walrus,Population size in Isfjorden,"Increasing, mostly males, females with calves rare in Isfjorden and Svalbard in general"
+tourism,Walrus,Population trend in Isfjorden,Increasing
+tourism,Walrus,Source of knowledge,Expert knowledge
+tourism,Walrus,Species breeding in...,Isfjorden
+tourism,Walrus,Success stories?,"Population has been increased sice the protection of the species was established in the 70th's, Increasing numbers and now also females with calves seen in Svalbard"
+tourism,Walrus,Touristic value,High
+tourism,Whales,Comment on main drivers,"Tourism (boat tours, expedition and conventional cruise tourism) may disturb whales, but inrceaing tourism interest may also help push through hunting bans (as in the nuuk fjord), Primary production, Migrating whales come to Arctic to feed on nutritious prey - warmer climate the more whales often"
+tourism,Whales,Impact from tourism at sea,Medium
+tourism,Whales,Impact from tourism on land,Low
+tourism,Whales,Main biome,North Atlantic - Arctic
+tourism,Whales,Main drivers,"Sea ice, Primary production, Fisheries"
+tourism,Whales,Population size in Isfjorden,Not known since a migrator but more frequently seen the last 5-7 years
+tourism,Whales,Population trend in Isfjorden,"Increasing, Unknown"
+tourism,Whales,Source of knowledge,Expert knowledge
+tourism,Whales,Success stories?,"Since tha protection of whales was established the populations of whales has increased in the Arctic, More often seen in Isfjorden now than earlier"
+tourism,Whales,Touristic value,High
