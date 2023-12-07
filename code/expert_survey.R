@@ -65,13 +65,48 @@ survey_tidy <- rbind(survey_long, survey_double) |>
 
 # Text --------------------------------------------------------------------
 
+# text_vec <- survey_text_final$response[8]
+unique_vec <- function(text_vec){
+  # split_vec <- str_split(text_vec, ";")
+  # unique_vec <- unique(unlist(split_vec))
+  # res_vec <- paste0(unique_vec, collapse = ", ")
+  res_vec <- paste0(unique(unlist(str_split(text_vec, ";"))), collapse = ", ")
+  # return(res_vec)
+  # rm(text_vec, split_vec, unique_vec, res_vec)
+}
+
 # Save condensed text
 survey_text <- survey_tidy |> 
   filter(section != "conclusion") |> 
   group_by(section, sub_section, question) |> 
-  summarise(response = paste0(unique(response), collapse = ";"))
+  summarise(response = paste0(unique(response), collapse = ";"), .groups = "drop") |> 
 save(survey_text, file = "survey/reports/survey_text.RData")
 load("survey/reports/survey_text.RData")
+
+# Manually edit final text
+survey_text_final <- survey_text |> 
+  mutate(question = case_when(question == "Comment on main drivers (optional)" ~ "Comment on main drivers",
+                              grepl("drivers affecting", question) ~ "Main drivers",
+                              question == "Impact from tourism at sea (i.e. ships)" ~ "Impact from tourism at sea",
+                              question == "Impact from tourism on shore (i.e. humans)" ~ "Impact from tourism on land",
+                              TRUE ~ question),
+         response = case_when(question %in% c("Glacier types present in Disko Bay",
+                                              "Glacier types present in Isfjorden",
+                                              "Glacier types present in Nuup Kangerlua") ~ "Land+marine terminating",
+                              sub_section == "Glaciers" & question == "Impact from tourism at sea" ~ "Low",
+                              sub_section == "Glaciers" & question == "Impact from tourism on land" ~ "Low",
+                              sub_section == "Glaciers" & question == "Main drivers" ~ "Sea ice;Terrestrial runoff;Seawater temperature",
+                              sub_section == "Glaciers" & question == "Other..." ~ as.character(NA),
+                              sub_section == "Pollution" & question == "Impact from tourism at sea" ~ "High + increasing",
+                              sub_section == "Pollution" & question == "Impact from tourism on land" ~ "Low + increasing",
+                              sub_section == "Pollution" & question == "Impact on tourism" ~ "High",
+                              TRUE ~ response)) |> 
+  group_by(section, sub_section, question) |> 
+  # mutate(response = unique_vec(response)) |>
+  mutate(response = paste0(unique(unlist(str_split(response, ";"))), collapse = ", ")) |> 
+  ungroup()# |> 
+  filter(!grepl("only for tidewater", response)) |> 
+  filter(!is.na(response))
 
 # Save quotes
 survey_quotes <- survey_tidy |> 
