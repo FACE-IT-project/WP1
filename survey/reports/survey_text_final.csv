@@ -146,6 +146,7 @@ fishery,Snow crab,Main biome,"North Atlantic, Arctic"
 fishery,Snow crab,Main drivers,"Fisheries, Seawater temperature"
 fishery,Snow crab,Other...,Commercially attractive species
 fishery,Snow crab,Source of knowledge,Expert knowledge
+tourism,Kelp,Comment on main drivers,"Light - and hence terrestrial runoff,  sea ice because of light / icebergs because of scraping, Grazing pressure dependent on temperature, Light is also a crucial factor but currently in strong interaction with terrestrial sediment runoff (coastal darkening phenomenom), sea ice retreat leads to more light and new habitats which is beneficial for the spread of macroalgal communities, Sea watyer temperature and less sea ice have a positive effect on the growth of kelp, Substrate also important, The effect of sea-ice and terrestrial runoff is mainly via effects on light. This is why I did not also click ""light"" as a driver although light is the key driver along with temperature."
 tourism,Kelp,Could enhanced regulations affect local recreational fishers in...,"Porsangerfjorden, Isfjorden"
 tourism,Kelp,Effect of atlantification,Positive + Negative
 tourism,Kelp,Effect of retreating glaciers,Positive + Negative
@@ -162,7 +163,7 @@ tourism,Kelp,Population trend in Isfjorden,Increasing
 tourism,Kelp,Population trend in Nuup Kangerlua,Increasing
 tourism,Kelp,Population trend in Porsangerfjorden,Increasing
 tourism,Kelp,Source of knowledge,"Expert knowledge, Monitoring data, Expert knowledge, publications, knowledge exchange with locals, ongoing research, Modelled data"
-tourism,Kelp,Success stories?,"The overall pan-Arctic trend is positive, but rather as a general sign of borealization, so no success story from an environmental point of view. Potential for fisheries/seaweed cultivation in the high North to be explored further,  but interest for that in GL, Increase of intertidal seaweed communities in ice free areas & General biomass increase of macroalgal forests at lower depths. Positive for fish recruitment etc, not sure what is meant here"
+tourism,Kelp,Success stories?,"The overall pan-Arctic trend is positive, but rather as a general sign of borealization, so know esuccess story from an environmental point of view. Potential for fisheries/seaweed cultivation in the high North to be explored further,  but interest for that in GL, Increase of intertidal seaweed communities in ice free areas & General biomass increase of macroalgal forests at lower depths (both evidence from Kongsfjorden + Krause-Jensen et al., 2020 and other non FACE-IT publications), Positive for fish recruitment etc, not sure what is meant here"
 tourism,Kelp,Touristic value,Low (but could be high)
 tourism,Little auk,Impact from tourism at sea,Medium
 tourism,Little auk,Impact from tourism on land,Medium
@@ -182,7 +183,6 @@ tourism,Polar bears,Main drivers,"Sea ice, Seawater temperature, Governance"
 tourism,Polar bears,Other...,Why don't you ask about abundance in Kongsfjorden?
 tourism,Polar bears,Population size in Isfjorden,The polar bears in Svalbard belong to the Barents Sea population. You cannot define a number for Isfjorden.
 tourism,Polar bears,Population trend in Isfjorden,"Stable, Increasing"
-tourism,Polar bears,Population trend in Porsangerfjorden,Not present
 tourism,Polar bears,Source of knowledge,"Monitoring data, Expert knowledge"
 tourism,Polar bears,Success stories?,"Since the protection of polar bears at Svalbbard the poulation has increased, More frequently seen in Isfjorden, more local bears, polar bear adapt by switching to other prey"
 tourism,Polar bears,Touristic value,High

@@ -133,7 +133,7 @@ survey_text_final <- survey_text |>
                                                                                            "Impact from tourism on land") ~ "Medium",
                               sub_section == "Little auk" & question %in% c("Main biome") ~ "Arctic",
                               sub_section == "Little auk" & question == "Main drivers" ~ "Sea ice;Seawater temperature;Nutrients",
-                              sub_section %in% c("Little auk", "Puffin", "Walrus", "Whales") & 
+                              sub_section %in% c("Little auk", "Puffin", "Polar bears", "Walrus", "Whales") & 
                                 question %in% c("Population size in Disko Bay",
                                                 "Population trend in Disko Bay",
                                                 "Population trend in Nuup Kangerlua",
@@ -172,29 +172,91 @@ load("survey/reports/survey_quotes.RData")
 # Map
 load("data/analyses/sst_EU_arctic_annual_trends.RData")
 base_map <- basemap(limits = c(-50, 35, 60, 80), bathymetry = FALSE) +
+  # geom_spatial_tile(data = filter(sst_EU_arctic_annual_trends,
+  #                                 lat >= 60, lat <= 61, lon >= 1, lon <= 2),
   geom_spatial_tile(data = sst_EU_arctic_annual_trends,
                     crs = 4326, colour = NA,
                     aes(fill = trend*10, x = lon, y = lat)) +
-  scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red"), guide = "none") +
-  labs(fill = "Trend [°C/dec]", x  = NULL, y = NULL) +
+  scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
+  labs(fill = "Trend\n[°C/dec]", x  = NULL, y = NULL) +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         panel.background = element_rect(fill = NA),
         plot.background = element_rect(fill = "white", colour = "white"),
-        # legend.position = c(0.948, 0.29),
-        legend.position = "bottom",
+        legend.position = c(0.207, 0.135),
+        legend.direction = "horizontal",
+        # legend.position = "bottom",
         axis.text = element_text(colour = "black"),
         # legend.margin = margin(10, 10, 10, 10),
         legend.box.margin = margin(10, 10, 10, 10),
         legend.box.background = element_rect(fill = "white", colour = "black"))
 base_map$layers <- base_map$layers[c(2,1)] # Reorder land shape and SST rasters
 # base_map
-ggsave("survey/reports/figures/base_map.png", plot = base_map, height = 8, width = 12)
+ggsave("survey/reports/figures/base_map.png", plot = base_map, height = 4, width = 6)
 
 # Extract main drivers per item
 # Get counts/votes; determine top 3
 # Get data for relevant drivers by site
 # Create small time series plots
 
+report_driver_plot <- function(item_name){
+  
+  # Prep data
+  if(!exists("survey_text_final")) load("survey/reports/survey_text_final.RData")
+  item_text <- filter(survey_text_final, sub_section == item_name)
+  
+  # Get sites listed for given item
+  item_presence <- filter(item_text, grepl("presence in...|Present in...|breeding in...", question))
+  item_sites <- c()
+  if(any(grepl("Isfjorden", item_text$question))) item_sites <- c(item_sites, "Isfjorden")
+  if(any(grepl("Porsangerfjorden", item_text$question))) item_sites <- c(item_sites, "Porsangerfjorden")
+  if(any(grepl("Disko Bay", item_text$question))) item_sites <- c(item_sites, "Disko Bay")
+  if(any(grepl("Nuup Kangerlua", item_text$question))) item_sites <- c(item_sites, "Nuup Kangerlua")
+  if(nrow(item_presence) > 0) item_sites <- c(item_sites, item_presence$response)
+  item_sites <- unlist(unique(str_split(tools::toTitleCase(item_sites), ", ")))
+  item_sites_short <- long_site_names[which(long_site_names$site_long %in% item_sites),]
+  
+  # Get main drivers
+  item_drivers <- filter(item_text, question == "Main drivers")
+  item_drivers <- unlist(unique(str_split(tolower(item_drivers$response), ", ")))
+  item_drivers_short <- long_driver_names[which(long_driver_names$driver_long %in% item_drivers),]
+  
+  # Filter clean data accordingly
+  clean_sub <- filter(clean_all, site %in% item_sites_short$site,
+                      driver %in% item_drivers_short$driver) |> 
+    mutate(variable = case_when(variable == "Temp [°C]" ~ "temp [°C]", TRUE ~ variable),
+           value = case_when(driver == "sea ice" & variable == "sea ice cover [proportion]" ~ value,
+                             type == "OISST" & driver == "sea temp" & variable == "temp [°C]" ~ value)) |> 
+    filter(!is.na(value))
+  
+  # Get specific variables
+  # list_vars <- clean_sub |> dplyr::select(driver, variable) |> distinct()
+  if("sea temp" %in% item_drivers_short$driver){
+    plot_temp <- clean_sub |> 
+      filter(driver == "sea temp") |> 
+      mutate(date = round_date(date, unit = "year")) |> 
+      summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date")) |> 
+      ggplot(aes(x = date, y = value, colour = site)) +
+      geom_line() + geom_smooth(method = "lm", se = FALSE) + labs(y = "Seawater temperature [°C]")
+    # plot_temp
+  }
+  if("sea ice" %in% item_drivers_short$driver){
+    plot_ice <- clean_sub |> 
+      filter(driver == "sea ice") |> 
+      mutate(date = round_date(date, unit = "year")) |> 
+      summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date")) |> 
+      ggplot(aes(x = date, y = value, colour = site)) +
+      geom_line() + geom_smooth(method = "lm", se = FALSE) + labs(y = "Sea ice cover [proportion]")
+    # plot_ice
+  }
+  if("governance" %in% item_drivers_short$driver){
+    plot_gov <- ggplot() + geom_blank() + annotate(geom = "text", x = 0, y = 0, label = "?") +
+      labs(y = "Governance", x = "date")
+    plot_gov
+  }
+  plot_combine <- ggpubr::ggarrange(plot_temp, plot_ice, plot_gov, ncol = 3, nrow = 1, 
+                                    common.legend = TRUE, legend = "bottom")
+  ggsave(paste0("survey/reports/figures/",item_name,"_ts.png"), width = 12, height = 4)
+}
 
 
 
