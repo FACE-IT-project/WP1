@@ -11,6 +11,7 @@
 # Setup -------------------------------------------------------------------
 
 source("code/functions.R")
+library(ggspatial)
 
 # General sections
 sections <- c("tourism", "fishery", "environment", "conclusion")
@@ -169,25 +170,33 @@ load("survey/reports/survey_quotes.RData")
 # Figures -----------------------------------------------------------------
 
 # Map
-base_map <- basemap(limits = c(-50, 35, 60, 80), bathymetry = TRUE, bathy.style = "raster_binned_grays") +
-  labs(x = NULL, y = NULL) +
+load("data/analyses/sst_EU_arctic_annual_trends.RData")
+base_map <- basemap(limits = c(-50, 35, 60, 80), bathymetry = FALSE) +
+  geom_spatial_tile(data = sst_EU_arctic_annual_trends,
+                    crs = 4326, colour = NA,
+                    aes(fill = trend*10, x = lon, y = lat)) +
+  scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red"), guide = "none") +
+  labs(fill = "Trend [°C/dec]", x  = NULL, y = NULL) +
   theme(panel.border = element_rect(fill = NA, colour = "black"),
         panel.background = element_rect(fill = NA),
         plot.background = element_rect(fill = "white", colour = "white"),
-        legend.position = c(0.221, 0.07),
-        legend.direction = "horizontal",
-        # legend.position = "bottom",
+        # legend.position = c(0.948, 0.29),
+        legend.position = "bottom",
         axis.text = element_text(colour = "black"),
         # legend.margin = margin(10, 10, 10, 10),
         legend.box.margin = margin(10, 10, 10, 10),
         legend.box.background = element_rect(fill = "white", colour = "black"))
-base_map
+base_map$layers <- base_map$layers[c(2,1)] # Reorder land shape and SST rasters
+# base_map
 ggsave("survey/reports/figures/base_map.png", plot = base_map, height = 8, width = 12)
 
 # Extract main drivers per item
 # Get counts/votes; determine top 3
 # Get data for relevant drivers by site
 # Create small time series plots
+
+
+
 
 # NB: These files intentionally do not get pushed to GitHub because of .gitignore
 # Rather run this code to generate the figures locally.
