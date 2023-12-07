@@ -168,6 +168,22 @@ load("survey/reports/survey_quotes.RData")
 
 # Figures -----------------------------------------------------------------
 
+# Map
+base_map <- basemap(limits = c(-50, 35, 60, 80), bathymetry = TRUE, bathy.style = "raster_binned_grays") +
+  labs(x = NULL, y = NULL) +
+  theme(panel.border = element_rect(fill = NA, colour = "black"),
+        panel.background = element_rect(fill = NA),
+        plot.background = element_rect(fill = "white", colour = "white"),
+        legend.position = c(0.221, 0.07),
+        legend.direction = "horizontal",
+        # legend.position = "bottom",
+        axis.text = element_text(colour = "black"),
+        # legend.margin = margin(10, 10, 10, 10),
+        legend.box.margin = margin(10, 10, 10, 10),
+        legend.box.background = element_rect(fill = "white", colour = "black"))
+base_map
+ggsave("survey/reports/figures/base_map.png", plot = base_map, height = 8, width = 12)
+
 # Extract main drivers per item
 # Get counts/votes; determine top 3
 # Get data for relevant drivers by site
