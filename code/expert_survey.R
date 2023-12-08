@@ -13,6 +13,15 @@
 source("code/functions.R")
 library(ggspatial)
 
+# Load pre-processed PAR data
+if(!exists("PAR_annual_summary")) load("survey/reports/PAR_annual_summary.RData")
+PAR_sub <- PAR_annual_summary |> 
+  filter(variable == "YearlyPAR0m", site %in% c("por", "is", "nuup", "disko")) |> 
+  left_join(long_site_names, by = "site") |> 
+  mutate(driver = "light", variable = "Surface PAR [mol/m^2/d]", 
+         date = as.Date(paste0(year,"-01-01")), value = `mean`) |> 
+  dplyr::select(site_long, driver, variable, date, value)
+
 # General sections
 sections <- c("tourism", "fishery", "environment", "conclusion")
 
@@ -198,12 +207,13 @@ ggsave("survey/reports/figures/base_map.png", plot = base_map, height = 4, width
 # Get counts/votes; determine top 3
 # Get data for relevant drivers by site
 # Create small time series plots
-
-report_driver_plot <- function(item_name){
+# item_choice <- "little_auk"
+report_driver_plot <- function(item_choice){
   
   # Prep data
   if(!exists("survey_text_final")) load("survey/reports/survey_text_final.RData")
-  item_text <- filter(survey_text_final, sub_section == item_name)
+  item_df <- filter(all_df, item_code == item_choice)
+  item_text <- filter(survey_text_final, sub_section == item_df$item_name)
   
   # Get sites listed for given item
   item_presence <- filter(item_text, grepl("presence in...|Present in...|breeding in...", question))
@@ -217,54 +227,149 @@ report_driver_plot <- function(item_name){
   item_sites_short <- long_site_names[which(long_site_names$site_long %in% item_sites),]
   
   # Get main drivers
+  ## "sea ice"   "runoff"    "sea temp"  "light"     "nutrients" "prim prod" "gov"       "tourism"   "fisheries"
   item_drivers <- filter(item_text, question == "Main drivers")
   item_drivers <- unlist(unique(str_split(tolower(item_drivers$response), ", ")))
   item_drivers_short <- long_driver_names[which(long_driver_names$driver_long %in% item_drivers),]
   
   # Filter clean data accordingly
-  clean_sub <- filter(clean_all, site %in% item_sites_short$site,
-                      driver %in% item_drivers_short$driver) |> 
-    mutate(variable = case_when(variable == "Temp [°C]" ~ "temp [°C]", TRUE ~ variable),
-           value = case_when(driver == "sea ice" & variable == "sea ice cover [proportion]" ~ value,
-                             type == "OISST" & driver == "sea temp" & variable == "temp [°C]" ~ value)) |> 
-    filter(!is.na(value))
+  # item_sites_short$site
+  if(!exists("clean_all")) load("~/pCloudDrive/FACE-IT_data/clean_all.RData")
+  clean_sub <- filter(clean_all, site %in% c("por", "is", "nuup", "disko"),
+                      driver %in% item_drivers_short$driver) |>
+                      # driver %in% c("sea temp", "sea ice", "runoff", "light", "nutrients", "prim prod", "tourism", "fisheries", "gov")) |> 
+    mutate(value = case_when(driver == "sea ice" & variable != "sea ice cover [proportion]" ~ NA,
+                             driver == "sea temp" & type != "OISST" ~ NA,
+                             driver == "runoff" & variable == "Q day mean [m**3/s]" ~ NA,
+                             driver == "light" ~ NA, # Rather use FjordLight data
+                             driver == "nutrients" & variable %in% c("PO4 biog [%]", "[NO3]- [mg/l]", 
+                                                                     "N-[NO3]- [mg/l]", "[NO3]- [µg/kg]") ~ NA,
+                             driver == "prim prod" & !(variable %in% c("Chla [µg/l]", "Chl a [mg/m**3]", "")) ~ NA,
+                             TRUE ~ value)) |> 
+    mutate(variable = case_when(variable %in% c("Chla [µg/l]", "Chl a [mg/m**3]") ~ "Chl a [µg/l]", TRUE ~ variable)) |> 
+    filter(!is.na(value), !is.na(date)) |> 
+    left_join(long_site_names, by = "site") |> 
+    mutate(date = round_date(date, unit = "year")) |> 
+    summarise(value = mean(value, na.rm = TRUE), .by = c("site_long", "driver", "variable", "date")) |> 
+    rbind(PAR_sub)
+    
+  # Create static site colour palette
+  # brewer.pal(brewer.pal.info["Set1", "maxcolors"], "Set1")
+  site_colours <- c(
+    "Porsangerfjorden" = "#4DAF4A",
+    "Isfjorden" = "#377EB8", 
+    "Qeqertarsuup Tunua" = "#984EA3", 
+    "Nuup Kangerlua" = "#FF7F00"
+  )
+  
+  # Create theme
+  theme_trip <- function(){
+    theme(axis.text = element_text(size = 12),
+          axis.title = element_text(size = 14), 
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 12),
+          legend.title = element_text(size = 14),
+          # axis.text.x = element_text(angle = 30, hjust = 1),
+          legend.position = "bottom",
+          panel.border = element_rect(fill = NA, colour = "black")) 
+  }
+  
+  # The primary plots
+  var_plot_line <- function(var_short, y_lab){
+    plot_var <- filter(clean_sub, driver == var_short)  |> 
+      ggplot(aes(x = date, y = value, colour = site_long)) +
+      geom_line(size = 1.5) + 
+      geom_smooth(method = "lm", se = FALSE, linetype = "dashed", show.legend = FALSE) + 
+      scale_colour_manual("Site", values = site_colours) +
+      labs(y = y_lab) + theme_trip()
+  }
+  var_plot_point <- function(var_short, y_lab){
+    plot_var <- filter(clean_sub, driver == var_short)  |> 
+      ggplot(aes(x = date, y = value, colour = site_long)) +
+      geom_point(size = 3) + 
+      geom_smooth(method = "lm", se = FALSE, linetype = "dashed", show.legend = FALSE) + 
+      scale_colour_manual("Site", values = site_colours) +
+      labs(y = y_lab) + theme_trip()
+  }
+  var_plot_point_many <- function(var_short, y_lab){
+    plot_var <- filter(clean_sub, driver == var_short)  |> 
+      ggplot(aes(x = date, y = value, colour = site_long)) +
+      geom_point(aes(shape = variable), size = 2) + 
+      geom_smooth(method = "lm", se = FALSE, linetype = "dashed", show.legend = FALSE) + 
+      scale_colour_manual("Site", values = site_colours) +
+      labs(y = y_lab) + theme_trip() + theme(legend.position = c(0.1, 0.2))
+  }
+  var_plot_point_facet <- function(var_short, y_lab){
+    plot_var <- filter(clean_sub, driver == var_short)  |> 
+      ggplot(aes(x = date, y = value, colour = site_long)) +
+      geom_point(size = 2) + 
+      geom_smooth(method = "lm", se = FALSE, linetype = "dashed", show.legend = FALSE) + 
+      scale_colour_manual("Site", values = site_colours) +
+      facet_wrap(~variable, scales = "free_y") + labs(y = y_lab) + theme_trip()
+  }
   
   # Get specific variables
   # list_vars <- clean_sub |> dplyr::select(driver, variable) |> distinct()
+  ## "sea temp", "sea ice", "runoff", "light", "nutrients", "prim prod", "tourism", "fisheries", "gov"
+  plot_list <- list()
   if("sea temp" %in% item_drivers_short$driver){
-    plot_temp <- clean_sub |> 
-      filter(driver == "sea temp") |> 
-      mutate(date = round_date(date, unit = "year")) |> 
-      summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date")) |> 
-      ggplot(aes(x = date, y = value, colour = site)) +
-      geom_line() + geom_smooth(method = "lm", se = FALSE) + labs(y = "Seawater temperature [°C]")
-    # plot_temp
+    plot_temp <- var_plot_line("sea temp", "Seawater temperature [°C]")
+    plot_list <- append(plot_list, plot_temp)
+    plot_list[[length(plot_list)+1]] <- plot_temp
   }
   if("sea ice" %in% item_drivers_short$driver){
-    plot_ice <- clean_sub |> 
-      filter(driver == "sea ice") |> 
-      mutate(date = round_date(date, unit = "year")) |> 
-      summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date")) |> 
-      ggplot(aes(x = date, y = value, colour = site)) +
-      geom_line() + geom_smooth(method = "lm", se = FALSE) + labs(y = "Sea ice cover [proportion]")
-    # plot_ice
+    plot_ice <- var_plot_line("sea ice", "Sea ice cover [proportion]")
+    plot_list[[length(plot_list)+1]] <- plot_ice
+    if(!exists("plot_list")){
+      plot_list <- plot_ice
+    } else {
+      plot_list <- list(plot_list, plot_ice)
+    }
+  }
+  if("runoff" %in% item_drivers_short$driver){
+    plot_runoff <- var_plot_line("runoff", "Terrestrial runoff [m^3/s]")
+    if(!exists("plot_list")){
+      plot_list <- plot_runoff
+    } else {
+      plot_list <- list(plot_list, plot_runoff)
+    }
+  }
+  if("light" %in% item_drivers_short$driver){
+    plot_light <- var_plot_line("light", "Surface PAR [mol/m^2/d]")
+    plot_list <- list(plot_list, plot_light)
+  }
+  if("nutrients" %in% item_drivers_short$driver){
+    plot_nutr <- var_plot_point_facet("nutrients", "Nutrients [µmol/l]")
+    plot_list <- list(plot_list, plot_nutr)
+  }
+  if("prim prod" %in% item_drivers_short$driver){
+    plot_pp <- var_plot_point("prim prod", "Chlorophyl A [µg/l]")
+    plot_list <- list(plot_list, plot_pp)
+  }
+  if("tourism" %in% item_drivers_short$driver){
+    plot_tour <- var_plot_point_facet("tourism", "Various")
+    plot_list <- list(plot_list, plot_tour)
+  }
+  if("fisheries" %in% item_drivers_short$driver){
+    plot_fish <- ggplot() + geom_blank() + annotate(geom = "label", x = 0, y = 0, label = "Data within fjords is rare") +
+      labs(y = paste0(item_df$item_name," fishery"), x = "date") + theme_trip() +
+      theme(axis.text = element_blank(), axis.ticks = element_blank())
+    plot_list <- list(plot_list, plot_fish)
   }
   if("governance" %in% item_drivers_short$driver){
-    plot_gov <- ggplot() + geom_blank() + annotate(geom = "text", x = 0, y = 0, label = "?") +
-      labs(y = "Governance", x = "date")
-    plot_gov
+    plot_gov <- ggplot() + geom_blank() + annotate(geom = "label", x = 0, y = 0, label = "No numeric data") +
+      labs(y = "Governance", x = "date") + theme_trip() +
+      theme(axis.text = element_blank(), axis.ticks = element_blank())
+    plot_list <- list(plot_list, plot_gov)
   }
-  plot_combine <- ggpubr::ggarrange(plot_temp, plot_ice, plot_gov, ncol = 3, nrow = 1, 
+  plot_combine <- ggpubr::ggarrange(unlist(plot_list), ncol = 3, nrow = 1, 
                                     common.legend = TRUE, legend = "bottom")
-  ggsave(paste0("survey/reports/figures/",item_name,"_ts.png"), width = 12, height = 4)
+  ggsave(paste0("survey/reports/figures/",item_choice,"_ts.png"), width = 12, height = 4)
 }
 
-
-
-# NB: These files intentionally do not get pushed to GitHub because of .gitignore
-# Rather run this code to generate the figures locally.
-doParallel::registerDoParallel(cores = 7)
-plyr::l_ply(unique(fish_dist_coords$Species.Name), range_map_func, .parallel = T)
+# Run the figures
+# doParallel::registerDoParallel(cores = 7)
+plyr::l_ply(all_code, report_driver_plot, .parallel = FALSE)
 
 
 # Reports -----------------------------------------------------------------
