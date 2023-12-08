@@ -200,6 +200,114 @@ rm(list = grep("EU_|barents_",names(.GlobalEnv),value = TRUE)); gc()
 
 ### Wild data ---------------------------------------------------------------
 
+# TODO: Integrate this mess
+# Bathymetry data
+EU_GEBCO <- data.frame(type = "Gridded",
+                       data_name = "Bathymetry",
+                       date_range = NA,
+                       URL = "https://www.gebco.net/",
+                       reference = "GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f",
+                       note = NA)
+
+# Bathymetry data
+EU_IBCAO <- data.frame(type = "Gridded",
+                       data_name = "Bathymetry",
+                       date_range = NA,
+                       # lon_range = "-180 - 180",
+                       # lat_range = "60 - 90",
+                       # depth_range = "0 - 10920",
+                       # file_name = '<a onclick="alert(\'Not currently hosted\');">0 files</a>',
+                       URL = "https://www.gebco.net/data_and_products/gridded_bathymetry_data/arctic_ocean/",
+                       reference = "Jakobsson, M., Mayer, L. A., Bringensparr, C., Castro, C. F., Mohammad, R., Johnson, P., ... & Zinglersen, K. B. (2020). The international bathymetric chart of the Arctic Ocean version 4.0. Scientific data, 7(1), 176.",
+                       note = NA)
+
+# Ice modelling output
+EU_ice <- data.frame(type = "Model",
+                     data_name = "Sea ice: thickness; Snow cover: depth",
+                     date_range = "1980 - 2016",
+                     # lon_range = "-180 - 180",
+                     # lat_range = "60 - 90",
+                     # depth_range = "surface",
+                     # file_name = '<a onclick="alert(\'See the website\');">0 files</a>',
+                     URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66">NPDC</a>',
+                     reference = '<a onclick="alert(\'Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a\');">Liston et al. (2016)</a>',
+                     note = NA)
+
+# CTD data from NCEI Accession 9700302
+EU_NCEI_1989 <- data.frame(type = "CTD",
+                           data_name = "Sea temperature; salinity",
+                           date_range = "1989",
+                           # lon_range = "-10 - 62",
+                           # lat_range = "60.6 - 80",
+                           # depth_range = "0 - 615",
+                           # file_name = '<a onclick="alert(\'9700302.2.2.tar.gz\');">1 file</a>',
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://accession.nodc.noaa.gov/9700302">NOAA</a>',
+                           reference = '<a onclick="alert(\'Adrov, Nickoli; Murmansk Marine Biological Institute (MMBI) (2010). Physical profile data collected from bottle casts in the Barents, Greenland, and Norweigan Seas from 1989-06-01 to 1989-09-09 (NCEI Accession 9700302). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://accession.nodc.noaa.gov/9700302. Accessed [date].\');">Adrov (2010)</a>',
+                           note = NA)
+
+# Greenland Sea icthyoplankton cruise
+# CTD data from Ichthyo research
+## NB: Server was down when attempting to access these data on 2022-05-25
+# EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
+EU_icthyo <- data.frame(type = "CTD",
+                        data_name = "Sea temperature; salinity; fish: presence",
+                        date_range = "2017",
+                        # lon_range = "-25 - 0",
+                        # lat_range = "74 - 80",
+                        # depth_range = NA,
+                        # file_name = '<a onclick="alert(\'Files may only be downloaded directly from website.\');">0 files</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.polardata.ca/pdcsearch/PDCSearch.jsp?doi_id=13251">PolarData</a>',
+                        reference = '<a onclick="alert(\'Bouchard, C., Chawarski, J., Geoffroy, A., & Agersted, M. (2021). Hydroacoustic data EK60 Greenland Sea August-September 2017. Waterloo, Canada: Canadian Cryospheric Information Network (CCIN). (Unpublished Data).\');">Bouchard et al. (2021)</a>',
+                        note = NA)
+
+# barents polar pod population
+barents_bosa <- data.frame(type = "In situ",
+                           data_name = "Biomass: Boreogadus saida (polar cod)",
+                           date_range = "1986 to 2021",
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea//">MOSJ</a>',
+                           reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html\');">NPI (2022)</a>',
+                           note = NA)
+
+# barents capelin population
+barents_mavi <- data.frame(type = "In situ",
+                           data_name = "Biomass: Mallotus villosus (capelin)",
+                           date_range = "1973 to 2021",
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea//">MOSJ</a>',
+                           reference = '<a onclick="alert(\'Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html\');">IMR (2022)</a>',
+                           note = NA)
+
+# barents golden redfish population
+barents_seno <- data.frame(type = "In situ",
+                           data_name = "Biomass: Sebastes norvegicus (golden redfish)",
+                           date_range = "1986 to 2019",
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/">MOSJ</a>',
+                           reference = '<a onclick="alert(\'Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/\');">IMR (2023)</a>',
+                           note = NA)
+
+# barents beaked redfish population
+barents_seme <- data.frame(type = "In situ",
+                           data_name = "Biomass: Sebastes mentella (beaked redfish)",
+                           date_range = "1992 to 2020",
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/">MOSJ</a>',
+                           reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html\');">IMR (2022)</a>',
+                           note = NA)
+
+# barents northeast arctic cod population
+barents_gamo <- data.frame(type = "In situ",
+                           data_name = "Biomass: Gadus morhua (northeast arctic cod)",
+                           date_range = "1946 to 2022",
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
+                           reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
+                           note = NA)
+
+# barents young herring population
+barents_youngclha <- data.frame(type = "In situ",
+                                data_name = "Biomass: Clupea harengus (young herring)",
+                                date_range = "2004 to 2021",
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/">MOSJ</a>',
+                                reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
+                                note = NA)
+
 # Bathymetry data
 ## Not on pCloud as this is a large file hosted on a well known website
 # EU_GEBCO
@@ -221,10 +329,6 @@ rm(list = grep("EU_|barents_",names(.GlobalEnv),value = TRUE)); gc()
 # CTD data from NCEI Accession 9700302
 ## 9700302.2.2.tar.gz # This appears to be some sort of proprietary data format...
 # EU_NCEI_1989
-
-# CTD data from Ichthyo research
-## NB: Server was down when attempting to access these data on 2022-05-25
-# EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
 
 # EU MET station data
 # TODO: Develop code to automatically download and process these MET data
@@ -676,6 +780,144 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
+
+
+# Tidal glacier fronts
+sval_tidal_glacier_front <- data.frame(type = "Geospatial",
+                                       data_name = "Glacier: tidal front",
+                                       date_range = "2015 - 2019",
+                                       # lon_range = "9 - 36",
+                                       # lat_range = "76 - 81",
+                                       # depth_range = NA,
+                                       # file_name = '<a onclick="alert(\'tidewater/\');">1 folder, 9 files</a>',
+                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d">NPDC</a>',
+                                       reference = '<a onclick="alert(\'Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a\');">Kohler et al. (2018)</a>',
+                                       note = NA)
+
+# Marine terminating glacier fronts
+sval_marine_glacier_front <- data.frame(type = "Geospatial",
+                                        data_name = "Glacier: marine front",
+                                        date_range = "2008 - 2020",
+                                        # lon_range = "10 - 34",
+                                        # lat_range = "76 - 81",
+                                        # depth_range = NA,
+                                        # file_name = '<a onclick="alert(\'glacier_fronts/\');">1 folder, 10 files</a>',
+                                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338">NPDC</a>',
+                                        reference = '<a onclick="alert(\'Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a\');">Moholdt et al. (2021)</a>',
+                                        note = NA)
+
+# Surface meteorology
+sval_surface_met <- data.frame(type = "Cruise",
+                               data_name = "Air: temperature, pressure; relative humidity; wind: speed, direction",
+                               date_range = "2015",
+                               # lon_range = "2.9 - 29.9",
+                               # lat_range = "78.1 - 83.3",
+                               # depth_range = NA,
+                               # file_name = '<a onclick="alert(\'N-ICE_metData_v2.nc; N-ICE_metData_QC.py; README_N-ICE_metData_v2.txt\');">3 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d">NPDC</a>',
+                               reference = '<a onclick="alert(\'Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1\');">Hudson & Walden (2015)</a>', 
+                               note = '<a onclick="alert(\'The N-ICE Atmospheric Forcing work package team requests that users of these data: 1) Contact both  Stephen Hudson (Stephen.Hudson@npolar.no) and Lana Cohen (Lana.Cohen@npolar.no) to discuss your specific uses of the data, and 2) Include the requested_acknowledgment in any presentations or publications: The authors acknowledge support from Stephen Hudson and Lana Cohen at the Norwegian Polar Institute and Von P. Walden at Washington State University for use of the N-ICE2015 dataset.\');">Requirements for use</a>')
+
+# Seabird database
+sval_seabird_database <- data.frame(type = "Database",
+                                    data_name = "Seabird Colonies",
+                                    date_range = "1880 - 2020",
+                                    # lon_range = "9 - 35",
+                                    # lat_range = "74 - 81",
+                                    # depth_range = NA,
+                                    # file_name = '<a onclick="alert(\'See the website\');">0 files</a>',
+                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/fd4fd3aa-7249-53c9-9846-6e28c5a42587">NPDC</a>',
+                                    reference = '<a onclick="alert(\'Strøm, H., Descamps, S., & Bakken, V. . (2008). Seabird Colonies by the Barents Sea, White Sea and Kara Sea [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.fd4fd3aa\');">Strøm et al. (2008)</a>',
+                                    note = NA)
+
+# Protection of sites
+sval_protection <- data.frame(type = "Database",
+                              data_name = "Protection of geological sites",
+                              date_range = "1993 - 2020",
+                              # lon_range = "20 - 80",
+                              # lat_range = "45 - 81",
+                              # depth_range = NA,
+                              # file_name = '<a onclick="alert(\'See the website\');">0 files</a>',
+                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/117acc0c-7d6e-5c58-bb80-bb220780f406">NPDC</a>',
+                              reference = '<a onclick="alert(\'Blomeier, D. P. G., & Hjelle, A. (2008). Protection of geological sites [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.117acc0c\');">Blomeier et al. (2008)</a>',
+                              note = NA)
+
+# Fast ice persistence
+sval_fast <- data.frame(type = "Geospatial",
+                        data_name = "Fast ice: duration",
+                        date_range = "2014 - 2016",
+                        # lon_range = " 8.7 - 28.3",
+                        # lat_range = "76.4 - 80.7",
+                        # depth_range = NA,
+                        # file_name = '<a onclick="alert(\'svalbard_fastice_persistency_2014.tif; svalbard_fastice_persistency_2015.tif; svalbard_fastice_persistency_2016.tif\');">1 folder, 3 files</a>',
+                        URL = '<a target="_blank" rel="noopener noreferrer"href="https://data.npolar.no/dataset/33d631d3-051e-403d-8600-78a30b767ed3">NPDC</a>',
+                        reference = '<a onclick="alert(\'Itkin, M. (2017). Svalbard Fjords Fast Ice Persistence [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.33d631d3\');">Itkin (2017)</a>',
+                        note = NA)
+
+# svalbard ivory gull population
+sval_paeb <- data.frame(type = "In situ",
+                        data_name = "Biomass: Pagophila eburnea (ivory gull)",
+                        date_range = "2009 to 2021",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/">MOSJ</a>',
+                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html\');">NPI (2022)</a>',
+                        note = NA)
+
+# svalbard walrus population
+sval_odma <- data.frame(type = "In situ",
+                        data_name = "Biomass: Odobenus marinus (walrus)",
+                        date_range = "1980 to 2018",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/walrus/">MOSJ</a>',
+                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Walrus population in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/walrus-population.html\');">NPI (2022)</a>',
+                        note = NA)
+
+# svalbard calanus population by size (north and west)
+sval_nwmmcalanus <- data.frame(type = "In situ",
+                               data_name = "Biomass: Calanus species size (north and west)",
+                               date_range = "2009 to 2021",
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                               reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                               note = NA)
+
+# svalbard calanus population all (north and west)
+sval_nwtotcalanus <- data.frame(type = "In situ",
+                                data_name = "Biomass: Calanus species (north and west)",
+                                date_range = "2009 to 2021",
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                                reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                                note = NA)
+
+# svalbard calanus population by size (south and east)
+sval_semmcalanus <- data.frame(type = "In situ",
+                               data_name = "Biomass: Calanus species size (south and east)",
+                               date_range = "1997 to 2021",
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                               reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                               note = NA)
+
+# svalbard calanus population all (south and east)
+sval_setotcalanus <- data.frame(type = "In situ",
+                                data_name = "Biomass: Calanus species (south and east)",
+                                date_range = "1997 to 2021",
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
+                                reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
+                                note = NA)
+
+# svalbard kittiwake population
+sval_ritr <- data.frame(type = "In situ",
+                        data_name = "Biomass: Rissa tridactyla (black-legged kittiwake)",
+                        date_range = "1988 to 2021",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake//">MOSJ</a>',
+                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
+                        note = NA)
+
+# svalbard brünnich’s guillemot population
+sval_urlo <- data.frame(type = "In situ",
+                        data_name = "Biomass: Uria lomvia (brünnich’s guillemot)",
+                        date_range = "1988 to 2021",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/">MOSJ</a>',
+                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
+                        note = NA)
+
 
 # Glacier Area Outlines
 # https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004
@@ -1245,6 +1487,164 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 ### Wild data ---------------------------------------------------------------
 
+# Sea ice cover shape files
+kong_sea_ice_shp <- data.frame(type = "Survey",
+                               data_name = "Sea ice: cover",
+                               date_range = "2003 - 2021",
+                               # lon_range = NA,
+                               # lat_range = NA,
+                               # depth_range = "surface",
+                               # file_name = '<a onclick="alert(\'Kongsfjorden_sea_ice_cover_data.csv\');">1 file</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d6d31f5b-8413-42b4-9736-db88d55816dc">NPDC</a>',
+                               reference = '<a onclick="alert(\'Gerland, S., Pavlova, O., Marnela, M., Divine, D., Kohler, J., Renner, A. H., & Skoglund, A. (2022). Sea ice extent variability in Kongsfjorden, Svalbard during 2003-2021, based on visual observations from the mountain Zeppelinfjellet. [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.d6d31f5b\');">Gerland et al. (2022)</a>',
+                               note = NA)
+
+# Glacial topography + thickness
+kong_glacier_info <- data.frame(type = "",
+                                data_name = "Glacier: surface, thickness, elevation",
+                                date_range = "2004 - 2016",
+                                # lon_range = "10 - 14", 
+                                # lat_range = "78.8 - 79.2",
+                                # depth_range = NA,
+                                # file_name = '<a onclick="alert(\'TIGRIF_DEM_ice_surface_150m_v1.tif; TIGRIF_DEM_ice_thickness_150m_1.tif; TIGRIF_DEM_subglacial_elevation_150m_v1.tif; TIGRIF_radarprofiles_2004_2016_v1.txt\');">4 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/702ca4a7-7d02-462c-8cbd-2d80d0e977a1">NPDC</a>',
+                                reference = '<a onclick="alert(\'Lindbäck, K., Kohler, J., Pettersson, R., Nuth, C., Langley, K., Messerli, A., … Brandt, O. (2018). Subglacial topography, ice thickness, and bathymetry of Kongsfjorden, northwestern Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.702ca4a7\');">Lindbäck et al. (2018)</a>',
+                                note = NA)
+
+# Ferry box data
+kong_ferry <- data.frame(type = "Mooring",
+                         data_name = "Salinity; Seawater temperature: surface, mid, bottom; Total alkalinity; pCO2; pH ",
+                         date_range = "2015 - 2021",
+                         # lon_range = "11.92", 
+                         # lat_range = "78.93",
+                         # depth_range = "0 - 12",
+                         # file_name = '<a onclick="alert(\'kong_ferry.rds\');">1 file</a>',
+                         URL = '<a onclick="alert(\'https://doi.pangaea.de/10.1594/PANGAEA.960131\');">NA</a>',
+                         reference = '<a onclick="alert(\'Gattuso, Jean-Pierre; Alliouane, Samir; Fischer, Philipp (2023): High-frequency, year-round time series of the carbonate chemistry in a high-Arctic fjord (Svalbard) v2. PANGAEA, https://doi.org/10.1594/PANGAEA.960131\');">Gattuso et al. (2023)</a>',
+                         note = NA)
+
+# MOSJ cruise data
+kong_MOSJ <- data.frame(type = "Cruise",
+                        data_name = "PAR",
+                        date_range = NA,
+                        # lon_range = "?", lat_range = "?", depth_range = "?",
+                        # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                        URL = '<a onclick="alert(\'\');">NA</a>',
+                        reference = '<a onclick="alert(\'\');">NA</a>',
+                        note = "MOSJ cruise data were not able to be found.")
+
+# Collection of PAR data published in Pavlov et al. 2019
+kong_pavlov <- data.frame(type = "In situ",
+                          data_name = "PAR",
+                          date_range = NA,
+                          # lon_range = "?", lat_range = "?", depth_range = "?",
+                          # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                          URL = '<a onclick="alert(\'\');">NA</a>',
+                          reference = '<a onclick="alert(\'\');">NA</a>',
+                          note = "Pavlov et al. 2019 data are not publicly available.")
+
+# PAR data collected as part of Kai's work in Kongsfjorden
+kong_bischoff <- data.frame(type = "In situ",
+                            data_name = "PAR",
+                            date_range = "2021",
+                            # lon_range = "?", lat_range = "?", depth_range = "?",
+                            # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                            URL = '<a onclick="alert(\'\');">NA</a>',
+                            reference = '<a onclick="alert(\'\');">NA</a>',
+                            note = "Field data collected by Kai's team may be available in 2022.")
+
+# PAR data collected as part of a 2012/13 experiment by Inka
+## NB: Currently being processed into PANGAEA
+kong_bartsch <- data.frame(type = "In situ",
+                           data_name = "PAR",
+                           date_range = "2012 - 2013", 
+                           # lon_range = "?", lat_range = "?", depth_range = "?",
+                           # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://doi.pangaea.de/10.1594/PANGAEA.945341">PANGAEA</a>',
+                           reference = '<a onclick="alert(\'Bartsch, I., Paar, M., Fredriksen, S., Schwanitz, M., Daniel, C., Hop, H., & Wiencke, C. (2016). Changes in kelp forest biomass and depth distribution in Kongsfjorden, Svalbard, between 1996–1998 and 2012–2014 reflect Arctic warming. Polar Biology, 39(11), 2021-2036.\');">Bartsch et al. (2016)</a>',
+                           note = NA)
+
+
+# PAR data from Dieter Hanelt
+kong_hanelt <- data.frame(type = "In situ",
+                          data_name = "PAR",
+                          date_range = "2012",
+                          # lon_range = "?", lat_range = "?", depth_range = "?",
+                          # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                          URL = '<a onclick="alert(\'Received directly from Dieter Hanelt\');">NA</a>',
+                          reference = '<a onclick="alert(\'Pavlov, A. K., Leu, E., Hanelt, D., Bartsch, I., Karsten, U., Hudson, S. R., ... & Granskog, M. A. (2019). The underwater light climate in Kongsfjorden and its ecological implications. In The ecosystem of Kongsfjorden, Svalbard (pp. 137-170). Springer, Cham.\');">Pavlov et al. (2019)</a>',
+                          note = NA)
+
+# Cruise data sampling water along the marine terminating edge of glaciers
+kong_TWICE <- data.frame(type = "Cruise",
+                         data_name = "Salinity, glacier: terminating edge",
+                         date_range = NA,
+                         # lon_range = "?", lat_range = "?", depth_range = "?",
+                         # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                         URL = '<a onclick="alert(\'\');">NA</a>',
+                         reference = '<a onclick="alert(\'\');">NA</a>',
+                         note = "TWICE cruise data not able to be sourced.")
+
+# Macroalgae data from multiple surveys/studies
+kong_macroalgae <- data.frame(type = "Survey",
+                              data_name = "Macroalgae: presence, abundance; primary production",
+                              date_range = "1996/98 and 2012-14",
+                              # lon_range = "?", lat_range = "?", depth_range = "?",
+                              # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                              URL = '<a onclick="alert(\'\');">NA</a>',
+                              reference = '<a onclick="alert(\'\');">NA</a>',
+                              note = "Data may be available in 2023.")
+
+# Macroalgae data from multiple surveys/studies
+kong_benthic <- data.frame(type = "Survey",
+                           data_name = "Benthic invertebrates: presence, abundance, biomass",
+                           date_range = "1996/98 and 2012-14", 
+                           # lon_range = "?", lat_range = "?", depth_range = "?",
+                           # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                           URL = '<a onclick="alert(\'\');">NA</a>',
+                           reference = '<a onclick="alert(\'\');">NA</a>',
+                           note = "Data may be available in 2023.")
+
+# kong glaucous gull population
+kong_lahy <- data.frame(type = "In situ",
+                        data_name = "Biomass: Larus hyperboreus (glaucous gull)",
+                        date_range = "2005 to 2021",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/">MOSJ</a>',
+                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html\');">NPI (2022)</a>',
+                        note = NA)
+
+# kong common eiders population
+kong_somobo <- data.frame(type = "In situ",
+                          data_name = "Biomass: Somateria mollissima borealis (common eider)",
+                          date_range = "1981 to 2022",
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/common-eider/">MOSJ</a>',
+                          reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Breeding population of common eiders in Kongsfjorden, number of breeding pairs. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/common-eider.html\');">NPI (2022)</a>',
+                          note = NA)
+
+# kong seabird population
+kong_seabirds <- data.frame(type = "In situ",
+                            data_name = "Biomass: seabirds",
+                            date_range = "2011 to 2018",
+                            URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4">NPDC</a>',
+                            reference = '<a onclick="alert(\'Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd\');">Descamps and Strøm (2021)</a>',
+                            note = NA)
+
+# kong kittiwake population
+kong_ritr <- data.frame(type = "In situ",
+                        data_name = "Biomass: Rissa tridactyla (black-legged kittiwake)",
+                        date_range = "1988 to 2021",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake//">MOSJ</a>',
+                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
+                        note = NA)
+
+# kong brünnich’s guillemot population
+kong_urlo <- data.frame(type = "In situ",
+                        data_name = "Biomass: Uria lomvia (brünnich’s guillemot)",
+                        date_range = "1988 to 2021",
+                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/">MOSJ</a>',
+                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
+                        note = NA)
+
 # Process individual files
 ## Sea ice cover
 kong_sea_ice_inner <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Kongsfjorden_sea_ice_cover_data.csv", na = "999") %>% 
@@ -1704,6 +2104,100 @@ rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 
 ### Wild data ---------------------------------------------------------------
 
+# CO2 station at IsA
+is_IsA_CO2 <- data.frame(type = "CTD",
+                         data_name = "Sea temperature; salinity; TA; pH; EP TA",
+                         date_range = "2015 - 2017",
+                         # lon_range = "15.5", 
+                         # lat_range = "78.3",
+                         # depth_range = "1 - 91",
+                         # file_name = '<a onclick="alert(\'Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.xlsx; Marine_CO2_system_data_at_the_IsA_Station_2015_to_2017.csv\');"2 files</a>',
+                         URL = '<a target="_blank" rel="noopener noreferrer" href="http://metadata.nmdc.no/metadata-api/landingpage/1e5ae6511b1c22a2f8d00aac50c32eb5">NMDC</a>',
+                         reference = '<a onclick="alert(\'Ylva Ericson, UNIS, Eva Falck, UNIS, and Melissa Chierici, IMR and UNIS. (2019) Marine CO2 system data from the IsA Station, Svalbard, 2015-2017 https://doi.org/10.21335/NMDC-80568951\');">Ericson et al. (2019)</a>',
+                         note = NA)
+
+# Chlorophyll station at IsA
+is_IsA_Chla <- data.frame(type = "Niskin bottle",
+                          data_name = "ChlA",
+                          date_range = "2011 - 2019",
+                          # lon_range = "15.5", lat_range = "78.3",
+                          # depth_range = "0 - 980",
+                          # file_name = '<a onclick="alert(\'chl_a: IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc; IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">1 folder, 2 files</a>',
+                          URL = '<a onclick="alert(\'https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00063; https://ns9999k.webs.sigma2.no/10.11582_2020.00063/IsA_Svalbard_Chlorophyll_A_2011_2019_10um.nc; https://ns9999k.webs.sigma2.no/10.11582_2020.00063/IsA_Svalbard_Chlorophyll_A_2011_2019_GFF.nc\');">NIRD</a>',
+                          reference = '<a onclick="alert(\'University Centre in Svalbard (2020). ISA_Svalbard_Chlorophyll_A_2011_2019 [Data set]. Norstore. https://doi.org/10.11582/2020.00063\');">UCS (2020)</a>',
+                          note = NA)
+
+# Light related data at the IsA station
+is_IsA_light <- data.frame(type = "",
+                           data_name = "PAR; suspended matter: organic, mineral",
+                           date_range = "2012 - ?",
+                           # lon_range = "15.5", lat_range = "78.3",
+                           # depth_range = "0 - 15",
+                           # file_name = '<a onclick="alert(\' \');">0 files</a>',
+                           URL = NA, 
+                           reference = '<a onclick="alert(\'No reference available yet.\');">Vader et al. (In prep.)</a>',
+                           note = "Data are not yet publicly available.")
+
+# Biology related data at the IsA station
+is_IsA_bio <- data.frame(type = "Niskin bottle",
+                         data_name = "Nutrients: nitrate, nitrite, phosphate, silicate; DNA; phytoplankton: species, abundance; ChlA concentration; protists; bacteria",
+                         date_range = "2011 - ?",
+                         # lon_range = "15.5", lat_range = "78.3",
+                         # depth_range = "0, 15, and 75",
+                         # file_name = '<a onclick="alert(\' \');">0 files</a>',
+                         URL = NA,
+                         reference = '<a onclick="alert(\'No reference available yet.\');">Vader et al. (In prep.)</a>',
+                         note = "Data are not yet publicly available.")
+
+# Biology related data at the BAB station
+is_BAB_bio <- data.frame(type = "Niskin bottle",
+                         data_name = "Nutrients: nitrate, nitrite, phosphate, silicate; DNA; phytoplankton: species, abundance; ChlA concentration; protists",
+                         date_range = "2020 - ?",
+                         # lon_range = "16.7", lat_range = "78.7",
+                         # depth_range = "0, 15, and 150",
+                         # file_name = '<a onclick="alert(\' \');">0 files</a>',
+                         URL = NA,
+                         reference = '<a onclick="alert(\'No reference available yet.\');">Vader et al. (In prep.)</a>',
+                         note = "Data are not yet publicly available.")
+
+# Zooplankton data
+is_zoo <- data.frame(type = "Multinet",
+                     data_name = "Zooplankton: species, abundance, biomass",
+                     date_range = "2001 - ?",
+                     # lon_range = "14.0 - 16.7", 
+                     # lat_range = "78.1 - 78.7",
+                     # depth_range = "?",
+                     # file_name = '<a onclick="alert(\' \');">0 files</a>',
+                     URL = NA,
+                     reference = '<a onclick="alert(\'No reference available yet.\');">Søreide et al. (In prep.)</a>',
+                     note = "Data are not yet publicly available.")
+
+# Social data for Isfjorden
+is_social <- data.frame(type = "Statistics",
+                        data_name = "Game landings; local management; national statistics; tourist vessels: mileage; tourist arrivals",
+                        date_range = NA, 
+                        # lon_range = NA, lat_range = NA, depth_range = NA,
+                        # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                        URL = NA, reference = NA,
+                        note = "Data are still being pursued.")
+
+# is kittiwake population
+is_ritr <- data.frame(type = "In situ",
+                      data_name = "Biomass: Rissa tridactyla (black-legged kittiwake)",
+                      date_range = "1988 to 2021",
+                      URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake//">MOSJ</a>',
+                      reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
+                      note = NA)
+
+# is brünnich’s guillemot population
+is_urlo <- data.frame(type = "In situ",
+                      data_name = "Biomass: Uria lomvia (brünnich’s guillemot)",
+                      date_range = "1988 to 2021",
+                      URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/">MOSJ</a>',
+                      reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
+                      note = NA)
+
+
 # Process individual files
 ## Mouth mooring North
 is_mooring_N <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/isfjorden/mooring_N", full.names = T), load_is_mooring, .parallel = T); gc()
@@ -2003,6 +2497,36 @@ rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
+
+# Cryosphere survey data
+ingle_cryo <- data.frame(type = "Survey",
+                         data_name = "Coastal ice: cover, formation/break up; sea ice: thickness, snow cover: thickness, air temperature; wind: speed",
+                         date_range = "2020 - 2024",
+                         # lon_range = "?", lat_range = "?", depth_range = "?",
+                         # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                         URL = '<a onclick="alert(\'\');">NA</a>',
+                         reference = '<a onclick="alert(\'No citation yet.\');">Gerland et al. (In prep.)</a>',
+                         note = "The first year of data should be available in 2022.")
+
+# CTD cruise data
+ingle_CTD <- data.frame(type = "CTD",
+                        data_name = "Sea ice: thickness; snow cover: thicknes; PAR; mixed layer depth; salinity; suspended matter: mineral; bathymetry; oxygen",
+                        date_range = "2017 - ?",
+                        # lon_range = "?", lat_range = "?", depth_range = "?",
+                        # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                        URL = '<a onclick="alert(\'\');">NA</a>',
+                        reference = '<a onclick="alert(\'No citation yet.\');">Søreide et al. (In prep.)</a>',
+                        note = "These data are still in preperation.")
+
+# Plankton survey data
+ingle_plankton <- data.frame(type = "Survey",
+                             data_name = "DNA; phytoplankton: species, abundance; zooplankton: species, abundance; ChlA concentration",
+                             date_range = "2018 - ?",
+                             # lon_range = "?", lat_range = "?", depth_range = "?",
+                             # file_name = '<a onclick="alert(\'\');">0 files</a>',
+                             URL = '<a onclick="alert(\'\');">NA</a>',
+                             reference = '<a onclick="alert(\'No citation yet.\');">Søreide et al. (In prep.)</a>',
+                             note = "These data are still in preperation.")
 
 # Process individual files
 ## Light data
@@ -2451,6 +2975,53 @@ rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
+
+
+# Air pCO2 data
+young_air_pCO2 <- data.frame(type = "CTD",
+                             data_name = "pCO2: air",
+                             date_range = "2006 - 2016",
+                             # lon_range = "-20.6",
+                             # lat_range = "74.5",
+                             # depth_range = NA,
+                             # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
+                             reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75\');">GEM</a>',
+                             note = NA)
+
+# Water pCO2
+young_water_pCO2 <- data.frame(type = "CTD",
+                               data_name = "pCO2: water",
+                               date_range = "2006 - 2016",
+                               # lon_range = "-20.6",
+                               # lat_range = "74.5",
+                               # depth_range = "1 - 50",
+                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/A8J4-AF12">GEM</a>',
+                               reference = '<a onclick="alert(\'Partial pressure of CO2 water (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12\');">GEM</a>',
+                               note = NA)
+
+# Phytoplankton species composition
+young_phyto_species <- data.frame(type = "Bottle",
+                                  data_name = "Phytoplankton: species name, % presence",
+                                  date_range = "2004 - 2015",
+                                  # lon_range = "-20.6", lat_range = "74.5", depth_range = "?",
+                                  # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/MN5J-K414">GEM</a>',
+                                  reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414\');">GEM</a>',
+                                  note = NA)
+
+# Zooplankton abundance
+young_zoo_species <- data.frame(type = "Bottle",
+                                data_name = "Zooplankton: species name, abundance",
+                                date_range = "2003 - 2015",
+                                # lon_range = "-20.6",
+                                # lat_range = "74.5",
+                                # depth_range = "?",
+                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/D3C5-AJ13">GEM</a>',
+                                reference = '<a onclick="alert(\'Zooplankton Species Composition (individuals/m2): Water column MarineBasis Zackenberg. doi: 10.17897/D3C5-AJ13\');">GEM</a>',
+                                note = NA)
 
 # Primary production data
 holding_station_idx <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_CTD_biochem.csv") %>% 
@@ -4364,6 +4935,74 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
+
+# Fish species biomass
+por_fish_bio <- data.frame(type = "Survey",
+                           data_name = "Fish: species, biomass",
+                           date_range = "2007 - 2016",
+                           # lon_range = "?", 
+                           # lat_range = "?",
+                           # depth_range = "?",
+                           # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                           URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
+                           reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                           note = NA)
+
+# Benthic invertebrate species biomass
+por_benthos_bio <- data.frame(type = "Survey",
+                              data_name = "Benthic invertebrates: species, biomass",
+                              date_range = "2007 - 2016",
+                              # lon_range = "?",
+                              # lat_range = "?",
+                              # depth_range = "?",
+                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                              URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
+                              reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
+                              note = NA)
+
+# NorKyst-800 physical model
+por_NorKyst <- data.frame(type = "Model",
+                          data_name = "Sea temperature: surface, mid, bottom; sea ice: thickness",
+                          date_range = "2012 - 2020",
+                          # lon_range = "?",
+                          # lat_range = "?",
+                          # depth_range = "?",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/fou-hi/fou-hi.html">NMI</a>',
+                          reference = '<a onclick="alert(\'Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.\');">Albretsen et al. (2011)</a>',
+                          note = NA)
+
+# IMR CTD data
+por_IMR_CTD <- data.frame(type = "CTD",
+                          data_name = "Seawater temperature: surface, mid, bottom; salinity; PAR; oxygen; nutrients: nitrate, nitrite, ammonium, phosphate, silicate",
+                          date_range = "2018 - ?",
+                          # lon_range = "25.6",
+                          # lat_range = "70.5",
+                          # depth_range = "0 - 200",
+                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                          URL = NA,
+                          reference = '<a onclick="alert(\'No reference available yet.\');">Falkenhaug et al. (In prep.)</a>',
+                          note = "Data are still being prepared. No firm release date set.")
+
+# Zoo/phytoplankton from IMR
+por_IMR_plankton <- data.frame(type = "Multinet",
+                               data_name = "Phytoplankton: species, abundance, chlA concentration; Zooplankton: species, abundance, biomass",
+                               date_range = "2018 - ?",
+                               # lon_range = "25.6",
+                               # lat_range = "70.5",
+                               # depth_range = "0 - 200",
+                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
+                               URL = NA,
+                               reference = '<a onclick="alert(\'No reference available yet.\');">Falkenhaug et al. (In prep.)</a>',
+                               note = "Data are still being prepared. No firm release date set.")
+
+## IMR red king crab survey data
+por_IMR_kingcrab_count <- data.frame(type = "Survey",
+                                     data_name = "Red king crab: count",
+                                     date_range = "1994 - 2017",
+                                     URL = '<a target="_blank" rel="noopener noreferrer" href="https://gbif.imr.no/ipt/resource?r=imr_kingcrab">IMR</a>',
+                                     reference = '<a onclick="alert(\'Hjelset, Ann Merete; Institute of Marine Research, Norway (2017): Red king crab survey data from Finnmark Northern Norway in the period 1994 -2016 http://gbif.imr.no/ipt/resource?id=imr_kingcrab/v1.2.xml\');">Hjelset (2017)</a>',
+                                     note = NA)
 
 ## Series of GFI moorings
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
