@@ -4518,22 +4518,22 @@ load("data/analyses/ice_4km_proc.RData")
 ice_4km_prop <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
 
 # Calculate trends
-ice_4km_trend <- plyr::ddply(dplyr::rename(ice_4km_prop, val = mean_prop), c("site", "month"), trend_calc, .parallel = T)
+# NB: While interesting, this is too detailed to be included in the clean data
+# ice_4km_trend <- plyr::ddply(dplyr::rename(ice_4km_prop, val = mean_prop), c("site", "month"), trend_calc, .parallel = T)
+# ice_4km_trend_long <- ice_4km_trend %>% 
+#   pivot_longer(trend:sd_val, names_to = "variable") %>% 
+#   mutate(variable = case_when(variable == "trend" ~ paste0("sea ice cover ",month," [annual proportion trend]"),
+#                               variable == "p.value" ~ paste0("sea ice cover ",month," [annual proportion trend p-value]"),
+#                               variable == "mean_val" ~ paste0("sea ice cover ",month," [mean proportion]"),
+#                               variable == "sd_val" ~ paste0("sea ice cover ",month," [SD proportion]"))) %>% 
+#   dplyr::select(-month)
 
 # Combine with other clean data
 ice_4km_prop_long <- ice_4km_prop %>%
   dplyr::rename(value = mean_prop) %>% 
   dplyr::select(date, value, site) %>% 
-  mutate(variable = "sea ice cover [proportion]")
-ice_4km_trend_long <- ice_4km_trend %>% 
-  pivot_longer(trend:sd_val, names_to = "variable") %>% 
-  mutate(variable = case_when(variable == "trend" ~ paste0("sea ice cover ",month," [annual proportion trend]"),
-                              variable == "p.value" ~ paste0("sea ice cover ",month," [annual proportion trend p-value]"),
-                              variable == "mean_val" ~ paste0("sea ice cover ",month," [mean proportion]"),
-                              variable == "sd_val" ~ paste0("sea ice cover ",month," [SD proportion]"))) %>% 
-  dplyr::select(-month)
-ice_4km_stats <- bind_rows(ice_4km_prop_long, ice_4km_trend_long) %>% 
-  mutate(type = "MASIE", depth = NA, lon = NA, lat = NA,
+  mutate(variable = "sea ice cover [proportion]",
+         type = "MASIE", depth = NA, lon = NA, lat = NA,
          category = "cryo", driver = "sea ice",
          date_accessed = as.Date("2022-04-26"),
          URL = "https://doi.org/10.7265/N5GT5K3K",
@@ -4541,8 +4541,8 @@ ice_4km_stats <- bind_rows(ice_4km_prop_long, ice_4km_trend_long) %>%
   dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
 
 # Bind together
-clean_sea_ice <- rbind(clean_sea_ice, ice_4km_stats) %>% distinct()
-rm(ice_4km_proc, ice_4km_prop, ice_4km_trend, ice_4km_prop_long, ice_4km_trend_long, ice_4km_stats); gc(); print(unique(clean_sea_ice$variable))
+clean_sea_ice <- rbind(clean_sea_ice, ice_4km_prop_long) %>% distinct()
+rm(ice_4km_proc, ice_4km_prop, ice_4km_prop_long); gc(); print(unique(clean_sea_ice$variable))
 
 # Calculate sea ice breakup and formation dates
 ## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
@@ -4638,7 +4638,9 @@ if(!exists("CCI_all")) load("data/analyses/CCI_all.RData")
 # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
 clean_sea_temp <- filter(full_ALL, driver == "sea temp") |> mutate(type = "in situ") |> 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct() |> rbind(OISST_all, CCI_all) |> depth_bin_average()
+  distinct() |> rbind(OISST_all, CCI_all) |> depth_bin_average() |> 
+  mutate(variable = case_when(variable == "Temp [°C]" ~ "temp [°C]", TRUE ~ variable)) |> 
+  filter(variable == "temp [°C]")
 rm(OISST_all, CCI_all); gc(); print(unique(clean_sea_temp$variable))
 
 
@@ -4992,6 +4994,7 @@ clean_all <- rbind(clean_sea_ice, clean_glacier, clean_runoff,
 
 # Save all data in one file
 save(clean_all, file = "data/analyses/clean_all.RData")
+save(clean_all, file = "~/pCloudDrive/FACE-IT_data/clean_all.RData")
 
 # Save all data by driver/site
 save_data(df = clean_all, data_type = "clean")
