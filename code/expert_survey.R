@@ -354,7 +354,7 @@ report_driver_plot <- function(item_choice){
   }
   plot_combine <- ggpubr::ggarrange(plotlist = plot_list, ncol = 3, nrow = 1,
                                     common.legend = TRUE, legend = "bottom")
-  ggsave(paste0("survey/reports/figures/",item_choice,"_ts.png"),
+  ggsave(paste0("survey/reports/figures/dp_",item_choice,".png"),
          plot = plot_combine, width = 12, height = 4)
   # rm(item_choice, item_df, item_text, item_presence, item_sites, item_sites_short,
   #    item_drivers, item_drivers_short, clean_sub, site_colours, theme_trip, var_plot_line,
