@@ -320,49 +320,40 @@ report_driver_plot <- function(item_choice){
   if("sea ice" %in% item_drivers_short$driver){
     plot_ice <- var_plot_line("sea ice", "Sea ice cover [proportion]")
     plot_list[[length(plot_list)+1]] <- plot_ice
-    if(!exists("plot_list")){
-      plot_list <- plot_ice
-    } else {
-      plot_list <- list(plot_list, plot_ice)
-    }
   }
   if("runoff" %in% item_drivers_short$driver){
     plot_runoff <- var_plot_line("runoff", "Terrestrial runoff [m^3/s]")
-    if(!exists("plot_list")){
-      plot_list <- plot_runoff
-    } else {
-      plot_list <- list(plot_list, plot_runoff)
-    }
+    plot_list[[length(plot_list)+1]] <- plot_runoff
   }
   if("light" %in% item_drivers_short$driver){
     plot_light <- var_plot_line("light", "Surface PAR [mol/m^2/d]")
-    plot_list <- list(plot_list, plot_light)
+    plot_list[[length(plot_list)+1]] <- plot_light
   }
   if("nutrients" %in% item_drivers_short$driver){
     plot_nutr <- var_plot_point_facet("nutrients", "Nutrients [µmol/l]")
-    plot_list <- list(plot_list, plot_nutr)
+    plot_list[[length(plot_list)+1]] <- plot_nutr
   }
   if("prim prod" %in% item_drivers_short$driver){
     plot_pp <- var_plot_point("prim prod", "Chlorophyl A [µg/l]")
-    plot_list <- list(plot_list, plot_pp)
+    plot_list[[length(plot_list)+1]] <- plot_pp
   }
   if("tourism" %in% item_drivers_short$driver){
     plot_tour <- var_plot_point_facet("tourism", "Various")
-    plot_list <- list(plot_list, plot_tour)
+    plot_list[[length(plot_list)+1]] <- plot_tour
   }
   if("fisheries" %in% item_drivers_short$driver){
     plot_fish <- ggplot() + geom_blank() + annotate(geom = "label", x = 0, y = 0, label = "Data within fjords is rare") +
       labs(y = paste0(item_df$item_name," fishery"), x = "date") + theme_trip() +
       theme(axis.text = element_blank(), axis.ticks = element_blank())
-    plot_list <- list(plot_list, plot_fish)
+    plot_list[[length(plot_list)+1]] <- plot_fish
   }
   if("governance" %in% item_drivers_short$driver){
     plot_gov <- ggplot() + geom_blank() + annotate(geom = "label", x = 0, y = 0, label = "No numeric data") +
       labs(y = "Governance", x = "date") + theme_trip() +
       theme(axis.text = element_blank(), axis.ticks = element_blank())
-    plot_list <- list(plot_list, plot_gov)
+    plot_list[[length(plot_list)+1]] <- plot_gov
   }
-  plot_combine <- ggpubr::ggarrange(unlist(plot_list), ncol = 3, nrow = 1, 
+  plot_combine <- ggpubr::ggarrange(plotlist = plot_list, ncol = 3, nrow = 1, 
                                     common.legend = TRUE, legend = "bottom")
   ggsave(paste0("survey/reports/figures/",item_choice,"_ts.png"), width = 12, height = 4)
 }
