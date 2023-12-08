@@ -164,6 +164,7 @@ load("survey/reports/survey_text_final.RData")
 survey_quotes <- survey_tidy |> 
   filter(section == "conclusion")
 save(survey_quotes, file = "survey/reports/survey_quotes.RData")
+write_csv(survey_quotes, "survey/reports/survey_quotes.csv")
 load("survey/reports/survey_quotes.RData")
 
 
