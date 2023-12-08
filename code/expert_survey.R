@@ -297,7 +297,7 @@ report_driver_plot <- function(item_choice){
       geom_point(aes(shape = variable), size = 2) + 
       geom_smooth(method = "lm", se = FALSE, linetype = "dashed", show.legend = FALSE) + 
       scale_colour_manual("Site", values = site_colours) +
-      labs(y = y_lab) + theme_trip() + theme(legend.position = c(0.1, 0.2))
+      labs(y = y_lab) + theme_trip()
   }
   var_plot_point_facet <- function(var_short, y_lab){
     plot_var <- filter(clean_sub, driver == var_short)  |> 
@@ -314,7 +314,6 @@ report_driver_plot <- function(item_choice){
   plot_list <- list()
   if("sea temp" %in% item_drivers_short$driver){
     plot_temp <- var_plot_line("sea temp", "Seawater temperature [°C]")
-    plot_list <- append(plot_list, plot_temp)
     plot_list[[length(plot_list)+1]] <- plot_temp
   }
   if("sea ice" %in% item_drivers_short$driver){
@@ -353,14 +352,19 @@ report_driver_plot <- function(item_choice){
       theme(axis.text = element_blank(), axis.ticks = element_blank())
     plot_list[[length(plot_list)+1]] <- plot_gov
   }
-  plot_combine <- ggpubr::ggarrange(plotlist = plot_list, ncol = 3, nrow = 1, 
+  plot_combine <- ggpubr::ggarrange(plotlist = plot_list, ncol = 3, nrow = 1,
                                     common.legend = TRUE, legend = "bottom")
-  ggsave(paste0("survey/reports/figures/",item_choice,"_ts.png"), width = 12, height = 4)
+  ggsave(paste0("survey/reports/figures/",item_choice,"_ts.png"),
+         plot = plot_combine, width = 12, height = 4)
+  # rm(item_choice, item_df, item_text, item_presence, item_sites, item_sites_short,
+  #    item_drivers, item_drivers_short, clean_sub, site_colours, theme_trip, var_plot_line,
+  #    var_plot_point, var_plot_point_facet, var_plot_point_many, plot_list, plot_temp,
+  #    plot_ice, plot_runoff, plot_light, plot_nutr, plot_pp, plot_tour, plot_fish, plot_gov, plot_combine)
 }
 
 # Run the figures
-# doParallel::registerDoParallel(cores = 7)
-plyr::l_ply(all_code, report_driver_plot, .parallel = FALSE)
+doParallel::registerDoParallel(cores = 7)
+plyr::l_ply(all_code, report_driver_plot, .parallel = TRUE)
 
 
 # Reports -----------------------------------------------------------------
