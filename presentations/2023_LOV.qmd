@@ -1,0 +1,136 @@
+---
+# title: "For the LOV of Data"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+    # width: 1050
+    # height: 750
+editor: source
+---
+
+## For the LOV of Data {background-color="#008980" style="text-align: center"}
+
+::: columns
+::: {.column style="text-align: center"}
+</br>
+![](../logo/profile.jpeg){width="300"}
+<br>
+Robert Schlegel
+<br>
+![](../logo/Logo_Sorbonne University.png){width=50%}
+:::
+
+::: {.column style="text-align: center"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width=100%}
+<p style="font-size:22pt">Work package one (WP1)</p>
+![](../logo/h2020.png){width=100%}
+<p style="font-size:22pt">Funded under grant #869154</p>
+:::
+:::
+
+## Resources
+  
+:::{#title-slide .center}
+<- WP1 homepage  
+<br/><br/>
+Meta-database ->  
+<br/><br/>
+<- GitHub page  
+<br/><br/>
+Data access app ->  
+:::
+
+![](QR_WP1_home.png){.absolute top="150" left="30"  width="200" height="200"}
+![](QR_metadatabase.png){.absolute top="250" left="800" width="200" height="200"}
+![](QR_WP1_GitHub.png){.absolute top="400" left="30" width="200" height="200"}  
+![](QR_dataAccess.png){.absolute top="500" left="800" width="200" height="200"}
+
+## Data by category
+
+Most available data are physical.
+
+![](../metadata/cat_log10.png)
+
+
+## Data by category
+
+Without log10 transformation.
+
+![](../metadata/cat_n.png)
+
+## Data by driver
+
+Differences between drivers.
+
+![](../metadata/driv_log10.png)
+
+## Data by driver
+
+Note again the difference when not log10 transformed.
+
+![](../metadata/driv_n.png)
+
+## Data by site
+
+Large difference between sites.
+
+![](../metadata/cat_n_site.png)
+
+## Data by date
+
+Regular temperature measurements start in ~1980's, salinity ~2000's, light ~2010's.
+
+![](../metadata/driv_date.png)
+
+## Conclusions
+
+-   Most data are physical (temperature+salinity)
+-   Large difference between sites
+-   Most data start in ~2000's to 2010's
+-   These data area available via the portal
+-   Focus now is on adding data from under-represented categories and sites
+
+## Data access
+
+Thank you for listening!
+
+![](QR_dataAccess.png){.absolute top="130" left="200" width="600"}
+
+</br></br></br></br></br></br></br></br></br></br>
+
+<center>
+<p style="font-size:40pt">[193.50.85.111:3838/dataAccess/](http://193.50.85.111:3838/dataAccess/)</p>
+</center>
+
+## The FACE-IT study sites
+
+![](../figures/dp_fig_1.png){.absolute top="60" left="70"}
+
+## Key drivers of change {background-color="#e5e5e5" transition="fade-in"}
+
+![](kd_full.png){.absolute top="70" left="140"}
+
+## Interactions {background-color="#e5e5e5" transition="fade-out"}
+
+![](../figures/LOV_fig_1B.png){.absolute top="70" left="140"}
+
+## FACE-IT data v2.0
+
+::: incremental
+- Upgrades from v1.0 to v2.0  
+  - Updated/upgraded drivers
+  - Newly added drivers  
+- How future proof will the data access app be?
+- What will data availability look like?
+- Create R package for easier user access?
+:::
+
+##
+
+Merci pour votre attention
