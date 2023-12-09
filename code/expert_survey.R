@@ -184,22 +184,27 @@ load("survey/reports/survey_quotes.RData")
 load("data/analyses/sst_EU_arctic_annual_trends.RData")
 base_map <- basemap(limits = c(-50, 35, 60, 80), bathymetry = FALSE) +
   # geom_spatial_tile(data = filter(sst_EU_arctic_annual_trends,
-  #                                 lat >= 60, lat <= 61, lon >= 1, lon <= 2),
+                                  # lat >= 60, lat <= 61, lon >= 1, lon <= 2),
   geom_spatial_tile(data = sst_EU_arctic_annual_trends,
                     crs = 4326, colour = NA,
                     aes(fill = trend*10, x = lon, y = lat)) +
   scale_fill_gradient2(low = scales::muted("blue"), high = scales::muted("red")) +
   labs(fill = "Trend\n[°C/dec]", x  = NULL, y = NULL) +
-  theme(panel.border = element_rect(fill = NA, colour = "black"),
-        panel.background = element_rect(fill = NA),
-        plot.background = element_rect(fill = "white", colour = "white"),
-        legend.position = c(0.207, 0.135),
+  theme_grey() +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_text(size = 16), 
+        strip.text = element_text(size = 16),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 12),
+        plot.title = element_text(size = 18),
+        panel.grid.major = element_blank(),
+        legend.position = c(0.18, 0.02),
         legend.direction = "horizontal",
-        # legend.position = "bottom",
-        axis.text = element_text(colour = "black"),
-        # legend.margin = margin(10, 10, 10, 10),
-        legend.box.margin = margin(10, 10, 10, 10),
-        legend.box.background = element_rect(fill = "white", colour = "black"))
+        legend.box.margin = margin(5, 5, 5, 5),
+        legend.box.background = element_rect(fill = "white", colour = "black"),
+        panel.border = element_rect(fill = NA, colour = "black"),
+        plot.background = element_blank())
 base_map$layers <- base_map$layers[c(2,1)] # Reorder land shape and SST rasters
 # base_map
 ggsave("survey/reports/figures/base_map.png", plot = base_map, height = 4, width = 6)
