@@ -28,6 +28,24 @@ SOCAT_R_sub <- dplyr::select(SOCAT_R, yr, mon, day, `longitude [dec.deg.E]`, `la
 write_rds(SOCAT_R_sub, "~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds", compress = "gz")
 rm(SOCAT_R, SOCAT_R_sub); gc()
 
+# Subset to EU and for data product use
+EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%
+  dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
+                depth = `sample_depth [m]`, value = `pCO2water_SST_wet [uatm]`) %>%
+  filter(lat >= 63, value >= 0) %>%
+  mutate(lon = case_when(lon >= 180 ~ lon-360, TRUE ~ lon)) %>%
+  filter(lon <= 60, lon >= -60) %>%
+  unite(yr, mon, day, sep = "-", remove = T, col = "date") %>%
+  mutate(date = as.Date(date),
+         variable = "pCO2water_SST_wet [uatm]",
+         category = "chem",
+         date_accessed = as.Date("2021-08-06"),
+         URL = "https://www.socat.info",
+         citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>%
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
+
 
 # GLODAP ------------------------------------------------------------------
 
@@ -39,6 +57,41 @@ GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Maste
   mutate(date = as.Date(date))
 write_rds(GLODAP, "~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022.rds", compress = "gz")
 rm(GLODAP); gc()
+
+# Subset to EU and for data product use
+EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>%
+  `colnames<-`(gsub("G2","",colnames(.))) %>%
+  dplyr::rename(lon = longitude, lat = latitude) %>%
+  filter(lon <= 60, lon >= -60, lat >= 63) %>%
+  unite(year, month, day, sep = "-", remove = T, col = "date") %>%
+  mutate(date = as.Date(date)) %>%
+  # NB: The counting error columns were removed here. As well as all flag and QC columns.
+  dplyr::select(lon, lat, date, depth, temperature, theta, salinity, oxygen, aou, nitrate, nitrite, silicate,
+                phosphate, tco2, talk, fco2, fco2temp, phts25p0, phtsinsitutp, cfc11, pcfc11, cfc12, pcfc12,
+                cfc113, pcfc113, ccl4, pccl4, sf6, psf6, c13, c14, h3, he3, he, neon, o18, toc, doc, don, tdn, chla) %>%
+  pivot_longer(temperature:chla, names_to = "variable", values_to = "value") %>%
+  filter(!is.na(value), value != -9999) %>%
+  mutate(category = case_when(variable %in% c("temperature", "theta", "salinity") ~ "phys", TRUE ~ "chem"),
+         variable = case_when(variable %in% c("temperature", "theta", "fco2temp") ~ paste0(variable," [°C]"),
+                              variable %in% c("oxygen", "aou", "nitrate", "nitrite", "silicate",
+                                              "phosphate", "tco2", "talk") ~ paste0(variable," [μmol kg-1]"),
+                              variable %in% c("fco2") ~ paste0(variable," [μatm]"),
+                              variable %in% c("cfc11", "cfc12", "cfc113", "ccl4") ~ paste0(variable," [pmol kg-1]"),
+                              variable %in% c("sf6") ~ paste0(variable," [fmol kg-1]"),
+                              variable %in% c("pcfc11", "pcfc12", "pcfc113", "pccl4", "psf6") ~ paste0(variable," [ppt]"),
+                              variable %in% c("c13", "c14", "o18") ~ paste0(variable," [‰]"),
+                              variable %in% c("h3") ~ paste0(variable," [TU]"),
+                              variable %in% c("he3") ~ paste0(variable," [%]"),
+                              variable %in% c("he", "neon") ~ paste0(variable," [nmol kg-1]"),
+                              variable %in% c("toc", "doc", "don", "tdn") ~ paste0(variable," [μmol L-1 d]"),
+                              variable %in% c("chla") ~ paste0(variable," [μg kg-1 d]"),
+                              TRUE ~ variable),
+         date_accessed = as.Date("2022-10-19"),
+         URL = "https://www.glodap.info",
+         citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>%
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 
 # GLODAP bottles ----------------------------------------------------------

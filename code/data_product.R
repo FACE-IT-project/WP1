@@ -200,117 +200,73 @@ rm(list = grep("EU_|barents_",names(.GlobalEnv),value = TRUE)); gc()
 
 ### Wild data ---------------------------------------------------------------
 
-# TODO: Integrate this mess
 # Bathymetry data
-EU_GEBCO <- data.frame(type = "Gridded",
-                       data_name = "Bathymetry",
-                       date_range = NA,
-                       URL = "https://www.gebco.net/",
-                       reference = "GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f",
-                       note = NA)
+EU_GEBCO <- data.frame(date_accessed = NA, 
+                       URL = "https://www.gebco.net/", 
+                       citation = "GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f", 
+                       site = "EU", 
+                       lon = NA, 
+                       lat = NA, 
+                       date = NA, 
+                       depth = NA,
+                       category = "phys", 
+                       driver = "bathymetry", 
+                       variable = "bathymetry")
 
 # Bathymetry data
-EU_IBCAO <- data.frame(type = "Gridded",
-                       data_name = "Bathymetry",
-                       date_range = NA,
-                       # lon_range = "-180 - 180",
-                       # lat_range = "60 - 90",
-                       # depth_range = "0 - 10920",
-                       # file_name = '<a onclick="alert(\'Not currently hosted\');">0 files</a>',
-                       URL = "https://www.gebco.net/data_and_products/gridded_bathymetry_data/arctic_ocean/",
-                       reference = "Jakobsson, M., Mayer, L. A., Bringensparr, C., Castro, C. F., Mohammad, R., Johnson, P., ... & Zinglersen, K. B. (2020). The international bathymetric chart of the Arctic Ocean version 4.0. Scientific data, 7(1), 176.",
-                       note = NA)
+EU_IBCAO <- data.frame(date_accessed = NA, 
+                       URL = "https://www.gebco.net/data_and_products/gridded_bathymetry_data/arctic_ocean/", 
+                       citation = "Jakobsson, M., Mayer, L. A., Bringensparr, C., Castro, C. F., Mohammad, R., Johnson, P., ... & Zinglersen, K. B. (2020). The international bathymetric chart of the Arctic Ocean version 4.0. Scientific data, 7(1), 176.", 
+                       site = "EU", 
+                       lon = NA, 
+                       lat = NA, 
+                       date = NA, 
+                       depth = NA,
+                       category = "phys", 
+                       driver = "bathymetry", 
+                       variable = NA)
 
 # Ice modelling output
-EU_ice <- data.frame(type = "Model",
-                     data_name = "Sea ice: thickness; Snow cover: depth",
-                     date_range = "1980 - 2016",
-                     # lon_range = "-180 - 180",
-                     # lat_range = "60 - 90",
-                     # depth_range = "surface",
-                     # file_name = '<a onclick="alert(\'See the website\');">0 files</a>',
-                     URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66">NPDC</a>',
-                     reference = '<a onclick="alert(\'Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a\');">Liston et al. (2016)</a>',
-                     note = NA)
+EU_ice <- data.frame(date_accessed = NA, 
+                     URL = "https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66", 
+                     citation = "Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a", 
+                     site = "EU", 
+                     lon = NA, 
+                     lat = NA, 
+                     date = NA, 
+                     depth = NA,
+                     category = "cryo", 
+                     driver = "sea ice", 
+                     variable = c("sea ice thickness","sea ice snow cover depth"))
 
 # CTD data from NCEI Accession 9700302
-EU_NCEI_1989 <- data.frame(type = "CTD",
-                           data_name = "Sea temperature; salinity",
-                           date_range = "1989",
-                           # lon_range = "-10 - 62",
-                           # lat_range = "60.6 - 80",
-                           # depth_range = "0 - 615",
-                           # file_name = '<a onclick="alert(\'9700302.2.2.tar.gz\');">1 file</a>',
-                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://accession.nodc.noaa.gov/9700302">NOAA</a>',
-                           reference = '<a onclick="alert(\'Adrov, Nickoli; Murmansk Marine Biological Institute (MMBI) (2010). Physical profile data collected from bottle casts in the Barents, Greenland, and Norweigan Seas from 1989-06-01 to 1989-09-09 (NCEI Accession 9700302). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://accession.nodc.noaa.gov/9700302. Accessed [date].\');">Adrov (2010)</a>',
-                           note = NA)
+EU_NCEI_1989 <- data.frame(date_accessed = NA, 
+                           URL = "https://accession.nodc.noaa.gov/9700302", 
+                           citation = "Adrov, Nickoli; Murmansk Marine Biological Institute (MMBI) (2010). Physical profile data collected from bottle casts in the Barents, Greenland, and Norweigan Seas from 1989-06-01 to 1989-09-09 (NCEI Accession 9700302). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://accession.nodc.noaa.gov/9700302. Accessed [date].", 
+                           site = "EU", 
+                           lon = NA, 
+                           lat = NA, 
+                           date = NA, 
+                           depth = NA,
+                           category = "phys", 
+                           driver = c("temp", "salinity"), 
+                           variable = c("temp [°C]", "salinity"))
+                           
 
-# Greenland Sea icthyoplankton cruise
-# CTD data from Ichthyo research
+# CTD data from Greenland Sea icthyoplankton cruise
 ## NB: Server was down when attempting to access these data on 2022-05-25
 # EU_icthyo <- "~/pCloudDrive/restricted_data/PolarData/"
-EU_icthyo <- data.frame(type = "CTD",
-                        data_name = "Sea temperature; salinity; fish: presence",
-                        date_range = "2017",
-                        # lon_range = "-25 - 0",
-                        # lat_range = "74 - 80",
-                        # depth_range = NA,
-                        # file_name = '<a onclick="alert(\'Files may only be downloaded directly from website.\');">0 files</a>',
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://www.polardata.ca/pdcsearch/PDCSearch.jsp?doi_id=13251">PolarData</a>',
-                        reference = '<a onclick="alert(\'Bouchard, C., Chawarski, J., Geoffroy, A., & Agersted, M. (2021). Hydroacoustic data EK60 Greenland Sea August-September 2017. Waterloo, Canada: Canadian Cryospheric Information Network (CCIN). (Unpublished Data).\');">Bouchard et al. (2021)</a>',
-                        note = NA)
-
-# barents polar pod population
-barents_bosa <- data.frame(type = "In situ",
-                           data_name = "Biomass: Boreogadus saida (polar cod)",
-                           date_range = "1986 to 2021",
-                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/biomass-of-polar-cod-in-the-barents-sea//">MOSJ</a>',
-                           reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: Institute of Marine Research (2022). Biomass of polar cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/polar-cod.html\');">NPI (2022)</a>',
-                           note = NA)
-
-# barents capelin population
-barents_mavi <- data.frame(type = "In situ",
-                           data_name = "Biomass: Mallotus villosus (capelin)",
-                           date_range = "1973 to 2021",
-                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/capelin-stock-in-the-barents-sea//">MOSJ</a>',
-                           reference = '<a onclick="alert(\'Institute of Marine Research (2022). Capelin stock in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/capelin.html\');">IMR (2022)</a>',
-                           note = NA)
-
-# barents golden redfish population
-barents_seno <- data.frame(type = "In situ",
-                           data_name = "Biomass: Sebastes norvegicus (golden redfish)",
-                           date_range = "1986 to 2019",
-                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/">MOSJ</a>',
-                           reference = '<a onclick="alert(\'Institute of Marine Research (2023). Stock of golden redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: https://mosj.no/en/indikator/fauna/marine-fauna/golden-redfish-stock-in-the-barents-sea/\');">IMR (2023)</a>',
-                           note = NA)
-
-# barents beaked redfish population
-barents_seme <- data.frame(type = "In situ",
-                           data_name = "Biomass: Sebastes mentella (beaked redfish)",
-                           date_range = "1992 to 2020",
-                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-snabeluer-i-barentshavet/">MOSJ</a>',
-                           reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of beaked redfish in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/deep-sea-redfish.html\');">IMR (2022)</a>',
-                           note = NA)
-
-# barents northeast arctic cod population
-barents_gamo <- data.frame(type = "In situ",
-                           data_name = "Biomass: Gadus morhua (northeast arctic cod)",
-                           date_range = "1946 to 2022",
-                           URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/stock-of-northeast-arctic-cod/">MOSJ</a>',
-                           reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
-                           note = NA)
-
-# barents young herring population
-barents_youngclha <- data.frame(type = "In situ",
-                                data_name = "Biomass: Clupea harengus (young herring)",
-                                date_range = "2004 to 2021",
-                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/bestanden-av-ungsild-i-barentshavet/">MOSJ</a>',
-                                reference = '<a onclick="alert(\'Institute of Marine Research (2022). Stock of Northeast Arctic cod in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/northeast-arctic-cod.html\');">IMR (2022)</a>',
-                                note = NA)
-
-# Bathymetry data
-## Not on pCloud as this is a large file hosted on a well known website
-# EU_GEBCO
+EU_icthyo <- data.frame(date_accessed = NA, 
+                        URL = "https://www.polardata.ca/pdcsearch/PDCSearch.jsp?doi_id=13251", 
+                        citation = "Bouchard, C., Chawarski, J., Geoffroy, A., & Agersted, M. (2021). Hydroacoustic data EK60 Greenland Sea August-September 2017. Waterloo, Canada: Canadian Cryospheric Information Network (CCIN). (Unpublished Data).", 
+                        site = "EU", 
+                        lon = NA, 
+                        lat = NA, 
+                        date = NA, 
+                        depth = NA,
+                        category = c("phys", "phys", "bio"), 
+                        driver = c("temp", "salinity", "biomass"), 
+                        variable = c("temp [°C]", "salinity", "fish presence"))
 
 # Cryosphere
 ## Sea ice concentration
@@ -322,13 +278,6 @@ barents_youngclha <- data.frame(type = "In situ",
 ## Randolph Glacier Inventory
 # https://nsidc.org/data/nsidc-0770/versions/6
 
-# Ice modelling output
-## Not on pCloud, too large to download
-# EU_ice
-
-# CTD data from NCEI Accession 9700302
-## 9700302.2.2.tar.gz # This appears to be some sort of proprietary data format...
-# EU_NCEI_1989
 
 # EU MET station data
 # TODO: Develop code to automatically download and process these MET data
@@ -488,58 +437,11 @@ EU_IMR_spp_obs <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/IMR/EU_occurr
   summarise(value = 1, .groups = "drop")
 
 # SOCAT data
-# EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%  
-#   dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
-#                 depth = `sample_depth [m]`, value = `pCO2water_SST_wet [uatm]`) %>% 
-#   filter(lat >= 63, value >= 0) %>% 
-#   mutate(lon = case_when(lon >= 180 ~ lon-360, TRUE ~ lon)) %>% 
-#   filter(lon <= 60, lon >= -60) %>% 
-#   unite(yr, mon, day, sep = "-", remove = T, col = "date") %>% 
-#   mutate(date = as.Date(date),
-#          variable = "pCO2water_SST_wet [uatm]",
-#          category = "chem",
-#          date_accessed = as.Date("2021-08-06"),
-#          URL = "https://www.socat.info",
-#          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>% 
-#   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
-#   summarise(value = mean(value, na.rm = T), .groups = "drop")
-# save(EU_SOCAT, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
+# code/data_processing.R
 load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 
 # GLODAP data
-# EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>% 
-#   `colnames<-`(gsub("G2","",colnames(.))) %>% 
-#   dplyr::rename(lon = longitude, lat = latitude) %>% 
-#   filter(lon <= 60, lon >= -60, lat >= 63) %>% 
-#   unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
-#   mutate(date = as.Date(date)) %>% 
-#   # NB: The counting error columns were removed here. As well as all flag and QC columns.
-#   dplyr::select(lon, lat, date, depth, temperature, theta, salinity, oxygen, aou, nitrate, nitrite, silicate, 
-#                 phosphate, tco2, talk, fco2, fco2temp, phts25p0, phtsinsitutp, cfc11, pcfc11, cfc12, pcfc12, 
-#                 cfc113, pcfc113, ccl4, pccl4, sf6, psf6, c13, c14, h3, he3, he, neon, o18, toc, doc, don, tdn, chla) %>% 
-#   pivot_longer(temperature:chla, names_to = "variable", values_to = "value") %>% 
-#   filter(!is.na(value), value != -9999) %>% 
-#   mutate(category = case_when(variable %in% c("temperature", "theta", "salinity") ~ "phys", TRUE ~ "chem"),
-#          variable = case_when(variable %in% c("temperature", "theta", "fco2temp") ~ paste0(variable," [°C]"),
-#                               variable %in% c("oxygen", "aou", "nitrate", "nitrite", "silicate", 
-#                                               "phosphate", "tco2", "talk") ~ paste0(variable," [μmol kg-1]"),
-#                               variable %in% c("fco2") ~ paste0(variable," [μatm]"),
-#                               variable %in% c("cfc11", "cfc12", "cfc113", "ccl4") ~ paste0(variable," [pmol kg-1]"),
-#                               variable %in% c("sf6") ~ paste0(variable," [fmol kg-1]"),
-#                               variable %in% c("pcfc11", "pcfc12", "pcfc113", "pccl4", "psf6") ~ paste0(variable," [ppt]"),
-#                               variable %in% c("c13", "c14", "o18") ~ paste0(variable," [‰]"),
-#                               variable %in% c("h3") ~ paste0(variable," [TU]"),
-#                               variable %in% c("he3") ~ paste0(variable," [%]"),
-#                               variable %in% c("he", "neon") ~ paste0(variable," [nmol kg-1]"),
-#                               variable %in% c("toc", "doc", "don", "tdn") ~ paste0(variable," [μmol L-1 d]"),
-#                               variable %in% c("chla") ~ paste0(variable," [μg kg-1 d]"),
-#                               TRUE ~ variable),
-#          date_accessed = as.Date("2022-10-19"),
-#          URL = "https://www.glodap.info",
-#          citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>% 
-#   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
-#   summarise(value = mean(value, na.rm = T), .groups = "drop")
-# save(EU_GLODAP, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
+# code/data_processing.R
 load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Combine and save
@@ -783,7 +685,19 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 # Tidal glacier fronts
-sval_tidal_glacier_front <- data.frame(type = "Geospatial",
+sval_tidal_glacier_front <- data.frame(date_accessed = NA, 
+                                       URL = "https://www.gebco.net/", 
+                                       citation = "GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f", 
+                                       site = "EU", 
+                                       lon = NA, 
+                                       lat = NA, 
+                                       date = NA, 
+                                       depth = NA,
+                                       category = "phys", 
+                                       driver = "bathymetry", 
+                                       variable = "bathymetry")
+                                       
+                                       type = "Geospatial",
                                        data_name = "Glacier: tidal front",
                                        date_range = "2015 - 2019",
                                        # lon_range = "9 - 36",
@@ -2498,36 +2412,6 @@ rm(list = grep("pg_stor",names(.GlobalEnv),value = TRUE)); gc()
 
 ### Wild data ---------------------------------------------------------------
 
-# Cryosphere survey data
-ingle_cryo <- data.frame(type = "Survey",
-                         data_name = "Coastal ice: cover, formation/break up; sea ice: thickness, snow cover: thickness, air temperature; wind: speed",
-                         date_range = "2020 - 2024",
-                         # lon_range = "?", lat_range = "?", depth_range = "?",
-                         # file_name = '<a onclick="alert(\'\');">0 files</a>',
-                         URL = '<a onclick="alert(\'\');">NA</a>',
-                         reference = '<a onclick="alert(\'No citation yet.\');">Gerland et al. (In prep.)</a>',
-                         note = "The first year of data should be available in 2022.")
-
-# CTD cruise data
-ingle_CTD <- data.frame(type = "CTD",
-                        data_name = "Sea ice: thickness; snow cover: thicknes; PAR; mixed layer depth; salinity; suspended matter: mineral; bathymetry; oxygen",
-                        date_range = "2017 - ?",
-                        # lon_range = "?", lat_range = "?", depth_range = "?",
-                        # file_name = '<a onclick="alert(\'\');">0 files</a>',
-                        URL = '<a onclick="alert(\'\');">NA</a>',
-                        reference = '<a onclick="alert(\'No citation yet.\');">Søreide et al. (In prep.)</a>',
-                        note = "These data are still in preperation.")
-
-# Plankton survey data
-ingle_plankton <- data.frame(type = "Survey",
-                             data_name = "DNA; phytoplankton: species, abundance; zooplankton: species, abundance; ChlA concentration",
-                             date_range = "2018 - ?",
-                             # lon_range = "?", lat_range = "?", depth_range = "?",
-                             # file_name = '<a onclick="alert(\'\');">0 files</a>',
-                             URL = '<a onclick="alert(\'\');">NA</a>',
-                             reference = '<a onclick="alert(\'No citation yet.\');">Søreide et al. (In prep.)</a>',
-                             note = "These data are still in preperation.")
-
 # Process individual files
 ## Light data
 ### NB: No columns with key drivers: CDOM, icam_aphy, icam_anap, Perkins_ap, O18
@@ -2975,53 +2859,6 @@ rm(list = grep("pg_young",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
-
-
-# Air pCO2 data
-young_air_pCO2 <- data.frame(type = "CTD",
-                             data_name = "pCO2: air",
-                             date_range = "2006 - 2016",
-                             # lon_range = "-20.6",
-                             # lat_range = "74.5",
-                             # depth_range = NA,
-                             # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/852X-KP75">GEM</a>',
-                             reference = '<a onclick="alert(\'Partial pressure of CO2 air (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/852X-KP75\');">GEM</a>',
-                             note = NA)
-
-# Water pCO2
-young_water_pCO2 <- data.frame(type = "CTD",
-                               data_name = "pCO2: water",
-                               date_range = "2006 - 2016",
-                               # lon_range = "-20.6",
-                               # lat_range = "74.5",
-                               # depth_range = "1 - 50",
-                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/A8J4-AF12">GEM</a>',
-                               reference = '<a onclick="alert(\'Partial pressure of CO2 water (ppm): Water column MarineBasis Zackenberg. doi: 10.17897/A8J4-AF12\');">GEM</a>',
-                               note = NA)
-
-# Phytoplankton species composition
-young_phyto_species <- data.frame(type = "Bottle",
-                                  data_name = "Phytoplankton: species name, % presence",
-                                  date_range = "2004 - 2015",
-                                  # lon_range = "-20.6", lat_range = "74.5", depth_range = "?",
-                                  # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                  URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/MN5J-K414">GEM</a>',
-                                  reference = '<a onclick="alert(\'Phytoplankton Relative Species Composition (%): Water column MarineBasis Zackenberg. doi: 10.17897/MN5J-K414\');">GEM</a>',
-                                  note = NA)
-
-# Zooplankton abundance
-young_zoo_species <- data.frame(type = "Bottle",
-                                data_name = "Zooplankton: species name, abundance",
-                                date_range = "2003 - 2015",
-                                # lon_range = "-20.6",
-                                # lat_range = "74.5",
-                                # depth_range = "?",
-                                # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.g-e-m.dk/datasets?doi=10.17897/D3C5-AJ13">GEM</a>',
-                                reference = '<a onclick="alert(\'Zooplankton Species Composition (individuals/m2): Water column MarineBasis Zackenberg. doi: 10.17897/D3C5-AJ13\');">GEM</a>',
-                                note = NA)
 
 # Primary production data
 holding_station_idx <- read_csv("~/pCloudDrive/FACE-IT_data/young_sound/Holding_etal_2019_data/CTD_biochem/YS_2014_CTD_biochem.csv") %>% 
@@ -4936,73 +4773,18 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 
 ### Wild data ---------------------------------------------------------------
 
-# Fish species biomass
-por_fish_bio <- data.frame(type = "Survey",
-                           data_name = "Fish: species, biomass",
-                           date_range = "2007 - 2016",
-                           # lon_range = "?", 
-                           # lat_range = "?",
-                           # depth_range = "?",
-                           # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                           URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
-                           reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
-                           note = NA)
-
-# Benthic invertebrate species biomass
-por_benthos_bio <- data.frame(type = "Survey",
-                              data_name = "Benthic invertebrates: species, biomass",
-                              date_range = "2007 - 2016",
-                              # lon_range = "?",
-                              # lat_range = "?",
-                              # depth_range = "?",
-                              # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                              URL = '<a onclick="alert(\'Unknown source\');">NA</a>',
-                              reference = '<a onclick="alert(\'No reference provided.\');">NA</a>',
-                              note = NA)
-
 # NorKyst-800 physical model
-por_NorKyst <- data.frame(type = "Model",
-                          data_name = "Sea temperature: surface, mid, bottom; sea ice: thickness",
-                          date_range = "2012 - 2020",
-                          # lon_range = "?",
-                          # lat_range = "?",
-                          # depth_range = "?",
-                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://thredds.met.no/thredds/fou-hi/fou-hi.html">NMI</a>',
-                          reference = '<a onclick="alert(\'Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.\');">Albretsen et al. (2011)</a>',
-                          note = NA)
-
-# IMR CTD data
-por_IMR_CTD <- data.frame(type = "CTD",
-                          data_name = "Seawater temperature: surface, mid, bottom; salinity; PAR; oxygen; nutrients: nitrate, nitrite, ammonium, phosphate, silicate",
-                          date_range = "2018 - ?",
-                          # lon_range = "25.6",
-                          # lat_range = "70.5",
-                          # depth_range = "0 - 200",
-                          # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                          URL = NA,
-                          reference = '<a onclick="alert(\'No reference available yet.\');">Falkenhaug et al. (In prep.)</a>',
-                          note = "Data are still being prepared. No firm release date set.")
-
-# Zoo/phytoplankton from IMR
-por_IMR_plankton <- data.frame(type = "Multinet",
-                               data_name = "Phytoplankton: species, abundance, chlA concentration; Zooplankton: species, abundance, biomass",
-                               date_range = "2018 - ?",
-                               # lon_range = "25.6",
-                               # lat_range = "70.5",
-                               # depth_range = "0 - 200",
-                               # file_name = '<a onclick="alert(\'Not on pCloud\');">0 files</a>',
-                               URL = NA,
-                               reference = '<a onclick="alert(\'No reference available yet.\');">Falkenhaug et al. (In prep.)</a>',
-                               note = "Data are still being prepared. No firm release date set.")
-
-## IMR red king crab survey data
-por_IMR_kingcrab_count <- data.frame(type = "Survey",
-                                     data_name = "Red king crab: count",
-                                     date_range = "1994 - 2017",
-                                     URL = '<a target="_blank" rel="noopener noreferrer" href="https://gbif.imr.no/ipt/resource?r=imr_kingcrab">IMR</a>',
-                                     reference = '<a onclick="alert(\'Hjelset, Ann Merete; Institute of Marine Research, Norway (2017): Red king crab survey data from Finnmark Northern Norway in the period 1994 -2016 http://gbif.imr.no/ipt/resource?id=imr_kingcrab/v1.2.xml\');">Hjelset (2017)</a>',
-                                     note = NA)
+por_NorKyst <- data.frame(date_accessed = NA, 
+                          URL = "https://thredds.met.no/thredds/fou-hi/fou-hi.html", 
+                          citation = "Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.", 
+                          site = "por", 
+                          lon = NA, 
+                          lat = NA, 
+                          date = NA, 
+                          depth = NA,
+                          category = c("phys", "cryo"), 
+                          driver = c("sea temp", "sea ice"), 
+                          variable = c("temp [°C]", "sea ice thickness"))
 
 ## Series of GFI moorings
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
