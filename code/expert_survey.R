@@ -66,7 +66,27 @@ survey_long <- survey_res |>
          sub_section = sub_section_col)
 
 # Double up results from Luisa as they were also from Inka
-survey_double <- filter(survey_long, Name == "Luisa Düsedau")
+survey_double <- filter(survey_long, Name == "Luisa Düsedau") |> 
+  mutate(Name = "Inka Bartsch", `e-mail` = "Inka.Bartsch@awi.de")
+
+# Extract contributors
+survey_experts <- rbind(survey_long, survey_double) |> 
+  dplyr::select(Name:WP) |> distinct() |> 
+  mutate(Name = case_when(Name == "Kit M." ~ "Kit M. Kovacs",
+                          Name == "Laura" ~ "Laura Castro de la Guardia",
+         TRUE ~ Name)) |> 
+  mutate(family_name = str_extract(Name, "(?<= )[^ ]*$"),
+         family_name = case_when(family_name == "Guardia" ~ "Castro de la Guardia",
+                                 family_name == "miller" ~ "Miller",
+                                 TRUE ~ family_name)) |>
+  mutate(Institute = case_when(Institute %in% c("NPI", "The Norwegian Polar Institute") ~ "Norwegian Polar Institute",
+                               Institute == "Alfred-Wegener-Institute" ~ "Alfred Wegener Institute",
+                               Institute == "Aarhus University, Department of Ecoscience" ~ "Aarhus University",
+                               Institute == "Department of Culture and Learning, Aalborg University" ~ "Aalborg University",
+                               TRUE ~ Institute)) |> 
+  arrange(family_name) |> 
+  dplyr::select(family_name, Name, Institute)
+write_csv(survey_experts, file = "survey/reports/survey_experts.csv")
 
 # Tidy it up
 survey_tidy <- rbind(survey_long, survey_double) |> 
