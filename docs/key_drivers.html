@@ -477,7 +477,7 @@ ecosystems</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -488,8 +488,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -502,9 +502,9 @@ aria-hidden="true"></span> </a>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span
@@ -527,21 +527,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -632,15 +629,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree17f1bb516356b3c45ddbb4c43e6c74311da56a97targetblank17f1bb5a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree067ce7374beb5125beb69e3074a51770f24dc18ctargetblank067ce73a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/17f1bb516356b3c45ddbb4c43e6c74311da56a97" target="_blank">17f1bb5</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/067ce7374beb5125beb69e3074a51770f24dc18c" target="_blank">067ce73</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree17f1bb516356b3c45ddbb4c43e6c74311da56a97targetblank17f1bb5a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree067ce7374beb5125beb69e3074a51770f24dc18ctargetblank067ce73a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -650,7 +647,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/17f1bb516356b3c45ddbb4c43e6c74311da56a97" target="_blank">17f1bb5</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/067ce7374beb5125beb69e3074a51770f24dc18c" target="_blank">067ce73</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -692,10 +689,6 @@ Ignored files:
     Ignored:    shiny/kongCTD/credentials.RData
     Ignored:    shiny/kongCTD/data/
     Ignored:    shiny/test_data/
-
-Unstaged changes:
-    Modified:   analysis/_site.yml
-    Modified:   analysis/key_drivers.Rmd
 
 </code></pre>
 <p>
@@ -741,6 +734,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/FACE-IT-project/WP1/blob/067ce7374beb5125beb69e3074a51770f24dc18c/analysis/key_drivers.Rmd" target="_blank">067ce73</a>
+</td>
+<td>
+Robert William Schlegel
+</td>
+<td>
+2023-12-12
+</td>
+<td>
+Updated key drivers page
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/067ce7374beb5125beb69e3074a51770f24dc18c/docs/key_drivers.html" target="_blank">067ce73</a>
+</td>
+<td>
+Robert William Schlegel
+</td>
+<td>
+2023-12-12
+</td>
+<td>
+Updated key drivers page
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -2865,23 +2892,24 @@ attached base packages:
 other attached packages:
  [1] kableExtra_1.3.4 lubridate_1.9.3  forcats_1.0.0    stringr_1.5.1   
  [5] dplyr_1.1.4      purrr_1.0.2      readr_2.1.4      tidyr_1.3.0     
- [9] tibble_3.2.1     ggplot2_3.4.4    tidyverse_2.0.0 
+ [9] tibble_3.2.1     ggplot2_3.4.4    tidyverse_2.0.0  workflowr_1.7.1 
 
 loaded via a namespace (and not attached):
  [1] sass_0.4.8        utf8_1.2.4        generics_0.1.3    xml2_1.3.6       
  [5] stringi_1.8.2     hms_1.1.3         digest_0.6.33     magrittr_2.0.3   
  [9] timechange_0.2.0  evaluate_0.23     grid_4.3.2        fastmap_1.1.1    
-[13] rprojroot_2.0.4   workflowr_1.7.1   jsonlite_1.8.8    whisker_0.4.1    
-[17] promises_1.2.1    httr_1.4.7        rvest_1.0.3       fansi_1.0.5      
-[21] viridisLite_0.4.2 scales_1.3.0      jquerylib_0.1.4   cli_3.6.1        
-[25] rlang_1.1.2       munsell_0.5.0     withr_2.5.2       cachem_1.0.8     
-[29] yaml_2.3.7        tools_4.3.2       tzdb_0.4.0        colorspace_2.1-0 
-[33] webshot_0.5.5     httpuv_1.6.13     vctrs_0.6.5       R6_2.5.1         
-[37] lifecycle_1.0.4   git2r_0.33.0      fs_1.6.3          pkgconfig_2.0.3  
-[41] pillar_1.9.0      bslib_0.6.1       later_1.3.2       gtable_0.3.4     
-[45] glue_1.6.2        Rcpp_1.0.11       systemfonts_1.0.5 highr_0.10       
-[49] xfun_0.41         tidyselect_1.2.0  rstudioapi_0.15.0 knitr_1.45       
-[53] htmltools_0.5.7   svglite_2.1.2     rmarkdown_2.25    compiler_4.3.2   </code></pre>
+[13] rprojroot_2.0.4   jsonlite_1.8.8    processx_3.8.2    whisker_0.4.1    
+[17] ps_1.7.5          promises_1.2.1    rvest_1.0.3       httr_1.4.7       
+[21] fansi_1.0.5       viridisLite_0.4.2 scales_1.3.0      jquerylib_0.1.4  
+[25] cli_3.6.1         rlang_1.1.2       munsell_0.5.0     withr_2.5.2      
+[29] cachem_1.0.8      yaml_2.3.7        tools_4.3.2       tzdb_0.4.0       
+[33] colorspace_2.1-0  webshot_0.5.5     httpuv_1.6.13     vctrs_0.6.5      
+[37] R6_2.5.1          lifecycle_1.0.4   git2r_0.33.0      fs_1.6.3         
+[41] pkgconfig_2.0.3   callr_3.7.3       pillar_1.9.0      bslib_0.6.1      
+[45] later_1.3.2       gtable_0.3.4      glue_1.6.2        Rcpp_1.0.11      
+[49] systemfonts_1.0.5 highr_0.10        xfun_0.41         tidyselect_1.2.0 
+[53] rstudioapi_0.15.0 knitr_1.45        htmltools_0.5.7   svglite_2.1.2    
+[57] rmarkdown_2.25    compiler_4.3.2    getPass_0.2-2    </code></pre>
 </div>
 </div>
 
