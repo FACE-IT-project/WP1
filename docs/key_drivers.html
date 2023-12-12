@@ -11,7 +11,7 @@
 
 <meta name="author" content="Robert Schlegel" />
 
-<meta name="date" content="2023-12-04" />
+<meta name="date" content="2023-12-12" />
 
 <title>Key drivers of change in Arctic fjord ecosystems</title>
 
@@ -358,9 +358,6 @@ div.tocify {
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="FAIR_data.html">Why FAIR?</a>
-</li>
-<li>
   <a href="key_drivers.html">Key drivers</a>
 </li>
 <li>
@@ -441,6 +438,9 @@ div.tocify {
     </li>
   </ul>
 </li>
+<li>
+  <a href="FAIR_data.html">Why FAIR?</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -469,7 +469,7 @@ div.tocify {
 <h1 class="title toc-ignore">Key drivers of change in Arctic fjord
 ecosystems</h1>
 <h4 class="author">Robert Schlegel</h4>
-<h4 class="date">04 December 2023</h4>
+<h4 class="date">12 December 2023</h4>
 
 </div>
 
@@ -477,7 +477,7 @@ ecosystems</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -488,8 +488,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -498,13 +498,13 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-12-04
+<strong>Last updated:</strong> 2023-12-12
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>WP1/</code> <span
@@ -527,18 +527,21 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
@@ -629,15 +632,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treef36a8ac416d86b150050e3bb3e1e0f7dad901378targetblankf36a8aca">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree17f1bb516356b3c45ddbb4c43e6c74311da56a97targetblank17f1bb5a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/FACE-IT-project/WP1/tree/f36a8ac416d86b150050e3bb3e1e0f7dad901378" target="_blank">f36a8ac</a>
+<a href="https://github.com/FACE-IT-project/WP1/tree/17f1bb516356b3c45ddbb4c43e6c74311da56a97" target="_blank">17f1bb5</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1treef36a8ac416d86b150050e3bb3e1e0f7dad901378targetblankf36a8aca"
+id="strongRepositoryversionstrongahrefhttpsgithubcomFACEITprojectWP1tree17f1bb516356b3c45ddbb4c43e6c74311da56a97targetblank17f1bb5a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -647,7 +650,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/FACE-IT-project/WP1/tree/f36a8ac416d86b150050e3bb3e1e0f7dad901378" target="_blank">f36a8ac</a>.
+<a href="https://github.com/FACE-IT-project/WP1/tree/17f1bb516356b3c45ddbb4c43e6c74311da56a97" target="_blank">17f1bb5</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -664,38 +667,35 @@ were generated:
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    data/MUR/
-    Ignored:    data/analyses/CCI_all.RData
-    Ignored:    data/analyses/OISST_all.RData
+    Ignored:    .httr-oauth
     Ignored:    data/analyses/clean_all.RData
     Ignored:    data/analyses/clean_all_clean.RData
     Ignored:    data/analyses/ice_4km_proc.RData
     Ignored:    data/full_data/
-    Ignored:    data/model/
-    Ignored:    data/pg_data/
-    Ignored:    data/restricted/
-    Ignored:    data/sst_CCI_sval.RData
-    Ignored:    data/sst_CCI_trom.RData
-    Ignored:    data/sst_gland.RData
-    Ignored:    data/sst_sval.RData
     Ignored:    data/sst_trom.RData
     Ignored:    metadata/globalfishingwatch_API_key.RData
     Ignored:    metadata/is_gfw_database.RData
-    Ignored:    metadata/is_mst_database.RData
     Ignored:    metadata/pangaea_parameters.tab
     Ignored:    metadata/pg_EU_ref_meta.csv
+    Ignored:    mhw-definition_1_orig.xcf
     Ignored:    poster/SSC_2021_landscape_files/paged-0.15/
+    Ignored:    presentations/.Rhistory
     Ignored:    presentations/2023_Ilico.html
-    Ignored:    presentations/2023_fjord_intercomp.html
+    Ignored:    presentations/2023_LOV.html
+    Ignored:    presentations/2023_results_day.html
     Ignored:    presentations/2023_seminar.html
     Ignored:    presentations/2023_summary.html
     Ignored:    presentations/ASSW_2023.html
     Ignored:    presentations/ASSW_side_2023.html
     Ignored:    shiny/dataAccess/coastline_hi_sub.csv
-    Ignored:    shiny/dataAccess/full_data
+    Ignored:    shiny/kongCTD/.httr-oauth
     Ignored:    shiny/kongCTD/credentials.RData
     Ignored:    shiny/kongCTD/data/
     Ignored:    shiny/test_data/
+
+Unstaged changes:
+    Modified:   analysis/_site.yml
+    Modified:   analysis/key_drivers.Rmd
 
 </code></pre>
 <p>
@@ -741,6 +741,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/FACE-IT-project/WP1/77b2a6196a342dc07e6687a347fdd6ca05455308/docs/key_drivers.html" target="_blank">77b2a61</a>
+</td>
+<td>
+Robert
+</td>
+<td>
+2023-12-04
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -1993,7 +2010,7 @@ outlined here as “variables”, rather than “drivers”.</p>
 <div id="selection-criteria-for-key-drivers" class="section level2">
 <h2>Selection criteria for key drivers</h2>
 <p>At the outset of the FACE-IT project a Google Sheet was created that
-allowed the experts to fill-in which drivers were relevant for their
+allowed FACE-IT experts to fill-in which drivers were relevant for their
 work/study sites and where any corresponding data may be available. This
 sheet was left open for several months, and contributors were contacted
 by WP1 to ensure that all listed drivers were of critical importance.
@@ -2004,7 +2021,12 @@ The items remaining on the Google sheet therefore had to meet the
 following three criteria in order to be classified as key drivers: 1)
 confirmed importance by expert(s), 2) within scope of FACE-IT, 3) data
 availability. The key drivers identified in that spreadsheet were then
-classified into one of the five categories presented below.</p>
+classified into one of the five categories: <span
+style="background:mintcream; border-width:1px; border-style:solid; border-color:black">
+Cryosphere</span>, <span style="background:skyblue"> Physical</span>,
+<span style="background:#F6EA7C"> Chemistry</span>, <span
+style="background:#A2ED84"> Biology</span>, <span
+style="background:#F48080"> Social</span>.</p>
 </div>
 <div id="month-report-update" class="section level2">
 <h2>18 month report update</h2>
@@ -2025,23 +2047,29 @@ oxygen in Arctic fjord waters. Indeed, what little has been published
 shows that the importance of this driver in the Arctic is likely much
 less than the global ocean generally.</p>
 <p>There are many other such examples like that of oxygen, and many of
-them will be discussed in the review paper, which is planned to be
-submitted at the end of October, 2022. It must also be noted that many
-of the key drivers in the updated list represent a combination of
+them were discussed in the <a
+href="https://www.cambridge.org/core/journals/cambridge-prisms-coastal-futures/article/drivers-of-change-in-arctic-fjord-socioecological-systems-examples-from-the-european-arctic/1129E92425F6012F9610D8C9C172B2F0">review
+paper</a>, which was published January, 2023. It must also be noted that
+many of the key drivers in the updated list represent a combination of
 several similar key drivers from this list. An example being the key
 driver “Carbonate system” in the updated list, which is a combination of
 the several CO2 related drivers in the “Chemistry” category of drivers
 below (e.g. Partial pressure of CO2, pH, total alkalinity). The drivers
-in the report below have therefore not been changed to reflect the
-updated list for D1.3 because the key drivers listed here follow a
-consistent methodology that has not changed. The drivers listed here
-continue to serve as the operational base for investigations by the
-other WPs. The refined list created for D1.3 is not meant to be
-restrictive on the other research projects.</p>
+in the report below have therefore not been replaced by the refined list
+for D1.3 because the key drivers listed here follow a consistent
+methodology that has not changed. The drivers listed here continue to
+serve as the operational base for investigations by the other WPs
+because the refined list created for D1.3 is not meant to be restrictive
+on the other research projects. That being said, the refined D1.3 list
+is much more concise, so is displayed first in this document, with the
+D1.1 list provided at the end. One may use the table of contents (TOC)
+menu on the left to jump there directly.</p>
 </div>
 </div>
 <div id="cryosphere" class="section level1">
-<h1>Cryosphere</h1>
+<h1><span
+style="background:mintcream; border-width:1px; border-style:solid; border-color:black">
+Cryosphere</span></h1>
 <p>The FACE-IT project is focused on fjord and adjacent coastal
 socio-ecological systems, which means it is concerned primarily with
 marine data, but changes in the terrestrial cryosphere have a direct
@@ -2053,45 +2081,83 @@ of these terrestrial changes are important to fjords as they have direct
 impacts on the rates and composition of runoff and river discharge in
 the coastal zone, which have in turn very large impacts on water quality
 variables such as salinity, nutrients concentration and turbidity. The
-importance of changes to water quality are discussed again in the
-<strong>physical</strong> and <strong>chemistry</strong> section.</p>
+importance of changes to water quality are discussed again in the <span
+style="background:skyblue"> Physical</span> and <span
+style="background:#F6EA7C"> Chemistry</span> sections.</p>
 <p>One of the aspects of the cryosphere that most directly impacts fjord
 and adjacent coastal systems is sea-ice. This is because the presence of
 ice can have a dramatic effect on what may be considered the three most
-fundamental important <strong>physical</strong> variables of sea water:
-temperature, salinity, and light. There are many ways of measuring
-sea-ice including: concentration, extent, thickness, and age. Whereas
-only one of these variables can be used when necessary, it is almost
-always preferable to have as many different measures of sea-ice as
-possible. It has been documented that there is a reliable correlation
-between fast-ice (ice attached to the coast) and local air and sea
-temperatures. This means that it may be possible to use air and sea
-temperatures as a proxy for sea-ice when there is a paucity of these
+fundamental important <span style="background:skyblue"> Physical</span>
+variables of sea water: temperature, salinity, and light. There are many
+ways of measuring sea-ice including: concentration, extent, thickness,
+and age. Whereas only one of these variables can be used when necessary,
+it is almost always preferable to have as many different measures of
+sea-ice as possible. It has been documented that there is a reliable
+correlation between fast-ice (ice attached to the coast) and local air
+and sea temperatures. This means that it may be possible to use air and
+sea temperatures as a proxy for sea-ice when there is a paucity of these
 data.</p>
-<p><strong>Key Cryosphere Drivers</strong></p>
-<blockquote>
-<p><strong>Coastal ice</strong>: formation/break up date, thickness;
-<strong>Fast ice</strong>: extent, thickness; <strong>Glacier</strong>:
-land mass balance, terminating edge; <strong>Permafrost</strong>:
-temperature, thickness; <strong>Sea ice</strong>: concentration, extent,
-freeboard, thickness; <strong>Snow cover</strong>: thickness</p>
-</blockquote>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+Table 1: The key cryosphere drivers of changes for Arctic fjords.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Category
+</th>
+<th style="text-align:left;">
+Driver
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;background-color: mintcream !important;">
+Cryosphere
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+sea ice
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: mintcream !important;">
+Cryosphere
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+glacier mass balance
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: mintcream !important;">
+Cryosphere
+</td>
+<td style="text-align:left;background-color: mintcream !important;">
+terrestrial runoff
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="physical" class="section level1">
-<h1>Physical</h1>
-<p>One could consider the <strong>cryosphere</strong> drivers to be
-physical drivers, but they are categorised separately due to their
-importance in the Arctic. The physical aspects of coastal systems
-adjacent to fjords are generally well documented as part of global
-gridded datasets. However, the resolution of gridded data is often too
-coarse to capture well the local scale variability inside fjords. It is
-therefore preferable to identify local sources of these key drivers
-wherever possible. Bathymetry being a primary example of this issue.</p>
-<p>As mentioned in the <strong>cryosphere</strong> section, potentially
-the three most important variables are seawater temperature, salinity,
-and light. This is because these three variables have systemic effects
-on the <strong>biology</strong> of the foundational species and
-ecosystems from which the other socio-ecological functioning of the
+<h1><span style="background:skyblue"> Physical</span></h1>
+<p>One could consider the <span
+style="background:mintcream; border-width:1px; border-style:solid; border-color:black">
+Cryosphere</span> drivers to be physical drivers, but they are
+categorised separately due to their importance in the Arctic. The
+physical aspects of coastal systems adjacent to fjords are generally
+well documented as part of global gridded datasets. However, the
+resolution of gridded data is often too coarse to capture well the local
+scale variability inside fjords. It is therefore preferable to identify
+local sources of these key drivers wherever possible. Bathymetry being a
+primary example of this issue.</p>
+<p>As mentioned in the <span
+style="background:mintcream; border-width:1px; border-style:solid; border-color:black">
+Cryosphere</span> section, potentially the three most important
+variables are seawater temperature, salinity, and light. This is because
+these three variables have systemic effects on the <span
+style="background:#A2ED84"> Biology</span> of the foundational species
+and ecosystems from which the other socio-ecological functioning of the
 fjords and adjacent coastlines are based. There are a number of global
 products that provide these data as well as a host of locally collected
 in situ data. While these three variables alone would generally suffice
@@ -2110,34 +2176,63 @@ had published impacts on fjord and coastal systems, so it is also
 important to measure this driver.</p>
 <p>In addition to changes in the air-sea fluxes and currents, it is also
 of great importance to understand what changes to water quality may be
-occurring. Many of these drivers have been grouped into the
-<strong>chemistry</strong> section below, so in this section we focus on
-river discharge and the more physical aspects of water quality:
-sedimentation, suspended matter, suspended solids, suspended organics.
-These drivers are important because they may have a very large impact on
-light penetration at depth, which can change the competitiveness of
-different biological groups and have disruptive influences on local
-ecosystems. For example, changes in the timing and intensity of river
-runoff can unduly promote the early growth of phytoplankton blooms,
-which will then deplete nutrients earlier than expected, making it more
-difficult for kelp forests to grow, thereby limiting benthic primary
-production, which in turn may cascade up the trophic food-web.</p>
-<p><strong>Key Physical Drivers</strong></p>
-<blockquote>
-<p><strong>Bathymetry</strong>; <strong>Current</strong>: direction,
-location, volume; <strong>Evaporation</strong>;
-<strong>Heatflux</strong>: net, latent/sensible, long/shortwave
-radiation; <strong>Light extinction coefficient (Kd)</strong>;
-<strong>Mixed layer depth (MLD)</strong>;
-<strong>Precipitation</strong>; <strong>River discharge</strong>;
-<strong>Salinity</strong>; <strong>Sea level pressure</strong>;
-<strong>Seawater temperature</strong>: surface, mid, bottom;
-<strong>Sedimentation rate</strong>; <strong>Suspended matter</strong>:
-organic, mineral; <strong>Wind</strong>: direction, speed</p>
-</blockquote>
+occurring. Many of these drivers have been grouped into the <span
+style="background:#F6EA7C"> Chemistry</span> section below, so in this
+section we focus on river discharge and the more physical aspects of
+water quality: sedimentation, suspended matter, suspended solids,
+suspended organics. These drivers are important because they may have a
+very large impact on light penetration at depth, which can change the
+competitiveness of different biological groups and have disruptive
+influences on local ecosystems. For example, changes in the timing and
+intensity of river runoff can unduly promote the early growth of
+phytoplankton blooms, which will then deplete nutrients earlier than
+expected, making it more difficult for kelp forests to grow, thereby
+limiting benthic primary production, which in turn may cascade up the
+trophic food-web.</p>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+Table 2: The key physics drivers of changes for Arctic fjords.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Category
+</th>
+<th style="text-align:left;">
+Driver
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Physics
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+seawater temperature
+</td>
+</tr>
+<tr>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Physics
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+salinity
+</td>
+</tr>
+<tr>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+Physics
+</td>
+<td style="text-align:left;color: black !important;background-color: skyblue !important;">
+light
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="chemistry" class="section level1">
-<h1>Chemistry</h1>
+<h1><span style="background:#F6EA7C"> Chemistry</span></h1>
 <p>The first of the two primary areas of interest for the chemistry
 drivers is the changes to the nutrient load of seawater. The main
 nutrients of interest are: nitrate, nitrite, ammonium, phosphate, and
@@ -2159,19 +2254,42 @@ urchins, which are a foundational species in some pelagic and benthic
 ecosystems. Parameters of the carbonate system which are of interest are
 pCO<sub>2</sub>, pH, total alkalinity, and the concentration of
 dissolved inorganic carbon (DIC).</p>
-<p><strong>Key Chemistry Drivers</strong></p>
-<blockquote>
-<p><strong>CaCO<sub>3</sub> saturation state</strong>; <strong>Dissolved
-inorganic carbon (DIC)</strong>; <strong>Dissolved organic carbon
-(DOC)</strong>; <strong>Dissolved organic nitrogen (DON)</strong>;
-<strong>Dissolved O<sub>2</sub></strong>; <strong>Nutrients</strong>:
-nitrate (NO3), nitrite (NO2), ammonium (NH4), phosphate (PO4), silicate
-(SiO4); <strong>Partial pressure of CO<sub>2</sub></strong>;
-<strong>pH</strong>; <strong>Total alkalinity</strong></p>
-</blockquote>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+Table 3: The key chemistry drivers of changes for Arctic fjords.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Category
+</th>
+<th style="text-align:left;">
+Driver
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;background-color: #F6EA7C !important;">
+Chemistry
+</td>
+<td style="text-align:left;background-color: #F6EA7C !important;">
+carbonate chemistry
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: #F6EA7C !important;">
+Chemistry
+</td>
+<td style="text-align:left;background-color: #F6EA7C !important;">
+nutrients
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="biology" class="section level1">
-<h1>Biology</h1>
+<h1><span style="background:#A2ED84"> Biology</span></h1>
 <p>This category is comprised of individual species and the broader
 ecosystems that they populate. These variables are controlled by a lot
 of chemical, physical, and biological drivers and their change is itself
@@ -2198,16 +2316,50 @@ projections. In order to perform SDM a researcher needs access to as
 much data describing the focal species as possible. Traditionally this
 is species presence/absence and abundance/biomass for a given site or
 geographical location.</p>
-<p><strong>Key Biology Drivers</strong></p>
-<blockquote>
-<p><strong>Calcification</strong>; <strong>Nitrogen fixation</strong>;
-<strong>Photosynthesis</strong>; <strong>Primary production</strong>;
-<strong>Respiration</strong>; <strong>Species</strong>:
-presence/absence, abundance/biomass</p>
-</blockquote>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+Table 4: The key biology drivers of changes for Arctic fjords.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Category
+</th>
+<th style="text-align:left;">
+Driver
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+Biology
+</td>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+primary production
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+Biology
+</td>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+biomass
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+Biology
+</td>
+<td style="text-align:left;background-color: #A2ED84 !important;">
+species richness
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="social" class="section level1">
-<h1>Social</h1>
+<h1><span style="background:#F48080"> Social</span></h1>
 <p>Putting the ‘socio’ in socio-ecological fjord systems, the social
 category contains the most relevant drivers that involve or directly
 affect human activities in the fjords and adjacent coastlines. Of most
@@ -2239,15 +2391,47 @@ site are: the tourist arrivals per month and their nationality, tourist
 vessel counts and mileage, seasonal patterns of activities and the
 national statistics of demography, income, coastal livelihoods, and
 unemployment.</p>
-<p><strong>Key Social Drivers</strong></p>
-<blockquote>
-<p><strong>Fish landings</strong>: commercial, recreational, quotas,
-seasonality; <strong>Game landings</strong>: quotas, seasonality;
-<strong>Local and national resource management</strong>;
-<strong>National statistics</strong>: demography, income, unemployment;
-<strong>Tourist arrivals</strong>: per month, nationality;
-<strong>Tourist vessels</strong>: count, mileage</p>
-</blockquote>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+Table 5: The key social drivers of changes for Arctic fjords.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Category
+</th>
+<th style="text-align:left;">
+Driver
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;background-color: #F48080 !important;">
+Biology
+</td>
+<td style="text-align:left;background-color: #F48080 !important;">
+governance
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: #F48080 !important;">
+Biology
+</td>
+<td style="text-align:left;background-color: #F48080 !important;">
+tourism
+</td>
+</tr>
+<tr>
+<td style="text-align:left;background-color: #F48080 !important;">
+Biology
+</td>
+<td style="text-align:left;background-color: #F48080 !important;">
+fisheries
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="data-availability" class="section level1">
 <h1>Data availability</h1>
@@ -2276,26 +2460,25 @@ sources are given in greater detail in <a
 href="https://face-it-project.github.io/WP1/metadatabase.html">D1.2:
 Meta-database</a> which was delivered on month 12 (Nov 2021).</p>
 </div>
-<div id="summary" class="section level1">
-<h1>Summary</h1>
+<div id="d1.1-driver-list" class="section level1">
+<h1>D1.1 driver list</h1>
 <table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
 <caption>
-Table 1: The key drivers of changes on Arctic fjord and adjacent coastal
-systems as identified by the experts in FACE-IT for the relevant fields.
-The drivers have been separated into the following categories:
-Cryosphere, Physical, Chemistry, Biology, Social. The ‘Crysophere’
-category contains any drivers related to ice, glaciers, and/or snow.
-This category contains both marine and terrestrial drivers that impact
-the marine environements of Arctic fjords and adjacent coastlines. The
-‘Physical’ category contains atmospheric and oceanic drivers. The
-‘Chemistry’ category contains primarily water quality variables that are
-no longer physical, but not yet biological. This includes inorganic as
-well as organic nutrients. The ‘Biology’ category contains drivers
-related to biology and ecology. The ‘Social’ category contains drivers
-that are primarily related to anthropogenic impacts on the natural
-world, as well as drivers that directly affect the well-being of local
-stakeholders. This category therefore contains all drivers relating to
-fisheries.
+Table 6: The key drivers of changes on Arctic fjord and adjacent coastal
+systems as identified by the experts in FACE-IT for D1.1. The drivers
+have been separated into the following categories: Cryosphere, Physical,
+Chemistry, Biology, Social. The ‘Crysophere’ category contains any
+drivers related to ice, glaciers, and/or snow. This category contains
+both marine and terrestrial drivers that impact the marine environements
+of Arctic fjords and adjacent coastlines. The ‘Physical’ category
+contains atmospheric and oceanic drivers. The ‘Chemistry’ category
+contains primarily water quality variables that are no longer physical,
+but not yet biological. This includes inorganic as well as organic
+nutrients. The ‘Biology’ category contains drivers related to biology
+and ecology. The ‘Social’ category contains drivers that are primarily
+related to anthropogenic impacts on the natural world, as well as
+drivers that directly affect the well-being of local stakeholders. This
+category therefore contains all drivers relating to fisheries.
 </caption>
 <thead>
 <tr>
@@ -2659,11 +2842,11 @@ Session information
 <div id="workflowr-sessioninfo" class="collapse">
 <pre><code>R version 4.3.2 (2023-10-31)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 18.04.6 LTS
+Running under: Ubuntu 20.04.6 LTS
 
 Matrix products: default
-BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1 
-LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0 
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
@@ -2682,24 +2865,23 @@ attached base packages:
 other attached packages:
  [1] kableExtra_1.3.4 lubridate_1.9.3  forcats_1.0.0    stringr_1.5.1   
  [5] dplyr_1.1.4      purrr_1.0.2      readr_2.1.4      tidyr_1.3.0     
- [9] tibble_3.2.1     ggplot2_3.4.4    tidyverse_2.0.0  workflowr_1.7.1 
+ [9] tibble_3.2.1     ggplot2_3.4.4    tidyverse_2.0.0 
 
 loaded via a namespace (and not attached):
- [1] sass_0.4.7        utf8_1.2.4        generics_0.1.3    xml2_1.3.5       
+ [1] sass_0.4.8        utf8_1.2.4        generics_0.1.3    xml2_1.3.6       
  [5] stringi_1.8.2     hms_1.1.3         digest_0.6.33     magrittr_2.0.3   
  [9] timechange_0.2.0  evaluate_0.23     grid_4.3.2        fastmap_1.1.1    
-[13] rprojroot_2.0.4   jsonlite_1.8.7    processx_3.8.2    whisker_0.4.1    
-[17] ps_1.7.5          promises_1.2.1    rvest_1.0.3       httr_1.4.7       
-[21] fansi_1.0.5       viridisLite_0.4.2 scales_1.3.0      jquerylib_0.1.4  
-[25] cli_3.6.1         rlang_1.1.2       munsell_0.5.0     withr_2.5.2      
-[29] cachem_1.0.8      yaml_2.3.7        tools_4.3.2       tzdb_0.4.0       
-[33] colorspace_2.1-0  webshot_0.5.5     httpuv_1.6.12     vctrs_0.6.5      
-[37] R6_2.5.1          lifecycle_1.0.4   git2r_0.33.0      fs_1.6.3         
-[41] pkgconfig_2.0.3   callr_3.7.3       pillar_1.9.0      bslib_0.6.1      
-[45] later_1.3.1       gtable_0.3.4      glue_1.6.2        Rcpp_1.0.11      
-[49] systemfonts_1.0.5 highr_0.10        xfun_0.41         tidyselect_1.2.0 
-[53] rstudioapi_0.15.0 knitr_1.45        htmltools_0.5.7   svglite_2.1.2    
-[57] rmarkdown_2.25    compiler_4.3.2    getPass_0.2-2    </code></pre>
+[13] rprojroot_2.0.4   workflowr_1.7.1   jsonlite_1.8.8    whisker_0.4.1    
+[17] promises_1.2.1    httr_1.4.7        rvest_1.0.3       fansi_1.0.5      
+[21] viridisLite_0.4.2 scales_1.3.0      jquerylib_0.1.4   cli_3.6.1        
+[25] rlang_1.1.2       munsell_0.5.0     withr_2.5.2       cachem_1.0.8     
+[29] yaml_2.3.7        tools_4.3.2       tzdb_0.4.0        colorspace_2.1-0 
+[33] webshot_0.5.5     httpuv_1.6.13     vctrs_0.6.5       R6_2.5.1         
+[37] lifecycle_1.0.4   git2r_0.33.0      fs_1.6.3          pkgconfig_2.0.3  
+[41] pillar_1.9.0      bslib_0.6.1       later_1.3.2       gtable_0.3.4     
+[45] glue_1.6.2        Rcpp_1.0.11       systemfonts_1.0.5 highr_0.10       
+[49] xfun_0.41         tidyselect_1.2.0  rstudioapi_0.15.0 knitr_1.45       
+[53] htmltools_0.5.7   svglite_2.1.2     rmarkdown_2.25    compiler_4.3.2   </code></pre>
 </div>
 </div>
 

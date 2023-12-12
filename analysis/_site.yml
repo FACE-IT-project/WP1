@@ -5,8 +5,6 @@ navbar:
   left:
   # - text: "Overview"
   #   href: index.html
-  - text: "Why FAIR?"
-    href: FAIR_data.html
   - text: "Key drivers"
     href: key_drivers.html
   - text: "Meta-database"
@@ -51,6 +49,8 @@ navbar:
       href: SSC_2021.pdf
     - text: "Brussels policy meeting - 2023"
       href: Brussels_2023.pdf
+  - text: "Why FAIR?"
+    href: FAIR_data.html
   # - text: "Analyses"
     # menu:
     # - text: "SOCAT/GLODAP data in the Arctic"
