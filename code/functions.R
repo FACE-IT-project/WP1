@@ -2752,6 +2752,48 @@ add_depth <- function(df){
   return(df_res)
 }
 
+# Convenience plot of spatial density of data
+quick_plot_density <- function(df, site_name){
+  
+  bbox_site <- bbox_from_name(site_name)
+  if(site_name %in% c("kong", "young")){
+    round_num = 0.01
+  } else {
+    round_num = 0.1
+  }
+  
+  # Process data
+  df_proc <- df |> 
+    filter(site == site_name) |> 
+    mutate(lon = plyr::round_any(lon, round_num),
+           lat = plyr::round_any(lat, round_num)) |> 
+    summarise(grid_count = n(), .by = c("site", "lon", "lat")) |> 
+    left_join(long_site_names, by = "site") |> 
+    filter(!is.na(lon))
+  
+  # Crop map
+  coastline_full_df_sub <- coastline_full_df %>% 
+    filter(x >= bbox_site[1]-10, x <= bbox_site[2]+10,
+           y >= bbox_site[3]-10, y <= bbox_site[4]+10)
+  
+  # Create plot, save, and return the plot for viewing
+  dens_plot <-  df_proc |> 
+    ggplot(aes(x = lon, y = lat)) +
+    geom_polygon(data = coastline_full_df_sub, fill = "grey70", colour = "black",
+                 aes(x = x, y = y, group = polygon_id)) +  
+    geom_raster(aes(fill = grid_count)) +
+    scale_fill_viridis() +
+    coord_quickmap(xlim = c(bbox_site[1:2]), 
+                   ylim = c(bbox_site[3:4])) +
+    labs(x = NULL, y = NULL, fill = "Total data\npoints",
+         title = paste0(df_proc$site_long[1]," data density per ",round_num,"° grid")) +
+    theme(plot.title = element_text(size = 16),
+          legend.background = element_rect(colour = "black", fill  = "white"),
+          panel.border = element_rect(colour = "black", fill = NA))
+  ggsave(paste0("metadata/fjord_data_density_",site_name,".png"), dens_plot, width = 10, height = 6)
+  dens_plot
+}
+
 # Convenience plot of available data for a given driver
 quick_plot_avail <- function(filter_name, filter_choice = "driver", legend_tweak = c(0.2, 0.8)){
   

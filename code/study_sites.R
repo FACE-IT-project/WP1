@@ -647,7 +647,8 @@ ggsave("figures/bbox_por.png", plot_problems_por, height = 7)
 ## Load data
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 coastline_kong <- coastline_full_df %>% 
-  dplyr::filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1)
+  dplyr::filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1) |> 
+  dplyr::select(x, y) |> dplyr::rename(lon = x, lat = y)
 full_product_kong_coords <- full_product_kong %>% 
   dplyr::select(lon, lat) %>% distinct()
 
@@ -678,13 +679,14 @@ region_labels_kong <- full_region_kong %>%
 ## Plot
 ## NB: Outdated code. No longer runs.
 plot_regions_kong <- ggplot() +
-  geom_polygon(data = coastline_kong, fill = "grey70", colour = "black",
-               aes(x = x, y = y, group = polygon_id)) +
+  geom_polygon(data = kong_regions, fill = "grey70", colour = "black",
+               aes(x = lon, y = lat, group = region)) +
+               # aes(x = x, y = y, group = polygon_id)) +
   # geom_polygon(data = bbox_regions_kong, aes(x = lon, y = lat, group = region, fill = region)) +
   # geom_tile(aes(x = lon, y = lat)) +
-  geom_rect(data = bbox_regions_kong, aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2, fill = region), alpha = 0.3) +
+  # geom_rect(data = bbox_regions_kong, aes(xmin = lon1, xmax = lon2, ymin = lat1, ymax = lat2, fill = region), alpha = 0.3) +
   geom_point(data = distinct(full_region_kong), aes(x = lon, y = lat, colour = region), show.legend = F) +
-  geom_label(data = region_labels_kong, aes(x = lon, y = lat, label = paste0("n = ",count)), alpha = 0.8) +
+  # geom_label(data = region_labels_kong, aes(x = lon, y = lat, label = paste0("n = ",count)), alpha = 0.8) +
   # geom_point(data = distinct(dplyr::select(coords_in, lon, lat, in_grid)), aes(x = lon, y = lat, colour = as.factor(in_grid))) +
   # annotate("rect", colour = "black", fill = NA,
   #          xmin = bbox_kong[1], xmax = bbox_kong[2], ymin = bbox_kong[3], ymax = bbox_kong[4]) +
