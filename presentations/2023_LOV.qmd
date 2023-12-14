@@ -14,6 +14,16 @@ format:
 editor: source
 ---
 
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.align = 'center',
+                      echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+
+# Libraries
+library(tidyverse) # The tidy dialect of R
+library(kableExtra) # For formatting static tables
+```
+
 ## For the LOV of Data {background-color="#008980" style="text-align: center"}
 
 ::: columns
@@ -33,6 +43,50 @@ Robert Schlegel
 <p style="font-size:22pt">Funded under grant #869154</p>
 :::
 :::
+
+##
+
+::: rotate-img
+
+![](../logo/Logo_FACE-IT_PNG_1500.png){style="width: 350px; height: 200px; margin: 10px;" .absolute top="80" left="40" angle="45"}
+
+"Identify and quantify key drivers of biodiversity changes and their past and future trends."
+
+:::
+
+## {auto-animate=true}
+
+::: {style="margin-top: 200px;"}
+What do we do when we need ALL the data?
+:::
+
+## {auto-animate=true}
+
+::: {style="margin-top: 100px; font-size: 3em;"}
+What do we do when we need ALL the data?
+:::
+
+## Define the sites
+
+![](../figures/dp_fig_1.png){.absolute top="60" left="70"}
+
+## Define the categories
+
+```{r}
+knitr::kable(data.frame(Category = c("Cryosphere", "Physics", "Biology", "Chemistry", "Social")), 
+             caption = "Table 1: The categories for drivers of changes for Arctic fjords.")  |>  
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"), full_width = TRUE) |> 
+  row_spec(1, color = "black", background = "mintcream") |> # Cryosphere
+  row_spec(2, color = "black", background = "skyblue") |> # Physical
+  row_spec(3, color = "black", background = "#F6EA7C") |> # Chemistry
+  row_spec(4, color = "black", background = "#A2ED84") |> # Biology
+  row_spec(5, color = "black", background = "#F48080") # Social
+```
+
+
+## Define the drivers
+
+
 
 ## Resources
   
@@ -107,10 +161,6 @@ Thank you for listening!
 <center>
 <p style="font-size:40pt">[193.50.85.111:3838/dataAccess/](http://193.50.85.111:3838/dataAccess/)</p>
 </center>
-
-## The FACE-IT study sites
-
-![](../figures/dp_fig_1.png){.absolute top="60" left="70"}
 
 ## Key drivers of change {background-color="#e5e5e5" transition="fade-in"}
 

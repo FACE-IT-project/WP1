@@ -21,3 +21,7 @@ $presentation-h2-color: #008980 !default;
   bottom: 10px;
   right: 50px;
 };
+
+.rotate-img img {
+  transform: rotate(315deg);
+};
