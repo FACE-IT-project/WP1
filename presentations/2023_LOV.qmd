@@ -46,12 +46,9 @@ Robert Schlegel
 
 ##
 
-::: rotate-img
-
-![](../logo/Logo_FACE-IT_PNG_1500.png){style="width: 350px; height: 200px; margin: 10px;" .absolute top="80" left="40" angle="45"}
-
+::: {style="text-align: center"}
+![](../logo/Logo_FACE-IT_PNG_1500.png){width=100%}
 "Identify and quantify key drivers of biodiversity changes and their past and future trends."
-
 :::
 
 ## {auto-animate=true}
@@ -73,9 +70,8 @@ What do we do when we need ALL the data?
 ## Define the categories
 
 ```{r}
-knitr::kable(data.frame(Category = c("Cryosphere", "Physics", "Biology", "Chemistry", "Social")), 
-             caption = "Table 1: The categories for drivers of changes for Arctic fjords.")  |>  
-  kable_styling(bootstrap_options = c("striped", "hover", "responsive"), full_width = TRUE) |> 
+knitr::kable(data.frame(Category = c("Cryosphere", "Physics", "Chemistry", "Biology", "Social")))  |>  
+  kable_styling(full_width = TRUE, position = "center", ) |> 
   row_spec(1, color = "black", background = "mintcream") |> # Cryosphere
   row_spec(2, color = "black", background = "skyblue") |> # Physical
   row_spec(3, color = "black", background = "#F6EA7C") |> # Chemistry
@@ -83,27 +79,23 @@ knitr::kable(data.frame(Category = c("Cryosphere", "Physics", "Biology", "Chemis
   row_spec(5, color = "black", background = "#F48080") # Social
 ```
 
-
 ## Define the drivers
 
 
-
-## Resources
-  
-:::{#title-slide .center}
-<- WP1 homepage  
-<br/><br/>
-Meta-database ->  
-<br/><br/>
-<- GitHub page  
-<br/><br/>
-Data access app ->  
-:::
-
-![](QR_WP1_home.png){.absolute top="150" left="30"  width="200" height="200"}
-![](QR_metadatabase.png){.absolute top="250" left="800" width="200" height="200"}
-![](QR_WP1_GitHub.png){.absolute top="400" left="30" width="200" height="200"}  
-![](QR_dataAccess.png){.absolute top="500" left="800" width="200" height="200"}
+```{r}
+knitr::kable(data.frame(Category = c("Cryosphere", "Physics", "Chemistry", "Biology", "Social"),
+                        Driver = c("sea ice, glacier mass balance, terrestrial runoff",
+                                   "seawater temperature, salinity, light",
+                                   "carbonate chemistry, nutrients",
+                                   "primary production, biomass, species richness",
+                                   "governance, tourism, fisheries")))  |>  
+  kable_styling(full_width = TRUE, position = "center", ) |> 
+  row_spec(1, color = "black", background = "mintcream") |> # Cryosphere
+  row_spec(2, color = "black", background = "skyblue") |> # Physical
+  row_spec(3, color = "black", background = "#F6EA7C") |> # Chemistry
+  row_spec(4, color = "black", background = "#A2ED84") |> # Biology
+  row_spec(5, color = "black", background = "#F48080") # Social
+```
 
 ## Data by category
 
@@ -142,7 +134,13 @@ Regular temperature measurements start in ~1980's, salinity ~2000's, light ~2010
 
 ![](../metadata/driv_date.png)
 
+## Interactions {background-color="#e5e5e5" transition="fade-in-out"}
+
+![](../figures/LOV_fig_1B.png){.absolute top="70" left="140"}
+
 ## Conclusions
+
+:::{.incremental}
 
 -   Most data are physical (temperature+salinity)
 -   Large difference between sites
@@ -150,37 +148,24 @@ Regular temperature measurements start in ~1980's, salinity ~2000's, light ~2010
 -   These data area available via the portal
 -   Focus now is on adding data from under-represented categories and sites
 
-## Data access
-
-Thank you for listening!
-
-![](QR_dataAccess.png){.absolute top="130" left="200" width="600"}
-
-</br></br></br></br></br></br></br></br></br></br>
-
-<center>
-<p style="font-size:40pt">[193.50.85.111:3838/dataAccess/](http://193.50.85.111:3838/dataAccess/)</p>
-</center>
-
-## Key drivers of change {background-color="#e5e5e5" transition="fade-in"}
-
-![](kd_full.png){.absolute top="70" left="140"}
-
-## Interactions {background-color="#e5e5e5" transition="fade-out"}
-
-![](../figures/LOV_fig_1B.png){.absolute top="70" left="140"}
-
-## FACE-IT data v2.0
-
-::: incremental
-- Upgrades from v1.0 to v2.0  
-  - Updated/upgraded drivers
-  - Newly added drivers  
-- How future proof will the data access app be?
-- What will data availability look like?
-- Create R package for easier user access?
 :::
 
-##
+## Merci pour votre attention
 
-Merci pour votre attention
+</br>  
+
+:::{#title-slide .center}
+<- WP1 GitHub page  
+<br/><br/>
+Meta-database ->  
+<br/><br/>
+<- WP1 homepage  
+<br/><br/>
+Data access app ->  
+:::
+
+![](QR_WP1_GitHub.png){.absolute top="70" left="30"  width="200" height="200"}  
+![](QR_WP1_home.png){.absolute top="370" left="30" width="200" height="200"}
+![](QR_metadatabase.png){.absolute top="230" left="800" width="200" height="200"}
+![](QR_dataAccess.png){.absolute top="520" left="800" width="200" height="200"}
+

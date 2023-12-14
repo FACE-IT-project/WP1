@@ -5,7 +5,7 @@ date: '`r format(Sys.Date(), "%d %B %Y")`'
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
-css: acid.css
+# css: acid.css
 csl: frontiers.csl
 bibliography: FACE-IT.bib
 ---
