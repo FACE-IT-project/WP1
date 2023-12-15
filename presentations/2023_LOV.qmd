@@ -51,13 +51,7 @@ Robert Schlegel
 "Identify and quantify key drivers of biodiversity changes and their past and future trends."
 :::
 
-## {auto-animate=true}
-
-::: {style="margin-top: 200px;"}
-What do we do when we need ALL the data?
-:::
-
-## {auto-animate=true}
+##
 
 ::: {style="margin-top: 100px; font-size: 3em;"}
 What do we do when we need ALL the data?
@@ -65,7 +59,7 @@ What do we do when we need ALL the data?
 
 ## Define the sites
 
-![](../figures/dp_fig_1.png){.absolute top="60" left="70"}
+![](../figures/dp_fig_1.png)
 
 ## Define the categories
 
@@ -136,7 +130,7 @@ Regular temperature measurements start in ~1980's, salinity ~2000's, light ~2010
 
 ## Interactions {background-color="#e5e5e5" transition="fade-in-out"}
 
-![](../figures/LOV_fig_1B.png){.absolute top="70" left="140"}
+![](../figures/LOV_fig_1B.png)
 
 ## Conclusions
 
