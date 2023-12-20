@@ -4808,6 +4808,7 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
                   young_GEM, disko_GEM, nuup_GEM,
                   young_species_GEM, nuup_species_GEM) |> 
   # TODO: Change this before this step
+  # TODO: Look into data missing site values
   mutate(type = "in situ")
 
 
@@ -4815,29 +4816,35 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
 
 # Here a list of sites is created and the conversion made
 full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
-  left_join(long_site_names, by = "site") |> 
   dplyr::rename(site_alt = site) |> arrange(site_alt) |> 
-  mutate(site = ifelse(!is.na(site_long), site_alt, NA),
+  mutate(site = case_when(site_alt %in% long_site_names$site ~ site_alt, TRUE ~ NA),
          site = case_when(site_alt == "EU" ~ "EU",
-                          site_alt == "Troms og Finnmark - Romsa ja Finnmárku" ~ "por",
+                          site_alt %in% c("Svalbard", "svalbard", "sval") ~ "sval",
+                          site_alt %in% c("Norway", "Barents Sea", "Barents sea", "barents sea", "nor") ~ "nor",
+                          site_alt %in% c("Grønlund", "green",
+                                          # "West- Eastgreenland", "Westgreenland", # TODO: Look into these
+                                          # "east ice", "west ice", # TODO: Look into these
+                                          "All Greenland") ~ "green",
+                          site_alt %in% c("Kongsfjorden", "Ny-Alesund") ~ "kong",
                           site_alt == "Longyearbyen & Ny-Alesund" ~ "is", # NB: This is an intentional choice
-                          site_alt == "Grønlund" ~ "green",
-                          site_alt == "Grønlund" ~ "green",
-                          site_alt == "Grønlund" ~ "green",
-                          site_alt == "Grønlund" ~ "green",
-                          site_alt == "Grønlund" ~ "green",
-                          
-                          site_alt %in% c("Lakselv", "Lakselv Banak", "Honningsvåg Valan", "Honningsvåg") ~ "por",
-                          site_alt %in% c("Svalbard") ~ "sval",
                           site_alt %in% c("Svalbard Longyear") ~ "is",
-                          site_alt %in% c("Grønlund") ~ "green",
-                          site_alt %in% c("Grønlund") ~ "green",
-                          site_alt %in% c("Grønlund") ~ "green",
-                          site_alt %in% c("Grønlund") ~ "green",
-                          site_alt %in% c("Grønlund") ~ "green",
-                          
+                          site_alt %in% c("Storfjorden") ~ "stor",
+                          site_alt %in% c("Lakselv", "Lakselv Banak", "Honningsvåg Valan", "Honningsvåg",
+                                          "Troms og Finnmark - Romsa ja Finnmárku") ~ "por",
+                          site_alt %in% c("Nuuk", "Kommuneqarfik Sermersooq",
+                                          # "Kommuneqarfik Sermersooq Øst", # NB: Intentionally not choosing this one
+                                          "Kommuneqarfik Sermersooq Vest") ~ "nuup",
+                          site_alt %in% c("Qeqertarsuaq", "Avannaata Kommunia", 
+                                          "Avannaata Kommunia and Kommune Qeqertalik", 
+                                          "Kommune Qeqertalik", "Aasiaat",
+                                          "Ilulissat", "Ilulissat (*)", "Qasigiannguit",
+                                          "Uummannaq", "Kangaatsiaq", "Disko Bay") ~ "disko",
+                          site_alt %in% c("Outside municipalities") ~ "young",
                           TRUE ~ site)) |> 
-    dplyr::select(site, site_long, site_alt)
+  left_join(long_site_names, by = "site") |> 
+  mutate(site_long = case_when(site == "EU" ~ "EU", site == "green" ~ "green",
+                               site == "nor" ~ "nor", site == "sval" ~ "sval", TRUE ~ site_long)) |> 
+  dplyr::select(site, site_long, site_alt)
 write_csv(full_site_list, "metadata/full_site_list.csv")
 
 ### Relevant sites
@@ -4857,7 +4864,7 @@ write_csv(full_site_list, "metadata/full_site_list.csv")
 # Sermersooq: Municipality for Nuup Kangerlua
 # Nuuk: Main city in Nuup Kangerlua, also an airport
 # Qeqertalik: Municipality for Disko bay
-# Avannaata: Municipality that borders pn Disko Bay (relevant for demographics, fish landings, etc.)
+# Avannaata: Municipality that borders on Disko Bay (relevant for demographics, fish landings, etc.)
 # Qeqertarsuaq: Main city in Disko Bay (?)
 # Aasiaat: Port on southern edge of Disko Bay
 # Ilulissat: Port on eastern edge of Disko Bay, also an airport
