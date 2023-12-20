@@ -3,8 +3,6 @@ output_dir: ../docs
 navbar:
   title: "WP1"
   left:
-  # - text: "Overview"
-  #   href: index.html
   - text: "Key drivers"
     href: key_drivers.html
   - text: "Meta-database"
@@ -21,8 +19,8 @@ navbar:
       href: sst_summary.html
     - text: "Species summary"
       href: species_data.html
-  # - text: "Review of drivers"
-  #   href: review.html
+    # - text: "SOCAT/GLODAP data in the Arctic"
+    #   href: socat-glodap.html
   - text: "Talks"
     menu:
     - text: "FACE-IT WP1 summary - 2021"
@@ -51,10 +49,6 @@ navbar:
       href: Brussels_2023.pdf
   - text: "Why FAIR?"
     href: FAIR_data.html
-  # - text: "Analyses"
-    # menu:
-    # - text: "SOCAT/GLODAP data in the Arctic"
-    #   href: socat-glodap.html
   # - text: "License"
   #   href: license.html
   right:
