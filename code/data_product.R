@@ -5,9 +5,8 @@
 # column checking (e.g. date, depth, lon/lat) process again for each PG product section
 # There is a lot of commented out code to help facilitate this process
 
-# TODO: For v1.4: meta-data; Make dummy entries for all of the commented out links below
-# that have drivers/variables etc. when possible so that their meta-data can be harvested and
-# put into the new automagic database.
+# TODO: 'type' column should be added in at this stage
+# This will require going through this full stage of the pipeline
 
 
 # Setup -------------------------------------------------------------------
@@ -683,155 +682,81 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 ### Wild data ---------------------------------------------------------------
 
+# TODO: Add sites to all of these datasets
+
+# Glacier area outlines
+# glacier_area/
+# sval_glacier_area # Not working with shape files of geomorphology
 
 # Tidal glacier fronts
 sval_tidal_glacier_front <- data.frame(date_accessed = NA, 
-                                       URL = "https://www.gebco.net/", 
-                                       citation = "GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f", 
-                                       site = "EU", 
-                                       lon = NA, 
-                                       lat = NA, 
-                                       date = NA, 
+                                       URL = "https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d", 
+                                       citation = "Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a",
+                                       # type = "geospatial",
+                                       site = "sval", 
+                                       lon = NA,
+                                       lat = NA,
+                                       date = NA,
                                        depth = NA,
-                                       category = "phys", 
-                                       driver = "bathymetry", 
-                                       variable = "bathymetry")
-                                       
-                                       type = "Geospatial",
-                                       data_name = "Glacier: tidal front",
-                                       date_range = "2015 - 2019",
-                                       # lon_range = "9 - 36",
-                                       # lat_range = "76 - 81",
-                                       # depth_range = NA,
-                                       # file_name = '<a onclick="alert(\'tidewater/\');">1 folder, 9 files</a>',
-                                       URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d">NPDC</a>',
-                                       reference = '<a onclick="alert(\'Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a\');">Kohler et al. (2018)</a>',
-                                       note = NA)
+                                       category = "cryo",
+                                       driver = "glacier", 
+                                       variable = "tidal front")
 
 # Marine terminating glacier fronts
-sval_marine_glacier_front <- data.frame(type = "Geospatial",
-                                        data_name = "Glacier: marine front",
-                                        date_range = "2008 - 2020",
-                                        # lon_range = "10 - 34",
-                                        # lat_range = "76 - 81",
-                                        # depth_range = NA,
-                                        # file_name = '<a onclick="alert(\'glacier_fronts/\');">1 folder, 10 files</a>',
-                                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338">NPDC</a>',
-                                        reference = '<a onclick="alert(\'Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a\');">Moholdt et al. (2021)</a>',
-                                        note = NA)
-
-# Surface meteorology
-sval_surface_met <- data.frame(type = "Cruise",
-                               data_name = "Air: temperature, pressure; relative humidity; wind: speed, direction",
-                               date_range = "2015",
-                               # lon_range = "2.9 - 29.9",
-                               # lat_range = "78.1 - 83.3",
-                               # depth_range = NA,
-                               # file_name = '<a onclick="alert(\'N-ICE_metData_v2.nc; N-ICE_metData_QC.py; README_N-ICE_metData_v2.txt\');">3 files</a>',
-                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/056a61d1-d089-483a-a256-081de4f3308d">NPDC</a>',
-                               reference = '<a onclick="alert(\'Hudson, S. R., Cohen, L., & Walden, V. (2015). N-ICE2015 surface meteorology [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2015.056a61d1\');">Hudson & Walden (2015)</a>', 
-                               note = '<a onclick="alert(\'The N-ICE Atmospheric Forcing work package team requests that users of these data: 1) Contact both  Stephen Hudson (Stephen.Hudson@npolar.no) and Lana Cohen (Lana.Cohen@npolar.no) to discuss your specific uses of the data, and 2) Include the requested_acknowledgment in any presentations or publications: The authors acknowledge support from Stephen Hudson and Lana Cohen at the Norwegian Polar Institute and Von P. Walden at Washington State University for use of the N-ICE2015 dataset.\');">Requirements for use</a>')
+sval_marine_glacier_front <- data.frame(date_accessed = NA, 
+                                        URL = "https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338", 
+                                        citation = "Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a",
+                                        # type = "geospatial",
+                                        site = "sval", 
+                                        lon = NA,
+                                        lat = NA,
+                                        date = NA,
+                                        depth = NA,
+                                        category = "cryo",
+                                        driver = "glacier", 
+                                        variable = "marine front")
 
 # Seabird database
-sval_seabird_database <- data.frame(type = "Database",
-                                    data_name = "Seabird Colonies",
-                                    date_range = "1880 - 2020",
-                                    # lon_range = "9 - 35",
-                                    # lat_range = "74 - 81",
-                                    # depth_range = NA,
-                                    # file_name = '<a onclick="alert(\'See the website\');">0 files</a>',
-                                    URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/fd4fd3aa-7249-53c9-9846-6e28c5a42587">NPDC</a>',
-                                    reference = '<a onclick="alert(\'Strøm, H., Descamps, S., & Bakken, V. . (2008). Seabird Colonies by the Barents Sea, White Sea and Kara Sea [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.fd4fd3aa\');">Strøm et al. (2008)</a>',
-                                    note = NA)
+sval_seabird_database <- data.frame(date_accessed = NA, 
+                                    URL = "https://data.npolar.no/dataset/fd4fd3aa-7249-53c9-9846-6e28c5a42587", 
+                                    citation = "Strøm, H., Descamps, S., & Bakken, V. . (2008). Seabird Colonies by the Barents Sea, White Sea and Kara Sea [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.fd4fd3aa",
+                                    # type = "database",
+                                    site = "sval", 
+                                    lon = NA,
+                                    lat = NA,
+                                    date = NA,
+                                    depth = NA,
+                                    category = "bio",
+                                    driver = "biomass", 
+                                    variable = "bird colonies")
 
 # Protection of sites
-sval_protection <- data.frame(type = "Database",
-                              data_name = "Protection of geological sites",
-                              date_range = "1993 - 2020",
-                              # lon_range = "20 - 80",
-                              # lat_range = "45 - 81",
-                              # depth_range = NA,
-                              # file_name = '<a onclick="alert(\'See the website\');">0 files</a>',
-                              URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/117acc0c-7d6e-5c58-bb80-bb220780f406">NPDC</a>',
-                              reference = '<a onclick="alert(\'Blomeier, D. P. G., & Hjelle, A. (2008). Protection of geological sites [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.117acc0c\');">Blomeier et al. (2008)</a>',
-                              note = NA)
+sval_protection <- data.frame(date_accessed = NA, 
+                              URL = "https://data.npolar.no/dataset/117acc0c-7d6e-5c58-bb80-bb220780f406", 
+                              citation = "Blomeier, D. P. G., & Hjelle, A. (2008). Protection of geological sites [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.117acc0c",
+                              # type = "policy",
+                              site = "sval", 
+                              lon = NA,
+                              lat = NA,
+                              date = NA,
+                              depth = NA,
+                              category = "soc",
+                              driver = "gov", 
+                              variable = "protection of sites")
 
 # Fast ice persistence
-sval_fast <- data.frame(type = "Geospatial",
-                        data_name = "Fast ice: duration",
-                        date_range = "2014 - 2016",
-                        # lon_range = " 8.7 - 28.3",
-                        # lat_range = "76.4 - 80.7",
-                        # depth_range = NA,
-                        # file_name = '<a onclick="alert(\'svalbard_fastice_persistency_2014.tif; svalbard_fastice_persistency_2015.tif; svalbard_fastice_persistency_2016.tif\');">1 folder, 3 files</a>',
-                        URL = '<a target="_blank" rel="noopener noreferrer"href="https://data.npolar.no/dataset/33d631d3-051e-403d-8600-78a30b767ed3">NPDC</a>',
-                        reference = '<a onclick="alert(\'Itkin, M. (2017). Svalbard Fjords Fast Ice Persistence [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.33d631d3\');">Itkin (2017)</a>',
-                        note = NA)
-
-# svalbard ivory gull population
-sval_paeb <- data.frame(type = "In situ",
-                        data_name = "Biomass: Pagophila eburnea (ivory gull)",
-                        date_range = "2009 to 2021",
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/">MOSJ</a>',
-                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html\');">NPI (2022)</a>',
-                        note = NA)
-
-# svalbard walrus population
-sval_odma <- data.frame(type = "In situ",
-                        data_name = "Biomass: Odobenus marinus (walrus)",
-                        date_range = "1980 to 2018",
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/walrus/">MOSJ</a>',
-                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Walrus population in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/walrus-population.html\');">NPI (2022)</a>',
-                        note = NA)
-
-# svalbard calanus population by size (north and west)
-sval_nwmmcalanus <- data.frame(type = "In situ",
-                               data_name = "Biomass: Calanus species size (north and west)",
-                               date_range = "2009 to 2021",
-                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
-                               reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
-                               note = NA)
-
-# svalbard calanus population all (north and west)
-sval_nwtotcalanus <- data.frame(type = "In situ",
-                                data_name = "Biomass: Calanus species (north and west)",
-                                date_range = "2009 to 2021",
-                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
-                                reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
-                                note = NA)
-
-# svalbard calanus population by size (south and east)
-sval_semmcalanus <- data.frame(type = "In situ",
-                               data_name = "Biomass: Calanus species size (south and east)",
-                               date_range = "1997 to 2021",
-                               URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
-                               reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
-                               note = NA)
-
-# svalbard calanus population all (south and east)
-sval_setotcalanus <- data.frame(type = "In situ",
-                                data_name = "Biomass: Calanus species (south and east)",
-                                date_range = "1997 to 2021",
-                                URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-biomass-in-the-barents-sea/">MOSJ</a>',
-                                reference = '<a onclick="alert(\'Institute of Marine Research (2023). Average biomass of zooplankton in the Barents Sea. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-biomass.html\');">IMR (2023)</a>',
-                                note = NA)
-
-# svalbard kittiwake population
-sval_ritr <- data.frame(type = "In situ",
-                        data_name = "Biomass: Rissa tridactyla (black-legged kittiwake)",
-                        date_range = "1988 to 2021",
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake//">MOSJ</a>',
-                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
-                        note = NA)
-
-# svalbard brünnich’s guillemot population
-sval_urlo <- data.frame(type = "In situ",
-                        data_name = "Biomass: Uria lomvia (brünnich’s guillemot)",
-                        date_range = "1988 to 2021",
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/">MOSJ</a>',
-                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
-                        note = NA)
-
+sval_fast <- data.frame(date_accessed = NA, 
+                        URL = "https://data.npolar.no/dataset/33d631d3-051e-403d-8600-78a30b767ed3", 
+                        citation = "Itkin, M. (2017). Svalbard Fjords Fast Ice Persistence [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.33d631d3",
+                        # type = "geospatial",
+                        site = "sval", 
+                        lon = NA,
+                        lat = NA,
+                        date = NA,
+                        depth = NA,
+                        category = "cryo",
+                        driver = "sea ice", 
+                        variable = "fast ice duration [days]")
 
 # Glacier Area Outlines
 # https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004
@@ -907,18 +832,6 @@ sval_Nature_glacier_mass <- left_join(sval_Nature_glacier_mass_base, sval_Nature
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(sval_Nature_glacier_mass_base, sval_Nature_glacier_mass_latlon); gc()
-
-# Glacier area outlines
-# glacier_area/
-# sval_glacier_area # Not working with shape files of geomorphology
-
-# Tidal glacier fronts
-# tidewater/
-# sval_tidal_glacier_front # Not working with shape files of geomorphology
-
-# Marine terminating glacier fronts
-# glacier_fronts/
-# sval_marine_glacier_front # Not working with shape files of geomorphology
 
 # Tidewater glacier ablation
 # ncdf4::nc_open("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fronts_data.nc")
@@ -1132,31 +1045,58 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
 # write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
 
 # AIS data
-sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") %>% 
-  pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "var", values_to = "value") %>% 
+sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") |> 
+  pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "variable", values_to = "value") |> 
+  dplyr::rename() |> 
   mutate(date = as.Date(paste0(Year,"-12-31")),
          depth = NA,
          lon = NA, lat = NA, 
          date_accessed = as.Date("2020-09-30"),
-         variable = paste0(Area," [",var,"]"),
-         category = case_when(grepl("co2|nox|sox", variable, ignore.case = T) ~ "chem",
-                              grepl("PM", variable, ignore.case = T) ~ "phys", TRUE ~ "soc"),
+         variable = case_when(variable == "Nautical miles" ~ "distance [nautical miles]",
+                              variable == "Duration (hours)" ~ "duration [hours]",
+                              variable == "Duration in port (hours)" ~ "duration in port [hours]",
+                              variable == "Fuel (tonnes)" ~ "fuel [tonnes]",
+                              variable == "Fuel in port (tonnes)" ~ "fuel in port [tonnes]",
+                              variable == "Fuel propulsion (tonnes)" ~ "fuel propulsion [tonnes]",
+                              variable == "CO2 emissions (tonnes)" ~ "CO2 emissions [tonnes]",
+                              variable == "NOx emissions total (tonnes)" ~ "NOx emissions total [tonnes]",
+                              variable == "NOx emissions in port(tonnes)" ~ "NOx emissions in port [tonnes]",
+                              variable == "SOx emissions total (tonnes)" ~ "SOx emissions total [tonnes]",
+                              variable == "SOx emissions in port (tonnes)" ~ "SOx emissions in port [tonnes]",
+                              variable == "PM emissions total (tonnes)" ~ "PM emissions total [tonnes]",
+                              variable == "PM emissions in port (tonnes)" ~ "PM emissions in port [tonnes]",
+                              variable == "Power (GWh)" ~ "power [GWh]",
+                              variable == "Power in port (GWh)" ~ "power in port [GWh]",
+                              variable == "Number of trips pr year" ~ "trips [n/year]",
+                              variable == "Number of ships" ~ "ships [n]",
+                              variable == "Month Trips" ~ "trips [n/month]",
+                              variable == "Average speed (knots)" ~ "average speed [knots]",
+                              TRUE ~ variable),
+         category = "soc",
+         # category = case_when(grepl("co2|nox|sox", variable, ignore.case = T) ~ "chem",
+                              # grepl("PM", variable, ignore.case = T) ~ "phys", TRUE ~ "soc"),
          URL = "Received directly from Morten Simonsen",
-         citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+         citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") |> 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
+# TODO: Add sites to all wild sets before re-running this
 sval_wild <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
                    sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
-                   sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) |> 
-  mutate(site = "sval") |> distinct() |> 
+                   sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) |> distinct() |> 
   left_join(full_var_list, by = c("category", "variable")) |> 
   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
 data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
 save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
 rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
-# See EU example if only one file is being added
+# Or if only one new file etc. was added:
+if(!exists("sval_wild")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
+sval_wild <- sval_wild |> filter(!grepl("Model for estimation of fuel consumption", citation))
+sval_wild <- bind_rows(sval_wild, sval_AIS) |> distinct()
+data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
+save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
+rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Full product ------------------------------------------------------------
@@ -1177,7 +1117,7 @@ if(!exists("sval_species")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_speci
 if(!exists("sval_wild")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
 
 # Combine and save
-full_product_sval <- rbind(sval_EU_sub, sval_species, sval_wild) |> mutate(site = "sval") |> distinct()
+full_product_sval <- rbind(sval_EU_sub, sval_species, sval_wild) |> distinct()
 data.table::fwrite(full_product_sval, "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.csv")
 save(full_product_sval, file = "~/pCloudDrive/FACE-IT_data/svalbard/full_product_sval.RData")
 save(full_product_sval, file = "data/full_data/full_product_sval.RData")
@@ -1542,22 +1482,6 @@ kong_seabirds <- data.frame(type = "In situ",
                             URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4">NPDC</a>',
                             reference = '<a onclick="alert(\'Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd\');">Descamps and Strøm (2021)</a>',
                             note = NA)
-
-# kong kittiwake population
-kong_ritr <- data.frame(type = "In situ",
-                        data_name = "Biomass: Rissa tridactyla (black-legged kittiwake)",
-                        date_range = "1988 to 2021",
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/black-legged-kittiwake//">MOSJ</a>',
-                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
-                        note = NA)
-
-# kong brünnich’s guillemot population
-kong_urlo <- data.frame(type = "In situ",
-                        data_name = "Biomass: Uria lomvia (brünnich’s guillemot)",
-                        date_range = "1988 to 2021",
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/">MOSJ</a>',
-                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
-                        note = NA)
 
 # Process individual files
 ## Sea ice cover
@@ -2103,13 +2027,6 @@ is_ritr <- data.frame(type = "In situ",
                       reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html\');">NPI (2022)</a>',
                       note = NA)
 
-# is brünnich’s guillemot population
-is_urlo <- data.frame(type = "In situ",
-                      data_name = "Biomass: Uria lomvia (brünnich’s guillemot)",
-                      date_range = "1988 to 2021",
-                      URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/brunnichs-guillemot/">MOSJ</a>',
-                      reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html\');">NPI (2022)</a>',
-                      note = NA)
 
 
 # Process individual files
@@ -4890,7 +4807,64 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
                   full_product_EU, full_product_sval, full_product_green, full_product_nor,
                   young_GEM, disko_GEM, nuup_GEM,
                   young_species_GEM, nuup_species_GEM) |> 
+  # TODO: Change this before this step
   mutate(type = "in situ")
+
+
+## Site conversion --------------------------------------------------------
+
+# Here a list of sites is created and the conversion made
+full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
+  left_join(long_site_names, by = "site") |> 
+  dplyr::rename(site_alt = site) |> arrange(site_alt) |> 
+  mutate(site = ifelse(!is.na(site_long), site_alt, NA),
+         site = case_when(site_alt == "EU" ~ "EU",
+                          site_alt == "Troms og Finnmark - Romsa ja Finnmárku" ~ "por",
+                          site_alt == "Longyearbyen & Ny-Alesund" ~ "is", # NB: This is an intentional choice
+                          site_alt == "Grønlund" ~ "green",
+                          site_alt == "Grønlund" ~ "green",
+                          site_alt == "Grønlund" ~ "green",
+                          site_alt == "Grønlund" ~ "green",
+                          site_alt == "Grønlund" ~ "green",
+                          
+                          site_alt %in% c("Lakselv", "Lakselv Banak", "Honningsvåg Valan", "Honningsvåg") ~ "por",
+                          site_alt %in% c("Svalbard") ~ "sval",
+                          site_alt %in% c("Svalbard Longyear") ~ "is",
+                          site_alt %in% c("Grønlund") ~ "green",
+                          site_alt %in% c("Grønlund") ~ "green",
+                          site_alt %in% c("Grønlund") ~ "green",
+                          site_alt %in% c("Grønlund") ~ "green",
+                          site_alt %in% c("Grønlund") ~ "green",
+                          
+                          TRUE ~ site)) |> 
+    dplyr::select(site, site_long, site_alt)
+write_csv(full_site_list, "metadata/full_site_list.csv")
+
+### Relevant sites
+
+## Norway
+# Troms og Finnmark: Province(s) for Porsangerfjorden
+# Lakselv: Main city for Porsangerfjorden (?)
+# Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
+
+## Svalbard
+# Svalbard: Province for Svalbard
+# Longyearbyen: Main city in Isfjorden
+# Svalbard Longyear: Airport on Isfjorden
+# Ny-Alesund: Main village in Kongsfjorden
+
+## Greenland
+# Sermersooq: Municipality for Nuup Kangerlua
+# Nuuk: Main city in Nuup Kangerlua, also an airport
+# Qeqertalik: Municipality for Disko bay
+# Avannaata: Municipality that borders pn Disko Bay (relevant for demographics, fish landings, etc.)
+# Qeqertarsuaq: Main city in Disko Bay (?)
+# Aasiaat: Port on southern edge of Disko Bay
+# Ilulissat: Port on eastern edge of Disko Bay, also an airport
+# Qasigiannguit: Port on eastern edge of Disko Bay
+# Uummannaq: City North of Disko Bay (possibly relevant for fish landings etc.)
+# Kangaatsiaq: Port south of Disko Bay (possibly relevant for fish landings etc.)
+# Outside municipalities: Young Sound appears to fall outside of a municipality
 
 
 ## Cryosphere --------------------------------------------------------------
@@ -5337,37 +5311,10 @@ rm(spp_count); gc(); print(unique(clean_biomass$variable))
 
 # NB: There is quite a lot of data in the social category for provinces/cities etc.
 # that are outside of the seven FACE-IT study sites.
-# It was unclear what was to be done with these data so they were included in the v1.0 dataset.
-# For future versions we may possibly remove all data for settlements etc. not within the seven study sites
-
-### Relevant sites
-
-## Norway
-# Troms og Finnmark: Province(s) for Porsangerfjorden
-# Lakselv: Main city for Porsangerfjorden (?)
-# Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
-
-## Svalbard
-# Svalbard: Province for Svalbard
-# Longyearbyen: Main city in Isfjorden
-# Svalbard Longyear: Airport on Isfjorden
-# Ny-Alesund: Main village in Kongsfjorden
-
-## Greenland
-# Sermersooq: Municipality for Nuup Kangerlua
-# Nuuk: Main city in Nuup Kangerlua, also an airport
-# Qeqertalik: Municipality for Disko bay
-# Avannaata: Municipality that borders pn Disko Bay (relevant for demographics, fish landings, etc.)
-# Qeqertarsuaq: Main city in Disko Bay (?)
-# Aasiaat: Port on southern edge of Disko Bay
-# Ilulissat: Port on eastern edge of Disko Bay, also an airport
-# Qasigiannguit: Port on eastern edge of Disko Bay
-# Uummannaq: City North of Disko Bay (possibly relevant for fish landings etc.)
-# Kangaatsiaq: Port south of Disko Bay (possibly relevant for fish landings etc.)
-# Outside municipalities: Young Sound appears to fall outside of a municipality
+# Where possible these are linked to a FACE-IT site and a note is made
 
 # TODO: Assign missing variables to drivers
-# Find physical category data with no assigned driver
+# Find social category data with no assigned driver
 miss_soc <- cat_driver_miss(full_ALL, "soc")
 
 
