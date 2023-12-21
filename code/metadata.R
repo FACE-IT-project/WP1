@@ -54,14 +54,11 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 # It was then updated vor v1.4 in the 'Driver conversion' section of 'code/data_product.R'
 full_var_list <- read_csv("metadata/full_var_list.csv")
 
-# Site list for province etc. conversions
-full_site_list <- read_csv("metadata/full_site_list.csv")
-
 # manually new variables to list
 # full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("bio"),
-#                                   driver = c("spp rich"),
-#                                   variable = c("Hippoglossus hippoglossus [presence]", "Reinhardtius hippoglossoides [presence"))) |>
+#                        data.frame(category = c("chem"),
+#                                   driver = c("carb"),
+#                                   variable = c("DIC [µmol kg-1]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
@@ -78,6 +75,17 @@ full_site_list <- read_csv("metadata/full_site_list.csv")
 # Remove a specific variables
 # full_var_list <- filter(full_var_list, variable != "Reinhardtius hippoglossoides [presence]")
 # write_csv(full_var_list, "metadata/full_var_list.csv")
+
+# Site list for province etc. conversions
+full_site_list <- read_csv("metadata/full_site_list.csv")
+
+# Manually add new sites
+full_site_list <- rbind(full_site_list,
+                       data.frame(site = "green",
+                                  site_long = "Greenland",
+                                  site_alt = c("Westgreenland", "Eastgreenland"))) |>
+  distinct() |> arrange(site, site_long, site_alt)
+write_csv(full_site_list, "metadata/full_site_list.csv")
 
 
 # Base maps ---------------------------------------------------------------

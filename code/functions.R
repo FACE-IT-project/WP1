@@ -96,7 +96,7 @@ check_variable <- function(df){
     cat("These variables were not able to be changed to fit the variable list, so they were removed: \n")
     print(df_no_var$variable)
   } else {
-    cat("All variables accounted for.")
+    cat("All variables accounted for.\n")
   }
   
   # Replace variable column and exit
@@ -111,7 +111,9 @@ check_variable <- function(df){
 # df <- filter(full_ALL, category == "cryo")
 check_driver <- function(df){
   if(!exists("full_var_list")) full_var_list <- read_csv("metadata/full_var_list.csv")
-  df_driv <- dplyr::select(df, -category, -driver) |> distinct() |> left_join(full_var_list, by = "variable")
+  if("category" %in% colnames(df)) df$category <- NULL
+  if("driver" %in% colnames(df)) df$driver <- NULL
+  df_driv <- df |> distinct() |> left_join(full_var_list, by = "variable")
   
   # Report on changes
   df_no_driv <- filter(df_driv, is.na(driver)) |> 
@@ -120,7 +122,7 @@ check_driver <- function(df){
     cat("These variables have no driver, so were removed: \n")
     print(df_no_driv$variable)
   } else {
-    cat("All variables were matched to a category+driver.")
+    cat("All variables were matched to a category+driver.\n")
   }
 
   # Filter and exit
@@ -142,7 +144,7 @@ check_site <- function(df){
     cat("These sites could not be match, so were removed: \n")
     print(df_no_site$site)
   } else {
-    cat("All sites were matched.")
+    cat("All sites were matched.\n")
   }
   
   # Filter and exit
@@ -169,6 +171,11 @@ check_data <- function(df, assign_site = NULL){
   if(!is.null(assign_site)) df_driv$site <- assign_site
   df_site <- check_site(df_driv)
   
+  # Finish and exit
+  df_res <- dplyr::select(df_site, 
+                          date_accessed, URL, citation, type, site, lon, lat, 
+                          date, depth, category, driver, variable, value)
+  return(df_res)
 }
 
 # Convenience wrapper for WORMS database query
@@ -619,7 +626,8 @@ pg_var_melt <- function(pg_clean, query_sub){
   # Mean values and exit
   rm(pg_fix); gc()
   pg_res <- pg_melt |> 
-    group_by(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable) |> 
+    mutate(type = "in situ") |> # TODO: This needs to be improved
+    group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, driver, variable) |> 
     summarise(value = mean(value, na.rm = T), .groups = "drop")
   return(pg_res)
   # rm(pg_clean, query_sub, sub_cols, pg_melt, pg_res)

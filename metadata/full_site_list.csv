@@ -1,10 +1,62 @@
 site,site_long,site_alt
+EU,EU,EU
 disko,Qeqertarsuup Tunua,Aasiaat
+disko,Qeqertarsuup Tunua,Avannaata Kommunia
+disko,Qeqertarsuup Tunua,Avannaata Kommunia and Kommune Qeqertalik
+disko,Qeqertarsuup Tunua,Disko Bay
+disko,Qeqertarsuup Tunua,Ilulissat
+disko,Qeqertarsuup Tunua,Ilulissat (*)
+disko,Qeqertarsuup Tunua,Kangaatsiaq
+disko,Qeqertarsuup Tunua,Kommune Qeqertalik
+disko,Qeqertarsuup Tunua,Qasigiannguit
+disko,Qeqertarsuup Tunua,Qeqertarsuaq
+disko,Qeqertarsuup Tunua,Uummannaq
+disko,Qeqertarsuup Tunua,disko
+green,Greenland,All Greenland
+green,Greenland,Eastgreenland
+green,Greenland,Grønlund
+green,Greenland,Westgreenland
+green,Greenland,green
+is,Isfjorden,Barentsburg and Pyramiden
+is,Isfjorden,Isfjorden
+is,Isfjorden,Longyearbyen & Ny-Alesund
+is,Isfjorden,Longyearbyen & Ny-Alesund abroad
+is,Isfjorden,Longyearbyen & Ny-Alesund mainland
+is,Isfjorden,Svalbard Longyear
+is,Isfjorden,is
+kong,Kongsfjorden,kong
+nor,Norway,Barents Sea
+nor,Norway,Barents sea
+nor,Norway,NorthSea
+nor,Norway,Norway
+nor,Norway,NorwegianWaters
+nor,Norway,barents sea
+nor,Norway,nor
+nuup,Nuup Kangerlua,Kommuneqarfik Sermersooq
+nuup,Nuup Kangerlua,Kommuneqarfik Sermersooq Vest
+nuup,Nuup Kangerlua,Nuuk
+nuup,Nuup Kangerlua,nuup
+por,Porsangerfjorden,Honningsvåg
+por,Porsangerfjorden,Honningsvåg Valan
+por,Porsangerfjorden,Lakselv
+por,Porsangerfjorden,Lakselv Banak
+por,Porsangerfjorden,Troms og Finnmark - Romsa ja Finnmárku
+por,Porsangerfjorden,por
+stor,Isfjorden,Isfjorden
+stor,Storfjorden,Storfjorden
+stor,Storfjorden,stor
+sval,Svalbard,Svalbard
+sval,Svalbard,SvalbardTransit
+sval,Svalbard,east ice
+sval,Svalbard,sval
+sval,Svalbard,svalbard
+sval,Svalbard,west ice
+young,Young Sound,Outside municipalities
+young,Young Sound,young
 NA,NA,Agder
 NA,NA,Akkerhaug
 NA,NA,Aksdal
 NA,NA,Algarheim
-green,green,All Greenland
 NA,NA,Alnes
 NA,NA,Alsvåg
 NA,NA,Alta
@@ -40,16 +92,12 @@ NA,NA,Austreim
 NA,NA,Austrheim
 NA,NA,Ausvika
 NA,NA,Avaldsnes
-disko,Qeqertarsuup Tunua,Avannaata Kommunia
-disko,Qeqertarsuup Tunua,Avannaata Kommunia and Kommune Qeqertalik
 NA,NA,Bagn
 NA,NA,Balestrand
 NA,NA,Ballangen
 NA,NA,Ballstad
 NA,NA,Bangsund
 NA,NA,Bardufoss
-nor,nor,Barents Sea
-nor,nor,Barents sea
 NA,NA,Barkåker
 NA,NA,Batnfjordsøra
 NA,NA,Beisfjord
@@ -145,7 +193,6 @@ NA,NA,Degernes
 NA,NA,Dimmelsvik
 NA,NA,Dimna
 NA,NA,Disenå
-disko,Qeqertarsuup Tunua,Disko Bay
 NA,NA,Dokka
 NA,NA,Dombås
 NA,NA,Dovre
@@ -154,7 +201,6 @@ NA,NA,Dragsund
 NA,NA,Drammen
 NA,NA,Drøbak
 NA,NA,Dyrnesvågen
-EU,EU,EU
 NA,NA,Eastgreenland
 NA,NA,Egersund
 NA,NA,Eggkleiva
@@ -298,7 +344,6 @@ NA,NA,Grov
 NA,NA,Grua
 NA,NA,Gryllefjord
 NA,NA,Grøa
-green,green,Grønlund
 NA,NA,Grønvoll
 NA,NA,Gullhaug
 NA,NA,Gvarv
@@ -392,8 +437,6 @@ NA,NA,Holmsbu
 NA,NA,Hommelstø
 NA,NA,Hommelvik
 NA,NA,Hommersåk
-por,Porsangerfjorden,Honningsvåg
-por,Porsangerfjorden,Honningsvåg Valan
 NA,NA,Hoppestad
 NA,NA,Hordnes
 NA,NA,Horten
@@ -432,8 +475,6 @@ NA,NA,Iceland
 NA,NA,Ices International
 NA,NA,Ikornnes
 NA,NA,Ilseng
-disko,Qeqertarsuup Tunua,Ilulissat
-disko,Qeqertarsuup Tunua,Ilulissat (*)
 NA,NA,Inderøy
 NA,NA,Indre Fosen
 NA,NA,Ingeberg
@@ -444,7 +485,6 @@ NA,NA,Innlandet
 NA,NA,Innvik
 NA,NA,Ise
 NA,NA,Isebakke
-NA,NA,Isfjorden
 NA,NA,Ittoqqortoormiit
 NA,NA,Jansberg
 NA,NA,Jelsnes
@@ -461,7 +501,6 @@ NA,NA,Kaland
 NA,NA,Kaldfjord
 NA,NA,Kalvåg
 NA,NA,Kampå
-disko,Qeqertarsuup Tunua,Kangaatsiaq
 NA,NA,Kangerlussuaq
 NA,NA,Kapp
 NA,NA,Karasjok
@@ -508,9 +547,6 @@ NA,NA,Kolbu
 NA,NA,Kolnes
 NA,NA,Kolvereid
 NA,NA,Kommune Kujalleq
-disko,Qeqertarsuup Tunua,Kommune Qeqertalik
-nuup,Nuup Kangerlua,Kommuneqarfik Sermersooq
-nuup,Nuup Kangerlua,Kommuneqarfik Sermersooq Vest
 NA,NA,Kommuneqarfik Sermersooq Øst
 NA,NA,Konglungen
 NA,NA,Kongsberg
@@ -551,8 +587,6 @@ NA,NA,Kyrkjebø
 NA,NA,Kyrksæterøra
 NA,NA,Kåfjordbotn
 NA,NA,Kårvåg
-por,Porsangerfjorden,Lakselv
-por,Porsangerfjorden,Lakselv Banak
 NA,NA,Lalm
 NA,NA,Lampeland
 NA,NA,Langangen
@@ -601,7 +635,6 @@ NA,NA,Lommedalen
 NA,NA,Lonevåg
 NA,NA,Longum
 NA,NA,Longva
-is,Isfjorden,Longyearbyen & Ny-Alesund
 NA,NA,Loppa
 NA,NA,Lovund
 NA,NA,Lundamo
@@ -735,10 +768,8 @@ NA,NA,Nordvik
 NA,NA,Nordvågen
 NA,NA,Noresund
 NA,NA,Norheimsund
-nor,nor,Norway
 NA,NA,Not urban settlement
 NA,NA,Notodden
-nuup,Nuup Kangerlua,Nuuk
 NA,NA,Nybergsund
 NA,NA,Nydal
 NA,NA,Nykirke
@@ -770,7 +801,6 @@ NA,NA,Otnes
 NA,NA,Otta
 NA,NA,Ottersbo
 NA,NA,Ottersøy
-young,Young Sound,Outside municipalities
 NA,NA,Over-the-side sales ship
 NA,NA,Paamiut
 NA,NA,Padlene
@@ -785,9 +815,7 @@ NA,NA,Preststranda
 NA,NA,Qaanaaq
 NA,NA,Qaasuitsup Kommunia
 NA,NA,Qaqortoq
-disko,Qeqertarsuup Tunua,Qasigiannguit
 NA,NA,Qassiarsuk
-disko,Qeqertarsuup Tunua,Qeqertarsuaq
 NA,NA,Qeqqata Kommunia
 NA,NA,Rabben-Veivågen
 NA,NA,Rafsbotn
@@ -1026,8 +1054,6 @@ NA,NA,Sundgot
 NA,NA,Sundvollen
 NA,NA,Sunnan
 NA,NA,Sunndalsøra
-sval,sval,Svalbard
-is,Isfjorden,Svalbard Longyear
 NA,NA,Svalia
 NA,NA,Svarstad
 NA,NA,Sveggen
@@ -1111,7 +1137,6 @@ NA,NA,Tretten
 NA,NA,Trofors
 NA,NA,Trolla
 NA,NA,Trolldalen
-por,Porsangerfjorden,Troms og Finnmark - Romsa ja Finnmárku
 NA,NA,Tromsdalen
 NA,NA,Tromsø
 NA,NA,Tromsø Langnes
@@ -1146,7 +1171,6 @@ NA,NA,Upernavik
 NA,NA,Uskedal
 NA,NA,Utgård
 NA,NA,Uthaug
-disko,Qeqertarsuup Tunua,Uummannaq
 NA,NA,Vadfoss/Helle
 NA,NA,Vadheim
 NA,NA,Vadsø
@@ -1228,20 +1252,6 @@ NA,NA,Ydstebøhamn
 NA,NA,Yli
 NA,NA,Ytre Arna
 NA,NA,Ytre Enebakk
-nor,nor,barents sea
-disko,Qeqertarsuup Tunua,disko
-NA,NA,east ice
-green,green,green
-is,Isfjorden,is
-kong,Kongsfjorden,kong
-nor,nor,nor
-nuup,Nuup Kangerlua,nuup
-por,Porsangerfjorden,por
-stor,Storfjorden,stor
-sval,sval,sval
-sval,sval,svalbard
-NA,NA,west ice
-young,Young Sound,young
 NA,NA,Å
 NA,NA,Å i Åfjord
 NA,NA,Ådalsbruk

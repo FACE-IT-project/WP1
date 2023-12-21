@@ -58,10 +58,11 @@ EU_epagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " ", str_replace_all(tolower(name),"\\."," ")," [n]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          site = "east ice",
+         type = "survey",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # EU (west) harp seal population
@@ -75,10 +76,11 @@ EU_wpagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " ", str_replace_all(tolower(name),"\\."," ")," [n]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          site = "west ice",
+         type = "survey",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # barents polar cod biomass
@@ -91,11 +93,12 @@ barents_polar_cod <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/biomass-of-po
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " [10^6 kg]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          site = "barents sea", 
+         type = "in situ",
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Biomass) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # barents capelin stock
@@ -109,10 +112,11 @@ barents_capelin_stock <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/capelin-s
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          site = "barents sea", 
+         type = "in situ",
          date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # barents golden redfish population
@@ -126,10 +130,11 @@ barents_golden_redfish_population <- read_delim("~/pCloudDrive/FACE-IT_data/sval
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " ", tolower(name) ," [10^3 kg]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          site = "barents sea", 
+         type = "in situ",
          date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # barents beaked redfish population
@@ -143,10 +148,11 @@ barents_beaked_redfish_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalba
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
          category = "bio",
-         driver ="biomass",
-         site = "barents sea", 
+         driver = "biomass",
+         site = "barents sea",
+         type = "in situ",
          date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # barents northeast arctic cod population
@@ -160,10 +166,11 @@ barents_northeast_cod_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbar
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " ", str_replace(tolower(name),"\\."," ") ," [10^6 kg]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          site = "barents sea", 
+         type = "in situ",
          date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # barents young herring population
@@ -177,21 +184,22 @@ barents_young_herring_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbar
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " ", substr(str_replace_all(tolower(name),"\\."," "),2, 11)," [n]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          site = "barents sea",
+         type = "in situ",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Combine and save
-EU_species <- rbind(EU_epagr_population,
-                    EU_wpagr_population,
-                    barents_polar_cod, 
-                    barents_beaked_redfish_population, 
-                    barents_capelin_stock, 
-                    barents_golden_redfish_population, 
-                    barents_northeast_cod_population, 
-                    barents_young_herring_population)
+EU_species <- check_data(rbind(EU_epagr_population,
+                               EU_wpagr_population,
+                               barents_polar_cod, 
+                               barents_beaked_redfish_population, 
+                               barents_capelin_stock, 
+                               barents_golden_redfish_population, 
+                               barents_northeast_cod_population, 
+                               barents_young_herring_population))
 save(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.RData")
 write_csv(EU_species, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.csv")
 rm(list = grep("EU_|barents_",names(.GlobalEnv),value = TRUE)); gc()
@@ -203,6 +211,7 @@ rm(list = grep("EU_|barents_",names(.GlobalEnv),value = TRUE)); gc()
 EU_GEBCO <- data.frame(date_accessed = NA, 
                        URL = "https://www.gebco.net/", 
                        citation = "GEBCO Compilation Group (2021). GEBCO 2021 Grid. https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f", 
+                       type = "bathymetry",
                        site = "EU", 
                        lon = NA, 
                        lat = NA, 
@@ -210,12 +219,14 @@ EU_GEBCO <- data.frame(date_accessed = NA,
                        depth = NA,
                        category = "phys", 
                        driver = "bathymetry", 
-                       variable = "bathymetry")
+                       variable = "bathymetry",
+                       value = NA)
 
 # Bathymetry data
 EU_IBCAO <- data.frame(date_accessed = NA, 
                        URL = "https://www.gebco.net/data_and_products/gridded_bathymetry_data/arctic_ocean/", 
                        citation = "Jakobsson, M., Mayer, L. A., Bringensparr, C., Castro, C. F., Mohammad, R., Johnson, P., ... & Zinglersen, K. B. (2020). The international bathymetric chart of the Arctic Ocean version 4.0. Scientific data, 7(1), 176.", 
+                       type = "bathymetry",
                        site = "EU", 
                        lon = NA, 
                        lat = NA, 
@@ -223,12 +234,14 @@ EU_IBCAO <- data.frame(date_accessed = NA,
                        depth = NA,
                        category = "phys", 
                        driver = "bathymetry", 
-                       variable = NA)
+                       variable = "bathymetry",
+                       value = NA)
 
 # Ice modelling output
 EU_ice <- data.frame(date_accessed = NA, 
                      URL = "https://data.npolar.no/dataset/881e423a-b6f6-4c1a-8000-d802adf03a66", 
                      citation = "Liston, G., Merkouriadi, I., & Granskog, M. A. (2019). Snow-ice, snow depth and ice thickness from HIGHTSI modeling with ice motion in the Arctic Ocean in the period 1980 to 2016 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2019.881e423a", 
+                     type = "model",
                      site = "EU", 
                      lon = NA, 
                      lat = NA, 
@@ -236,12 +249,14 @@ EU_ice <- data.frame(date_accessed = NA,
                      depth = NA,
                      category = "cryo", 
                      driver = "sea ice", 
-                     variable = c("sea ice thickness","sea ice snow cover depth"))
+                     variable = c("sea ice thickness","sea ice snow cover depth"),
+                     value = NA)
 
 # CTD data from NCEI Accession 9700302
 EU_NCEI_1989 <- data.frame(date_accessed = NA, 
                            URL = "https://accession.nodc.noaa.gov/9700302", 
                            citation = "Adrov, Nickoli; Murmansk Marine Biological Institute (MMBI) (2010). Physical profile data collected from bottle casts in the Barents, Greenland, and Norweigan Seas from 1989-06-01 to 1989-09-09 (NCEI Accession 9700302). [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://accession.nodc.noaa.gov/9700302. Accessed [date].", 
+                           type = "in situ",
                            site = "EU", 
                            lon = NA, 
                            lat = NA, 
@@ -249,7 +264,8 @@ EU_NCEI_1989 <- data.frame(date_accessed = NA,
                            depth = NA,
                            category = "phys", 
                            driver = c("temp", "salinity"), 
-                           variable = c("temp [°C]", "salinity"))
+                           variable = c("temp [°C]", "salinity"),
+                           value = NA)
                            
 
 # CTD data from Greenland Sea icthyoplankton cruise
@@ -258,6 +274,7 @@ EU_NCEI_1989 <- data.frame(date_accessed = NA,
 EU_icthyo <- data.frame(date_accessed = NA, 
                         URL = "https://www.polardata.ca/pdcsearch/PDCSearch.jsp?doi_id=13251", 
                         citation = "Bouchard, C., Chawarski, J., Geoffroy, A., & Agersted, M. (2021). Hydroacoustic data EK60 Greenland Sea August-September 2017. Waterloo, Canada: Canadian Cryospheric Information Network (CCIN). (Unpublished Data).", 
+                        type = "in situ",
                         site = "EU", 
                         lon = NA, 
                         lat = NA, 
@@ -265,7 +282,8 @@ EU_icthyo <- data.frame(date_accessed = NA,
                         depth = NA,
                         category = c("phys", "phys", "bio"), 
                         driver = c("temp", "salinity", "biomass"), 
-                        variable = c("temp [°C]", "salinity", "fish presence"))
+                        variable = c("temp [°C]", "salinity", "fish presence"),
+                        value = NA)
 
 # Cryosphere
 ## Sea ice concentration
@@ -296,10 +314,10 @@ EU_zooplankton <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/1995-2008-zoo
          category = "bio",
          value = organismQuantity,
          date_accessed = as.Date("2021-02-11"),
+         type = "in situ", site = "EU",
          URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
          citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
-  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # CTD data from YMER cruise in 1980
@@ -322,11 +340,12 @@ EU_YMER <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/77YM19800811.exc.csv",
          value = as.numeric(value),
          depth = as.numeric(depth),
          date_accessed = as.Date("2021-04-15"),
+         type = "in situ", site = "EU",
          URL = "https://data.npolar.no/dataset/9167dae8-cab2-45b3-9cea-ad69541b0448",
          citation = "Norwegian Polar Institute (2020). Marine zooplankton and icefauna biodiversity [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.9167dae8") %>% 
   filter(value != -999) %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # CTD data for Arctic
@@ -343,10 +362,11 @@ EU_Codispoti <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/Codispoti_Arctic_
                               variable == "sal" ~ "sal [PSU]",
                               variable %in% c("PO4", "NO2", "NO3") ~ paste0(variable," [µmol/l]")),
          date_accessed = as.Date("2021-04-15"),
+         type = "in situ", site = "EU",
          URL = "https://www.nodc.noaa.gov/archive/arc0034/0072133/",
          citation = "Multiple. See References section in: https://www.nodc.noaa.gov/archive/arc0034/0072133/1.1/data/1-data/ReadMe_Codispoti_ArcticNuts.pdf") %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Ice core samples for protist presence
@@ -360,10 +380,11 @@ EU_protists <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/protists/sea-ice
          category = case_when(variable == "PAR" ~ "phys", TRUE ~ "bio"),
          variable = case_when(variable == "PAR" ~ "PAR [µmol m-2 s-1]", TRUE ~ paste0(variable," [% total]")),
          date_accessed = as.Date("2021-04-19"),
+         type = "in situ", site = "EU",
          URL = "https://data.npolar.no/dataset/a3111a68-3126-4acd-a64a-d9be46c80842",
          citation = "Hop, H., Vithakari, M., Bluhm, B. A., Assmy, P., Poulin, M., Peeken, I., Gradinger, R., & Melnikov, I. A. (2020). Sea-ice protist in the Arctic Ocean from the 1980s to 2010s [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.a3111a68.") %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Carb chem Arctic model output
@@ -387,10 +408,11 @@ EU_Popova <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/Arctic_model_outpu
                               TRUE ~ variable),
          lon = NA, lat = NA, depth = NA,
          date_accessed = as.Date("2021-08-11"),
+         type = "in situ", site = "EU",
          URL = "File was received directly from J-P Gattuso",
          citation = "Popova, E. E., Yool, A., Aksenov, Y., Coward, A. C., & Anderson, T. R. (2014). Regional variability of acidification in the Arctic: a sea of contrasts. Biogeosciences, 11(2), 293-308.") %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Greenland fjord CTD casts
@@ -411,11 +433,12 @@ EU_green_fjords <- read_csv("~/pCloudDrive/FACE-IT_data/EU_arctic/LAKO_2018_SBE2
          # Remove impossible negative values
          value = case_when(variable != "temp [°C]" & value < 0 ~ as.numeric(NA), TRUE ~ value),
          date_accessed = as.Date("2021-10-20"),
+         type = "in situ", site = "EU",
          URL = "https://zenodo.org/record/5572329#.Yo5IrzlBw5n",
          citation = "Holding, Johnna M, Carlson, Daniel F, Meire, Lorenz, Stuart-Lee, Alice, Møller, Eva F, Markager, Lund-Hansen, Lars C, Stedmon, Colin, Britsch, Eik, & Sejr, Mikael K. (2021). CTD Profiles from the HDMS Lauge Koch cruise to East Greenland fjords, August 2018 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5572329") %>% 
   filter(!is.na(value)) %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # IMR species observations
@@ -430,9 +453,10 @@ EU_IMR_spp_obs <- read_delim("~/pCloudDrive/FACE-IT_data/EU_arctic/IMR/EU_occurr
          variable = paste0(variable," [presence]"),
          category = "bio",
          date_accessed = as.Date("2022-11-14"),
+         type = "in situ", site = "EU",
          URL = "https://gbif.imr.no/ipt/resource?r=imr",
          citation = "Sagen, H., Morvik, A. (2015). Observations of marine species [Data set]. GBIF.") %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, site, type, lon, lat, date, depth, category, variable) %>%
   summarise(value = 1, .groups = "drop")
 
 # SOCAT data
@@ -444,10 +468,9 @@ load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Combine and save
-EU_wild <- rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, EU_green_fjords,
-                 EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP) |> mutate(site = "EU") |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+EU_wild <- check_data(rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, 
+                            EU_green_fjords, EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP)) |> 
+  rbind(EU_GEBCO, EU_IBCAO, EU_ice, EU_NCEI_1989, EU_icthyo)
 data.table::fwrite(EU_wild, "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.csv")
 save(EU_wild, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
 rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
@@ -472,7 +495,7 @@ if(!exists("EU_species")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_species.
 if(!exists("EU_wild")) load("~/pCloudDrive/FACE-IT_data/EU_arctic/EU_wild.RData")
 
 # Combine and save
-full_product_EU <- rbind(EU_species, EU_wild) |> distinct()
+full_product_EU <- rbind(EU_species, EU_wild)
 data.table::fwrite(full_product_EU, "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.csv")
 save(full_product_EU, file = "~/pCloudDrive/FACE-IT_data/EU_arctic/full_product_EU.RData")
 save(full_product_EU, file = "data/full_data/full_product_EU.RData")
@@ -500,10 +523,10 @@ sval_ivory_gull_population <- read.csv("~/pCloudDrive//FACE-IT_data/svalbard/the
          variable = paste0(nomsp," breeding population [%]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard", 
+         type = "survey", site = "svalbard", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Svalbard) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # Svalbard walrus population
@@ -520,9 +543,9 @@ sval_walrus_population <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/walrus
          variable = paste0(nomsp, " ", type, " [n]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard", 
+         type = "survey", site = "svalbard", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # Svalbard (north and west) calanus population by size
@@ -538,9 +561,9 @@ sval_nw_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/a
          variable = paste0(nomsp, " ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," [g/m²]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard",
+         type = "in situ", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Svalbard (north and west) calanus population tot
@@ -556,9 +579,9 @@ sval_nw_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/
          variable = paste0(nomsp, " [g/m²]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard",
+         type = "in situ", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Svalbard (south and east) calanus population by size
@@ -574,9 +597,9 @@ sval_se_calanus_mm_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/a
          variable = paste0(nomsp, " ", substr(stri_replace_last(tolower(name)," ", regex = "[.]"), 2, 10)," [g/m²]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard",
+         type = "in situ", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Svalbard (south and east) calanus population tot
@@ -592,9 +615,9 @@ sval_se_calanus_tot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/
          variable = paste0(nomsp, " [g/m²]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard",
+         type = "in situ", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Svalbard kittiwake population
@@ -610,9 +633,9 @@ sval_kittiwake_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black
          variable = paste0(nomsp, " population [% average in the colony]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard",
+         type = "survey", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Svalbard Brünnich’s guillemot population
@@ -628,9 +651,9 @@ sval_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brn
          variable = paste0(nomsp, " breeding population [%]"),
          category = "bio",
          driver = "biomass",
-         site = "svalbard",
+         type = "survey", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Svalbard hooded seal population
@@ -645,9 +668,9 @@ sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population
          variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
          category = "bio",
          driver ="biomass",
-         site = "svalbard",
+         type = "survey", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Svalbard (east) harp seal population
@@ -662,27 +685,25 @@ sval_cycr_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/population
          variable = paste0(nomsp," ", str_replace_all(tolower(name),"\\."," ")," [n]"),
          category = "bio",
          driver ="biomass",
-         site = "svalbard",
+         type = "survey", site = "svalbard",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Combine and save
-sval_species <- rbind(sval_ivory_gull_population, 
-                      sval_nw_calanus_mm_population,
-                      sval_nw_calanus_tot_population,
-                      sval_se_calanus_mm_population,
-                      sval_se_calanus_tot_population,
-                      sval_walrus_population,
-                      sval_brguillemot_population)
+sval_species <- check_data(rbind(sval_ivory_gull_population, 
+                                 sval_nw_calanus_mm_population,
+                                 sval_nw_calanus_tot_population,
+                                 sval_se_calanus_mm_population,
+                                 sval_se_calanus_tot_population,
+                                 sval_walrus_population,
+                                 sval_brguillemot_population))
 save(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.RData")
 write_csv(sval_species, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_species.csv")
 rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
-
-# TODO: Add sites to all of these datasets
 
 # Glacier area outlines
 # glacier_area/
@@ -692,7 +713,7 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 sval_tidal_glacier_front <- data.frame(date_accessed = NA, 
                                        URL = "https://data.npolar.no/dataset/7cd67b1a-1b9b-4dfd-b7a1-f9469597ed4d", 
                                        citation = "Kohler, J., König, M., Nuth, C., & Villaflor, G. (2018). Svalbard tidewater glacier front database [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2018.7cd67b1a",
-                                       # type = "geospatial",
+                                       type = "geospatial",
                                        site = "sval", 
                                        lon = NA,
                                        lat = NA,
@@ -700,13 +721,14 @@ sval_tidal_glacier_front <- data.frame(date_accessed = NA,
                                        depth = NA,
                                        category = "cryo",
                                        driver = "glacier", 
-                                       variable = "tidal front")
+                                       variable = "tidal front",
+                                       value = NA)
 
 # Marine terminating glacier fronts
 sval_marine_glacier_front <- data.frame(date_accessed = NA, 
                                         URL = "https://data.npolar.no/dataset/d60a919a-9cc8-4048-9686-df81bfdc2338", 
                                         citation = "Moholdt, G., Maton, J., Majerska, M., & Kohler, J. (2021). Annual frontlines of marine-terminating glaciers on Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d60a919a",
-                                        # type = "geospatial",
+                                        type = "geospatial",
                                         site = "sval", 
                                         lon = NA,
                                         lat = NA,
@@ -714,13 +736,14 @@ sval_marine_glacier_front <- data.frame(date_accessed = NA,
                                         depth = NA,
                                         category = "cryo",
                                         driver = "glacier", 
-                                        variable = "marine front")
+                                        variable = "marine front",
+                                        value = NA)
 
 # Seabird database
 sval_seabird_database <- data.frame(date_accessed = NA, 
                                     URL = "https://data.npolar.no/dataset/fd4fd3aa-7249-53c9-9846-6e28c5a42587", 
                                     citation = "Strøm, H., Descamps, S., & Bakken, V. . (2008). Seabird Colonies by the Barents Sea, White Sea and Kara Sea [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.fd4fd3aa",
-                                    # type = "database",
+                                    type = "database",
                                     site = "sval", 
                                     lon = NA,
                                     lat = NA,
@@ -728,13 +751,14 @@ sval_seabird_database <- data.frame(date_accessed = NA,
                                     depth = NA,
                                     category = "bio",
                                     driver = "biomass", 
-                                    variable = "bird colonies")
+                                    variable = "bird colonies",
+                                    value = NA)
 
 # Protection of sites
 sval_protection <- data.frame(date_accessed = NA, 
                               URL = "https://data.npolar.no/dataset/117acc0c-7d6e-5c58-bb80-bb220780f406", 
                               citation = "Blomeier, D. P. G., & Hjelle, A. (2008). Protection of geological sites [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2008.117acc0c",
-                              # type = "policy",
+                              type = "policy",
                               site = "sval", 
                               lon = NA,
                               lat = NA,
@@ -742,13 +766,14 @@ sval_protection <- data.frame(date_accessed = NA,
                               depth = NA,
                               category = "soc",
                               driver = "gov", 
-                              variable = "protection of sites")
+                              variable = "protection of sites",
+                              value = NA)
 
 # Fast ice persistence
 sval_fast <- data.frame(date_accessed = NA, 
                         URL = "https://data.npolar.no/dataset/33d631d3-051e-403d-8600-78a30b767ed3", 
                         citation = "Itkin, M. (2017). Svalbard Fjords Fast Ice Persistence [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2017.33d631d3",
-                        # type = "geospatial",
+                        type = "geospatial",
                         site = "sval", 
                         lon = NA,
                         lat = NA,
@@ -756,7 +781,8 @@ sval_fast <- data.frame(date_accessed = NA,
                         depth = NA,
                         category = "cryo",
                         driver = "sea ice", 
-                        variable = "fast ice duration [days]")
+                        variable = "fast ice duration [days]",
+                        value = NA)
 
 # Glacier Area Outlines
 # https://data.npolar.no/dataset/89f430f8-862f-11e2-8036-005056ad0004
@@ -790,10 +816,11 @@ sval_MOSJ_glacier_mass <- bind_rows(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_e
          URL = "https://www.mosj.no/en/climate/land/mass-balance-glaciers.html",
          citation = "Kohler, J. & Moholdt, G. (2021) Mass balance of Svalbard glaciers [Dataset]. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). Accessed: 2022-04-26. https://www.mosj.no/en/climate/land/mass-balance-glaciers.html",
          category = "cryo", depth = NA,
+         type = "survey", site = "sval",
          date_accessed = as.Date("2022-04-28")) %>% 
   filter(!is.na(value)) %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(sval_MOSJ_cmb, sval_MOSJ_austre, sval_MOSJ_etonbreen, sval_MOSJ_kongsvegen, sval_MOSJ_kronebreen, sval_MOSJ_midtre); gc()
 
@@ -826,10 +853,10 @@ sval_Nature_glacier_mass <- left_join(sval_Nature_glacier_mass_base, sval_Nature
                           grepl("2010_with", variable) ~ as.Date("2010-12-31")),
          URL = "https://data.npolar.no/dataset/f6afca5c-6c95-4345-9e52-cfe2f24c7078",
          citation = "Geyman, E., van Pelt, W., Maloof, A., Aas, H. F., & Kohler, J. (2021). 1936/1938 DEM of Svalbard [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.f6afca5c",
-         category = "cryo", depth = NA,
+         category = "cryo", depth = NA, type = "survey", site = "sval",
          date_accessed = as.Date("2022-05-10")) %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 rm(sval_Nature_glacier_mass_base, sval_Nature_glacier_mass_latlon); gc()
 
@@ -854,11 +881,11 @@ sval_tidewater_ablation <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/Sval_Fron
                               variable == "front_abl" ~ "glacier mass balance ablation [Gt yr-1]"),
          URL = "https://data.npolar.no/dataset/d1d08fac-622a-4ba6-a911-f369b4fb67a0",
          citation = " Moholdt, G., Maton, J., & Kohler, J. (2021). Frontal ablation of Svalbard tidewater glaciers [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.d1d08fac",
-         category = "cryo", depth = NA,
+         category = "cryo", depth = NA, type = "in situ", site = "sval",
          date_accessed = as.Date("2022-04-26")) %>% 
   filter(date2 > "1901-01-01", !is.na(variable)) %>% 
   # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Surface meteorology
@@ -890,8 +917,8 @@ sval_NICE <- tidync("~/pCloudDrive/FACE-IT_data/svalbard/N-ICE_metData_v2.nc") |
                               grepl("wind_from_direction", variable) ~ "wind_from_direction [°]",
                               TRUE ~ variable),
          value = case_when(variable == "TTT [°C]" ~ value-273.15, TRUE ~ value), 
-         date_accessed = as.Date("2021-02-11")) %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+         date_accessed = as.Date("2021-02-11"), type = "in situ", site = "sval") %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
 # UNIS database
 ## NB: This takes a long time due to file size
@@ -912,26 +939,17 @@ sval_UNIS_database <- full_join(sval_UNIS_TEMP, sval_UNIS_PSAL, by = c("lon", "l
                            variable == "psal" ~ "1e-3",
                            variable == "cndc" ~ "S m-1"),
          variable = paste0(variable," [", units,"]"),
-         category = "phys",
+         category = "phys", type = "in situ", site = "sval",
          date_accessed = as.Date("2021-03-12")) %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop"); gc()
 rm(sval_UNIS_nc_dat, sval_UNIS_TEMP, sval_UNIS_PSAL, sval_UNIS_CNDC); gc()
-
-# Protection of sites
-# https://data.npolar.no/dataset/117acc0c-7d6e-5c58-bb80-bb220780f406
-# Not available online
-# sval_protection
 
 # N-ICE21015 many data products
 # https://data.npolar.no/dataset/7f7e56d0-9e70-4363-b37d-17915e09a935
 # Files listed at the bottom of the page
 # Generally these files are outside of any study region
 # sval_NICE
-
-# Fast ice persistence
-# svalbard_fastice_persistency_2014.tif; svalbard_fastice_persistency_2015.tif; svalbard_fastice_persistency_2016.tif
-# sval_fast # Not working with shape files of geomorphology
 
 # Biogeochemistry
 sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbard/2009-2013-pigments-api-v1.tsv", delim = "\t"),
@@ -946,8 +964,8 @@ sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbar
   mutate(category = case_when(variable %in% c("chlorophyll_a", "phaeopigment") ~ "bio",
                               TRUE ~ "chem"),
          variable = case_when(variable == "chlorophyll_a" ~ "Chla [µg/l]",  
-                              variable == "nox" ~ "diss_oxygen [mg/l]",
-                              variable == "nox_stddev" ~ "diss_oxygen stddev [mg/l]",
+                              variable == "nox" ~ "diss oxygen [mg/l]",
+                              variable == "nox_stddev" ~ "diss oxygen stddev [mg/l]",
                               variable == "phosphate" ~ "PO4 [µmol/l]",
                               variable == "phosphate_stddev" ~ "PO4 stddev [µmol/l]", 
                               variable == "silicate" ~ "SiO4 [µmol/l]",
@@ -959,10 +977,10 @@ sval_biogeochemistry <- bind_rows(read_delim("~/pCloudDrive/FACE-IT_data/svalbar
                               variable == "ammonium" ~ "NH4 [µmol/l]", 
                               # "phaeopigment"
                               TRUE ~ variable),
-         date_accessed = as.Date("2021-02-11"),
+         date_accessed = as.Date("2021-02-11"), type = "in situ", site = "sval",
          URL = "https://data.npolar.no/dataset/c9de2d1f-54c1-49ca-b58f-a04cf5decca5",
          citation = "Norwegian Polar Institute (2020). Marine biogeochemistry [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2020.c9de2d1f") %>% 
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>%
+  group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable) %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Svalbard population counts
@@ -978,8 +996,9 @@ sval_pop <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_
          URL = "https://www.ssb.no/en/befolkning/folketall/statistikk/befolkningen-pa-svalbard",
          citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-29",
          category = "soc", variable = paste0("pop [",settlement,"]"),
+         type = "survey", site = settlement,
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 # write_csv(sval_pop, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_population_stats_full.csv")
 
 # Svalbard tourist arrivals
@@ -1009,8 +1028,9 @@ sval_tour_arrival <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_to
   mutate(date_accessed = as.Date("2021-09-30"),
          citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-30",
          category = "soc", variable = paste0("arrival [",type," - ",residence,"]"),
+         type = "survey", site = "sval",
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 # write_csv(sval_tour_arrival, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_tourist_arrivals_full.csv")
 
 # Svalbard guest nights
@@ -1040,8 +1060,9 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
   mutate(date_accessed = as.Date("2021-09-30"),
          citation = "Statistics Norway. www.ssb.no. Accessed 2021-09-30",
          category = "soc", variable = paste0("guest night [",type," - ",residence,"]"),
+         type = "survey", site = "sval",
          depth = NA, lon = NA, lat = NA, .keep = "unused") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 # write_csv(sval_guest_night, "~/pCloudDrive/FACE-IT_data/svalbard/svalbard_guest_nights_full.csv")
 
 # AIS data
@@ -1049,7 +1070,7 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") |
   pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "variable", values_to = "value") |> 
   dplyr::rename(site = Area) |> 
   mutate(date = as.Date(paste0(Year,"-12-31")),
-         depth = NA,
+         depth = NA, type = "model",
          lon = NA, lat = NA, 
          date_accessed = as.Date("2020-09-30"),
          variable = case_when(variable == "Nautical miles" ~ "distance [nautical miles]",
@@ -1072,31 +1093,27 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") |
                               variable == "Month Trips" ~ "trips [n month-1]",
                               variable == "Average speed (knots)" ~ "average speed [knots]",
                               TRUE ~ variable),
-         category = "soc",
-         # category = case_when(grepl("co2|nox|sox", variable, ignore.case = T) ~ "chem",
-                              # grepl("PM", variable, ignore.case = T) ~ "phys", TRUE ~ "soc"),
+         category = "soc", type = "model", 
          URL = "Received directly from Morten Simonsen",
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") |> 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
-# TODO: Add sites to all wild sets before re-running this
-sval_wild <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
-                   sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
-                   sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS) |> distinct() |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+sval_wild <- check_data(rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
+                              sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
+                              sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS)) |> 
+  rbind(sval_tidal_glacier_front, sval_marine_glacier_front, sval_seabird_database, sval_protection, sval_fast)
 data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
 save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
 rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Or if only one new file etc. was added:
-if(!exists("sval_wild")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
-sval_wild <- sval_wild |> filter(!grepl("Model for estimation of fuel consumption", citation))
-sval_wild <- bind_rows(sval_wild, sval_AIS) |> distinct()
-data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
-save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
-rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
+# if(!exists("sval_wild")) load("~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
+# sval_wild <- sval_wild |> filter(!grepl("Model for estimation of fuel consumption", citation))
+# sval_wild <- bind_rows(sval_wild, sval_AIS) |> distinct()
+# data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
+# save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
+# rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Full product ------------------------------------------------------------
@@ -1204,7 +1221,7 @@ pg_kong_bio <- pg_var_melt(pg_kong_clean, query_bio)
 pg_kong_soc <- pg_var_melt(pg_kong_clean, query_soc) # 0 values
 
 # Stack them together
-pg_kong_ALL <- rbind(pg_kong_cryo, pg_kong_phys, pg_kong_chem, pg_kong_bio, pg_kong_soc)
+pg_kong_ALL <- check_data(rbind(pg_kong_cryo, pg_kong_phys, pg_kong_chem, pg_kong_bio, pg_kong_soc))
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
 
@@ -1232,10 +1249,10 @@ kong_glaucous_gull_population <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjo
          variable = paste0(nomsp, " breeding population [%]"),
          category = "bio",
          driver ="biomass",
-         site = "kong", 
+         type = "survey", site = "kong", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Kongsfjorden) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # kong eiders
@@ -1249,10 +1266,10 @@ kong_eiders_stock <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/breeding-
          variable = paste0(nomsp, " breeding pairs [n]"),
          category = "bio",
          driver ="biomass",
-         site = "kong", 
+         type = "survey", site = "kong", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Common.eider) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # kong seabird
@@ -1267,10 +1284,10 @@ kong_seabird <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Descamps_Strom
          variable = paste0(nomsp, " colony count [n]"),
          category = "bio",
          driver ="biomass",
-         site = "kong", 
+         type = "survey", site = "kong", 
          date = as.Date(paste0(YR,"-12-31"))) %>% 
   dplyr::rename(value = Count) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # kong calanus population
@@ -1285,9 +1302,9 @@ kong_calanus_population <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/cal
          variable = paste0(nomsp, " [%]"),
          category = "bio",
          driver ="biomass",
-         site = "kong", 
+         type = "survey", site = "kong", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>% 
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
   filter(!is.na(value))
 
 # kong  kittiwake population
@@ -1303,9 +1320,9 @@ kong_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/blac
          variable = paste0(nomsp, " population [% average in the colony]"),
          category = "bio",
          driver ="biomass",
-         site = "kong",
+         type = "survey", site = "kong",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 
@@ -1322,24 +1339,26 @@ kong_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brn
          variable = paste0(nomsp, " breeding population [%]"),
          category = "bio",
          driver ="biomass",
-         site = "kong",
+         type = "survey", site = "kong",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Combine and save
-kong_species <- rbind(kong_glaucous_gull_population, 
-                      kong_eiders_stock,
-                      kong_seabird, 
-                      kong_calanus_population,
-                      kong_kittiwakke_population,
-                      kong_brguillemot_population)
+kong_species <- check_data(rbind(kong_glaucous_gull_population, 
+                                 kong_eiders_stock,
+                                 kong_seabird, 
+                                 kong_calanus_population,
+                                 kong_kittiwakke_population,
+                                 kong_brguillemot_population))
 save(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.RData")
 write_csv(kong_species, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_species.csv")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
+
+# TODO: Still need to integrate shadow data
 
 # Sea ice cover shape files
 kong_sea_ice_shp <- data.frame(type = "Survey",
@@ -1746,9 +1765,9 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
 kong_wild <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla,
                    kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI,
                    kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
-                   kong_light_Laeseke, kong_PAR_Dieter) |> mutate(site = "kong") |> distinct() |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+                   kong_light_Laeseke, kong_PAR_Dieter) |> mutate(type = "in situ", site = "kong") |> 
+  distinct() |> check_data()
+# TODO: rbind() shadow data
 data.table::fwrite(kong_wild, "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_wild.csv")
 save(kong_wild, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_wild.RData")
 rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
@@ -1882,13 +1901,13 @@ pg_is_soc <- pg_var_melt(pg_is_clean, query_soc); gc() # empty
 rm(pg_is_clean); gc()
 
 # Stack them together
-pg_is_ALL <- rbind(pg_is_cryo, pg_is_phys, pg_is_chem, pg_is_bio, pg_is_soc)
+pg_is_ALL <- check_data(rbind(pg_is_cryo, pg_is_phys, pg_is_chem, pg_is_bio, pg_is_soc))
 data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.csv")
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
 
 # Check that all columns were used
 # TODO: Follow up on some of these
-colnames(pg_is_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_is_clean)) %in% unique(pg_kong_ALL$variable)]
+# colnames(pg_is_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_is_clean)) %in% unique(pg_kong_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_is",names(.GlobalEnv),value = TRUE)); gc()
@@ -1908,10 +1927,10 @@ is_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " population [% average in the colony]"),
          category = "bio",
-         driver ="biomass",
-         site = "is",
+         driver = "biomass",
+         type = "survey", site = "is",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # is Brünnich’s guillemot population
@@ -1926,21 +1945,23 @@ is_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnni
          nomsp = map(Species, latin_eng),
          variable = paste0(nomsp, " breeding population [%]"),
          category = "bio",
-         driver ="biomass",
-         site = "svalbard",
+         driver = "biomass",
+         type = "survey", site = "sval",
          date = as.Date(paste0(Category,"-12-31"))) %>%
-  dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value) %>%
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Combine and save
-is_species <- rbind(is_kittiwakke_population,
-                    is_brguillemot_population)
+is_species <- check_data(rbind(is_kittiwakke_population,
+                               is_brguillemot_population))
 save(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.RData")
 write_csv(is_species, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_species.csv")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 
 
 ### Wild data ---------------------------------------------------------------
+
+# TODO: Need to incorporate data shadows
 
 # CO2 station at IsA
 is_IsA_CO2 <- data.frame(type = "CTD",
@@ -2219,9 +2240,7 @@ is_ship_arrivals <- read_csv("~/pCloudDrive/FACE-IT_data/isfjorden/is_ship_arriv
 # Combine and save
 is_wild <- rbind(is_mooring_N, is_mooring_S, is_mooring_IFO, is_mooring_GFI_N, is_mooring_GFI_S,
                  is_CO2_tempelfjorden, is_CO2_IsA, is_Chla_IsA, is_met_radio, is_met_airport, is_met_pyramiden, 
-                 is_AIS, is_ship_arrivals) |> mutate(site = "is") |>
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+                 is_AIS, is_ship_arrivals) |> mutate(type = "in situ", site = "is") |> distinct() |> check_data()
 data.table::fwrite(is_wild, "~/pCloudDrive/FACE-IT_data/isfjorden/is_wild.csv")
 save(is_wild, file = "~/pCloudDrive/FACE-IT_data/isfjorden/is_wild.RData")
 rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
@@ -2316,7 +2335,7 @@ pg_stor_bio <- pg_var_melt(pg_stor_clean, query_bio)
 pg_stor_soc <- pg_var_melt(pg_stor_clean, query_soc) # empty
 
 # Stack them together
-pg_stor_ALL <- rbind(pg_stor_cryo, pg_stor_phys, pg_stor_chem, pg_stor_bio, pg_stor_soc)
+pg_stor_ALL <- check_data(rbind(pg_stor_cryo, pg_stor_phys, pg_stor_chem, pg_stor_bio, pg_stor_soc))
 data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.csv")
 save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
 
@@ -2347,9 +2366,7 @@ stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_prope
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
 # Combine and save
-stor_wild <- rbind(stor_light_CTD) |> mutate(site = "stor") |> distinct() |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+stor_wild <- rbind(stor_light_CTD) |> mutate(type = "in situ", site = "stor") |> distinct() |> check_data()
 data.table::fwrite(stor_wild, "~/pCloudDrive/FACE-IT_data/storfjorden/stor_wild.csv")
 save(stor_wild, file = "~/pCloudDrive/FACE-IT_data/storfjorden/stor_wild.RData")
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
@@ -2387,6 +2404,8 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 
 # NB: There is only this one full product step for Greenland
 # These are all social data
+
+# TODO: Some of these links broke. Need to investigate
 
 # National statistics
 ## Income
@@ -2684,13 +2703,12 @@ green_fish_exports <- as.data.frame(green_fish_exports_json,
 
 # Combine and save
 # TODO: Fix issues with broken links above
+# TODO: Ensure each dataset has a 'type' column
 full_product_green <- rbind(green_income, green_employment, green_unemployment, green_pop,
                             green_cruise_passenger, green_cruise_count, green_cruise_nation,
                             green_air_passenger, green_guests, green_dogs, green_landings_domestic,
                             green_landings_inter, green_fish_price, green_quotas, green_quota_advice,
-                            green_fish_exports) |>
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+                            green_fish_exports) |> check_data()
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
@@ -2763,7 +2781,7 @@ pg_young_bio <- pg_var_melt(pg_young_clean, query_bio)
 pg_young_soc <- pg_var_melt(pg_young_clean, query_soc) # empty
 
 # Stack them together
-pg_young_ALL <- rbind(pg_young_cryo, pg_young_phys, pg_young_chem, pg_young_bio, pg_young_soc)
+pg_young_ALL <- check_data(rbind(pg_young_cryo, pg_young_phys, pg_young_chem, pg_young_bio, pg_young_soc))
 data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.csv")
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
 
@@ -2843,9 +2861,7 @@ young_prim_prod <- rbind(holding_CTD_biochem, holding_CTD_profiles, holding_PI, 
 rm(list = grep("holding_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Combine and save
-young_wild <- rbind(young_prim_prod) |> mutate(site = "young") |> distinct() |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+young_wild <- rbind(young_prim_prod) |> mutate(type = "in situ", site = "young") |> distinct() |> check_data()  
 data.table::fwrite(young_wild, "~/pCloudDrive/FACE-IT_data/young_sound/young_wild.csv")
 save(young_wild, file = "~/pCloudDrive/FACE-IT_data/young_sound/young_wild.RData")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
@@ -3305,9 +3321,7 @@ young_GEM <- rbind(young_mooring_multi, young_GEM_sea_ice_open_water, young_GEM_
                    young_GEM_CTD_sill, young_GEM_CTD_bottom, young_GEM_phyto_sp, young_GEM_DIC, young_GEM_pCO2, young_GEM_phosphate, 
                    young_GEM_silicate, young_GEM_TA, young_GEM_air_temp_2m, young_GEM_air_temp_7m, young_GEM_precip, young_GEM_snow_fall, 
                    young_GEM_air_press, young_GEM_qnet, young_GEM_river_dis, young_GEM_PAR_land, young_GEM_gmb, young_GEM_snow_depth, 
-                   young_GEM_chla, young_GEM_nitrate_nitrite) |> mutate(site = "young") |>
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+                   young_GEM_chla, young_GEM_nitrate_nitrite) |> mutate(type = "in situ", site = "young") |> distinct() |> check_data()
 save(young_GEM, file = "data/restricted/young_GEM.RData"); save(young_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_GEM.RData")
 rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_multi); gc()
 
@@ -3417,7 +3431,8 @@ young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_Bi
 young_species_GEM <- rbind(young_bird_nests_eggs, 
                            young_bird_nests_hatch,
                            young_bird_abundance,
-                           young_bird_broods)
+                           young_bird_broods) |> 
+  mutate(type = "survey") |> distinct() |> check_data()
 save(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.RData")
 write_csv(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.csv")
 rm(list = grep("young_",names(.GlobalEnv),value = TRUE))
@@ -3535,7 +3550,7 @@ pg_disko_bio <- pg_var_melt(pg_disko_clean, query_bio)
 pg_disko_soc <- pg_var_melt(pg_disko_clean, query_soc) # empty
 
 # Stack them together
-pg_disko_ALL <- rbind(pg_disko_cryo, pg_disko_phys, pg_disko_chem, pg_disko_bio, pg_disko_soc)
+pg_disko_ALL <- check_data(rbind(pg_disko_cryo, pg_disko_phys, pg_disko_chem, pg_disko_bio, pg_disko_soc))
 data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.csv")
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
 
@@ -3580,9 +3595,7 @@ disko_CTD_ChlA <- hyper_tibble(tidync("~/pCloudDrive/FACE-IT_data/disko_bay/SANN
 rm(disko_CTD_ChlA_var); gc()
 
 # Combine and save
-disko_wild <- rbind(disko_CTD_ChlA) |> mutate(site = "disko") |>
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+disko_wild <- rbind(disko_CTD_ChlA) |> mutate(type = "in situ", site = "disko") |> distinct() |> check_data()
 data.table::fwrite(disko_wild, "~/pCloudDrive/FACE-IT_data/disko_bay/disko_wild.csv")
 save(disko_wild, file = "~/pCloudDrive/FACE-IT_data/disko_bay/disko_wild.RData")
 rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
@@ -3780,9 +3793,7 @@ disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
 # Combine and save
 disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow1, disko_GEM_snow2, 
                    disko_GEM_gmb, disko_GEM_glacier_ice, disko_GEM_air_temp_2m, disko_GEM_air_temp_7m, disko_GEM_CTD_cruise, 
-                   disko_GEM_historic_ts) |> mutate(site = "disko") |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+                   disko_GEM_historic_ts) |> mutate(type = "in situ", site = "disko") |> distinct() |> check_data()
 save(disko_GEM, file = "data/restricted/disko_GEM.RData"); save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
@@ -3799,7 +3810,8 @@ disko_EU_sub <- filter_site_plural("disko", full_product_EU)
 if(!exists("full_product_green")) load("data/full_data/full_product_green.RData")
 
 # Subset to relevant Disko Bay site names
-# TODO: Still need to implement this
+# TODO: This shouldn't be empty
+disko_green_sub <- filter_site_plural("disko", full_product_green)
 
 # Load GEM data and create shadow
 if(!exists("disko_GEM")) load("~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
@@ -3823,7 +3835,7 @@ if(!exists("pg_disko_ALL")) load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_
 if(!exists("disko_wild")) load("~/pCloudDrive/FACE-IT_data/disko_bay/disko_wild.RData")
 
 # Combine and save
-full_product_disko <- rbind(disko_EU_sub, disko_GEM_shadow, pg_disko_ALL, disko_wild) |> mutate(site = "disko") |> distinct()
+full_product_disko <- rbind(disko_EU_sub, disko_green_sub, disko_GEM_shadow, pg_disko_ALL, disko_wild) |> mutate(site = "disko") |> distinct()
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
@@ -3894,7 +3906,7 @@ pg_nuup_bio <- pg_var_melt(pg_nuup_clean, query_bio)
 pg_nuup_soc <- pg_var_melt(pg_nuup_clean, query_soc) # empty
 
 # Stack them together
-pg_nuup_ALL <- rbind(pg_nuup_cryo, pg_nuup_phys, pg_nuup_chem, pg_nuup_bio, pg_nuup_soc)
+pg_nuup_ALL <- check_data(rbind(pg_nuup_cryo, pg_nuup_phys, pg_nuup_chem, pg_nuup_bio, pg_nuup_soc))
 data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.csv")
 save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
 
@@ -4215,9 +4227,8 @@ nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_
                   nuup_GEM_precip, nuup_GEM_snow, nuup_GEM_air_press, nuup_GEM_qnet, nuup_GEM_air_temp_2m, 
                   nuup_GEM_air_temp_10m, nuup_GEM_air_temp_2m_Kobbefjord, nuup_GEM_Kingigtorssuaq, nuup_GEM_Kobbefjord, 
                   nuup_GEM_Oriartorfik, nuup_GEM_Teqinngalip, nuup_GEM_nitrate_nitrite, nuup_GEM_fish_larvae, 
-                  nuup_GEM_Slat_g, nuup_GEM_Slat_cm, nuup_GEM_Anod_g, nuup_GEM_Anod_cm) |> mutate(site = "nuup") |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+                  nuup_GEM_Slat_g, nuup_GEM_Slat_cm, nuup_GEM_Anod_g, nuup_GEM_Anod_cm) |> 
+  mutate(type = "in situ", site = "nuup") |> distinct() |> check_data()
 save(nuup_GEM, file = "data/restricted/nuup_GEM.RData"); save(nuup_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
 rm(list = grep("nuup_GEM",names(.GlobalEnv),value = TRUE)); gc()
 
@@ -4316,7 +4327,8 @@ nuup_mmam_count <- read_delim("~/pCloudDrive//restricted_data/GEM/nuup/View_Mari
 nuup_species_GEM <- rbind(nuup_bird_nb, 
                           nuup_seabird_count, 
                           nuup_seabird_presence, 
-                          nuup_mmam_count)
+                          nuup_mmam_count) |> 
+  mutate(type = "survey") |>  distinct() |> check_data()
 save(nuup_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.RData")
 write_csv(nuup_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/nuup/nuup_species_GEM.csv")
 rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE))
@@ -4334,7 +4346,8 @@ nuup_EU_sub <- filter_site_plural("nuup", full_product_EU)
 if(!exists("full_product_green")) load("data/full_data/full_product_green.RData")
 
 # Subset to relevant Disko Bay site names
-# TODO: Still need to implement this
+# TODO: This probably shouldn't be 0
+nuup_green_sub <- filter_site_plural("nuup", full_product_green)
 
 # Load GEM data and create shadow
 if(!exists("nuup_GEM")) load("~/pCloudDrive/restricted_data/GEM/nuup/nuup_GEM.RData")
@@ -4358,7 +4371,8 @@ if(!exists("pg_nuup_ALL")) load("~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nu
 ## There are none
 
 # Combine and save
-full_product_nuup <- rbind(nuup_EU_sub, nuup_GEM_shadow, nuup_species_GEM_shadow, pg_nuup_ALL) |> mutate(site = "nuup") |> distinct()
+full_product_nuup <- rbind(nuup_EU_sub, nuup_green_sub, nuup_GEM_shadow, nuup_species_GEM_shadow, pg_nuup_ALL) |> 
+  mutate(site = "nuup") |> distinct()
 data.table::fwrite(full_product_nuup, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.csv")
 save(full_product_nuup, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/full_product_nuup.RData")
 save(full_product_nuup, file = "data/full_data/full_product_nuup.RData")
@@ -4371,6 +4385,8 @@ rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 
 # NB: There is only the full data product for Norway
 # This is a collection of social data
+
+# TODO: Some links break. Investigate.
 
 # National statistics
 ## Salmon exports
@@ -4601,12 +4617,11 @@ nor_MOSJ_pcod <- read_delim("~/pCloudDrive/FACE-IT_data/norway/biomass-of-polar-
 full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_pop, nor_MPA, 
                           nor_air_passenger, sval_employ_perc, nor_accommodation, 
                           nor_IMR_kingcrab, nor_MOSJ_pcod) |>
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+  mutate(type = "survey") |> distinct() |> check_data()
 data.table::fwrite(full_product_nor, "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.csv")
 save(full_product_nor, file = "~/pCloudDrive/FACE-IT_data/norway/full_product_nor.RData")
 save(full_product_nor, file = "data/full_data/full_product_nor.RData")
-save_data(full_product_nor) # NB: Shouldn't save anything because no matching site names to FACE-IT 7
+save_data(full_product_nor)
 rm(list = grep("nor_|sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -4671,7 +4686,7 @@ pg_por_bio <- pg_var_melt(pg_por_clean, query_bio)
 pg_por_soc <- pg_var_melt(pg_por_clean, query_soc) # empty
 
 # Stack them together
-pg_por_ALL <- rbind(pg_por_cryo, pg_por_phys, pg_por_chem, pg_por_bio, pg_por_soc)
+pg_por_ALL <- check_data(rbind(pg_por_cryo, pg_por_phys, pg_por_chem, pg_por_bio, pg_por_soc))
 data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.csv")
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
 
@@ -4694,6 +4709,7 @@ rm(list = grep("pg_por",names(.GlobalEnv),value = TRUE)); gc()
 por_NorKyst <- data.frame(date_accessed = NA, 
                           URL = "https://thredds.met.no/thredds/fou-hi/fou-hi.html", 
                           citation = "Albretsen, J., Sperrevik, A. K., Staalstrøm, A., Sandvik, A. D., Vikebø, F., & Asplin, L. (2011). NorKyst-800 Rapport nr. 1: Brukermanual og tekniske beskrivelser.", 
+                          type = "model",
                           site = "por", 
                           lon = NA, 
                           lat = NA, 
@@ -4701,11 +4717,13 @@ por_NorKyst <- data.frame(date_accessed = NA,
                           depth = NA,
                           category = c("phys", "cryo"), 
                           driver = c("sea temp", "sea ice"), 
-                          variable = c("temp [°C]", "sea ice thickness"))
+                          variable = c("temp [°C]", "sea ice thickness"),
+                          value = NA)
 
 ## Series of GFI moorings
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
-  mutate(date_accessed = as.Date("2021-08-11"), .before = 1)
+  mutate(date_accessed = as.Date("2021-08-11"), .before = 1) |> mutate(type = "in situ", site = "por") |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
 ## Sea ice extent for Norwegian fjords
 por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-extent.txt", delim = "\t") %>% 
@@ -4715,17 +4733,16 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
          date_accessed = as.Date("2021-09-08"),
          URL = "https://zenodo.org/record/4133926#.YTikO1uxU5l",
          citation = "Megan O'Sadnick, Chris Petrich, Camilla Brekke, & Jofrid Skardhamar. (2020). Ice extent in Norwegian fjords, 2001-2019 [Data set]. In Annals of Glaciology (1.0.1, Number Sea Ice at the Interface). Zenodo. https://doi.org/10.5281/zenodo.4133926",
-         lon = NA, lat = NA, depth = NA,
+         lon = NA, lat = NA, depth = NA, type = "survey", site = "por",
          category = "cryo", variable = "ice area [km2]") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
 ## Hydrographic data
-por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08"))
+por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08")) |> mutate(type = "in situ", site = "por") |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
 # Combine and save
-por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro) |> mutate(site = "por") |> distinct() |> 
-  left_join(full_var_list, by = c("category", "variable")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, category, driver, variable, value)
+por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro) |> distinct() |> check_data()
 data.table::fwrite(por_wild, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.csv")
 save(por_wild, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
@@ -4743,7 +4760,6 @@ por_EU_sub <- filter_site_plural("por", full_product_EU)
 if(!exists("full_product_nor")) load("data/full_data/full_product_nor.RData")
 
 # Subset to Porsangerfjorden bbox and references for data missing lon/lat coords
-# TODO: Improve this to catch and convert provence etc. site names
 por_nor_sub <- filter_site_plural("por", full_product_nor)
 
 # Load PG product
@@ -4820,7 +4836,10 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
 
 ## Svalbard
 # Svalbard: Province for Svalbard
+# east ice and west ice: Svalbard survey regions
 # Longyearbyen: Main city in Isfjorden
+# Isfjorden sites:
+  # Longyearbyen & Ny-Alesund mainland, Longyearbyen & Ny-Alesund abroad, Barentsburg and Pyramiden
 # Svalbard Longyear: Airport on Isfjorden
 # Ny-Alesund: Main village in Kongsfjorden
 
@@ -4840,20 +4859,23 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
 
 ### Link sites --------------------------------------------------------------
 
+# TODO: Now that this has been propogated throgh the pipeline, this code needs a legacy location
+
 # The list of sites created to help with linking
 full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
   dplyr::rename(site_alt = site) |> arrange(site_alt) |> 
   mutate(site = case_when(site_alt %in% long_site_names$site ~ site_alt, TRUE ~ NA),
          site = case_when(site_alt == "EU" ~ "EU",
-                          site_alt %in% c("Svalbard", "svalbard", "sval") ~ "sval",
-                          site_alt %in% c("Norway", "Barents Sea", "Barents sea", "barents sea", "nor") ~ "nor",
+                          site_alt %in% c("Svalbard", "svalbard", "sval", "east ice", "west ice", "SvalbardTransit") ~ "sval",
+                          site_alt %in% c("Norway", "Barents Sea", "Barents sea", "barents sea", "nor", "NorwegianWaters") ~ "nor",
                           site_alt %in% c("Grønlund", "green",
                                           # "West- Eastgreenland", "Westgreenland", # TODO: Look into these
                                           # "east ice", "west ice", # TODO: Look into these
                                           "All Greenland") ~ "green",
                           site_alt %in% c("Kongsfjorden", "Ny-Alesund") ~ "kong",
-                          site_alt == "Longyearbyen & Ny-Alesund" ~ "is", # NB: This is an intentional choice
-                          site_alt %in% c("Svalbard Longyear") ~ "is",
+                          site_alt %in% c("Longyearbyen & Ny-Alesund", "Longyearbyen & Ny-Alesund mainland",
+                                          "Longyearbyen & Ny-Alesund abroad", "Barentsburg and Pyramiden") ~ "is", # NB: This is an intentional choice
+                          site_alt %in% c("Svalbard Longyear", "Isfjorden") ~ "is",
                           site_alt %in% c("Storfjorden") ~ "stor",
                           site_alt %in% c("Lakselv", "Lakselv Banak", "Honningsvåg Valan", "Honningsvåg",
                                           "Troms og Finnmark - Romsa ja Finnmárku") ~ "por",
@@ -4868,10 +4890,10 @@ full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
                           site_alt %in% c("Outside municipalities") ~ "young",
                           TRUE ~ site)) |> 
   left_join(long_site_names, by = "site") |> 
-  mutate(site_long = case_when(site == "EU" ~ "EU", site == "green" ~ "green",
-                               site == "nor" ~ "nor", site == "sval" ~ "sval", TRUE ~ site_long)) |> 
+  mutate(site_long = case_when(site == "EU" ~ "EU", site == "green" ~ "Greenland",
+                               site == "nor" ~ "Norway", site == "sval" ~ "Svalbard", TRUE ~ site_long)) |> 
   dplyr::select(site, site_long, site_alt)
-write_csv(full_site_list, "metadata/full_site_list.csv")
+# write_csv(full_site_list, "metadata/full_site_list.csv")
 
 # NB: This is retroactively used at the start of the pipeline
 # Thereby making it redundant by this step
@@ -4903,8 +4925,8 @@ clean_sea_ice <- filter(full_ALL, driver == "sea ice") |>
 ## Not a lot of common sea ice data between sites
 ## The gridded data sea ice cover will be the best comparison between sites
 ## Created in code/data_processing.R
-load("data/analyses/ice_4km_proc.RData")
-ice_4km_prop_wide <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
+# load("data/analyses/ice_4km_proc.RData")
+# ice_4km_prop_wide <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
 
 # Calculate trends
 # NB: While interesting, this is too detailed to be included in the clean data
@@ -4918,20 +4940,21 @@ ice_4km_prop_wide <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .paral
 #   dplyr::select(-month)
 
 # Combine with other clean data
-ice_4km_prop <- ice_4km_prop_wide %>%
-  dplyr::rename(value = mean_prop) %>% 
-  dplyr::select(date, value, site) %>% 
-  mutate(variable = "sea ice cover [proportion]",
-         type = "MASIE", depth = NA, lon = NA, lat = NA,
-         category = "cryo", driver = "sea ice",
-         date_accessed = as.Date("2022-04-26"),
-         URL = "https://doi.org/10.7265/N5GT5K3K",
-         citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. (2010), updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.") |> 
-  dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
-save(ice_4km_prop, file = "data/analyses/ice_4km_prop.RData")
+# ice_4km_prop <- ice_4km_prop_wide %>%
+#   dplyr::rename(value = mean_prop) %>% 
+#   dplyr::select(date, value, site) %>% 
+#   mutate(variable = "sea ice cover [proportion]",
+#          type = "MASIE", depth = NA, lon = NA, lat = NA,
+#          category = "cryo", driver = "sea ice",
+#          date_accessed = as.Date("2022-04-26"),
+#          URL = "https://doi.org/10.7265/N5GT5K3K",
+#          citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. (2010), updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.") |> 
+#   dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
+# save(ice_4km_prop, file = "data/analyses/ice_4km_prop.RData")
+load("data/analyses/ice_4km_prop.RData")
 
 # Bind together
-clean_sea_ice <- rbind(clean_sea_ice, ice_4km_prop_long) %>% distinct()
+clean_sea_ice <- rbind(clean_sea_ice, ice_4km_prop) %>% distinct()
 rm(ice_4km_proc, ice_4km_prop, ice_4km_prop_long); gc(); print(unique(clean_sea_ice$variable))
 
 # Calculate sea ice breakup and formation dates
@@ -4945,9 +4968,7 @@ rm(ice_4km_proc, ice_4km_prop, ice_4km_prop_long); gc(); print(unique(clean_sea_
 # TODO: Fix this above so this step isn't necessary
 # Or perhaps keep it as it is another approach to parsing sea ice and glacier ice data from each other
 clean_glacier_sea_ice <- filter(full_ALL, driver == "sea ice", depth < 0) |> mutate(driver = "glacier")
-clean_glacier <- filter(full_ALL, driver == "glacier") |> rbind(clean_glacier_sea_ice) |> mutate(type = "in situ") |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+clean_glacier <- filter(full_ALL, driver == "glacier") |> rbind(clean_glacier_sea_ice) |> mutate(type = "in situ") |> distinct()
 rm(clean_glacier_sea_ice); gc(); print(unique(clean_glacier$variable))
 
 # NB: Not using this legacy code at the moment, this was for the data paper
@@ -4983,7 +5004,7 @@ FACE_IT_GRDC <- site_GRDC %>%
   mutate(date_accessed = as.Date("2022-06-13"), type = "in situ", category = "cryo", driver = "runoff",
          URL = "https://www.bafg.de/GRDC/EN/04_spcldtbss/41_ARDB/ardb_node.html", 
          citation = "Arctic Region Discharge Data (2021). The Global Runoff Data Centre, 56068 Koblenz, Germany") %>% 
-  dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
+  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
 # Get all river discharge data from full/GEM products and combine with GRDC
 clean_runoff <- filter(full_ALL, driver == "runoff") |> mutate(type = "in situ") |> 
@@ -5018,11 +5039,11 @@ if(!exists("CCI_all")) load("data/analyses/CCI_all.RData")
 # Removing tpot (Potential temperature) is a potentially controversial decision...
 # t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
 # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
-clean_sea_temp <- filter(full_ALL, driver == "sea temp") |> mutate(type = "in situ") |> 
+clean_sea_temp <- filter(full_ALL, driver == "sea temp") |> #mutate(type = "in situ") |> 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
   distinct() |> rbind(OISST_all, CCI_all) |> depth_bin_average() |> 
-  mutate(variable = case_when(variable == "Temp [°C]" ~ "temp [°C]", TRUE ~ variable)) |> 
-  filter(variable == "temp [°C]")
+  mutate(variable = case_when(variable == "Temp [°C]" ~ "temp [°C]", TRUE ~ variable)) |>
+  filter(variable %in% c("temp [°C]"))
 rm(OISST_all, CCI_all); gc(); print(unique(clean_sea_temp$variable))
 
 
@@ -5036,9 +5057,7 @@ rm(OISST_all, CCI_all); gc(); print(unique(clean_sea_temp$variable))
 # sal interp e.g. https://doi.org/10.1594/PANGAEA.877869
 # Remove glacial drainage land stations
 # variable = case_when(variable %in% c("s_fb [unit]") ~ "sal_pco2", # Salinity for pCO2 analyses
-clean_salinity <- filter(full_ALL, driver == "salinity") |> mutate(type = "in situ") |> filter(value > 0) |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct() |> depth_bin_average()
+clean_salinity <- filter(full_ALL, driver == "salinity") |> filter(value > 0) |> distinct() |> depth_bin_average()
 print(unique(clean_salinity$variable))
 
 
@@ -5047,9 +5066,7 @@ print(unique(clean_salinity$variable))
 # TODO: Look into variables
 
 # Get all PAR+UV data
-clean_light <- filter(full_ALL, driver == "light") |> mutate(type = "in situ") |> filter(value > 0) |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+clean_light <- filter(full_ALL, driver == "light") |> filter(value > 0) |> distinct()
   #        !grepl("volt", variable)) %>%
   # mutate(value = case_when(str_detect(variable, "mmol") ~ value/1000, TRUE ~ value),
   #        variable = case_when(str_detect(variable, "PAR|par") ~ "PAR [µmol m-2 s-1]",
@@ -5091,10 +5108,8 @@ clean_carb <- filter(full_ALL, driver == "carb") |>
                               variable %in% c("pco2_calc [uatm]") ~ "pCO2_calc [µatm]",
                               variable %in% c("pH_sf [total scale]", "pHT in situ", "phtsinsitutp") ~ "pH in situ [total scale]",
                               variable %in% c("pH") ~ "pH [unknown scale]",
-                              TRUE ~ variable),
-         type = "in situ") |> filter(value > 0) |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+                              TRUE ~ variable)) |> 
+  filter(value > 0) |> distinct()
 # unique(clean_carb$variable[str_detect(clean_carb$variable, "ph|pH")]) # Double check that only pH values are screened this way
 # unique(clean_carb$variable)
 # test_df <- dplyr::select(clean_carb, citation, variable) %>% distinct() %>% filter(str_detect(variable, "ph|pH"))
@@ -5105,6 +5120,7 @@ print(unique(clean_carb$variable))
 ### Nutrients ---------------------------------------------------------------
 
 # TODO: Create report showing difference in GLODAP l and kg values
+# TODO: These variables still need to be cleaned up
 
 ## Notes on nutrients
 # [µmol/l] is the same as [µg-at/l]
@@ -5115,28 +5131,7 @@ print(unique(clean_carb$variable))
   # - PO4 vs [PO4]3-
 
 # Get all nutrient data
-clean_nutrients <- filter(full_ALL, driver == "nutrients") %>% 
-  filter(value > 0) %>%
-  filter(variable != "NO3 [µmol/kg]") %>% # TODO: Fix this conversion in data_product.R seacarb::rho() see help file
-  # Change GLODAP variable to match PANGAEA standard 
-  mutate(variable = case_when(variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol/l]",   
-                              variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol/l]",   
-                              variable == "silicate [μmol kg-1]" ~ "SiO4 [µmol/l]",
-                              variable == "phosphate [μmol kg-1]" ~ "PO4 [µmol/l]",
-                              TRUE ~ variable),
-         # Convert other variable names to a single standard
-         variable = case_when(variable %in% c("[NO3]- [µmol/l]",
-                                              # "NO3 [µmol/kg]", # Possible units issue
-                                              "NO3 [µg-at/l]") ~ "NO3 [µmol/l]", 
-                              variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol/l]",
-                              variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol/l]",
-                              variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol/l]",
-                              variable %in% c("nitrate+nitrite [µmol/l]", "[NO3]- + [NO2]- [µmol/l]",
-                                              "NO2_NO3 [µmol/l]") ~ "NO3+NO2 [µmol/l]",
-                              TRUE ~ variable),
-         type = "in situ") |> filter(value > 0) |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+clean_nutrients <- filter(full_ALL, driver == "nutrients") |> filter(value > 0) distinct()
 # unique(clean_nutrients$variable)
 # test_df <- filter(clean_nutrients, variable == "NO3 [µmol/l]")
 print(unique(clean_nutrients$variable))
@@ -5156,14 +5151,12 @@ print(unique(clean_nutrients$variable))
 # https://zenodo.org/record/5572041#.YW_Lc5uxU5m: chl_flu [µg chl m-3] = chlorophyll a calculated from fluorescence profile
 
 # Compile
-clean_prim_prod <- filter(full_ALL, driver == "prim prod") |> filter(value > 0) |> 
+clean_prim_prod <- filter(full_ALL, driver == "prim prod") |>
   mutate(variable = case_when(variable %in% c("chlA [µg/l]", "Chl a [µg/l]") ~ "Chla [µg/l]", 
                               variable == "Chlorophyll A - 10um [µg/l]" ~ "Chla - 10um [µg/l]",
                               variable == "Chlorophyll A - GFF [µg/l]" ~ "Chla - GFF [µg/l]",
-                              TRUE ~ variable),
-         type = "in situ") |> filter(value > 0) |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+                              TRUE ~ variable)) |> 
+  filter(value > 0) |> distinct()
 # unique(clean_pp$variable)
 # unique(clean_pp$variable[str_detect(clean_pp$variable, "PP|pp")]) # Double check that only pH values are screened this way
 # test_df <- filter(clean_pp, variable == "TOTAL_chla_area")
@@ -5182,9 +5175,8 @@ clean_biomass <- filter(full_ALL, driver == "biomass") |>
   filter(!grepl("\\[presence\\]", variable)) |> # Presence data used in species richness driver
   mutate(variable = str_replace(variable, "individuals\\/m3", "ind\\/m3"), 
          variable = str_replace(variable, "Biomass - ", ""),
-         type = "in situ") |> filter(value > 0) |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+         type = "in situ") |> 
+  filter(value > 0) |> distinct()
 print(unique(clean_biomass$variable))
 
 
@@ -5293,18 +5285,14 @@ rm(spp_count); gc(); print(unique(clean_biomass$variable))
 ### Governance --------------------------------------------------------------
 
 # Get all governance data
-clean_gov <- filter(full_ALL, driver == "gov") |> mutate(type = "in situ") |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+clean_gov <- filter(full_ALL, driver == "gov") |> distinct()
 print(unique(clean_gov$variable))
 
 
 ### Tourism ----------------------------------------------------------------
 
 # Get tourism variables
-clean_tourism <- filter(full_ALL, driver == "tourism", !is.na(value)) |> mutate(type = "in situ") |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+clean_tourism <- filter(full_ALL, driver == "tourism") |> distinct()
 print(unique(clean_tourism$variable))
 
 
@@ -5315,9 +5303,7 @@ print(unique(clean_tourism$variable))
 # Get shipping variables
 clean_fisheries <- filter(full_ALL, driver == "fisheries") |> 
   filter(!grepl("\\[Month Trips\\]", variable)) |> # NB: It is unclear what exactly these are
-  mutate(type = "in situ") |> arrange(variable) |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
+  arrange(variable) |> distinct()
 # unique(clean_fisheries$category)
 # unique(clean_fisheries$driver)
 # unique(clean_fisheries$variable)
@@ -5396,7 +5382,7 @@ data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
 data_shadow_df <- shadow(clean_all)
 
 # Prep for PANGAEA standard
-FACE_IT_v1.3 <- clean_all |> 
+FACE_IT_v1.4 <- clean_all |> 
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
@@ -5408,39 +5394,39 @@ FACE_IT_v1.3 <- clean_all |>
          citation = str_replace_all(citation, ";", "."))
 
 # Double check data shadows have been applied correctly
-shadow_test <- filter(FACE_IT_v1.3, grepl(data_shadow, URL))
+shadow_test <- filter(FACE_IT_v1.4, grepl(data_shadow, URL))
 rm(shadow_test); gc()
 
 # Save as .csv
 # NB: write_csv_arrow not currently working, file too large
-write_csv(FACE_IT_v1.3, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3.csv")
-write_csv(FACE_IT_v1.3, "data/full_data/FACE_IT_v1.3.csv")
+write_csv(FACE_IT_v1.4, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4.csv")
+write_csv(FACE_IT_v1.4, "data/full_data/FACE_IT_v1.4.csv")
 
 # TODO: Address multiples
 # Cryo data
-FACE_IT_v1.3_cryo <- filter(FACE_IT_v1.3, category == "cryo") |>
+FACE_IT_v1.4_cryo <- filter(FACE_IT_v1.4, category == "cryo") |>
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.3_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_cryo.csv", delim = ";")
+write_delim(FACE_IT_v1.4_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1.3_phys <- filter(FACE_IT_v1.3, category == "phys") |> 
+FACE_IT_v1.4_phys <- filter(FACE_IT_v1.4, category == "phys") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.3_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_phys.csv", delim = ";")
+write_delim(FACE_IT_v1.4_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1.3_chem <- filter(FACE_IT_v1.3, category == "chem") |> 
+FACE_IT_v1.4_chem <- filter(FACE_IT_v1.4, category == "chem") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.3_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_chem.csv", delim = ";")
+write_delim(FACE_IT_v1.4_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1.3_bio <- filter(FACE_IT_v1.3, category == "bio") |> 
+FACE_IT_v1.4_bio <- filter(FACE_IT_v1.4, category == "bio") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.3_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_bio.csv", delim = ";")
+write_delim(FACE_IT_v1.4_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1.3_soc <- filter(FACE_IT_v1.3, category == "soc") |> 
+FACE_IT_v1.4_soc <- filter(FACE_IT_v1.4, category == "soc") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.3_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.3_soc.csv", delim = ";")
+write_delim(FACE_IT_v1.4_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_soc.csv", delim = ";")
 
 
 ## Additional cleaning -----------------------------------------------------

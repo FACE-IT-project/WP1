@@ -3084,6 +3084,7 @@ chem,carb,CaCO3 ads [µmol/g/h]
 chem,carb,CaCO3 flux [mg/m**2/day]
 chem,carb,CaCO3 prec [µmol/g/h]
 chem,carb,D pH
+chem,carb,DIC [µmol kg-1]
 chem,carb,DOC rel [µmol/g/h]
 chem,carb,TA [µmol/kg]
 chem,carb,pCO2 [µatm]
