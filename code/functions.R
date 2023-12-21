@@ -11,9 +11,20 @@ source("code/metadata.R")
 
 # Functions ---------------------------------------------------------------
 
+# Rename variables to a common project term 
+check_variable <- function(df){
+  
+  
+}
+
+# Correctly merge variables into categories and drivers
+check_driver <- function(){
+
+}
+
 # Convert sites to FACE-IT site names when possible
 ## NB: Site list was first created in the 'Site conversion' section of 'code/data_product.R' for v1.4
-append_site <- function(df, site_list){
+check_site <- function(df, site_list){
   df_join <- left_join(df, site_list, by = c("site" = "site_alt")) |> 
     filter(!is.na(site.y)) |> 
     mutate(variable = case_when(site != site.y ~ paste0(site," - ",variable)),
@@ -22,8 +33,15 @@ append_site <- function(df, site_list){
   # rm(df, df_join, site_list)
 }
 
-# Correctly merge variables into categories and drivers
-append_cat_driver <- function(){
+# Checks that a given dataset meets all of the project standards
+# TODO: consider allowing for a site override option
+check_data <- function(df){
+  
+  # Convert variable names to a project standard
+  
+  # Add categories and drivers and note any issues
+  
+  # Confirm site names and confirm any issues
   
 }
 

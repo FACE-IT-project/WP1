@@ -4806,10 +4806,117 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
                   full_product_por,
                   full_product_EU, full_product_sval, full_product_green, full_product_nor,
                   young_GEM, disko_GEM, nuup_GEM,
-                  young_species_GEM, nuup_species_GEM) |> 
+                  young_species_GEM, nuup_species_GEM)# |> 
   # TODO: Change this before this step
   # TODO: Look into data missing site values
-  mutate(type = "in situ")
+  # mutate(type = "in situ")
+
+## Driver conversion -------------------------------------------------------
+
+# TODO: Think about how to scan the full data for missing drivers
+# and create a system that reincorporates them into full_var_list
+# Or perhaps rather use this as a catch and then go back above and 
+# correct the variable names to match with existing variables
+# And when that doesn't work, then add new ones to 'full_var_list'
+
+# Here we see which variables are missing a driver and assign them accordingly
+# This will be done retroactively in the pipeline above
+full_var_list <- full_ALL |> 
+  dplyr::select(category, driver, variable) |> 
+  distinct() |> filter(!is.na(category), !is.na(driver), !is.na(variable))
+
+# Find variables missing categories
+# NB: This should be 0
+miss_cat <- filter(full_ALL, is.na(category)) |> dplyr::select(citation, site, variable) |> distinct()
+rm(miss_cat); gc()
+
+# Find variables missing drivers
+# NB: Actively choosing not to include Geyman et al. variables with clean cryo data
+# This is because they represent large time spans per value, so aren't well suited here
+miss_cryo <- filter(cat_driver_miss(full_ALL, "cryo"), !grepl("Geyman", citation))
+miss_phys <- cat_driver_miss(full_ALL, "phys")
+miss_chem <- cat_driver_miss(full_ALL, "chem")
+miss_bio <- cat_driver_miss(full_ALL, "bio")
+
+
+# Assign drivers
+# NB: All omissions made here are intentional
+var_cryo <- miss_cryo |> 
+  mutate(driver = case_when(grepl("GlacioBasis|glaciers", citation) ~ "glacier",
+                            grepl("snow fall", variable) ~ "glacier",
+                            grepl("ice extent|Sea ice", variable) ~ "sea ice")) |> 
+  filter(!is.na(driver)) |>
+  dplyr::select(category, driver, variable) |> distinct()
+var_phys <- miss_phys |> 
+  mutate(variable = case_when(variable %in% c("CDNC [S m-1]", "cond [S/m]", "conductivity [S/m]") ~ "cndc [S m-1]",
+                              variable %in% c("cndc [mS/cm]", "cond [mS/cm]",
+                                              "conductivity [mS cm-1]", "conductivity [mS/cm]") ~ "cndc [mS cm-1]",
+                              variable %in% c("DEN [kg m-3]", "dens [kg/m3]", "density [kg/m^3]",
+                                              "density [kg/m3]", "density_kg_m3 [kg m-3]") ~ "density [kg m-3]",
+                              variable %in% c("dens_sigtheta [kg/m-3]", "sigma [kg/m3]", "Sigma-t", 
+                                              "sigmaT_kg_m3 [kg m-3]") ~ "density sigtheta [kg m-3]",
+                              grepl("par \\[|PAR \\[", variable) ~ "PAR [µmol m-2 s-1]",
+                              variable %in% c("par_V [volt]") ~ "PAR [volt]",
+                              variable %in% c("PDEN [kg m-3]") ~ "pot density [kg m-3]",
+                              variable %in% c("pot_temp [°C]", "potential_temperature [°C]",
+                                              "theta [°C]", "THETA [°C]", "Tpot [°C]") ~ "pot temp [°C]",
+                              variable %in% c("pres [db]", "PRES [dbar]", "press [dbar]", "pressure [dbar]") ~ "pres [dbar]",
+                              variable %in% c("press [psi]", "pressure [psi]") ~ "pres [psi]",
+                              variable %in% c("psal [1e-3]", "PSAL [1e-3]", "sal [ppt]", "sal [PSS-78]",
+                                              "sal [PSU]", "Sal [PSU]", "salinity", "Salinity",
+                                              "salinity [1]", "salinity [PSU]", "Salinity [PSU]") ~ "sal",
+                              variable %in% c("Temp [°C]", "TEMP [°C]", "temp [ITS-90]", "temperature [°C]",
+                                              "Temperature [ITS-90, deg C]") ~ "temp [°C]",
+                              variable %in% c("turb [NTU]") ~ "turbidity [NTU]",
+                              variable %in% c("turbidity_V [volt]") ~ "turbidity [volt]",
+                              TRUE ~ variable),
+         driver = case_when(variable %in% c("MLD [m]", "pot temp [°C]", "temp [°C]") ~ "sea temp",
+                            variable %in% c("density [kg m-3]", "density sigtheta [kg m-3]", "pot density [kg m-3]", 
+                                            "cndc [mS cm-1]", "cndc [S m-1]", "pres [dbar]", "pres [kg cm-2]",
+                                            "pres [psi]", "sal", "sal [g kg-1]") ~ "salinity",
+                            variable %in% c("PAR", "PAR [volt]", "PAR [µmol m-2 s-1]", "UVA", "UVB") ~ "light",
+                            grepl("turbidity", variable) ~ "light")) |> 
+  filter(!is.na(driver)) |>
+  dplyr::select(category, driver, variable) |> distinct()
+var_chem <- miss_chem |> 
+  mutate(variable = case_when(variable == "chla [μg kg-1 d]" ~ "chl a [μg kg-1 d-1]", 
+                              variable %in% c("AT [µmol/kg]") ~ "TA [µmol kg-1]",
+                              variable %in% c("DIC [µmol/kg]") ~ "DIC [µmol kg-1]",
+                              variable %in% c("doc [μmol L-1 d]") ~ "DOC [μmol l-1 d-1]",
+                              variable %in% c("EP TA [µmol/kg]") ~ "EP TA [µmol kg-1]",
+                              variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol kg-1]",   
+                              variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol kg-1]",   
+                              variable == "silicate [μmol kg-1]" ~ "SiO4 [µmol kg-1]",
+                              variable %in% c("phosphate [μmol kg-1]", "PO4 [µmol/kg]") ~ "PO4 [µmol kg-1]",
+                              variable %in% c("[NO3]- [µmol/l]",
+                                              # "NO3 [µmol/kg]", # Possible units issue
+                                              "NO3 [µg-at/l]") ~ "NO3 [µmol/l]", 
+                              variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol l-1]",
+                              variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol l-1]",
+                              variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol l-1]",
+                              variable %in% c("nitrate+nitrite [µmol/l]", "[NO3]- + [NO2]- [µmol l-1]",
+                                              "NO2_NO3 [µmol l-1]") ~ "NO3+NO2 [µmol l-1]",
+                              TRUE ~ variable),
+         driver = case_when(variable == "fco2temp [°C]" ~ "sea temp", 
+                            variable == "chl a [μg kg-1 d-1]" ~ "prim prod",
+                            variable %in% c("TA [µmol kg-1]", "DIC [µmol kg-1]", "DOC [μmol l-1 d-1]",
+                                            "fco2 [μatm]", "EP TA [µmol kg-1]") ~ "carb",
+                            grepl("DIC", variable) ~ "carb",
+                            variable %in% c("nitracline [m]") ~ "nitrients",
+                            grepl("NO2", variable) ~ "nutrients"),
+         category = case_when(variable == "fco2temp [°C]" ~ "phys",
+                              variable == "chl a [μg kg-1 d-1]" ~ "bio", TRUE ~ category)) |> 
+  # filter(!is.na(driver)) |>
+  # mutate(driver = NA) |> 
+  dplyr::select(category, driver, variable) |> distinct()
+
+# Pin it together
+var_ALL <- rbind(var_cryo, var_phys, var_chem, var_bio, var_soc)
+
+# Recheck all of the variable names and standardise again
+
+# Save
+write_csv(full_var_list, "metadata/full_var_list.csv")
 
 
 ## Site conversion --------------------------------------------------------
@@ -4876,39 +4983,12 @@ full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
   dplyr::select(site, site_long, site_alt)
 write_csv(full_site_list, "metadata/full_site_list.csv")
 
-# Convert site names and make a note in the variable
-## TODO: Shift this step to the wild data stage
-full_ALL_site <- append_site(full_ALL, full_site_list)
-rm(full_ALL); gc()
-
-
-## Driver conversion -------------------------------------------------------
-
-# Here we see which variables are missing a driver and assign them accordingly
-# This will be done retroactively in the pipeline above
-
-full_var_list <- read_csv("metadata/full_var_list.csv")
-
+# NB: This is retroactively used at the start of the pipeline
+# Thereby making it redundant by this step
+# The code remains here as a legacy of the choices made when linking sites
 
 
 ## Cryosphere --------------------------------------------------------------
-
-# Find cryosphere category data with no assigned driver
-miss_cryo <- cat_driver_miss(full_ALL, "cryo")
-
-# NB: Actively choosing not to include Geyman et al. variables with clean cryo data
-# This is because they represent large time spans per value, so aren't well suited here
-miss_cryo <- filter(miss_cryo, !grepl("Geyman", citation))
-
-# TODO: Think about how to scan the full data for missing drivers
-# and create a system that reincorporates them into full_var_list
-# Or perhaps rather use this as a catch and then go back above and 
-# correct the variable names to match with existing variables
-# And when that doesn't work, then add new ones to 'full_var_list'
-
-# Separate out missing drivers into groups
-# miss_sea_ice <- filter(miss_cryo)
-
 
 ### Sea ice ----------------------------------------------------------------
 
@@ -5024,14 +5104,6 @@ rm(EU_GRDC, site_GRDC, FACE_IT_GRDC); gc(); print(unique(clean_runoff$variable))
 
 ## Physics ----------------------------------------------------------------
 
-# TODO: Assign missing variables to drivers
-# Find physical category data with no assigned driver
-miss_phys <- cat_driver_miss(full_ALL, "phys")
-
-# Many of these will be very simple
-# Perhaps better to go back through datasets above and correct the variables there
-
-
 ### Sea temp ----------------------------------------------------------------
 
 # TODO: Look into temperature values above 20°C
@@ -5098,11 +5170,6 @@ print(unique(clean_light$variable))
 
 
 ## Chemistry ---------------------------------------------------------------
-
-# TODO: Assign missing variables to drivers
-# Find physical category data with no assigned driver
-miss_chem <- cat_driver_miss(full_ALL, "chem")
-
 
 ### Carb -------------------------------------------------------------------
 
@@ -5186,11 +5253,6 @@ print(unique(clean_nutrients$variable))
 
 
 ## Biology -----------------------------------------------------------------
-
-# TODO: Assign missing variables to drivers
-# Find physical category data with no assigned driver
-miss_bio <- cat_driver_miss(full_ALL, "bio")
-
 
 ### Primary production ------------------------------------------------------
 
