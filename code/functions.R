@@ -13,8 +13,13 @@ source("code/metadata.R")
 
 # Convert sites to FACE-IT site names when possible
 ## NB: Site list was first created in the 'Site conversion' section of 'code/data_product.R' for v1.4
-append_site <- function(){
-  
+append_site <- function(df, site_list){
+  df_join <- left_join(df, site_list, by = c("site" = "site_alt")) |> 
+    filter(!is.na(site.y)) |> 
+    mutate(variable = case_when(site != site.y ~ paste0(site," - ",variable)),
+           site = site.y) |> dplyr::select(-site.y, -site_long)
+  return(df_join)
+  # rm(df, df_join, site_list)
 }
 
 # Correctly merge variables into categories and drivers

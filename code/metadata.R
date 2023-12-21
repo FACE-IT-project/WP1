@@ -53,8 +53,8 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 # full_site_list <- read_csv()
 
 # Full category -> driver -> variable list
-# NB: This was generated a posteriori from v1.0 of the data product
-# meaning there will be issues within it that must be resolved in newer versions
+# NB: This was first generated a posteriori from v1.0 of the data product
+# It was then updated vor v1.4 in the 'Driver conversion' section of 'code/data_product.R'
 full_var_list <- read_csv("metadata/full_var_list.csv")
 
 

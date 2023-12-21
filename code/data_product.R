@@ -4814,7 +4814,36 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
 
 ## Site conversion --------------------------------------------------------
 
-# Here a list of sites is created and the conversion made
+### Relevant sites --------------------------------------------------------
+
+## Norway
+# Troms og Finnmark: Province(s) for Porsangerfjorden
+# Lakselv: Main city for Porsangerfjorden (?)
+# Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
+
+## Svalbard
+# Svalbard: Province for Svalbard
+# Longyearbyen: Main city in Isfjorden
+# Svalbard Longyear: Airport on Isfjorden
+# Ny-Alesund: Main village in Kongsfjorden
+
+## Greenland
+# Sermersooq: Municipality for Nuup Kangerlua
+# Nuuk: Main city in Nuup Kangerlua, also an airport
+# Qeqertalik: Municipality for Disko bay
+# Avannaata: Municipality that borders on Disko Bay (relevant for demographics, fish landings, etc.)
+# Qeqertarsuaq: Main city in Disko Bay (?)
+# Aasiaat: Port on southern edge of Disko Bay
+# Ilulissat: Port on eastern edge of Disko Bay, also an airport
+# Qasigiannguit: Port on eastern edge of Disko Bay
+# Uummannaq: City North of Disko Bay (possibly relevant for fish landings etc.)
+# Kangaatsiaq: Port south of Disko Bay (possibly relevant for fish landings etc.)
+# Outside municipalities: Young Sound appears to fall outside of a municipality
+
+
+### Link sites --------------------------------------------------------------
+
+# The list of sites created to help with linking
 full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
   dplyr::rename(site_alt = site) |> arrange(site_alt) |> 
   mutate(site = case_when(site_alt %in% long_site_names$site ~ site_alt, TRUE ~ NA),
@@ -4847,31 +4876,19 @@ full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
   dplyr::select(site, site_long, site_alt)
 write_csv(full_site_list, "metadata/full_site_list.csv")
 
-### Relevant sites
+# Convert site names and make a note in the variable
+## TODO: Shift this step to the wild data stage
+full_ALL_site <- append_site(full_ALL, full_site_list)
+rm(full_ALL); gc()
 
-## Norway
-# Troms og Finnmark: Province(s) for Porsangerfjorden
-# Lakselv: Main city for Porsangerfjorden (?)
-# Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
 
-## Svalbard
-# Svalbard: Province for Svalbard
-# Longyearbyen: Main city in Isfjorden
-# Svalbard Longyear: Airport on Isfjorden
-# Ny-Alesund: Main village in Kongsfjorden
+## Driver conversion -------------------------------------------------------
 
-## Greenland
-# Sermersooq: Municipality for Nuup Kangerlua
-# Nuuk: Main city in Nuup Kangerlua, also an airport
-# Qeqertalik: Municipality for Disko bay
-# Avannaata: Municipality that borders on Disko Bay (relevant for demographics, fish landings, etc.)
-# Qeqertarsuaq: Main city in Disko Bay (?)
-# Aasiaat: Port on southern edge of Disko Bay
-# Ilulissat: Port on eastern edge of Disko Bay, also an airport
-# Qasigiannguit: Port on eastern edge of Disko Bay
-# Uummannaq: City North of Disko Bay (possibly relevant for fish landings etc.)
-# Kangaatsiaq: Port south of Disko Bay (possibly relevant for fish landings etc.)
-# Outside municipalities: Young Sound appears to fall outside of a municipality
+# Here we see which variables are missing a driver and assign them accordingly
+# This will be done retroactively in the pipeline above
+
+full_var_list <- read_csv("metadata/full_var_list.csv")
+
 
 
 ## Cryosphere --------------------------------------------------------------
