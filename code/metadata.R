@@ -49,13 +49,36 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 
 # Meta-data ---------------------------------------------------------------
 
-# Site list for province etc. conversions
-# full_site_list <- read_csv()
-
 # Full category -> driver -> variable list
 # NB: This was first generated a posteriori from v1.0 of the data product
 # It was then updated vor v1.4 in the 'Driver conversion' section of 'code/data_product.R'
 full_var_list <- read_csv("metadata/full_var_list.csv")
+
+# Site list for province etc. conversions
+full_site_list <- read_csv("metadata/full_site_list.csv")
+
+# manually new variables to list
+full_var_list <- rbind(full_var_list,
+                       data.frame(category = c("soc"),
+                                  driver = c("tourism"),
+                                  variable = c("Vessels [Pleasure boat]", "Days in port [Day trip boats]", "Passengers [Day trip boats]",
+                                               "guest night [Holiday dwellings and youth hostels - Foreign national, total]",
+                                               "guest night [Holiday dwellings and youth hostels - Norway]",
+                                               "Guest nights - Total - Türkiye [n]", "Guest nights - Hotels and similar establishments - Türkiye [n]",
+                                               "Guest nights - Camping sites - Türkiye [n]", "Guest nights - Holiday dwellings and youth hostels - Türkiye [n]"))) |>
+  distinct() |> arrange(category, driver, variable)
+write_csv(full_var_list, "metadata/full_var_list.csv")
+
+# Add variables via an entire dataset
+full_var_list <- rbind(full_var_list,
+                       dplyr::select(mutate(filter(sval_AIS, variable != "PAR [µmol m-2 s-1]"), driver = "fisheries"),
+                                     category, driver, variable)) |> 
+  distinct() |> arrange(category, driver, variable)
+write_csv(full_var_list, "metadata/full_var_list.csv")
+
+# Remove a specific variables
+full_var_list <- filter(full_var_list, variable != "cumulative mass balance with calving [m")
+write_csv(full_var_list, "metadata/full_var_list.csv")
 
 
 # Base maps ---------------------------------------------------------------

@@ -11,15 +11,103 @@ source("code/metadata.R")
 
 # Functions ---------------------------------------------------------------
 
-# Rename variables to a common project term 
+# Rename variables to a common project term
+# Tester...
+# df <- filter(full_ALL, category == "soc") |> dplyr::select(citation, category, driver, variable) |> distinct()
 check_variable <- function(df){
+  if(!exists("full_var_list")) full_var_list <- read_csv("metadata/full_var_list.csv")
+  df_var <- df |> 
+                                    # Cryo
+    mutate(variable_new = case_when(variable == "Snow depth [m]" ~ "snow depth [m]",
+                                    variable == "Sea ice snow thickness [cm]" ~ "sea ice snow thickness [cm]",
+                                    # Phys
+                                    variable %in% c("CDNC [S m-1]", "cond [S/m]", "conductivity [S/m]", "cndc [S m-1]") ~ "cndc [S m-1]",
+                                    variable %in% c("cndc [mS/cm]", "cond [mS/cm]",
+                                                    "conductivity [mS cm-1]", "conductivity [mS/cm]") ~ "cndc [mS cm-1]",
+                                    variable %in% c("DEN [kg m-3]", "dens [kg/m3]", "density [kg/m^3]",
+                                                    "density [kg/m3]", "density_kg_m3 [kg m-3]") ~ "density [kg m-3]",
+                                    variable %in% c("dens_sigtheta [kg/m-3]", "sigma [kg/m3]", "Sigma-t", 
+                                                    "sigmaT_kg_m3 [kg m-3]") ~ "density sigtheta [kg m-3]",
+                                    variable %in% c("par_V [volt]") ~ "PAR [volt]",
+                                    variable %in% c("par [micromol m-2 s-1]", "par [micromol photons / m^2 / s]",
+                                                    "par [mmol/m-2]", "PAR [µmol/m**2/s/sr]", # TODO: Double check these
+                                                    "PAR [umol m-2 s-1]", "PAR [umol m-2 s-1]",
+                                                    "PAR [µmol photons m2/sec]", "PAR [µmol quanta/m**2/s]",
+                                                    "PAR [µmol/m**2/s]", "PAR [µMol/m²/s]", "PAR [µmol/sec/m2]") ~ "PAR [µmol photons m-2 sec-1]",
+                                    variable %in% c("PDEN [kg m-3]") ~ "pot density [kg m-3]",
+                                    variable %in% c("pot_temp [°C]", "potential_temperature [°C]",
+                                                    "theta [°C]", "THETA [°C]", "Tpot [°C]") ~ "pot temp [°C]",
+                                    variable %in% c("pres [db]", "PRES [dbar]", "press [dbar]", "pressure [dbar]") ~ "pres [dbar]",
+                                    variable %in% c("press [psi]", "pressure [psi]") ~ "pres [psi]",
+                                    variable %in% c("psal [1e-3]", "PSAL [1e-3]", "sal [ppt]", "sal [PSS-78]",
+                                                    "sal [PSU]", "Sal [PSU]", "Sal", "salinity", "Salinity",
+                                                    "salinity [1]", "salinity [PSU]", "Salinity [PSU]") ~ "sal",
+                                    variable %in% c("ASAL [g/kg]") ~ "sal [g kg-1]",
+                                    variable %in% c("Temp [°C]", "TEMP [°C]", "temp [ITS-90]", "temperature [°C]",
+                                                    "Temperature [ITS-90, deg C]") ~ "temp [°C]",
+                                    variable == "Temp max [°C]" ~ "temp max [°C]",
+                                    variable == "Temp min [°C]" ~ "temp min [°C]",
+                                    variable %in% c("Tmax [°C]") ~ "temp max [°C]",
+                                    variable %in% c("turb [NTU]", "Turbidity [NTU]") ~ "turbidity [NTU]",
+                                    variable %in% c("Turbidity [FTU]") ~ "turbidity [FTU]",
+                                    variable %in% c("turbidity [mg/l]") ~ "turbidity [mg l-1]",
+                                    variable %in% c("turbidity_V [volt]") ~ "turbidity [volt]",
+                                    variable %in% c("UV-A [W*m^2]") ~ "UVA [W m-2]",
+                                    variable %in% c("UV-B [W*m^2]") ~ "UVB [W m-2]",
+                                    # Chem
+                                    variable %in% c("AT [µmol/kg]", "talk [μmol kg-1]") ~ "TA [µmol kg-1]",
+                                    variable %in% c("DIC [µmol/kg]") ~ "DIC [µmol kg-1]",
+                                    variable %in% c("doc [μmol L-1 d]") ~ "DOC [μmol l-1 d-1]",
+                                    variable %in% c("EP TA [µmol/kg]") ~ "EP TA [µmol kg-1]",
+                                    variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol kg-1]",   
+                                    variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol kg-1]",   
+                                    variable == "silicate [μmol kg-1]" ~ "SiO4 [µmol kg-1]",
+                                    variable %in% c("phosphate [μmol kg-1]", "PO4 [µmol/kg]") ~ "PO4 [µmol kg-1]",
+                                    variable %in% c("[NO3]- [µmol/l]",
+                                                    # "NO3 [µmol/kg]", # Possible units issue
+                                                    "NO3 [µg-at/l]") ~ "NO3 [µmol/l]", 
+                                    variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol l-1]",
+                                    variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol l-1]",
+                                    variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol l-1]",
+                                    variable %in% c("nitrate+nitrite [µmol/l]", "[NO3]- + [NO2]- [µmol l-1]",
+                                                    "NO2_NO3 [µmol l-1]") ~ "NO3+NO2 [µmol l-1]",
+                                    # Bio
+                                    variable == "chla [μg kg-1 d]" ~ "chl a [μg kg-1 d-1]",
+                                    variable == "fluo_V [volt]" ~ "fluor [volt]",
+                                    variable == "fluorescence" ~ "fluor",
+                                    variable == "fluor_max [m]" ~ "fluor max [m]",
+                                    variable == "chl_max [m]" ~ "chl max [m]",
+                                    variable == "Biomass - Polar Cod [10^6 kg]" ~ "Polar Cod [10^6 kg]",
+                                    # Soc
+                                    TRUE ~ variable)) |> 
+    mutate(variable_new = gsub("\\/l", "l-1", variable_new),
+           variable_new = gsub("\\/kg", "kg-1", variable_new),
+           variable_new = gsub("\\/h", "h-1", variable_new),
+           variable_new = gsub("\\/d", "d-1", variable_new),
+           variable_new = gsub("ice_T", "ice temp T", variable_new))
   
+  # Report on changes
+  df_no_change <- filter(df_var, variable == variable_new) |> 
+    dplyr::select(citation, variable, variable_new) |> distinct() |> 
+    filter(!(variable %in% full_var_list$variable))
+  cat("The following variables where not changed: ")
+  print(df_no_change$variable)
   
+  # Replace variable column and exit
+  df_res <- df_var |> mutate(variable = variable_new) |> dplyr::select(-variable_new)
+  return(df_res)
+  # rm(df, df_var, df_res); gc()
 }
 
 # Correctly merge variables into categories and drivers
-check_driver <- function(){
-
+# Tester...
+df <- filter(full_ALL, category == "cryo") |> dplyr::select(citation, category, driver, variable) |> distinct()
+check_driver <- function(df){
+  if(!exists("full_var_list")) full_var_list <- read_csv("metadata/full_var_list.csv")
+  df_driv <- left_join(df, full_var_list)
+  
+  # Report on changes and exit
+  
 }
 
 # Convert sites to FACE-IT site names when possible

@@ -1047,7 +1047,7 @@ sval_guest_night <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/svalbard_gue
 # AIS data
 sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") |> 
   pivot_longer(`Nautical miles`:`Average speed (knots)`, names_to = "variable", values_to = "value") |> 
-  dplyr::rename() |> 
+  dplyr::rename(site = Area) |> 
   mutate(date = as.Date(paste0(Year,"-12-31")),
          depth = NA,
          lon = NA, lat = NA, 
@@ -1067,9 +1067,9 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") |
                               variable == "PM emissions in port (tonnes)" ~ "PM emissions in port [tonnes]",
                               variable == "Power (GWh)" ~ "power [GWh]",
                               variable == "Power in port (GWh)" ~ "power in port [GWh]",
-                              variable == "Number of trips pr year" ~ "trips [n/year]",
+                              variable == "Number of trips pr year" ~ "trips [n year-1]",
                               variable == "Number of ships" ~ "ships [n]",
-                              variable == "Month Trips" ~ "trips [n/month]",
+                              variable == "Month Trips" ~ "trips [n month-1]",
                               variable == "Average speed (knots)" ~ "average speed [knots]",
                               TRUE ~ variable),
          category = "soc",
@@ -3010,7 +3010,7 @@ young_GEM_CTD_bottom <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zack
   pivot_longer(`temp [°C]`:`oxygen [µmol/kg]`, names_to = "variable") %>%
   filter(value != -9999) %>% 
   mutate(category = case_when(variable == "fluor" ~ "bio",
-                              variable == "oxygen [µmol/kg]" ~ "chem",
+                              variable == "oxygen [µmol kg-1]" ~ "chem",
                               TRUE ~ "phys"),
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/J1J5-W960",
@@ -3038,7 +3038,7 @@ young_GEM_DIC <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Zackenberg_
   dplyr::rename(date = Date, depth = Depth, value = `Dissolved inorganic carbon (DIC), µmol kg-1`) %>% 
   filter(value != -9999) %>% 
   mutate(category = "chem",
-         variable = "DIC [µmol/kg]",
+         variable = "DIC [µmol kg-1]",
          lon = -20.57, lat = 74.47,
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/7FSW-D577",
          date_accessed = as.Date("2022-02-03"),
@@ -4837,16 +4837,9 @@ miss_cryo <- filter(cat_driver_miss(full_ALL, "cryo"), !grepl("Geyman", citation
 miss_phys <- cat_driver_miss(full_ALL, "phys")
 miss_chem <- cat_driver_miss(full_ALL, "chem")
 miss_bio <- cat_driver_miss(full_ALL, "bio")
+miss_soc <- cat_driver_miss(full_ALL, "soc")
 
 
-# Assign drivers
-# NB: All omissions made here are intentional
-var_cryo <- miss_cryo |> 
-  mutate(driver = case_when(grepl("GlacioBasis|glaciers", citation) ~ "glacier",
-                            grepl("snow fall", variable) ~ "glacier",
-                            grepl("ice extent|Sea ice", variable) ~ "sea ice")) |> 
-  filter(!is.na(driver)) |>
-  dplyr::select(category, driver, variable) |> distinct()
 var_phys <- miss_phys |> 
   mutate(variable = case_when(variable %in% c("CDNC [S m-1]", "cond [S/m]", "conductivity [S/m]") ~ "cndc [S m-1]",
                               variable %in% c("cndc [mS/cm]", "cond [mS/cm]",
@@ -5398,10 +5391,6 @@ rm(spp_count); gc(); print(unique(clean_biomass$variable))
 # NB: There is quite a lot of data in the social category for provinces/cities etc.
 # that are outside of the seven FACE-IT study sites.
 # Where possible these are linked to a FACE-IT site and a note is made
-
-# TODO: Assign missing variables to drivers
-# Find social category data with no assigned driver
-miss_soc <- cat_driver_miss(full_ALL, "soc")
 
 
 ### Governance --------------------------------------------------------------
