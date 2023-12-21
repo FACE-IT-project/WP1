@@ -207,6 +207,9 @@ if(!exists("clean_all_clean")) load("data/analyses/clean_all_clean.RData")
 # Load relationship data
 if(!exists("driver_all")) load(file = "data/analyses/driver_all.RData")
 
+# Load map
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
+
 # Morten model data
 ## NB: Nit = Nitrate 
 model_kong <- load_model("kongsfjorden_rcp")
@@ -304,6 +307,7 @@ future_stats %>%
 bbox_EU_poly <- bbox_to_poly(bbox_EU, "EU")
 
 # EU Arctic land shapes
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_Arctic <- filter(coastline_full_df, y > 50, x < 90, x > -90)
 
 # Study sites

@@ -58,27 +58,26 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 full_site_list <- read_csv("metadata/full_site_list.csv")
 
 # manually new variables to list
-full_var_list <- rbind(full_var_list,
-                       data.frame(category = c("soc"),
-                                  driver = c("tourism"),
-                                  variable = c("Vessels [Pleasure boat]", "Days in port [Day trip boats]", "Passengers [Day trip boats]",
-                                               "guest night [Holiday dwellings and youth hostels - Foreign national, total]",
-                                               "guest night [Holiday dwellings and youth hostels - Norway]",
-                                               "Guest nights - Total - Türkiye [n]", "Guest nights - Hotels and similar establishments - Türkiye [n]",
-                                               "Guest nights - Camping sites - Türkiye [n]", "Guest nights - Holiday dwellings and youth hostels - Türkiye [n]"))) |>
-  distinct() |> arrange(category, driver, variable)
-write_csv(full_var_list, "metadata/full_var_list.csv")
+# full_var_list <- rbind(full_var_list,
+#                        data.frame(category = c("bio"),
+#                                   driver = c("spp rich"),
+#                                   variable = c("Hippoglossus hippoglossus [presence]", "Reinhardtius hippoglossoides [presence"))) |>
+#   distinct() |> arrange(category, driver, variable)
+# write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
-full_var_list <- rbind(full_var_list,
-                       dplyr::select(mutate(filter(sval_AIS, variable != "PAR [µmol m-2 s-1]"), driver = "fisheries"),
-                                     category, driver, variable)) |> 
-  distinct() |> arrange(category, driver, variable)
-write_csv(full_var_list, "metadata/full_var_list.csv")
+# full_var_list <- rbind(full_var_list,
+#                        dplyr::select(mutate(filter(sval_AIS, variable != "PAR [µmol m-2 s-1]"), driver = "fisheries"),
+#                                      category, driver, variable)) |> 
+#   distinct() |> arrange(category, driver, variable)
+# write_csv(full_var_list, "metadata/full_var_list.csv")
+
+# Check for duplicates
+# summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
 
 # Remove a specific variables
-full_var_list <- filter(full_var_list, variable != "cumulative mass balance with calving [m")
-write_csv(full_var_list, "metadata/full_var_list.csv")
+# full_var_list <- filter(full_var_list, variable != "Reinhardtius hippoglossoides [presence]")
+# write_csv(full_var_list, "metadata/full_var_list.csv")
 
 
 # Base maps ---------------------------------------------------------------
@@ -90,8 +89,7 @@ if(!exists("map_base")) map_base <- readRDS("metadata/map_base.Rda")
 # if(!exists("coastline_full")) coastline_full <- read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
 # if(!exists("coastline_full_df")) coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 # save(coastline_full_df, file = "metadata/coastline_full_df.RData")
-# TODO: Consider not loading this by default
-if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
+# NB: This is large, so is only loaded on command
 
 # Full map
 # ggplot(data = coastline_full) + geom_sf()

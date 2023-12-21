@@ -88,6 +88,9 @@ trnsct_west <- data.frame(site = c("Disko Bay", "Nuup Kangerlua"),
 
 # Hi-res site map files ---------------------------------------------------
 
+# Load shape
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
+
 # Or rather just save the hi-res data as csv and make the maps dynamically in the app
 coastline_hi_sub <- coastline_full_df %>% 
   rename(lon = x, lat = y, group = id) %>%
@@ -97,6 +100,7 @@ write_csv_arrow(coastline_hi_sub, file = "~/WP1/shiny/dataAccess/coastline_hi_su
 # Convenience wrapper for creating hi-res site maps
 map_site <- function(site_name){
   bbox <- bbox_from_name(site_name); bbox_wide <- bbox_wide_from_name(site_name)
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_rename <- coastline_full_df %>% rename(lon = x, lat = y, group = id)
   map_df <- filter(coastline_rename, 
                    between(lon, bbox_wide[1], bbox_wide[2]), 
@@ -440,6 +444,7 @@ write_csv(bathy_nuup_df, "~/pCloudDrive/FACE-IT_data/maps/IceBridge/nuup_hires_b
 # Kongsfjorden
 ## See e-mail from Allison Bailey for feedback
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_kong <- coastline_full_df %>% 
   filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1)
 plot_problems_kong <- full_product_kong %>%
@@ -646,6 +651,7 @@ ggsave("figures/bbox_por.png", plot_problems_por, height = 7)
 # Kongsfjorden
 ## Load data
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_kong <- coastline_full_df %>% 
   dplyr::filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1) |> 
   dplyr::select(x, y) |> dplyr::rename(lon = x, lat = y)

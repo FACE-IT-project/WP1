@@ -79,6 +79,8 @@ check_variable <- function(df){
                                     variable == "chl_max [m]" ~ "chl max [m]",
                                     variable == "Biomass - Polar Cod [10^6 kg]" ~ "Polar Cod [10^6 kg]",
                                     # Soc
+                                    variable == "trips [n/year]" ~ "trips [n year-1]",
+                                    variable == "trips [n/month]" ~ "trips [n month-1]",
                                     TRUE ~ variable)) |> 
     mutate(variable_new = gsub("\\/l", "l-1", variable_new),
            variable_new = gsub("\\/kg", "kg-1", variable_new),
@@ -87,49 +89,85 @@ check_variable <- function(df){
            variable_new = gsub("ice_T", "ice temp T", variable_new))
   
   # Report on changes
-  df_no_change <- filter(df_var, variable == variable_new) |> 
-    dplyr::select(citation, variable, variable_new) |> distinct() |> 
+  df_no_var <- filter(df_var, variable == variable_new) |> 
+    dplyr::select(variable, variable_new) |> distinct() |> 
     filter(!(variable %in% full_var_list$variable))
-  cat("The following variables where not changed: ")
-  print(df_no_change$variable)
+  if(nrow(df_no_var) > 0){
+    cat("These variables were not able to be changed to fit the variable list, so they were removed: \n")
+    print(df_no_var$variable)
+  } else {
+    cat("All variables accounted for.")
+  }
   
   # Replace variable column and exit
-  df_res <- df_var |> mutate(variable = variable_new) |> dplyr::select(-variable_new)
+  df_res <- df_var |> mutate(variable = variable_new) |> dplyr::select(-variable_new) |> 
+    filter(variable %in% full_var_list$variable)
   return(df_res)
-  # rm(df, df_var, df_res); gc()
+  # rm(df, df_var, df_no_var, df_res); gc()
 }
 
 # Correctly merge variables into categories and drivers
 # Tester...
-df <- filter(full_ALL, category == "cryo") |> dplyr::select(citation, category, driver, variable) |> distinct()
+# df <- filter(full_ALL, category == "cryo")
 check_driver <- function(df){
   if(!exists("full_var_list")) full_var_list <- read_csv("metadata/full_var_list.csv")
-  df_driv <- left_join(df, full_var_list)
+  df_driv <- dplyr::select(df, -category, -driver) |> distinct() |> left_join(full_var_list, by = "variable")
   
-  # Report on changes and exit
-  
+  # Report on changes
+  df_no_driv <- filter(df_driv, is.na(driver)) |> 
+    dplyr::select(category, variable) |> distinct()
+  if(nrow(df_no_driv) > 0){
+    cat("These variables have no driver, so were removed: \n")
+    print(df_no_driv$variable)
+  } else {
+    cat("All variables were matched to a category+driver.")
+  }
+
+  # Filter and exit
+  df_res <- df_driv |> filter(!is.na(driver))
+  return(df_res)
+  # rm(df, df_driv, df_no_driv, df_res); gc()
 }
 
 # Convert sites to FACE-IT site names when possible
 ## NB: Site list was first created in the 'Site conversion' section of 'code/data_product.R' for v1.4
-check_site <- function(df, site_list){
-  df_join <- left_join(df, site_list, by = c("site" = "site_alt")) |> 
+check_site <- function(df){
+  if(!exists("full_site_list")) full_site_list <- read_csv("metadata/full_site_list.csv")
+  df_site <- left_join(df, full_site_list, by = c("site" = "site_alt"))
+  
+  # Report on changes
+  df_no_site <- filter(df_site, is.na(site.y)) |> 
+    dplyr::select(site) |> distinct()
+  if(nrow(df_no_site) > 0){
+    cat("These sites could not be match, so were removed: \n")
+    print(df_no_site$site)
+  } else {
+    cat("All sites were matched.")
+  }
+  
+  # Filter and exit
+  df_res <- df_site |> 
     filter(!is.na(site.y)) |> 
-    mutate(variable = case_when(site != site.y ~ paste0(site," - ",variable)),
+    mutate(variable = case_when(site != site.y ~ paste0(site," - ",variable), TRUE ~ variable),
            site = site.y) |> dplyr::select(-site.y, -site_long)
-  return(df_join)
-  # rm(df, df_join, site_list)
+  return(df_res)
+  # rm(df, df_site, df_no_site, df_res)
 }
 
 # Checks that a given dataset meets all of the project standards
-# TODO: consider allowing for a site override option
-check_data <- function(df){
+# Tester...
+# df <- filter(full_ALL, category == "soc")
+check_data <- function(df, assign_site = NULL){
   
   # Convert variable names to a project standard
+  df_var <- check_variable(df)
   
   # Add categories and drivers and note any issues
+  df_driv <- check_driver(df_var)
   
-  # Confirm site names and confirm any issues
+  # Confirm site names and note any issues
+  if(!is.null(assign_site)) df_driv$site <- assign_site
+  df_site <- check_site(df_driv)
   
 }
 
@@ -992,6 +1030,7 @@ bbox_to_map <- function(coords, bathy_data = NA, lon_pad = 0, lat_pad = 0, add_b
   }
   
   # Clip coastline polygons for faster plotting
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_full_df_sub <- coastline_full_df %>% 
     filter(x >= coords[1]-lon_pad-10, x <= coords[2]+lon_pad+10,
            y >= coords[3]-lat_pad-10, y <= coords[4]+lat_pad+10)
@@ -1894,6 +1933,7 @@ data_summary_plot <- function(full_product, site_name){
   meta_table_g <- tableGrob(meta_table, rows = NULL)# + labs(title = "Meta-data")
   
   # Clip coastline polygons for faster plotting
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_full_df_sub <- coastline_full_df %>% 
     filter(x >= min(full_product$lon, na.rm = T)-10,
            x <= max(full_product$lon, na.rm = T)+10,
@@ -2031,6 +2071,7 @@ data_clim_plot <- function(full_product, site_name){
   lims_sal <- filter(depth_monthly_clims_pixel, var_cat == "sal")
   
   # Clip coastline polygons for faster plotting
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_full_df_sub <- coastline_full_df %>% 
     filter(x >= min(full_product$lon, na.rm = T)-10,
            x <= max(full_product$lon, na.rm = T)+10,
@@ -2210,6 +2251,7 @@ data_trend_plot <- function(full_product, site_name){
 model_summary <- function(model_product, site_name){
   
   # Clip coastline polygons for faster plotting
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_full_df_sub <- coastline_full_df %>% 
     filter(x >= min(model_product$lon, na.rm = T)-10,
            x <= max(model_product$lon, na.rm = T)+10,
@@ -2721,6 +2763,7 @@ quick_plot_density <- function(df, site_name){
     filter(!is.na(lon))
   
   # Crop map
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_full_df_sub <- coastline_full_df %>% 
     filter(x >= bbox_site[1]-10, x <= bbox_site[2]+10,
            y >= bbox_site[3]-10, y <= bbox_site[4]+10)
@@ -2817,7 +2860,8 @@ ice_trend_grid_plot <- function(plot_title, pixel_res, check_conv = FALSE,
   
   # get pixels that change very little.. maybe better not to bother
   
-  # Crop down 
+  # Crop down
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_full_df_sub <- coastline_full_df %>% 
     filter(x >= coords[1]-lon_pad-10, x <= coords[2]+lon_pad+10,
            y >= coords[3]-lat_pad-10, y <= coords[4]+lat_pad+10)

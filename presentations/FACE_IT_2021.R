@@ -252,6 +252,7 @@ ggsave("docs/assets/plot_cryo.png", plot_cryo)
 bbox_ingle_plus <- c(17.35, 21.60, 77.43, 78.13)
 
 ## Inglefieldbukta expanded bbox figures
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_ingle_plus <- coastline_full_df %>% 
   filter(x >= bbox_ingle_plus[1]-10, x <= bbox_ingle_plus[2]+10, 
          y >= bbox_ingle_plus[3]-10, y <= bbox_ingle_plus[4]+10)

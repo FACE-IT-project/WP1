@@ -35,6 +35,7 @@ bbox_EU_CMEMS <- c(-25, 60, 66, 90)
 bbox_EU_CMEMS_poly <- bbox_to_poly(bbox_EU_CMEMS, "EU CMEMS")
 
 # EU Arctic land shapes
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_Arctic <- filter(coastline_full_df, y > 50, x < 90, x > -90)
 
 # Study sites

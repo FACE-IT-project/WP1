@@ -81,6 +81,7 @@ load("~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.RData")
 # This is particularly pronounced for the inner fjord and Blomstrand island
 
 # Subset high-res coastline
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_kong <- coastline_full_df %>% 
   filter(x >= bbox_kong[1], x <= bbox_kong[2],
          y >= bbox_kong[3], y <= bbox_kong[4]) %>% 
@@ -121,6 +122,7 @@ full_product_kong_unique <- full_product_kong %>%
   dplyr::select(lon, lat) %>% distinct()
 
 # Quicker plotting
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_kong_expand <- coastline_full_df %>% 
   filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1, y >= bbox_kong[3]-1, y <= bbox_kong[4]+1)
 

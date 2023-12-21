@@ -9,6 +9,7 @@ source("code/functions.R")
 if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 
 # Subset high-res coastline
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_full_df_kong <- coastline_full_df %>% 
   filter(between(x, bbox_kong[1]-1, bbox_kong[2]+1),
          between(y, bbox_kong[3]-1, bbox_kong[4]+1))

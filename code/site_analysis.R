@@ -63,6 +63,7 @@ plot_sst_grid <- function(df, product_name){
   df_dec_trend <- plyr::ddply(df_annual, c("lon", "lat", "depth"), dec_trend_calc, .parallel = T)
   
   # Clip coastline polygons for faster plotting
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_sub <- coastline_full_df %>% 
     filter(x >= min(df$lon)-10, x <= max(df$lon)+10,
            y >= min(df$lat)-10, y <= max(df$lat)+10)
@@ -135,6 +136,7 @@ plot_sst_model <- function(df){
   df_dec_trend <- plyr::ddply(df_annual, c( "proj", "lon", "lat", "depth"), dec_trend_calc, .parallel = T)
   
   # Clip coastline polygons for faster plotting
+  if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
   coastline_sub <- coastline_full_df %>% 
     filter(x >= min(df$lon)-10, x <= max(df$lon)+10,
            y >= min(df$lat)-10, y <= max(df$lat)+10)
@@ -494,6 +496,7 @@ por_temp_annual <- por_temp %>%
 load("data/analyses/por_dec_trend.RData")
 
 # Clip coastline polygons for faster plotting
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_full_df_por <- coastline_full_df %>% 
   filter(x >= bbox_por[1]-10, x <= bbox_por[2]+10,
          y >= bbox_por[3]-10, y <= bbox_por[4]+10)

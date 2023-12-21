@@ -152,6 +152,7 @@ kong_global_coast_PAR0.1/kong_surf_coast
 # Get pixels in regions ---------------------------------------------------
 
 # Subset high-res coastline
+if(!exists("coastline_full")) load("metadata/coastline_full_df.RData")
 coastline_kong_wide <- coastline_full_df %>% 
   filter(x >= bbox_kong[1]-1, x <= bbox_kong[2]+1,
          y >= bbox_kong[3]-1, y <= bbox_kong[4]+1) %>% 
