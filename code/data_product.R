@@ -14,7 +14,6 @@
 # Libraries
 source("code/functions.R")
 source("code/key_drivers.R")
-source("users/calin/code/formulas.R")
 library(stringi)
 library(pxweb)
 library(clock)
@@ -46,6 +45,11 @@ pg_meta_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern 
 # in favour of scraping at each site specifically
 
 ### Species ----------------------------------------------------------------
+
+# A potential approach to harvesting GBIF data
+# Could do something similar for WoRMS
+# gbif_search01 <- rgbif::occ_search(scientificName = "Saccharina latissima")
+# gbif_data01 <- gbif_search01$data
 
 # EU (east) harp seal population
 EU_epagr_population <- read.csv("~/pCloudDrive/FACE-IT_data/EU_arctic/production-of-pups-and-e.csv", sep = ";", dec = ",") %>%
@@ -2405,6 +2409,9 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # NB: There is only this one full product step for Greenland
 # These are all social data
 
+# TODO: FOllow up on this. Make sure it is accounted for
+# pangea_search03 <- pg_search(query = 'Whale sightings, group sizes and krill biomass in West Greenland in 2005')
+
 # TODO: Some of these links broke. Need to investigate
 
 # National statistics
@@ -4244,12 +4251,12 @@ nuup_bird_nb <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_BioBasis
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          depth = NA,
          nomsp = map(Species, latin_eng),
-         age = case_when(Age == "J"~"juvenile", 
-                         Age == "A"~"adult",
-                         Age == "UK"~"unknown"),
-         gender = case_when(Gender == "M"~"male", 
-                            Gender == "F"~"female",
-                            Gender == "UK"~"unknown"),
+         age = case_when(Age == "J" ~ "juvenile", 
+                         Age == "A" ~ "adult",
+                         Age == "UK" ~ "unknown"),
+         gender = case_when(Gender == "M" ~ "male", 
+                            Gender == "F" ~ "female",
+                            Gender == "UK" ~ "unknown"),
          variable = paste0(nomsp, " ", age, " ", gender," [n]"),
          category = "bio",
          driver = "biomass",

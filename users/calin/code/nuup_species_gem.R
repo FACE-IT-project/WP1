@@ -121,7 +121,7 @@ nuup_seabird_presence <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasi
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value)
 
 
-# marin mammal
+# marine mammal
 ## Not all the data of the set have been used
 nuup_mmam_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Marine_mammals_Identification_of_Humpback_Whales_individuals_year170420231542310109.csv") %>%
   mutate(date_accessed = as.Date("2023-04-17"), 
@@ -147,13 +147,13 @@ nuup_mmam_count <- read_delim("P:/restricted_data/GEM/nuup/View_MarineBasis_Nuuk
 # OTHER data -------------------------------------------------------------
 
 
-gbif_search01 <- occ_search(scientificName = "Saccharina latissima")
+gbif_search01 <- rgbif::occ_search(scientificName = "Saccharina latissima")
 gbif_data01 <- gbif_search01$data
 
 
 ggplot(data = gbif_data01, aes (x = decimalLongitude, y = decimalLatitude)) + 
   borders()+
-  geom_point(aes(color = year(eventDate)))
+  geom_point(aes(color = lubridate::year(eventDate)))
 
 # Data set ----------------------------------------------------------------
 

@@ -108,7 +108,7 @@ EffectSizes_biodiv_DATA1 <- data.frame(TimeSeries = tsname, Site = df$Site[1] , 
                                        Turn_S = DATA1.trend.Turnover[10],  
                                        Turn_var = DATA1.trend.Turnover[8])  # if there is no temporal autocorrelation choose: [8]; if there is temporal autocorrelation choose [9]
 
-}
+
 
 
 

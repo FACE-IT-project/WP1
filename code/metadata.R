@@ -80,12 +80,12 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 full_site_list <- read_csv("metadata/full_site_list.csv")
 
 # Manually add new sites
-full_site_list <- rbind(full_site_list,
-                       data.frame(site = "green",
-                                  site_long = "Greenland",
-                                  site_alt = c("Westgreenland", "Eastgreenland"))) |>
-  distinct() |> arrange(site, site_long, site_alt)
-write_csv(full_site_list, "metadata/full_site_list.csv")
+# full_site_list <- rbind(full_site_list,
+#                        data.frame(site = "green",
+#                                   site_long = "Greenland",
+#                                   site_alt = c("Westgreenland", "Eastgreenland"))) |>
+#   distinct() |> arrange(site, site_long, site_alt)
+# write_csv(full_site_list, "metadata/full_site_list.csv")
 
 
 # Base maps ---------------------------------------------------------------
