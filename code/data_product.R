@@ -4727,12 +4727,12 @@ por_NorKyst <- data.frame(date_accessed = NA,
                           variable = c("temp [°C]", "sea ice thickness"),
                           value = NA)
 
-## Series of GFI moorings
+# Series of GFI moorings
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-08-11"), .before = 1) |> mutate(type = "in situ", site = "por") |> 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
-## Sea ice extent for Norwegian fjords
+# Sea ice extent for Norwegian fjords
 por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-extent.txt", delim = "\t") %>% 
   filter(`...2` == "Porsangerfjord") %>% 
   pivot_longer(`2001-02-02`:`2019-06-26`, names_to = "date", values_to = "value") %>%
@@ -4744,12 +4744,40 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
          category = "cryo", variable = "ice area [km2]") %>% 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
-## Hydrographic data
+# Hydrographic data
 por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08")) |> mutate(type = "in situ", site = "por") |> 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
+# Fish biomass
+por_fish_biomass <- read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/FISH_PORSANGER 2007-2019.csv") |> 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/FISH_PORSANGER 2007-2019_stations.csv"), by = "Station") |> 
+  dplyr::select(year:mean_depth, Equipment, `Amblyraja radiata`:`Trisopterus esmarkii`) |> 
+  pivot_longer(`Amblyraja radiata`:`Trisopterus esmarkii`, values_to = "value", names_to = "variable") |> 
+  mutate(date_accessed = as.Date("2023-04-19"),
+         URL = "http://metadata.nmdc.no/metadata-api/landingpage/407c7e73cb06ec943d79081186462b00",
+         citation = "Lis Lindal Jørgensen, Laurene Merillet, Arved Staby (2023) Fish biomass-data from the Porsanger fjord collected annually in the period 2007-2019 https://doi.org/10.21335/NMDC-242883176",
+         site = "por",
+         date = as.Date(paste0(year,"-12-31")),
+         category = "bio",
+         variable = paste0(variable, " [kg]")) |> 
+  dplyr::rename(type = Equipment, depth = mean_depth) |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
+
+# Invertebrate biomass
+por_invert_file <- "~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/BENTHOS_PORSANGER 2007-2019.csv"
+header1 <- scan(por_invert_file, skip = 0, nlines = 1, what = character(), sep = ",")
+header2 <- scan(por_invert_file, skip = 1, nlines = 1, what = character(), sep = ",")
+header3 <- scan(por_invert_file, skip = 2, nlines = 1, what = character(), sep = ",")
+
+# (a) Load data and combine
+por_invert_biomass <- read_csv(por_invert_file, skip = 2, col_names = FALSE) |> 
+  `colnames<-`(paste0(header1,"-",header2, )) 
+
+# Environmental data
+
+
 # Combine and save
-por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro) |> distinct() |> check_data()
+por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro, por_fish_biomass) |> distinct() |> check_data()
 data.table::fwrite(por_wild, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.csv")
 save(por_wild, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
