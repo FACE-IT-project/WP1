@@ -4764,20 +4764,30 @@ por_fish_biomass <- read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/bentho
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
 # Invertebrate biomass
-por_invert_file <- "~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/BENTHOS_PORSANGER 2007-2019.csv"
-header1 <- scan(por_invert_file, skip = 0, nlines = 1, what = character(), sep = ",")
-header2 <- scan(por_invert_file, skip = 1, nlines = 1, what = character(), sep = ",")
-header3 <- scan(por_invert_file, skip = 2, nlines = 1, what = character(), sep = ",")
-
-# (a) Load data and combine
-por_invert_biomass <- read_csv(por_invert_file, skip = 2, col_names = FALSE) |> 
-  `colnames<-`(paste0(header1,"-",header2, )) 
+por_invert_biomass <- read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/BENTHOS_PORSANGER 2007-2019.csv", skip = 2) |> 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/BENTHOS_PORSANGER 2007-2019_stations.csv"), by = "Station") |> 
+  dplyr::select(year:Depth, Equipment, Actiniaria:Yoldiella) |> 
+  pivot_longer(Actiniaria:Yoldiella, values_to = "value", names_to = "variable") |> 
+  mutate(date_accessed = as.Date("2023-04-19"),
+         URL = "http://metadata.nmdc.no/metadata-api/landingpage/fb5b416a26a75d57568c0cf47874c56f",
+         citation = "Lis Lindal Jørgensen, Laurene Merillet (2023) Invertebrate Benthos biomass-data from the Porsanger fjord collected during the period 2007-2019 https://doi.org/10.21335/NMDC-195329380",
+         site = "por",
+         date = as.Date(paste0(year,"-12-31")),
+         category = "bio",
+         variable = paste0(variable, " [g]")) |> 
+  dplyr::rename(type = Equipment, depth = Depth) |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
 # Environmental data
-
+# NB: Data are not included as they are a subset from the NorKyst-800 model without full date values
+# http://metadata.nmdc.no/metadata-api/landingpage/4fb50ea2a316121bd1352381ffdd83e2
+# por_env_biomass <- read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/ENVIRONMENT_PORSANGER.csv") |> 
+#   left_join(read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/ENVIRONMENT_PORSANGER_season.csv"), 
+#             by = c("transect", "year"))
 
 # Combine and save
-por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro, por_fish_biomass) |> distinct() |> check_data()
+por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro, 
+                  por_fish_biomass, por_invert_biomass) |> distinct() |> check_data()
 data.table::fwrite(por_wild, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.csv")
 save(por_wild, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
