@@ -2711,14 +2711,44 @@ green_fish_exports <- as.data.frame(green_fish_exports_json,
 ## West Greenland intertidal species study
 # NB: Some of the minutes and seconds in these coordinates are suspect...
 green_west_coords <- read_csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Site GPS coordinates.csv") |> 
-  dplyr::rename(lat = `N latitude`, lon = `W longitude`) |> 
+  dplyr::rename(lat = `N latitude`, lon = `W longitude`, site = Location, station = `Station ID`) |> 
   mutate(lat = gsub("’", "", lat), lon = gsub("’", "", lon)) |> 
   mutate(lat = gsub("°", " ", lat), lon = gsub("°", " ", lon)) |>
   mutate(lat = measurements::conv_unit(lat, from = 'deg_dec_min', to = 'dec_deg'),
          lon = measurements::conv_unit(lon, from = 'deg_dec_min', to = 'dec_deg')) |> 
   mutate(lat = round(as.numeric(lat), 4),
          lon = round(as.numeric(lon), 4),
-         lon = -lon) # Account for degrees West vs East 
+         lon = -lon) |>  # Account for degrees West vs East 
+  mutate(station = gsub("Up|YK", "", station))
+green_west_intertidal <- read.csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Dataset_mid-intertidal_6_regions.csv",
+                                  sep = ";", dec = ",") |> 
+  dplyr::rename(site = Area, station = site) |> 
+  dplyr::select(site, station, taxon:Sp_present) |> 
+  pivot_longer(count:Sp_present, values_to = "value", names_to = "var") |> 
+  filter(!is.na(value)) |> 
+  mutate(var = case_when(var == "count" ~ "[n]", var == "biomass..g." ~ "[biomass (g)]",
+                         var == "Coverage" ~ "[cover (%)]", var == "Sp_present" ~ "[presence]"),
+         variable = paste0(trimws(taxon)," ",var)) |> 
+  mutate(station = gsub("Up|_30|umm|uum|_low|_up|Nuuk| mid|KF_|Kit_YK|-low| ", "", station)) |> 
+  mutate(site = case_when(site == "Disko" ~ "Disko Island", TRUE ~ site)) |> 
+  left_join(green_west_coords, by = join_by(site, station)) |> 
+  dplyr::select(site, lon, lat, variable, value)
+green_west_vertical <- read.csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Vertical_dataset.csv",
+                                  sep = ";", dec = ",") |> 
+  dplyr::rename(value = vertical.height, site = area, station = site) |> 
+  mutate(variable = paste0(species," [present at depth (cm)]")) |>
+  mutate(station = gsub("KF_|ECO|UP|Disko|UUM|YK", "", station),
+         station = gsub("5A", "5a", station), station = gsub("5B", "5b", station)) |> 
+  left_join(green_west_coords, by = join_by(site, station)) |> 
+  dplyr::select(site, lon, lat, variable, value)
+green_west_biomass <- rbind(green_west_intertidal, green_west_vertical) |> 
+  mutate(site = case_when(site == "Disko Island" ~ "disko", site == "Nuuk" ~ "nuup", TRUE ~ site)) |> 
+  mutate(date_accessed = as.Date("2024-01-02"),
+         URL = "https://zenodo.org/records/3920535",
+         citation = "Thyrring, J., Wegeberg, S., Blicher, M. E., Krause‐Jensen, D., Høgslund, S., Olesen, B., ... & Sejr, M. K. (2021). Latitudinal patterns in intertidal ecosystem structure in West Greenland suggest resilience to climate change. Ecography, 44(8), 1156-1168.",
+         date = NA, depth = NA, category = "bio") |> 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+rm(green_west_coords, green_west_intertidal, green_west_vertical)  
 
 # Combine and save
 # TODO: Fix issues with broken links above
@@ -2727,7 +2757,7 @@ full_product_green <- rbind(green_income, green_employment, green_unemployment, 
                             green_cruise_passenger, green_cruise_count, green_cruise_nation,
                             green_air_passenger, green_guests, green_dogs, green_landings_domestic,
                             green_landings_inter, green_fish_price, green_quotas, green_quota_advice,
-                            green_fish_exports) |> check_data()
+                            green_fish_exports, green_west_biomass) |> check_data()
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
