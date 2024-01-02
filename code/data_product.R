@@ -2708,6 +2708,21 @@ green_fish_exports <- as.data.frame(green_fish_exports_json,
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
+## West Greenland intertidal species study
+# NB: Some of the minutes and seconds in these coordinates are suspect...
+green_west_coords <- read_csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Site GPS coordinates.csv") |> 
+  dplyr::rename(lat = `N latitude`, lon = `W longitude`) |> 
+  mutate(lat = gsub("’", "", lat), lon = gsub("’", "", lon)) |> 
+  separate(lat, paste("lat", c("d", "m", "s"), sep = "_")) |> 
+  separate(lon, paste("lon", c("d", "m", "s"), sep = "_" )) |> 
+  mutate(lat_s = stringr::str_pad(lat_s, width = 3, side = "right", pad = "0"),
+         lon_s = stringr::str_pad(lon_s, width = 3, side = "right", pad = "0")) |> 
+  mutate(across(lat_d:lon_s, ~ as.numeric(.x)),
+         lon_d = -lon_d) |> # Account for degrees West vs East 
+  mutate(lat_dec = lat_d + lat_m/60 + lat_s/60^2,
+            lon_dec = lon_d + lon_m/60 + lon_s/60^2)
+  
+
 # Combine and save
 # TODO: Fix issues with broken links above
 # TODO: Ensure each dataset has a 'type' column
@@ -2719,7 +2734,7 @@ full_product_green <- rbind(green_income, green_employment, green_unemployment, 
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
-save_data(full_product_green) # NB: Shouldn't save anything
+save_data(full_product_green)
 rm(list = grep("green_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -3338,7 +3353,7 @@ rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_mu
 # Bird breeding phenology nests eggs
 ## Have NA value
 young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
-                                    na = c("9999-01-01","-9999"), 
+                                    na = c("9999-01-01", "-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
   convert_UTM_deg(utm_zone = 27) %>%
   pivot_longer(cols = c(`FirstEggDate`, `HatchingDate`)) %>% 
@@ -3365,7 +3380,7 @@ young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Vie
 # Bird breeding phenology nests hatching
 ## Have NA/0 value
 young_bird_nests_hatch <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv",
-                                     na = c("9999-01-01","-9999"), 
+                                     na = c("9999-01-01", "-9999"), 
                                      col_types = "iccnnDDiiicc") %>%
   convert_UTM_deg(utm_zone = 27) %>%
   pivot_longer(cols = c(`FirstEggDate`, 
@@ -3413,7 +3428,7 @@ young_bird_abundance <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View
 # Bird breeding phenology broods
 ## Have NA value
 young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods210420231531510758.csv",
-                                    na = c("9999-01-01","-9999","#REF!","01/01/9999")) %>%
+                                    na = c("9999-01-01", "-9999", "#REF!", "01/01/9999")) %>%
   convert_UTM_deg(utm_zone = 27) %>%
   dplyr::rename(date_egg = FirstEggDate) %>%
   mutate(date_enfonction = ifelse(is.na(date_egg), 
@@ -4270,7 +4285,7 @@ nuup_bird_nb <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_BioBasis
 
 # Seabird counting
 nuup_seabird_count <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Seabirds_Seabird_species_counts_per_colony17042023154835389.csv",
-                                 na = c("NULL","-1", "2017-07-00")) %>% 
+                                 na = c("NULL", "-1", "2017-07-00")) %>% 
   filter(!is.na(Date)) %>% 
   filter(!is.na(Latin)) %>%
   filter(!is.na(MinNumbers)) %>%
@@ -4407,7 +4422,7 @@ nor_salmon_exports <- as.data.frame(nor_salmon_exports_json,
   mutate(site = "nor",
          `commodity group` = str_replace(`commodity group`, ",", " -"),
          variable = paste0("Export - ",`commodity group`," [",unit,"]"),
-         week = paste0(str_replace(week, "U","-"),"-1"),
+         week = paste0(str_replace(week, "U", "-"),"-1"),
          date = as.Date(week,"%Y-%U-%u"),
          date_accessed = as.Date(Sys.Date()),
          category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_salmon_exports_json$url,
@@ -5176,7 +5191,7 @@ print(unique(clean_carb$variable))
   # - PO4 vs [PO4]3-
 
 # Get all nutrient data
-clean_nutrients <- filter(full_ALL, driver == "nutrients") |> filter(value > 0) distinct()
+clean_nutrients <- filter(full_ALL, driver == "nutrients") |> filter(value > 0) |> distinct()
 # unique(clean_nutrients$variable)
 # test_df <- filter(clean_nutrients, variable == "NO3 [µmol/l]")
 print(unique(clean_nutrients$variable))
