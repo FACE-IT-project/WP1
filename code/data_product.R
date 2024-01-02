@@ -2713,15 +2713,12 @@ green_fish_exports <- as.data.frame(green_fish_exports_json,
 green_west_coords <- read_csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Site GPS coordinates.csv") |> 
   dplyr::rename(lat = `N latitude`, lon = `W longitude`) |> 
   mutate(lat = gsub("’", "", lat), lon = gsub("’", "", lon)) |> 
-  separate(lat, paste("lat", c("d", "m", "s"), sep = "_")) |> 
-  separate(lon, paste("lon", c("d", "m", "s"), sep = "_" )) |> 
-  mutate(lat_s = stringr::str_pad(lat_s, width = 3, side = "right", pad = "0"),
-         lon_s = stringr::str_pad(lon_s, width = 3, side = "right", pad = "0")) |> 
-  mutate(across(lat_d:lon_s, ~ as.numeric(.x)),
-         lon_d = -lon_d) |> # Account for degrees West vs East 
-  mutate(lat_dec = lat_d + lat_m/60 + lat_s/60^2,
-            lon_dec = lon_d + lon_m/60 + lon_s/60^2)
-  
+  mutate(lat = gsub("°", " ", lat), lon = gsub("°", " ", lon)) |>
+  mutate(lat = measurements::conv_unit(lat, from = 'deg_dec_min', to = 'dec_deg'),
+         lon = measurements::conv_unit(lon, from = 'deg_dec_min', to = 'dec_deg')) |> 
+  mutate(lat = round(as.numeric(lat), 4),
+         lon = round(as.numeric(lon), 4),
+         lon = -lon) # Account for degrees West vs East 
 
 # Combine and save
 # TODO: Fix issues with broken links above
