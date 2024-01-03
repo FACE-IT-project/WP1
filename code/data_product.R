@@ -2708,6 +2708,48 @@ green_fish_exports <- as.data.frame(green_fish_exports_json,
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
+## West Greenland intertidal species study
+# NB: Some of the minutes and seconds in these coordinates are suspect...
+green_west_coords <- read_csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Site GPS coordinates.csv") |> 
+  dplyr::rename(lat = `N latitude`, lon = `W longitude`, site = Location, station = `Station ID`) |> 
+  mutate(lat = gsub("’", "", lat), lon = gsub("’", "", lon)) |> 
+  mutate(lat = gsub("°", " ", lat), lon = gsub("°", " ", lon)) |>
+  mutate(lat = measurements::conv_unit(lat, from = 'deg_dec_min', to = 'dec_deg'),
+         lon = measurements::conv_unit(lon, from = 'deg_dec_min', to = 'dec_deg')) |> 
+  mutate(lat = round(as.numeric(lat), 4),
+         lon = round(as.numeric(lon), 4),
+         lon = -lon) |>  # Account for degrees West vs East 
+  mutate(station = gsub("Up|YK", "", station))
+green_west_intertidal <- read.csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Dataset_mid-intertidal_6_regions.csv",
+                                  sep = ";", dec = ",") |> 
+  dplyr::rename(site = Area, station = site) |> 
+  dplyr::select(site, station, taxon:Sp_present) |> 
+  pivot_longer(count:Sp_present, values_to = "value", names_to = "var") |> 
+  filter(!is.na(value)) |> 
+  mutate(var = case_when(var == "count" ~ "[n]", var == "biomass..g." ~ "[biomass (g)]",
+                         var == "Coverage" ~ "[cover (%)]", var == "Sp_present" ~ "[presence]"),
+         variable = paste0(trimws(taxon)," ",var)) |> 
+  mutate(station = gsub("Up|_30|umm|uum|_low|_up|Nuuk| mid|KF_|Kit_YK|-low| ", "", station)) |> 
+  mutate(site = case_when(site == "Disko" ~ "Disko Island", TRUE ~ site)) |> 
+  left_join(green_west_coords, by = join_by(site, station)) |> 
+  dplyr::select(site, lon, lat, variable, value)
+green_west_vertical <- read.csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Vertical_dataset.csv",
+                                  sep = ";", dec = ",") |> 
+  dplyr::rename(value = vertical.height, site = area, station = site) |> 
+  mutate(variable = paste0(species," [present at depth (cm)]")) |>
+  mutate(station = gsub("KF_|ECO|UP|Disko|UUM|YK", "", station),
+         station = gsub("5A", "5a", station), station = gsub("5B", "5b", station)) |> 
+  left_join(green_west_coords, by = join_by(site, station)) |> 
+  dplyr::select(site, lon, lat, variable, value)
+green_west_biomass <- rbind(green_west_intertidal, green_west_vertical) |> 
+  mutate(site = case_when(site == "Disko Island" ~ "disko", site == "Nuuk" ~ "nuup", TRUE ~ site)) |> 
+  mutate(date_accessed = as.Date("2024-01-02"),
+         URL = "https://zenodo.org/records/3920535",
+         citation = "Thyrring, J., Wegeberg, S., Blicher, M. E., Krause‐Jensen, D., Høgslund, S., Olesen, B., ... & Sejr, M. K. (2021). Latitudinal patterns in intertidal ecosystem structure in West Greenland suggest resilience to climate change. Ecography, 44(8), 1156-1168.",
+         date = NA, depth = NA, category = "bio") |> 
+  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+rm(green_west_coords, green_west_intertidal, green_west_vertical)  
+
 # Combine and save
 # TODO: Fix issues with broken links above
 # TODO: Ensure each dataset has a 'type' column
@@ -2715,11 +2757,11 @@ full_product_green <- rbind(green_income, green_employment, green_unemployment, 
                             green_cruise_passenger, green_cruise_count, green_cruise_nation,
                             green_air_passenger, green_guests, green_dogs, green_landings_domestic,
                             green_landings_inter, green_fish_price, green_quotas, green_quota_advice,
-                            green_fish_exports) |> check_data()
+                            green_fish_exports, green_west_biomass) |> check_data()
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
-save_data(full_product_green) # NB: Shouldn't save anything
+save_data(full_product_green)
 rm(list = grep("green_",names(.GlobalEnv),value = TRUE)); gc()
 
 
@@ -3338,7 +3380,7 @@ rm(list = grep("young_GEM",names(.GlobalEnv),value = TRUE)); rm(young_mooring_mu
 # Bird breeding phenology nests eggs
 ## Have NA value
 young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv", 
-                                    na = c("9999-01-01","-9999"), 
+                                    na = c("9999-01-01", "-9999"), 
                                     col_types = "iccnnDDiiicc") %>%
   convert_UTM_deg(utm_zone = 27) %>%
   pivot_longer(cols = c(`FirstEggDate`, `HatchingDate`)) %>% 
@@ -3365,7 +3407,7 @@ young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Vie
 # Bird breeding phenology nests hatching
 ## Have NA/0 value
 young_bird_nests_hatch <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__nests170420231421385886.csv",
-                                     na = c("9999-01-01","-9999"), 
+                                     na = c("9999-01-01", "-9999"), 
                                      col_types = "iccnnDDiiicc") %>%
   convert_UTM_deg(utm_zone = 27) %>%
   pivot_longer(cols = c(`FirstEggDate`, 
@@ -3413,7 +3455,7 @@ young_bird_abundance <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View
 # Bird breeding phenology broods
 ## Have NA value
 young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_BioBasis_Zackenberg_Data_Birds_Bird_breeding_phenology__broods210420231531510758.csv",
-                                    na = c("9999-01-01","-9999","#REF!","01/01/9999")) %>%
+                                    na = c("9999-01-01", "-9999", "#REF!", "01/01/9999")) %>%
   convert_UTM_deg(utm_zone = 27) %>%
   dplyr::rename(date_egg = FirstEggDate) %>%
   mutate(date_enfonction = ifelse(is.na(date_egg), 
@@ -4270,7 +4312,7 @@ nuup_bird_nb <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_BioBasis
 
 # Seabird counting
 nuup_seabird_count <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Seabirds_Seabird_species_counts_per_colony17042023154835389.csv",
-                                 na = c("NULL","-1", "2017-07-00")) %>% 
+                                 na = c("NULL", "-1", "2017-07-00")) %>% 
   filter(!is.na(Date)) %>% 
   filter(!is.na(Latin)) %>%
   filter(!is.na(MinNumbers)) %>%
@@ -4407,7 +4449,7 @@ nor_salmon_exports <- as.data.frame(nor_salmon_exports_json,
   mutate(site = "nor",
          `commodity group` = str_replace(`commodity group`, ",", " -"),
          variable = paste0("Export - ",`commodity group`," [",unit,"]"),
-         week = paste0(str_replace(week, "U","-"),"-1"),
+         week = paste0(str_replace(week, "U", "-"),"-1"),
          date = as.Date(week,"%Y-%U-%u"),
          date_accessed = as.Date(Sys.Date()),
          category = "soc", lon = NA, lat = NA, depth = NA, URL = nor_salmon_exports_json$url,
@@ -4727,12 +4769,12 @@ por_NorKyst <- data.frame(date_accessed = NA,
                           variable = c("temp [°C]", "sea ice thickness"),
                           value = NA)
 
-## Series of GFI moorings
+# Series of GFI moorings
 por_mooring_GFI <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/porsangerfjorden/mooring_GFI", full.names = T), load_GFI, .parallel = T) %>% 
   mutate(date_accessed = as.Date("2021-08-11"), .before = 1) |> mutate(type = "in situ", site = "por") |> 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
-## Sea ice extent for Norwegian fjords
+# Sea ice extent for Norwegian fjords
 por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-extent.txt", delim = "\t") %>% 
   filter(`...2` == "Porsangerfjord") %>% 
   pivot_longer(`2001-02-02`:`2019-06-26`, names_to = "date", values_to = "value") %>%
@@ -4744,12 +4786,50 @@ por_sea_ice <- read_delim("~/pCloudDrive/FACE-IT_data/porsangerfjorden/12d_ice-e
          category = "cryo", variable = "ice area [km2]") %>% 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
-## Hydrographic data
+# Hydrographic data
 por_hydro <- plyr::ldply(1952:2013, load_nor_hydro, date_accessed = as.Date("2021-09-08")) |> mutate(type = "in situ", site = "por") |> 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
 
+# Fish biomass
+por_fish_biomass <- read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/FISH_PORSANGER 2007-2019.csv") |> 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/FISH_PORSANGER 2007-2019_stations.csv"), by = "Station") |> 
+  dplyr::select(year:mean_depth, Equipment, `Amblyraja radiata`:`Trisopterus esmarkii`) |> 
+  pivot_longer(`Amblyraja radiata`:`Trisopterus esmarkii`, values_to = "value", names_to = "variable") |> 
+  mutate(date_accessed = as.Date("2023-04-19"),
+         URL = "http://metadata.nmdc.no/metadata-api/landingpage/407c7e73cb06ec943d79081186462b00",
+         citation = "Lis Lindal Jørgensen, Laurene Merillet, Arved Staby (2023) Fish biomass-data from the Porsanger fjord collected annually in the period 2007-2019 https://doi.org/10.21335/NMDC-242883176",
+         site = "por",
+         date = as.Date(paste0(year,"-12-31")),
+         category = "bio",
+         variable = paste0(variable, " [kg]")) |> 
+  dplyr::rename(type = Equipment, depth = mean_depth) |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
+
+# Invertebrate biomass
+por_invert_biomass <- read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/BENTHOS_PORSANGER 2007-2019.csv", skip = 2) |> 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/BENTHOS_PORSANGER 2007-2019_stations.csv"), by = "Station") |> 
+  dplyr::select(year:Depth, Equipment, Actiniaria:Yoldiella) |> 
+  pivot_longer(Actiniaria:Yoldiella, values_to = "value", names_to = "variable") |> 
+  mutate(date_accessed = as.Date("2023-04-19"),
+         URL = "http://metadata.nmdc.no/metadata-api/landingpage/fb5b416a26a75d57568c0cf47874c56f",
+         citation = "Lis Lindal Jørgensen, Laurene Merillet (2023) Invertebrate Benthos biomass-data from the Porsanger fjord collected during the period 2007-2019 https://doi.org/10.21335/NMDC-195329380",
+         site = "por",
+         date = as.Date(paste0(year,"-12-31")),
+         category = "bio",
+         variable = paste0(variable, " [g]")) |> 
+  dplyr::rename(type = Equipment, depth = Depth) |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value)
+
+# Environmental data
+# NB: Data are not included as they are a subset from the NorKyst-800 model without full date values
+# http://metadata.nmdc.no/metadata-api/landingpage/4fb50ea2a316121bd1352381ffdd83e2
+# por_env_biomass <- read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/ENVIRONMENT_PORSANGER.csv") |> 
+#   left_join(read_csv("~/pCloudDrive/FACE-IT_data/porsangerfjorden/benthos/ENVIRONMENT_PORSANGER_season.csv"), 
+#             by = c("transect", "year"))
+
 # Combine and save
-por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro) |> distinct() |> check_data()
+por_wild <- rbind(por_mooring_GFI, por_sea_ice, por_hydro, 
+                  por_fish_biomass, por_invert_biomass) |> distinct() |> check_data()
 data.table::fwrite(por_wild, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.csv")
 save(por_wild, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/por_wild.RData")
 rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
@@ -5138,7 +5218,7 @@ print(unique(clean_carb$variable))
   # - PO4 vs [PO4]3-
 
 # Get all nutrient data
-clean_nutrients <- filter(full_ALL, driver == "nutrients") |> filter(value > 0) distinct()
+clean_nutrients <- filter(full_ALL, driver == "nutrients") |> filter(value > 0) |> distinct()
 # unique(clean_nutrients$variable)
 # test_df <- filter(clean_nutrients, variable == "NO3 [µmol/l]")
 print(unique(clean_nutrients$variable))

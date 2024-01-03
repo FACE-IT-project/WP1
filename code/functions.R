@@ -193,6 +193,8 @@ spp_class <- function(){
 
 # Name to latin + english one
 ## Use it as -> mutate(nomsp = map(nomSpecies, latin_eng))
+# Classify pelagic moluscs as ZOO, benthic molluscs as MOL
+# NB: May need to include the WORMS code
 latin_eng <- function(nomSpecies){
   # Fish |FIS|
   if(nomSpecies == "Benthosema glaciale") nom_long <- "|FIS| Benthosema glaciale (glacier lantern fish)"

@@ -47,6 +47,8 @@ navbar:
       href: SSC_2021.pdf
     - text: "Brussels policy meeting - 2023"
       href: Brussels_2023.pdf
+    - text: "Ocean Science Meeting (OSM) - 2024"
+      href: FjordLight_OSM_2024.pdf
   - text: "Why FAIR?"
     href: FAIR_data.html
   # - text: "License"
