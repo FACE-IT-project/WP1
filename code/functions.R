@@ -309,6 +309,26 @@ wm_records_df <- function(sp_name){
   # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()
 }
 
+# Download any number of desired files and save them locally
+# TODO: Add a check to see if URL exists
+file_URL_save <- function(file_name, base_URL, save_folder){
+  
+  # Set file info
+  file_location <- paste0(base_URL, file_name)
+  file_dest <- paste0(save_folder,file_name)
+  
+  # Check if file already exists and download if needed
+  if(file.exists(file_dest)){
+    # Intentionally blank
+  } else if(RCurl::url.exists(file_location)) {
+    download.file(url = file_location, method = "libcurl", destfile = file_dest)
+  } else {
+    # Intentionally blank
+  }
+  return()
+  # rm(file_name, base_URL, save_folder)
+}
+
 # Function for performing a more thorough query of PANGAEA data by bbox
 pg_full_search <- function(lookup_table = FALSE, doi_list = TRUE, ...){
   
