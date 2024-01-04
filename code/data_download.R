@@ -16,8 +16,15 @@ ERSST_files <- expand_grid(year = 1854:2023,
   mutate(file_name = paste0("ersst.v5.",year,month,".nc"))
 
 doParallel::registerDoParallel(cores = 15)
-plyr::l_ply(ERSST_files$file_name, # NB: AS of 2024-01-03 December 2023 data were not yet available 
+plyr::l_ply(ERSST_files$file_name,
             file_URL_save, .parallel = T,
             base_URL = "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/netcdf/", 
             save_folder = "~/pCloudDrive/FACE-IT_data/ERSST/")
+
+
+# HadCRUT.5 ---------------------------------------------------------------
+
+# NB: As of 2024-01-04, 2023-12 data are not yet available
+download.file("https://www.metoffice.gov.uk/hadobs/hadcrut5/data/HadCRUT.5.0.2.0/analysis/HadCRUT.5.0.2.0.analysis.anomalies.ensemble_mean.nc",
+              "~/pCloudDrive/FACE-IT_data/HadCRUT.5/HadCRUT.5.0.2.0.analysis.anomalies.ensemble_mean.nc")
 
