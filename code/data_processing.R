@@ -792,8 +792,11 @@ FW_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_hist
                              species == "Chordaria Dicytosiphon" ~ "Chordaria flagelliformis with Dictyosiphon sp.",
                              species == "young Laminaria spp." ~ "young Laminariales spp.",
                              species == "Turnerella penneyi" ~ "Turnerella pennyi", TRUE ~ species))
-FW_spp <- plyr::ldply(unique(FW_historic$species), wm_records_df, .parallel = T)
-FW_historic_spp <- left_join(FW_historic, FW_spp, by = "species") |> 
+FW_spp <- plyr::ldply(unique(FW_historic$species), wm_records_df, .parallel = T) |> 
+  rbind(age_spp) |> distinct() # Adds Laminariales
+FW_historic_spp <- FW_historic |> 
+  mutate(species_sub = case_when(species == "Digitate kelps" ~ "Laminariales", TRUE ~ species)) |> 
+  left_join(FW_spp, by = c("species_sub" = "species")) |> 
   dplyr::rename(`Species UID` = species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
   dplyr::select(Year, `Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
                 `mean fresh weight [kg m-2]`) |> 
