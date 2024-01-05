@@ -294,7 +294,7 @@ CCI_por <- area_average(sst_CCI_por_bbox, "por")
 CCI_all <- rbind(CCI_kong, CCI_is, CCI_stor, CCI_young, CCI_disko, CCI_nuup, CCI_por) |> filter(value > -1.8) |>
   mutate(type = "CCI", depth = 0, lon = NA, lat = NA,
          date_accessed = as.Date("2021-12-13"),
-         URL = "http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0",
+         URL = "https://cds.climate.copernicus.eu/cdsapp#!/dataset/satellite-sea-surface-temperature",
          citation = "Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.",
          variable = "temp [°C]", category = "phys", driver = "sea temp") |> 
   dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
