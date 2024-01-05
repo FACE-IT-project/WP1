@@ -803,8 +803,10 @@ write_csv(FW_historic_spp, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_his
 
 ## Kelp age and densities
 kelp_age_density_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/Kelp_age_density_timeseries_Hansneset.csv", delim = "\t") |> 
-  mutate(Species = str_replace_all(Species, "_", " ")) |> 
-  left_join(FW_spp, by = c("Species" = "species")) |> 
+  mutate(Species = gsub("_", " ", Species),
+         Species_sub = case_when(Species == "Digitate kelps" ~ "Laminariales", TRUE ~ Species)) |> 
+  arrange(`Depth [m]`, Replicate, Species) |> 
+  left_join(age_spp, FW_spp, by = c("Species_sub" = "species")) |> 
   dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid,
                 `count [n m-2]` = `Count [m^2]`, `mean age [years m-2]` = `Mean Age [m^2]`) |> 
   dplyr::select(Year, `Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
