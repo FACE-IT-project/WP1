@@ -806,9 +806,9 @@ write_csv(FW_historic_spp, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_his
 
 ## Kelp age and densities
 kelp_age_density_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/Kelp_age_density_timeseries_Hansneset.csv", delim = "\t") |> 
+  arrange(`Depth [m]`, Replicate, Species) |> 
   mutate(Species = gsub("_", " ", Species),
          Species_sub = case_when(Species == "Digitate kelps" ~ "Laminariales", TRUE ~ Species)) |> 
-  arrange(`Depth [m]`, Replicate, Species) |> 
   left_join(age_spp, FW_spp, by = c("Species_sub" = "species")) |> 
   dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid,
                 `count [n m-2]` = `Count [m^2]`, `mean age [years m-2]` = `Mean Age [m^2]`) |> 
@@ -824,8 +824,11 @@ LAI_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_his
          Replicate = str_replace(Replicate, "Q0", "Q"),
          Class = case_when(Class != "Rhodophyta" ~ "Phaeophyceae", TRUE ~ Class),
          Species = gsub("sp$", "sp\\.", Species))
-LAI_spp <- plyr::ldply(unique(LAI_historic$Species), wm_records_df, .parallel = T)
-LAI_historic_spp <- left_join(LAI_historic, LAI_spp, by = c("Species" = "species")) |> 
+LAI_spp <- plyr::ldply(unique(LAI_historic$Species), wm_records_df, .parallel = T) |> 
+  rbind(age_spp) |> distinct() # Adds Laminariales
+LAI_historic_spp <- LAI_historic |> 
+  mutate(Species_sub = case_when(Species == "Digitate kelps" ~ "Laminariales", TRUE ~ Species)) |> 
+  left_join(LAI_spp, by = c("Species_sub" = "species")) |> 
   dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
   dplyr::select(Year, `Depth [m]`, Replicate,
                 `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, `leaf area [m^2]`) |> 
@@ -855,3 +858,4 @@ urchin_biomass_abundance <- read_csv("~/pCloudDrive/restricted_data/Koch/SU_Biom
   mutate_at(1:10, ~replace_na(., ""))
 write_csv(urchin_biomass_abundance, "~/pCloudDrive/restricted_data/Koch/urchin_biomass_abundance_PG.csv")
 rm(urchin_spp); gc()
+
