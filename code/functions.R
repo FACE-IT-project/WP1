@@ -133,42 +133,37 @@ check_driver <- function(df){
 
 # Looks at variable names within the bio category and assigns a species classification if possible
 # Relevant groupings:
-# |FIS| = Fish
+# |FIS| = Fish = c("Teleostei")
 # |MAM| = Mammal
 # |BIR| = Bird
-# |ZOO| = Zooplankton
+# |ZOO| = Zooplankton = c("Appendicularia", "Copepoda")
 # |PHY| = Phytoplankton
 # |ALG| = Algae (not phytoplankton)
-# |BNT| = Benthic organisms (not algae)
+# |BNT| = Benthic organisms (not algae) = c("Crinoidea", "Gastropoda"), c("Isopoda", "Decapoda", "Amphipoda") # NB: There must be exceptions for zooplankton Isopdes and Amphipodes
 check_spp <- function(df){
   
   # Split dataframe by bio category
   df_other <- filter(df, category != "bio")
   df_bio <- filter(df, category == "bio") |> 
     dplyr::select(variable) |> distinct() |> 
-    separate(variable, into = c("var", "units"), sep = "\\[") |>
+    separate(variable, into = c("var", "units"), sep = "\\[", remove = FALSE) |>
     separate(var, into = c("spp1", "spp2"), sep = " ", extra = "drop", remove = FALSE) |> 
     unite(spp1, spp2, col = "spp", sep = " ") |> 
     mutate(units = paste0("[",units))
-           # spp = sapply(strsplit(var, " "), getElement, c(1, 2)))
-           # spp = sapply(strsplit(var, " "), "[[", c(1, 2)))
-           # spp = paste(lapply(strsplit(var, " ")[[1]], "[", c(1, 2)), collapse = " "))
-           # spp = paste(strsplit(df_bio$var, " "), collapse = " "))
-           
-           # spp_trim = gsub("sp\\.$|spp\\.$|-Ciliata$", "", trimsws(spp)),
-           # NB: This will cause errors for a species name with 'young' in it)
-           # spp_trim = trimws(gsub("young", "", spp_trim)))
   
-paste(strsplit(df_bio$var, " ")[[1]][1:2], collapse = " ")
   # Get unique species names and search WoRMS
-  
+  df_tax <- plyr::ldply(df_bio$spp, wm_records_df, .parallel = T, res_type = "tax")
   
   # Add classifications back into dataframe, merge, and exit
   # cbind()
-  df_res <- rbind(df_other, df_spp_full) |> 
-    dplyr::arrange(cat, driver, variable)
-  return(df_res)
+  # df_res <- rbind(df_other, df_spp_full) |> 
+  #   dplyr::arrange(cat, driver, variable)
+  return(df_tax)
 }
+
+# Check it on the full dataset
+# TODO: Decide on what goes where
+clean_all_spp <- check_spp(clean_all)
 
 # Convert sites to FACE-IT site names when possible
 ## NB: Site list was first created in the 'Site conversion' section of 'code/data_product.R' for v1.4
@@ -350,12 +345,18 @@ wm_records_df <- function(sp_name, res_type = "df"){
     } else {
       sp_res <- data.frame(species = sp_name, url = NA, lsid = NA)
     }
-    return(sp_res)
-    # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()
+  } else if(res_type == "tax"){
+    if(is.null(URL_error)){
+      sp_res <- data.frame(species = sp_name, dplyr::select(sp_info, kingdom:genus))
+    } else {
+      sp_res <- data.frame(species = sp_name, kingdom = NA, phylum = NA, 
+                           class = NA, order = NA, family = NA, genus = NA)
+    }
   } else if(res_type == "class"){
-    
+    # TODO: Decide at what taxonomic level classifications should happen
   }
-
+  return(sp_res)
+  # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()
 }
 
 # Download any number of desired files and save them locally
