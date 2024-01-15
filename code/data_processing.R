@@ -21,15 +21,15 @@ library(ggOceanMaps)
 # SOCAT -------------------------------------------------------------------
 
 # Process SOCAT data into R format
-SOCAT_R <- read_delim("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.tsv", delim = "\t", skip = 6976)
+SOCAT_R <- read_delim("~/pCloudDrive/FACE-IT_data/socat/SOCATv2023.tsv", delim = "\t", skip = 7289)
 SOCAT_R_sub <- dplyr::select(SOCAT_R, yr, mon, day, `longitude [dec.deg.E]`, `latitude [dec.deg.N]`,
                              `sample_depth [m]`, `ETOPO2_depth [m]`, `pCO2water_SST_wet [uatm]`) %>% 
   mutate(yr = as.numeric(yr), mon = as.numeric(mon), day = as.numeric(day))
-write_rds(SOCAT_R_sub, "~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds", compress = "gz")
+write_rds(SOCAT_R_sub, "~/pCloudDrive/FACE-IT_data/socat/SOCATv2023.rds", compress = "gz")
 rm(SOCAT_R, SOCAT_R_sub); gc()
 
 # Subset to EU and for data product use
-EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%
+EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2023.rds") %>%
   dplyr::rename(lon = `longitude [dec.deg.E]`, lat = `latitude [dec.deg.N]`,
                 depth = `sample_depth [m]`, value = `pCO2water_SST_wet [uatm]`) %>%
   filter(lat >= 63, value >= 0) %>%
@@ -39,7 +39,7 @@ EU_SOCAT <- read_rds("~/pCloudDrive/FACE-IT_data/socat/SOCATv2022.rds") %>%
   mutate(date = as.Date(date),
          variable = "pCO2water_SST_wet [uatm]",
          category = "chem",
-         date_accessed = as.Date("2021-08-06"),
+         date_accessed = as.Date("2024-01-11"),
          type = "in situ", site = "EU",
          URL = "https://www.socat.info",
          citation = "Bakker, D. C. E., Pfeil, B. Landa, C. S., Metzl, N., O’Brien, K. M., Olsen, A., Smith, K., Cosca, C., Harasawa, S., Jones, S. D., Nakaoka, S., Nojiri, Y., Schuster, U., Steinhoff, T., Sweeney, C., Takahashi, T., Tilbrook, B., Wada, C., Wanninkhof, R., Alin, S. R., Balestrini, C. F., Barbero, L., Bates, N. R., Bianchi, A. A., Bonou, F., Boutin, J., Bozec, Y., Burger, E. F., Cai, W.-J., Castle, R. D., Chen, L., Chierici, M., Currie, K., Evans, W., Featherstone, C., Feely, R. A., Fransson, A., Goyet, C., Greenwood, N., Gregor, L., Hankin, S., Hardman-Mountford, N. J., Harlay, J., Hauck, J., Hoppema, M., Humphreys, M. P., Hunt, C. W., Huss, B., Ibánhez, J. S. P., Johannessen, T., Keeling, R., Kitidis, V., Körtzinger, A., Kozyr, A., Krasakopoulou, E., Kuwata, A., Landschützer, P., Lauvset, S. K., Lefèvre, N., Lo Monaco, C., Manke, A., Mathis, J. T., Merlivat, L., Millero, F. J., Monteiro, P. M. S., Munro, D. R., Murata, A., Newberger, T., Omar, A. M., Ono, T., Paterson, K., Pearce, D., Pierrot, D., Robbins, L. L., Saito, S., Salisbury, J., Schlitzer, R., Schneider, B., Schweitzer, R., Sieger, R., Skjelvan, I., Sullivan, K. F., Sutherland, S. C., Sutton, A. J., Tadokoro, K., Telszewski, M., Tuma, M., Van Heuven, S. M. A. C., Vandemark, D., Ward, B., Watson, A. J., Xu, S. (2016) A multi-decade record of high quality fCO2 data in version 3 of the Surface Ocean CO2 Atlas (SOCAT). Earth System Science Data 8: 383-413. doi:10.5194/essd-8-383-2016.") %>%
@@ -52,16 +52,16 @@ rm(EU_SOCAT); gc()
 # GLODAP ------------------------------------------------------------------
 
 # Process GLODAP data into R format
-GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>% 
+GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2023_Merged_Master_File.csv") %>% 
   `colnames<-`(gsub("G2","",colnames(.))) %>% 
   dplyr::rename(lon = longitude, lat = latitude) %>% 
   unite(year, month, day, sep = "-", remove = T, col = "date") %>% 
   mutate(date = as.Date(date))
-write_rds(GLODAP, "~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022.rds", compress = "gz")
+write_rds(GLODAP, "~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2023.rds", compress = "gz")
 rm(GLODAP); gc()
 
 # Subset to EU and for data product use
-EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Master_File.csv") %>%
+EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2023_Merged_Master_File.csv") %>%
   `colnames<-`(gsub("G2","",colnames(.))) %>%
   dplyr::rename(lon = longitude, lat = latitude) %>%
   filter(lon <= 60, lon >= -60, lat >= 63) %>%
@@ -88,7 +88,7 @@ EU_GLODAP <- read_csv("~/pCloudDrive/FACE-IT_data/glodap/GLODAPv2.2022_Merged_Ma
                               variable %in% c("toc", "doc", "don", "tdn") ~ paste0(variable," [μmol L-1 d]"),
                               variable %in% c("chla") ~ paste0(variable," [μg kg-1 d]"),
                               TRUE ~ variable),
-         date_accessed = as.Date("2022-10-19"),
+         date_accessed = as.Date("2024-01-11"),
          type = "in situ", site = "EU",
          URL = "https://www.glodap.info",
          citation = "Lauvset, S. K., Lange, N., Tanhua, T., Bittig, H. C., Olsen, A., Kozyr, A., Álvarez, M., Becker, S., Brown, P. J., Carter, B. R., Cotrim da Cunha, L., Feely, R. A., van Heuven, S., Hoppema, M., Ishii, M., Jeansson, E., Jutterström, S., Jones, S. D., Karlsen, M. K., Lo Monaco, C., Michaelis, P., Murata, A., Pérez, F. F., Pfeil, B., Schirnick, C., Steinfeldt, R., Suzuki, T., Tilbrook, B., Velo, A., Wanninkhof, R., Woosley, R. J., and Key, R. M.: An updated version of the global interior ocean biogeochemical data product, GLODAPv2.2021, Earth Syst. Sci. Data, 13, 5565–5589, https://doi.org/10.5194/essd-13-5565-2021, 2021. ") %>%
@@ -294,7 +294,7 @@ CCI_por <- area_average(sst_CCI_por_bbox, "por")
 CCI_all <- rbind(CCI_kong, CCI_is, CCI_stor, CCI_young, CCI_disko, CCI_nuup, CCI_por) |> filter(value > -1.8) |>
   mutate(type = "CCI", depth = 0, lon = NA, lat = NA,
          date_accessed = as.Date("2021-12-13"),
-         URL = "http://dap.ceda.ac.uk/thredds/fileServer/neodc/c3s_sst/data/ICDR_v2/Analysis/L4/v2.0",
+         URL = "https://cds.climate.copernicus.eu/cdsapp#!/dataset/satellite-sea-surface-temperature",
          citation = "Merchant, C. J., Embury, O., Bulgin, C. E., Block, T., Corlett, G. K., Fiedler, E., et al. (2019). Satellite-based time-series of sea-surface temperature since 1981 for climate applications. Scientific data 6, 1–18.",
          variable = "temp [°C]", category = "phys", driver = "sea temp") |> 
   dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
@@ -792,8 +792,11 @@ FW_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_hist
                              species == "Chordaria Dicytosiphon" ~ "Chordaria flagelliformis with Dictyosiphon sp.",
                              species == "young Laminaria spp." ~ "young Laminariales spp.",
                              species == "Turnerella penneyi" ~ "Turnerella pennyi", TRUE ~ species))
-FW_spp <- plyr::ldply(unique(FW_historic$species), wm_records_df, .parallel = T)
-FW_historic_spp <- left_join(FW_historic, FW_spp, by = "species") |> 
+FW_spp <- plyr::ldply(unique(FW_historic$species), wm_records_df, .parallel = T) |> 
+  rbind(age_spp) |> distinct() # Adds Laminariales
+FW_historic_spp <- FW_historic |> 
+  mutate(species_sub = case_when(species == "Digitate kelps" ~ "Laminariales", TRUE ~ species)) |> 
+  left_join(FW_spp, by = c("species_sub" = "species")) |> 
   dplyr::rename(`Species UID` = species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
   dplyr::select(Year, `Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
                 `mean fresh weight [kg m-2]`) |> 
@@ -803,8 +806,10 @@ write_csv(FW_historic_spp, "~/pCloudDrive/restricted_data/Duesedau/Hansneset_his
 
 ## Kelp age and densities
 kelp_age_density_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_historic/Kelp_age_density_timeseries_Hansneset.csv", delim = "\t") |> 
-  mutate(Species = str_replace_all(Species, "_", " ")) |> 
-  left_join(FW_spp, by = c("Species" = "species")) |> 
+  arrange(`Depth [m]`, Replicate, Species) |> 
+  mutate(Species = gsub("_", " ", Species),
+         Species_sub = case_when(Species == "Digitate kelps" ~ "Laminariales", TRUE ~ Species)) |> 
+  left_join(age_spp, FW_spp, by = c("Species_sub" = "species")) |> 
   dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid,
                 `count [n m-2]` = `Count [m^2]`, `mean age [years m-2]` = `Mean Age [m^2]`) |> 
   dplyr::select(Year, `Depth [m]`, Replicate, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, 
@@ -819,8 +824,11 @@ LAI_historic <- read_delim("~/pCloudDrive/restricted_data/Duesedau/Hansneset_his
          Replicate = str_replace(Replicate, "Q0", "Q"),
          Class = case_when(Class != "Rhodophyta" ~ "Phaeophyceae", TRUE ~ Class),
          Species = gsub("sp$", "sp\\.", Species))
-LAI_spp <- plyr::ldply(unique(LAI_historic$Species), wm_records_df, .parallel = T)
-LAI_historic_spp <- left_join(LAI_historic, LAI_spp, by = c("Species" = "species")) |> 
+LAI_spp <- plyr::ldply(unique(LAI_historic$Species), wm_records_df, .parallel = T) |> 
+  rbind(age_spp) |> distinct() # Adds Laminariales
+LAI_historic_spp <- LAI_historic |> 
+  mutate(Species_sub = case_when(Species == "Digitate kelps" ~ "Laminariales", TRUE ~ Species)) |> 
+  left_join(LAI_spp, by = c("Species_sub" = "species")) |> 
   dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid) |> 
   dplyr::select(Year, `Depth [m]`, Replicate,
                 `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, `leaf area [m^2]`) |> 
@@ -850,3 +858,4 @@ urchin_biomass_abundance <- read_csv("~/pCloudDrive/restricted_data/Koch/SU_Biom
   mutate_at(1:10, ~replace_na(., ""))
 write_csv(urchin_biomass_abundance, "~/pCloudDrive/restricted_data/Koch/urchin_biomass_abundance_PG.csv")
 rm(urchin_spp); gc()
+

@@ -54,7 +54,7 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 # It was then updated vor v1.4 in the 'Driver conversion' section of 'code/data_product.R'
 full_var_list <- read_csv("metadata/full_var_list.csv")
 
-# manually new variables to list
+# Manually add new variables to list
 # full_var_list <- rbind(full_var_list,
 #                        data.frame(category = c("chem"),
 #                                   driver = c("carb"),
@@ -63,9 +63,11 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
-# full_var_list <- rbind(full_var_list,
-#                        dplyr::select(mutate(filter(sval_AIS, variable != "PAR [µmol m-2 s-1]"), driver = "fisheries"),
-#                                      category, driver, variable)) |> 
+# NB: Change as necessary
+# part_var_list <- green_west_biomass |> dplyr::select(category, variable) |> distinct() |> 
+#   mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich",TRUE ~ "biomass")) |> 
+#   dplyr::select(category, driver, variable)
+# full_var_list <- rbind(full_var_list, part_var_list) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 

@@ -2409,7 +2409,7 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # NB: There is only this one full product step for Greenland
 # These are all social data
 
-# TODO: FOllow up on this. Make sure it is accounted for
+# TODO: Follow up on this. Make sure it is accounted for
 # pangea_search03 <- pg_search(query = 'Whale sightings, group sizes and krill biomass in West Greenland in 2005')
 
 # TODO: Some of these links broke. Need to investigate
