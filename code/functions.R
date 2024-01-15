@@ -131,6 +131,45 @@ check_driver <- function(df){
   # rm(df, df_driv, df_no_driv, df_res); gc()
 }
 
+# Looks at variable names within the bio category and assigns a species classification if possible
+# Relevant groupings:
+# |FIS| = Fish
+# |MAM| = Mammal
+# |BIR| = Bird
+# |ZOO| = Zooplankton
+# |PHY| = Phytoplankton
+# |ALG| = Algae (not phytoplankton)
+# |BNT| = Benthic organisms (not algae)
+check_spp <- function(df){
+  
+  # Split dataframe by bio category
+  df_other <- filter(df, category != "bio")
+  df_bio <- filter(df, category == "bio") |> 
+    dplyr::select(variable) |> distinct() |> 
+    separate(variable, into = c("var", "units"), sep = "\\[") |>
+    separate(var, into = c("spp1", "spp2"), sep = " ", extra = "drop", remove = FALSE) |> 
+    unite(spp1, spp2, col = "spp", sep = " ") |> 
+    mutate(units = paste0("[",units))
+           # spp = sapply(strsplit(var, " "), getElement, c(1, 2)))
+           # spp = sapply(strsplit(var, " "), "[[", c(1, 2)))
+           # spp = paste(lapply(strsplit(var, " ")[[1]], "[", c(1, 2)), collapse = " "))
+           # spp = paste(strsplit(df_bio$var, " "), collapse = " "))
+           
+           # spp_trim = gsub("sp\\.$|spp\\.$|-Ciliata$", "", trimsws(spp)),
+           # NB: This will cause errors for a species name with 'young' in it)
+           # spp_trim = trimws(gsub("young", "", spp_trim)))
+  
+paste(strsplit(df_bio$var, " ")[[1]][1:2], collapse = " ")
+  # Get unique species names and search WoRMS
+  
+  
+  # Add classifications back into dataframe, merge, and exit
+  # cbind()
+  df_res <- rbind(df_other, df_spp_full) |> 
+    dplyr::arrange(cat, driver, variable)
+  return(df_res)
+}
+
 # Convert sites to FACE-IT site names when possible
 ## NB: Site list was first created in the 'Site conversion' section of 'code/data_product.R' for v1.4
 check_site <- function(df){
@@ -167,9 +206,12 @@ check_data <- function(df, assign_site = NULL){
   # Add categories and drivers and note any issues
   df_driv <- check_driver(df_var)
   
+  # Add species classifications and note any issues
+  df_spp <- check_spp(df_driv)
+  
   # Confirm site names and note any issues
   if(!is.null(assign_site)) df_driv$site <- assign_site
-  df_site <- check_site(df_driv)
+  df_site <- check_site(df_spp)
   
   # Finish and exit
   df_res <- dplyr::select(df_site, 
@@ -293,7 +335,7 @@ latin_eng <- function(nomSpecies){
 }
 
 # Convenience wrapper for WORMS database query
-wm_records_df <- function(sp_name){
+wm_records_df <- function(sp_name, res_type = "df"){
   URL_error <- NULL
   
   # Trim trailing and leading bits
@@ -302,13 +344,18 @@ wm_records_df <- function(sp_name){
   
   sp_info <- tryCatch(wm_records_name(sp_no_pre)[1,], 
                       error = function(sp_no_pre) {URL_error <<- "Species name doesn't match"})
-  if(is.null(URL_error)){
-    sp_res <- data.frame(species = sp_name, dplyr::select(sp_info, url, lsid))
-  } else {
-    sp_res <- data.frame(species = sp_name, url = NA, lsid = NA)
+  if(res_type == "df"){
+    if(is.null(URL_error)){
+      sp_res <- data.frame(species = sp_name, dplyr::select(sp_info, url, lsid))
+    } else {
+      sp_res <- data.frame(species = sp_name, url = NA, lsid = NA)
+    }
+    return(sp_res)
+    # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()
+  } else if(res_type == "class"){
+    
   }
-  return(sp_res)
-  # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()
+
 }
 
 # Download any number of desired files and save them locally
