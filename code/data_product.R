@@ -3375,6 +3375,7 @@ young_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/young
   summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Combine and save
+# TODO: A lot of missed species
 young_GEM <- rbind(young_mooring_multi, young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, young_GEM_sea_ice_formation, 
                    young_GEM_sea_ice_thickness, young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, 
                    young_GEM_CTD_sill, young_GEM_CTD_bottom, young_GEM_phyto_sp, young_GEM_DIC, young_GEM_pCO2, young_GEM_phosphate, 
@@ -3405,8 +3406,8 @@ young_bird_nests_eggs <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Vie
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          # lon = NA, lat = NA, # No longer necessary
          depth = NA,
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," eggs laid [n]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species," eggs laid [n]"),
          category = "bio",
          driver ="biomass",
          site = "young",
@@ -3434,8 +3435,8 @@ young_bird_nests_hatch <- read_delim("~/pCloudDrive/restricted_data/GEM/young/Vi
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          # lon = NA, lat = NA, # No longer necessary
          depth = NA,
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," eggs hatched [n]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species," eggs hatched [n]"),
          category = "bio",
          driver ="biomass",
          site = "young",
@@ -3453,8 +3454,8 @@ young_bird_abundance <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/1Z6Z-FQ32",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          depth = NA,
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," [presence]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species," [presence]"),
          category = "bio",
          driver ="biomass",
          date = as.Date(paste0(Year,"-12-31")),
@@ -3477,8 +3478,8 @@ young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_Bi
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          # lon = NA, lat = NA, # No longer necessary
          depth = NA,
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp," eggs laid [n]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species," eggs laid [n]"),
          category = "bio",
          driver = "biomass",
          site = "young",
@@ -3487,6 +3488,7 @@ young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_Bi
   dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value)
 
 # Combine and save
+# TODO: Missing species
 young_species_GEM <- rbind(young_bird_nests_eggs, 
                            young_bird_nests_hatch,
                            young_bird_abundance,
@@ -3609,6 +3611,7 @@ pg_disko_bio <- pg_var_melt(pg_disko_clean, query_bio)
 pg_disko_soc <- pg_var_melt(pg_disko_clean, query_soc) # empty
 
 # Stack them together
+# TODO: WoRMS
 pg_disko_ALL <- check_data(rbind(pg_disko_cryo, pg_disko_phys, pg_disko_chem, pg_disko_bio, pg_disko_soc))
 data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.csv")
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
@@ -3894,7 +3897,8 @@ if(!exists("pg_disko_ALL")) load("~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_
 if(!exists("disko_wild")) load("~/pCloudDrive/FACE-IT_data/disko_bay/disko_wild.RData")
 
 # Combine and save
-full_product_disko <- rbind(disko_EU_sub, disko_green_sub, disko_GEM_shadow, pg_disko_ALL, disko_wild) |> mutate(site = "disko") |> distinct()
+full_product_disko <- rbind(disko_EU_sub, disko_green_sub, disko_GEM_shadow, pg_disko_ALL, disko_wild) |> 
+  mutate(site = "disko") |> distinct()
 data.table::fwrite(full_product_disko, "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.csv")
 save(full_product_disko, file = "~/pCloudDrive/FACE-IT_data/disko_bay/full_product_disko.RData")
 save(full_product_disko, file = "data/full_data/full_product_disko.RData")
@@ -3910,7 +3914,7 @@ rm(list = grep("disko_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg Nuup Kangerlua files
 system.time(
   pg_nuup_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "nuup")
-) # 27 seconds
+) # 34 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -3965,6 +3969,7 @@ pg_nuup_bio <- pg_var_melt(pg_nuup_clean, query_bio)
 pg_nuup_soc <- pg_var_melt(pg_nuup_clean, query_soc) # empty
 
 # Stack them together
+# TODO: WoRMS
 pg_nuup_ALL <- check_data(rbind(pg_nuup_cryo, pg_nuup_phys, pg_nuup_chem, pg_nuup_bio, pg_nuup_soc))
 data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.csv")
 save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
@@ -4282,6 +4287,7 @@ nuup_GEM_Anod_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
 # Combine and save
+# TODO: Missing species
 nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_GEM_silicate, nuup_GEM_ChlA, 
                   nuup_GEM_precip, nuup_GEM_snow, nuup_GEM_air_press, nuup_GEM_qnet, nuup_GEM_air_temp_2m, 
                   nuup_GEM_air_temp_10m, nuup_GEM_air_temp_2m_Kobbefjord, nuup_GEM_Kingigtorssuaq, nuup_GEM_Kobbefjord, 
@@ -4302,14 +4308,14 @@ nuup_bird_nb <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_BioBasis
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/DRTB-PY74",
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Department of Bioscience, Aarhus University, Denmark in collaboration with Greenland Institute of Natural Resources, Nuuk, Greenland, and Department of Biology, University of Copenhagen, Denmark",
          depth = NA,
-         nomsp = map(Species, latin_eng),
+         # nomsp = map(Species, latin_eng),
          age = case_when(Age == "J" ~ "juvenile", 
                          Age == "A" ~ "adult",
                          Age == "UK" ~ "unknown"),
          gender = case_when(Gender == "M" ~ "male", 
                             Gender == "F" ~ "female",
                             Gender == "UK" ~ "unknown"),
-         variable = paste0(nomsp, " ", age, " ", gender," [n]"),
+         variable = paste0(Species, " ", age, " ", gender," [n]"),
          category = "bio",
          driver = "biomass",
          site = "nuup",
@@ -4332,8 +4338,8 @@ nuup_seabird_count <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_Ma
          lon = Longitude, 
          lat = Latitude, 
          depth = NA, 
-         nomsp = map(Latin, latin_eng),
-         variable = paste0(nomsp, " [n]"),
+         # nomsp = map(Latin, latin_eng),
+         variable = paste0(Latin, " [n]"),
          category = "bio",
          driver = "biomass",
          site = "nuup", 
@@ -4345,21 +4351,21 @@ nuup_seabird_count <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_Ma
 # Seabird presence
 nuup_seabird_presence <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/View_MarineBasis_Nuuk_Data_Seabirds_Seabird_species_counts_per_colony17042023154835389.csv",
                                     na = "2017-07-00") %>% 
-  filter(!is.na(Latin)) %>%
+  filter(!is.na(Latin), Latin != "NULL") %>%
   mutate(date_accessed = as.Date("2023-04-17"), 
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/WKFK-SS31", 
          citation = "Data from the Greenland Ecosystem Monitoring Programme were provided by the Greenland Institute of Natural Resources, Nuuk, Greenland in collaboration with Department of Bioscience, Aarhus University, Denmark and University of Copenhagen, Denmark.", 
          lon = Longitude, 
          lat = Latitude, 
          depth = NA, 
-         nomsp = map(Latin, latin_eng),
-         variable = paste0(nomsp, " [presence]"),
+         # nomsp = map(Latin, latin_eng),
+         variable = paste0(Latin, " [presence]"),
          category = "bio",
          driver ="biomass",
          site = "nuup", 
          date = as.Date(Date),
          value = ifelse(MinNumbers == 0, 0, 1)) %>% # change values to 1 if presence and 0 if absence
-  filter(!nomsp == "NA") %>% 
+  # filter(!nomsp == "NA") %>% 
   dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value)
 
 # Marine mammal
@@ -4372,8 +4378,8 @@ nuup_mmam_count <- read_delim("~/pCloudDrive//restricted_data/GEM/nuup/View_Mari
          lat = NA, 
          depth = NA, 
          Species = "Megaptera novaeangliae",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " [n]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " [n]"),
          category = "bio",
          driver ="biomass",
          site = "nuup", 
@@ -4383,6 +4389,7 @@ nuup_mmam_count <- read_delim("~/pCloudDrive//restricted_data/GEM/nuup/View_Mari
   dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value)
 
 # Combine and save
+# TODO: check_spp issues
 nuup_species_GEM <- rbind(nuup_bird_nb, 
                           nuup_seabird_count, 
                           nuup_seabird_presence, 
@@ -4444,8 +4451,6 @@ rm(list = grep("nuup_",names(.GlobalEnv),value = TRUE)); gc()
 
 # NB: There is only the full data product for Norway
 # This is a collection of social data
-
-# TODO: Some links break. Investigate.
 
 # National statistics
 ## Salmon exports
@@ -4673,6 +4678,7 @@ nor_MOSJ_pcod <- read_delim("~/pCloudDrive/FACE-IT_data/norway/biomass-of-polar-
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
+# TODO: add 'Polar Cod' to check_spp()
 full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_pop, nor_MPA, 
                           nor_air_passenger, sval_employ_perc, nor_accommodation, 
                           nor_IMR_kingcrab, nor_MOSJ_pcod) |>
@@ -4745,6 +4751,7 @@ pg_por_bio <- pg_var_melt(pg_por_clean, query_bio)
 pg_por_soc <- pg_var_melt(pg_por_clean, query_soc) # empty
 
 # Stack them together
+# TODO: WoRMS
 pg_por_ALL <- check_data(rbind(pg_por_cryo, pg_por_phys, pg_por_chem, pg_por_bio, pg_por_soc))
 data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.csv")
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
@@ -4922,81 +4929,6 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
                   young_species_GEM, nuup_species_GEM)
 
 
-## Site conversion --------------------------------------------------------
-
-### Relevant sites --------------------------------------------------------
-
-## Norway
-# Troms og Finnmark: Province(s) for Porsangerfjorden
-# Lakselv: Main city for Porsangerfjorden (?)
-# Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
-
-## Svalbard
-# Svalbard: Province for Svalbard
-# east ice and west ice: Svalbard survey regions
-# Longyearbyen: Main city in Isfjorden
-# Isfjorden sites:
-  # Longyearbyen & Ny-Alesund mainland, Longyearbyen & Ny-Alesund abroad, Barentsburg and Pyramiden
-# Svalbard Longyear: Airport on Isfjorden
-# Ny-Alesund: Main village in Kongsfjorden
-
-## Greenland
-# Sermersooq: Municipality for Nuup Kangerlua
-# Nuuk: Main city in Nuup Kangerlua, also an airport
-# Qeqertalik: Municipality for Disko bay
-# Avannaata: Municipality that borders on Disko Bay (relevant for demographics, fish landings, etc.)
-# Qeqertarsuaq: Main city in Disko Bay (?)
-# Aasiaat: Port on southern edge of Disko Bay
-# Ilulissat: Port on eastern edge of Disko Bay, also an airport
-# Qasigiannguit: Port on eastern edge of Disko Bay
-# Uummannaq: City North of Disko Bay (possibly relevant for fish landings etc.)
-# Kangaatsiaq: Port south of Disko Bay (possibly relevant for fish landings etc.)
-# Outside municipalities: Young Sound appears to fall outside of a municipality
-
-
-### Link sites --------------------------------------------------------------
-
-# TODO: Now that this has been propogated throgh the pipeline, this code needs a legacy location
-
-# The list of sites created to help with linking
-full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
-  dplyr::rename(site_alt = site) |> arrange(site_alt) |> 
-  mutate(site = case_when(site_alt %in% long_site_names$site ~ site_alt, TRUE ~ NA),
-         site = case_when(site_alt == "EU" ~ "EU",
-                          site_alt %in% c("Svalbard", "svalbard", "sval", "east ice", "west ice", "SvalbardTransit") ~ "sval",
-                          site_alt %in% c("Norway", "Barents Sea", "Barents sea", "barents sea", "nor", "NorwegianWaters") ~ "nor",
-                          site_alt %in% c("Grønlund", "green",
-                                          # "West- Eastgreenland", "Westgreenland", # TODO: Look into these
-                                          # "east ice", "west ice", # TODO: Look into these
-                                          "All Greenland") ~ "green",
-                          site_alt %in% c("Kongsfjorden", "Ny-Alesund") ~ "kong",
-                          site_alt %in% c("Longyearbyen & Ny-Alesund", "Longyearbyen & Ny-Alesund mainland",
-                                          "Longyearbyen & Ny-Alesund abroad", "Barentsburg and Pyramiden") ~ "is", # NB: This is an intentional choice
-                          site_alt %in% c("Svalbard Longyear", "Isfjorden") ~ "is",
-                          site_alt %in% c("Storfjorden") ~ "stor",
-                          site_alt %in% c("Lakselv", "Lakselv Banak", "Honningsvåg Valan", "Honningsvåg",
-                                          "Troms og Finnmark - Romsa ja Finnmárku") ~ "por",
-                          site_alt %in% c("Nuuk", "Kommuneqarfik Sermersooq",
-                                          # "Kommuneqarfik Sermersooq Øst", # NB: Intentionally not choosing this one
-                                          "Kommuneqarfik Sermersooq Vest") ~ "nuup",
-                          site_alt %in% c("Qeqertarsuaq", "Avannaata Kommunia", 
-                                          "Avannaata Kommunia and Kommune Qeqertalik", 
-                                          "Kommune Qeqertalik", "Aasiaat",
-                                          "Ilulissat", "Ilulissat (*)", "Qasigiannguit",
-                                          "Uummannaq", "Kangaatsiaq", "Disko Bay") ~ "disko",
-                          site_alt %in% c("Outside municipalities") ~ "young",
-                          TRUE ~ site)) |> 
-  left_join(long_site_names, by = "site") |> 
-  mutate(site_long = case_when(site == "EU" ~ "EU", site == "green" ~ "Greenland",
-                               site == "nor" ~ "Norway", site == "sval" ~ "Svalbard", TRUE ~ site_long)) |> 
-  dplyr::select(site, site_long, site_alt)
-# write_csv(full_site_list, "metadata/full_site_list.csv")
-
-# NB: This is retroactively used at the start of the pipeline
-# Thereby making it redundant by this step
-# The code remains here as a legacy of the choices made when linking sites
-
-
 ## Cryosphere --------------------------------------------------------------
 
 ### Sea ice ----------------------------------------------------------------
@@ -5052,7 +4984,7 @@ load("data/analyses/ice_4km_prop.RData")
 
 # Bind together
 clean_sea_ice <- rbind(clean_sea_ice, ice_4km_prop) %>% distinct()
-rm(ice_4km_proc, ice_4km_prop, ice_4km_prop_long); gc(); print(unique(clean_sea_ice$variable))
+rm(ice_4km_prop); gc(); print(unique(clean_sea_ice$variable))
 
 # Calculate sea ice breakup and formation dates
 ## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
@@ -5479,7 +5411,7 @@ data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
 data_shadow_df <- shadow(clean_all)
 
 # Prep for PANGAEA standard
-FACE_IT_v1.4 <- clean_all |> 
+FACE_IT_v1.5 <- clean_all |> 
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
@@ -5491,39 +5423,39 @@ FACE_IT_v1.4 <- clean_all |>
          citation = str_replace_all(citation, ";", "."))
 
 # Double check data shadows have been applied correctly
-shadow_test <- filter(FACE_IT_v1.4, grepl(data_shadow, URL))
+shadow_test <- filter(FACE_IT_v1.5, grepl(data_shadow, URL))
 rm(shadow_test); gc()
 
 # Save as .csv
 # NB: write_csv_arrow not currently working, file too large
-write_csv(FACE_IT_v1.4, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4.csv")
-write_csv(FACE_IT_v1.4, "data/full_data/FACE_IT_v1.4.csv")
+write_csv(FACE_IT_v1.5, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.5.csv")
+write_csv(FACE_IT_v1.5, "data/full_data/FACE_IT_v1.5.csv")
 
 # TODO: Address multiples
 # Cryo data
-FACE_IT_v1.4_cryo <- filter(FACE_IT_v1.4, category == "cryo") |>
+FACE_IT_v1.5_cryo <- filter(FACE_IT_v1.5, category == "cryo") |>
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.4_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_cryo.csv", delim = ";")
+write_delim(FACE_IT_v1.5_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.5_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1.4_phys <- filter(FACE_IT_v1.4, category == "phys") |> 
+FACE_IT_v1.5_phys <- filter(FACE_IT_v1.5, category == "phys") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.4_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_phys.csv", delim = ";")
+write_delim(FACE_IT_v1.5_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.5_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1.4_chem <- filter(FACE_IT_v1.4, category == "chem") |> 
+FACE_IT_v1.5_chem <- filter(FACE_IT_v1.5, category == "chem") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.4_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_chem.csv", delim = ";")
+write_delim(FACE_IT_v1.5_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.5_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1.4_bio <- filter(FACE_IT_v1.4, category == "bio") |> 
+FACE_IT_v1.5_bio <- filter(FACE_IT_v1.5, category == "bio") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.4_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_bio.csv", delim = ";")
+write_delim(FACE_IT_v1.5_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.5_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1.4_soc <- filter(FACE_IT_v1.4, category == "soc") |> 
+FACE_IT_v1.5_soc <- filter(FACE_IT_v1.5, category == "soc") |> 
   pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.4_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.4_soc.csv", delim = ";")
+write_delim(FACE_IT_v1.5_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.5_soc.csv", delim = ";")
 
 
 ## Additional cleaning -----------------------------------------------------

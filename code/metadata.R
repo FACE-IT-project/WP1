@@ -46,36 +46,77 @@ Sys.setenv(TZ = "UTC")
 # Set system time to English
 Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 
+# Sites --------------------------------------------------------
 
-# Meta-data ---------------------------------------------------------------
+### Relevant sites --------------------------------------------------------
 
-# Full category -> driver -> variable list
-# NB: This was first generated a posteriori from v1.0 of the data product
-# It was then updated vor v1.4 in the 'Driver conversion' section of 'code/data_product.R'
-full_var_list <- read_csv("metadata/full_var_list.csv")
+## Norway
+# Troms og Finnmark: Province(s) for Porsangerfjorden
+# Lakselv: Main city for Porsangerfjorden (?)
+# Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
 
-# Manually add new variables to list
-# full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("bio"),
-#                                   driver = c("spp rich"),
-#                                   variable = c("Reinhardtius hippoglossoides [presence]"))) |>
-#   distinct() |> arrange(category, driver, variable)
-# write_csv(full_var_list, "metadata/full_var_list.csv")
+## Svalbard
+# Svalbard: Province for Svalbard
+# east ice and west ice: Svalbard survey regions
+# Longyearbyen: Main city in Isfjorden
+# Isfjorden sites:
+# Longyearbyen & Ny-Alesund mainland, Longyearbyen & Ny-Alesund abroad, Barentsburg and Pyramiden
+# Svalbard Longyear: Airport on Isfjorden
+# Ny-Alesund: Main village in Kongsfjorden
 
-# Add variables via an entire dataset
-# NB: Change as necessary
-# part_var_list <- kong_species |> dplyr::select(category, variable) |> distinct() |>
-#   mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich",TRUE ~ "biomass")) |>
-#   dplyr::select(category, driver, variable)
-# full_var_list <- rbind(full_var_list, part_var_list) |>
-#   distinct() |> arrange(category, driver, variable)
-# write_csv(full_var_list, "metadata/full_var_list.csv")
+## Greenland
+# Sermersooq: Municipality for Nuup Kangerlua
+# Nuuk: Main city in Nuup Kangerlua, also an airport
+# Qeqertalik: Municipality for Disko bay
+# Avannaata: Municipality that borders on Disko Bay (relevant for demographics, fish landings, etc.)
+# Qeqertarsuaq: Main city in Disko Bay (?)
+# Aasiaat: Port on southern edge of Disko Bay
+# Ilulissat: Port on eastern edge of Disko Bay, also an airport
+# Qasigiannguit: Port on eastern edge of Disko Bay
+# Uummannaq: City North of Disko Bay (possibly relevant for fish landings etc.)
+# Kangaatsiaq: Port south of Disko Bay (possibly relevant for fish landings etc.)
+# Outside municipalities: Young Sound appears to fall outside of a municipality
 
-# Check for duplicates
-# summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
 
-# Remove a specific variables
-# full_var_list <- filter(full_var_list, variable != "Reinhardtius hippoglossoides [presence]")
+### Link sites --------------------------------------------------------------
+
+# The list of sites created to help with linking
+# full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
+#   dplyr::rename(site_alt = site) |> arrange(site_alt) |> 
+#   mutate(site = case_when(site_alt %in% long_site_names$site ~ site_alt, TRUE ~ NA),
+#          site = case_when(site_alt == "EU" ~ "EU",
+#                           site_alt %in% c("Svalbard", "svalbard", "sval", "east ice", "west ice", "SvalbardTransit") ~ "sval",
+#                           site_alt %in% c("Norway", "Barents Sea", "Barents sea", "barents sea", "nor", "NorwegianWaters") ~ "nor",
+#                           site_alt %in% c("Grønlund", "green",
+#                                           # "West- Eastgreenland", "Westgreenland", # TODO: Look into these
+#                                           # "east ice", "west ice", # TODO: Look into these
+#                                           "All Greenland") ~ "green",
+#                           site_alt %in% c("Kongsfjorden", "Ny-Alesund") ~ "kong",
+#                           site_alt %in% c("Longyearbyen & Ny-Alesund", "Longyearbyen & Ny-Alesund mainland",
+#                                           "Longyearbyen & Ny-Alesund abroad", "Barentsburg and Pyramiden") ~ "is", # NB: This is an intentional choice
+#                           site_alt %in% c("Svalbard Longyear", "Isfjorden") ~ "is",
+#                           site_alt %in% c("Storfjorden") ~ "stor",
+#                           site_alt %in% c("Lakselv", "Lakselv Banak", "Honningsvåg Valan", "Honningsvåg",
+#                                           "Troms og Finnmark - Romsa ja Finnmárku") ~ "por",
+#                           site_alt %in% c("Nuuk", "Kommuneqarfik Sermersooq",
+#                                           # "Kommuneqarfik Sermersooq Øst", # NB: Intentionally not choosing this one
+#                                           "Kommuneqarfik Sermersooq Vest") ~ "nuup",
+#                           site_alt %in% c("Qeqertarsuaq", "Avannaata Kommunia", 
+#                                           "Avannaata Kommunia and Kommune Qeqertalik", 
+#                                           "Kommune Qeqertalik", "Aasiaat",
+#                                           "Ilulissat", "Ilulissat (*)", "Qasigiannguit",
+#                                           "Uummannaq", "Kangaatsiaq", "Disko Bay") ~ "disko",
+#                           site_alt %in% c("Outside municipalities") ~ "young",
+#                           TRUE ~ site)) |> 
+#   left_join(long_site_names, by = "site") |> 
+#   mutate(site_long = case_when(site == "EU" ~ "EU", site == "green" ~ "Greenland",
+#                                site == "nor" ~ "Norway", site == "sval" ~ "Svalbard", TRUE ~ site_long)) |> 
+#   dplyr::select(site, site_long, site_alt)
+# write_csv(full_site_list, "metadata/full_site_list.csv")
+
+
+### Add new sites ---------------------------------------------------------
+
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Site list for province etc. conversions
@@ -88,6 +129,44 @@ full_site_list <- read_csv("metadata/full_site_list.csv")
 #                                   site_alt = c("Westgreenland", "Eastgreenland"))) |>
 #   distinct() |> arrange(site, site_long, site_alt)
 # write_csv(full_site_list, "metadata/full_site_list.csv")
+
+
+# Variables ---------------------------------------------------------------
+
+# Full category -> driver -> variable list
+# NB: This was first generated a posteriori from v1.0 of the data product
+# It was then updated vor v1.4 in the 'Driver conversion' section of 'code/data_product.R'
+full_var_list <- read_csv("metadata/full_var_list.csv")
+
+
+## Manually add variables -------------------------------------------------
+
+# full_var_list <- rbind(full_var_list,
+#                        data.frame(category = c("bio"),
+#                                   driver = c("spp rich"),
+#                                   variable = c("Reinhardtius hippoglossoides [presence]"))) |>
+#   distinct() |> arrange(category, driver, variable)
+# write_csv(full_var_list, "metadata/full_var_list.csv")
+
+
+## Add variables from object ----------------------------------------------
+
+# Add variables via an entire dataset
+# NB: Change as necessary
+# part_var_list <- por_invert_biomass |> dplyr::select(category, variable) |> distinct() |>
+#   mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich",TRUE ~ "biomass")) |>
+#   dplyr::select(category, driver, variable)
+# full_var_list <- rbind(full_var_list, part_var_list) |>
+#   distinct() |> arrange(category, driver, variable)
+# write_csv(full_var_list, "metadata/full_var_list.csv")
+
+# Check for duplicates
+# summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
+
+
+## Remove a specific variables --------------------------------------------
+
+# full_var_list <- filter(full_var_list, variable != "Reinhardtius hippoglossoides [presence]")
 
 
 # Base maps ---------------------------------------------------------------
