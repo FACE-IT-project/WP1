@@ -137,13 +137,21 @@ check_spp <- function(df, spp_type = "cat"){
   # Split dataframe by bio category
   df_other <- filter(df, category != "bio")
   df_PP <- filter(df, category == "bio", driver == "prim prod")
-  df_not_PP <- filter(df, category == "bio", driver != "prim prod") |> 
-    dplyr::select(variable) |> distinct() |> 
-    separate(variable, into = c("var", "units"), sep = "\\[", remove = FALSE) |>
-    separate(var, into = c("spp1", "spp2"), sep = " ", extra = "drop", remove = FALSE) |> 
-    unite(spp1, spp2, col = "spp", sep = " ") |> 
-    mutate(units = trimws(paste0("[",units)),
-           spp = trimws(gsub(";| -", "", spp)))
+  df_not_PP <- filter(df, category == "bio", driver != "prim prod")
+  
+  # Exit if no species data
+  if(nrow(df_not_PP) == 0){
+    cat("No species data.\n")
+    return(df)
+  } else{
+    df_not_PP <- df_not_PP |> 
+      dplyr::select(variable) |> distinct() |> 
+      separate(variable, into = c("var", "units"), sep = "\\[", remove = FALSE) |>
+      separate(var, into = c("spp1", "spp2"), sep = " ", extra = "drop", remove = FALSE) |> 
+      unite(spp1, spp2, col = "spp", sep = " ") |> 
+      mutate(units = trimws(paste0("[",units)),
+             spp = trimws(gsub(";| -", "", spp)))
+  }
   
   # Quick check of taxonomy for a given dataset
   if(spp_type == "tax"){
@@ -171,6 +179,7 @@ check_spp <- function(df, spp_type = "cat"){
     mutate(variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |> 
     dplyr::select(-cat)
   return(df_res)
+  # rm(df, spp_type, df_other, df_PP, df_not_PP); gc()
 }
 
 # Convert sites to FACE-IT site names when possible
@@ -775,10 +784,12 @@ pg_site_filter <- function(file_name, site_name){
       filter(lon >= bbox[1], lon <= bbox[2],
              lat >= bbox[3], lat <= bbox[4])
     pg_res <- bind_rows(pg_no_coords, pg_coords)
+    rm(pg_dat, pg_no_coords, pg_coords); gc()
   } else {
    pg_res <- pg_dat |> 
       filter(lon >= bbox[1], lon <= bbox[2],
              lat >= bbox[3], lat <= bbox[4])
+   rm(pg_dat); gc()
   }
   
   if(nrow(pg_res) == 0){

@@ -64,7 +64,7 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
 # NB: Change as necessary
-# part_var_list <- sval_species |> dplyr::select(category, variable) |> distinct() |>
+# part_var_list <- kong_species |> dplyr::select(category, variable) |> distinct() |>
 #   mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich",TRUE ~ "biomass")) |>
 #   dplyr::select(category, driver, variable)
 # full_var_list <- rbind(full_var_list, part_var_list) |>

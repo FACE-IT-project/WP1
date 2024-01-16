@@ -1247,10 +1247,10 @@ kong_glaucous_gull_population <- read_delim("~/pCloudDrive/FACE-IT_data/kongsfjo
          citation = "Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html", 
          lon = NA, lat = NA, depth = NA, 
          Species = "Larus hyperboreus",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding population [%]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " breeding population [%]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          type = "survey", site = "kong", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Kongsfjorden) %>% 
@@ -1264,10 +1264,10 @@ kong_eiders_stock <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/breeding-
          citation = "Norwegian Polar Institute (2022). Breeding population of common eiders in Kongsfjorden, number of breeding pairs. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/common-eider.html", 
          lon = NA, lat = NA, depth = NA, 
          Species = "Somateria mollissima borealis",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding pairs [n]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " breeding pairs [n]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          type = "survey", site = "kong", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::rename(value = Common.eider) %>% 
@@ -1281,11 +1281,12 @@ kong_seabird <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Descamps_Strom
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4", 
          citation = "Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd", 
-         lon = NA, lat = NA, depth = NA, 
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " colony count [n]"),
+         lon = NA, lat = NA, depth = NA,
+         Species = case_when(Species == "GLGU" ~ "Larus hyperboreus", TRUE ~ Species),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " colony count [n]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          type = "survey", site = "kong", 
          date = as.Date(paste0(YR,"-12-31"))) %>% 
   dplyr::rename(value = Count) %>% 
@@ -1299,11 +1300,11 @@ kong_calanus_population <- read.csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/cal
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/zooplankton-species-composition-in-kongsfjorden/", 
          citation = "Norwegian Polar Institute (2022). Calanus species composition in Kongsfjorden. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/zooplankton-species-composition.html", 
          lon = NA, lat = NA, depth = NA, 
-         Species = substr(str_replace_all(tolower(name),"\\."," "),15, 30),
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " [%]"),
+         Species = paste0("Zooplankton ",substr(str_replace_all(tolower(name),"\\."," "),15, 30)),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " [%]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          type = "survey", site = "kong", 
          date = as.Date(paste0(Category,"-12-31"))) %>% 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>% 
@@ -1318,15 +1319,14 @@ kong_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/blac
          citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
          lon = NA, lat = NA, depth = NA,
          Species = "Rissa tridactyla",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " population [% average in the colony]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " population [% average in the colony]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          type = "survey", site = "kong",
          date = as.Date(paste0(Category,"-12-31"))) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
-
 
 # kong Brünnich’s guillemot population
 kong_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnnichs-guillemot-breed.csv", sep = ";", dec = ",") %>%
@@ -1337,16 +1337,17 @@ kong_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brn
          citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
          lon = NA, lat = NA, depth = NA,
          Species = "Uria lomvia",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding population [%]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " breeding population [%]"),
          category = "bio",
-         driver ="biomass",
+         driver = "biomass",
          type = "survey", site = "kong",
          date = as.Date(paste0(Category,"-12-31"))) %>%
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) %>%
   filter(!is.na(value))
 
 # Combine and save
+# TODO: Update species categorisation to see 'Zooplankton' and respond accordingly
 kong_species <- check_data(rbind(kong_glaucous_gull_population, 
                                  kong_eiders_stock,
                                  kong_seabird, 
@@ -1795,7 +1796,6 @@ if(!exists("kong_species")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_s
 # Load wild data
 if(!exists("kong_wild")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_wild.RData")
 
-
 # Combine and save
 full_product_kong <- rbind(kong_sval_sub, pg_kong_ALL, kong_species, kong_wild) |> mutate(site = "kong") |> distinct()
 data.table::fwrite(full_product_kong, "~/pCloudDrive/FACE-IT_data/kongsfjorden/full_product_kong.csv")
@@ -1819,7 +1819,7 @@ rm(list = grep("kong_",names(.GlobalEnv),value = TRUE)); gc()
 # TODO: There is a lot of room for improvement in this process
 system.time(
   pg_is_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "is")
-) # 421 seconds - RAM limited
+) # 282 seconds - RAM limited
 gc()
 
 # Test problem files
@@ -1903,6 +1903,7 @@ pg_is_soc <- pg_var_melt(pg_is_clean, query_soc); gc() # empty
 rm(pg_is_clean); gc()
 
 # Stack them together
+# TODO: WoRMS species issues
 pg_is_ALL <- check_data(rbind(pg_is_cryo, pg_is_phys, pg_is_chem, pg_is_bio, pg_is_soc))
 data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.csv")
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
@@ -1926,8 +1927,8 @@ is_kittiwakke_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/black-
          citation = "Norwegian Polar Institute (2022). Black-legged kittiwake population size, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/black-legged-kittiwake.html",
          lon = NA, lat = NA, depth = NA,
          Species = "Rissa tridactyla",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " population [% average in the colony]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " population [% average in the colony]"),
          category = "bio",
          driver = "biomass",
          type = "survey", site = "is",
@@ -1944,8 +1945,8 @@ is_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brnni
          citation = "Norwegian Polar Institute (2022). Brünnich’s guillemot breeding populations, percentage of colony average. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/brunnichs-guillemot.html",
          lon = NA, lat = NA, depth = NA,
          Species = "Uria lomvia",
-         nomsp = map(Species, latin_eng),
-         variable = paste0(nomsp, " breeding population [%]"),
+         # nomsp = map(Species, latin_eng),
+         variable = paste0(Species, " breeding population [%]"),
          category = "bio",
          driver = "biomass",
          type = "survey", site = "sval",
@@ -2283,7 +2284,7 @@ rm(list = grep("is_",names(.GlobalEnv),value = TRUE)); gc()
 # Load pg stor files
 system.time(
   pg_stor_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "stor")
-) # 21 seconds
+) # 35 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.867215")
@@ -2337,6 +2338,7 @@ pg_stor_bio <- pg_var_melt(pg_stor_clean, query_bio)
 pg_stor_soc <- pg_var_melt(pg_stor_clean, query_soc) # empty
 
 # Stack them together
+# TODO: WoRMS species
 pg_stor_ALL <- check_data(rbind(pg_stor_cryo, pg_stor_phys, pg_stor_chem, pg_stor_bio, pg_stor_soc))
 data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.csv")
 save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
@@ -2428,6 +2430,7 @@ green_income <- as.data.frame(green_income_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Monthly employment and income
+# TODO: Broken link
 green_employment_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR30/ARXBFB3.px",
             query = "data/JSON/pxapi-api_table_ARXBFB3.px.json")
@@ -2445,6 +2448,7 @@ green_employment <- as.data.frame(green_employment_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Unemployment
+# TODO: Broken link
 green_unemployment_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR40/ARXLED3.px",
             query = "data/JSON/pxapi-api_table_ARXLED3.px.json")
@@ -2517,6 +2521,7 @@ green_cruise_count <- as.data.frame(green_cruise_count_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Cruise passenger nationality
+# TODO: Error
 green_cruise_nation_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU10/TUXKRL.px",
             query = "data/JSON/pxapi-api_table_TUXKRL.px.json")
@@ -2669,6 +2674,7 @@ green_quotas <- as.data.frame(green_quotas_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Domestic quota advice
+# TODO: Broken link
 green_quota_advice_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/FI/FI70/FIX021.px",
             query = "data/JSON/pxapi-api_table_FIX021.px.json")
@@ -2685,6 +2691,7 @@ green_quota_advice <- as.data.frame(green_quota_advice_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Domestic quota advice
+# TODO: Broken link
 green_fish_exports_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/IE/IEXEXPMND.px",
             query = "data/JSON/pxapi-api_table_IEXEXPMND.px.json")
@@ -2707,7 +2714,6 @@ green_fish_exports <- as.data.frame(green_fish_exports_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## West Greenland intertidal species study
-# NB: Some of the minutes and seconds in these coordinates are suspect...
 green_west_coords <- read_csv("~/pCloudDrive/FACE-IT_data/greenland/biomass/Site GPS coordinates.csv") |> 
   dplyr::rename(lat = `N latitude`, lon = `W longitude`, site = Location, station = `Station ID`) |> 
   mutate(lat = gsub("’", "", lat), lon = gsub("’", "", lon)) |> 
@@ -2744,18 +2750,23 @@ green_west_biomass <- rbind(green_west_intertidal, green_west_vertical) |>
   mutate(date_accessed = as.Date("2024-01-02"),
          URL = "https://zenodo.org/records/3920535",
          citation = "Thyrring, J., Wegeberg, S., Blicher, M. E., Krause‐Jensen, D., Høgslund, S., Olesen, B., ... & Sejr, M. K. (2021). Latitudinal patterns in intertidal ecosystem structure in West Greenland suggest resilience to climate change. Ecography, 44(8), 1156-1168.",
-         date = NA, depth = NA, category = "bio") |> 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
+         date = NA, depth = NA, category = "bio", type = "in situ") |> 
+  dplyr::select(date_accessed, URL, citation, type, lon, lat, date, depth, category, variable, value, site)
 rm(green_west_coords, green_west_intertidal, green_west_vertical)  
 
 # Combine and save
 # TODO: Fix issues with broken links above
-# TODO: Ensure each dataset has a 'type' column
-full_product_green <- rbind(green_income, green_employment, green_unemployment, green_pop,
-                            green_cruise_passenger, green_cruise_count, green_cruise_nation,
+# TODO: WoRMS missing species
+full_product_green <- rbind(green_income, 
+                            # green_employment, green_unemployment, 
+                            green_pop,
+                            green_cruise_passenger, green_cruise_count, 
+                            # green_cruise_nation,
                             green_air_passenger, green_guests, green_dogs, green_landings_domestic,
-                            green_landings_inter, green_fish_price, green_quotas, green_quota_advice,
-                            green_fish_exports, green_west_biomass) |> check_data()
+                            green_landings_inter, green_fish_price, green_quotas#, 
+                            # green_quota_advice,
+                            # green_fish_exports
+                            ) |> mutate(type = "survey") |> rbind(green_west_biomass) |> check_data()
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
@@ -2828,6 +2839,7 @@ pg_young_bio <- pg_var_melt(pg_young_clean, query_bio)
 pg_young_soc <- pg_var_melt(pg_young_clean, query_soc) # empty
 
 # Stack them together
+# TODO: WoRMS species
 pg_young_ALL <- check_data(rbind(pg_young_cryo, pg_young_phys, pg_young_chem, pg_young_bio, pg_young_soc))
 data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.csv")
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
