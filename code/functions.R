@@ -132,38 +132,46 @@ check_driver <- function(df){
 }
 
 # Looks at variable names within the bio category and assigns a species classification if possible
-# Relevant groupings:
-# |FIS| = Fish = c("Teleostei")
-# |MAM| = Mammal
-# |BIR| = Bird
-# |ZOO| = Zooplankton = c("Appendicularia", "Copepoda")
-# |PHY| = Phytoplankton
-# |ALG| = Algae (not phytoplankton)
-# |BNT| = Benthic organisms (not algae) = c("Crinoidea", "Gastropoda"), c("Isopoda", "Decapoda", "Amphipoda") # NB: There must be exceptions for zooplankton Isopdes and Amphipodes
-check_spp <- function(df){
+check_spp <- function(df, spp_type = "cat"){
   
   # Split dataframe by bio category
   df_other <- filter(df, category != "bio")
-  df_bio <- filter(df, category == "bio") |> 
+  df_PP <- filter(df, category == "bio", driver == "prim prod")
+  df_not_PP <- filter(df, category == "bio", driver != "prim prod") |> 
     dplyr::select(variable) |> distinct() |> 
     separate(variable, into = c("var", "units"), sep = "\\[", remove = FALSE) |>
     separate(var, into = c("spp1", "spp2"), sep = " ", extra = "drop", remove = FALSE) |> 
     unite(spp1, spp2, col = "spp", sep = " ") |> 
-    mutate(units = paste0("[",units))
+    mutate(units = trimws(paste0("[",units)),
+           spp = trimws(gsub(";| -", "", spp)))
   
-  # Get unique species names and search WoRMS
-  df_tax <- plyr::ldply(df_bio$spp, wm_records_df, .parallel = T, res_type = "tax")
+  # Quick check of taxonomy for a given dataset
+  if(spp_type == "tax"){
+    df_res <- plyr::ldply(df_not_PP$spp, wm_records_df, .parallel = T, res_type = "tax") |> distinct()
+    return(df_res)
+  }
   
-  # Add classifications back into dataframe, merge, and exit
-  # cbind()
-  # df_res <- rbind(df_other, df_spp_full) |> 
-  #   dplyr::arrange(cat, driver, variable)
-  return(df_tax)
+  # Get unique species names and search WoRMS to determine broad categorisation
+  df_cat <- plyr::ldply(df_not_PP$spp, wm_records_df, .parallel = T, res_type = "cat") |> distinct()
+  
+  # Report on changes
+  df_no_cat <- filter(df_cat, is.na(cat)) |> 
+    dplyr::select(species) |> distinct() |> arrange()
+  if(nrow(df_no_cat) > 0){
+    cat("These species were not found on WoRMS: \n")
+    print(df_no_cat$species)
+  } else {
+    cat("All species were matched.\n")
+  }
+  
+  # Add category back into dataframe, merge, and exit
+  df_not_PP_cat <- left_join(df_not_PP, df_cat, by = c("spp" = "species")) |> 
+    dplyr::select(variable, cat) |> distinct()
+  df_res <- left_join(df, df_not_PP_cat, by = "variable") |> 
+    mutate(variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |> 
+    dplyr::select(-cat)
+  return(df_res)
 }
-
-# Check it on the full dataset
-# TODO: Decide on what goes where
-clean_all_spp <- check_spp(clean_all)
 
 # Convert sites to FACE-IT site names when possible
 ## NB: Site list was first created in the 'Site conversion' section of 'code/data_product.R' for v1.4
@@ -330,6 +338,8 @@ latin_eng <- function(nomSpecies){
 }
 
 # Convenience wrapper for WORMS database query
+# TODO: Get the worms lookup to work with genus initials
+# E.g. P. rubens
 wm_records_df <- function(sp_name, res_type = "df"){
   URL_error <- NULL
   
@@ -352,8 +362,22 @@ wm_records_df <- function(sp_name, res_type = "df"){
       sp_res <- data.frame(species = sp_name, kingdom = NA, phylum = NA, 
                            class = NA, order = NA, family = NA, genus = NA)
     }
-  } else if(res_type == "class"){
-    # TODO: Decide at what taxonomic level classifications should happen
+  } else if(res_type == "cat"){
+    if(is.null(URL_error)){
+      # NB: Currently using order as the classifying level for ZOO
+      # It may need to be family for some instances
+      sp_res <- data.frame(species = sp_name) |> 
+        mutate(cat = case_when(sp_info$class == "Teleostei" ~ "|FIS|",
+                               sp_info$class == "Mammalia" ~ "|MAM|",
+                               sp_info$class == "Aves" ~ "|BIR|",
+                               # sp_info$class %in% "" ~ "|PHY|", # NB: Currently looking for this info
+                               sp_info$order %in% c("Amphipoda", "Anthoathecata", "Calanoida", "Copelata", "Cyclopoida", "Cydippida", "Euphausiacea", "Harpacticoida", "Isopoda", "Phragmophora", "Pteropoda") ~ "|ZOO|",
+                               sp_info$order %in% c("Laminariales") ~ "|ALG|",
+                               sp_info$order %in% c("Decapoda") ~ "|BEN|",
+                               TRUE ~ "|?|"))
+    } else {
+      sp_res <- data.frame(species = sp_name, cat = NA)
+    }
   }
   return(sp_res)
   # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()

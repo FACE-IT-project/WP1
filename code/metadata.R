@@ -56,16 +56,16 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # Manually add new variables to list
 # full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("chem"),
-#                                   driver = c("carb"),
-#                                   variable = c("DIC [µmol kg-1]"))) |>
+#                        data.frame(category = c("bio"),
+#                                   driver = c("spp rich"),
+#                                   variable = c("Reinhardtius hippoglossoides [presence]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
 # NB: Change as necessary
-# part_var_list <- green_west_biomass |> dplyr::select(category, variable) |> distinct() |> 
-#   mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich",TRUE ~ "biomass")) |> 
+# part_var_list <- sval_species |> dplyr::select(category, variable) |> distinct() |>
+#   mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich",TRUE ~ "biomass")) |>
 #   dplyr::select(category, driver, variable)
 # full_var_list <- rbind(full_var_list, part_var_list) |>
 #   distinct() |> arrange(category, driver, variable)
