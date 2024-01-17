@@ -1124,11 +1124,23 @@ sval_little_diet <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/Little auk D
          citation = "Descamps, S. (2023). Little auk diet (Isfjorden and Kongsfjorden, 2005-2020) [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2023.9d844c99") |> 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value, site)
 
+# Mammal sightings
+sval_mam_sight <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/mam_sight/MMSDB_observations_1995-2019-v2.csv") |> 
+  dplyr::rename(date = eventDate, lat = decimalLatitude, lon = decimalLongitude, 
+                value = individualCount, variable = scientificName) |> 
+  mutate(date = as.Date(date),
+         variable = paste0(variable," [n]"),
+         date_accessed = as.Date("2024-01-17"), depth = NA,
+         category = "bio", type = "sighting", site = "sval",
+         URL = "https://data.npolar.no/dataset/246c1053-6fdc-5043-b7b4-284f4fa8c095",
+         citation = "Kovacs, K.M., Andersen, M. (2010). Marine Mammals Sightings in and around Svalbard 1995-2019 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2010.246c1053") |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
 sval_wild <- check_data(rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
                               sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
-                              sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS)) |> 
+                              sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS,
+                              sval_little_diet, sval_mam_sight)) |> 
   rbind(sval_tidal_glacier_front, sval_marine_glacier_front, sval_seabird_database, sval_protection, sval_fast)
 data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
 save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
