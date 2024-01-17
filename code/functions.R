@@ -2057,6 +2057,39 @@ load_GRDC <- function(file_name){
   # rm(file_name, file_text, lat, lon, catch, depth, res); gc()
 }
 
+# Load machine csv files from Seabird ascii format
+load_Seabird <- function(file_name){
+  
+  # Get metadata from file header
+  file_meta <- read_lines(file_name, skip = 10, n_max = 3)
+  file_lat <- gsub(" N", "", sapply(strsplit(file_meta[1], "Latitude = "), "[[", 2)) |> 
+    measurements::conv_unit(from = 'deg_dec_min', to = 'dec_deg') |> as.numeric() |> round(4)
+  file_lon <- gsub(" E", "", sapply(strsplit(file_meta[2], "Longitude = "), "[[", 2)) |> 
+    measurements::conv_unit(from = 'deg_dec_min', to = 'dec_deg') |> as.numeric() |> round(4)
+  # NB: This assumes an English language local to get the month abbreviations correctly
+  file_time <- as.POSIXct(sapply(strsplit(file_meta[3], "\\(Time\\) = "), "[[", 2), format = "%b %d %Y %H:%M:%S")
+  
+  # Column names copied from file
+  col_Seabird <- c("pressure [db]", "temp 1 [°C]", "temp 2 [°C]", "cond 1 [S m]", "cond 2 [S m]", 
+                   "O2 raw [V]", "fluor [µg l]", "beam transmission [%]", "turbidity",
+                   "altimetry [m]", "pot temp 1 [°C]", "sal 1 [PSU]", "density 1 [sigma-theta, kg m-3]",
+                   "pot temp 2 [°C]", "sal 2 [PSU]", "density 2 [sigma-theta, kg m-3]", 
+                   "O2 [ml l]", "O2 [µmol kg]", "flag")
+  df_Seabird <- read.table(file_name, sep = "", skip = 345, header = FALSE) |> 
+    `colnames<-`(col_Seabird) |> 
+    mutate(lon = file_lon, lat = file_lat, time = file_time, depth = seacarb::p2d(`pressure [db]`, lat)) |> 
+    rowwise() |> 
+    mutate(`temp [°C]` = mean(c(`temp 1 [°C]`, `temp 2 [°C]`)),
+           `cond [S m]` = mean(c(`cond 1 [S m]`, `cond 2 [S m]`)),
+           `pot temp [°C]` = mean(c(`pot temp 1 [°C]`, `pot temp 2 [°C]`)),
+           `sal [PSU]` = mean(c(`sal 1 [PSU]`, `sal 2 [PSU]`)),
+           `density [sigma-theta, kg m-3]` = mean(c(`density 1 [sigma-theta, kg m-3]`, 
+                                                    `density 2 [sigma-theta, kg m-3]`))) |> 
+    dplyr::select(lon:`density [sigma-theta, kg m-3]`, `pressure [db]`, 
+                  `O2 raw [V]`:`altimetry [m]`, `O2 [ml l]`, `O2 [µmol kg]`)
+  return(df_Seabird)
+}
+
 # Convenience wrapper for creating area averaged SST time series
 area_average <- function(df, site_name){
   df_res <- df |> dplyr::summarise(value = mean(temp, na.rm = T), .by = c("t")) |> 

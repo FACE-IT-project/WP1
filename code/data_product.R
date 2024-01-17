@@ -2410,12 +2410,27 @@ stor_light_CTD <- read_csv("~/pCloudDrive/FACE-IT_data/storfjorden/optical_prope
          category = "phys",
          URL = "https://data.npolar.no/dataset/e6974f73-99bb-46d8-b06d-d00287b91729",
          citation = "Petit, T., Granskog, M. A., Hamre, B., Kowalczuk, P., & Röttgers, R. (2022). Inherent optical properties of waters in Storfjorden (Svalbard) in summer 2020 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2022.e6974f73") %>% 
-  dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value) %>% 
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
+# Hydrographic cruise data for 2016
+# NB: There are two accompanying NetCDF files for ADCP U+V values
+stor_hydro_2016 <- plyr::ldply(dir("~/pCloudDrive/FACE-IT_data/storfjorden/SEANOE", pattern = ".cnv", full.names = TRUE),
+                               load_Seabird, .parallel = T) |> 
+  pivot_longer(`temp [°C]`:`O2 [µmol kg]`, names_to = "variable", values_to = "value") |> 
+  mutate(date = as.Date(time),
+         date_accessed = as.Date("2023-08-21"),
+         category = case_when(variable %in% c("fluor [µg l]") ~ "bio",
+                              variable %in% c("O2 raw [V]", "O2 [ml l]", "O2 [µmol kg]") ~ "chem",
+                              TRUE ~ "phys"),
+         URL = "https://www.seanoe.org/data/00755/86706/",
+         citation = "Vivier Frederic, Michel Elisabeth (2016). Hydrographic and current velocity data in Storfjorden (Svalbard) from the STEP 2016 cruise. SEANOE. https://doi.org/10.17882/86706") %>% 
+    group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+    summarise(value = mean(value, na.rm = T), .groups = "drop")
+
 # Combine and save
-stor_wild <- rbind(stor_light_CTD) |> mutate(type = "in situ", site = "stor") |> distinct() |> check_data()
+stor_wild <- rbind(stor_light_CTD, stor_hydro_2016) |> 
+  mutate(type = "in situ", site = "stor") |> distinct() |> check_data()
 data.table::fwrite(stor_wild, "~/pCloudDrive/FACE-IT_data/storfjorden/stor_wild.csv")
 save(stor_wild, file = "~/pCloudDrive/FACE-IT_data/storfjorden/stor_wild.RData")
 rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
