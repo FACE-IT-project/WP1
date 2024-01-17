@@ -3409,6 +3409,7 @@ bio,prim prod,chla_plus_10_frac
 bio,prim prod,fluor
 bio,prim prod,fluor [mg m-3]
 bio,prim prod,fluor [volt]
+bio,prim prod,fluor [µg l]
 bio,prim prod,fluor max [m]
 bio,prim prod,phaeopigment
 bio,prim prod,pm_chl [g C g-1 Chl h-1]
@@ -3799,6 +3800,7 @@ phys,salinity,ASAL [g/kg]
 phys,salinity,Sal
 phys,salinity,Sal interp
 phys,salinity,cndc [S m-1]
+phys,salinity,cond [S m]
 phys,salinity,density [kg m-3]
 phys,salinity,"density [sigma-theta, kg m-3]"
 phys,salinity,pres [kg cm-2]

@@ -143,9 +143,9 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 ## Manually add variables -------------------------------------------------
 
 # full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("bio"),
-#                                   driver = c("prim prod"),
-#                                   variable = c("fluor [mg m-3]"))) |>
+#                        data.frame(category = c("phys"),
+#                                   driver = c("salinity"),
+#                                   variable = c("cond [S m]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
