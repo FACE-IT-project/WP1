@@ -1100,6 +1100,31 @@ sval_AIS <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS_aggregated.csv") |
          citation = "Simonsen, M., Walnum, H. J., & Gössling, S. (2018). Model for estimation of fuel consumption of cruise ships. Energies, 11(5), 1059.") |> 
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value, site)
 
+# Little Auk diet
+# NB: Some values are missing dates, only have years, but I decided not to convert them to e.g. 2016-12-31
+# Rather the dates are left as NA
+sval_little_diet <- read_delim("~/pCloudDrive/FACE-IT_data/svalbard/Little auk DietData_Spitsbergen_NP datacentre.csv", delim = ";") |> 
+  mutate(date = as.Date(Date, format = "%d.%m.%Y"),
+         lon = case_when(Colony == "Bj\xf8rndalen" ~ 15.2865,
+                         Colony == "Feiringfjellet" ~ 12.3730),
+         lat = case_when(Colony == "Bj\xf8rndalen" ~ 78.1677,
+                         Colony == "Feiringfjellet" ~ 79.0333)) |> 
+  dplyr::select(lon, lat, date, Mass, HeadBill, Prop_UnknownOrigin:Prop_Atlantic) |> 
+  pivot_longer(Mass:Prop_Atlantic, names_to = "variable", values_to = "value") |> 
+  filter(!is.na(value)) |> 
+  mutate(variable = case_when(variable == "Mass" ~ "mass [g]",
+                              variable == "HeadBill" ~ "head length [mm]",
+                              variable == "Prop_UnknownOrigin" ~ "unknown diet [prop]",
+                              variable == "Prop_Arctic" ~ "Arctic diet [prop]",
+                              variable == "Prop_Atlantic" ~ "Atlantic diet [prop]"),
+         variable = paste0("Alle alle ",variable),
+         date_accessed = as.Date("2024-01-17"), depth = NA,
+         category = "bio", type = "survey", site = "sval",
+         URL = "https://data.npolar.no/dataset/9d844c99-c91d-4401-93f3-348b690c2376",
+         citation = "Descamps, S. (2023). Little auk diet (Isfjorden and Kongsfjorden, 2005-2020) [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2023.9d844c99") |> 
+  dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value, site)
+
+
 # Combine and save
 sval_wild <- check_data(rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
                               sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
