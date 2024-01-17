@@ -28,6 +28,7 @@ library(circular) # For calculating mean daily wind direction from degree values
 library(pangaear)
 library(worrms)
 library(arrow)
+library(seacarb)
 library(doParallel); registerDoParallel(cores = 12)
 
 # Find who is the user and define the pCloud path
@@ -143,8 +144,8 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # full_var_list <- rbind(full_var_list,
 #                        data.frame(category = c("bio"),
-#                                   driver = c("spp rich"),
-#                                   variable = c("Reinhardtius hippoglossoides [presence]"))) |>
+#                                   driver = c("prim prod"),
+#                                   variable = c("fluor [mg m-3]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
@@ -167,6 +168,7 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 ## Remove a specific variables --------------------------------------------
 
 # full_var_list <- filter(full_var_list, variable != "Reinhardtius hippoglossoides [presence]")
+# write_csv(full_var_list, "metadata/full_var_list.csv")
 
 
 # Base maps ---------------------------------------------------------------

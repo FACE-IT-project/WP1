@@ -3381,6 +3381,7 @@ bio,prim prod,chla_area_plus_10_frac [mg Chla m-2]
 bio,prim prod,chla_plus_10_conc [µg Chla m-3]
 bio,prim prod,chla_plus_10_frac
 bio,prim prod,fluor
+bio,prim prod,fluor [mg m-3]
 bio,prim prod,fluor [volt]
 bio,prim prod,fluor max [m]
 bio,prim prod,phaeopigment
@@ -3770,6 +3771,7 @@ phys,salinity,Sal
 phys,salinity,Sal interp
 phys,salinity,cndc [S m-1]
 phys,salinity,density [kg m-3]
+phys,salinity,"density [sigma-theta, kg m-3]"
 phys,salinity,pres [kg cm-2]
 phys,salinity,sal
 phys,salinity,sal [g kg-1]
@@ -3804,6 +3806,7 @@ phys,sea temp,Tmax [°C]
 phys,sea temp,Tpot [°C]
 phys,sea temp,WMT [°C]
 phys,sea temp,delta T [°C]
+phys,sea temp,pot temp [°C]
 phys,sea temp,temp [°C]
 soc,fisheries,Advice - Atlantic cod [pieces]
 soc,fisheries,Advice - Grenland halibut [pieces]

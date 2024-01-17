@@ -1481,29 +1481,6 @@ kong_benthic <- data.frame(type = "Survey",
                            reference = '<a onclick="alert(\'\');">NA</a>',
                            note = "Data may be available in 2023.")
 
-# kong glaucous gull population
-kong_lahy <- data.frame(type = "In situ",
-                        data_name = "Biomass: Larus hyperboreus (glaucous gull)",
-                        date_range = "2005 to 2021",
-                        URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/glaucous-gull/">MOSJ</a>',
-                        reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Glaucous gull population, as percentage of the average in the colony. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/glaucous-gull.html\');">NPI (2022)</a>',
-                        note = NA)
-
-# kong common eiders population
-kong_somobo <- data.frame(type = "In situ",
-                          data_name = "Biomass: Somateria mollissima borealis (common eider)",
-                          date_range = "1981 to 2022",
-                          URL = '<a target="_blank" rel="noopener noreferrer" href="https://mosj.no/en/indikator/fauna/marine-fauna/common-eider/">MOSJ</a>',
-                          reference = '<a onclick="alert(\'Norwegian Polar Institute (2022). Breeding population of common eiders in Kongsfjorden, number of breeding pairs. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/common-eider.html\');">NPI (2022)</a>',
-                          note = NA)
-
-# kong seabird population
-kong_seabirds <- data.frame(type = "In situ",
-                            data_name = "Biomass: seabirds",
-                            date_range = "2011 to 2018",
-                            URL = '<a target="_blank" rel="noopener noreferrer" href="https://data.npolar.no/dataset/0ea572cd-1e4c-47a3-b2a5-5d7cc75aaeb4">NPDC</a>',
-                            reference = '<a onclick="alert(\'Descamps, S., & Strøm, H. (2021). Seabird monitoring data from Svalbard, 2009-2018 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2021.0ea572cd\');">Descamps and Strøm (2021)</a>',
-                            note = NA)
 
 # Process individual files
 ## Sea ice cover
@@ -1764,11 +1741,42 @@ kong_PAR_Dieter <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/Messung_Han
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 
+# CTD and transects at glacier front 
+kong_CTD_front_2016 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/CTD_glacier_front/glacierfront2016_CTD.csv") |> 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/CTD_glacier_front/glacierFront2016_CTD_meta.csv"), by = "stationNumber") |> 
+  dplyr::rename(`pressure [db]` = prDM, `pot temp [°C]` = potemp090C, sal = sal00, 
+                `density [sigma-theta, kg m-3]` = `Sigma-theta00`, `fluor [mg m-3]` = `flECO-AFL`,
+                `temp [°C]` = t090C, lat = decimalLatitude, lon = decimalLongitude, date = eventDate)
+kong_CTD_front_2017 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/CTD_glacier_front/glacierFront2017_CTD.csv") |> 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/CTD_glacier_front/glacierFront2017_CTD_meta.csv"), by = "stationNumber") |> 
+  dplyr::rename(`pressure [db]` = prDM, `pot temp [°C]` = potemp090C, sal = sal00,
+                `density [sigma-theta, kg m-3]` = `Sigma-theta00`, `fluor [mg m-3]` = `flECO-AFL`,
+                `temp [°C]` = t090C, lat = decimalLatitude, lon = decimalLongitude, date = eventDate)
+kong_CTD_trans_2017 <- read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/CTD_glacier_front/transect2017_CTD.csv") |> 
+  left_join(read_csv("~/pCloudDrive/FACE-IT_data/kongsfjorden/CTD_glacier_front/transect2017_CTD_meta.csv"), by = "stationNumber") |>  
+  dplyr::rename(`pressure [db]` = prDM, `pot temp [°C]` = potemp090C, sal = sal00,
+                `density [sigma-theta, kg m-3]` = `Sigma-theta00`, `fluor [mg m-3]` = `flECO-AFL`,
+                `temp [°C]` = t090C, lat = decimalLatitude, lon = decimalLongitude, date = eventDate)
+kong_front <- bind_rows(kong_CTD_front_2016, kong_CTD_front_2017, kong_CTD_trans_2017) |> 
+  dplyr::select(lon, lat, date, `pressure [db]`:`temp [°C]`, par, spar) |> 
+  pivot_longer(`pot temp [°C]`:spar, names_to = "variable", values_to = "value") |> 
+  mutate(depth = seacarb::p2d(`pressure [db]`, lat = lat),
+         date = as.Date(date)) |> 
+  mutate(depth = case_when(variable == "spar" ~ 0, TRUE ~ depth),
+         variable = case_when(variable %in% c("par", "spar") ~ "PAR", TRUE ~ variable),
+         category = case_when(variable == "fluor [mg m-3]" ~ "bio", TRUE ~ "phys"),
+         URL = "https://data.npolar.no/dataset/62247dad-88e7-45e6-9659-f280ed1e7274",
+         date_accessed = as.Date("2023-05-31"),
+         citation = "Pavlova, O., Wold, A., Hop, H. (2023). CTD profiles in Kongsfjorden including glacier front 2016 & 2017 [Data set]. Norwegian Polar Institute. https://doi.org/10.21334/npolar.2023.62247dad") %>% 
+  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
+  summarise(value = mean(value, na.rm = T), .groups = "drop")
+rm(kong_CTD_front_2016, kong_CTD_front_2017, kong_CTD_trans_2017); gc()
+
 # Combine and save
 kong_wild <- rbind(kong_sea_ice_inner, kong_zoo_data, kong_protist_nutrient_chla,
                    kong_CTD_database, kong_CTD_CO2, kong_weather_station, kong_mooring_GFI,
                    kong_mooring_SAMS, kong_ship_arrivals, kong_CTD_DATEN4, kong_LICHT,
-                   kong_light_Laeseke, kong_PAR_Dieter) |> mutate(type = "in situ", site = "kong") |> 
+                   kong_light_Laeseke, kong_PAR_Dieter, kong_front) |> mutate(type = "in situ", site = "kong") |> 
   distinct() |> check_data()
 # TODO: rbind() shadow data
 data.table::fwrite(kong_wild, "~/pCloudDrive/FACE-IT_data/kongsfjorden/kong_wild.csv")
