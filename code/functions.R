@@ -3178,6 +3178,35 @@ ice_cover_prop <- function(ice_df){
     summarise(mean_prop = round(mean(prop, na.rm = T), 2), .groups = "drop")
 }
 
+# Function for calculating open water days
+ice_open_water <- function(ice_df){
+  
+  # Get open water pixel count
+  water_pixels <- ice_df |> filter(date == "2017-08-01", sea_ice_extent %in% c(1, 3)) |> nrow()
+  
+  # Find proportion per day that has ice
+  ice_prop <- ice_df |> 
+    filter(sea_ice_extent == 3,
+           date <= "2021-12-31") |> 
+    # group_by(date) |> 
+    summarise(count = n(),
+              prop = count/water_pixels, .by = "date") |> 
+    # complete(date = seq.Date(min(date), max(date), by = "day")) %>% 
+    tidyr::complete(date = seq.Date(min(date), max(date), by = "day")) |>  # NB: Only works with 4km data time series
+    tidyr::replace_na(list(count = 0, prop = 0))
+  
+  # 5 day running mean
+  ice_smooth
+  
+  # Find first and last day below/above 15% SIC per year
+  open_start
+  open_end
+  
+  # Calculate open water days per year and attached start/end dates
+  ice_open
+  return(ice_open)
+}
+
 # Annual trend in values
 ## NB: This assumes the annual dataframe is temporally complete
 ## It also assumes the value column is called 'val'

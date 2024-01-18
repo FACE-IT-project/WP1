@@ -286,16 +286,14 @@ EU_icthyo <- data.frame(date_accessed = NA,
                         variable = c("temp [°C]", "salinity", "fish presence"),
                         value = NA)
 
-# Cryosphere
-## Sea ice concentration
+# Sea ice concentration
 # 25 km, 1978 - 2019: daily
 # ftp://sidads.colorado.edu/pub/DATASETS/NOAA/G02202_V3/north/daily/
 # 6.25 km, possibly 10 m, 2002 - 2021: daily
 # https://seaice.uni-bremen.de/data/amsr2/
 
-## Randolph Glacier Inventory
+# Randolph Glacier Inventory
 # https://nsidc.org/data/nsidc-0770/versions/6
-
 
 # EU MET station data
 # TODO: Develop code to automatically download and process these MET data
