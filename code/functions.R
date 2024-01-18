@@ -3193,18 +3193,27 @@ ice_open_water <- function(ice_df){
               prop = count/water_pixels, .by = "date") |> 
     # complete(date = seq.Date(min(date), max(date), by = "day")) %>% 
     tidyr::complete(date = seq.Date(min(date), max(date), by = "day")) |>  # NB: Only works with 4km data time series
-    tidyr::replace_na(list(count = 0, prop = 0))
+    tidyr::replace_na(list(count = 0, prop = 0)) |> 
+    # 5 day running mean
+    mutate(prop_smooth = round(zoo::rollmean(prop, 5, fill = prop), 2),
+           open_water = ifelse(prop_smooth <= 0.15, TRUE, FALSE))
+
+  # RLE approach
+  open_rle <- heatwaveR:::proto_event(ice_prop, ice_prop$open_water, minDuration = 1, joinAcrossGaps = FALSE, maxGap = 0)
   
-  # 5 day running mean
-  ice_smooth
+  # Get some metrics
+  open_starts <- open_rle |> group_by(event_no) |> filter(!is.na(event_no), date == min(date)) |> ungroup()
+  open_ends <- open_rle |> group_by(event_no) |> filter(!is.na(event_no), date == max(date)) |> ungroup()
+  open_date_range <- left_join(open_starts[,c("date", "event_no")], open_ends[,c("date", "event_no")], by = "event_no") |> 
+    dplyr::rename(date_start = date.x, date_end = date.y) |> dplyr::select(event_no, date_start, date_end)
+  open_annual_events <- open_rle |> filter(!is.na(event_no)) |>  mutate(year = year(date)) |> 
+    dplyr::select(year, event_no) |> distinct() |> summarise(event_n = n(), .by = year)
+  open_annual_days <- open_rle |> filter(!is.na(event_no)) |>  mutate(year = year(date)) |> 
+    dplyr::select(year, event_no) |> summarise(open_days = n(), .by = year)
+  open_annual <- left_join(open_annual_events, open_annual_days, by = "year")
   
-  # Find first and last day below/above 15% SIC per year
-  open_start
-  open_end
-  
-  # Calculate open water days per year and attached start/end dates
-  ice_open
-  return(ice_open)
+  # Exit
+  return(open_annual)
 }
 
 # Annual trend in values

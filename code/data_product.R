@@ -5014,6 +5014,7 @@ clean_sea_ice <- filter(full_ALL, driver == "sea ice") |>
 ## Created in code/data_processing.R
 # load("data/analyses/ice_4km_proc.RData")
 # ice_4km_prop_wide <- plyr::ddply(ice_4km_proc, c("site"), ice_cover_prop, .parallel = T)
+# ice_4km_open_wide <- plyr::ddply(ice_4km_proc, c("site"), ice_open_water, .parallel = T)
 
 # Calculate trends
 # NB: While interesting, this is too detailed to be included in the clean data
@@ -5026,16 +5027,23 @@ clean_sea_ice <- filter(full_ALL, driver == "sea ice") |>
 #                               variable == "sd_val" ~ paste0("sea ice cover ",month," [SD proportion]"))) %>% 
 #   dplyr::select(-month)
 
-# Combine with other clean data
-# ice_4km_prop <- ice_4km_prop_wide %>%
-#   dplyr::rename(value = mean_prop) %>% 
-#   dplyr::select(date, value, site) %>% 
-#   mutate(variable = "sea ice cover [proportion]",
-#          type = "MASIE", depth = NA, lon = NA, lat = NA,
+# Combine results and shape to project standard
+# ice_4km_open <- ice_4km_open_wide |> 
+#   pivot_longer(event_n:open_days, names_to = "variable", values_to = "value") |> 
+#   mutate(variable = case_when(variable == "event_n" ~ "open water events annually [n]",
+#                               variable == "open_days" ~ "open water days annually [days]"),
+#          date = as.Date(paste0(year,"-12-31"))) |> 
+#   dplyr::select(date, variable, value, site)
+# ice_4km_prop <- ice_4km_prop_wide |> 
+#   dplyr::rename(value = mean_prop) |> 
+#   mutate(variable = "sea ice cover [proportion]") |> 
+#   dplyr::select(date, variable, value, site) |> 
+#   rbind(ice_4km_open) |> 
+#   mutate(type = "MASIE", depth = NA, lon = NA, lat = NA,
 #          category = "cryo", driver = "sea ice",
 #          date_accessed = as.Date("2022-04-26"),
 #          URL = "https://doi.org/10.7265/N5GT5K3K",
-#          citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. (2010), updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.") |> 
+#          citation = "U.S. National Ice Center and National Snow and Ice Data Center. Compiled by F. Fetterer, M. Savoie, S. Helfrich, and P. Clemente-Colón. (2010), updated daily. Multisensor Analyzed Sea Ice Extent - Northern Hemisphere (MASIE-NH), Version 1. 4km resolution. Boulder, Colorado USA. NSIDC: National Snow and Ice Data Center. doi: https://doi.org/10.7265/N5GT5K3K.") |>
 #   dplyr::select(date_accessed, URL, citation, site, type, category, driver, variable, lon, lat, date, depth, value)
 # save(ice_4km_prop, file = "data/analyses/ice_4km_prop.RData")
 load("data/analyses/ice_4km_prop.RData")
