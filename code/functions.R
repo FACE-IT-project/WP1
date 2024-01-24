@@ -392,6 +392,14 @@ wm_records_df <- function(sp_name, res_type = "df"){
   # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()
 }
 
+# Convenience function to catch inconsistent column types
+# NB: Not used at the moment
+refdb_import_BOLD_char <- function(taxon_id, ncbi_tax = FALSE){
+  df_res <- refdb_import_BOLD(taxon = taxon_id, ncbi_taxo = ncbi_tax)
+  df_res$x <- as.character(df_res$x)
+  return(df_res)
+}
+
 # Download any number of desired files and save them locally
 # TODO: Add a check to see if URL exists
 file_URL_save <- function(file_name, base_URL, save_folder){
