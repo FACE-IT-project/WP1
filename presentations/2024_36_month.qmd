@@ -1,0 +1,254 @@
+---
+# title: "FACE-IT WP1"
+# author: Jean-Pierre Gattuso (Lead)  Robert Schlegel (Data scientist)
+# institute: Sorbonne Université
+# date: February 1st, 2024
+format: 
+  revealjs:
+    logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+editor: source
+---
+
+# FACE-IT WP1 {background-color="#008980" style="text-align: center"}
+
+36 month summary
+
+_February 1st, 2024_
+
+</br>
+
+::: columns
+::: {.column style="text-align: center"}
+Jean-Pierre Gattuso </br> - Lead -
+:::
+
+::: {.column style="text-align: center"}
+*Robert Schlegel* </br> - Data scientist -
+:::
+:::
+
+</br>
+
+![](../logo/Logo_Sorbonne%20University.png){width="130"} ![](../logo/Logo_University%20of%20Bremen.png){width="130"} ![](../logo/Logo_Greenland%20Institute%20of%20Natural%20Resources.png){width="80"} ![](../logo/Logo_The%20University%20Centre%20in%20Svalbard.png){width="110"} ![](../logo/Logo_Norwegian Polar Institute.png){width="90"} ![](../logo/Logo_Norwegian%20Institute%20of%20Marine%20Research.png){width="80"} ![](../logo/Logo_Alfred%20Wegener%20Institute.png){width="130"} ![](../logo/Logo_Xiamen%20University.png){width="160"}
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      eval = TRUE, tidy = FALSE)
+
+# Necessary libraries
+library(tidyverse) # The tidy dialect of R
+library(tidync) # For reading NetCDF
+library(DT) # For interactive tables
+library(kableExtra) # For formatting static tables
+
+# Meta-data from code/data.product.R
+if(!exists("clean_all_meta")) load("../data/analyses/clean_all_meta.RData")
+
+# Table column names
+DT_cols <- c("Type", "Category", "Driver", "Date", "Citation", "Link", "Accessed")
+
+# Datatable options for all tables
+options(DT.options = list(pageLength = 10,
+                          deferRender = TRUE,
+                          scrollY = 500,
+                          scrollCollapse = TRUE,
+                          lengthMenu = c(5, 10, 25, 50, 100)))
+
+# Process metadata into format for interactive tables below
+meta_proc <- function(site_choice){
+  
+  # Catch disko/is mix up
+  if(site_choice[1] == "is"){
+    res_site <- clean_all_meta |>
+      filter(site == site_choice)
+  } else {
+    res_site <- clean_all_meta |>
+      filter(site %in% site_choice)
+  }
+  
+  # Finish processing
+  res <- res_site |> 
+    filter(citation != "Value derived for FACE-IT dataset") |>
+    # mutate(citation = gsub("TRACTOR Members;", "", citation)) |> 
+    mutate(pub_author = case_when(grepl("Norwegian Polar Institute", citation) ~ "NPI",
+                                  grepl("Multiple.", citation) ~ "Multiple",
+                                  grepl("Institute of Marine Research", citation) ~ "IMR",
+                                  grepl("Statistics Norway", citation) ~ "Statistics Norway",
+                                  grepl("NMDC project", citation) ~ "NMDC",
+                                  grepl("U.S. National Ice Center", citation) ~ "NSIDC",
+                                  grepl("Global Runoff Data Centre", citation) ~ "GRDC",
+                                  grepl("CLIMAP Project Members", citation) ~ "CLIMAP",
+                                  grepl("EPOCA Arctic experiment|EPOCA Svalbard", citation) ~ "EPOCA",
+                                  grepl("ESOP Members", citation) ~ "ESOP",
+                                  grepl("TRACTOR Members", citation) ~ "TRACTOR",
+                                  grepl("VEINS Members", citation) ~ "VEINS",
+                                  grepl("Global Heat Flow Compilation Group", citation) ~ "WHF",
+                                  grepl("Ocean Sampling Day", citation) ~ "Ocean Sampling Day",
+                                  grepl("Port of Longyearbyen", citation) ~ "Port of Longyearbyen",
+                                  grepl("Statistics Greenland|
+                                        |Naatsorsueqqissaartarfik", citation) ~ "Statistics Greenland",
+                                  grepl("Anonymous \\(20", citation) ~ "Anonymous",
+                                  grepl("MarineBasis|ClimateBasis|GlacioBasis|
+                                        |Greenland Ecosystem Monitoring Programme", citation) ~ "GEM",
+                                  TRUE~paste0(sapply(strsplit(citation, ","), "[[", 1)," et al.")),
+           pub_year = citation %>% str_extract('\\([:digit:]+\\)'),
+           pub_year = case_when(is.na(pub_year) ~ "", 
+                                TRUE ~ paste0(" ",pub_year)),
+           pub_source = case_when(grepl("npolar", URL) ~ "NPI",
+                                  grepl("g-e-m", URL) ~ "GEM",
+                                  grepl("mosj", URL) ~ "MOSJ",
+                                  grepl("gbif", URL) ~ "GBIF",
+                                  grepl("noaa", URL) ~ "NOAA",
+                                  grepl("PANGAEA", URL) ~ "PANGAEA",
+                                  grepl("zenodo", URL) ~ "zenodo",
+                                  grepl("bafg.de", URL) ~ "BfG",
+                                  grepl("bank.stat.gl", URL) ~ "stats",
+                                  grepl("data.ssb|ssb.no", URL) ~ "stats",
+                                  TRUE ~ "link"),
+           pub_link = paste0('<a target="_blank" rel="noopener noreferrer" href="',URL,'">',pub_source,'</a>'),
+           pub_ref = paste0('<a onclick="alert(\'',citation,'\');">',paste0(pub_author,pub_year),'</a>'),
+           data_year = case_when(year_min < year_max ~ paste0(year_min," - ",year_max),
+                                 year_min == year_max ~ as.character(year_min), TRUE ~ as.character(NA))) |> 
+    dplyr::select(type, category, driver, data_year, pub_ref, pub_link, date_accessed)
+  }
+```
+
+## Objectives {background-image="kong_landscape.jpg" background-color="black"}
+
+::: {.fragment .fade-right}
+<div style="font-weight:bold"> Compile data on drivers of change for socio-ecological systems in Arctic fjords. </div>
+:::
+
+::: {.fragment .fade-left}
+<div style="text-align:right;font-weight:bold"> <font color="grey"> Make data openly accessible within and outside of </font>  <font color="#008980"> FACE-IT. </font> </div>
+:::
+
+</br>
+</br>
+</br>
+
+::: {.fragment .fade-left}
+<div style="font-weight:bold"> <font color="black"> Archival of all FACE-IT data in FAIR repositories. </font> </div>
+:::
+
+::: {.fragment .fade-right}
+<div style="font-weight:bold"> <font color="black">  Further analyses and publications. </font> </div>
+:::
+
+## Revisited deliverables {.scrollable}
+
+D1.2: [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (12 months)
+
+::: {style="font-size: 0.3em"}
+```{r isfjorden-meta-data-table}
+metadata_is <- meta_proc("is")
+DT::datatable(metadata_is, rownames = FALSE, escape = FALSE, colnames = DT_cols,
+              caption = "Table 1: The relevant datasets for Isfjorden.")
+```
+:::
+
+## Completed deliverables {.scrollable}
+
+::: panel-tabset
+
+### D1.3
+
+Review on drivers of change (24 months)
+
+::: panel-tabset
+
+#### Review paper
+![](header_Arctic_review.png){width="730" fig-align="center"}
+
+#### Data paper
+![](header_dataPaper_review.png)
+
+#### Dataset
+![](header_Arctic_data_PG.png)
+
+:::
+
+### D8.3
+
+Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pdf) (30 months)
+
+![](DMP_banner.png){height="270"}
+![](DMP_banner_final.png)
+
+:::
+
+
+## Upcoming deliverables {.scrollable}
+
+::: panel-tabset
+
+### D1.4
+
+-   Compile social science data (40 months)
+    -   Interview and survey data compiled
+    -   Historic tourism and ship traffic data compiled
+    -   Need to upload to FAIR social data repository
+
+### D1.5
+
+-   Final data compilation (42 months)
+    -   Progressing well towards completion of v2.0
+    -   Harvested 19,588 datasets from PANGAEA
+    -   Manually added additional 162
+    -   As well as FACE-IT datasets
+
+:::
+
+## FACE-IT dataset publication
+
+<!-- Need to update this -->
+::: incremental
+-   FACE-IT publications - 36
+-   FACE-IT datasets - 32
+-   PANGAEA - 9
+-   Institution - 5
+-   Zenodo - 8
+-   Other - 3
+-   All data are available via the FACE-IT [data access](http://choc.imev-mer.fr/shiny/dataAccess/) application
+:::
+
+## Other WP1 publications
+
+::: incremental
+- Gentili et al. (2023) **FjordLight: PAR data for Arctic fjords** *PANGAEA*
+- Schlegel et al. (2024, in review) **Underwater light environment in Arctic fjords** *Earth System Science Data (ESSD)*
+:::
+
+## Other WP1 activities
+
+::: incremental
+-   Maintenance of portal for collection of [CTD data](http://choc.imev-mer.fr/shiny/kongCTD/) in Kongsfjorden
+-   Represented FACE-IT for the [EMODnet Open Sea Lab 3.0 Hackathon](https://emodnet.ec.europa.eu/en/emodnet-open-sea-lab-30-hackathon)
+    -   Finished #3 with a proposed [app](http://choc.imev-mer.fr/shiny/backyard/) to leverage beach goers into climate change sentinels
+-   Continued maintenance of [GitHub repository](https://github.com/FACE-IT-project) for code collaboration
+:::
+
+## Resources
+
+:::{#title-slide .center}
+Available on face-it.marum.de (NextCloud)
+  
+<- WP1 homepage  
+<br/><br/>
+Meta-database ->  
+<br/><br/>
+<- GitHub page  
+<br/><br/>
+Data access app ->  
+:::
+
+![](QR_WP1_home.png){.absolute top="150" left="30"  width="200" height="200"}
+![](QR_metadatabase.png){.absolute top="250" left="800" width="200" height="200"}
+![](QR_WP1_GitHub.png){.absolute top="400" left="30" width="200" height="200"}  
+![](QR_dataAccess.png){.absolute top="500" left="800" width="200" height="200"}  

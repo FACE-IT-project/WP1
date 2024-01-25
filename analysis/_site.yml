@@ -41,6 +41,8 @@ navbar:
       href: 2023_ASSW_side.html
     - text: "FACE-IT seminar - 2023"
       href: 2023_seminar.html
+    - text: "FACE-IT 36 month review - 2022"
+      href: 2024_36_month.html
   - text: "Posters"
     menu:
     - text: "Svalbard Science Conference - 2021"
