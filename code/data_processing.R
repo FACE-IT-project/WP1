@@ -311,6 +311,24 @@ ggplot(data = distinct(sst_1[c("lon", "lat")]), aes(x = lon, y = lat)) +
   geom_tile(colour = "red")
 
 
+# Optics data -------------------------------------------------------------
+# Code to investigate optics files processed by Rakesh
+
+# Chl a
+test_chla <- load_optics("~/pCloudDrive/FACE-IT_data/svalbard/optics/Chl/Filled/2018_03_ABI_Chlorophyll-a_filled.NC")
+
+# K_PAR
+test_kpar <- load_optics("~/pCloudDrive/FACE-IT_data/svalbard/optics/KdPAR/Filled/2018_03_kdpar.NC")
+
+# PAR0m
+test_par0m <- load_optics("~/pCloudDrive/FACE-IT_data/svalbard/optics/PAR0m/2019_10_PAR0m.NC")
+
+# SPM
+test_spm <- load_optics("~/pCloudDrive/FACE-IT_data/svalbard/optics/SPM/Filled/2018_03_SPM_filled.NC")
+
+# Zeu (Euphotic depth)
+test_zeu <- load_optics("~/pCloudDrive/FACE-IT_data/svalbard/optics/Zeu/Filled/2018_03_Zeu_filled.NC")
+
 
 # Bartsch data ------------------------------------------------------------
 

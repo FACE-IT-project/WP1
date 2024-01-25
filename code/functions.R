@@ -2098,6 +2098,33 @@ load_Seabird <- function(file_name){
   return(df_Seabird)
 }
 
+# Investigate optics files
+load_optics <- function(file_name){
+  
+  # Open NetCDF file and get metadata
+  nc_file <- nc_open(file_name)
+  lon <- as.vector(ncvar_get(nc_file, "Longitude"))
+  lat <- as.vector(ncvar_get(nc_file, "Latitude"))
+  vars <- names(nc_file$var)
+  vars <- vars[-which(vars %in% c("Minimum", "Maximum", "Mean", "Median", "StDev", "NumObs"))]
+  var_name <- sapply(strsplit(file_name, "/"), "[[", 6)
+  
+  # Wrapper for variable extraction
+  extract_var <- function(var_id, nc_file, lon, lat){
+    var_t <- as.Date(sapply(strsplit(var_id, "_"), "[[", 2), format = "%Y.%m.%d")
+    nc_var_1 <- as.data.frame(ncvar_get(nc_file, varid = var_id)) |> 
+      `colnames<-`(lat) |> mutate(lon = lon) |> 
+      pivot_longer(-lon, names_to = "lat", values_to = "value") |> filter(!is.na(value)) |> 
+      mutate(lat = as.numeric(lat), t = var_t, .before = "value")
+  }
+  
+  # Get all variables
+  nc_all <- plyr::ldply(vars, extract_var, .parallel = TRUE, nc_file = nc_file, lon = lon, lat = lat) |> 
+    mutate(variable = var_name, .before = "value")
+  nc_close(nc_file)
+  return(nc_all)
+}
+
 # Convenience wrapper for creating area averaged SST time series
 area_average <- function(df, site_name){
   df_res <- df |> dplyr::summarise(value = mean(temp, na.rm = T), .by = c("t")) |> 
