@@ -211,18 +211,19 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 <!-- Need to update this -->
 ::: incremental
 -   FACE-IT publications - 48
--   FACE-IT datasets - 32
--   PANGAEA - 9
--   Institution - 5
+-   FACE-IT datasets - ~55
+-   [PANGAEA](https://pangaea.de/?q=FACE-IT) - 24
+-   Institution - 8+
 -   Zenodo - 8
--   Other - 3
--   All data are available via the FACE-IT [data access](http://choc.imev-mer.fr/shiny/dataAccess/) application
+-   Other - 5
+-   Available via FACE-IT [data access](http://choc.imev-mer.fr/shiny/dataAccess/) app
 :::
 
 ## Other WP1 publications
 
 ::: incremental
 - Gentili et al. (2023) [**FjordLight: PAR data for Arctic fjords**](https://doi.pangaea.de/10.1594/PANGAEA.962895) *PANGAEA*
+- Gentili et al. (2024, in review) [**FjordLight: monthly K_PAR data for Arctic fjords**]() *PANGAEA*
 - Schlegel et al. (2024, in review) [**Underwater light environment in Arctic fjords**](https://essd.copernicus.org/preprints/essd-2023-462/) *Earth System Science Data (ESSD)*
 :::
 
@@ -251,19 +252,20 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 ## Resources
 
 :::{#title-slide .center}
-
+[WP1 homepage](https://face-it-project.github.io/WP1/)  
+https://face-it-project.github.io/WP1/  
 <br/>
-
-<- WP1 homepage  
-<br/><br/>
-Meta-database ->  
-<br/><br/>
-<- GitHub page  
-<br/><br/>
-Data access app ->  
+[Meta-database](https://face-it-project.github.io/WP1/metadatabase.html)  
+https://face-it-project.github.io/WP1/metadatabase.html  
+<br/>
+[GitHub page](https://github.com/FACE-IT-project/WP1)  
+https://github.com/FACE-IT-project/WP1  
+<br/>
+[Data access app](http://choc.imev-mer.fr/shiny/dataAccess/)  
+http://choc.imev-mer.fr/shiny/dataAccess/  
 :::
 
-![](QR_WP1_home.png){.absolute top="80" left="40"  width="200" height="200"}
-![](QR_metadatabase.png){.absolute top="230" left="800" width="200" height="200"}
-![](QR_WP1_GitHub.png){.absolute top="380" left="40" width="200" height="200"}  
-![](QR_dataAccess.png){.absolute top="500" left="800" width="200" height="200"}  
+<!-- ![](QR_WP1_home.png){.absolute top="80" left="40"  width="200" height="200"} -->
+<!-- ![](QR_metadatabase.png){.absolute top="230" left="800" width="200" height="200"} -->
+<!-- ![](QR_WP1_GitHub.png){.absolute top="380" left="40" width="200" height="200"}   -->
+<!-- ![](QR_dataAccess.png){.absolute top="500" left="800" width="200" height="200"}   -->
