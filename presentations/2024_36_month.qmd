@@ -33,9 +33,8 @@ Jean-Pierre Gattuso </br> - Lead -
 :::
 :::
 
-</br>
-
-![](../logo/Logo_Sorbonne%20University.png){width="130"} ![](../logo/Logo_University%20of%20Bremen.png){width="130"} ![](../logo/Logo_Greenland%20Institute%20of%20Natural%20Resources.png){width="80"} ![](../logo/Logo_The%20University%20Centre%20in%20Svalbard.png){width="110"} ![](../logo/Logo_Norwegian Polar Institute.png){width="90"} ![](../logo/Logo_Norwegian%20Institute%20of%20Marine%20Research.png){width="80"} ![](../logo/Logo_Alfred%20Wegener%20Institute.png){width="130"} ![](../logo/Logo_Xiamen%20University.png){width="160"}
+![](../logo/Logo_Sorbonne%20University.png){width="130"} ![](../logo/Logo_University%20of%20Bremen.png){width="130"} ![](../logo/Logo_Greenland%20Institute%20of%20Natural%20Resources.png){width="80"} ![](../logo/Logo_The%20University%20Centre%20in%20Svalbard.png){width="110"} ![](../logo/Logo_Norwegian Polar Institute.png){width="90"} ![](../logo/Logo_Norwegian%20Institute%20of%20Marine%20Research.png){width="80"} ![](../logo/Logo_Alfred%20Wegener%20Institute.png){width="130"}  
+![](../logo/Logo_Xiamen%20University.png){width="160"} ![](../logo/Logo_Aalborg University.png){width="90"} ![](../logo/Logo_Aarhus University.png){width="110"} ![](../logo/Logo_CMN.png){width="110"} ![](../logo/Logo_Nordland Research Institute.png){width="100"} ![](../logo/Logo_Shenzhen University.png){width="80"} ![](../logo/Logo_Utrecht University.png){width="130"}
 
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
@@ -125,25 +124,27 @@ meta_proc <- function(site_choice){
 <div style="font-weight:bold"> Compile data on drivers of change for socio-ecological systems in Arctic fjords. </div>
 :::
 
-::: {.fragment .fade-left}
-<div style="text-align:right;font-weight:bold"> <font color="grey"> Make data openly accessible within and outside of </font>  <font color="#008980"> FACE-IT. </font> </div>
+::: {.fragment .fade-right}
+<div style="text-align:right;font-weight:bold"> <font color="white"> Make data openly accessible within and outside of FACE-IT. </font> </div>
 :::
 
 </br>
 </br>
 </br>
+</br>
+</br>
 
 ::: {.fragment .fade-left}
-<div style="font-weight:bold"> <font color="black"> Archival of all FACE-IT data in FAIR repositories. </font> </div>
+<div style="font-weight:bold"> <font color="white"> Archival of all FACE-IT data in FAIR repositories. </font> </div>
 :::
 
 ::: {.fragment .fade-right}
-<div style="font-weight:bold"> <font color="black">  Further analyses and publications. </font> </div>
+<div style="font-weight:bold"> <font color="white">  Further analyses and publications. </font> </div>
 :::
 
-## Revisited deliverables {.scrollable}
+## Improvements {.scrollable}
 
-D1.2: [Meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (12 months)
+Updated and automated [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (D1.2)
 
 ::: {style="font-size: 0.3em"}
 ```{r isfjorden-meta-data-table}
@@ -209,7 +210,7 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 
 <!-- Need to update this -->
 ::: incremental
--   FACE-IT publications - 36
+-   FACE-IT publications - 48
 -   FACE-IT datasets - 32
 -   PANGAEA - 9
 -   Institution - 5
@@ -221,24 +222,38 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 ## Other WP1 publications
 
 ::: incremental
-- Gentili et al. (2023) **FjordLight: PAR data for Arctic fjords** *PANGAEA*
-- Schlegel et al. (2024, in review) **Underwater light environment in Arctic fjords** *Earth System Science Data (ESSD)*
+- Gentili et al. (2023) [**FjordLight: PAR data for Arctic fjords**](https://doi.pangaea.de/10.1594/PANGAEA.962895) *PANGAEA*
+- Schlegel et al. (2024, in review) [**Underwater light environment in Arctic fjords**](https://essd.copernicus.org/preprints/essd-2023-462/) *Earth System Science Data (ESSD)*
 :::
 
-## Other WP1 activities
+## Inter-WP activity
 
 ::: incremental
--   Maintenance of portal for collection of [CTD data](http://choc.imev-mer.fr/shiny/kongCTD/) in Kongsfjorden
--   Represented FACE-IT for the [EMODnet Open Sea Lab 3.0 Hackathon](https://emodnet.ec.europa.eu/en/emodnet-open-sea-lab-30-hackathon)
-    -   Finished #3 with a proposed [app](http://choc.imev-mer.fr/shiny/backyard/) to leverage beach goers into climate change sentinels
--   Continued maintenance of [GitHub repository](https://github.com/FACE-IT-project) for code collaboration
+- D2.3: Retrieval of non-FACE-IT barcode data
+- D2.4: Contribution of species presence data
+- D3.1: Assistance in database formatting
+- D3.2+3.3: Contribution of bathymetry data
+- D4.3: Clarification of available nature data
+- D5.2: Compilation of report from expert survey
+- D7.2: Content made available for FACE-IT website
+- Non-D: Ship AIS, UNIS CTD, Fjord synthesis
 :::
+
+<!-- ## Other WP1 activities -->
+
+<!-- ::: incremental -->
+<!-- -   Maintenance of portal for collection of [CTD data](http://choc.imev-mer.fr/shiny/kongCTD/) in Kongsfjorden -->
+<!-- -   Represented FACE-IT for the [EMODnet Open Sea Lab 3.0 Hackathon](https://emodnet.ec.europa.eu/en/emodnet-open-sea-lab-30-hackathon) -->
+<!--     -   Finished #3 with a proposed [app](http://choc.imev-mer.fr/shiny/backyard/) to leverage beach goers into climate change sentinels -->
+<!-- -   Continued maintenance of [GitHub repository](https://github.com/FACE-IT-project) for code collaboration -->
+<!-- ::: -->
 
 ## Resources
 
 :::{#title-slide .center}
-Available on face-it.marum.de (NextCloud)
-  
+
+<br/>
+
 <- WP1 homepage  
 <br/><br/>
 Meta-database ->  
@@ -248,7 +263,7 @@ Meta-database ->
 Data access app ->  
 :::
 
-![](QR_WP1_home.png){.absolute top="150" left="30"  width="200" height="200"}
-![](QR_metadatabase.png){.absolute top="250" left="800" width="200" height="200"}
-![](QR_WP1_GitHub.png){.absolute top="400" left="30" width="200" height="200"}  
+![](QR_WP1_home.png){.absolute top="80" left="40"  width="200" height="200"}
+![](QR_metadatabase.png){.absolute top="230" left="800" width="200" height="200"}
+![](QR_WP1_GitHub.png){.absolute top="380" left="40" width="200" height="200"}  
 ![](QR_dataAccess.png){.absolute top="500" left="800" width="200" height="200"}  
