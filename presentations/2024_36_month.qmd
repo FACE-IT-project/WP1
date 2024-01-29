@@ -15,7 +15,7 @@ format:
 editor: source
 ---
 
-# FACE-IT WP1 {background-color="#008980" style="text-align: center"}
+# FACE-IT WP1 {style="text-align: center"}
 
 36 month summary
 
@@ -34,7 +34,7 @@ Jean-Pierre Gattuso </br> - Lead -
 :::
 
 ![](../logo/Logo_Sorbonne%20University.png){width="130"} ![](../logo/Logo_University%20of%20Bremen.png){width="130"} ![](../logo/Logo_Greenland%20Institute%20of%20Natural%20Resources.png){width="80"} ![](../logo/Logo_The%20University%20Centre%20in%20Svalbard.png){width="110"} ![](../logo/Logo_Norwegian Polar Institute.png){width="90"} ![](../logo/Logo_Norwegian%20Institute%20of%20Marine%20Research.png){width="80"} ![](../logo/Logo_Alfred%20Wegener%20Institute.png){width="130"}  
-![](../logo/Logo_Xiamen%20University.png){width="160"} ![](../logo/Logo_Aalborg University.png){width="90"} ![](../logo/Logo_Aarhus University.png){width="110"} ![](../logo/Logo_CMN.png){width="110"} ![](../logo/Logo_Nordland Research Institute.png){width="100"} ![](../logo/Logo_Shenzhen University.png){width="80"} ![](../logo/Logo_Utrecht University.png){width="130"}
+![](../logo/Logo_Xiamen%20University.png){width="170"} ![](../logo/Logo_Aalborg University.png){width="100"} ![](../logo/Logo_Aarhus University.png){width="120"} ![](../logo/Logo_CMN.png){width="140"} ![](../logo/Logo_Nordland Research Institute.png){width="110"}
 
 ```{r global_options, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
@@ -118,31 +118,37 @@ meta_proc <- function(site_choice){
   }
 ```
 
-## Objectives {background-image="kong_landscape.jpg" background-color="black"}
+## Objectives (T1: 1.1, 1.2, 1.3)
+
+</br>
 
 ::: {.fragment .fade-right}
-<div style="font-weight:bold"> Compile data on drivers of change for socio-ecological systems in Arctic fjords. </div>
+<div style="font-weight:bold"> Compile data on drivers of change for socio-ecological systems in Arctic fjords.  </div>
 :::
+
+</br>
 
 ::: {.fragment .fade-right}
-<div style="text-align:right;font-weight:bold"> <font color="white"> Make data openly accessible within and outside of FACE-IT. </font> </div>
+<div style="font-weight:bold"> <font color="black"> Make data openly accessible within and outside of FACE-IT. </font> </div>
 :::
 
 </br>
-</br>
-</br>
-</br>
-</br>
-
-::: {.fragment .fade-left}
-<div style="font-weight:bold"> <font color="white"> Archival of all FACE-IT data in FAIR repositories. </font> </div>
-:::
 
 ::: {.fragment .fade-right}
-<div style="font-weight:bold"> <font color="white">  Further analyses and publications. </font> </div>
+<div style="font-weight:bold"> <font color="black"> FAIR archival of all FACE-IT data. </font> </div>
 :::
 
-## Improvements {.scrollable}
+</br>
+
+::: {.fragment .fade-right}
+<div style="font-weight:bold"> <font color="black">  Further analyses and publications. </font> </div>
+:::
+
+::: logo
+:::
+
+
+## Improvements (T1) {.scrollable}
 
 Updated and automated [meta-database](https://face-it-project.github.io/WP1/metadatabase.html) (D1.2)
 
@@ -160,7 +166,7 @@ DT::datatable(metadata_is, rownames = FALSE, escape = FALSE, colnames = DT_cols,
 
 ### D1.3
 
-Review on drivers of change (24 months)
+Review on drivers of change (T1; 24 months)
 
 ::: panel-tabset
 
@@ -184,21 +190,20 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 
 :::
 
-
 ## Upcoming deliverables {.scrollable}
 
 ::: panel-tabset
 
 ### D1.4
 
--   Compile social science data (40 months)
+-   Compile social science data (T1.3; 40 months)
     -   Interview and survey data compiled
     -   Historic tourism and ship traffic data compiled
     -   Need to upload to FAIR social data repository
 
 ### D1.5
 
--   Final data compilation (42 months)
+-   Final data compilation (T1.1, 1.2; 42 months)
     -   Progressing well towards completion of v2.0
     -   Harvested 19,588 datasets from PANGAEA
     -   Manually added additional 162
@@ -206,14 +211,13 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 
 :::
 
-## FACE-IT dataset publication
+## Datasets (T1)
 
-<!-- Need to update this -->
 ::: incremental
--   FACE-IT publications - 48
--   FACE-IT datasets - ~55
+-   FACE-IT publications - 45
+-   FACE-IT datasets - 55
 -   [PANGAEA](https://pangaea.de/?q=FACE-IT) - 24
--   Institution - 8+
+-   Institution - 8
 -   Zenodo - 8
 -   Other - 5
 -   Available via FACE-IT [data access](http://choc.imev-mer.fr/shiny/dataAccess/) app
@@ -223,7 +227,7 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 
 ::: incremental
 - Gentili et al. (2023) [**FjordLight: PAR data for Arctic fjords**](https://doi.pangaea.de/10.1594/PANGAEA.962895) *PANGAEA*
-- Gentili et al. (2024, in review) [**FjordLight: monthly K_PAR data for Arctic fjords**]() *PANGAEA*
+- Gentili et al. (2024, in review) **FjordLight: monthly K_PAR data for Arctic fjords** *PANGAEA*
 - Schlegel et al. (2024, in review) [**Underwater light environment in Arctic fjords**](https://essd.copernicus.org/preprints/essd-2023-462/) *Earth System Science Data (ESSD)*
 :::
 
@@ -232,12 +236,12 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 ::: incremental
 - D2.3: Retrieval of non-FACE-IT barcode data
 - D2.4: Contribution of species presence data
-- D3.1: Assistance in database formatting
 - D3.2+3.3: Contribution of bathymetry data
 - D4.3: Clarification of available nature data
-- D5.2: Compilation of report from expert survey
+- D5.3: Collection and processing of ship AIS data
+- D6.1+6.2: Compiled report from expert survey
 - D7.2: Content made available for FACE-IT website
-- Non-D: Ship AIS, UNIS CTD, Fjord synthesis
+- Other: UNIS CTD, fjord synthesis, Arctic MHW, etc.
 :::
 
 <!-- ## Other WP1 activities -->
@@ -249,7 +253,7 @@ Finalisation of [DMP](https://face-it-project.github.io/WP1/DMP_FACE-IT_final.pd
 <!-- -   Continued maintenance of [GitHub repository](https://github.com/FACE-IT-project) for code collaboration -->
 <!-- ::: -->
 
-## Resources
+## Resources {style="text-align: center"}
 
 :::{#title-slide .center}
 [WP1 homepage](https://face-it-project.github.io/WP1/)  
