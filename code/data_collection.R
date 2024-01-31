@@ -161,11 +161,11 @@ save(ice_1km_por, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/ice_1km_po
 
 # PANGAEA data ------------------------------------------------------------
 
+# Regenerate the PANGAEA DOI list here
+# source("code/data_query.R")
+
 # Load PANGAEA DOI list
 pg_doi_list <- read_csv("~/pCloudDrive/FACE-IT_data/pg_doi_list.csv")
-
-# Or regenerate the PANGAEA DOI list here
-# source("code/data_query.R")
 
 # Load to get DOI for already downloaded data
 pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |> 
