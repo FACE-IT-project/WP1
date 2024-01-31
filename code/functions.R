@@ -470,6 +470,12 @@ pg_meta_print <- function(pg_doi){
   pg_test <- pangaear::pg_data(pg_doi)
 }
 
+# Convenience wrapper to abbreviate PANGAEA column names
+pg_abb <- function(pg_var_vector){
+  res <- sapply(strsplit(pg_var_vector, " [", fixed = T), "[[", 1)
+  return(res)
+}
+
 # Function for extracting info from PANGAEA data
 # pg_dl <- dl_dat[[1]] # tester...
 pg_dl_prep <- function(pg_dl){
@@ -536,7 +542,7 @@ pg_dl_prep <- function(pg_dl){
       # NB: It is necessary to allow partial matches via grepl() because column names
       # may have notes about the data attached to them, preventing exact matches
       col_name <- colnames(pg_dl$data)
-      col_abb <- sapply(strsplit(colnames(pg_dl$data), " [", fixed = T), "[[", 1)
+      col_abb <- pg_abb(colnames(pg_dl$data))
       col_abb[col_abb == "Sal ([PSU])"] <- "Sal" # One important exception
       col_idx <- col_name[which(col_abb %in% query_ALL$Abbreviation)]
       col_meta <- col_name[which(col_abb %in% query_meta$Abbreviation)]
@@ -551,10 +557,28 @@ pg_dl_prep <- function(pg_dl){
       # NB: This intentionally does not account for metadata columns or species columns because they will be melted
       if(length(col_base) <= 20){
         
+        # TODO: Column choices made here must be entered into 'dl_message'
+        # Rather than using this case_when approach an order list of possible columns should be queried
+        # This can be done with a simple filter of present columns, then selecting [1] from that vector
+        # Will require a couple of extra logic gates to correct pressure or elevation values
+        # Then the best column is chosen and that is given to 'dl_message'
+        # Or perhaps if this is to be done with each file, there should be a date and depth metadata colummn
+        # that shows what the name of the corresponding column was
+        
+        # Set the preferred metadata column abbreviation hierarchy
+        col_lon_order <- unique(c("Longitude", "lon", query_meta$Abbreviation[query_meta$driver == "lon"]))
+        col_lat_order <- unique(c("Latitude", "lat", query_meta$Abbreviation[query_meta$driver == "lat"]))
+        col_date_order <- unique(c("Date/Time", "DATE/TIME", "Date", "date", "Date/time start", "Date/time end", "Sampling date",
+                                   query_meta$Abbreviation[query_meta$driver == "date"]))
+        col_depth_order <- unique(c("Depth water", "Depth", "depth", "Press", "Depth top", 
+                                    "Elevation", "Elev", "Surf elev", query_meta$Abbreviation[query_meta$driver == "depth"]))
+        
+        col_depth <- c("Depth [m]", "Elevation [m a.s.l.]", "Depth water [m]")
+        
         # Determine choice metadata columns: lon, lat, date, depth
         col_lon_choice <- col_lon[1] # NB: Not sure this is the best approach
         col_lat_choice <- col_lat[1] # NB: Not sure this is the best approach
-        col_depth_choice <- c()
+        col_depth_choice <- col_depth[grepl(col_depth_order[col_depth_order %in% pg_abb(col_depth)][1], col_depth)]
         
         # Bind together for use below
         col_choice <- c(col_base)
@@ -602,8 +626,20 @@ pg_dl_prep <- function(pg_dl){
         # janitor::remove_empty(which = c("rows", "cols"))
         
         # Correct date column
+        mutate(date = case_when(is.na(date) & nchar(`Sampling date`) == 9 ~ sapply(str_split(`Sampling date`, "-"), "[[", 1),
+                                is.na(date) & nchar(`Sampling date`) == 4 ~ `Sampling date`,
+                                TRUE ~ date),
+               date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                                nchar(date) == 7 ~ paste0(date,"-01-01"),
+                                TRUE ~ date),
+               date = ifelse(date == "", NA, date)) |>
+          mutate(date = as.Date(gsub("T.*", "", date)))
         
         # Correct depth column
+        mutate(depth = case_when(is.na(depth) & !is.na(`Press [dbar]`) ~ seacarb::p2d(as.numeric(`Press [dbar]`), lat = Latitude),
+                                 is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
+                                 is.na(depth) & !is.na(`Surf elev [m]`) ~ -as.numeric(`Surf elev [m]`),
+                                 TRUE ~ depth))
         
         # Filter spatially if possible
         if(all(c("Longitude", "Latitude") %in% colnames(dl_bind))){
@@ -620,55 +656,6 @@ pg_dl_prep <- function(pg_dl){
         
         # See if all of the data were filtered out
         if(nrow(dl_single) == 0) dl_error <- "Spatial data not in any site bbox"
-
-        # TODO: Column choices made here must be entered into 'dl_message'
-        # Rather than using this case_when approach an order list of possible columns should be queried
-        # This can be done with a simple filter of present columns, then selecting [1] from that vector
-        # Will require a couple of extra logic gates to correct pressure or elevation values
-        # Then the best column is chosen and that is given to 'dl_message'
-        # Or perhaps if this is to be done with each file, there should be a date and depth metadata colummn
-        # that shows what the name of the corresponding column was
-        
-        # Determine date values
-        dplyr::rename(date = `Date/Time`) |> 
-          mutate(date = ifelse(date == "", NA, date),
-                 date = case_when(is.na(date) & !is.na(Date) ~ as.character(Date),
-                                  is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
-                                  is.na(date) & !is.na(`Date/time end`) ~ as.character(`Date/time end`),
-                                  is.na(date) & !is.na(`Sampling date`) ~ as.character(`Sampling date`)
-                                  TRUE ~ date),
-                 date = ifelse(date == "", NA, date)) |> 
-          mutate(date = case_when(is.na(date) & nchar(`Sampling date`) == 9 ~ sapply(str_split(`Sampling date`, "-"), "[[", 1),
-                                  is.na(date) & nchar(`Sampling date`) == 4 ~ `Sampling date`,
-                                  TRUE ~ date),
-                 date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
-                                  nchar(date) == 7 ~ paste0(date,"-01-01"),
-                                  TRUE ~ date)) |>
-          mutate(date = as.Date(gsub("T.*", "", date)))
-        
-        # Determine depth values
-        dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`,
-                      `Depth [m]2` = `Depth water [m] (corresponds to CTD event; mea...)`,
-                      `Elevation [m a.s.l.]1` = `Elevation [m a.s.l.] (ELEVATION of CTD event, CTD/R...)`) |>
-          mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                                   !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
-                                   !is.na(`Depth [m]1`) ~ as.numeric(`Depth [m]1`),
-                                   !is.na(`Depth [m]2`) ~ as.numeric(`Depth [m]2`),
-                                   !is.na(`Depth water [m] (top)`) ~ as.numeric(`Depth water [m] (top)`),
-                                   !is.na(`Depth [m] (maximum)`) ~ as.numeric(`Depth [m] (maximum)`),
-                                   !is.na(`Depth [m] (mbsf)`) ~ as.numeric(`Depth [m] (mbsf)`),
-                                   !is.na(`Depth [m] (in section/core)`) ~ as.numeric(`Depth [m] (in section/core)`),
-                                   !is.na(`Depth water [m] (min)`) ~ as.numeric(`Depth water [m] (min)`),
-                                   !is.na(`Depth water [m] (salt water)`) ~ as.numeric(`Depth water [m] (salt water)`),
-                                   !is.na(`Depth [m] (negative = above surface)`) ~ as.numeric(`Depth [m] (negative = above surface)`))) |> 
-          mutate(depth = case_when(is.na(depth) & !is.na(`Press [dbar]`) ~ seacarb::p2d(as.numeric(`Press [dbar]`), lat = Latitude),
-                                   is.na(depth) & !is.na(`Depth top [m]`) ~ as.numeric(`Depth top [m]`)
-                                   is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
-                                   is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
-                                   is.na(depth) & !is.na(`Elevation [m a.s.l.]1`) ~ -as.numeric(`Elevation [m a.s.l.]1`),
-                                   is.na(depth) & !is.na(`Elevation [m a.s.l.] (GLWD)`) ~ -as.numeric(`Elevation [m a.s.l.] (GLWD)`),
-                                   is.na(depth) & !is.na(`Surf elev [m]`) ~ -as.numeric(`Surf elev [m]`),
-                                   TRUE ~ depth))
         
       } else {
         dl_error <- "More than 20 columns with data"
