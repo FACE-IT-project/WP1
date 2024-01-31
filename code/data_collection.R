@@ -173,8 +173,7 @@ pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern =
 pg_downloaded <- unique(c(pg_doi_files$doi, pg_doi_files$parent_doi))
 
 # Strike out DOI for already downloaded data
-pg_doi_dl <- pg_doi_list |>
-  filter(!doi %in% pg_downloaded)
+pg_doi_dl <- filter(pg_doi_list, !doi %in% pg_downloaded)
 
 # Full PANGAEA query
 ## NB: It's possible to run this on multiple cores, but it will disable messages

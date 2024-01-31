@@ -472,8 +472,11 @@ pg_meta_print <- function(pg_doi){
 
 # Convenience wrapper to abbreviate PANGAEA column names
 pg_abb <- function(pg_var_vector){
-  res <- sapply(strsplit(pg_var_vector, " [", fixed = T), "[[", 1)
-  return(res)
+  if(!is_empty(pg_var_vector)){
+    res <- sapply(strsplit(pg_var_vector, " [", fixed = T), "[[", 1)
+    res <- sapply(strsplit(res, " (", fixed = T), "[[", 1) # For salinity generally
+  } 
+  # return(res)
 }
 
 # Function for extracting info from PANGAEA data
@@ -485,7 +488,6 @@ pg_dl_prep <- function(pg_dl){
   
   # Prep for reporting
   dl_error <- NULL
-  dl_message <- NULL
   
   # Extract data.frame or catch specific errors
   if(is.data.frame(pg_dl$data)){
@@ -498,11 +500,6 @@ pg_dl_prep <- function(pg_dl){
     # This allows very long column names to have the units etc. cut off the end
     # I created an issue on the GitHub page with no response...
     if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
-      
-      # In rare cases there is a 'Latitude 2' and not 'Latitude' column
-      if("Latitude 2" %in% colnames(pg_dl$data) & sum(grepl("Latitude", colnames(pg_dl$data))) == 1){
-        colnames(pg_dl$data)[which(colnames(pg_dl$data) == "Latitude 2")] <- "Latitude"
-      }
       
       # Datasets published before ~2017 may have lon/lat and Date/Time in the metadata list and not the data
       if("metadata" %in% names(pg_dl)){
@@ -543,7 +540,6 @@ pg_dl_prep <- function(pg_dl){
       # may have notes about the data attached to them, preventing exact matches
       col_name <- colnames(pg_dl$data)
       col_abb <- pg_abb(colnames(pg_dl$data))
-      col_abb[col_abb == "Sal ([PSU])"] <- "Sal" # One important exception
       col_idx <- col_name[which(col_abb %in% query_ALL$Abbreviation)]
       col_meta <- col_name[which(col_abb %in% query_meta$Abbreviation)]
       col_lon <- col_name[which(col_abb %in% query_meta$Abbreviation[query_meta$driver == "lon"])]
@@ -557,14 +553,6 @@ pg_dl_prep <- function(pg_dl){
       # NB: This intentionally does not account for metadata columns or species columns because they will be melted
       if(length(col_base) <= 20){
         
-        # TODO: Column choices made here must be entered into 'dl_message'
-        # Rather than using this case_when approach an order list of possible columns should be queried
-        # This can be done with a simple filter of present columns, then selecting [1] from that vector
-        # Will require a couple of extra logic gates to correct pressure or elevation values
-        # Then the best column is chosen and that is given to 'dl_message'
-        # Or perhaps if this is to be done with each file, there should be a date and depth metadata colummn
-        # that shows what the name of the corresponding column was
-        
         # Set the preferred metadata column abbreviation hierarchy
         col_lon_order <- unique(c("Longitude", "lon", query_meta$Abbreviation[query_meta$driver == "lon"]))
         col_lat_order <- unique(c("Latitude", "lat", query_meta$Abbreviation[query_meta$driver == "lat"]))
@@ -573,37 +561,37 @@ pg_dl_prep <- function(pg_dl){
         col_depth_order <- unique(c("Depth water", "Depth", "depth", "Press", "Depth top", 
                                     "Elevation", "Elev", "Surf elev", query_meta$Abbreviation[query_meta$driver == "depth"]))
         
-        col_depth <- c("Depth [m]", "Elevation [m a.s.l.]", "Depth water [m]")
-        
-        # Determine choice metadata columns: lon, lat, date, depth
-        col_lon_choice <- col_lon[1] # NB: Not sure this is the best approach
-        col_lat_choice <- col_lat[1] # NB: Not sure this is the best approach
+        # Determine single choice metadata column for: lon, lat, date, depth
+        col_lon_choice <- col_lon[grepl(col_lon_order[col_lon_order %in% pg_abb(col_lon)][1], col_lon)]
+        col_lat_choice <- col_lat[grepl(col_lat_order[col_lat_order %in% pg_abb(col_lat)][1], col_lat)]
+        col_date_choice <- col_date[grepl(col_date_order[col_date_order %in% pg_abb(col_date)][1], col_date)]
         col_depth_choice <- col_depth[grepl(col_depth_order[col_depth_order %in% pg_abb(col_depth)][1], col_depth)]
         
         # Bind together for use below
-        col_choice <- c(col_base)
+        col_meta_choice <- c(col_lon_choice, col_lat_choice, col_date_choice, col_depth_choice)
         
         # Get data for desired drivers, excluding species due to the width of these data
         dl_driver <- tibble()
-        if(length(col_idx) > length(col_meta)){
+        # NB: Commented out to allow meta columns to get passed to 'dl_bind'
+        # if(length(col_idx) > length(col_meta)){
           suppressWarnings(
             dl_driver <- pg_dl$data |> 
-              dplyr::select(dplyr::all_of(col_idx)) |> 
+              dplyr::select(dplyr::all_of(c(col_meta_choice, col_base))) |> 
               # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-              janitor::remove_empty(which = c("rows", "cols")) |> 
               # NB: This forcibly removes non-numeric values
-              dplyr::mutate_at(col_base, as.numeric) #|>
-              # NB: Pivot long here. This appears to rather make the file size much larger
+              dplyr::mutate_at(col_base, as.numeric) |>
+              janitor::remove_empty(which = c("rows", "cols")) #|> 
+              # NB: Don't pivot long here as it makes the file size much larger
               # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |>
               # mutate(class = "base") |> filter(!is.na(value))
             )
-          }
+          # }
         
         # Get species values directly as a melted data.frame
         dl_spp <- tibble()
         if(length(col_spp) > 0){
           dl_spp <- pg_dl$data |> 
-            dplyr::select(dplyr::all_of(c(col_meta, col_spp))) |> 
+            dplyr::select(dplyr::all_of(c(col_meta_choice, col_spp))) |> 
             janitor::remove_empty(which = c("rows", "cols")) |> 
             # NB: Force everything to characters and sort it out in detail later
             dplyr::mutate_at(col_spp, as.character) |> 
@@ -613,40 +601,52 @@ pg_dl_prep <- function(pg_dl){
           }
         
         # Create vector of removed columns
+        cols_removed <- paste(colnames(pg_dl$data)[!(colnames(pg_dl$data) %in% c(colnames(dl_driver), col_spp))], collapse = "; ")
         
         # Combine
         dl_bind <- bind_rows(dl_driver, dl_spp) |> 
           mutate(date_accessed = as.Date(Sys.Date()),
                  Error = "None",
+                 meta_cols = paste(col_meta_choice, collapse = "; "),
+                 removed_cols = cols_removed,
                  parent_doi = pg_dl$parent_doi,
                  URL = pg_dl$url,
-                 citation = pg_dl$citation) |> 
-          dplyr::select(date_accessed, Error, parent_doi, URL, citation, everything()) #|>
-        # NB: This should no longer be necessary...
-        # janitor::remove_empty(which = c("rows", "cols"))
+                 citation = pg_dl$citation, 
+                 .before = 1) |>
+          rename(lon := !!col_lon_choice, lat := !!col_lat_choice,
+                 date := !!col_date_choice, depth := !!col_depth_choice)
         
         # Correct date column
-        mutate(date = case_when(is.na(date) & nchar(`Sampling date`) == 9 ~ sapply(str_split(`Sampling date`, "-"), "[[", 1),
-                                is.na(date) & nchar(`Sampling date`) == 4 ~ `Sampling date`,
-                                TRUE ~ date),
-               date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
-                                nchar(date) == 7 ~ paste0(date,"-01-01"),
-                                TRUE ~ date),
-               date = ifelse(date == "", NA, date)) |>
-          mutate(date = as.Date(gsub("T.*", "", date)))
-        
+        if("date" %in% colnames(dl_bind)){
+          dl_bind <- dl_bind |> 
+            mutate(date = case_when(nchar(date) == 9 & pg_abb(col_date_choice) == "Sampling date" ~ sapply(str_split(date, "-"), "[[", 1),
+                                    TRUE ~ date),
+                   date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                                    nchar(date) == 7 ~ paste0(date,"-01"),
+                                    TRUE ~ date),
+                   date = ifelse(date == "", NA, date)) |>
+            mutate(date = as.Date(gsub("T.*", "", date)))
+        }
+
         # Correct depth column
-        mutate(depth = case_when(is.na(depth) & !is.na(`Press [dbar]`) ~ seacarb::p2d(as.numeric(`Press [dbar]`), lat = Latitude),
-                                 is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
-                                 is.na(depth) & !is.na(`Surf elev [m]`) ~ -as.numeric(`Surf elev [m]`),
-                                 TRUE ~ depth))
+        if("depth" %in% colnames(dl_bind)){
+          dl_bind$depth <- as.numeric(dl_bind$depth)
+          if(pg_abb(col_depth_choice) == "Press"){
+            if(length(col_lat_choice) == 1){
+              dl_bind$depth <- seacarb::p2d(dl_bind$depth, lat = dl_bind$lat)
+            } else {
+              dl_bind$depth <- seacarb::p2d(dl_bind$depth, lat = 70)
+            }
+          }
+          if(pg_abb(col_depth_choice) %in% c("Elevation", "Elev", "Surf elev")) dl_bind$depth <- -dl_bind$depth
+        }
         
         # Filter spatially if possible
-        if(all(c("Longitude", "Latitude") %in% colnames(dl_bind))){
-          if(!is.numeric(dl_bind$Longitude)) dl_bind$Longitude <- is.numeric(dl_bind$Longitude)
-          if(!is.numeric(dl_bind$Latitude)) dl_bind$Latitude <- is.numeric(dl_bind$Latitude)
-          dl_bind$Longitude <- ifelse(dl_bind$Longitude > 180, dl_bind$Longitude - 360, dl_bind$Longitude)
-          dl_no_coords <- filter(dl_bind, is.na(Longitude) | is.na(Latitude))
+        if(all(c("lon", "lat") %in% colnames(dl_bind))){
+          if(!is.numeric(dl_bind$lon)) dl_bind$lon <- is.numeric(dl_bind$lon)
+          if(!is.numeric(dl_bind$lat)) dl_bind$lat <- is.numeric(dl_bind$lat)
+          dl_bind$lon <- ifelse(dl_bind$lon > 180, dl_bind$lon - 360, dl_bind$lon)
+          dl_no_coords <- filter(dl_bind, is.na(lon) | is.na(lat))
           dl_coords <- plyr::ddply(bbox_ALL_df, c("region"), filter_bbox, df = dl_bind, .parallel = TRUE) |> 
             dplyr::select(-region)
           dl_single <- bind_rows(dl_no_coords, dl_coords) 
@@ -669,7 +669,8 @@ pg_dl_prep <- function(pg_dl){
   
   # Determine if there are columns with desired data
   if(is.null(dl_error)){
-    if(all(colnames(dl_single) %in% c("date_accessed", "Error", "parent_doi", "URL", "citation", "Longitude", "Latitude", "Date/Time"))){
+    if(all(colnames(dl_single) %in% c("date_accessed", "Error", "meta_cols", "removed_cols", 
+                                      "parent_doi", "URL", "citation", "lon", "lat", "date", "depth"))){
       dl_error <- "No columns with drivers"
     }
   }
@@ -684,10 +685,14 @@ pg_dl_prep <- function(pg_dl){
   
   # Exit
   return(dl_single)
-  # rm(pg_dl, dl_error, pg_meta, col_names_df, col_idx, col_meta, col_spp, col_no_spp, dl_driver, dl_spp, dl_bind, dl_no_coords, dl_coords, dl_single); gc()
+  # rm(pg_dl, dl_error, col_idx, col_meta, col_spp, dl_driver, dl_spp, dl_bind, dl_no_coords, dl_coords, dl_single); gc()
 }
 
 # Function for downloading and processing PANGAEA data for merging
+# testers...
+# pg_doi <- pg_doi_files$doi[38] 
+# pg_doi <- doi_dl$doi[1]
+# pg_doi <- "10.1594/PANGAEA.733415"
 pg_dl_proc <- function(pg_doi){
   
   # Get data
@@ -713,6 +718,7 @@ pg_dl_proc <- function(pg_doi){
 }
 
 # Function for automagically downloading, processing, and saving PANGAEA data
+# file_name <- "pg_is"; doi_dl_list <- pg_doi_list[4675:4680,] # testers...
 pg_dl_save <- function(file_name, doi_dl_list){
   
   # Start message
@@ -722,13 +728,16 @@ pg_dl_save <- function(file_name, doi_dl_list){
   if(!exists("query_ALL")) source("code/key_drivers.R")
   
   # Get list of files to download
-  doi_dl <- filter(doi_dl_list, file == file_name)[1:20,] # Small batches to avoid downloading parent duplicates
+  doi_dl <- filter(doi_dl_list, file == file_name)[1:20,] |>  # Small batches to avoid downloading parent duplicates
+    filter(!is.na(doi))
+  if(nrow(doi_dl) == 0) return()
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
-  pg_res_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_meta$pg_col_name]
-  pg_res <- pg_res |> 
-    mutate(across(dplyr::all_of(pg_res_meta_columns), as.character))
+  # TODO: test this explicitly
+  # pg_res_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_meta$pg_col_name]
+  # pg_res <- pg_res |> 
+  #   mutate(across(dplyr::all_of(pg_res_meta_columns), as.character))
   
   # Load existing metadata to join the new metadata to
   if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
@@ -741,14 +750,14 @@ pg_dl_save <- function(file_name, doi_dl_list){
   
   # Create and utilise metadata lookup tables
   pg_meta_prep <- pg_res |> 
-    dplyr::select(date_accessed, Error, parent_doi, URL, citation) |> 
+    dplyr::select(date_accessed, Error, parent_doi, URL, citation, meta_cols, removed_cols) |> 
     distinct() |> dplyr::mutate(meta_idx = 1:n() + pg_meta_start, .before = 1)
   pg_meta <- distinct(bind_rows(pg_lookup, pg_meta_prep)) |> 
     filter(!is.na(parent_doi))
   pg_slim <- pg_res |> 
-    left_join(pg_meta_prep, by = c("date_accessed", "Error", "parent_doi", "URL", "citation")) |> 
+    left_join(pg_meta_prep, by = c("date_accessed", "Error", "parent_doi", "URL", "citation", "meta_cols", "removed_cols")) |> 
     # NB: Currently intentionally keeping rows with all NA to link with meta_idx
-    dplyr::select(meta_idx, everything(), -date_accessed, -Error, -parent_doi, -URL, -citation)
+    dplyr::select(meta_idx, everything(), -date_accessed, -Error, -parent_doi, -URL, -citation, -meta_cols, -removed_cols)
   
   # Load and combine existing data
   if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
@@ -1372,8 +1381,8 @@ long_to_short_name <- function(long_name){
 ## This will remove data with missing lon/lat coords
 filter_bbox <- function(bbox, df){
   df_bbox <- df %>% 
-    filter(Longitude >= bbox$lon[1], Longitude <= bbox$lon[2], 
-           Latitude >= bbox$lat[1], Latitude <= bbox$lat[2])
+    filter(lon >= bbox$lon[1], lon <= bbox$lon[2], 
+           lat >= bbox$lat[1], lat <= bbox$lat[2])
   return(df_bbox)
 }
 
