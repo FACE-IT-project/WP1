@@ -480,6 +480,7 @@ pg_abb <- function(pg_var_vector){
 }
 
 # Function for extracting info from PANGAEA data
+# TODO: Consider moving logic gates around so this isn't so nested
 # pg_dl <- dl_dat[[1]] # tester...
 pg_dl_prep <- function(pg_dl){
   
@@ -487,7 +488,7 @@ pg_dl_prep <- function(pg_dl){
   if(!exists("query_ALL")) source("code/key_drivers.R")
   
   # Prep for reporting
-  dl_error <- NULL
+  dl_error <- "None"
   
   # Extract data.frame or catch specific errors
   if(is.data.frame(pg_dl$data)){
@@ -570,55 +571,15 @@ pg_dl_prep <- function(pg_dl){
         # Bind together for use below
         col_meta_choice <- c(col_lon_choice, col_lat_choice, col_date_choice, col_depth_choice)
         
-        # Get data for desired drivers, excluding species due to the width of these data
-        dl_driver <- tibble()
-        # NB: Commented out to allow meta columns to get passed to 'dl_bind'
-        # if(length(col_idx) > length(col_meta)){
-          suppressWarnings(
-            dl_driver <- pg_dl$data |> 
-              dplyr::select(dplyr::all_of(c(col_meta_choice, col_base))) |> 
-              # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-              # NB: This forcibly removes non-numeric values
-              dplyr::mutate_at(col_base, as.numeric) |>
-              janitor::remove_empty(which = c("rows", "cols")) #|> 
-              # NB: Don't pivot long here as it makes the file size much larger
-              # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |>
-              # mutate(class = "base") |> filter(!is.na(value))
-            )
-          # }
-        
-        # Get species values directly as a melted data.frame
-        dl_spp <- tibble()
-        if(length(col_spp) > 0){
-          dl_spp <- pg_dl$data |> 
-            dplyr::select(dplyr::all_of(c(col_meta_choice, col_spp))) |> 
-            janitor::remove_empty(which = c("rows", "cols")) |> 
-            # NB: Force everything to characters and sort it out in detail later
-            dplyr::mutate_at(col_spp, as.character) |> 
-            pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |>
-            # NB: Intentionally not filtering NA as species presence might not have a value
-            # filter(!is.na(value))
-          }
-        
-        # Create vector of removed columns
-        cols_removed <- paste(colnames(pg_dl$data)[!(colnames(pg_dl$data) %in% c(colnames(dl_driver), col_spp))], collapse = "; ")
-        
-        # Combine
-        dl_bind <- bind_rows(dl_driver, dl_spp) |> 
-          mutate(date_accessed = as.Date(Sys.Date()),
-                 Error = "None",
-                 meta_cols = paste(col_meta_choice, collapse = "; "),
-                 removed_cols = cols_removed,
-                 parent_doi = pg_dl$parent_doi,
-                 URL = pg_dl$url,
-                 citation = pg_dl$citation, 
-                 .before = 1) |>
+        # Proess metadata columns
+        dl_proc <- pg_dl$data |>
           rename(lon := !!col_lon_choice, lat := !!col_lat_choice,
                  date := !!col_date_choice, depth := !!col_depth_choice)
+        col_meta_fin <- c("lon", "lat", "date", "depth")[c("lon", "lat", "date", "depth") %in% colnames(dl_proc)]
         
         # Correct date column
-        if("date" %in% colnames(dl_bind)){
-          dl_bind <- dl_bind |> 
+        if("date" %in% col_meta_fin){
+          dl_proc <- dl_proc |> 
             mutate(date = case_when(nchar(date) == 9 & pg_abb(col_date_choice) == "Sampling date" ~ sapply(str_split(date, "-"), "[[", 1),
                                     TRUE ~ date),
                    date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
@@ -627,36 +588,91 @@ pg_dl_prep <- function(pg_dl){
                    date = ifelse(date == "", NA, date)) |>
             mutate(date = as.Date(gsub("T.*", "", date)))
         }
-
+        
         # Correct depth column
-        if("depth" %in% colnames(dl_bind)){
-          dl_bind$depth <- as.numeric(dl_bind$depth)
+        if("depth" %in% col_meta_fin){
+          # NB: Choice is made here to round to even 1 metre units
+          dl_proc$depth <- round(as.numeric(dl_proc$depth))
           if(pg_abb(col_depth_choice) == "Press"){
             if(length(col_lat_choice) == 1){
-              dl_bind$depth <- seacarb::p2d(dl_bind$depth, lat = dl_bind$lat)
+              dl_proc$depth <- seacarb::p2d(dl_proc$depth, lat = dl_proc$lat)
             } else {
-              dl_bind$depth <- seacarb::p2d(dl_bind$depth, lat = 70)
+              dl_proc$depth <- seacarb::p2d(dl_proc$depth, lat = 70)
             }
           }
-          if(pg_abb(col_depth_choice) %in% c("Elevation", "Elev", "Surf elev")) dl_bind$depth <- -dl_bind$depth
+          if(pg_abb(col_depth_choice) %in% c("Elevation", "Elev", "Surf elev")) dl_proc$depth <- -dl_proc$depth
         }
         
         # Filter spatially if possible
-        if(all(c("lon", "lat") %in% colnames(dl_bind))){
-          if(!is.numeric(dl_bind$lon)) dl_bind$lon <- is.numeric(dl_bind$lon)
-          if(!is.numeric(dl_bind$lat)) dl_bind$lat <- is.numeric(dl_bind$lat)
-          dl_bind$lon <- ifelse(dl_bind$lon > 180, dl_bind$lon - 360, dl_bind$lon)
-          dl_no_coords <- filter(dl_bind, is.na(lon) | is.na(lat))
-          dl_coords <- plyr::ddply(bbox_ALL_df, c("region"), filter_bbox, df = dl_bind, .parallel = TRUE) |> 
+        if(all(c("lon", "lat") %in% col_meta_fin)){
+          if(!is.numeric(dl_proc$lon)) dl_proc$lon <- is.numeric(dl_proc$lon)
+          if(!is.numeric(dl_proc$lat)) dl_proc$lat <- is.numeric(dl_proc$lat)
+          dl_proc$lon <- ifelse(dl_proc$lon > 180, dl_proc$lon - 360, dl_proc$lon)
+          dl_no_coords <- filter(dl_proc, is.na(lon) | is.na(lat))
+          dl_coords <- plyr::ddply(bbox_ALL_df, c("region"), filter_bbox, df = dl_proc, .parallel = TRUE) |> 
             dplyr::select(-region)
-          dl_single <- bind_rows(dl_no_coords, dl_coords) 
+          dl_spatial <- bind_rows(dl_no_coords, dl_coords) 
         } else {
-          dl_single <- dl_bind
+          dl_spatial <- dl_proc
         }
         
-        # See if all of the data were filtered out
-        if(nrow(dl_single) == 0) dl_error <- "Spatial data not in any site bbox"
-        
+        # Skip these steps if all of the data were filtered out
+        if(nrow(dl_spatial) > 0){
+          
+          # Get data for desired drivers, excluding species due to the width of these data
+          dl_driver <- tibble()
+          if(length(col_base) > 0){
+            suppressWarnings(
+              dl_driver <- dl_spatial |> 
+                dplyr::select(dplyr::all_of(c(col_meta_fin, col_base))) |> 
+                # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
+                # NB: This forcibly removes non-numeric values
+                dplyr::mutate_at(col_base, as.numeric) |>
+                janitor::remove_empty(which = c("rows", "cols")) #|> 
+                # NB: Don't pivot long here as it makes the file size much larger
+                # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |> filter(!is.na(value))
+              )
+          }
+          
+          # Average by meta columns
+          if(length(col_meta_fin) > 0){
+            dl_driver <- dl_driver |> 
+              reframe(across(all_of(col_base), mean), .by = all_of(col_meta_fin))
+          }
+          
+          # Get species values directly as a melted data.frame
+          # NB: These data are forced to numeric during pg_var_melt()
+          # But they are kept as character values here in order to allow
+          # For potential investigation into the raw data
+          dl_spp <- tibble()
+          if(length(col_spp) > 0){
+            dl_spp <- pg_dl$data |> 
+              dplyr::select(dplyr::all_of(c(col_meta_fin, col_spp))) |> 
+              janitor::remove_empty(which = c("rows", "cols")) |> 
+              # NB: Force everything to characters and sort it out in detail later
+              dplyr::mutate_at(col_spp, as.character) |> 
+              pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |>
+              # NB: Intentionally not filtering NA as species presence might not have a value
+              # filter(!is.na(value))
+          }
+          
+          # Create vector of removed columns
+          cols_removed <- paste(colnames(pg_dl$data)[!(colnames(pg_dl$data) %in% c(col_meta_choice, colnames(dl_driver), col_spp))], collapse = "; ")
+          
+          # Combine
+          dl_single <- bind_rows(dl_driver, dl_spp) |> 
+            mutate(date_accessed = as.Date(Sys.Date()),
+                   Error = "None",
+                   meta_cols = paste(col_meta_choice, collapse = "; "),
+                   removed_cols = cols_removed,
+                   parent_doi = pg_dl$parent_doi,
+                   URL = pg_dl$url,
+                   citation = pg_dl$citation, 
+                   .before = 1)
+          
+        } else {
+          dl_error <- "Spatial data not in any site bbox"
+        }
       } else {
         dl_error <- "More than 20 columns with data"
       }
@@ -668,15 +684,15 @@ pg_dl_prep <- function(pg_dl){
   }
   
   # Determine if there are columns with desired data
-  if(is.null(dl_error)){
-    if(all(colnames(dl_single) %in% c("date_accessed", "Error", "meta_cols", "removed_cols", 
+  if(dl_error == "None"){
+    if(all(colnames(dl_bind) %in% c("date_accessed", "Error", "meta_cols", "removed_cols", 
                                       "parent_doi", "URL", "citation", "lon", "lat", "date", "depth"))){
       dl_error <- "No columns with drivers"
     }
   }
   
   # Create error report if necessary
-  if(!is.null(dl_error)) 
+  if(dl_error != "None") 
     dl_single <- data.frame(date_accessed = as.Date(Sys.Date()),
                             Error = dl_error,
                             parent_doi = pg_dl$parent_doi,
@@ -685,7 +701,7 @@ pg_dl_prep <- function(pg_dl){
   
   # Exit
   return(dl_single)
-  # rm(pg_dl, dl_error, col_idx, col_meta, col_spp, dl_driver, dl_spp, dl_bind, dl_no_coords, dl_coords, dl_single); gc()
+  # rm(pg_dl, dl_error, col_idx, col_meta, col_spp, dl_driver, dl_spp, dl_no_coords, dl_coords, dl_spatial, dl_single); gc()
 }
 
 # Function for downloading and processing PANGAEA data for merging
@@ -912,7 +928,7 @@ pg_var_melt <- function(pg_clean, query_sub){
       mutate(value = as.numeric(value),
              driver = "biomass", category = "bio") |> 
       filter(!is.na(value)) |> distinct()
-    pg_melt <- rbind(pg_melt, pg_melt_bio)
+    pg_melt <- rbind(pg_melt, pg_melt_bio) |> distinct()
   }
   
   # Mean values and exit
