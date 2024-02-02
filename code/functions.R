@@ -473,10 +473,10 @@ pg_meta_print <- function(pg_doi){
 # Convenience wrapper to abbreviate PANGAEA column names
 pg_abb <- function(pg_var_vector){
   if(!is_empty(pg_var_vector)){
-    res <- sapply(strsplit(pg_var_vector, " [", fixed = T), "[[", 1)
-    res <- sapply(strsplit(res, " (", fixed = T), "[[", 1) # For salinity generally
+    res_abb <- sapply(strsplit(pg_var_vector, " [", fixed = T), "[[", 1)
+    res_abb <- sapply(strsplit(res_abb, " (", fixed = T), "[[", 1) # For salinity generally
+    return(res_abb)
   } 
-  # return(res)
 }
 
 # Function for extracting info from PANGAEA data
@@ -507,17 +507,17 @@ pg_dl_prep <- function(pg_dl){
         if("events" %in% names(pg_dl$metadata)){
           if(is.list(pg_dl$metadata$events)){
             pg_meta <- as_tibble(pg_dl$metadata$events)
-            if(!"Longitude" %in% colnames(pg_dl$data)){
+            if(!"Longitude" %in% pg_abb(colnames(pg_dl$data))){
               if(TRUE %in% c(lon_names %in% colnames(pg_meta))){
                 pg_dl$data$Longitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lon_names)][1])
               }
             }
-            if(!"Latitude" %in% colnames(pg_dl$data)){
+            if(!"Latitude" %in% pg_abb(colnames(pg_dl$data))){
               if(TRUE %in% c(lat_names %in% colnames(pg_meta))){
                 pg_dl$data$Latitude <- as.numeric(pg_meta[which(colnames(pg_meta) %in% lat_names)][1])
               }
             }
-            if(!"Date/Time" %in% colnames(pg_dl$data)){
+            if(!"Date/Time" %in% pg_abb(colnames(pg_dl$data))){
               if("DATE/TIME" %in% colnames(pg_meta)){
                 pg_dl$data$`Date/Time` <- pg_meta$`DATE/TIME`[1]
               }
@@ -568,10 +568,16 @@ pg_dl_prep <- function(pg_dl){
         col_date_choice <- col_date[grepl(col_date_order[col_date_order %in% pg_abb(col_date)][1], col_date)]
         col_depth_choice <- col_depth[grepl(col_depth_order[col_depth_order %in% pg_abb(col_depth)][1], col_depth)]
         
+        # Can't use [1] above because we need empty character vectors for the ext step
+        if(length(col_lon_choice) > 1) col_lon_choice <- col_lon_choice[1]
+        if(length(col_lat_choice) > 1) col_lat_choice <- col_lat_choice[1]
+        if(length(col_date_choice) > 1) col_date_choice <- col_date_choice[1]
+        if(length(col_depth_choice) > 1) col_depth_choice <- col_depth_choice[1]
+        
         # Bind together for use below
         col_meta_choice <- c(col_lon_choice, col_lat_choice, col_date_choice, col_depth_choice)
         
-        # Proess metadata columns
+        # Process metadata columns
         dl_proc <- pg_dl$data |>
           rename(lon := !!col_lon_choice, lat := !!col_lat_choice,
                  date := !!col_date_choice, depth := !!col_depth_choice)
@@ -709,6 +715,8 @@ pg_dl_prep <- function(pg_dl){
 # pg_doi <- pg_doi_files$doi[38] 
 # pg_doi <- doi_dl$doi[1]
 # pg_doi <- "10.1594/PANGAEA.733415"
+# pg_doi <- "10.1594/PANGAEA.912766" # Complex metadata event vector
+# pg_doi <- "10.1594/PANGAEA.950509" # Multiple metadata columns
 pg_dl_proc <- function(pg_doi){
   
   # Get data
