@@ -66,7 +66,8 @@ write_csv_arrow(lebrun_weekly, "users/lebrun/lebrun_weekly.csv")
 
 # For Steeve on Feb 2, 2024
 ## Temperature data at specific points around Tromso
-load("~/pCloudDrive/FACE-IT_data/tromso/sst_trom.RData")
+load("data/sst_trom.RData")
+load("data/sst_CCI_trom.RData") # NB: Only to 2020-12-31
 
 sst_trom |> 
   filter(t == "2022-07-01") |> 
