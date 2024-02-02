@@ -529,13 +529,22 @@ pg_dl_prep <- function(pg_dl){
           # the first event from the first vector.
           # Then somehow process the text into a dataframe with column names and values.
           # This can then be left_join() by event name
-          # if(is.character(pg_dl$metadata$events)){
-          #   event_ID <- unique(pg_dl$data$Event)
-            # event_meta <- str_split(pg_dl$metadata$events, event_ID)
-          # }
+          if(is.character(pg_dl$metadata$events)){
+            if("Event" %in% pg_abb(colnames(pg_dl$data))){
+              event_ID <- unique(pg_dl$data$Event)
+              event_col <- data.frame(str_split(pg_dl$metadata$events, "\\*")) |> 
+                `colnames<-`("val") |> separate(val, into = c("meta", "value"), sep = ": ")
+              event_meta <- data.frame(str_split(pg_dl$metadata$events, paste(event_ID, collapse = "|")), stringsAsFactors = FALSE)
+              event_meta2 <- data.frame(str_split(pg_dl$metadata$events, "; ")) |> `colnames<-`("val")
+              event_meta3 <- data.frame(str_split_fixed(event_meta2$val, " \\* ", 2)) |> `colnames<-`(c("Event", "meta")) |> 
+                # NB: Remove notes from Event title. Not sure that this won't cause merging issues later...
+                mutate(Event = pg_abb(Event))
+              event_meta2[2,]
+            }
+          }
         }
       }
-      
+      pg_meta_extract <- function()
       # Get names of desired columns
       # NB: It is necessary to allow partial matches via grepl() because column names
       # may have notes about the data attached to them, preventing exact matches
