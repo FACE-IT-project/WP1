@@ -64,3 +64,22 @@ lebrun_weekly <- lebrun_base %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 write_csv_arrow(lebrun_weekly, "users/lebrun/lebrun_weekly.csv")
 
+# For Steeve on Feb 2, 2024
+## Temperature data at specific points around Tromso
+load("~/pCloudDrive/FACE-IT_data/tromso/sst_trom.RData")
+
+sst_trom |> 
+  filter(t == "2022-07-01") |> 
+  ggplot(aes(x = lon, y = lat)) +
+  geom_raster(aes(fill = temp)) +
+  scale_fill_viridis_c()
+
+trom_data <- data.table::fread("~/pCloudDrive/FACE-IT_data/tromso/pg_trom.csv")
+colnames(trom_data)
+# Get meta columns
+# Get °C columns
+# Pivot longer and remove NA
+# Extract by date and lon/lat
+# Clean up date and depth values
+# trom_temp <- filter(trom_data, grepl("temp", trom_data))
+
