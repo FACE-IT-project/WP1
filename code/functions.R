@@ -502,9 +502,11 @@ pg_dl_prep <- function(pg_dl){
     # I created an issue on the GitHub page with no response...
     if(length(unique(colnames(pg_dl$data))) == length(colnames(pg_dl$data))){
       
-      # Datasets published before ~2017 may have lon/lat and Date/Time in the metadata list and not the data
+      # Check for metadata stored in an accompanying event list structure
       if("metadata" %in% names(pg_dl)){
         if("events" %in% names(pg_dl$metadata)){
+          
+          # If they are available as adata.frame
           if(is.list(pg_dl$metadata$events)){
             pg_meta <- as_tibble(pg_dl$metadata$events)
             if(!"Longitude" %in% pg_abb(colnames(pg_dl$data))){
@@ -523,12 +525,8 @@ pg_dl_prep <- function(pg_dl){
               }
             }
           }
-          # NB: Still working on this...
-          # Need to figure out how to extract lon/lat etc from character vector by event.
-          # Perhaps a for loop that cycles through the second:last events and then removes
-          # the first event from the first vector.
-          # Then somehow process the text into a dataframe with column names and values.
-          # This can then be left_join() by event name
+          
+          # If they are available as a vector
           if(is.character(pg_dl$metadata$events)){
             if("Event" %in% pg_abb(colnames(pg_dl$data))){
               event_ID <- unique(pg_dl$data$Event)
@@ -539,12 +537,37 @@ pg_dl_prep <- function(pg_dl){
               event_meta3 <- data.frame(str_split_fixed(event_meta2$val, " \\* ", 2)) |> `colnames<-`(c("Event", "meta")) |> 
                 # NB: Remove notes from Event title. Not sure that this won't cause merging issues later...
                 mutate(Event = pg_abb(Event))
-              event_meta2[2,]
+              event_meta4 <- str_split(event_meta2$val, " \\* ")
+              
+              event_list <- str_split(data.frame(str_split(pg_dl$metadata$events, "; ")), " \\* ")
+              
+              event_df <- plyr::ldply(event_meta4, pg_meta_extract, .parallel = FALSE)
             }
           }
         }
       }
-      pg_meta_extract <- function()
+      pg_meta_extract <- function(pg_item){
+        
+        # Get the pieces of interest
+        meta_event <- pg_abb(pg_item[1])
+        meta_lon <- gsub("LONGITUDE: ", "", pg_item[grepl("LONGITUDE", pg_item, ignore.case = TRUE)])
+        meta_lat <- gsub("LATITUDE: ", "", pg_item[grepl("LATITUDE", pg_item, ignore.case = TRUE)])
+        meta_date <- gsub("DATE/TIME: ", "", pg_item[grepl("DATE/TIME", pg_item, ignore.case = TRUE)])
+        meta_depth <- gsub("DEPTH: ", "", pg_item[grepl("DEPTH", pg_item, ignore.case = TRUE)])
+        
+        # Check for missing values
+        if(length(meta_event) == 0) meta_event <- NA
+        if(length(meta_lon) == 0) meta_lon <- NA
+        if(length(meta_lat) == 0) meta_lat <- NA
+        if(length(meta_date) == 0) meta_date <- NA
+        if(length(meta_depth) == 0) meta_depth <- NA
+        
+        # NB: Tibble allows for 'DATE/TIME' column name
+        meta_res <- tibble(Event = meta_event, LONGITUDE = meta_lon, LATITUDE = meta_lat,
+                           `DATE/TIME` = meta_date, DEPTH = meta_depth)
+        return(meta_res)
+      }
+        
       # Get names of desired columns
       # NB: It is necessary to allow partial matches via grepl() because column names
       # may have notes about the data attached to them, preventing exact matches
