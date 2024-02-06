@@ -17,7 +17,9 @@ coastline_full_df_kong <- coastline_full_df %>%
 
 # Extract -----------------------------------------------------------------
 
-# For Anäis on Jan 3, 2023
+## Anäis ------------------------------------------------------------------
+
+# Jan 3, 2023
 ## Kongsfjorden
 ### T°, PAR, Salinity, Chla, pH
 #### depth: surface data would already be good but, if possible, data at 7/8m depth would be awesome. 
@@ -64,23 +66,54 @@ lebrun_weekly <- lebrun_base %>%
   summarise(value = mean(value, na.rm = T), .groups = "drop")
 write_csv_arrow(lebrun_weekly, "users/lebrun/lebrun_weekly.csv")
 
-# For Steeve on Feb 2, 2024
-## Temperature data at specific points around Tromso
-load("data/sst_trom.RData")
-load("data/sst_CCI_trom.RData") # NB: Only to 2020-12-31
 
+## Steeve -----------------------------------------------------------------
+
+# Feb 2, 2024
+## Temperature data at specific points around Tromso
+coords_steeve <- data.frame(lon = c(19.11, 18.9, 17.96),
+                            lat = c(69.45, 69.85, 69.60))
+
+# Load NOAA OISST
+load("data/sst_trom.RData")
+
+# Load CCI data
+# load("data/sst_CCI_trom.RData") # NB: Only to 2020-12-31
+
+# Visualise satellite product
 sst_trom |> 
   filter(t == "2022-07-01") |> 
   ggplot(aes(x = lon, y = lat)) +
   geom_raster(aes(fill = temp)) +
   scale_fill_viridis_c()
 
+# Get NOAA grid
+sst_grid <- dplyr::select(sst_trom, lon, lat) |> distinct()
+
+# Extract nearest SST pixels
+sst_coords <- grid_match(coords_steeve, sst_grid) |> 
+  dplyr::rename(lon_site = lon.x, lat_site = lat.x, lon_sst = lon.y, lat_sst = lat.y)
+write_csv(sst_coords, "data/analyses/sst_coords.csv")
+sst_steeve <- right_join(sst_trom, sst_coords, by = c("lon" = "lon_sst", "lat" = "lat_sst"))
+write_csv(sst_steeve, "data/analyses/sst_steeve.csv")
+
+# Plot pixels
+ggplot(data = sst_steeve) +
+  geom_point(aes(x = lon, y = lat), shape = 1) +
+  geom_point(aes(x = lon_sst, y = lat_sst), shape = 0) +
+  borders() +
+  coord_quickmap(xlim = bbox_trom[1:2], ylim = bbox_trom[3:4])
+
+# Load in situ data scraped from PANGAEA
 trom_data <- data.table::fread("~/pCloudDrive/FACE-IT_data/tromso/pg_trom.csv")
 colnames(trom_data)
 # Get meta columns
 # Get °C columns
-# Pivot longer and remove NA
-# Extract by date and lon/lat
-# Clean up date and depth values
-# trom_temp <- filter(trom_data, grepl("temp", trom_data))
+trom_temp <- trom_data |> 
+  dplyr::select(date_accessed:`Press [dbar]`, `Elevation [m a.s.l.]`, `Date/time start`, `Date/time end`,
+                ends_with("[°C]")) |> 
+  janitor::remove_empty(which = c("rows", "cols"))
+rm(trom_data); gc()
+colnames(trom_temp)
+data.table::fwrite(trom_temp, "~/pCloudDrive/")
 
