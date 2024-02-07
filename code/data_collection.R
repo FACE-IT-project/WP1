@@ -189,8 +189,9 @@ pg_doi_dl <- filter(pg_doi_list, !doi %in% pg_downloaded)
 # Keep it going in small chunks
 # NB: pg_dl_save() is currently set to download only 20 files per call
 while(nrow(pg_doi_dl) > 0){
+  
   # Load to get DOI for already downloaded data
-  pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |> 
+  pg_doi_files <- map_dfr(dir("metadata", all.files = T, full.names = T, pattern = "_doi.csv"), read_csv_arrow) |>
     mutate(doi = str_remove(URL, "https://doi.org/"))
   pg_downloaded <- unique(c(pg_doi_files$doi, pg_doi_files$parent_doi))
   

@@ -485,22 +485,22 @@ pg_meta_extract <- function(pg_item){
   # Get the pieces of interest
   # NB: Remove notes from Event title. Not sure that this won't cause merging issues later...
   meta_event <- pg_abb(pg_item[1])
-  meta_lon <- gsub("LONGITUDE: ", "", pg_item[grepl("LONGITUDE", pg_item, ignore.case = TRUE)])
-  meta_lat <- gsub("LATITUDE: ", "", pg_item[grepl("LATITUDE", pg_item, ignore.case = TRUE)])
-  meta_date <- gsub("DATE/TIME: ", "", pg_item[grepl("DATE/TIME", pg_item, ignore.case = TRUE)])
-  meta_depth <- gsub("DEPTH: ", "", pg_item[grepl("DEPTH", pg_item, ignore.case = TRUE)])
+  meta_lon <- pg_item[grepl("LONGITUDE", pg_item, ignore.case = TRUE)][1]
+  meta_lat <- pg_item[grepl("LATITUDE", pg_item, ignore.case = TRUE)][1]
+  meta_date <- pg_item[grepl("DATE/TIME", pg_item, ignore.case = TRUE)][1]
+  meta_depth <- pg_item[grepl("DEPTH", pg_item, ignore.case = TRUE)][1]
   
   # Check for missing values
-  if(length(meta_event) == 0) meta_event <- NA
-  if(length(meta_lon) == 0) meta_lon <- NA
-  if(length(meta_lat) == 0) meta_lat <- NA
-  if(length(meta_date) == 0) meta_date <- NA
-  if(length(meta_depth) == 0) meta_depth <- NA
+  if(!is.na(meta_lon) & grepl(": ", meta_lon)) meta_lon <- sapply(strsplit(meta_lon, ": "), "[[", 2)
+  if(!is.na(meta_lat) & grepl(": ", meta_lat)) meta_lat <- sapply(strsplit(meta_lat, ": "), "[[", 2)
+  if(!is.na(meta_date) & grepl(": ", meta_date)) meta_date <- sapply(strsplit(meta_date, ": "), "[[", 2)
+  if(!is.na(meta_depth) & grepl(": ", meta_depth)) meta_depth <- sapply(strsplit(meta_depth, ": "), "[[", 2)
   
   # NB: Tibble allows for 'DATE/TIME' column name
   meta_res <- tibble(Event = meta_event, LONGITUDE = meta_lon, LATITUDE = meta_lat,
                      `DATE/TIME` = meta_date, DEPTH = meta_depth)
   return(meta_res)
+  # rm(pg_item, meta_event, meta_lon, meta_lat, meta_date, meta_depth); gc()
 }
 
 # Function for extracting info from PANGAEA data
@@ -552,11 +552,13 @@ pg_dl_prep <- function(pg_dl){
           # If they are available as a vector
           if(is.character(pg_dl$metadata$events)){
             if("Event" %in% pg_abb(colnames(pg_dl$data))){
+              event_col <- colnames(pg_dl$data)[pg_abb(colnames(pg_dl$data)) == "Event"]
               event_meta <- data.frame(str_split(pg_dl$metadata$events, "; ")) |> `colnames<-`("val")
               event_list <- str_split(event_meta$val, " \\* ")
               event_df <- plyr::ldply(event_list, pg_meta_extract, .parallel = FALSE)
+              colnames(pg_dl$data)[colnames(pg_dl$data) == event_col] <- "Event"
               # NB: These joins cause issues
-              pg_dl$data <- dplyr::left_join(pg_dl$data, event_df, by = "Event", relationship = "many-to-many")
+              pg_dl$data <- dplyr::left_join(pg_dl$data, event_df, relationship = "many-to-many", by = "Event")
             }
           }
         }
@@ -578,135 +580,153 @@ pg_dl_prep <- function(pg_dl){
       
       # Determine if there are too many columns
       # NB: This intentionally does not account for metadata columns or species columns because they will be melted
-      if(length(col_base) <= 20){
-        
-        # Set the preferred metadata column abbreviation hierarchy
-        col_lon_order <- unique(c("Longitude", "LONGITUDE", "lon", query_meta$Abbreviation[query_meta$driver == "lon"]))
-        col_lat_order <- unique(c("Latitude", "LATITUDE", "lat", query_meta$Abbreviation[query_meta$driver == "lat"]))
-        col_date_order <- unique(c("Date/Time", "DATE/TIME", "Date", "date", "Date/time start", "Date/time end", "Sampling date",
-                                   query_meta$Abbreviation[query_meta$driver == "date"]))
-        col_depth_order <- unique(c("Depth water", "Depth", "depth", "Press", "Depth top", 
-                                    "Elevation", "Elev", "Surf elev", "DEPTH", query_meta$Abbreviation[query_meta$driver == "depth"]))
-        
-        # Determine single choice metadata column for: lon, lat, date, depth
-        col_lon_choice <- col_lon[grepl(col_lon_order[col_lon_order %in% pg_abb(col_lon)][1], col_lon)]
-        col_lat_choice <- col_lat[grepl(col_lat_order[col_lat_order %in% pg_abb(col_lat)][1], col_lat)]
-        col_date_choice <- col_date[grepl(col_date_order[col_date_order %in% pg_abb(col_date)][1], col_date)]
-        col_depth_choice <- col_depth[grepl(col_depth_order[col_depth_order %in% pg_abb(col_depth)][1], col_depth)]
-        
-        # Can't use [1] above because we need empty character vectors for the ext step
-        if(length(col_lon_choice) > 1) col_lon_choice <- col_lon_choice[1]
-        if(length(col_lat_choice) > 1) col_lat_choice <- col_lat_choice[1]
-        if(length(col_date_choice) > 1) col_date_choice <- col_date_choice[1]
-        if(length(col_depth_choice) > 1) col_depth_choice <- col_depth_choice[1]
-        
-        # Bind together for use below
-        col_meta_choice <- c(col_lon_choice, col_lat_choice, col_date_choice, col_depth_choice)
-        
-        # Process metadata columns
-        dl_proc <- pg_dl$data |>
-          rename(lon := !!col_lon_choice, lat := !!col_lat_choice,
-                 date := !!col_date_choice, depth := !!col_depth_choice)
-        col_meta_fin <- c("lon", "lat", "date", "depth")[c("lon", "lat", "date", "depth") %in% colnames(dl_proc)]
-        
-        # Correct date column
-        if("date" %in% col_meta_fin){
-          dl_proc <- dl_proc |> 
-            mutate(date = case_when(nchar(date) == 9 & pg_abb(col_date_choice) == "Sampling date" ~ sapply(str_split(date, "-"), "[[", 1),
-                                    TRUE ~ date),
-                   date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
-                                    nchar(date) == 7 ~ paste0(date,"-01"),
-                                    TRUE ~ date),
-                   date = ifelse(date == "", NA, date)) |>
-            mutate(date = as.Date(gsub("T.*", "", date)))
-        }
-        
-        # Correct depth column
-        if("depth" %in% col_meta_fin){
-          # NB: Choice is made here to round to even 1 metre units
-          dl_proc$depth <- round(as.numeric(dl_proc$depth))
-          if(pg_abb(col_depth_choice) == "Press"){
-            if(length(col_lat_choice) == 1){
-              dl_proc$depth <- seacarb::p2d(dl_proc$depth, lat = dl_proc$lat)
-            } else {
-              dl_proc$depth <- seacarb::p2d(dl_proc$depth, lat = 70)
-            }
-          }
-          if(pg_abb(col_depth_choice) %in% c("Elevation", "Elev", "Surf elev")) dl_proc$depth <- -dl_proc$depth
-        }
-        
-        # Filter spatially if possible
-        if(all(c("lon", "lat") %in% col_meta_fin)){
-          if(!is.numeric(dl_proc$lon)) dl_proc$lon <- as.numeric(dl_proc$lon)
-          if(!is.numeric(dl_proc$lat)) dl_proc$lat <- as.numeric(dl_proc$lat)
-          dl_proc$lon <- ifelse(dl_proc$lon > 180, dl_proc$lon - 360, dl_proc$lon)
-          dl_no_coords <- filter(dl_proc, is.na(lon) | is.na(lat))
-          dl_coords <- plyr::ddply(bbox_ALL_df, c("region"), filter_bbox, df = dl_proc, .parallel = TRUE) |> 
-            dplyr::select(-region)
-          dl_spatial <- bind_rows(dl_no_coords, dl_coords) 
-        } else {
-          dl_spatial <- dl_proc
-        }
-        
-        # Skip these steps if all of the data were filtered out
-        if(nrow(dl_spatial) > 0){
+      if(any(length(col_base) > 0 | length(col_spp) > 0)){
+        if(length(col_base) <= 20){
           
-          # Get data for desired drivers, excluding species due to the width of these data
-          dl_driver <- tibble()
-          if(length(col_base) > 0){
-            suppressWarnings(
-              dl_driver <- dl_spatial |> 
-                dplyr::select(dplyr::all_of(c(col_meta_fin, col_base))) |> 
-                # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
-                # NB: This forcibly removes non-numeric values
-                dplyr::mutate_at(col_base, as.numeric) |>
-                janitor::remove_empty(which = c("rows", "cols")) #|> 
+          # Set the preferred metadata column abbreviation hierarchy
+          col_lon_order <- unique(c("Longitude", "LONGITUDE", "lon", query_meta$Abbreviation[query_meta$driver == "lon"]))
+          col_lat_order <- unique(c("Latitude", "LATITUDE", "lat", query_meta$Abbreviation[query_meta$driver == "lat"]))
+          col_date_order <- unique(c("Date/Time", "DATE/TIME", "Date", "date", "Date/time start", "Date/time end", "Sampling date",
+                                     query_meta$Abbreviation[query_meta$driver == "date"]))
+          col_depth_order <- unique(c("Depth water", "Depth", "depth", "Press", "Depth top", 
+                                      "Elevation", "Elev", "Surf elev", "DEPTH", query_meta$Abbreviation[query_meta$driver == "depth"]))
+          
+          # Determine single choice metadata column for: lon, lat, date, depth
+          col_lon_choice <- col_lon[grepl(col_lon_order[col_lon_order %in% pg_abb(col_lon)][1], col_lon)]
+          col_lat_choice <- col_lat[grepl(col_lat_order[col_lat_order %in% pg_abb(col_lat)][1], col_lat)]
+          col_date_choice <- col_date[grepl(col_date_order[col_date_order %in% pg_abb(col_date)][1], col_date)]
+          col_depth_choice <- col_depth[grepl(col_depth_order[col_depth_order %in% pg_abb(col_depth)][1], col_depth)]
+          
+          # Can't use [1] above because we need empty character vectors for the ext step
+          if(length(col_lon_choice) > 1) col_lon_choice <- col_lon_choice[1]
+          if(length(col_lat_choice) > 1) col_lat_choice <- col_lat_choice[1]
+          if(length(col_date_choice) > 1) col_date_choice <- col_date_choice[1]
+          if(length(col_depth_choice) > 1) col_depth_choice <- col_depth_choice[1]
+          
+          # Bind together for use below
+          col_meta_choice <- c(col_lon_choice, col_lat_choice, col_date_choice, col_depth_choice)
+          
+          # Process metadata columns
+          dl_proc <- pg_dl$data |>
+            rename(lon := !!col_lon_choice, lat := !!col_lat_choice,
+                   date := !!col_date_choice, depth := !!col_depth_choice) |> 
+            janitor::remove_empty(which = c("rows", "cols")) 
+          col_meta_proc <- c("lon", "lat", "date", "depth")[c("lon", "lat", "date", "depth") %in% colnames(dl_proc)]
+          
+          # Correct date column
+          if("date" %in% col_meta_proc){
+            # NB: The order of these treatments is important
+            dl_proc <- dl_proc |> 
+              mutate(date = as.character(date)) |> 
+              mutate(date = case_when(nchar(date) == 9 & pg_abb(col_date_choice) == "Sampling date" ~ sapply(str_split(date, "-"), "[[", 1),
+                                      TRUE ~ date)) |> 
+              # NB: This causes more issues than it solves
+              # mutate(date = case_when(nchar(date) == 12 & pg_abb(col_date_choice) == "Sampling date" ~ sapply(str_split(date, "-"), "[[", 2),
+              #                         TRUE ~ date)) |> 
+              mutate(date = case_when(nchar(date) == 8 & pg_abb(col_date_choice) == "Sampling date" ~ paste0("01-",date),
+                                      TRUE ~ date),
+                     date = case_when(nchar(date) == 4 ~ paste0(date,"-01-01"),
+                                      nchar(date) == 7 ~ paste0(date,"-01"),
+                                      TRUE ~ date),
+                     date = ifelse(date == "", NA, date),
+                     date = gsub("T.*", "", date)) |>
+              mutate(date = anytime::anydate(date))
+          }
+          
+          # Correct depth column
+          if("depth" %in% col_meta_proc){
+            # NB: Choice is made here to round to even 1 metre units
+            dl_proc$depth <- round(as.numeric(dl_proc$depth))
+            if(pg_abb(col_depth_choice) == "Press"){
+              if(length(col_lat_choice) == 1){
+                dl_proc$depth <- seacarb::p2d(dl_proc$depth, lat = dl_proc$lat)
+              } else {
+                dl_proc$depth <- seacarb::p2d(dl_proc$depth, lat = 70)
+              }
+            }
+            if(pg_abb(col_depth_choice) %in% c("Elevation", "Elev", "Surf elev")) dl_proc$depth <- -dl_proc$depth
+          }
+          
+          # Filter spatially if possible
+          if(all(c("lon", "lat") %in% col_meta_proc)){
+            if(!is.numeric(dl_proc$lon)) dl_proc$lon <- as.numeric(dl_proc$lon)
+            if(!is.numeric(dl_proc$lat)) dl_proc$lat <- as.numeric(dl_proc$lat)
+            dl_proc$lon <- ifelse(dl_proc$lon > 180, dl_proc$lon - 360, dl_proc$lon)
+            dl_no_coords <- filter(dl_proc, is.na(lon) | is.na(lat))
+            dl_coords <- plyr::ddply(bbox_ALL_df, c("region"), filter_bbox, df = dl_proc, .parallel = TRUE) |> 
+              dplyr::select(-region)
+            dl_spatial <- bind_rows(dl_no_coords, dl_coords) 
+          } else {
+            dl_spatial <- dl_proc
+          }
+          
+          # Skip these steps if all of the data were filtered out
+          if(nrow(dl_spatial) > 0){
+            
+            # Get data for desired drivers, excluding species due to the width of these data
+            dl_driver <- tibble()
+            if(length(col_base) > 0){
+              suppressWarnings(
+                dl_driver <- dl_spatial |> 
+                  dplyr::select(dplyr::all_of(c(col_meta_proc, col_base))) |> 
+                  # mutate_all(~na_if(., '')) %>% # This will throw errors from unknown column types
+                  # NB: This forcibly removes non-numeric values
+                  dplyr::mutate_at(col_base, as.numeric) |>
+                  janitor::remove_empty(which = c("rows", "cols")) #|> 
                 # NB: Don't pivot long here as it makes the file size much larger
                 # pivot_longer(cols = -col_meta, names_to = "name", values_to = "value") |> filter(!is.na(value))
               )
-            
-            # Average by meta columns
-            if(length(col_meta_fin) > 0){
-              dl_driver <- dl_driver |> 
-                reframe(across(everything(), mean), .by = all_of(col_meta_fin))
+              # NB: It is possible that metadata columns can be emptied in the above step
+              col_meta_driver <- c("lon", "lat", "date", "depth")[c("lon", "lat", "date", "depth") %in% colnames(dl_driver)]
+              
+              # Average by meta columns
+              if(length(col_meta_driver) > 0){
+                dl_driver <- dl_driver |> 
+                  reframe(across(everything(), mean), .by = all_of(col_meta_driver))
+              }
             }
-          }
-          
-          # Get species values directly as a melted data.frame
-          # NB: These data are forced to numeric during pg_var_melt()
-          # But they are kept as character values here in order to allow
-          # For potential investigation into the raw data
-          dl_spp <- tibble()
-          if(length(col_spp) > 0){
-            dl_spp <- pg_dl$data |> 
-              dplyr::select(dplyr::all_of(c(col_meta_fin, col_spp))) |> 
-              janitor::remove_empty(which = c("rows", "cols")) |> 
-              # NB: Force everything to characters and sort it out in detail later
-              dplyr::mutate_at(col_spp, as.character) |> 
-              pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value")# |>
+            
+            # Get species values directly as a melted data.frame
+            # NB: These data are forced to numeric during pg_var_melt()
+            # But they are kept as character values here in order to allow
+            # For potential investigation into the raw data
+            dl_spp <- tibble()
+            if(length(col_spp) > 0){
+              dl_spp <- dl_spatial |> 
+                dplyr::select(dplyr::all_of(c(col_meta_proc, col_spp))) |> 
+                # rename(lon := !!col_lon_choice, lat := !!col_lat_choice,
+                #        date := !!col_date_choice, depth := !!col_depth_choice) |> 
+                # NB: Force everything to characters and sort it out in detail later
+                dplyr::mutate_at(col_spp, as.character) |> 
+                pivot_longer(cols = col_spp, names_to = "spp_name", values_to = "spp_value") |>
+                janitor::remove_empty(which = c("rows", "cols")) #|> 
               # NB: Intentionally not filtering NA as species presence might not have a value
               # filter(!is.na(value))
+            }
+            
+            # Create vector of removed columns
+            cols_removed <- paste(colnames(pg_dl$data)[!(colnames(pg_dl$data) %in% 
+                                                           c(col_meta_choice, colnames(dl_driver), col_spp))], collapse = "; ")
+            
+            # Combine
+            dl_single <- bind_rows(dl_driver, dl_spp) |> 
+              mutate(date_accessed = as.Date(Sys.Date()),
+                     Error = "None",
+                     meta_cols = paste(col_meta_choice, collapse = "; "),
+                     removed_cols = cols_removed,
+                     parent_doi = pg_dl$parent_doi,
+                     URL = pg_dl$url,
+                     citation = pg_dl$citation, 
+                     .before = 1)
+            
+          } else {
+            dl_error <- "Spatial data not in any site bbox"
           }
-          
-          # Create vector of removed columns
-          cols_removed <- paste(colnames(pg_dl$data)[!(colnames(pg_dl$data) %in% c(col_meta_choice, colnames(dl_driver), col_spp))], collapse = "; ")
-          
-          # Combine
-          dl_single <- bind_rows(dl_driver, dl_spp) |> 
-            mutate(date_accessed = as.Date(Sys.Date()),
-                   Error = "None",
-                   meta_cols = paste(col_meta_choice, collapse = "; "),
-                   removed_cols = cols_removed,
-                   parent_doi = pg_dl$parent_doi,
-                   URL = pg_dl$url,
-                   citation = pg_dl$citation, 
-                   .before = 1)
-          
         } else {
-          dl_error <- "Spatial data not in any site bbox"
+          dl_error <- "More than 20 columns with data"
         }
       } else {
-        dl_error <- "More than 20 columns with data"
+        dl_error <- "No columns with data"
       }
     } else {
       dl_error <- "Multiple columns with same name"
@@ -715,18 +735,12 @@ pg_dl_prep <- function(pg_dl){
     dl_error <- "No data in DOI reference"
   }
   
-  # Determine if there are columns with desired data
-  if(dl_error == "None"){
-    if(all(colnames(dl_single) %in% c("date_accessed", "Error", "meta_cols", "removed_cols", 
-                                      "parent_doi", "URL", "citation", "lon", "lat", "date", "depth"))){
-      dl_error <- "No columns with drivers"
-    }
-  }
-  
   # Create error report if necessary
   if(dl_error != "None") 
     dl_single <- data.frame(date_accessed = as.Date(Sys.Date()),
                             Error = dl_error,
+                            meta_cols = NA,
+                            removed_cols = NA,
                             parent_doi = pg_dl$parent_doi,
                             URL = pg_dl$url,
                             citation = pg_dl$citation)
@@ -743,6 +757,17 @@ pg_dl_prep <- function(pg_dl){
 # pg_doi <- "10.1594/PANGAEA.733415"
 # pg_doi <- "10.1594/PANGAEA.912766" # Complex metadata event vector
 # pg_doi <- "10.1594/PANGAEA.950509" # Multiple metadata columns
+# pg_doi <- "10.1594/PANGAEA.943130" # Date issues on [[5]]
+# pg_doi <- "10.1594/PANGAEA.847003" # meta_cols problem
+# pg_doi <- "10.1594/PANGAEA.962728" # Looses meta columns [[1]]
+# pg_doi <- "10.1594/PANGAEA.805978" # Meta column issue
+# pg_doi <- "10.1594/PANGAEA.808151" # Date issue
+# pg_doi <- "10.1594/PANGAEA.962970" # Date issue
+# pg_doi <- "10.1594/PANGAEA.804596" # Subscript out of bounds
+# pg_doi <- "10.1594/PANGAEA.938244" # Event join issue [[20]]
+# pg_doi <- "10.1594/PANGAEA.547958" # Date character issue
+# pg_doi <- "10.1594/PANGAEA.834742" # Subscript issue
+# pg_doi <- "10.1594/PANGAEA.715971" # Funny column
 pg_dl_proc <- function(pg_doi){
   
   # Get data
@@ -757,6 +782,8 @@ pg_dl_proc <- function(pg_doi){
   } else {
     dl_df <- data.frame(date_accessed = as.Date(Sys.Date()),
                         Error = dl_error,
+                        meta_cols = NA,
+                        removed_cols = NA,
                         parent_doi = pg_doi,
                         URL = paste0("https://doi.org/",pg_doi),
                         citation = NA)
@@ -769,7 +796,7 @@ pg_dl_proc <- function(pg_doi){
 
 # Function for automagically downloading, processing, and saving PANGAEA data
 # testers...
-# doi_dl_list <- pg_doi_list[2675:2680,]; file_name <- doi_dl_list$file[1]
+# doi_dl_list <- pg_doi_dl[1:10,]; file_name <- doi_dl_list$file[1]
 pg_dl_save <- function(file_name, doi_dl_list){
   
   # Start message
@@ -785,10 +812,12 @@ pg_dl_save <- function(file_name, doi_dl_list){
   
   # Download data
   pg_res <- plyr::ldply(doi_dl$doi, pg_dl_proc, .parallel = F)
-  # TODO: test explicitly that removing this step doesn't cause issues
-  # pg_res_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_meta$pg_col_name]
-  # pg_res <- pg_res |> 
-  #   mutate(across(dplyr::all_of(pg_res_meta_columns), as.character))
+  # Catch rare Date format error caused by vctrs package duing merge below
+  if("date" %in% colnames(pg_res)) pg_res$date <- as.Date(as.character(pg_res$date))
+  # Force numeric metadata columns
+  if("lon" %in% colnames(pg_res)) pg_res$lon <- as.numeric(pg_res$lon)
+  if("lat" %in% colnames(pg_res)) pg_res$lat <- as.numeric(pg_res$lat)
+  if("depth" %in% colnames(pg_res)) pg_res$depth <- as.integer(round(as.numeric(pg_res$depth)))
   
   # Load existing metadata to join the new metadata to
   if(file.exists(paste0("metadata/",file_name,"_doi.csv"))){
@@ -812,11 +841,9 @@ pg_dl_save <- function(file_name, doi_dl_list){
   
   # Load and combine existing data
   if(file.exists(paste0("data/pg_data/",file_name,".csv"))){
-      pg_base <- data.table::fread(paste0("data/pg_data/",file_name,".csv"), nThread = 14); gc()
+      pg_base <- data.table::fread(paste0("data/pg_data/",file_name,".csv"), nThread = 14, stringsAsFactors = FALSE); gc()
+      pg_base$date <- as.Date(pg_base$date) # Change from data.table IDate default
       if("spp_value" %in% colnames(pg_base)) pg_base <- mutate(pg_base, spp_value = as.character(spp_value))
-      pg_base_meta_columns <- colnames(pg_base)[colnames(pg_base) %in% query_meta$pg_col_name]
-      # TODO: test explicitly that removing this step doesn't cause issues
-      # pg_base <- mutate(pg_base, across(dplyr::all_of(pg_base_meta_columns), as.character))
       pg_full <- distinct(bind_rows(pg_base, pg_slim))
   } else {
     pg_full <- pg_slim
@@ -835,7 +862,7 @@ pg_dl_save <- function(file_name, doi_dl_list){
   # NB: Intentionally only saving these files locally
   write_csv(pg_meta, paste0("metadata/",file_name,"_doi.csv"))
   data.table::fwrite(pg_full, paste0("data/pg_data/",file_name,".csv"))
-  rm(pg_res, pg_res_meta_columns, pg_base, pg_base_meta_columns, pg_full, pg_slim, pg_lookup, pg_meta_prep, pg_meta, file_folder); gc()
+  rm(pg_res, pg_base, pg_full, pg_slim, pg_lookup, pg_meta_prep, pg_meta, file_folder); gc()
   # rm(file_name, doi_dl_list, doi_dl)
 }
 
