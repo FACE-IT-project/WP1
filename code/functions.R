@@ -106,7 +106,7 @@ check_variable <- function(df){
     filter(variable %in% full_var_list$variable)
   if(nrow(df_res) < nrow(df_var)){
     cat("These variables could not be match and were removed: \n")
-    print(unique(df_var$variable)[!unique(df_var$variable) %in% unique(df_res$variable)])
+    print(unique(df_var$variable_new)[!unique(df_var$variable_new) %in% unique(df_res$variable)])
   } else {
     cat("No data removed due to variable names.\n")
   }

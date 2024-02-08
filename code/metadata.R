@@ -144,11 +144,15 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 ## Manually add variables -------------------------------------------------
 
 # full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("bio"),
-#                                   driver = c("prim prod"),
-#                                   variable = c("Chl a Prochlorococcus [µg/l]"))) |>
+#                        data.frame(category = c("chem"),
+#                                   driver = c("nutrients"),
+#                                   variable = c("PO4 [µmol l-1]", "NH4 [µmol l-1]", "NO2 [µmol l-1]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
+
+# Check that no obvious errors were committed
+# length(unique(full_var_list$category)) # Should be 5
+# length(unique(full_var_list$driver)) # Should be 14
 
 
 ## Add variables from object ----------------------------------------------
