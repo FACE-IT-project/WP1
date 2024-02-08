@@ -1184,8 +1184,8 @@ rm(list = grep("sval_",names(.GlobalEnv),value = TRUE)); gc()
 
 # Load pg kong files
 system.time(
-  pg_kong_sub <- plyr::ldply(pg_files, pg_site_filter, site_name = "kong")
-) # 72 seconds
+  pg_kong_clean <- plyr::ldply(pg_files, pg_site_filter, site_name = "kong")
+) # 7 seconds
 
 # Test problem files
 # pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
@@ -1258,13 +1258,15 @@ pg_kong_bio <- pg_var_melt(pg_kong_clean, query_bio)
 pg_kong_soc <- pg_var_melt(pg_kong_clean, query_soc) # 0 values
 
 # Stack them together
+# TODO: Sort out the WORMS species approach
 pg_kong_ALL <- check_data(rbind(pg_kong_cryo, pg_kong_phys, pg_kong_chem, pg_kong_bio, pg_kong_soc))
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
 
 # Check that all columns were used
+# NB: Variables get changed above to fit project satandard, so this no longer works as expected
 # TODO: PAR and some other variables are being missed here
-colnames(pg_kong_clean)[!gsub("\\] \\(.*", "\\]", colnames(pg_kong_clean)) %in% unique(pg_kong_ALL$variable)]
+# colnames(pg_kong_clean)[!str_trim(gsub("\\(.*", "", colnames(pg_kong_clean))) %in% unique(pg_kong_ALL$variable)]
 
 # Clean up
 rm(list = grep("pg_kong",names(.GlobalEnv),value = TRUE)); gc()

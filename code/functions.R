@@ -12,6 +12,7 @@ source("code/metadata.R")
 # Rename variables to a common project term
 # Tester...
 # df <- filter(full_ALL, category == "soc") |> dplyr::select(citation, category, driver, variable) |> distinct()
+# df <- pg_kong_bio
 check_variable <- function(df){
   if(!exists("full_var_list")) full_var_list <- read_csv("metadata/full_var_list.csv")
   df_var <- df |> 
@@ -80,11 +81,14 @@ check_variable <- function(df){
                                     variable == "trips [n/year]" ~ "trips [n year-1]",
                                     variable == "trips [n/month]" ~ "trips [n month-1]",
                                     TRUE ~ variable)) |> 
-    mutate(variable_new = gsub("\\/l", "l-1", variable_new),
-           variable_new = gsub("\\/kg", "kg-1", variable_new),
-           variable_new = gsub("\\/h", "h-1", variable_new),
-           variable_new = gsub("\\/d", "d-1", variable_new),
-           variable_new = gsub("ice_T", "ice temp T", variable_new))
+    # NB: This is a good idea, but causes issues
+    # Rather implement later in the process
+    # mutate(variable_new = gsub("\\/l", "l-1", variable_new),
+    #        variable_new = gsub("\\/kg", "kg-1", variable_new),
+    #        variable_new = gsub("\\/h", "h-1", variable_new),
+    #        variable_new = gsub("\\/d", "d-1", variable_new),
+    #        variable_new = gsub("ice_T", "ice temp T", variable_new))
+    mutate(variable_new = gsub("ice_T", "ice temp T", variable_new))
   
   # Report on changes
   df_no_var <- filter(df_var, variable == variable_new) |> 
@@ -94,12 +98,18 @@ check_variable <- function(df){
     cat("These variables were not able to be changed to fit the variable list, so they were removed: \n")
     print(df_no_var$variable)
   } else {
-    cat("All variables accounted for.\n")
+    cat("No variable names were corrected.\n")
   }
   
   # Replace variable column and exit
   df_res <- df_var |> mutate(variable = variable_new) |> dplyr::select(-variable_new) |> 
     filter(variable %in% full_var_list$variable)
+  if(nrow(df_res) < nrow(df_var)){
+    cat("These variables could not be match and were removed: \n")
+    print(unique(df_var$variable)[!unique(df_var$variable) %in% unique(df_res$variable)])
+  } else {
+    cat("No data removed due to variable names.\n")
+  }
   return(df_res)
   # rm(df, df_var, df_no_var, df_res); gc()
 }
@@ -208,6 +218,7 @@ check_site <- function(df){
 # Checks that a given dataset meets all of the project standards
 # Tester...
 # df <- filter(full_ALL, category == "soc")
+# df <- pg_kong_bio
 check_data <- function(df, assign_site = NULL){
   
   # Convert variable names to a project standard
@@ -917,8 +928,7 @@ pg_duplicates <- function(pg_doi_df, pg_size_df){
 pg_site_filter <- function(file_name, site_name){
   
   # Load data
-  pg_dat <- load_pg(file_name) |>
-    dplyr::rename(lon = Longitude, lat = Latitude)
+  pg_dat <- load_pg(file_name)
   file_site <- str_remove_all(file_name, "data/pg_data/pg_|.csv")
   bbox <- bbox_from_name(site_name)
   if(file_site == site_name){
@@ -938,35 +948,27 @@ pg_site_filter <- function(file_name, site_name){
   if(nrow(pg_res) == 0){
     return()
   } else {
-    pg_base_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% query_meta$pg_col_name]
-    pg_res <- mutate(pg_res, across(dplyr::all_of(pg_base_meta_columns), as.character))
+    pg_base_meta_columns <- colnames(pg_res)[colnames(pg_res) %in% c("lon", "lat", "date", "depth")]
     pg_res <- pg_res |> 
-      # mutate_if(is.character, ~na_if(., '')) |> # NB: Need to test that this works
-      janitor::remove_empty("cols") |> distinct()
-    # NB: Need to test that this works
-    # Finish up
-    # left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
-    #   dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
-    #   dplyr::rename(`Sal [PSU]` = `Sal ([PSU])`) |> 
-    #   # NB: This must be changed manually when new data are loaded
-    #   mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
-    #   janitor::remove_empty("cols") |> 
-    #   # NB: Site exists earlier to reflect data from different files for metadata joining
-    #   mutate(site = site_name)
+      janitor::remove_empty("cols") |> distinct() |> 
+      left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
+      mutate(site = site_name) |> 
+      dplyr::select(date_accessed, URL, citation, all_of(pg_base_meta_columns), everything(),
+                    -meta_idx, -meta_cols, -removed_cols)
     return(pg_res)  
   }
   # rm(file_name, site_name, pg_res, bbox, file_site); gc()
 }
 
 # Function for melting columns related to a specific driver
-# pg_clean <- pg_disko_clean; query_sub <- query_cryo
+# pg_clean <- pg_kong_clean; query_sub <- query_bio
 pg_var_melt <- function(pg_clean, query_sub){
   
   # Get unique ID info
   query_ID <- query_sub |> dplyr::select(pg_col_name, driver, category) |> distinct()
   
   # Message of which columns were melted
-  cols_fix <- gsub("\\] \\(.*", "\\]", colnames(pg_clean))
+  cols_fix <- str_trim(gsub("\\(.*", "", colnames(pg_clean)))
   pg_fix <- pg_clean; colnames(pg_fix) <- cols_fix; rm(pg_clean); gc()
   sub_cols <- colnames(pg_fix)[colnames(pg_fix) %in% unique(query_ID$pg_col_name)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")]
@@ -985,13 +987,16 @@ pg_var_melt <- function(pg_clean, query_sub){
     # NB: At this point any non-numeric species values are lost
     # Need to think about how best to approach this
     # NB: May want to use query_species as a right filter
+    suppressWarnings(
     pg_melt_bio <- pg_fix |> 
       dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, spp_name, spp_value) |>
       dplyr::rename(variable = spp_name, value = spp_value) |> 
       mutate(value = as.numeric(value),
              driver = "biomass", category = "bio") |> 
       filter(!is.na(value)) |> distinct()
+    )
     pg_melt <- rbind(pg_melt, pg_melt_bio) |> distinct()
+    print(unique(pg_melt_bio$variable))
   }
   
   # Mean values and exit
@@ -1001,7 +1006,7 @@ pg_var_melt <- function(pg_clean, query_sub){
     group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, driver, variable) |> 
     summarise(value = mean(value, na.rm = T), .groups = "drop")
   return(pg_res)
-  # rm(pg_clean, query_sub, sub_cols, pg_melt, pg_res)
+  # rm(pg_clean, query_sub, sub_cols, pg_melt, pg_melt_bio, pg_res)
 }
 
 # Load a PG site file and apply the name
