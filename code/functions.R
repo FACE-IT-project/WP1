@@ -162,6 +162,10 @@ check_spp <- function(df, spp_type = "cat"){
   }
   
   # Quick check of taxonomy for a given dataset
+  # TODO: Rather first have this check against an existing local spreadsheet of species+classes
+  # Then give a note for those that can't be found
+  # Then search on WORMS and other databases, making notes for where is searched and what is found
+  # If nothing is found anywhere, assign '|?|'
   if(spp_type == "tax"){
     df_res <- plyr::ldply(df_not_PP$spp, wm_records_df, .parallel = T, res_type = "tax") |> distinct()
     return(df_res)
