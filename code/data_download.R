@@ -35,11 +35,11 @@ download.file("https://www.metoffice.gov.uk/hadobs/hadcrut5/data/HadCRUT.5.0.2.0
 # https://cran.r-project.org/web/packages/refdb/vignettes/ncbi_bold.html
 
 # Taxon of interest
-taxon_list <- c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Ulvophyceae", "Xantophyceae")
+taxon_list <- c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Ulvophyceae", "Xanthophyceae")
 
 # Get them all in one go
 # NB: The download is extremely slow...but don't run them in parallel
-bold1 <- refdb_import_BOLD("Florideophyceae", ncbi_taxo = FALSE)
+bold1 <- refdb_import_BOLD("Xanthophyceae", ncbi_taxo = FALSE)
 # NB: One of these BOLD taxa calls has an error in a column that prevents the internal rbind from working
 # Running all of these at once is too time consuming/error prone
 # Better to run and save each one individually
