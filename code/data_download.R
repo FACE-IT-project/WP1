@@ -95,6 +95,9 @@ bold_Arctic_unq <- bold_algae_Arctic |>
   dplyr::select(phylum_name, class_name, order_name, family_name, genus_name, species_name, lon, lat, country) |> 
   distinct()
 bold_high_Arctic_unq <- bold_Arctic_unq |> filter(lat >= 66)
+ncbi_Arctic_unq <- ncbi_algae_Arctic |> 
+  dplyr::select(phylum, class, order, family, genus, species, longitude, latitude, country_location) |> 
+  distinct()
 
 # Create map of records
 ggplot(bold_Arctic_unq, aes(x = lon, y = lat)) + 
@@ -106,3 +109,14 @@ ggplot(bold_Arctic_unq, aes(x = lon, y = lat)) +
   theme(legend.position = "bottom",
         panel.border = element_rect(fill = NA, colour = "black"))
 ggsave("~/pCloudDrive/FACE-IT_data/barcode/bold_Arctic_unq_map.png", height = 3, width = 7)
+
+ggplot(ncbi_Arctic_unq, aes(x = longitude, y = latitude)) + 
+  borders() +
+  geom_point(aes(colour = class), size = 5, alpha = 0.7,
+             position = position_dodge(width = 5.0)) +
+  coord_quickmap(ylim = c(59, 81), xlim = c(-172, 30)) +
+  labs(x = NULL, y = NULL) +
+  theme(legend.position = "bottom",
+        panel.border = element_rect(fill = NA, colour = "black"))
+ggsave("~/pCloudDrive/FACE-IT_data/barcode/ncbi_Arctic_unq_map.png", height = 3, width = 7)
+
