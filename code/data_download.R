@@ -48,16 +48,24 @@ ncbi1 <- refdb_import_NCBI(taxon_list[5], full = TRUE)
 bold_algae <- plyr::ldply(taxon_list, refdb_import_BOLD, .parallel = FALSE, ncbi_taxo = FALSE, full = TRUE)
 
 # The same goes for GenBank
-ncbi_algae <- plyr::ldply(taxon_list, refdb_import_NCBI, .parallel = FALSE, full = TRUE, seq_bin = 1000)
+# ncbi_algae <- plyr::ldply(taxon_list, refdb_import_NCBI, .parallel = FALSE, full = TRUE, seq_bin = 1000)
 ncbi_ban <- refdb_import_NCBI(taxon_list[1], full = TRUE, seq_bin = 2000)
-ncbi_flo <- refdb_import_NCBI(taxon_list[1], full = TRUE, seq_bin = 2000)
-ncbi_pha <- refdb_import_NCBI(taxon_list[1], full = TRUE, seq_bin = 2000)
-ncbi_ulv <- refdb_import_NCBI(taxon_list[1], full = TRUE, seq_bin = 2000)
-ncbi_xan <- refdb_import_NCBI(taxon_list[1], full = TRUE, seq_bin = 2000)
+ncbi_flo <- refdb_import_NCBI(taxon_list[2], full = TRUE, seq_bin = 2000)
+# ncbi_pha <- refdb_import_NCBI(taxon_list[3], full = TRUE, seq_bin = 2000) # Some sort of internal error via refdb
+ncbi_ulv <- refdb_import_NCBI(taxon_list[4], full = TRUE, seq_bin = 2000)
+ncbi_xan <- refdb_import_NCBI(taxon_list[5], full = TRUE, seq_bin = 2000)
+ncbi_algae <- rbind(ncbi_ban, ncbi_flo, ncbi_ulv, ncbi_xan)
 
 # Save
 write_csv(bold_algae, "~/pCloudDrive/FACE-IT_data/barcode/bold_algae.csv")
 write_csv(ncbi_algae, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_algae.csv")
+
+# Indicudal files
+write_csv(ncbi_ban, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ban.csv")
+write_csv(ncbi_flo, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_flo.csv")
+# write_csv(ncbi_pha, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pha.csv") #throws an error
+write_csv(ncbi_ulv, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ulv.csv")
+write_csv(ncbi_xan, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_xan.csv")
 
 # Or try a location
 bold_arctic <- refdb_import_BOLD(geo = "Arctic", ncbi_taxo = FALSE)
