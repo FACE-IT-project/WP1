@@ -117,3 +117,90 @@ rm(trom_data); gc()
 colnames(trom_temp)
 data.table::fwrite(trom_temp, "~/pCloudDrive/")
 
+
+## Chloe ------------------------------------------------------------------
+
+# Load+subset ERSST data
+# File locations
+ERSST_files <- dir("~/pCloudDrive/FACE-IT_data/ERSST", full.names = TRUE)
+
+# Function for loading and subsetting
+ERSST_region <- function(ERSST_file, date_range, lon_range, lat_range){
+  vec_file <- sapply(strsplit(ERSST_file, "/"), "[[", 7)
+  vec_date_char <- sapply(strsplit(vec_file, "\\."), "[[", 3)
+  vec_date <- as.Date(paste0(vec_date_char,"01"), format = "%Y%m%d")
+  if(vec_date %in% seq(date_range[1], date_range[2], by = "day")){
+    df_mean <- tidync(ERSST_file) |> 
+      hyper_filter(lon = between(lon, lon_range[1], lon_range[2]),
+                   lat = between(lat, lat_range[1], lat_range[2])) |> 
+      hyper_tibble() |> 
+      mutate(t = vec_date) |> 
+      # summarise(sst = mean(sst), 
+      # ssta = mean(ssta), # NB: Reactivate if SSTa is desired 
+      # .by = t)
+      dplyr::rename(temp = sst) |> 
+      dplyr::select(lon, lat, t, temp)
+    return(df_mean)
+  }
+  # rm(vec_file, vec_date_char, vec_date, df_mean)
+}
+
+# Load all data
+ERSST_global <- plyr::ldply(ERSST_files, ERSST_region, .parallel = T,
+                            date_range = c(as.Date("1993-01-01"), as.Date("2017-12-31")), 
+                            lon_range = c(0, 360), lat_range = c(-90, 90))
+
+# Correct lon to +-180 rather than 0-360
+# This is more convenient because part of the Med is West of 0°
+ERSST_global$lon <- ifelse(ERSST_global$lon > 180, ERSST_global$lon-360, ERSST_global$lon)
+
+# Test plot
+filter(ERSST_global, t == "1993-01-01") |> 
+  ggplot(aes(x = lon, y = lat)) +
+  geom_raster(aes(fill = temp)) +
+  borders() +
+  scale_fill_viridis_c() +
+  labs(x = NULL, y = NULL) +
+  coord_quickmap(xlim = c(range(ERSST_global$lon)), 
+                 ylim = c(range(ERSST_global$lat)), expand = FALSE) +
+  theme(legend.position = "bottom")
+
+# Filter for just the Med
+ERSST_med <- ERSST_global |> 
+  # The basic bbox
+  filter(lon >= -6, lon <= 36, lat >= 30, lat <= 46) |> 
+  # Remove the little Atlantic bit
+  filter(!(lat > 42 & lon < 0)) |> 
+  # Remove the Black Sea
+  filter(!(lat > 40 & lon > 26))
+
+# Test plot
+filter(ERSST_med, t == "1993-01-01") |> 
+  ggplot(aes(x = lon, y = lat)) +
+  geom_raster(aes(fill = temp)) +
+  borders() +
+  scale_fill_viridis_c() +
+  labs(x = NULL, y = NULL) +
+  coord_quickmap(xlim = c(-8, 38), ylim = c(28, 48), expand = FALSE) +
+  theme(legend.position = "bottom")
+
+# Global SST trend from 1997-2017
+ERSST_global_mean <- ERSST_global |> 
+  summarise(temp = mean(temp), .by = t)
+lm(temp ~ t, ERSST_global_mean)$coefficient[2]*365
+# annual rate = 0.014°C, or 0.14°C/decade
+
+# Plot
+ggplot(ERSST_global_mean, aes(x = t, y = temp)) +
+  geom_line() +
+  geom_smooth(method = "lm")
+
+# Med SST trend from 1997-2017
+ERSST_med_mean <- ERSST_med |> 
+  summarise(temp = mean(temp), .by = t)
+lm(temp ~ t, ERSST_med_mean)$coefficient[2]*365
+# annual rate = 0.053°C, or 0.53°C/decade
+
+ggplot(ERSST_med_mean, aes(x = t, y = temp)) +
+  geom_line() +
+  geom_smooth(method = "lm")

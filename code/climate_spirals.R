@@ -32,7 +32,7 @@ ERSST_NW_med <- plyr::ldply(ERSST_files, ERSST_region_mean, .parallel = T,
                             lon_range = c(0, 10), lat_range = c(40, 50))
 
 # Create monthly clim anomalies
-# NB: Rather using the defaule anomalies based on a 1971-2000 climatology
+# NB: Rather using the default anomalies based on a 1971-2000 climatology
 # ERSST_NW_med_anoms <- ERSST_NW_med |> 
 #   mutate(year = year(t),
 #          month = month(t)) |> 
