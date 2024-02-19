@@ -153,6 +153,7 @@ ERSST_global <- plyr::ldply(ERSST_files, ERSST_region, .parallel = T,
 # Correct lon to +-180 rather than 0-360
 # This is more convenient because part of the Med is West of 0°
 ERSST_global$lon <- ifelse(ERSST_global$lon > 180, ERSST_global$lon-360, ERSST_global$lon)
+write_csv(ERSST_global, "~/Desktop/ERSST_global.csv")
 
 # Test plot
 filter(ERSST_global, t == "1993-01-01") |> 
@@ -173,9 +174,10 @@ ERSST_med <- ERSST_global |>
   filter(!(lat > 42 & lon < 0)) |> 
   # Remove the Black Sea
   filter(!(lat > 40 & lon > 26))
+write_csv(ERSST_med, "~/Desktop/ERSST_med.csv")
 
 # Test plot
-filter(ERSST_med, t == "1993-01-01") |> 
+filter(ERSST_med, t == "1993-07-01") |> 
   ggplot(aes(x = lon, y = lat)) +
   geom_raster(aes(fill = temp)) +
   borders() +
