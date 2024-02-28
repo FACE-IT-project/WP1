@@ -114,6 +114,8 @@ pg_kong_name_1 <- pg_full_search(query = "kongsfjord") # 17 files
 pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") # 211 files
 pg_kong_name_3 <- pg_full_search(query = "ny alesund") # 1967 files
 pg_kong_name_4 <- pg_full_search(query = "ny-alesund") # 1967 files
+# TODO: Add these names to query list
+# Blomstrandbreen, Conwaybreen, Kongsbreen, Kronebreen, and Kongsvegen, including the ice fields Holtedahlfonna and Isachsenfonna
 pg_kong_all <- rbind(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4) |> 
   filter(!doi %in% c("10.1594/PANGAEA.909130")) |> # Wide file with no date values
   filter(!grepl("946961", citation)) |> # 3.7 million rows of second resolution air temperature
