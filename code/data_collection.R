@@ -7,14 +7,6 @@
 
 # Setup -------------------------------------------------------------------
 
-# TODO: Figure out how to combine lookup tables in order to get lon/lat/date values for cruise data
-# Be more strict about the removal of empty columns when they are an unknown format
-# Consider using powerjoin for some of the issues caused by the pangaeaR package
-# https://cran.r-project.org/web/packages/powerjoin/readme/README.html
-# Or some other cleaning methods:
-# https://appsilon.com/data-cleaning-in-r/
-# Consider only using 'child' data files to avoid repeat downloads
-
 # Libraries used in this script
 source("code/functions.R")
 source("code/key_drivers.R")

@@ -4,7 +4,6 @@
 # TODO: Add quarters labels (seasons) to the DOY panel in Detection.
 # Consider having both DOY detection panels next to each other, with and without trend
 # Perhaps using a sliding update window widget
-# Allow a user to upload a dataset
 
 
 # Setup -------------------------------------------------------------------

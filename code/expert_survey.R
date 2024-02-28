@@ -4,10 +4,6 @@
 # automagically compiling the reports
 
 
-# TODO: Create a report on which institutes/WPs contributed the most
-# I.e. a report on the report
-
-
 # Setup -------------------------------------------------------------------
 
 source("code/functions.R")

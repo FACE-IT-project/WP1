@@ -4615,6 +4615,12 @@ rm(list = grep("por_",names(.GlobalEnv),value = TRUE)); gc()
 
 # NB: Individual clean_*_all.csv are available at ~/WP1/data/full_data/
 
+# TODO: Look into very deep PAR data
+# TODO: Look into dichotomy of Q and ablation for disko vs young
+# TODO: Look into differences between PAR and Chla/Spp count for nuup vs young
+# TODO: Look into funny relationship between Open water [annual days] and temp [°C] in Young Sound
+# TODO: Massive negative relationship between temp and spp count at Young sound
+
 
 ## Site data ---------------------------------------------------------------
 # Re-load site data a necessary

@@ -68,17 +68,16 @@ if(!exists("query_meta")){
 if(!exists("query_cryo")){
   # Glacier mass balance and other measurements
   # NB: This needs to be run first
-  # TODO: Get the correct snow/ice values from below to be in here
-  query_glacier <- query_params("glacier", "glacier|glacial", "Foraminifera|glacialis")
+  query_glacier <- query_params("glacier", "glacier|glacial|Icebergs", "Foraminifera|glacialis")
   # Coastal ice; Fast ice; Sea ice; snow cover
-  # TODO: Be more critical about which variables get added here
   query_sea_ice <- query_params("sea ice", "ice|snow", 
                                 "abies|aegiceras|aminicenantes|avicenni|biosiliceous|bryozoa|calcite|cf[.]|Chvaleticeite|
                                 |cicendia|cicer|cichoriceae|cribricellina|Cricetidae|Cunoniceae|Cymatiosphaera|Daphne|Dehydroi|
                                 |device|Diatoms|Digalac|foraminifera|Galact|Griceite|Hepaticeae|lattice|laonice|leontice|
                                 |Lonicera|Macellice|methyl|Monticellite|Oedicerotidae|Ovicell|Paniceae|Picea|Pluricell|distance|
                                 |Pseudotrice|Pumice|price|quartz|Radicel|Sabicea|Scolecith|Siliceous|Stauroneis|statice|
-                                |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova") |> 
+                                |volcanic ash|Tetragonic|Timeslice|Tree-ring|Trifolium|Ultraviolet|Unicellular|Urticeae|Zelkova|
+                                |meiofauna|efficency|algae|Icebergs|Southern Ocean|Quality flag|Spectral irradiance") |> 
     filter(!Parameter %in% query_glacier$Parameter)
   # River discharge (river, discharge) including permafrost
   query_runoff <- query_params("runoff", "river|discharge|permafrost", "Diatoms|smoke|Dust|pixel|Riversideite", "#|±") |> 
@@ -100,7 +99,7 @@ if(!exists("query_phys")){
   query_salinity <- query_params("salinity", "salinity", 
                                  "Diatoms|Dinoflagellate|Radium|Snow|Treatment|Paleosalinity", "±")
   # Light extinction coefficient (kd, absorption); NB: "absorption" not used because of how wide those data are
-  query_light <- query_params("light", "photosynthetic|UV-B|extinction|turbidity|sedimentation|suspended", 
+  query_light <- query_params("light", "UV-B|extinction|turbidity|sedimentation|suspended", 
                               "aerosol|foraminifera|juvenile|bacteri|partial pressure|Aluminium|Backscattering|
                               |acid|Apparent|Dichloro", 
                               "#|‰ air|Ohm m")
@@ -147,8 +146,8 @@ if(!exists("query_chem")){
 if(!exists("query_bio")){
   # Primary production
   # Primary production; chlorophyll; Calcification; Nitrogen fixation; Photosynthesis; Respiration
-  query_prim_prod <- query_params("prim prod", "Primary production|chlorophyll|calcification|nitrogen fixation|
-                                  |Photosynthesis|community respiration", no_units = "±")
+  query_prim_prod <- query_params("prim prod", "photosynthetic|Primary production|chlorophyll|calcification|nitrogen fixation|
+                                  |Photosynthesis|community respiration|algae", no_units = "±")
   # Species: presence/absence, abundance/biomass
   query_species <- filter(pg_parameters, grepl(sp_abb_one, Abbreviation)) %>% 
     mutate(pg_col_name = case_when(!is.na(Unit) ~ paste0(Abbreviation," [",Unit,"]"),

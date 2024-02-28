@@ -209,8 +209,6 @@ rm(ice_4km_kong, ice_4km_is, ice_4km_stor, ice_4km_young, ice_4km_disko, ice_4km
 
 # OISST data --------------------------------------------------------------
 
-# TODO: Get data through 2023 once complete
-
 # NOAA OISST data per site
 if(!exists("sst_kong")) load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_kong.RData")
 if(!exists("sst_is")) load("~/pCloudDrive/FACE-IT_data/isfjorden/sst_is.RData")

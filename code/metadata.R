@@ -90,8 +90,8 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 #                           site_alt %in% c("Svalbard", "svalbard", "sval", "east ice", "west ice", "SvalbardTransit") ~ "sval",
 #                           site_alt %in% c("Norway", "Barents Sea", "Barents sea", "barents sea", "nor", "NorwegianWaters") ~ "nor",
 #                           site_alt %in% c("Grønlund", "green",
-#                                           # "West- Eastgreenland", "Westgreenland", # TODO: Look into these
-#                                           # "east ice", "west ice", # TODO: Look into these
+#                                           # "West- Eastgreenland", "Westgreenland",
+#                                           # "east ice", "west ice",
 #                                           "All Greenland") ~ "green",
 #                           site_alt %in% c("Kongsfjorden", "Ny-Alesund") ~ "kong",
 #                           site_alt %in% c("Longyearbyen & Ny-Alesund", "Longyearbyen & Ny-Alesund mainland",

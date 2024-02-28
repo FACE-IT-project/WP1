@@ -204,7 +204,6 @@ ggsave("docs/assets/model_trom.png", model_fig_trom, height = 8, width = 8)
 # Species analysis --------------------------------------------------------
 
 # Libraries
-# TODO: Verify order and necessity
 source("users/calin/code/formulas.R")
 library(vegan)
 library(codyn)
@@ -216,7 +215,6 @@ library(raster)
 library(ncdf4)
 library(rgdal)
 library(stringi)
-
 library(metafor)
 library(rgeos)
 library(RColorBrewer)

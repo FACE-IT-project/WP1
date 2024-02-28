@@ -424,7 +424,6 @@ refdb_import_BOLD_char <- function(taxon_id, ncbi_tax = FALSE){
 }
 
 # Download any number of desired files and save them locally
-# TODO: Add a check to see if URL exists
 file_URL_save <- function(file_name, base_URL, save_folder){
   
   # Set file info
@@ -2316,6 +2315,7 @@ save_data_one <- function(sub_levels, df){
   } else if(sub_split[4] == "clean") {
     # TODO: have this split the data into the main data and a metadata lookup table and save each
     # Or maybe not considering how small these files tend to be
+    # This may be interesting considering the size of the temp and sal files
     sub_df <- filter(df, category == sub_split[1], driver == sub_split[2], site == sub_split[3])
     file_path <- paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
                         sub_split[2],"_", sub_split[3],".csv")
@@ -2654,8 +2654,6 @@ data_trend_plot <- function(full_product, site_name){
   lims_sal <- filter(depth_trend_pixel, var_cat == "sal")
   
   # Plot temperature trends
-  # TODO: Remove the raw data points once you figure out what is funny with them
-  # TODO: Make all symbols and lines smaller
   plot_trend_temp <- depth_trend_pixel %>% 
     filter(var_cat == "temp") %>%
     ggplot(aes(x = year, y = value)) +
@@ -2707,7 +2705,6 @@ model_summary <- function(model_product, site_name){
            y <= max(model_product$lat, na.rm = T)+10)
   
   # Spatial temperature
-  ## TODO: Only show one map, no facets
   plot_map <- model_product %>% 
     filter(land == 1) %>% 
     group_by(proj, lon, lat, depth) %>% 
@@ -2719,7 +2716,7 @@ model_summary <- function(model_product, site_name){
     scale_colour_viridis_c() +
     coord_quickmap(xlim = range(model_product$lon),
                    ylim = range(model_product$lat)) +
-    facet_grid(proj ~ depth) +
+    # facet_grid(proj ~ depth) +
     labs(x = NULL, y = NULL, colour = "Temp. (°C)",
          title = "Average temperature per pixel")
   

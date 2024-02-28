@@ -156,12 +156,6 @@ driver_all_filter %>%
   facet_grid(depth~depth_y, scales = "free_x") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-# TODO: Look into very deep PAR data
-# TODO: Look into dichotomy of Q and ablation for disko vs young
-# TODO: Look into differences between PAR and Chla/Spp count for nuup vs young
-# TODO: Look into funny relationship between Open water [annual days] and temp [°C] in Young Sound
-# TODO: Massive negative relationship between temp and spp count at Young sound
-
 # Get monthly means by depth across entire site
 df_mean_month_depth <- clean_all_clean %>% 
   dplyr::select(type, site, driver, variable, date, depth, value) %>% 
@@ -433,7 +427,7 @@ fig_1_base <- ggplot(data = base_df, aes(x = x, y = y)) +
   scale_y_continuous(breaks = seq(-1, 1, by = 0.1)) +
   theme_void()
 
-# TODO: Updates to packages messed up this figure.
+# NB: Updates to packages messed up this figure so it no longer runs
 # Need to fix spacing and segment colours
 
 # Combine
