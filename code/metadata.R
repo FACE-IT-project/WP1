@@ -128,8 +128,19 @@ full_site_list <- read_csv("metadata/full_site_list.csv")
 # full_site_list <- rbind(full_site_list,
 #                        data.frame(site = "green",
 #                                   site_long = "Greenland",
-#                                   site_alt = c("Westgreenland", "Eastgreenland"))) |>
+#                                   site_alt = c("Westgreenland", "Eastgreenland", "West- Eastgreenland"))) |>
 #   distinct() |> arrange(site, site_long, site_alt)
+# write_csv(full_site_list, "metadata/full_site_list.csv")
+
+
+# Remove sites ------------------------------------------------------------
+
+# Manually remove sites
+# full_site_list <- full_site_list |> 
+#   mutate(site_alt = case_when(is.na(site_long) & 
+#                                 grepl("Westgreenland|Eastgreenland|West- Eastgreenland", site_alt) ~ as.character(NA),
+#                               TRUE ~ site_alt)) |> 
+#   filter(!is.na(site_alt))
 # write_csv(full_site_list, "metadata/full_site_list.csv")
 
 
@@ -159,16 +170,16 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
 # NB: Change as necessary
-part_var_list <- full_product_green |> dplyr::select(category, variable) |> distinct() |>
-  # mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich", TRUE ~ "biomass")) |>
-  # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>", TRUE ~ "biomass")) |>
-  # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>
-  # mutate(driver = "sea ice") |>
-  dplyr::select(category, driver, variable) |> 
-  complete.cases()
-full_var_list <- rbind(full_var_list, part_var_list) |>
-  distinct() |> arrange(category, driver, variable)
-write_csv(full_var_list, "metadata/full_var_list.csv")
+# part_var_list <- full_product_green |> dplyr::select(category, variable) |> distinct() |>
+#   filter(grepl("Cruise passengers|Quota|Trawlers", variable)) |>
+#   # mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich", TRUE ~ "biomass")) |>
+#   # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>
+#   mutate(driver = case_when(grepl("Cruise passengers", variable) ~ "tourism", TRUE ~ "fisheries")) |>
+#   # mutate(driver = "sea ice") |>
+#   dplyr::select(category, driver, variable)
+# full_var_list <- rbind(full_var_list, part_var_list) |>
+#   distinct() |> arrange(category, driver, variable)
+# write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Check for duplicates
 # summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)

@@ -228,6 +228,8 @@ check_site <- function(df){
 # df <- pg_kong_bio
 check_data <- function(df, assign_site = NULL){
   
+  # NB: This order must note be changed
+  
   # Convert variable names to a project standard
   df_var <- check_variable(df)
   
@@ -238,7 +240,7 @@ check_data <- function(df, assign_site = NULL){
   df_spp <- check_spp(df_driv)
   
   # Confirm site names and note any issues
-  if(!is.null(assign_site)) df_driv$site <- assign_site
+  if(!is.null(assign_site)) df_spp$site <- assign_site
   df_site <- check_site(df_spp)
   
   # Finish and exit
@@ -246,6 +248,7 @@ check_data <- function(df, assign_site = NULL){
                           date_accessed, URL, citation, type, site, lon, lat, 
                           date, depth, category, driver, variable, value)
   return(df_res)
+  # rm(df, assign_site, df_var, df_driv, df_spp, df_site, df_res); gc()
 }
 
 # Convenience wrapper to query clean dataset for specific files/DOI etc

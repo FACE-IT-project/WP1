@@ -15,6 +15,7 @@ disko,Qeqertarsuup Tunua,disko
 green,Greenland,All Greenland
 green,Greenland,Eastgreenland
 green,Greenland,Grønlund
+green,Greenland,West- Eastgreenland
 green,Greenland,Westgreenland
 green,Greenland,green
 is,Isfjorden,Barentsburg and Pyramiden
@@ -201,7 +202,6 @@ NA,NA,Dragsund
 NA,NA,Drammen
 NA,NA,Drøbak
 NA,NA,Dyrnesvågen
-NA,NA,Eastgreenland
 NA,NA,Egersund
 NA,NA,Eggkleiva
 NA,NA,Eidbukta
@@ -1246,8 +1246,6 @@ NA,NA,Våk
 NA,NA,Våler
 NA,NA,Våre
 NA,NA,Værøy
-NA,NA,West- Eastgreenland
-NA,NA,Westgreenland
 NA,NA,Ydstebøhamn
 NA,NA,Yli
 NA,NA,Ytre Arna
@@ -1300,4 +1298,3 @@ NA,NA,Øyenkilen
 NA,NA,Øyer
 NA,NA,Øyslebø
 NA,NA,Øystese
-NA,NA,NA

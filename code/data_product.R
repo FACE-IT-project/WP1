@@ -2274,9 +2274,6 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # Go to the following site and search for the name given in the data comment and look for a similar API number
 # https://bank.stat.gl
 
-# TODO: Follow up on this. Make sure it is accounted for
-# pangea_search_whale <- pg_search(query = 'Whale sightings, group sizes and krill biomass in West Greenland in 2005')
-
 # National statistics
 ## Income
 green_income_json <- 
@@ -2551,7 +2548,6 @@ green_quota_advice <- as.data.frame(green_quota_advice_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Fishery exports
-# TODO: Broken link
 green_fish_exports_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/IE/IE20/IEXEXPMND.px",
             query = "data/JSON/pxapi-api_table_IEXEXPMND.px.json")
@@ -3344,6 +3340,9 @@ rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 ## Disko Bay ---------------------------------------------------------------
 
 ### PG product --------------------------------------------------------------
+
+# TODO: Follow up on this. Make sure it is accounted for
+# pangea_search_whale <- pg_search(query = 'Whale sightings, group sizes and krill biomass in West Greenland in 2005')
 
 # Load pg files and subset to Disko Bay
 system.time(
