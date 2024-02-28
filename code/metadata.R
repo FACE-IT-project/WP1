@@ -159,22 +159,31 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
 # NB: Change as necessary
-# part_var_list <- ice_4km_prop |> dplyr::select(category, variable) |> distinct() |>
-#   mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich", TRUE ~ "biomass")) |>
-#   mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>
-#   # mutate(driver = "sea ice") |> 
-#   dplyr::select(category, driver, variable)
-# full_var_list <- rbind(full_var_list, part_var_list) |>
-#   distinct() |> arrange(category, driver, variable)
-# write_csv(full_var_list, "metadata/full_var_list.csv")
+part_var_list <- full_product_green |> dplyr::select(category, variable) |> distinct() |>
+  # mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich", TRUE ~ "biomass")) |>
+  # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>", TRUE ~ "biomass")) |>
+  # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>
+  # mutate(driver = "sea ice") |>
+  dplyr::select(category, driver, variable) |> 
+  complete.cases()
+full_var_list <- rbind(full_var_list, part_var_list) |>
+  distinct() |> arrange(category, driver, variable)
+write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Check for duplicates
 # summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
 
 
+## Correct variables ------------------------------------------------------
+
+# full_var_list <- full_var_list |>
+#   mutate(variable = str_replace(variable, " -total [n]", " - total [n]"))
+# write_csv(full_var_list, "metadata/full_var_list.csv")
+
+
 ## Remove a specific variables --------------------------------------------
 
-# full_var_list <- filter(full_var_list, variable != "Reinhardtius hippoglossoides [presence]")
+# full_var_list <- filter(full_var_list, !grepl("-total", variable))
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
 

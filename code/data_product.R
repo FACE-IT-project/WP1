@@ -2269,10 +2269,13 @@ rm(list = grep("stor_",names(.GlobalEnv),value = TRUE)); gc()
 # NB: There is only this one full product step for Greenland
 # These are all social data
 
-# TODO: Follow up on this. Make sure it is accounted for
-# pangea_search03 <- pg_search(query = 'Whale sightings, group sizes and krill biomass in West Greenland in 2005')
+# NB: The Greenland stats website sometime changes the URLs for the API queries...
+# This causes the links to break and must be manually investigated
+# Go to the following site and search for the name given in the data comment and look for a similar API number
+# https://bank.stat.gl
 
-# TODO: Some of these links broke. Need to investigate
+# TODO: Follow up on this. Make sure it is accounted for
+# pangea_search_whale <- pg_search(query = 'Whale sightings, group sizes and krill biomass in West Greenland in 2005')
 
 # National statistics
 ## Income
@@ -2290,9 +2293,8 @@ green_income <- as.data.frame(green_income_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Monthly employment and income
-# TODO: Broken link
 green_employment_json <- 
-  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR30/ARXBFB3.px",
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR99/AR9930/ARXBFB3_old.px",
             query = "data/JSON/pxapi-api_table_ARXBFB3.px.json")
 green_employment <- as.data.frame(green_employment_json, 
                                   column.name.type = "text", variable.value.type = "text") %>% 
@@ -2308,13 +2310,12 @@ green_employment <- as.data.frame(green_employment_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Unemployment
-# TODO: Broken link
 green_unemployment_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/AR/AR40/ARXLED3.px",
             query = "data/JSON/pxapi-api_table_ARXLED3.px.json")
 green_unemployment <- as.data.frame(green_unemployment_json, 
                                     column.name.type = "text", variable.value.type = "text") %>% 
-  dplyr::rename(value = `Unemployment among permanent residents aged 18-65 years`, site = district) %>% 
+  dplyr::rename(value = `Unemployment among permanent residents`, site = district) %>% 
   mutate(variable = paste0("Unemployed - ",gender, " [n]"),
          date = as.Date(paste0(time,"-12-31")), date_accessed = as.Date(Sys.Date()),
          category = "soc", lon = NA, lat = NA, depth = NA, URL = green_unemployment_json$url,
@@ -2381,15 +2382,14 @@ green_cruise_count <- as.data.frame(green_cruise_count_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Cruise passenger nationality
-# TODO: Error
 green_cruise_nation_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/TU/TU10/TUXKRL.px",
             query = "data/JSON/pxapi-api_table_TUXKRL.px.json")
 green_cruise_nation <- as.data.frame(green_cruise_nation_json,
                                     column.name.type = "text", variable.value.type = "text") %>% 
-  dplyr::rename(value = `Nationality of cruise passengers`) %>% 
+  dplyr::rename(value = `Nationality of cruise ship passengers`) %>% 
   mutate(site = "green",
-         variable = case_when(month == "Total" ~ paste0("Cruise passengers - ",nation," -total [n]"),
+         variable = case_when(month == "Total" ~ paste0("Cruise passengers - ",nation," - total [n]"),
                               TRUE ~ paste0("Cruise passengers - ",nation," [n]")),
          month_int = case_when(month == "Total" ~ 12,
                                TRUE ~ as.numeric(match(month, month.name))),
@@ -2534,13 +2534,13 @@ green_quotas <- as.data.frame(green_quotas_json,
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 ## Domestic quota advice
-# TODO: Broken link
 green_quota_advice_json <- 
   pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/FI/FI70/FIX021.px",
             query = "data/JSON/pxapi-api_table_FIX021.px.json")
 green_quota_advice <- as.data.frame(green_quota_advice_json,
                                     column.name.type = "text", variable.value.type = "text") %>% 
-  dplyr::rename(value = `Advice on permitted catches of fish`, site = area) %>% 
+  dplyr::rename(value = `Biological advice, quota and catch of certain species of fish in offshore fishery`, 
+                site = area) %>% 
   mutate(form = case_when(form == "Kvota" ~ "Quota", TRUE ~ form),
          variable = paste0(form," - ",species," [pieces]"),
          date = as.Date(paste0(time,"-12-31")),
@@ -2550,10 +2550,10 @@ green_quota_advice <- as.data.frame(green_quota_advice_json,
   filter(!is.na(value)) %>% 
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
-## Domestic quota advice
+## Fishery exports
 # TODO: Broken link
 green_fish_exports_json <- 
-  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/IE/IEXEXPMND.px",
+  pxweb_get(url = "https://bank.stat.gl:443/api/v1/en/Greenland/IE/IE20/IEXEXPMND.px",
             query = "data/JSON/pxapi-api_table_IEXEXPMND.px.json")
 green_fish_exports <- as.data.frame(green_fish_exports_json,
                                     column.name.type = "text", variable.value.type = "text") %>% 
@@ -2615,17 +2615,12 @@ green_west_biomass <- rbind(green_west_intertidal, green_west_vertical) |>
 rm(green_west_coords, green_west_intertidal, green_west_vertical)  
 
 # Combine and save
-# TODO: Fix issues with broken links above
-full_product_green <- rbind(green_income, 
-                            # green_employment, green_unemployment, 
-                            green_pop,
-                            green_cruise_passenger, green_cruise_count, 
-                            # green_cruise_nation,
+full_product_green <- rbind(green_income, green_employment, green_unemployment, green_pop,
+                            green_cruise_passenger, green_cruise_count, green_cruise_nation,
                             green_air_passenger, green_guests, green_dogs, green_landings_domestic,
-                            green_landings_inter, green_fish_price, green_quotas#, 
-                            # green_quota_advice,
-                            # green_fish_exports
-                            ) |> mutate(type = "survey") |> rbind(green_west_biomass) |> check_data()
+                            green_landings_inter, green_fish_price, green_quotas, 
+                            green_quota_advice, green_fish_exports) |> mutate(type = "survey") |> 
+  rbind(green_west_biomass) |> check_data()
 data.table::fwrite(full_product_green, "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.csv")
 save(full_product_green, file = "~/pCloudDrive/FACE-IT_data/greenland/full_product_green.RData")
 save(full_product_green, file = "data/full_data/full_product_green.RData")
