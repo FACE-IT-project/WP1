@@ -166,6 +166,9 @@ check_spp <- function(df, spp_type = "cat"){
   # Then give a note for those that can't be found
   # Then search on WORMS and other databases, making notes for where is searched and what is found
   # If nothing is found anywhere, assign '|?|'
+  # This then needs to be re-run against all uses of 'check_data()' in 'code/data_product.R'
+  # Update species categorisation to see 'Zooplankton' and respond accordingly
+  # Add 'Polar Cod' to check_spp()
   if(spp_type == "tax"){
     df_res <- plyr::ldply(df_not_PP$spp, wm_records_df, .parallel = T, res_type = "tax") |> distinct()
     return(df_res)

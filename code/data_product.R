@@ -296,7 +296,6 @@ EU_icthyo <- data.frame(date_accessed = NA,
 # https://nsidc.org/data/nsidc-0770/versions/6
 
 # EU MET station data
-# TODO: Develop code to automatically download and process these MET data
 # https://thredds.met.no/thredds/catalog/met.no/observations/stations/catalog.html
 # https://frost.met.no/index.html
 
@@ -467,7 +466,6 @@ load("~/pCloudDrive/FACE-IT_data/EU_arctic/SOCAT_EU.RData")
 load("~/pCloudDrive/FACE-IT_data/EU_arctic/GLODAP_EU.RData")
 
 # Combine and save
-# TODO: A long list of species that aren't identified in the WoRMS database
 EU_wild <- check_data(rbind(EU_zooplankton, EU_YMER, EU_Codispoti, EU_protists, EU_Popova, 
                             EU_green_fjords, EU_IMR_spp_obs, EU_SOCAT, EU_GLODAP)) |> 
   rbind(EU_GEBCO, EU_IBCAO, EU_ice, EU_NCEI_1989, EU_icthyo)
@@ -1187,69 +1185,6 @@ system.time(
   pg_kong_clean <- plyr::ldply(pg_files, pg_site_filter, site_name = "kong")
 ) # 7 seconds
 
-# Test problem files
-# pg_test <- pg_data(doi = "10.1594/PANGAEA.868371")
-# pg_test <- pg_data(doi = "10.1594/PANGAEA.896828")
-# pg_test <- pg_dl_proc(pg_doi = "10.1594/PANGAEA.896828")
-# pg_test <- pg_kong_sub %>% 
-#   filter(URL == "https://doi.org/10.1594/PANGAEA.868371") %>% 
-#   dplyr::select(contains("depth"), everything()) %>% 
-#   # mutate_all(~na_if(., '')) %>% 
-#   janitor::remove_empty("cols")
-# pg_kong <- read_csv("data/pg_data/pg_kong.csv")
-# pg_test <- filter(pg_kong, URL == "https://doi.pangaea.de/10.1594/PANGAEA.896828")
-
-# More testing
-# colnames(pg_kong_sub)
-# test1 <- pg_kong_sub %>% 
-#   dplyr::select(URL, `T air (1) [°C]`) %>% 
-#   na.omit()
-  
-# Process Kongsfjorden PANGAEA data
-pg_kong_clean <- pg_kong_sub |> 
-  # dplyr::select(contains(c("Qz")), everything()) |> # Look at specific problem columns
-  # dplyr::select(contains(c("date", "lon", "lat")), everything()) |> # Look at date columns
-  # dplyr::select(contains(c("depth", "press", "elev")), everything()) |> # Look at depth columns
-  # Remove empty columns
-  mutate_if(is.character, ~na_if(., '')) |>
-  janitor::remove_empty("cols") |>
-  # Manually remove problematic files - no need
-  # Manually remove problematic columns - no need
-  # Manage lon/lat columns - no need
-  # Manage date column
-  dplyr::rename(date = `Date/Time`) |> 
-  mutate(date = ifelse(date == "", NA, date),
-         date = case_when(is.na(date) & !is.na(Date) ~ as.character(Date),
-                          is.na(date) & !is.na(`Date/time start`) ~ as.character(`Date/time start`),
-                          is.na(date) & !is.na(`Date/time end`) ~ as.character(`Date/time end`),
-                          TRUE ~ date)) |> 
-  mutate(date = as.Date(gsub("T.*", "", date))) |> 
-  # Manage depth column
-  # TODO: Rather have depth columns filled in by progressively more distant choices from a pre-made list of depth column names
-  dplyr::rename(`Depth [m]1` = `Depth water [m] (water depth from ETOPO1, if >...)`) |> 
-  mutate(depth = case_when(!is.na(`Depth water [m]`) ~ as.numeric(`Depth water [m]`),
-                           !is.na(`Depth [m]`) ~ as.numeric(`Depth [m]`),
-                           !is.na(`Depth [m]1`) ~ as.numeric(`Depth [m]1`),
-                           !is.na(`Depth water [m] (top)`) ~ as.numeric(`Depth water [m] (top)`),
-                           !is.na(`Depth [m] (negative = above surface)`) ~ as.numeric(`Depth [m] (negative = above surface)`))) |> 
-  mutate(depth = case_when(is.na(depth) & !is.na(`Press [dbar]`) ~ as.numeric(`Press [dbar]`),
-                           is.na(depth) & !is.na(`Elevation [m]`) ~ -as.numeric(`Elevation [m]`),
-                           is.na(depth) & !is.na(`Elevation [m a.s.l.]`) ~ -as.numeric(`Elevation [m a.s.l.]`),
-                           TRUE ~ depth)) |> 
-  # dplyr::select(depth, everything())
-  # Remove unwanted columns
-  # dplyr::select(-contains(c("Elev ", "Elevation "))) |>
-  # Finish up
-  left_join(pg_meta_files, by = c("meta_idx", "site")) |> 
-  dplyr::select(date_accessed, URL, citation, site, lon, lat, date, depth, everything()) |> 
-  dplyr::rename(`Sal [PSU]` = `Sal ([PSU])`) |> 
-  # NB: This must be changed manually when new data are loaded
-  mutate(across(!dplyr::all_of(clean_cols), as.numeric)) |>  
-  janitor::remove_empty("cols") |> 
-  # NB: Site exists earlier to reflect data from different files for metadata joining
-  mutate(site = "kong")
-# colnames(pg_kong_clean)
-
 # Individual category data.frames
 pg_kong_cryo <- pg_var_melt(pg_kong_clean, query_cryo)
 pg_kong_phys <- pg_var_melt(pg_kong_clean, query_phys)
@@ -1258,7 +1193,6 @@ pg_kong_bio <- pg_var_melt(pg_kong_clean, query_bio)
 pg_kong_soc <- pg_var_melt(pg_kong_clean, query_soc) # 0 values
 
 # Stack them together
-# TODO: Sort out the WORMS species approach
 pg_kong_ALL <- check_data(rbind(pg_kong_cryo, pg_kong_phys, pg_kong_chem, pg_kong_bio, pg_kong_soc))
 data.table::fwrite(pg_kong_ALL, "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.csv")
 save(pg_kong_ALL, file = "~/pCloudDrive/FACE-IT_data/kongsfjorden/pg_kong_ALL.RData")
@@ -1379,7 +1313,6 @@ kong_brguillemot_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/brn
   filter(!is.na(value))
 
 # Combine and save
-# TODO: Update species categorisation to see 'Zooplankton' and respond accordingly
 kong_species <- check_data(rbind(kong_glaucous_gull_population, 
                                  kong_eiders_stock,
                                  kong_seabird, 
@@ -1868,7 +1801,6 @@ pg_is_bio <- pg_var_melt(pg_is_clean, query_bio); gc()
 pg_is_soc <- pg_var_melt(pg_is_clean, query_soc); gc() # empty
 
 # Stack them together
-# TODO: WoRMS species issues
 pg_is_ALL <- check_data(rbind(pg_is_cryo, pg_is_phys, pg_is_chem, pg_is_bio, pg_is_soc))
 data.table::fwrite(pg_is_ALL, "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.csv")
 save(pg_is_ALL, file = "~/pCloudDrive/FACE-IT_data/isfjorden/pg_is_ALL.RData")
@@ -2255,7 +2187,6 @@ pg_stor_bio <- pg_var_melt(pg_stor_clean, query_bio)
 pg_stor_soc <- pg_var_melt(pg_stor_clean, query_soc) # empty
 
 # Stack them together
-# TODO: WoRMS species
 pg_stor_ALL <- check_data(rbind(pg_stor_cryo, pg_stor_phys, pg_stor_chem, pg_stor_bio, pg_stor_soc))
 data.table::fwrite(pg_stor_ALL, "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.csv")
 save(pg_stor_ALL, file = "~/pCloudDrive/FACE-IT_data/storfjorden/pg_stor_ALL.RData")
@@ -2685,7 +2616,6 @@ rm(green_west_coords, green_west_intertidal, green_west_vertical)
 
 # Combine and save
 # TODO: Fix issues with broken links above
-# TODO: WoRMS missing species
 full_product_green <- rbind(green_income, 
                             # green_employment, green_unemployment, 
                             green_pop,
@@ -2720,7 +2650,6 @@ pg_young_bio <- pg_var_melt(pg_young_clean, query_bio)
 pg_young_soc <- pg_var_melt(pg_young_clean, query_soc) # empty
 
 # Stack them together
-# TODO: WoRMS species
 pg_young_ALL <- check_data(rbind(pg_young_cryo, pg_young_phys, pg_young_chem, pg_young_bio, pg_young_soc))
 data.table::fwrite(pg_young_ALL, "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.csv")
 save(pg_young_ALL, file = "~/pCloudDrive/FACE-IT_data/young_sound/pg_young_ALL.RData")
@@ -3252,7 +3181,6 @@ young_GEM_nitrate_nitrite <- read_delim("~/pCloudDrive/restricted_data/GEM/young
   summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
 # Combine and save
-# TODO: A lot of missed species
 young_GEM <- rbind(young_mooring_multi, young_GEM_sea_ice_open_water, young_GEM_sea_ice_breakup, young_GEM_sea_ice_formation, 
                    young_GEM_sea_ice_thickness, young_GEM_sea_ice_snow_thickness, young_GEM_CTD_water_column, young_GEM_CTD_mooring, 
                    young_GEM_CTD_sill, young_GEM_CTD_bottom, young_GEM_phyto_sp, young_GEM_DIC, young_GEM_pCO2, young_GEM_phosphate, 
@@ -3365,7 +3293,6 @@ young_bird_broods <- read_delim("~/pCloudDrive/restricted_data/GEM/young/View_Bi
   dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value)
 
 # Combine and save
-# TODO: Missing species
 young_species_GEM <- rbind(young_bird_nests_eggs, 
                            young_bird_nests_hatch,
                            young_bird_abundance,
@@ -3436,7 +3363,6 @@ pg_disko_bio <- pg_var_melt(pg_disko_clean, query_bio)
 pg_disko_soc <- pg_var_melt(pg_disko_clean, query_soc) # empty
 
 # Stack them together
-# TODO: WoRMS
 pg_disko_ALL <- check_data(rbind(pg_disko_cryo, pg_disko_phys, pg_disko_chem, pg_disko_bio, pg_disko_soc))
 data.table::fwrite(pg_disko_ALL, "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.csv")
 save(pg_disko_ALL, file = "~/pCloudDrive/FACE-IT_data/disko_bay/pg_disko_ALL.RData")
@@ -3745,7 +3671,6 @@ pg_nuup_bio <- pg_var_melt(pg_nuup_clean, query_bio)
 pg_nuup_soc <- pg_var_melt(pg_nuup_clean, query_soc) # empty
 
 # Stack them together
-# TODO: WoRMS
 pg_nuup_ALL <- check_data(rbind(pg_nuup_cryo, pg_nuup_phys, pg_nuup_chem, pg_nuup_bio, pg_nuup_soc))
 data.table::fwrite(pg_nuup_ALL, "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.csv")
 save(pg_nuup_ALL, file = "~/pCloudDrive/FACE-IT_data/nuup_kangerlua/pg_nuup_ALL.RData")
@@ -4059,7 +3984,6 @@ nuup_GEM_Anod_cm <- read_delim("~/pCloudDrive/restricted_data/GEM/nuup/Nuuk_Data
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
 
 # Combine and save
-# TODO: Missing species
 nuup_GEM <- rbind(nuup_GEM_CTD_open_water, nuup_GEM_pp, nuup_GEM_phyto_sp, nuup_GEM_silicate, nuup_GEM_ChlA, 
                   nuup_GEM_precip, nuup_GEM_snow, nuup_GEM_air_press, nuup_GEM_qnet, nuup_GEM_air_temp_2m, 
                   nuup_GEM_air_temp_10m, nuup_GEM_air_temp_2m_Kobbefjord, nuup_GEM_Kingigtorssuaq, nuup_GEM_Kobbefjord, 
@@ -4161,7 +4085,6 @@ nuup_mmam_count <- read_delim("~/pCloudDrive//restricted_data/GEM/nuup/View_Mari
   dplyr::select(date_accessed, URL, citation, site, category, driver, variable, lon, lat, date, depth, value)
 
 # Combine and save
-# TODO: check_spp issues
 nuup_species_GEM <- rbind(nuup_bird_nb, 
                           nuup_seabird_count, 
                           nuup_seabird_presence, 
@@ -4183,7 +4106,7 @@ nuup_EU_sub <- filter_site_plural("nuup", full_product_EU)
 # Load Greenland data
 if(!exists("full_product_green")) load("data/full_data/full_product_green.RData")
 
-# Subset to relevant Disko Bay site names
+# Subset to relevant Nuup Kangerlua site names
 # TODO: This probably shouldn't be 0
 nuup_green_sub <- filter_site_plural("nuup", full_product_green)
 
@@ -4450,7 +4373,6 @@ nor_MOSJ_pcod <- read_delim("~/pCloudDrive/FACE-IT_data/norway/biomass-of-polar-
   dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
-# TODO: add 'Polar Cod' to check_spp()
 full_product_nor <- rbind(nor_salmon_exports, nor_fish_exports, nor_pop, sval_pop, nor_MPA, 
                           nor_air_passenger, sval_employ_perc, nor_accommodation, 
                           nor_IMR_kingcrab, nor_MOSJ_pcod) |>
@@ -4479,7 +4401,6 @@ pg_por_bio <- pg_var_melt(pg_por_clean, query_bio)
 pg_por_soc <- pg_var_melt(pg_por_clean, query_soc) # empty
 
 # Stack them together
-# TODO: WoRMS
 pg_por_ALL <- check_data(rbind(pg_por_cryo, pg_por_phys, pg_por_chem, pg_por_bio, pg_por_soc))
 data.table::fwrite(pg_por_ALL, "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.csv")
 save(pg_por_ALL, file = "~/pCloudDrive/FACE-IT_data/porsangerfjorden/pg_por_ALL.RData")
@@ -4732,8 +4653,6 @@ rm(ice_4km_prop); gc(); print(unique(clean_sea_ice$variable))
 ### Glacier -----------------------------------------------------------------
 
 # Get height data from sea ice driver
-# TODO: Fix this above so this step isn't necessary
-# Or perhaps keep it as it is another approach to parsing sea ice and glacier ice data from each other
 clean_glacier_sea_ice <- filter(full_ALL, driver == "sea ice", depth < 0) |> mutate(driver = "glacier")
 clean_glacier <- filter(full_ALL, driver == "glacier") |> rbind(clean_glacier_sea_ice) |> mutate(type = "in situ") |> distinct()
 rm(clean_glacier_sea_ice); gc(); print(unique(clean_glacier$variable))
@@ -4902,8 +4821,6 @@ print(unique(clean_nutrients$variable))
 
 ### Primary production ------------------------------------------------------
 
-# TODO: Look into making PP conversion calculations with existing data 
-
 # Notes on primary production data
 # Phaeopygments etc are not measures of PP, don't need fluorescence either
 # [10um] vs [GFF] are different methods and both are valid.
@@ -4927,7 +4844,6 @@ print(unique(clean_prim_prod$variable))
 ### Biomass -----------------------------------------------------------------
 
 # TODO: Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
-# TODO: Look into creating phytoplankton biomass conversion using Chl a data
 
 # Get all biomass variables
 clean_biomass <- filter(full_ALL, driver == "biomass") |> 
@@ -5131,8 +5047,6 @@ save(all_ref, file = "data/analyses/all_ref.RData")
 
 
 ## PANGAEA file ------------------------------------------------------------
-
-# TODO: Consider splitting these out into metadata lookup tables
 
 # Load all clean data
 # clean_all <- map_dfr(dir("data/full_data", pattern = "clean", full.names = T), read_csv)
