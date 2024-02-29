@@ -38,7 +38,6 @@ pg_young_name_1 <- pg_full_search(query = "zackenberg") # 51 files - 13 if "rive
 pg_young_name_2 <- pg_full_search(query = "tyroler") # 0 files
 pg_young_name_3 <- pg_full_search(query = "lerbugt") # 0 files
 pg_young_name_4 <- pg_full_search(query = "Freya Glacier") # 35 files
-# Also consider: Freya Glacier on Clavering Island; add river to the single names above to see if they change
 pg_young_all <- rbind(pg_young_bbox, pg_young_name_1, pg_young_name_2, pg_young_name_3, pg_young_name_4) |> 
   filter(!doi %in% c("10.1594/PANGAEA.786674", # This file causes weird date issues and doesn't have any key drivers
                      "10.1594/PANGAEA.831056" # Geospatial data of mass balance for Freya Glacier
@@ -84,9 +83,11 @@ pg_doi_list <- distinct(rbind(pg_doi_list, pg_por_all))
 
 ## All Storfjorden data files - 701
 # Check: https://toposvalbard.npolar.no/
+# Names with no hits: sonklarbreen, inglefieldbukta, inglefieldbreen, strongbreen
 pg_stor_bbox <- pg_full_search(query = "", bbox = c(bbox_stor[1], bbox_stor[3], bbox_stor[2], bbox_stor[4])) # 696 files
 pg_stor_name_1 <- pg_full_search(query = "storfjord") # 9 files
 pg_stor_name_2 <- pg_full_search(query = "storfjorden") # 5 files
+# pg_stor_name_3 <- pg_full_search(query = "") # 0 files
 pg_stor_all <- rbind(pg_stor_bbox, pg_stor_name_1, pg_stor_name_2) |> 
   mutate(count = n(), file = "pg_stor") |> 
   dplyr::select(doi, file, count) |> distinct()
@@ -94,11 +95,16 @@ pg_doi_list <- distinct(rbind(pg_doi_list, pg_stor_all))
 
 ## All Isfjorden data files - 1835
 # Check: https://toposvalbard.npolar.no/
+# Names with no hits: postbreen, tunabreen
 pg_is_bbox <- pg_full_search(query = "", bbox = c(bbox_is[1], bbox_is[3], bbox_is[2], bbox_is[4])) # 472 files
 pg_is_name_1 <- pg_full_search(query = "isfjord") # 1 files
 pg_is_name_2 <- pg_full_search(query = "isfjorden") # 8 files
 pg_is_name_3 <- pg_full_search(query = "longyearbyen") # 1521 files
-pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3) |> 
+pg_is_name_4 <- pg_full_search(query = "adventfjorden") # 4 files
+pg_is_name_5 <- pg_full_search(query = "tempelfjorden") # 2 files
+pg_is_name_6 <- pg_full_search(query = "billefjorden") # 92 files
+pg_is_all <- rbind(pg_is_bbox, pg_is_name_1, pg_is_name_2, pg_is_name_3,
+                   pg_is_name_4, pg_is_name_5, pg_is_name_6) |> 
   filter(!doi %in% c("10.1594/PANGAEA.909130", # Wide file with no date values
                      "10.1594/PANGAEA.56770", # Moss snow line data
                      "10.1594/PANGAEA.847626", "10.1594/PANGAEA.847627", # Lichen experiment datasets
@@ -109,20 +115,16 @@ pg_doi_list <- distinct(rbind(pg_doi_list, pg_is_all[c("doi", "count", "file")])
 
 ## All Kongsfjorden bbox data files - 2275
 # Check: https://toposvalbard.npolar.no/
+# Names with no hits: blomstrandbreen, kongsbreen, kongsvegen, isachsenfonna
 pg_kong_bbox <- pg_full_search(query = "", bbox = c(bbox_kong[1], bbox_kong[3], bbox_kong[2], bbox_kong[4])) # 2243 files
 pg_kong_name_1 <- pg_full_search(query = "kongsfjord") # 18 files
 pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") # 223 files
-pg_kong_name_3 <- pg_full_search(query = "ny alesund") # 2039 files
-pg_kong_name_4 <- pg_full_search(query = "ny-alesund") # 2039 files
-pg_kong_name_5 <- pg_full_search(query = "blomstrandbreen") # 0 files
-pg_kong_name_6 <- pg_full_search(query = "conwaybreen") # 1 files
-pg_kong_name_7 <- pg_full_search(query = "kongsbreen") # 0 files
-pg_kong_name_8 <- pg_full_search(query = "kronebreen") # 2 files
-pg_kong_name_9 <- pg_full_search(query = "kongsvegen") # 0 files
-pg_kong_name_10 <- pg_full_search(query = "holtedahlfonna") # 1 files
-pg_kong_name_11 <- pg_full_search(query = "isachsenfonna") # 0 files
-pg_kong_all <- rbind(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4, pg_kong_name_5,
-                     pg_kong_name_6, pg_kong_name_7, pg_kong_name_8, pg_kong_name_9, pg_kong_name_10, pg_kong_name_11) |> 
+pg_kong_name_3 <- pg_full_search(query = "ny-alesund") # 2039 files # NB: same return as "ny alesund"
+pg_kong_name_4 <- pg_full_search(query = "conwaybreen") # 1 files
+pg_kong_name_5 <- pg_full_search(query = "kronebreen") # 2 files
+pg_kong_name_6 <- pg_full_search(query = "holtedahlfonna") # 1 files
+pg_kong_all <- rbind(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, 
+                     pg_kong_name_4, pg_kong_name_5, pg_kong_name_6) |> 
   filter(!doi %in% c("10.1594/PANGAEA.909130")) |> # Wide file with no date values
   filter(!grepl("946961", citation)) |> # 3.7 million rows of second resolution air temperature
   mutate(count = n(), file = "pg_kong") |> 

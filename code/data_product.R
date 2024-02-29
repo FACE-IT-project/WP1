@@ -3160,9 +3160,6 @@ rm(list = grep("young_",names(.GlobalEnv),value = TRUE)); gc()
 
 ### PG product --------------------------------------------------------------
 
-# TODO: Follow up on this. Make sure it is accounted for
-# pangea_search_whale <- pg_search(query = 'Whale sightings, group sizes and krill biomass in West Greenland in 2005')
-
 # Load pg files and subset to Disko Bay
 system.time(
   pg_disko_clean <- plyr::ldply(pg_files, pg_site_filter, site_name = "disko")
@@ -4470,8 +4467,6 @@ rm(clean_glacier_sea_ice); gc(); print(unique(clean_glacier$variable))
 
 
 ### Runoff ------------------------------------------------------------------
-
-# TODO: Look into dichotomy of Q and ablation for disko vs young
 
 # Pedro Duarte has contacted a colleague to get Kongsfjorden area river discharge data
 
