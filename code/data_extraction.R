@@ -206,3 +206,18 @@ lm(temp ~ t, ERSST_med_mean)$coefficient[2]*365
 ggplot(ERSST_med_mean, aes(x = t, y = temp)) +
   geom_line() +
   geom_smooth(method = "lm")
+
+
+## D1.4 --------------------------------------------------------------------
+# Create a table of social science data to include in deliverable text
+
+if(!exists("clean_all_meta")) load("data/analyses/clean_all_meta.RData")
+
+# Social data
+clean_all_meta_social <- clean_all_meta |> 
+  filter(category == "social") |> 
+  dplyr::select(citation, URL, driver) |> 
+  dplyr::rename(Title = citation, Link = URL, Driver = driver) |> 
+  distinct() |> arrange(Title)
+write_csv(clean_all_meta_social, file = "~/Desktop/clean_all_meta_social.csv")
+
