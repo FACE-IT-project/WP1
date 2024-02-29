@@ -110,13 +110,19 @@ pg_doi_list <- distinct(rbind(pg_doi_list, pg_is_all[c("doi", "count", "file")])
 ## All Kongsfjorden bbox data files - 2275
 # Check: https://toposvalbard.npolar.no/
 pg_kong_bbox <- pg_full_search(query = "", bbox = c(bbox_kong[1], bbox_kong[3], bbox_kong[2], bbox_kong[4])) # 2243 files
-pg_kong_name_1 <- pg_full_search(query = "kongsfjord") # 17 files
-pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") # 211 files
-pg_kong_name_3 <- pg_full_search(query = "ny alesund") # 1967 files
-pg_kong_name_4 <- pg_full_search(query = "ny-alesund") # 1967 files
-# TODO: Add these names to query list
-# Blomstrandbreen, Conwaybreen, Kongsbreen, Kronebreen, and Kongsvegen, including the ice fields Holtedahlfonna and Isachsenfonna
-pg_kong_all <- rbind(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4) |> 
+pg_kong_name_1 <- pg_full_search(query = "kongsfjord") # 18 files
+pg_kong_name_2 <- pg_full_search(query = "kongsfjorden") # 223 files
+pg_kong_name_3 <- pg_full_search(query = "ny alesund") # 2039 files
+pg_kong_name_4 <- pg_full_search(query = "ny-alesund") # 2039 files
+pg_kong_name_5 <- pg_full_search(query = "blomstrandbreen") # 0 files
+pg_kong_name_6 <- pg_full_search(query = "conwaybreen") # 1 files
+pg_kong_name_7 <- pg_full_search(query = "kongsbreen") # 0 files
+pg_kong_name_8 <- pg_full_search(query = "kronebreen") # 2 files
+pg_kong_name_9 <- pg_full_search(query = "kongsvegen") # 0 files
+pg_kong_name_10 <- pg_full_search(query = "holtedahlfonna") # 1 files
+pg_kong_name_11 <- pg_full_search(query = "isachsenfonna") # 0 files
+pg_kong_all <- rbind(pg_kong_bbox, pg_kong_name_1, pg_kong_name_2, pg_kong_name_3, pg_kong_name_4, pg_kong_name_5,
+                     pg_kong_name_6, pg_kong_name_7, pg_kong_name_8, pg_kong_name_9, pg_kong_name_10, pg_kong_name_11) |> 
   filter(!doi %in% c("10.1594/PANGAEA.909130")) |> # Wide file with no date values
   filter(!grepl("946961", citation)) |> # 3.7 million rows of second resolution air temperature
   mutate(count = n(), file = "pg_kong") |> 
