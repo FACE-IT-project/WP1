@@ -4401,7 +4401,7 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
 clean_sea_ice <- filter(full_ALL, driver == "sea ice") |> 
   filter(depth >= 0 | is.na(depth)) |> # For now it is necessary to reappoint some data here to the glacier file
   mutate(depth = NA, type = "in situ") |>  # Deeper depths are bottom depths and should be converted to NA
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
+  summarise(value = mean(value, na.rm = TRUE), .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth)) |> 
   distinct()
 
 ## Not a lot of common sea ice data between sites
@@ -4552,7 +4552,6 @@ print(unique(clean_salinity$variable))
 ### Light ------------------------------------------------------------------
 
 # TODO: Look into variables
-# TODO: Check that Gattuso Ferry box data from PANGAEA are here
 # TODO: Look into very deep PAR data
 
 # Get all PAR+UV data
@@ -4604,7 +4603,6 @@ print(unique(clean_carb$variable))
 ### Nutrients ---------------------------------------------------------------
 
 # TODO: Create report showing difference in GLODAP l and kg values
-# TODO: These variables still need to be cleaned up
 
 ## Notes on nutrients
 # [µmol/l] is the same as [µg-at/l]
@@ -4657,7 +4655,9 @@ clean_biomass <- filter(full_ALL, driver == "biomass") |>
   mutate(variable = str_replace(variable, "individuals\\/m3", "ind\\/m3"), 
          variable = str_replace(variable, "Biomass - ", ""),
          type = "in situ") |> 
-  filter(value > 0) |> distinct()
+  filter(value > 0) |> 
+  summarise(value = mean(value, na.rm = TRUE), .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth)) |> 
+  distinct()
 print(unique(clean_biomass$variable))
 
 
@@ -4766,7 +4766,9 @@ rm(spp_count); gc(); print(unique(clean_biomass$variable))
 ### Governance --------------------------------------------------------------
 
 # Get all governance data
-clean_gov <- filter(full_ALL, driver == "gov") |> distinct()
+clean_gov <- filter(full_ALL, driver == "gov") |> 
+  summarise(value = mean(value, na.rm = TRUE), .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth)) |> 
+  distinct()
 print(unique(clean_gov$variable))
 
 
@@ -4861,51 +4863,52 @@ data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
 data_shadow_df <- shadow(clean_all)
 
 # Prep for PANGAEA standard
-FACE_IT_v1.6 <- clean_all |> 
+FACE_IT_v1.7 <- clean_all |> 
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
   rbind(data_shadow_df) |> 
-  dplyr::rename(`date/time [UTC+0]` = date, `depth [m]` = depth,
+  dplyr::rename(`depth [m]` = depth,
+                # `date/time [UTC+0]` = date,  # NB: No longer necessary
                 `longitude [°E]` = lon, `latitude [°N]` = lat) |> 
-  mutate(`date/time [UTC+0]` = case_when(!is.na(`date/time [UTC+0]`) ~ paste0(`date/time [UTC+0]`,"T00:00:00"), 
-                                         TRUE ~ as.character(`date/time [UTC+0]`)),
-         citation = str_replace_all(citation, ";", "."))
+  mutate(citation = str_replace_all(citation, ";", "."))
+  # NB: No longer necessary
+  # mutate(`date/time [UTC+0]` = case_when(!is.na(`date/time [UTC+0]`) ~ paste0(`date/time [UTC+0]`,"T00:00:00"), 
+  #                                        TRUE ~ as.character(`date/time [UTC+0]`)))
 
 # Double check data shadows have been applied correctly
-shadow_test <- filter(FACE_IT_v1.6, grepl(data_shadow, URL))
+shadow_test <- filter(FACE_IT_v1.7, grepl(data_shadow, URL))
 rm(shadow_test); gc()
 
 # Save as .csv
 # NB: write_csv_arrow not currently working, file too large
-write_csv(FACE_IT_v1.6, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.6.csv")
-write_csv(FACE_IT_v1.6, "data/full_data/FACE_IT_v1.6.csv")
+write_csv(FACE_IT_v1.7, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7.csv")
+write_csv(FACE_IT_v1.7, "data/full_data/FACE_IT_v1.7.csv")
 
-# TODO: Address multiples
 # Cryo data
-FACE_IT_v1.6_cryo <- filter(FACE_IT_v1.6, category == "cryo") |>
-  pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.6_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.6_cryo.csv", delim = ";")
+FACE_IT_v1.7_cryo <- filter(FACE_IT_v1.7, category == "cryo") |>
+  pivot_wider(names_from = variable, values_from = value)
+write_delim(FACE_IT_v1.7_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1.6_phys <- filter(FACE_IT_v1.6, category == "phys") |> 
-  pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.6_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.6_phys.csv", delim = ";")
+FACE_IT_v1.7_phys <- filter(FACE_IT_v1.7, category == "phys") |> 
+  pivot_wider(names_from = variable, values_from = value)
+write_delim(FACE_IT_v1.7_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1.6_chem <- filter(FACE_IT_v1.6, category == "chem") |> 
+FACE_IT_v1.7_chem <- filter(FACE_IT_v1.7, category == "chem") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.6_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.6_chem.csv", delim = ";")
+write_delim(FACE_IT_v1.7_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1.6_bio <- filter(FACE_IT_v1.6, category == "bio") |> 
-  pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.6_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.6_bio.csv", delim = ";")
+FACE_IT_v1.7_bio <- filter(FACE_IT_v1.7, category == "bio") |> 
+  pivot_wider(names_from = variable, values_from = value)
+write_delim(FACE_IT_v1.7_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1.6_soc <- filter(FACE_IT_v1.6, category == "soc") |> 
-  pivot_wider(names_from = variable, values_from = value, values_fn = mean)
-write_delim(FACE_IT_v1.6_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.6_soc.csv", delim = ";")
+FACE_IT_v1.7_soc <- filter(FACE_IT_v1.7, category == "soc") |> 
+  pivot_wider(names_from = variable, values_from = value)
+write_delim(FACE_IT_v1.7_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_soc.csv", delim = ";")
 
 
 ## Additional cleaning -----------------------------------------------------
