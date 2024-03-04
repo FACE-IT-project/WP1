@@ -195,11 +195,6 @@ check_site <- function(df){
   if(!exists("full_site_list")) full_site_list <- read_csv("metadata/full_site_list.csv")
   df_site <- left_join(df, full_site_list, by = c("site" = "site_alt"))
   
-  test1 <- df |> 
-    filter(site != "sval")
-  df_site <- left_join(test1, full_site_list, by = c("site" = "site_alt"))
-  
-  
   # Report on changes
   df_no_site <- filter(df_site, is.na(site.y)) |> 
     dplyr::select(site) |> distinct()

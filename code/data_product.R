@@ -1133,10 +1133,10 @@ sval_mam_sight <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/mam_sight/MMSDB_
   dplyr::select(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, variable, value, site)
 
 # Combine and save
-sval_wild <- check_data(rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
-                              sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
-                              sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS,
-                              sval_little_diet, sval_mam_sight)) |> 
+sval_wild <- rbind(sval_MOSJ_glacier_mass, sval_Nature_glacier_mass, 
+                   sval_tidewater_ablation, sval_NICE, sval_UNIS_database, sval_biogeochemistry,
+                   sval_pop, sval_tour_arrival, sval_guest_night, sval_AIS,
+                   sval_little_diet, sval_mam_sight) |> check_data() |> 
   rbind(sval_tidal_glacier_front, sval_marine_glacier_front, sval_seabird_database, sval_protection, sval_fast)
 data.table::fwrite(sval_wild, "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.csv")
 save(sval_wild, file = "~/pCloudDrive/FACE-IT_data/svalbard/sval_wild.RData")
@@ -4866,7 +4866,7 @@ data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
 data_shadow_df <- shadow(clean_all)
 
 # Prep for PANGAEA standard
-FACE_IT_v1.7 <- clean_all |> 
+FACE_IT_v1.8 <- clean_all |> 
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
@@ -4880,38 +4880,38 @@ FACE_IT_v1.7 <- clean_all |>
   #                                        TRUE ~ as.character(`date/time [UTC+0]`)))
 
 # Double check data shadows have been applied correctly
-shadow_test <- filter(FACE_IT_v1.7, grepl(data_shadow, URL))
+shadow_test <- filter(FACE_IT_v1.8, grepl(data_shadow, URL))
 rm(shadow_test); gc()
 
 # Save as .csv
 # NB: write_csv_arrow not currently working, file too large
-write_csv(FACE_IT_v1.7, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7.csv")
-write_csv(FACE_IT_v1.7, "data/full_data/FACE_IT_v1.7.csv")
+write_csv(FACE_IT_v1.8, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8.csv")
+write_csv(FACE_IT_v1.8, "data/full_data/FACE_IT_v1.8.csv")
 
 # Cryo data
-FACE_IT_v1.7_cryo <- filter(FACE_IT_v1.7, category == "cryo") |>
+FACE_IT_v1.8_cryo <- filter(FACE_IT_v1.8, category == "cryo") |>
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.7_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_cryo.csv", delim = ";")
+write_delim(FACE_IT_v1.8_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1.7_phys <- filter(FACE_IT_v1.7, category == "phys") |> 
+FACE_IT_v1.8_phys <- filter(FACE_IT_v1.8, category == "phys") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.7_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_phys.csv", delim = ";")
+write_delim(FACE_IT_v1.8_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1.7_chem <- filter(FACE_IT_v1.7, category == "chem") |> 
+FACE_IT_v1.8_chem <- filter(FACE_IT_v1.8, category == "chem") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.7_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_chem.csv", delim = ";")
+write_delim(FACE_IT_v1.8_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1.7_bio <- filter(FACE_IT_v1.7, category == "bio") |> 
+FACE_IT_v1.8_bio <- filter(FACE_IT_v1.8, category == "bio") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.7_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_bio.csv", delim = ";")
+write_delim(FACE_IT_v1.8_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1.7_soc <- filter(FACE_IT_v1.7, category == "soc") |> 
+FACE_IT_v1.8_soc <- filter(FACE_IT_v1.8, category == "soc") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.7_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.7_soc.csv", delim = ";")
+write_delim(FACE_IT_v1.8_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_soc.csv", delim = ";")
 
 
 ## Additional cleaning -----------------------------------------------------
