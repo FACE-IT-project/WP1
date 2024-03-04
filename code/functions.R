@@ -64,12 +64,15 @@ check_variable <- function(df){
                                     variable %in% c("phosphate [μmol kg-1]", "PO4 [µmol/kg]") ~ "PO4 [µmol kg-1]",
                                     variable %in% c("[NO3]- [µmol/l]",
                                                     # "NO3 [µmol/kg]", # Possible units issue
-                                                    "NO3 [µg-at/l]") ~ "NO3 [µmol/l]", 
+                                                    "NO3 [µg-at/l]") ~ "NO3 [µmol/l]",
+                                    variable %in% c("NO2 [µmol/kg]") ~ "NO2 [µmol kg-1]",
+                                    variable %in% c("NO3 [µmol/kg]") ~ "NO3 [µmol kg-1]",
+                                    variable %in% c("SiO4 [µmol/kg]") ~ "SiO4 [µmol kg-1]",
                                     variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol l-1]",
                                     variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol l-1]",
                                     variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol l-1]",
                                     variable %in% c("nitrate+nitrite [µmol/l]", "[NO3]- + [NO2]- [µmol l-1]",
-                                                    "NO2_NO3 [µmol l-1]") ~ "NO3+NO2 [µmol l-1]",
+                                                    "NO2_NO3 [µmol l-1]", "NO2_NO3 [µmol/l]") ~ "NO2+NO3 [µmol l-1]",
                                     # Bio
                                     variable == "chla [μg kg-1 d]" ~ "chl a [μg kg-1 d-1]",
                                     variable == "fluo_V [volt]" ~ "fluor [volt]",
@@ -90,22 +93,11 @@ check_variable <- function(df){
     #        variable_new = gsub("ice_T", "ice temp T", variable_new))
     mutate(variable_new = gsub("ice_T", "ice temp T", variable_new))
   
-  # Report on changes
-  df_no_var <- filter(df_var, variable == variable_new) |> 
-    dplyr::select(variable, variable_new) |> distinct() |> 
-    filter(!(variable %in% full_var_list$variable))
-  if(nrow(df_no_var) > 0){
-    cat("These variables were not able to be changed to fit the variable list, so they were removed: \n")
-    print(df_no_var$variable)
-  } else {
-    cat("No variable names were corrected.\n")
-  }
-  
-  # Replace variable column and exit
+  # Replace variable column, report on changes, and exit
   df_res <- df_var |> mutate(variable = variable_new) |> dplyr::select(-variable_new) |> 
     filter(variable %in% full_var_list$variable)
   if(nrow(df_res) < nrow(df_var)){
-    cat("These variables could not be match and were removed: \n")
+    cat("These variables could not be matched and were removed: \n")
     print(unique(df_var$variable_new)[!unique(df_var$variable_new) %in% unique(df_res$variable)])
   } else {
     cat("No data removed due to variable names.\n")
@@ -140,6 +132,7 @@ check_driver <- function(df){
 }
 
 # Looks at variable names within the bio category and assigns a species classification if possible
+# df <- df_driv # tester...
 check_spp <- function(df, spp_type = "cat"){
   
   # Split dataframe by bio category
@@ -152,6 +145,7 @@ check_spp <- function(df, spp_type = "cat"){
     cat("No species data.\n")
     return(df)
   } else{
+    suppressWarnings( # Ignore warnings about multiple pieces being cut off of species names
     df_not_PP <- df_not_PP |> 
       dplyr::select(variable) |> distinct() |> 
       separate(variable, into = c("var", "units"), sep = "\\[", remove = FALSE) |>
@@ -159,39 +153,37 @@ check_spp <- function(df, spp_type = "cat"){
       unite(spp1, spp2, col = "spp", sep = " ") |> 
       mutate(units = trimws(paste0("[",units)),
              spp = trimws(gsub(";| -", "", spp)))
+    )
   }
   
-  # Quick check of taxonomy for a given dataset
-  # TODO: Rather first have this check against an existing local spreadsheet of species+classes
-  # Then give a note for those that can't be found
-  # Then search on WORMS and other databases, making notes for where is searched and what is found
-  # If nothing is found anywhere, assign '|?|'
-  # This then needs to be re-run against all uses of 'check_data()' in 'code/data_product.R'
-  # Update species categorisation to see 'Zooplankton' and respond accordingly
-  # Add 'Polar Cod' to check_spp()
+  # Get unique species
+  df_spp_unq <- dplyr::select(df_not_PP, spp) |> distinct()
+  
+  # Search WoRMS for UIDs etc
   if(spp_type == "tax"){
-    df_res <- plyr::ldply(df_not_PP$spp, wm_records_df, .parallel = T, res_type = "tax") |> distinct()
+    df_res <- plyr::ldply(df_spp_unq$spp, wm_records_df, .parallel = T, res_type = "tax") |> distinct()
     return(df_res)
   }
   
-  # Get unique species names and search WoRMS to determine broad categorisation
-  df_cat <- plyr::ldply(df_not_PP$spp, wm_records_df, .parallel = T, res_type = "cat") |> distinct()
+  # Search local NCBI database to get classifications
+  df_cat <- plyr::ldply(df_spp_unq$spp, wm_records_df, .parallel = T, res_type = "cat") |> distinct()
   
   # Report on changes
   df_no_cat <- filter(df_cat, is.na(cat)) |> 
     dplyr::select(species) |> distinct() |> arrange()
-  if(nrow(df_no_cat) > 0){
-    cat("These species were not found on WoRMS: \n")
+  if(nrow(df_no_cat) > 0) {
+    cat("These species were not found in NCBI, GBIF, or WoRMS: \n")
     print(df_no_cat$species)
   } else {
     cat("All species were matched.\n")
   }
   
-  # Add category back into dataframe, merge, and exit
+  # Add category back into data.frame, merge, and exit
   df_not_PP_cat <- left_join(df_not_PP, df_cat, by = c("spp" = "species")) |> 
-    dplyr::select(variable, cat) |> distinct()
+    dplyr::select(variable, cat) |> 
+    mutate(cat = case_when(is.na(cat) ~ "|?|", TRUE ~ cat)) |> distinct()
   df_res <- left_join(df, df_not_PP_cat, by = "variable") |> 
-    mutate(variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |> 
+    mutate(variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |>
     dplyr::select(-cat)
   return(df_res)
   # rm(df, spp_type, df_other, df_PP, df_not_PP); gc()
@@ -202,6 +194,11 @@ check_spp <- function(df, spp_type = "cat"){
 check_site <- function(df){
   if(!exists("full_site_list")) full_site_list <- read_csv("metadata/full_site_list.csv")
   df_site <- left_join(df, full_site_list, by = c("site" = "site_alt"))
+  
+  test1 <- df |> 
+    filter(site != "sval")
+  df_site <- left_join(test1, full_site_list, by = c("site" = "site_alt"))
+  
   
   # Report on changes
   df_no_site <- filter(df_site, is.na(site.y)) |> 
@@ -261,139 +258,48 @@ query_clean <- function(df_clean, q_text, q_col = "URL"){
   return(res)
 }
 
-# Add species classification
-# NB: Currently under construction
-spp_class <- function(){
-  ECC_type  <- ECC_data %>% 
-    mutate(classification = case_when(grepl("|FIS|", variable, fixed = TRUE) == TRUE ~ "Fish",
-                                      grepl("|MAM|", variable, fixed = TRUE) == TRUE ~ "Mammal",
-                                      grepl("|SBI|", variable, fixed = TRUE) == TRUE~ "Bird (Sea)",
-                                      grepl("|NBI|", variable, fixed = TRUE) == TRUE ~ "Bird (Non-sea)",
-                                      grepl("|BIR|", variable, fixed = TRUE) == TRUE ~ "Bird",
-                                      grepl("|ZOO|", variable, fixed = TRUE) == TRUE ~ "Zooplankton",
-                                      grepl("phyto", variable, fixed = TRUE) == TRUE ~ "Phytoplankton"))
+# tryCatch wrapper
+wm_record_try <- function(sp_try){
+  res_try <- tryCatch(wm_records_name(sp_try)[1,], 
+           error = function(sp_try) data.frame())
+  return(res_try)
 }
 
-# Name to latin + english one
-## Use it as -> mutate(nomsp = map(nomSpecies, latin_eng))
-# Classify pelagic moluscs as ZOO, benthic molluscs as MOL
-# NB: May need to include the WORMS code
-latin_eng <- function(nomSpecies){
-  # Fish |FIS|
-  if(nomSpecies == "Benthosema glaciale") nom_long <- "|FIS| Benthosema glaciale (glacier lantern fish)"
-  if(nomSpecies == "Boreogadus saida") nom_long <- "|FIS| Boreogadus saida (polar cod)"
-  if(nomSpecies == "Clupea harengus") nom_long <- "|FIS| Clupea harengus (herring)"
-  if(nomSpecies == "Gadus morhua") nom_long <- "|FIS| Gadus morhua (northeast arctic cod)"
-  if(nomSpecies == "Mallotus villosus") nom_long <- "|FIS| Mallotus villosus (capelin)"
-  if(nomSpecies == "Sebastes mentella") nom_long <- "|FIS| Sebastes mentella (beaked redfish)"
-  if(nomSpecies == "Sebastes norvegicus") nom_long <- "|FIS| Sebastes norvegicus (golden redfish)"
-  # Mammal |MAM|
-  if(nomSpecies == "Cystophora cristata") nom_long <- "|MAM| Cystophora cristata (hooded seal)"
-  if(nomSpecies == "Megaptera novaeangliae") nom_long <- "|MAM| Megaptera novaeangliae (humpback whale)"
-  if(nomSpecies == "Odobenus marinus") nom_long <- "|MAM| Odobenus marinus (walrus)"
-  if(nomSpecies == "Pagophilus groenlandicus") nom_long <- "|MAM| Pagophilus groenlandicus (harp seal)"
-  if(nomSpecies == "Ursus maritimus") nom_long <- "|MAM| Ursus maritimus (polar bear)"
-  # Sea Bird |SBI|
-  if(nomSpecies == "Alca torda") nom_long <- "|SBI| Alca torda (razorbill)"
-  if(nomSpecies == "Alle alle") nom_long <- "|SBI| Alle alle (little auk)"
-  if(nomSpecies == "Cepphus grylle") nom_long <- "|SBI| Cepphus grylle (black guillemot)"
-  if(nomSpecies == "Chroicocephalus ridibundus") nom_long <- "|SBI| Chroicocephalus ridibundus (black-headed gull)"
-  if(nomSpecies == "Falco peregrinus") nom_long <- "|SBI| Falco peregrinus (peregrine falcon)"
-  if(nomSpecies == "Fratercula arctica") nom_long <- "|SBI| Fratercula arctica (atlantic puffin)"
-  if(nomSpecies == "Fulmarus glacialis") nom_long <- "|SBI| Fulmarus glacialis (northern fulmar)"
-  if(nomSpecies == "Gavia adamsii") nom_long <- "|SBI| Gavia adamsii (white-billed diver)"
-  if(nomSpecies == "Gavia immer") nom_long <- "|SBI| Gavia immer (great northern diver)"
-  if(nomSpecies == "Gulosus aristotelis") nom_long <- "|SBI| Gulosus aristotelis (european shag)"
-  if(nomSpecies == "Haliaeetus albicilla") nom_long <- "|SBI| Haliaeetus albicilla (white-tailed eagle)"
-  if(nomSpecies == "Larus argentatus") nom_long <- "|SBI| Larus argentatus (herring gull)"
-  if(nomSpecies == "Larus canus") nom_long <- "|SBI| Larus canus (common gull)"
-  if(nomSpecies == "Larus delawarensis") nom_long <- "|SBI| Larus delawarensis (ring-billed gull)"
-  if(nomSpecies == "Larus fuscus") nom_long <- "|SBI| Larus fuscus (lesser black-backed gull)"
-  if(nomSpecies == "Larus glaucoides") nom_long <- "|SBI| Larus glaucoides (iceland gull)"
-  if(nomSpecies %in% c("Larus hyperboreus", "Larus hypeboreus", "GLGU")) nom_long <- "|SBI| Larus hyperboreus (glaucous gull)"
-  if(nomSpecies == "Larus marinus") nom_long <- "|SBI| Larus marinus (great black-backed gull)"
-  if(nomSpecies == "Larus philadelphia") nom_long <- "|SBI| Larus philadelphia (bonaparte’s gulls)"
-  if(nomSpecies == "Larus smithonianus") nom_long <- "|SBI| Larus smithonianus (american herring gull)"
-  if(nomSpecies %in% c("Larus sp.", "Larus glaucoides/hyperboreus")) nom_long <- "|SBI| Larus sp. (gull unidentified)"
-  if(nomSpecies == "Melanitta fusca") nom_long <- "|SBI| Melanitta fusca (velvet scoter)"
-  if(nomSpecies == "Melanitta nigra") nom_long <- "|SBI| Melanitta nigra (black scoter)"
-  if(nomSpecies == "Morus bassanus") nom_long <- "|SBI| Morus bassanus (northern gannet)"
-  if(nomSpecies == "Oceanodroma leucorhoa") nom_long <- "|SBI| Oceanodroma leucorhoa (leach’s storm-petrels)"
-  if(nomSpecies == "Pagophila eburnea") nom_long <- "|SBI| Pagophila eburnea (ivory gull)"
-  if(nomSpecies == "Phalacrocorax auritus") nom_long <- "|SBI| Phalacrocorax auritus (double-crested cormorant)"
-  if(nomSpecies == "Phalacrocorax carbo") nom_long <- "|SBI| Phalacrocorax carbo (great cormorant)"
-  if(nomSpecies == "Phalaropus fulicarius") nom_long <- "|SBI| Phalaropus fulicarius (red phalarope)"
-  if(nomSpecies == "Podiceps grisegena") nom_long <- "|SBI| Podiceps grisegena (red-necked grebe)"
-  if(nomSpecies == "Polysticta stelleri") nom_long <- "|SBI| Polysticta stelleri (steller’s duck)"
-  if(nomSpecies == "Puffinus gravisn") nom_long <- "|SBI| Puffinus gravisn (greater shearwater)"
-  if(nomSpecies == "Puffinus puffinus") nom_long <- "|SBI| Puffinus puffinus (manx shearwater)"
-  if(nomSpecies == "Rissa tridactyla") nom_long <- "|SBI| Rissa tridactyla (black-legged kittiwake)"
-  if(nomSpecies %in% c("Somateria mollissima", "Somateria mollissima borealis", "Sommateria mollissima")) nom_long <- "|SBI| Somateria mollissima (common eider)"
-  if(nomSpecies == "Somateria spectabilis") nom_long <- "|SBI| Somateria spectabilis (king eider)"
-  if(nomSpecies == "Stercorarius longicaudus") nom_long <- "|SBI| Stercorarius longicaudus (long-tailed skua)"
-  if(nomSpecies == "Stercorarius parasiticus") nom_long <- "|SBI| Stercorarius parasiticus (arctic skua)"
-  if(nomSpecies == "Stercorarius skua") nom_long <- "|SBI| Stercorarius skua (great skua)"
-  if(nomSpecies == "Sterna hirundo") nom_long <- "|SBI| Sterna hirundo (common tern)"
-  if(nomSpecies == "Sterna paradisaea") nom_long <- "|SBI| Sterna paradisaea (arctic tern)"
-  if(nomSpecies == "Uria aalge") nom_long <- "|SBI| Uria aalge (common guillemot)"
-  if(nomSpecies == "Uria lomvia") nom_long <- "|SBI| Uria lomvia (brünnich’s guillemot)"
-  if(nomSpecies == "Xema sabini") nom_long <- "|SBI| Xema sabini (sabine’s gull)"
-  # Non-sea Bird |NBI|
-  if(nomSpecies == "Acanthis hornemanni") nom_long <- "|NBI| Acanthis hornemanni(arctic redpoll)"
-  if(nomSpecies %in% c("Carduelis flammea","RP")) nom_long <- "|NBI| Carduelis flammea (common redpoll)"
-  if(nomSpecies %in% c("Lagopus muta", "Lagopus mutus")) nom_long <- "|NBI| Lagopus mutus (rock ptarmigan)"
-  if(nomSpecies %in% c("Plectrophenax nivalis","SB")) nom_long <- "|NBI| Plectrophenax nivalis (snow bunting)"
-  # Bird |BIR
-  if(nomSpecies == "Anas platyrhynchos") nom_long <- "|BIR| Anas platyrhynchos (mallard)"
-  if(nomSpecies == "Anser brachyrhynchus") nom_long <- "|BIR| Anser brachyrhynchus (pink-footed goose)"
-  if(nomSpecies == "Arenaria interpres") nom_long <- "|BIR| Arenaria interpres (ruddy turnstone)"
-  if(nomSpecies == "Branta Canadensis") nom_long <- "|BIR| Branta canadensis (canada goose)"
-  if(nomSpecies == "Branta bernicla") nom_long <- "|BIR| Branta bernicla (brant goose)"
-  if(nomSpecies == "Branta leucopsis") nom_long <- "|BIR| Branta leucopsis (barnacle goose)"
-  if(nomSpecies %in% c("Bubo scandiacus", "Bubo scandiaca")) nom_long <- "|BIR| Bubo scandiacus (snowy owl)"
-  if(nomSpecies %in% c("Calcarius lapponicus","LB")) nom_long <- "|BIR| Calcarius lapponicus (lapland longspur)"
-  if(nomSpecies == "Calidris alba") nom_long <- "|BIR| Calidris alba (sanderling)"
-  if(nomSpecies == "Calidris alpina") nom_long <- "|BIR| Calidris alpina (dunlin)"
-  if(nomSpecies == "Calidris canutus") nom_long <- "|BIR| Calidris canutus (red knot)"
-  if(nomSpecies == "Calidris maritima") nom_long <- "|BIR| Calidris maritima (purple sandpiper)"
-  if(nomSpecies == "Calidris melanotos") nom_long <- "|BIR| Calidris melanotos (pectoral sandpiper)"
-  if(nomSpecies == "Charadrius hiaticula") nom_long <- "|BIR| Charadrius hiaticula (common ringed plover)"
-  if(nomSpecies == "Clangula hyemalis") nom_long <- "|BIR| Clangula hyemalis (long-tailed duck)"
-  if(nomSpecies == "Corvus corax") nom_long <- "|BIR| Corvus corax (raven)"
-  if(nomSpecies %in% c("Gavia stallata", "Gavia stellata")) nom_long <- "|BIR| Gavia stallata (red-throated loon)"
-  if(nomSpecies == "Histrionicus histrionicus") nom_long <- "|BIR| Histrionicus histrionicus (harlequin duck)"
-  if(nomSpecies == "Mergus serratus") nom_long <- "|BIR| Mergus serratus (red-breasted merganser)"
-  if(nomSpecies %in% c("Oenanthe oenanthe","NW")) nom_long <- "|BIR| Oenanthe oenanthe (northern wheatear)"
-  if(nomSpecies == "Phalaropus lobatus") nom_long <- "|BIR| Phalaropus lobatus (red-necked phalarope)"
-  if(nomSpecies == "Pluvialis apricaria") nom_long <- "|BIR| Pluvialis apricaria (european golden plover)"
-  # Zooplankton |ZOO|
-  if(nomSpecies %in% c("Calanus finmarchicus","atlantic species")) nom_long <- "|ZOO| Calanus finmarchicus (atlantic calanus)"
-  if(nomSpecies %in% c("Calanus glacialis","arctic species")) nom_long <- "|ZOO| Calanus glacialis (arctic calanus)"
-  if(nomSpecies == "Zooplankton") nom_long <- "|ZOO| Zooplankton (Zooplankton)"
-  # Other
-  if(nomSpecies %in% c("", "NA", "NULL")) nom_long <- NA
-  return(nom_long)
-}
-
-# Convenience wrapper for WORMS database query
-# TODO: Get the worms lookup to work with genus initials
-# E.g. P. rubens
+# Convenience wrapper for WORMS and local NCBI database query
 wm_records_df <- function(sp_name, res_type = "df"){
+  
+  # Prep
   URL_error <- NULL
+  sp_info_df <- "none"
   
   # Trim trailing and leading bits
-  sp_no_sp <- trimws(gsub("sp\\.$|spp\\.$|-Ciliata$", "", sp_name))
+  sp_no_sp <- tm::removeNumbers(trimws(gsub("sp\\.$|spp\\.$|-Ciliata$|cf\\.$|indet\\.$|\\ sp$|\\ cf$", "", sp_name)))
   sp_no_pre <- trimws(gsub("young", "", sp_no_sp)) # NB: This will cause errors for a species name with 'young' in it
   
-  sp_info <- tryCatch(wm_records_name(sp_no_pre)[1,], 
-                      error = function(sp_no_pre) {URL_error <<- "Species name doesn't match"})
+  # Get full species name from genus initial
+  # The thought process here is that because we can't know automagically what the Genus name should be,
+  # We get a list of possible matches via GBIF, then cross ref that against WoRMS to get only marine species
+  if(substr(sp_no_pre, 2, 2) == "."){
+    sp_names <- rgbif::name_suggest(sp_no_pre)$data 
+    if(nrow(sp_names) > 0){
+      sp_names <- filter(sp_names, rank == "SPECIES")
+      sp_names <- sp_names[substr(sp_names$canonicalName, 1, 1) == substr(sp_no_pre, 1, 1),]
+      sp_catch <- plyr::ldply(sp_names$canonicalName, wm_record_try, .parallel = TRUE)
+      if(nrow(sp_catch) > 0) sp_catch <- filter(sp_catch, status == "accepted")
+      if(nrow(sp_catch) == 1) sp_no_pre <- sp_catch$scientificname
+    }
+  }
+  
   if(res_type == "df"){
+    sp_info <- wm_record_try(sp_no_pre)
     if(is.null(URL_error)){
       sp_res <- data.frame(species = sp_name, dplyr::select(sp_info, url, lsid))
     } else {
       sp_res <- data.frame(species = sp_name, url = NA, lsid = NA)
     }
   } else if(res_type == "tax"){
+    sp_info <- tryCatch(wm_records_name(sp_no_pre)[1,], 
+                        error = function(sp_no_pre) {URL_error <<- "Species name doesn't match"})
     if(is.null(URL_error)){
       sp_res <- data.frame(species = sp_name, dplyr::select(sp_info, kingdom:genus))
     } else {
@@ -401,24 +307,64 @@ wm_records_df <- function(sp_name, res_type = "df"){
                            class = NA, order = NA, family = NA, genus = NA)
     }
   } else if(res_type == "cat"){
-    if(is.null(URL_error)){
-      # NB: Currently using order as the classifying level for ZOO
-      # It may need to be family for some instances
+    sp_info <- tryCatch(taxizedb::classification(sp_no_pre), 
+                        error = function(sp_no_pre) {URL_error <<- "Species name doesn't match"})
+    if(length(sp_info[[1]]) <= 1){
+      sp_info <- tryCatch(taxizedb::classification(sp_no_pre, db = "gbif"), 
+                          error = function(sp_no_pre) {URL_error <<- "Species name doesn't match"})
+    }
+    if(length(sp_info[[1]]) <= 1){
+      URL_error <- NULL
+      sp_info_df <- tryCatch(wm_records_name(sp_no_pre)[1,], 
+                             error = function(sp_no_pre) {URL_error <<- "Species name doesn't match"})
+    }
+    if(length(sp_info[[1]]) > 1){
+      sp_info_df <- data.frame(flatten(sp_info)) |> 
+        filter(rank %in% c("phylum", "class", "order")) |> dplyr::select(-id) |> 
+        pivot_wider(names_from = rank, values_from = name)
+      if(!("phylum" %in% colnames(sp_info_df))) sp_info_df$phylum <- NA
+      if(!("class" %in% colnames(sp_info_df))) sp_info_df$class <- NA
+      if(!("order" %in% colnames(sp_info_df))) sp_info_df$order <- NA
+      if(sp_name == "Tunicata") sp_info_df$class <- "Tunicata"
+    }
+    if(!is.character(sp_info_df)){
       sp_res <- data.frame(species = sp_name) |> 
-        mutate(cat = case_when(sp_info$class == "Teleostei" ~ "|FIS|",
-                               sp_info$class == "Mammalia" ~ "|MAM|",
-                               sp_info$class == "Aves" ~ "|BIR|",
-                               # sp_info$class %in% "" ~ "|PHY|", # NB: Currently looking for this info
-                               sp_info$order %in% c("Amphipoda", "Anthoathecata", "Calanoida", "Copelata", "Cyclopoida", "Cydippida", "Euphausiacea", "Harpacticoida", "Isopoda", "Phragmophora", "Pteropoda") ~ "|ZOO|",
-                               sp_info$order %in% c("Laminariales") ~ "|ALG|",
-                               sp_info$order %in% c("Decapoda") ~ "|BEN|",
+        mutate(cat = case_when(sp_info_df$class %in% c("Teleostei", "Actinopteri", "Chondrichthyes") ~ "|FIS|",
+                               sp_info_df$class == "Mammalia" ~ "|MAM|",
+                               sp_info_df$class == "Aves" ~ "|BIR|",
+                               sp_info_df$order %in% c("Telonemida", "Coccolithales", "Syracosphaerales", "Pavlovales",
+                                                       "Isochrysidales", "Mischococcales", "Chlorellales") ~ "|PHY|",
+                               sp_info_df$class %in% c("Dinophyceae", "Bacillariophyceae", "Telonemea", "Chlorophyceae",
+                                                       "Cryptophyceae", "Pyramimonadophyceae", "Raphidophyceae", "Dictyochophyceae",
+                                                       "Chrysophyceae", "Coccolithophyceae", "Zygnemophyceae", "Prymnesiophyceae",
+                                                       "Prasinophyceae") ~ "|PHY|",
+                               sp_info_df$order %in% c("Amphipoda", "Anthoathecata", "Calanoida", "Copelata", "Cyclopoida", "Cydippida",
+                                                       "Euphausiacea", "Harpacticoida", "Isopoda", "Phragmophora", "Pteropoda",
+                                                       "Aphragmophora", "Mysida", "Cumacea", "Tanaidacea", "Craspedida") ~ "|ZOO|",
+                               sp_info_df$order %in% c("Laminariales") ~ "|ALG|",
+                               sp_info_df$order %in% c("Decapoda") ~ "|BEN|",
+                               # NB: These catch the cases when only a high level is given. E.g. 'Echinodermata'
+                               sp_info_df$class %in% c("Hexanauplia", "Ostracoda", "Hydrozoa", "Scyphozoa", "Nuda", "Branchiopoda",
+                                                       "Appendicularia", "Catenulida", "Centroplasthelida") ~ "|ZOO|",
+                               sp_info_df$class %in% c("Thecostraca", "Polychaeta", "Bivalvia", "Gastropoda", "Anthozoa",
+                                                       "Enteropneusta", "Tunicata") ~ "|BEN|",
+                               sp_info_df$phylum %in% c("Echinodermata", "Bryozoa", "Nemertea", "Nematoda") ~ "|BEN|",
+                               sp_info_df$phylum %in% c("Bacillariophyta", "Cryptophyta") ~ "|PHY|",
+                               sp_info_df$phylum %in% c("Foraminifera", "Ciliophora", "Rotifera", "Ctenophora", "Chaetognatha", 
+                                                        "Heliozoa") ~ "|ZOO|",
                                TRUE ~ "|?|"))
+      if(sp_name == "Pisces") sp_res$cat <- "|FIS|"
     } else {
       sp_res <- data.frame(species = sp_name, cat = NA)
+      if(grepl("Nitzschia|Pinnularia|Navicula|Groenlandiella", sp_name)) sp_res$cat <- "|PHY|"
+      if(grepl("Zooplankton|finmarchicus", sp_name)) sp_res$cat <- "|ZOO|"
+      # NB: This is a viable but time consuming solution to the Genera initial issue
+      if(grepl("A\\. esculenta|L\\. digitata|L\\. saccharina|S\\. latissima|L\\. solidungula|
+               |L\\. hyperborea", sp_name)) sp_res$cat <- "|ALG|"
     }
   }
   return(sp_res)
-  # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_res, URL_error); gc()
+  # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_info_df, sp_res, URL_error); gc()
 }
 
 # Convenience function to catch inconsistent column types
@@ -788,6 +734,7 @@ pg_dl_prep <- function(pg_dl){
 # pg_doi <- "10.1594/PANGAEA.547958" # Date character issue
 # pg_doi <- "10.1594/PANGAEA.834742" # Subscript issue
 # pg_doi <- "10.1594/PANGAEA.715971" # Funny column
+# pg_doi <- "10.1594/PANGAEA.745084" # Taxonomy data
 pg_dl_proc <- function(pg_doi){
   
   # Get data
@@ -981,7 +928,7 @@ pg_var_melt <- function(pg_clean, query_sub){
   pg_fix <- pg_clean; colnames(pg_fix) <- cols_fix; rm(pg_clean); gc()
   sub_cols <- colnames(pg_fix)[colnames(pg_fix) %in% unique(query_ID$pg_col_name)]
   sub_cols <- sub_cols[!sub_cols %in% c("date_accessed", "URL", "citation", "site", "lon", "lat", "date", "depth")]
-  print(sub_cols)
+  print(unique(sub_cols))
   if(length(sub_cols) == 0) return()
   
   # Subset and melt data.frame

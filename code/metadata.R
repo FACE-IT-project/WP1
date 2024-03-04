@@ -22,13 +22,14 @@ library(ggraph) # Necessary to load here as one function is manually overwritten
 library(RColorBrewer)
 library(raster)
 library(rgdal)
-# library(sp) # This needs to be phased out...
 library(sf)
 library(circular) # For calculating mean daily wind direction from degree values
 library(pangaear)
 library(worrms)
 library(arrow)
 library(seacarb)
+# library(taxize)
+library(taxizedb)
 library(doParallel); registerDoParallel(cores = 12)
 
 # Find who is the user and define the pCloud path
@@ -47,10 +48,20 @@ Sys.setenv(TZ = "UTC")
 # Set system time to English
 Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 
+# Download NCBI database for species names
+# NB: Doesn't need to be run often
+# db_download_ncbi(verbose = TRUE, overwrite = FALSE)
+# db_download_itis(verbose = TRUE, overwrite = FALSE)
+# db_download_tpl(verbose = TRUE, overwrite = FALSE)
+# db_download_wfo(verbose = TRUE, overwrite = FALSE)
+# db_download_col(verbose = TRUE, overwrite = FALSE)
+# db_download_gbif(verbose = TRUE, overwrite = FALSE)
+# db_download_wikidata(verbose = TRUE, overwrite = FALSE)
+
 
 # Sites --------------------------------------------------------
 
-### Relevant sites --------------------------------------------------------
+## Relevant sites --------------------------------------------------------
 
 ## Norway
 # Troms og Finnmark: Province(s) for Porsangerfjorden
@@ -80,7 +91,7 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 # Outside municipalities: Young Sound appears to fall outside of a municipality
 
 
-### Link sites --------------------------------------------------------------
+## Link sites --------------------------------------------------------------
 
 # The list of sites created to help with linking
 # full_site_list <- dplyr::select(full_ALL, site) |> distinct() |>
@@ -117,7 +128,7 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 # write_csv(full_site_list, "metadata/full_site_list.csv")
 
 
-### Add new sites ---------------------------------------------------------
+## Add new sites ---------------------------------------------------------
 
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
@@ -133,15 +144,20 @@ full_site_list <- read_csv("metadata/full_site_list.csv")
 # write_csv(full_site_list, "metadata/full_site_list.csv")
 
 
-# Remove sites ------------------------------------------------------------
+## Remove sites ------------------------------------------------------------
 
 # Manually remove sites
-# full_site_list <- full_site_list |> 
-#   mutate(site_alt = case_when(is.na(site_long) & 
-#                                 grepl("Westgreenland|Eastgreenland|West- Eastgreenland", site_alt) ~ as.character(NA),
-#                               TRUE ~ site_alt)) |> 
+# full_site_list <- full_site_list |>
+#   # mutate(site_alt = case_when(is.na(site_long) &
+#   #                               grepl("Westgreenland|Eastgreenland|West- Eastgreenland", site_alt) ~ as.character(NA),
+#   #                             TRUE ~ site_alt)) |>
+#   mutate(site_alt = case_when(site == "stor" & site_long == "Isfjorden" ~ as.character(NA), TRUE ~ site_alt)) |> 
 #   filter(!is.na(site_alt))
 # write_csv(full_site_list, "metadata/full_site_list.csv")
+
+# Check for duplicates
+# site_dup <- full_site_list |> 
+#   summarise(count = n(), .by = "site_alt")
 
 
 # Variables ---------------------------------------------------------------
@@ -155,9 +171,9 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 ## Manually add variables -------------------------------------------------
 
 # full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("chem"),
-#                                   driver = c("nutrients"),
-#                                   variable = c("PO4 [µmol l-1]", "NH4 [µmol l-1]", "NO2 [µmol l-1]"))) |>
+#                        data.frame(category = c("bio"),
+#                                   driver = c("spp rich"),
+#                                   variable = c("Bubo scandiacus [presence]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 

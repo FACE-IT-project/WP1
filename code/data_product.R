@@ -3107,6 +3107,9 @@ young_species_GEM <- rbind(young_bird_nests_eggs,
                            young_bird_nests_hatch,
                            young_bird_abundance,
                            young_bird_broods) |> 
+  mutate(variable = str_replace(variable, "Larus hypeboreus", "Larus hyperboreus"),
+         variable = str_replace(variable, "Sommateria mollissima", "Somateria mollissima"),
+         variable = str_replace(variable, "Bubo scandiaca", "Bubo scandiacus")) |> 
   mutate(type = "survey") |> distinct() |> check_data()
 save(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.RData")
 write_csv(young_species_GEM, file = "~/pCloudDrive/restricted_data/GEM/young/young_species_GEM.csv")
