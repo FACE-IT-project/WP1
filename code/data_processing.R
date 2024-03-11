@@ -16,6 +16,7 @@ source("code/functions.R")
 library(tidync)
 library(ncdump)
 library(ggOceanMaps)
+library(readxl)
 
 
 # SOCAT -------------------------------------------------------------------
@@ -569,13 +570,13 @@ Gattuso_data2 <- read_csv_arrow("~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO
 write_csv(Gattuso_data2, "~/pCloudDrive/restricted_data/Gattuso/AWIPEV-CO2_v2_PG.csv")
 
 
-# Miller dataset ----------------------------------------------------------
+# Miller datasets ---------------------------------------------------------
 
 # Load each dataset and join
-Miller_flow <- read_csv("~/pCloudDrive/restricted_data/Miller/Flow Rate.csv", na = c("NaN", -99))
-Miller_O2 <- read_csv("~/pCloudDrive/restricted_data/Miller/O2.csv", na = "NaN")
-Miller_sal <- read_csv("~/pCloudDrive/restricted_data/Miller/Sal.csv", na = "NaN")
-Miller_temp <- read_csv("~/pCloudDrive/restricted_data/Miller/Temp.csv", na = "NaN")
+Miller_flow <- read_csv("~/pCloudDrive/restricted_data/Miller/system/Flow Rate.csv", na = c("NaN", -99))
+Miller_O2 <- read_csv("~/pCloudDrive/restricted_data/Miller/system/O2.csv", na = "NaN")
+Miller_sal <- read_csv("~/pCloudDrive/restricted_data/Miller/system/Sal.csv", na = "NaN")
+Miller_temp <- read_csv("~/pCloudDrive/restricted_data/Miller/system/Temp.csv", na = "NaN")
 Miller_data <- left_join(Miller_flow, Miller_O2, by = "DateTime") |> 
   left_join(Miller_sal, by = "DateTime") |> left_join(Miller_temp, by = "DateTime") |> 
   separate(DateTime, into = c("date", "time"), sep = " ") |> 
@@ -586,7 +587,39 @@ Miller_data <- left_join(Miller_flow, Miller_O2, by = "DateTime") |>
   separate(name, into = c("replicate", "variable"), sep = "_") |> 
   pivot_wider(names_from = variable, values_from = value) |> 
   dplyr::rename(`Flow rate [L/min]` = `Flow rate (L min-1)`, `O2 [%]` = `% O2`, `Temp [°C]` = Temp)
-write_csv(Miller_data, "~/pCloudDrive/restricted_data/Miller/Miller_tidy.csv")
+write_csv(Miller_data, "~/pCloudDrive/restricted_data/Miller/system/Miller_tidy.csv")
+
+# Svalbard mesocosm
+Miller_sval_inc <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Incubations", na = "NaN") |> 
+  separate(col = `Datetime (UTC)`, into = c("date/time start [UTC+0]", "date/time end [UTC+0]"), sep = "–") |> 
+  mutate(`date/time start [UTC+0]` = trimws(`date/time start [UTC+0]`),
+         `date/time end [UTC+0]` = trimws(`date/time end [UTC+0]`),
+         `date/time start [UTC+0]` = str_replace(`date/time start [UTC+0]`, "20210-7-04", "2021-07-04"),
+         `date/time start [UTC+0]` = str_replace(`date/time start [UTC+0]`, " ", "T"),
+         `date/time end [UTC+0]` = str_replace(`date/time end [UTC+0]`, " ", "T"),
+         `date/time end [UTC+0]` = case_when(grepl("2021-07-23T08:07", `date/time end [UTC+0]`) ~ "2021-07-23T08:07", 
+                                             TRUE ~ `date/time end [UTC+0]`)) |> 
+  dplyr::rename("Net Community Production [µmol O2 g dw-1 h-1]" = "Net Community Production (µmol O2 g dw-1 h-1)",
+                "PAR [mmol photons m-2 h-1]" = "PAR (mmol photons m-2 h-1)") |> 
+  mutate_at(1:8, ~as.character(.)) |>
+  mutate_at(1:8, ~replace_na(., ""))
+write_csv(Miller_sval_inc, "~/pCloudDrive/restricted_data/Miller/Svalbard/Miller_sval_inc_tidy.csv")
+
+Miller_sval_data_1 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata Control", na = "NaN") 
+Miller_sval_data_2 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata MSM", na = "NaN") 
+Miller_sval_data_3 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata MSH", na = "NaN") 
+Miller_sval_data_4 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata HT", na = "NaN") 
+Miller_sval_data <- rbind(Miller_sval_data_1, Miller_sval_data_2, Miller_sval_data_3, Miller_sval_data_4) |> 
+  dplyr::rename("date/time [UTC+0]" = "Datetime (UTC)", "O2 [µmol kg-1]" = "O2 (µmol kg-1)",
+                "temp [°C]" = "Temperature (℃)", "sal" = "Salinity", "PAR [µmol phot m-2 min-1]" = "PAR (µmol photons m-2 min-1)") |> 
+  mutate(`date/time [UTC+0]` = str_replace(`date/time [UTC+0]`, " ", "T")) |> 
+  mutate_at(1:8, ~as.character(.)) |>
+  mutate_at(1:8, ~replace_na(., ""))
+rm(Miller_sval_data_1, Miller_sval_data_2, Miller_sval_data_3, Miller_sval_data_4); gc()
+write_csv(Miller_sval_data, "~/pCloudDrive/restricted_data/Miller/Svalbard/Miller_sval_data_tidy.csv")
+
+# Tromso mesocosm
+
 
 
 # Lund-Hansen -------------------------------------------------------------
