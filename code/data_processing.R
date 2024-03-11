@@ -589,7 +589,7 @@ Miller_data <- left_join(Miller_flow, Miller_O2, by = "DateTime") |>
   dplyr::rename(`Flow rate [L/min]` = `Flow rate (L min-1)`, `O2 [%]` = `% O2`, `Temp [°C]` = Temp)
 write_csv(Miller_data, "~/pCloudDrive/restricted_data/Miller/system/Miller_tidy.csv")
 
-# Svalbard mesocosm
+# Svalbard mesocosm incubations
 Miller_sval_inc <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Incubations", na = "NaN") |> 
   separate(col = `Datetime (UTC)`, into = c("date/time start [UTC+0]", "date/time end [UTC+0]"), sep = "–") |> 
   mutate(`date/time start [UTC+0]` = trimws(`date/time start [UTC+0]`),
@@ -605,21 +605,53 @@ Miller_sval_inc <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pan
   mutate_at(1:8, ~replace_na(., ""))
 write_csv(Miller_sval_inc, "~/pCloudDrive/restricted_data/Miller/Svalbard/Miller_sval_inc_tidy.csv")
 
+# Svalbard mesocosm records
 Miller_sval_data_1 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata Control", na = "NaN") 
 Miller_sval_data_2 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata MSM", na = "NaN") 
 Miller_sval_data_3 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata MSH", na = "NaN") 
 Miller_sval_data_4 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata HT", na = "NaN") 
 Miller_sval_data <- rbind(Miller_sval_data_1, Miller_sval_data_2, Miller_sval_data_3, Miller_sval_data_4) |> 
+  # separate(`Datetime (UTC)`, into = c("date", "time"), sep = " ")
+  mutate(`Datetime (UTC)` = round_date(as.POSIXct(`Datetime (UTC)`), unit = "1 minute")) |> 
   dplyr::rename("date/time [UTC+0]" = "Datetime (UTC)", "O2 [µmol kg-1]" = "O2 (µmol kg-1)",
                 "temp [°C]" = "Temperature (℃)", "sal" = "Salinity", "PAR [µmol phot m-2 min-1]" = "PAR (µmol photons m-2 min-1)") |> 
-  mutate(`date/time [UTC+0]` = str_replace(`date/time [UTC+0]`, " ", "T")) |> 
   mutate_at(1:8, ~as.character(.)) |>
-  mutate_at(1:8, ~replace_na(., ""))
+  mutate_at(1:8, ~replace_na(., "")) |> 
+  mutate(`date/time [UTC+0]` = str_replace(`date/time [UTC+0]`, " ", "T")) 
 rm(Miller_sval_data_1, Miller_sval_data_2, Miller_sval_data_3, Miller_sval_data_4); gc()
 write_csv(Miller_sval_data, "~/pCloudDrive/restricted_data/Miller/Svalbard/Miller_sval_data_tidy.csv")
 
-# Tromso mesocosm
+# Tromso mesocosm mesocosm incubations
+Miller_trom_inc <- read_excel("~/pCloudDrive/restricted_data/Miller/Tromso/Pangea data_Tromso paper.xlsx", "Incubations", na = c("NaN", "—")) |> 
+  separate(col = `Datetime (UTC)`, into = c("date/time start [UTC+0]", "date/time end [UTC+0]"), sep = "–") |> 
+  mutate(`date/time start [UTC+0]` = trimws(`date/time start [UTC+0]`),
+         `date/time end [UTC+0]` = trimws(`date/time end [UTC+0]`),
+         `date/time start [UTC+0]` = str_replace(`date/time start [UTC+0]`, "20220-7-03", "2022-07-03"),
+         `date/time start [UTC+0]` = str_replace(`date/time start [UTC+0]`, " ", "T"),
+         `date/time end [UTC+0]` = case_when(grepl("2022-07-21 13:23", `date/time end [UTC+0]`) ~ "2022-07-21 13:23", 
+                                             TRUE ~ `date/time end [UTC+0]`),
+         `date/time end [UTC+0]` = str_replace(`date/time end [UTC+0]`, " ", "T")) |> 
+  dplyr::rename("Net Community Production [µmol O2 g dw-1 h-1]" = "Net Community Production (µmol O2 g dw-1 h-1)",
+                "PAR [mmol photons m-2 h-1]" = "PAR (mmol photons m-2 h-1)") |> 
+  mutate_at(1:8, ~as.character(.)) |>
+  mutate_at(1:8, ~replace_na(., ""))
+write_csv(Miller_trom_inc, "~/pCloudDrive/restricted_data/Miller/Tromso/Miller_trom_inc_tidy.csv")
 
+# Tromso mesocosm records
+Miller_trom_data_1 <- read_excel("~/pCloudDrive/restricted_data/Miller/Tromso/Pangea data_Tromso paper.xlsx", "Metadata Control", na = "NaN") 
+Miller_trom_data_2 <- read_excel("~/pCloudDrive/restricted_data/Miller/Tromso/Pangea data_Tromso paper.xlsx", "Metadata CHT", na = "NaN") 
+Miller_trom_data_3 <- read_excel("~/pCloudDrive/restricted_data/Miller/Tromso/Pangea data_Tromso paper.xlsx", "Metadata 1MH", na = "NaN") 
+Miller_trom_data_4 <- read_excel("~/pCloudDrive/restricted_data/Miller/Tromso/Pangea data_Tromso paper.xlsx", "Metadata 2MH", na = "NaN") 
+Miller_trom_data <- rbind(Miller_trom_data_1, Miller_trom_data_2, Miller_trom_data_3, Miller_trom_data_4) |> 
+  # separate(`Datetime (UTC)`, into = c("date", "time"), sep = " ")
+  mutate(`Datetime (UTC)` = round_date(as.POSIXct(`Datetime (UTC)`), unit = "1 minute")) |> 
+  dplyr::rename("date/time [UTC+0]" = "Datetime (UTC)", "O2 [µmol kg-1]" = "O2 (µmol kg-1)",
+                "temp [°C]" = "Temperature (℃)", "sal" = "Salinity", "PAR [µmol phot m-2 min-1]" = "PAR (µmol photons m-2 min-1)") |> 
+  mutate_at(1:8, ~as.character(.)) |>
+  mutate_at(1:8, ~replace_na(., "")) |> 
+  mutate(`date/time [UTC+0]` = str_replace(`date/time [UTC+0]`, " ", "T")) 
+rm(Miller_trom_data_1, Miller_trom_data_2, Miller_trom_data_3, Miller_trom_data_4); gc()
+write_csv(Miller_trom_data, "~/pCloudDrive/restricted_data/Miller/Tromso/Miller_trom_data_tidy.csv")
 
 
 # Lund-Hansen -------------------------------------------------------------
