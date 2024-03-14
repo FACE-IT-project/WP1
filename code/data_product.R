@@ -4556,6 +4556,7 @@ print(unique(clean_salinity$variable))
 
 # TODO: Look into variables
 # TODO: Look into very deep PAR data
+# TODO: Look into dataset in ~2018 with way to many data points
 
 # Get all PAR+UV data
 clean_light <- filter(full_ALL, driver == "light") |> filter(value > 0) |> distinct()
@@ -4567,6 +4568,7 @@ print(unique(clean_light$variable))
 ### Carb -------------------------------------------------------------------
 
 # TODO: Sort out the variable conversions etc.
+# TODO: Look into dramatic increase in data points from ~2008
 # Bring DIC back into dataset
 # pH is not always the same, there are different scales with differences of up to 0.2
 ## It requires expert knowledge and review of each citation to determine the provenence of the pH scale...
