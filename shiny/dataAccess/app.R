@@ -275,6 +275,7 @@ ui <- dashboardPage(
                            # Site name
                            selectizeInput(
                              'selectSite', '1. Study site',
+                             multiple = TRUE,
                              choices = sites_named,
                              options = list(
                                placeholder = 'Select a site to begin',
@@ -354,14 +355,7 @@ ui <- dashboardPage(
                            ),
                            
                            # Category - 2. Category(s)
-                           selectizeInput(
-                             'selectCatSummary', '2. Category(s)',
-                             choices = long_names$category_long,
-                             multiple = TRUE,
-                             options = list(
-                               placeholder = 'Select category(s)',
-                               onInitialize = I('function() { this.setValue(""); }'))
-                           ),
+                           uiOutput("selectCatSummaryUI"),
                            # uiOutput("selectCatUI"),
                            
                            # Drivers - 3. Driver(s)
@@ -370,6 +364,22 @@ ui <- dashboardPage(
                            # Variables - 4. Variable(s)
                            # uiOutput("selectVarUI"),
                           
+                       ),
+                       box(width = 12, title = "Summarise data", # height = "880px",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                           
+                           # Site name
+                           selectizeInput(
+                             'selectGroupSummary', '1. Grouping',
+                             choices = c("Category", "Driver", "Variable"),
+                             multiple = FALSE,
+                             options = list(
+                               placeholder = 'Select a grouping to begin',
+                               onInitialize = I('function() { this.setValue(""); }'))
+                           ),
+                           
+                           # Category - 2. C...
+                           # uiOutput("selectCatUI")
                        )
                 ),
                 
@@ -377,7 +387,8 @@ ui <- dashboardPage(
                 column(width = 9,
                        box(width = 12, title = "Summary", height = "850px", 
                            status = "info", solidHeader = TRUE, collapsible = FALSE,
-                           shinycssloaders::withSpinner(plotOutput("summaryPlot", height = "700px"), 
+                           # shinycssloaders::withSpinner(plotOutput("summaryPlot", height = "750px"), 
+                           shinycssloaders::withSpinner(plotlyOutput("summaryPlotly", height = "750px"),
                                                         type = 6, color = "#b0b7be"))
                        )
                 )
@@ -440,9 +451,10 @@ server <- function(input, output, session) {
   
   ## Reactive UI -------------------------------------------------------------
   
-  # Select drivers
+  # Data downloading
+  ## Select categories
   output$selectCatUI <- renderUI({
-    if(input$selectSite %in%  c("kong", "is", "stor", "young", "disko", "nuup", "por")){
+    if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in%  input$selectSite)){
       cat_choices <- c("Cryosphere" = "cryo", "Physical" = "phys", "Chemistry" = "chem",
                        "Biology" = "bio", "Social" = "soc")
     } else{
@@ -459,9 +471,9 @@ server <- function(input, output, session) {
     )
   })
   
-  # Select drivers
+  ## Select drivers
   output$selectDrivUI <- renderUI({
-    if(input$selectSite %in%  c("kong", "is", "stor", "young", "disko", "nuup", "por") & length(input$selectCat) > 0){
+    if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in% input$selectSite) & length(input$selectCat) > 0){
       driv_choices_base <- droplevels(unique(filter(long_names, category %in% input$selectCat)))
       driv_choices <- as.character(driv_choices_base$driver)
       names(driv_choices) <- driv_choices_base$driver_long
@@ -478,28 +490,9 @@ server <- function(input, output, session) {
     )
   })
   
-  # Select drivers
-  output$selectDrivSummaryUI <- renderUI({
-    if(length(input$selectCatSummary) > 0){
-      driv_choices_base <- droplevels(unique(filter(long_names, category_long %in% input$selectCatSummary)))
-      driv_choices <- as.character(driv_choices_base$driver)
-      names(driv_choices) <- driv_choices_base$driver_long
-    } else{
-      driv_choices <- ""
-    }
-    selectizeInput(
-      'selectDrivSummary', '3. Driver(s)',
-      choices = driv_choices, multiple = T,
-      options = list(
-        placeholder = 'Select driver(s)',
-        onInitialize = I('function() { this.setValue(""); }')
-      )
-    )
-  })
-  
-  # Select variables
+  ## Select variables
   output$selectVarUI <- renderUI({
-    if(input$selectSite %in%  c("kong", "is", "stor", "young", "disko", "nuup", "por") & 
+    if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in% input$selectSite) & 
        length(input$selectCat) > 0 & length(input$selectDriv) > 0){
       var_choices <- unique(df_driv()$variable)
     } else{
@@ -510,6 +503,45 @@ server <- function(input, output, session) {
       choices = var_choices, multiple = T,
       options = list(
         placeholder = 'Select variable(s)',
+        onInitialize = I('function() { this.setValue(""); }')
+      )
+    )
+  })
+  
+  # Data summary
+  ## Select categories
+  output$selectCatSummaryUI <- renderUI({
+    if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in% input$selectSiteSummary)){
+      cat_choices <- c("Cryosphere" = "cryo", "Physical" = "phys", "Chemistry" = "chem",
+                       "Biology" = "bio", "Social" = "soc")
+    } else{
+      cat_choices <- ""
+    }
+    selectizeInput(
+      'selectCatSummary', '2. Category(s)',
+      choices = cat_choices,
+      multiple = T,
+      options = list(
+        placeholder = 'Select category(s)',
+        onInitialize = I('function() { this.setValue(""); }')
+      )
+    )
+  })
+  
+  ## Select drivers
+  output$selectDrivSummaryUI <- renderUI({
+    if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in% input$selectSiteSummary) & length(input$selectCatSummary) > 0){
+      driv_choices_base <- droplevels(unique(filter(long_names, category %in% input$selectCatSummary)))
+      driv_choices <- as.character(driv_choices_base$driver)
+      names(driv_choices) <- driv_choices_base$driver_long
+    } else{
+      driv_choices <- ""
+    }
+    selectizeInput(
+      'selectDrivSummary', '3. Driver(s)',
+      choices = driv_choices, multiple = T,
+      options = list(
+        placeholder = 'Select driver(s)',
         onInitialize = I('function() { this.setValue(""); }')
       )
     )
@@ -571,7 +603,7 @@ server <- function(input, output, session) {
   # Filter button
   observeEvent(c(input$selectSite, input$selectCat, input$selectDriv, input$selectvar), {
     output$filterDataUI <- renderUI({
-      if(!input$selectSite %in% long_sites$site) {
+      if(!any(input$selectSite %in% long_sites$site)) {
         actionBttn(inputId = "filterNA", label = "Select site", color = "danger", size = "sm", block = TRUE, style = "pill")
       } else if(length(input$selectCat) == 0){
         actionBttn(inputId = "filterNA", label = "Select category(s)", color = "danger", size = "sm", block = TRUE, style = "pill")
@@ -788,6 +820,8 @@ server <- function(input, output, session) {
   map_base <- reactive({
     req(input$selectSite)
     
+    if(length(input$selectSite) > 1) return()
+    
     # Base map reacts to site selection
     if(input$selectSite == "por") bbox_name <- bbox_por
     if(input$selectSite == "kong") bbox_name <- bbox_kong
@@ -824,6 +858,9 @@ server <- function(input, output, session) {
   
   output$mapPlot <- renderPlotly({
     req(input$filterData)
+    
+    # TODO: Implement a wrapper function that can create faceted maps for multiple site choices
+    if(length(input$selectSite) > 1) return()
     
     baseMap <- map_base()
     
@@ -916,21 +953,46 @@ server <- function(input, output, session) {
   output$summaryPlot <- renderPlot({
     req(input$selectSiteSummary, input$selectDrivSummary)
     
-    df_label <- data.frame(site = input$selectSiteSummary,
-                           cat = input$selectCatSummary,
-                           driv = input$selectDrivSummary) |> 
-      pivot_longer(cols = site:driv) |> 
-      mutate(x = 1:n(), y = 1:n())
+    # df_label <- data.frame(site = input$selectSiteSummary,
+    #                        cat = input$selectCatSummary,
+    #                        driv = input$selectDrivSummary) |> 
+    #   pivot_longer(cols = site:driv) |> 
+    #   mutate(x = 1:n(), y = 1:n())
+    # file_choice <- expand.grid("clean", input$selectCatSummary, input$selectDrivSummary, input$selectSiteSummary) |> 
+    #   unite(col = "all", sep = "_")
+    # file_list <- data.frame(files = full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]) |> 
+    #   mutate(y = 1:n(), x = 1)
+    # 
+    # full_data_paths_list <- data.frame(files = full_data_paths) |> 
+    #   mutate(y = 1:n(), x = 1)
     
-    ggplot(data = df_label, aes(x = x, y = y)) + geom_label(aes(colour = name, label = value))
+    # Load initial data
+    # df_summary <- purrr::map_dfr(file_list$files, read_csv_arrow)
+    
+    # plot(nrow(file_list), type = "p")
+    
+    df_summary <- df_summary()
+    
+    ggplot(data = df_summary, aes(x = date, y = value)) + geom_point(aes(colour = category))
     
   })
   
+  # Interactive plotly summary figure
   output$summaryPlotly <- renderPlotly({
     req(input$selectSiteSummary, input$selectDrivSummary)
     
-    df_summary <- df_summary()# |> 
-      # mutate(year = year(date))
+    # Initial data
+    df_summary <- df_summary() |> 
+      left_join(long_names, by = c("category", "driver")) |> 
+      mutate(year = year(date))
+    
+    # Filter by year
+    
+    # Summarise by date: Daily, Yearly, monthly clim
+    
+    # Summarise by value: count, raw value
+    
+    # Summarise by meta: count of variables or DOIs
     
     # df_summarise <- df_summary |> 
       # summarise(data_count = n(), .by = c("year", "category"))
@@ -943,8 +1005,10 @@ server <- function(input, output, session) {
                                      "<br>Driver: ",driver_long,
                                      "<br>Variable: ",variable,
                                      "<br>Year: ",year,
-                                     "<br>Count: ",count,
-                                     "<br>Embargoed: ",embargo))) +
+                                     # "<br>Count: ",count,
+                                     "<br>Embargoed: ",embargo)
+                       )
+                   ) +
         labs(x = "Year", y = "Count", colour = "Category") +
         theme_bw() +
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
