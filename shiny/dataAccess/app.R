@@ -49,7 +49,10 @@ CatColAbr <- c(
 # input <- data.frame(cleanVSfull = "clean",
 #                     selectSite = "is",
 #                     selectCat = c("cryo", "chem"),
-#                     selectDriv = c("sea ice", "nutrients"))
+#                     selectDriv = c("sea ice", "nutrients"),
+#                     selectSiteSummary = c("stor", "young"),
+#                     selectCatSummary = c("chem"),
+#                     selectDrivSummary = c("carb", "nutrients"))
 
 # Embargoed data
 data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
@@ -107,22 +110,22 @@ map_hi <- read_csv_arrow("coastline_hi_sub.csv")
 
 # Load site data summary
 ## NB: Code run once to generate spreadsheet
-# if(!exists("clean_all")) load("data/analyses/clean_all.RData")
+# if(!exists("clean_all")) load("~/WP1/data/analyses/clean_all.RData")
 # clean_meta <- clean_all %>%
 #   filter(site %in% long_sites$site) %>%
 #   group_by(site, category, driver) %>%
 #   summarise(count = n(), .groups = "drop") %>%
-#   tidyr::complete(site, category, driver) %>% 
+#   tidyr::complete(site, category, driver) %>%
 #   left_join(long_names, by = c("category", "driver")) %>%
 #   left_join(long_sites, by = "site") %>%
-#   filter(!is.na(driver_long)) %>% 
-#   mutate(count = replace_na(count, 0)) %>% 
+#   filter(!is.na(driver_long)) %>%
+#   mutate(count = replace_na(count, 0)) %>%
 #   dplyr::select(site, site_long, category, category_long, driver, driver_long, count)
 # save(clean_meta, file = "~/WP1/shiny/dataAccess/clean_meta.RData")
 load("clean_meta.RData")
 
 # Load citation summary
-# if(!exists("clean_all")) load("data/analyses/clean_all.RData")
+# if(!exists("clean_all")) load("~/WP1/data/analyses/clean_all.RData")
 # clean_citation <- clean_all %>%
 #   filter(site %in% long_sites$site) %>%
 #   group_by(date_accessed, URL, citation, site, category, driver) %>%
@@ -201,7 +204,7 @@ ui <- dashboardPage(
                      style = "material-flat",
                      color = "success"
                    ),
-                   br(),
+                   br(), br(),
                    
                    # Sidebar menu with multiple drop downs
                    sidebarMenu(
@@ -334,6 +337,52 @@ ui <- dashboardPage(
               )
       ),
       
+      tabItem(tabName = "summary",
+              fluidRow(
+                column(width = 3,
+                       box(width = 12, title = "Filter data", # height = "880px",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                           
+                           # Site name
+                           selectizeInput(
+                             'selectSiteSummary', '1. Study site',
+                             choices = sites_named,
+                             multiple = TRUE,
+                             options = list(
+                               placeholder = 'Select a site to begin',
+                               onInitialize = I('function() { this.setValue(""); }'))
+                           ),
+                           
+                           # Category - 2. Category(s)
+                           selectizeInput(
+                             'selectCatSummary', '2. Category(s)',
+                             choices = long_names$category_long,
+                             multiple = TRUE,
+                             options = list(
+                               placeholder = 'Select category(s)',
+                               onInitialize = I('function() { this.setValue(""); }'))
+                           ),
+                           # uiOutput("selectCatUI"),
+                           
+                           # Drivers - 3. Driver(s)
+                           uiOutput("selectDrivSummaryUI"),
+                           
+                           # Variables - 4. Variable(s)
+                           # uiOutput("selectVarUI"),
+                          
+                       )
+                ),
+                
+                # Map and time series plots
+                column(width = 9,
+                       box(width = 12, title = "Summary", height = "850px", 
+                           status = "info", solidHeader = TRUE, collapsible = FALSE,
+                           shinycssloaders::withSpinner(plotOutput("summaryPlot", height = "700px"), 
+                                                        type = 6, color = "#b0b7be"))
+                       )
+                )
+      ),
+      
       # Data tables
       tabItem(tabName = "information",
               box(width = 12, title = "Data availability per citation", #height = "390px",
@@ -421,6 +470,25 @@ server <- function(input, output, session) {
     }
     selectizeInput(
       'selectDriv', '3. Driver(s)',
+      choices = driv_choices, multiple = T,
+      options = list(
+        placeholder = 'Select driver(s)',
+        onInitialize = I('function() { this.setValue(""); }')
+      )
+    )
+  })
+  
+  # Select drivers
+  output$selectDrivSummaryUI <- renderUI({
+    if(length(input$selectCatSummary) > 0){
+      driv_choices_base <- droplevels(unique(filter(long_names, category_long %in% input$selectCatSummary)))
+      driv_choices <- as.character(driv_choices_base$driver)
+      names(driv_choices) <- driv_choices_base$driver_long
+    } else{
+      driv_choices <- ""
+    }
+    selectizeInput(
+      'selectDrivSummary', '3. Driver(s)',
       choices = driv_choices, multiple = T,
       options = list(
         placeholder = 'Select driver(s)',
@@ -547,7 +615,7 @@ server <- function(input, output, session) {
   
   ## Process data ------------------------------------------------------------
   
-  # Subset by category
+  # Subset by category+driver
   df_driv <- reactive({
     req(input$selectDriv)
     
@@ -667,6 +735,34 @@ server <- function(input, output, session) {
     return(df_dl)
   })
 
+  # Subset by category+driver for summary panel
+  df_summary <- reactive({
+    req(input$selectDrivSummary)
+    
+    # Assemble possible files
+    file_choice <- expand.grid("clean", input$selectCatSummary, input$selectDrivSummary, input$selectSiteSummary) %>% 
+      unite(col = "all", sep = "_")
+    file_list <- full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]
+    
+    # Load initial data
+    df_summary <- purrr::map_dfr(file_list, read_csv_arrow)
+    if(nrow(df_summary) > 0){
+      
+      # Apply data shadows
+      # data_shadow_df <- filter(df_driv, grepl(data_shadow, URL)) |> 
+      #   mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
+      #   mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
+      #   distinct()
+      
+      # Remove embargoed data and add shadows
+      df_summary <- df_summary |> 
+        mutate(date = as.Date(date)) |> 
+        mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
+      # filter(!grepl(data_shadow, URL)) |> 
+      # rbind(data_shadow_df)
+    }
+    return(df_summary)
+  })
   
   
   ## Download UI -------------------------------------------------------------
@@ -801,6 +897,55 @@ server <- function(input, output, session) {
                                    "<br>Embargoed: ",embargo))) +
         scale_x_reverse() + coord_flip(expand = F) +
         labs(x = NULL, fill = "Variable", y = "Count (log10)") +
+        theme_bw() +
+        theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+              axis.text = element_text(size = 12, colour = "black"),
+              axis.ticks = element_line(colour = "black"), legend.position = "none")
+    } else {
+      basePlot <- ggplot() + geom_blank()
+    }
+    
+    ggplotly(basePlot, tooltip = "text")
+    
+  })
+  
+
+  ## Summary plot ------------------------------------------------------------
+
+  # Summary plot for testing
+  output$summaryPlot <- renderPlot({
+    req(input$selectSiteSummary, input$selectDrivSummary)
+    
+    df_label <- data.frame(site = input$selectSiteSummary,
+                           cat = input$selectCatSummary,
+                           driv = input$selectDrivSummary) |> 
+      pivot_longer(cols = site:driv) |> 
+      mutate(x = 1:n(), y = 1:n())
+    
+    ggplot(data = df_label, aes(x = x, y = y)) + geom_label(aes(colour = name, label = value))
+    
+  })
+  
+  output$summaryPlotly <- renderPlotly({
+    req(input$selectSiteSummary, input$selectDrivSummary)
+    
+    df_summary <- df_summary()# |> 
+      # mutate(year = year(date))
+    
+    # df_summarise <- df_summary |> 
+      # summarise(data_count = n(), .by = c("year", "category"))
+    
+    # Plot and exit
+    if(nrow(df_summary) > 0){
+      basePlot <- ggplot(data = df_summary, aes(x = date, y = value)) +
+        geom_point(aes(shape = embargo, colour = category,
+                       text = paste0("Category: ",category_long,
+                                     "<br>Driver: ",driver_long,
+                                     "<br>Variable: ",variable,
+                                     "<br>Year: ",year,
+                                     "<br>Count: ",count,
+                                     "<br>Embargoed: ",embargo))) +
+        labs(x = "Year", y = "Count", colour = "Category") +
         theme_bw() +
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
