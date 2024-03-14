@@ -156,25 +156,43 @@ ui <- dashboardPage(
   
   # Application title
   dashboardHeader(
+    title = "Data Access"
+    # This is an interesting approach:
+    # https://ashbaldry.github.io/2021-06-17-shinytitle-0-1-0-release/
+    
+    # Browser logo
+    # tags$head(
+    #   tags$link(rel = "icon", type = "image/png", sizes = "32x32", href = "/FACE-IT_Logo_900.png")),
+    
     # Set height of dashboardHeader
-    tags$li(class = "dropdown",
-            tags$style(".main-header {max-height: 80px}"),
-            tags$style(".main-header .logo {height: 80px}")
-    ),
-    title = tags$a(href = "https://www.face-it-project.eu/",
-                   target = "_blank", rel = "noopener noreferrer",
-                   tags$img(src = "FACE-IT_Logo_900.png", alt = "FACE-IT",
-                            height = "70", width = "170", 
-                            style = "vertical-align:middle;margin:5px 0px"))),
+    # tags$li(class = "dropdown",
+    #         tags$style(".main-header {max-height: 80px}")#,
+    #         # tags$style(".main-header .logo {height: 80px}")
+    # )
+  ),
+    # title = tags$a(href = "https://www.face-it-project.eu/",
+    #                target = "_blank", rel = "noopener noreferrer",
+    #                tags$img(src = "FACE-IT_Logo_900.png", alt = "FACE-IT",
+    #                         height = "70", width = "170", 
+    #                         style = "vertical-align:middle;margin:5px 0px"))),
   
   # Sidebar
   dashboardSidebar(width = 200,
                    
                    # Adjust the sidebar
-                   tags$style(".left-side, .main-sidebar {padding-top: 80px}"),
+                   # tags$style(".left-side, .main-sidebar {padding-top: 80px}"),
+                   
+                   # FACE-IT logo+link
+                   # br(),
+                   tags$a(href = "https://www.face-it-project.eu/",
+                          target = "_blank", rel = "noopener noreferrer",
+                          tags$img(src = "FACE-IT_h2020.jpg",# "FACE-IT_Logo_900.png", 
+                                   alt = "FACE-IT",
+                                   height = "220", width = "200"),
+                          style = "vertical-align:middle;margin:0px 0px"),
                    
                    # User manual pop-up
-                   br(),
+                   br(), br(),
                    useSweetAlert(),
                    actionBttn(
                      inputId = "instructions",
@@ -188,9 +206,10 @@ ui <- dashboardPage(
                    # Sidebar menu with multiple drop downs
                    sidebarMenu(
                      id = "tabs",
-                     menuItem("Data download interface", tabName = "download", icon = icon("download"), selected = TRUE),
-                     menuItem("Advanced search tool", tabName = "information", icon = icon("table")),
-                     menuItem("Related publications", tabName = "publications", icon = icon("scroll"))
+                     menuItem("Data download", tabName = "download", icon = icon("download"), selected = TRUE),
+                     menuItem("Data summary", tabName = "summary", icon = icon("book")),
+                     menuItem("Advanced search", tabName = "information", icon = icon("table")),
+                     menuItem("Related pubs.", tabName = "publications", icon = icon("scroll"))
                    )
   ),
   
@@ -205,12 +224,12 @@ ui <- dashboardPage(
     tags$head(tags$style(HTML('
         /* logo */
         .skin-blue .main-header .logo {
-                              background-color: #ffffff;
+                              background-color: #4472c4;
                               }
 
         /* logo when hovered */
         .skin-blue .main-header .logo:hover {
-                              background-color: #ffffff;
+                              background-color: #4472c4;
                               }
 
         /* navbar (rest of the header) */
