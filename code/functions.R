@@ -2874,7 +2874,7 @@ review_filter_check <- function(filter_object, check_var = NULL, check_cit = NUL
 }
 
 # Summary analyses of filtered variables
-review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12-31")){
+review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2023-12-31")){
   
   if(filter_object$driver[1] == "biomass"){
     df_base <- filter_object %>% 
@@ -2980,7 +2980,13 @@ review_summary <- function(filter_object, trend_dates = c("1982-01-01", "2020-12
 }
 
 # Convenience plotting function
-review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date("1982-01-01"), as.Date("2020-12-31"))){
+review_summary_plot <- function(summary_list, short_var, date_filter = c(as.Date("1982-01-01"), as.Date("2023-12-31")), analyse = FALSE){
+  
+  # Fold the review_summary() step into this function for convenience as desired
+  if(analyse){
+    summary_filter <- filter(summary_list, driver == short_var)
+    summary_list <- review_summary(summary_filter, trend_dates = date_filter)
+  }
   
   # Create x/y coords for labels
   label_df_full <- summary_list$trend %>% 
