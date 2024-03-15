@@ -1027,7 +1027,6 @@ server <- function(input, output, session) {
     
     # Initial data
     df_summary <- df_summary() |> 
-      left_join(long_names, by = c("category", "driver")) |> 
       mutate(year = year(date),
              clim = month(date))
     
@@ -1036,56 +1035,150 @@ server <- function(input, output, session) {
     
     # Grouping vector
     if(input$selectGroupSummary == "Category"){
-      grouping_vars <- c("category", "category_long")
+      grouping_vars <- c("category")
+      join_vars <- c("category")
+      group_lab <- "Category"
     } else if(input$selectGroupSummary == "Driver"){
-      grouping_vars <- c("category", "category_long", "driver", "driver_long")
+      grouping_vars <- c("category", "driver")
+      join_vars <- c("category", "driver")
+      group_lab <- "Driver"
     } else if(input$selectGroupSummary == "Variable"){
-      grouping_vars <- c("category", "category_long", "driver", "driver_long", "variable")
+      grouping_vars <- c("category", "driver", "variable")
+      join_vars <- c("category", "driver")
+      group_lab <- "Driver"
     }
     
     # Summarise by date: Daily, Yearly, monthly clim
     # & selectDataSummary == "Count"
     if(input$selectDateSummary == "Year"){
       df_date <- df_summary |> 
-        summarise(value = n(), .by = c("year", "embargo", grouping_vars)) |> 
+        # summarise(value = n(), .by = c("year", "embargo", grouping_vars)) |> 
+        dplyr::select(-date) |> 
         dplyr::rename(date = year)
       date_lab <- "Year"
     } else if(input$selectDateSummary == "Climatology"){
       df_date <- df_summary |> 
-        summarise(value = n(), .by = c("clim", "embargo", grouping_vars)) |> 
+        # summarise(value = n(), .by = c("clim", "embargo", grouping_vars)) |> 
+        dplyr::select(-date) |> 
         dplyr::rename(date = clim)
       date_lab <- "Monthly climatology"
     } else if(input$selectDateSummary == "Day"){
-      df_date <- df_summary |> 
-        summarise(value = n(), .by = c("date", "embargo", grouping_vars))
+      df_date <- df_summary #|> 
+        # summarise(value = n(), .by = c("date", "embargo", grouping_vars))
       date_lab <- "Date"
     }
     
-    # Summarise by value: count, raw value
+    # Summarise by value: count, raw value, DOI, uniqe vars
+    if(input$selectDataSummary == "Count"){
+      df_crunch <- df_date |> 
+        summarise(value = n(), .by = c("date", "embargo", all_of(grouping_vars)))
+      value_lab <- "Count"
+    } else if(input$selectDataSummary == "Raw"){
+      df_crunch <- df_date  |> 
+        summarise(value = mean(value, na.rm = TRUE), .by = c("date", "embargo", all_of(grouping_vars)))
+      value_lab <- "Value"
+    } else if(input$selectDataSummary == "DOI"){
+      df_crunch <- df_date  |>
+        dplyr::select("date", "embargo", "URL", all_of(grouping_vars)) |> 
+        distinct() |> 
+        summarise(value = n(), .by = c("date", "embargo", all_of(grouping_vars)))
+      value_lab <- "DOIs"
+    } else if(input$selectDataSummary == "Variable"){
+      df_crunch <- df_date  |>
+        dplyr::select("date", "embargo", "variable", all_of(grouping_vars)) |> 
+        distinct() |> 
+        summarise(value = n(), .by = c("date", "embargo", all_of(grouping_vars)))
+      value_lab <- "Variables"
+    }
     
     # Summarise by meta: count of variables or DOIs
     
     # df_summarise <- df_summary |> 
       # summarise(data_count = n(), .by = c("year", "category"))
     
+    # Join for pretty names
+    df_final <- df_crunch |> 
+      left_join(long_names, by = join_vars)
+    
     # Plot and exit
     if(nrow(df_summary) > 0){
-      basePlot <- ggplot(data = df_date, aes(x = date, y = value)) +
-        geom_point(size = 2, aes(colour = category),
-                   # aes(shape = embargo, colour = category,
-                   #     text = paste0("Category: ",category_long,
-                   #                   "<br>Driver: ",driver_long,
-                   #                   "<br>Variable: ",variable,
-                   #                   "<br>Year: ",year,
-                   #                   # "<br>Count: ",count,
-                   #                   "<br>Embargoed: ",embargo)
-                   #     )
-                   ) +
-        labs(x = date_lab, y = "Count", colour = "Category") +
+      basePlot <- ggplot(data = df_final, aes(x = date, y = value)) +
+        labs(x = date_lab, y = value_lab, colour = group_lab) +
         theme_bw() +
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
               axis.ticks = element_line(colour = "black"), legend.position = "none")
+      if(input$selectGroupSummary == "Category"){
+        if(input$selectPlotSummary == "Dot plot"){
+          basePlot <- basePlot +
+            geom_point(size = 2, #aes(colour = category),
+                       aes(shape = embargo, colour = category,
+                           text = paste0("Category: ",category,
+                                         "<br>Date: ",date,
+                                         # "<br>Count: ",count,
+                                         "<br>Embargoed: ",embargo)
+                       )
+            )
+        } else {
+          basePlot <- basePlot +
+            geom_col(aes(shape = embargo, fill = category,
+                         text = paste0("Category: ",category,
+                                       "<br>Date: ",date,
+                                       # "<br>Count: ",count,
+                                       "<br>Embargoed: ",embargo)
+                         )
+                     ) 
+        }
+      } else if(input$selectGroupSummary == "Driver"){
+        if(input$selectPlotSummary == "Dot plot"){
+          basePlot <- basePlot +
+            geom_point(size = 2, #aes(colour = category),
+                       aes(shape = embargo, colour = driver,
+                           text = paste0("Category: ",category_long,
+                                         "<br>Driver: ",driver_long,
+                                         "<br>Date: ",date,
+                                         # "<br>Count: ",count,
+                                         "<br>Embargoed: ",embargo)
+                       )
+            )
+        } else {
+          basePlot <- basePlot +
+            geom_col(aes(shape = embargo, fill = driver,
+                           text = paste0("Category: ",category_long,
+                                         "<br>Driver: ",driver_long,
+                                         "<br>Date: ",date,
+                                         # "<br>Count: ",count,
+                                         "<br>Embargoed: ",embargo)
+                       )
+            )
+        }
+      } else if(input$selectGroupSummary == "Variable"){
+        if(input$selectPlotSummary == "Dot plot"){
+          basePlot <- basePlot +
+            geom_point(size = 2, #aes(colour = category),
+                       aes(shape = embargo, colour = driver,
+                           text = paste0("Category: ",category_long,
+                                         "<br>Driver: ",driver_long,
+                                         "<br>Variable: ",variable,
+                                         "<br>Date: ",date,
+                                         # "<br>Count: ",count,
+                                         "<br>Embargoed: ",embargo)
+                       )
+            )
+        } else {
+          basePlot <- basePlot +
+            geom_col(aes(shape = embargo, fill = driver,
+                           text = paste0("Category: ",category_long,
+                                         "<br>Driver: ",driver_long,
+                                         "<br>Variable: ",variable,
+                                         "<br>Date: ",date,
+                                         # "<br>Count: ",count,
+                                         "<br>Embargoed: ",embargo)
+                       )
+            )
+        }
+
+      }
     } else {
       basePlot <- ggplot() + geom_blank()
     }
