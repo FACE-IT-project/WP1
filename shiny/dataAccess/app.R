@@ -209,8 +209,8 @@ ui <- dashboardPage(
                    # Sidebar menu with multiple drop downs
                    sidebarMenu(
                      id = "tabs",
-                     menuItem("Data download", tabName = "download", icon = icon("download"), selected = TRUE),
-                     menuItem("Data summary", tabName = "summary", icon = icon("book")),
+                     menuItem("Data download", tabName = "download", icon = icon("download")),
+                     menuItem("Data summary", tabName = "summary", icon = icon("book"), selected = TRUE),
                      menuItem("Advanced search", tabName = "information", icon = icon("table")),
                      menuItem("Related pubs.", tabName = "publications", icon = icon("scroll"))
                    )
@@ -344,6 +344,10 @@ ui <- dashboardPage(
                        box(width = 12, title = "Filter data", # height = "880px",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            
+                           # Load full clean_all dataset
+                           h5(HTML("<b>0. Load full dataset (optional)</b>")),
+                           shiny::actionButton("loadCleanAll", "", class = "btn-success", icon = icon("book")),
+                           
                            # Site name
                            selectizeInput(
                              'selectSiteSummary', '1. Study site',
@@ -360,15 +364,11 @@ ui <- dashboardPage(
                            
                            # Drivers - 3. Driver(s)
                            uiOutput("selectDrivSummaryUI"),
-                           
-                           # Variables - 4. Variable(s)
-                           # uiOutput("selectVarUI"),
-                          
                        ),
                        box(width = 12, title = "Summarise data", # height = "880px",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            
-                           # Site name
+                           # High level grouping
                            selectizeInput(
                              'selectGroupSummary', '1. Grouping',
                              choices = c("Category", "Driver", "Variable"),
@@ -378,8 +378,25 @@ ui <- dashboardPage(
                                onInitialize = I('function() { this.setValue(""); }'))
                            ),
                            
-                           # Category - 2. C...
-                           # uiOutput("selectCatUI")
+                           # Date grouping
+                           selectizeInput(
+                             'selectGroupSummary', '2. Date',
+                             choices = c("Yearly", "Climatology", "Daily"),
+                             multiple = FALSE,
+                             options = list(
+                               placeholder = 'Select a grouping to begin',
+                               onInitialize = I('function() { this.setValue(""); }'))
+                           ),
+                           
+                           # Data grouping
+                           selectizeInput(
+                             'selectGroupSummary', '3. Data',
+                             choices = c("Count", "Raw", "DOI", "Variable"),
+                             multiple = FALSE,
+                             options = list(
+                               placeholder = 'Select a grouping to begin',
+                               onInitialize = I('function() { this.setValue(""); }'))
+                           ),
                        )
                 ),
                 
@@ -767,6 +784,21 @@ server <- function(input, output, session) {
     return(df_dl)
   })
 
+  # 
+  # loadClick <- reactiveValues(click = 0)
+  # Load full dataset with button click
+  # TODO: Figure out how to isolate this to only load on the first click
+  df_full <- reactive({
+    
+    # Look for button click
+    input$loadCleanAll
+    
+    # Load data
+    if(input$loadCleanAll >= 1) df_full <- loadRData("full_data/clean_all.RData")
+    
+    return(df_full)
+  })
+  
   # Subset by category+driver for summary panel
   df_summary <- reactive({
     req(input$selectDrivSummary)
@@ -776,8 +808,16 @@ server <- function(input, output, session) {
       unite(col = "all", sep = "_")
     file_list <- full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]
     
-    # Load initial data
-    df_summary <- purrr::map_dfr(file_list, read_csv_arrow)
+    # Check if full dataset has been loaded
+    df_full <- df_full()
+    if("site" %in% colnames(df_full)){
+      df_summary <- df_full |> 
+        filter(site %in% input$selectSiteSummary, category %in% input$selectCatSummary, driver %in% input$selectDrivSummary)
+    } else {
+      # Load initial data
+      df_summary <- purrr::map_dfr(file_list, read_csv_arrow)
+    }
+    
     if(nrow(df_summary) > 0){
       
       # Apply data shadows
@@ -987,6 +1027,7 @@ server <- function(input, output, session) {
       mutate(year = year(date))
     
     # Filter by year
+    ## If this remains a plotly this won't be necessary
     
     # Summarise by date: Daily, Yearly, monthly clim
     
