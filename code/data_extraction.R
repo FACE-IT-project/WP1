@@ -234,8 +234,73 @@ doParallel::registerDoParallel(cores = 7)
 ERSST_NW_med <- plyr::ldply(ERSST_files, ERSST_region_mean, .parallel = T,
                             lon_range = c(0, 10), lat_range = c(40, 50))
 
+# Create annual means
+ERSST_NW_med_annual <- ERSST_NW_med |> 
+  mutate(year = year(t)) |> 
+  summarise(sst = mean(sst), .by = "year")
 
-# Nora --------------------------------------------------------------------
+# Determine stats
+## 90th perc of baseline 1871-1900
+baseline_stats <- ERSST_NW_med_annual |> 
+  filter(year >= 1871, year <=1900) |> 
+  summarise(mean = mean(sst),
+            perc_90 = quantile(sst, 0.9))
+
+## Trend
+detrend_stats <- lm_tidy(ERSST_NW_med_annual, x_var = "year", y_var = "sst")
+detrend_df <- data.frame(year = 1854:2023) |> 
+  mutate(year_idx = (1:n())-1,
+         sst = ERSST_NW_med_annual$sst,
+         slope_mean = baseline_stats$mean + (detrend_stats$slope*year_idx),
+         slope_90 = baseline_stats$perc_90 + (detrend_stats$slope*year_idx))
+
+# Baseline above 90th
+baseline_above <- ERSST_NW_med_annual |> 
+  filter(sst >= baseline_stats$perc_90)
+
+# The common theme
+theme_new <- theme_set(theme_minimal() +
+                         theme(axis.text = element_text(size = 10, colour = "black"),
+                               plot.margin = margin(t = 10, r = 30, b = 20, l = 20, unit = "pt"),
+                               panel.grid.major.x = element_blank(),
+                               panel.grid.minor.x = element_blank(),
+                               panel.grid.minor.y = element_blank(),
+                               panel.grid.major.y = element_line(linetype = "dotted", colour = "black")))
+
+# Panel a
+panel_a <- ggplot(data = ERSST_NW_med_annual, aes(x = year, y = sst)) +
+  geom_line(colour = "chocolate") +
+  geom_ribbon(aes(ymin = baseline_stats$mean, ymax = baseline_stats$perc_90), alpha = 0.2,
+              colour = "grey30", outline.type = "lower") +
+  geom_abline(intercept = baseline_stats$mean, slope = 0) +
+  scale_x_continuous(expand = c(0, 0), breaks = c(seq(1860, 2020, 20))) +
+  scale_y_continuous(expand = c(0, 0), limits = c(16.5, 19.5), breaks = c(seq(16.5, 19.5, 0.5))) +
+  labs(y = "Ocean termperature (°C)", x = NULL) +
+  theme_new
+# panel_a
+
+# Panel b
+panel_b <- ggplot(data = ERSST_NW_med_annual, aes(x = year, y = sst)) +
+  geom_line(colour = "chocolate") +
+  geom_ribbon(data = detrend_df,
+              aes(ymin = slope_mean, ymax = slope_90), alpha = 0.2,
+              colour = "grey30", outline.type = "lower") +
+  # geom_abline(intercept = baseline_stats$perc_90, slope = detrend_stats$slope*170) +
+  # geom_abline(intercept = baseline_stats$perc_90, slope = detrend_stats$slope) +
+  scale_x_continuous(expand = c(0, 0), breaks = c(seq(1860, 2020, 20))) +
+  scale_y_continuous(expand = c(0, 0), limits = c(16.5, 19.5), breaks = c(seq(16.5, 19.5, 0.5))) +
+  labs(y = "Ocean termperature (°C)", x = NULL) +
+  theme_new
+# panel_b
+
+# Combine
+fig_2 <- ggpubr::ggarrange(panel_a, panel_b, ncol = 1, nrow = 2, labels = c("a)", "b)")) +
+  ggpubr::bgcolor("white")
+# fig_2
+ggsave("~/Desktop/CLIVAR_fig_2.png", fig_2, height = 10, width = 6)
+
+
+## Nora --------------------------------------------------------------------
 
 # Load the full spatial Kongsfjorden OISST data
 load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_kong.RData")
