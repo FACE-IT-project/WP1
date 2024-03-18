@@ -14,19 +14,6 @@ library(gganimate)
 # File locations
 ERSST_files <- dir("~/pCloudDrive/FACE-IT_data/ERSST", full.names = TRUE)
 
-# Function for loading and subsetting
-ERSST_region_mean <- function(ERSST_file, lon_range, lat_range){
-  vec_file <- sapply(strsplit(ERSST_file, "/"), "[[", 7)
-  vec_date <- sapply(strsplit(vec_file, "\\."), "[[", 3)
-  df_mean <- tidync(ERSST_file) |> 
-    hyper_filter(lon = between(lon, lon_range[1], lon_range[2]),
-                 lat = between(lat, lat_range[1], lat_range[2])) |> 
-    hyper_tibble() |> 
-    mutate(t = as.Date(paste0(vec_date,"01"), format = "%Y%m%d")) |> 
-    summarise(sst = mean(sst), ssta = mean(ssta), .by = t)
-  # rm(vec_file, vec_date, df_mean)
-}
-
 # Run on all files
 ERSST_NW_med <- plyr::ldply(ERSST_files, ERSST_region_mean, .parallel = T,
                             lon_range = c(0, 10), lat_range = c(40, 50))
