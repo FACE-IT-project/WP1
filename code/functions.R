@@ -283,6 +283,16 @@ wm_records_df <- function(sp_name, res_type = "df"){
       if(nrow(sp_catch) > 0) sp_catch <- filter(sp_catch, status == "accepted")
       if(nrow(sp_catch) == 1) sp_no_pre <- sp_catch$scientificname
     }
+    # For this next step we will also needx the citation from which the species record comes
+    # This is so that it can see if it is from PANGAEA
+    # If so, it must then re-download the PANGAEA dataset
+    # Then it needs to look inside of the metadata and find the species name
+    # It should then be possible to find the word that exists before the species name
+    # This should be the genus
+    # Ensure it is the full genus name and not an abbreviation
+    # Grab it and exit
+    # Or perhaps this would be better to do during the original PG download step
+    # But that could be trickier
   }
   
   if(res_type == "df"){
