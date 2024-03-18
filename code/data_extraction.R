@@ -221,3 +221,50 @@ clean_all_meta_social <- clean_all_meta |>
   distinct() |> arrange(Title)
 write_csv(clean_all_meta_social, file = "~/Desktop/clean_all_meta_social.csv")
 
+
+## CLIVAR ------------------------------------------------------------------
+# Panels for a MHW figure
+
+# Load+subset ERSST data
+# File locations
+ERSST_files <- dir("~/pCloudDrive/FACE-IT_data/ERSST", full.names = TRUE)
+
+# Run on all files
+doParallel::registerDoParallel(cores = 7)
+ERSST_NW_med <- plyr::ldply(ERSST_files, ERSST_region_mean, .parallel = T,
+                            lon_range = c(0, 10), lat_range = c(40, 50))
+
+
+# Nora --------------------------------------------------------------------
+
+# Load the full spatial Kongsfjorden OISST data
+load("~/pCloudDrive/FACE-IT_data/kongsfjorden/sst_kong.RData")
+
+# Seasonal
+## Mean from 1980-2000; 2001-2022
+sst_analysis <- sst_kong |> 
+  mutate(year = year(t),
+         month = month(t)) |> 
+  mutate(season = case_when(month %in% c(12,1,2) ~ "winter",
+                            month %in% c(6,7,8) ~ "summer"),
+         year_group = case_when(year %in% 1980:2000 ~ "first",
+                                year %in% 2001:2022 ~ "second")) |>
+  filter(!is.na(season), !is.na(year_group)) |> 
+  summarise(min = min(temp),
+            median = median(temp),
+            mean = mean(temp),
+            max = max(temp), .by = c("year_group", "season"))
+
+# Annual
+## Mean from 1980-2000; 2001-2022
+sst_analysis <- sst_kong |> 
+  mutate(year = year(t)) |> 
+  mutate(year_group = case_when(year %in% 1980:2000 ~ "first",
+                                year %in% 2001:2022 ~ "second")) |>
+  filter(!is.na(year_group)) |> 
+  summarise(min = min(temp),
+            median = median(temp),
+            mean = mean(temp),
+            max = max(temp), .by = c("year_group"))
+
+
