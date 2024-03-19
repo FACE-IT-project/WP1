@@ -1,0 +1,78 @@
+---
+# title: "FACE-IT data: countdown to completion"
+format: 
+  revealjs:
+    # logo: ../logo/FACE-IT_Logo_900.png
+    # slide-number: true
+    # show-slide-number: print
+    preview-links: true
+    theme: FACE-IT.scss
+    self-contained: true
+    transition: slide
+    width: 1050
+    height: 750
+editor: source
+---
+
+## FACE-IT data: countdown to completion
+
+<!-- During this third and final seminar from WP1, we will journey once again into the world of data management. A versioning system for the amalgamation of the large inter-fjord dataset from v1.0 to v2.0 was implemented and these incremental improvements will be presented. The v2.0 dataset itself will be submitted to PANGAEA for publication the week after this seminar, making the timing is excellent for any final comments or suggestions from the wider FACE-IT colloquium on what they would like to see added or any other things they think may make the dataset more user friendly. This discussion on the state of the data will be followed by a live demo of how to access, filter, and download these data from the dataAccess app. The dual purpose of this demo is to solicit comments on what changes or improvements would benefit the app considering that it will persist after the close of FACE-IT as one of its public outreach functions. -->
+
+<!-- ## -->
+
+<!-- <p style="font-size: 38pt"> -->
+<!-- <b>The changing fjords of the European Arctic:</b> -->
+<!-- </br> -->
+<!-- <b>what do the data say?</b> -->
+<!-- </p> -->
+
+::: columns
+::: {.column style="text-align: center"}
+</br>
+![](../logo/Logo_FACE-IT_PNG_1500.png){width="410"}
+<p style="font-size:22pt">Work package one (WP1)</p>
+:::
+
+::: {.column style="text-align: center"}
+</br></br>
+![](../logo/h2020.png){width="450"} 
+<p style="font-size:22pt">Funded under grant #869154</p>
+:::
+:::
+
+## Overview
+<!-- Coloured table of categories, drivers, count of datasets (i.e. citations), and count of daily data points -->
+
+## Versioning: v1.0 -> v2.0
+<!-- List of each version and what was changed -->
+
+## Data access
+
+![](QR_dataAccess.png){.absolute top="70" left="200" width="600"}
+
+</br></br></br></br></br></br></br></br></br></br></br>
+
+<center>
+<p style="font-size:40pt">[http://choc.imev-mer.fr/shiny/dataAccess/](http://choc.imev-mer.fr/shiny/dataAccess/)</p>
+</center>
+
+## {background-color="#008980"}
+
+Thank you for listening!
+
+::: columns
+::: {.column style="text-align: center"}
+</br>
+![](../logo/profile.jpeg){width="300"}
+<br>
+Robert Schlegel
+:::
+
+::: {.column style="text-align: center"}
+</br></br>
+![](../logo/Logo_Sorbonne University.png){width="500"} 
+<br>
+LOV, Sorbonne Université – CNRS, France
+:::
+:::
+
