@@ -232,31 +232,41 @@ ERSST_files <- dir("~/pCloudDrive/FACE-IT_data/ERSST", full.names = TRUE)
 # Run on all files
 doParallel::registerDoParallel(cores = 7)
 ERSST_NW_med <- plyr::ldply(ERSST_files, ERSST_region_mean, .parallel = T,
-                            lon_range = c(0, 10), lat_range = c(40, 50))
+                            lon_range = c(0, 10), lat_range = c(40, 50)) |> 
+  dplyr::select(-ssta)
+write_csv(ERSST_NW_med, "~/Desktop/ERSST_NW_med.csv")
 
 # Create annual means
 ERSST_NW_med_annual <- ERSST_NW_med |> 
   mutate(year = year(t)) |> 
   summarise(sst = mean(sst), .by = "year")
+write_csv(ERSST_NW_med_annual, "~/Desktop/ERSST_NW_med_annual.csv")
 
 # Determine stats
 ## 90th perc of baseline 1871-1900
-baseline_stats <- ERSST_NW_med_annual |> 
-  filter(year >= 1871, year <=1900) |> 
+baseline_stats_monthly <- ERSST_NW_med |> 
+  filter(t >= "1901-01-01", t <= "1930-12-01") |> 
+  summarise(mean = mean(sst),
+            perc_90 = quantile(sst, 0.9))
+baseline_stats_annual <- ERSST_NW_med_annual |> 
+  filter(year >= 1901, year <= 1930) |> 
   summarise(mean = mean(sst),
             perc_90 = quantile(sst, 0.9))
 
 ## Trend
-detrend_stats <- lm_tidy(ERSST_NW_med_annual, x_var = "year", y_var = "sst")
-detrend_df <- data.frame(year = 1854:2023) |> 
+detrend_stats_monthly <- lm_tidy(ERSST_NW_med, x_var = "t", y_var = "sst") |> mutate(slope = (slope*365.25)/12)
+detrend_stats_annual <- lm_tidy(ERSST_NW_med_annual, x_var = "year", y_var = "sst")
+detrend_df_monthly <- expand.grid(1854:2023, 1:12) |> 
+  mutate(Var3 = "01", t = as.Date(paste(Var1, Var2, Var3, sep = "-"))) |> arrange(t) |> 
+  mutate(month_idx = (1:n())-1,
+         sst = ERSST_NW_med$sst,
+         slope_mean = baseline_stats_monthly$mean + (detrend_stats_monthly$slope*month_idx),
+         slope_90 = baseline_stats_monthly$perc_90 + (detrend_stats_monthly$slope*month_idx))
+detrend_df_annual <- data.frame(year = 1854:2023) |> 
   mutate(year_idx = (1:n())-1,
          sst = ERSST_NW_med_annual$sst,
-         slope_mean = baseline_stats$mean + (detrend_stats$slope*year_idx),
-         slope_90 = baseline_stats$perc_90 + (detrend_stats$slope*year_idx))
-
-# Baseline above 90th
-baseline_above <- ERSST_NW_med_annual |> 
-  filter(sst >= baseline_stats$perc_90)
+         slope_mean = baseline_stats_annual$mean + (detrend_stats_annual$slope*year_idx),
+         slope_90 = baseline_stats_annual$perc_90 + (detrend_stats_annual$slope*year_idx))
 
 # The common theme
 theme_new <- theme_set(theme_minimal() +
@@ -267,12 +277,13 @@ theme_new <- theme_set(theme_minimal() +
                                panel.grid.minor.y = element_blank(),
                                panel.grid.major.y = element_line(linetype = "dotted", colour = "black")))
 
+# NB: The monthly values do not plot well
 # Panel a
 panel_a <- ggplot(data = ERSST_NW_med_annual, aes(x = year, y = sst)) +
   geom_line(colour = "chocolate") +
-  geom_ribbon(aes(ymin = baseline_stats$mean, ymax = baseline_stats$perc_90), alpha = 0.2,
+  geom_ribbon(aes(ymin = baseline_stats_annual$mean, ymax = baseline_stats_annual$perc_90), alpha = 0.2,
               colour = "grey30", outline.type = "lower") +
-  geom_abline(intercept = baseline_stats$mean, slope = 0) +
+  geom_abline(intercept = baseline_stats_annual$mean, slope = 0) +
   scale_x_continuous(expand = c(0, 0), breaks = c(seq(1860, 2020, 20))) +
   scale_y_continuous(expand = c(0, 0), limits = c(16.5, 19.5), breaks = c(seq(16.5, 19.5, 0.5))) +
   labs(y = "Ocean termperature (°C)", x = NULL) +
