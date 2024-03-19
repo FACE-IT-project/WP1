@@ -170,34 +170,15 @@ ui <- dashboardPage(
     title = "Data Access"
     # This is an interesting approach:
     # https://ashbaldry.github.io/2021-06-17-shinytitle-0-1-0-release/
-    
-    # Browser logo
-    # tags$head(
-    #   tags$link(rel = "icon", type = "image/png", sizes = "32x32", href = "/FACE-IT_Logo_900.png")),
-    
-    # Set height of dashboardHeader
-    # tags$li(class = "dropdown",
-    #         tags$style(".main-header {max-height: 80px}")#,
-    #         # tags$style(".main-header .logo {height: 80px}")
-    # )
   ),
-    # title = tags$a(href = "https://www.face-it-project.eu/",
-    #                target = "_blank", rel = "noopener noreferrer",
-    #                tags$img(src = "FACE-IT_Logo_900.png", alt = "FACE-IT",
-    #                         height = "70", width = "170", 
-    #                         style = "vertical-align:middle;margin:5px 0px"))),
   
   # Sidebar
   dashboardSidebar(width = 200,
                    
-                   # Adjust the sidebar
-                   # tags$style(".left-side, .main-sidebar {padding-top: 80px}"),
-                   
-                   # FACE-IT logo+link
-                   # br(),
+                   # FACE-IT logo
                    tags$a(href = "https://www.face-it-project.eu/",
                           target = "_blank", rel = "noopener noreferrer",
-                          tags$img(src = "FACE-IT_h2020.jpg",# "FACE-IT_Logo_900.png", 
+                          tags$img(src = "FACE-IT_h2020.jpg",
                                    alt = "FACE-IT",
                                    height = "220", width = "200"),
                           style = "vertical-align:middle;margin:0px 0px"),
@@ -277,7 +258,7 @@ ui <- dashboardPage(
       tabItem(tabName = "download",
               fluidRow(
                 column(width = 3,
-                       box(width = 12, title = "Filter data", # height = "880px",
+                       box(width = 12, title = "Filter data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            
                            # Site name
@@ -349,7 +330,7 @@ ui <- dashboardPage(
       tabItem(tabName = "summary",
               fluidRow(
                 column(width = 3,
-                       box(width = 12, title = "Filter data", # height = "880px",
+                       box(width = 12, title = "Filter data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            
                            # Load full clean_all dataset
@@ -367,7 +348,6 @@ ui <- dashboardPage(
                            ),
                            
                            # Category - 2. Category(s)
-                           # uiOutput("selectCatSummaryUI"),
                            selectizeInput(
                              'selectCatSummary', '2. Category(s)',
                              choices = cat_choices,
@@ -380,16 +360,8 @@ ui <- dashboardPage(
                            
                            # Drivers - 3. Driver(s)
                            uiOutput("selectDrivSummaryUI"),
-                           # selectizeInput(
-                           #   'selectDrivSummary', '3. Driver(s)',
-                           #   choices = driv_choices, multiple = T,
-                           #   options = list(
-                           #     placeholder = 'Select driver(s)',
-                           #     onInitialize = I('function() { this.setValue(""); }')
-                           #     )
-                           #   )
                        ),
-                       box(width = 12, title = "Summarise data", # height = "880px",
+                       box(width = 12, title = "Summarise data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
 
                            # High level grouping
@@ -413,16 +385,11 @@ ui <- dashboardPage(
                              selected = "Count"
                              )
                        ),
-                       box(width = 12, title = "Visualise data", # height = "880px",
+                       box(width = 12, title = "Visualise data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
 
                            # Set colour grouping type
                            uiOutput("selectColourSummaryUI"),
-                           # selectInput(
-                           #   'selectColourSummary', '1. Group colour',
-                           #   choices = c("Site", "Category", "Driver", "Variable", "Citation"),
-                           #   selected = "Site"
-                           # ),
                            
                            # Set plot type
                            selectInput(
@@ -437,7 +404,6 @@ ui <- dashboardPage(
                 column(width = 9,
                        box(width = 12, title = "Summary", height = "850px", 
                            status = "info", solidHeader = TRUE, collapsible = FALSE,
-                           # shinycssloaders::withSpinner(plotOutput("summaryPlot", height = "750px"), 
                            shinycssloaders::withSpinner(plotlyOutput("summaryPlotly", height = "750px"),
                                                         type = 6, color = "#b0b7be"))
                        )
@@ -446,13 +412,13 @@ ui <- dashboardPage(
       
       # Data tables
       tabItem(tabName = "information",
-              box(width = 12, title = "Data availability per citation", #height = "390px",
+              box(width = 12, title = "Data availability per citation",
                   status = "warning", solidHeader = TRUE, collapsible = TRUE,
                   DT::dataTableOutput("countCitationDT")),
-              box(width = 12, title = "Data availability per site", #height = "390px",
+              box(width = 12, title = "Data availability per site",
                   status = "warning", solidHeader = TRUE, collapsible = TRUE,
                   DT::dataTableOutput("countDrivDT")),
-              box(width = 12, title = "Full variable names", #height = "390px", 
+              box(width = 12, title = "Full variable names",
                   status = "warning", solidHeader = TRUE, collapsible = TRUE,
                   DT::dataTableOutput("longVarDT"))
               ),
@@ -556,26 +522,6 @@ server <- function(input, output, session) {
       )
     )
   })
-  
-  # Data summary
-  ## Select categories
-  # output$selectCatSummaryUI <- renderUI({
-  #   if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in% input$selectSiteSummary)){
-  #     cat_choices <- c("Cryosphere" = "cryo", "Physical" = "phys", "Chemistry" = "chem",
-  #                      "Biology" = "bio", "Social" = "soc")
-  #   } else{
-  #     cat_choices <- ""
-  #   }
-    # selectizeInput(
-    #   'selectCatSummary', '2. Category(s)',
-    #   choices = cat_choices,
-    #   multiple = T,
-    #   options = list(
-    #     placeholder = 'Select category(s)',
-    #     onInitialize = I('function() { this.setValue(""); }')
-    #   )
-    # )
-  # })
   
   ## Select drivers
   output$selectDrivSummaryUI <- renderUI({
@@ -733,18 +679,10 @@ server <- function(input, output, session) {
     df_driv <- purrr::map_dfr(file_list, read_csv_arrow)
     if(nrow(df_driv) > 0){
       
-      # Apply data shadows
-      # data_shadow_df <- filter(df_driv, grepl(data_shadow, URL)) |> 
-      #   mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
-      #   mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
-      #   distinct()
-      
       # Remove embargoed data and add shadows
       df_driv <- df_driv |> 
         mutate(date = as.Date(date)) |> 
         mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
-        # filter(!grepl(data_shadow, URL)) |> 
-        # rbind(data_shadow_df)
     }
     return(df_driv)
   })
@@ -878,18 +816,10 @@ server <- function(input, output, session) {
     
     if(nrow(df_summary) > 0){
       
-      # Apply data shadows
-      # data_shadow_df <- filter(df_driv, grepl(data_shadow, URL)) |> 
-      #   mutate(lon = NA, lat = NA, date = NA, depth = NA, value = NA) |> 
-      #   mutate(variable = case_when(driver %in% c("biomass", "spp rich") ~ as.character(NA), TRUE ~ variable)) |> 
-      #   distinct()
-      
       # Remove embargoed data and add shadows
       df_summary <- df_summary |> 
         mutate(date = as.Date(date)) |> 
         mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
-      # filter(!grepl(data_shadow, URL)) |> 
-      # rbind(data_shadow_df)
     }
     return(df_summary)
   })
@@ -1046,13 +976,6 @@ server <- function(input, output, session) {
   
 
   ## Summary plot ------------------------------------------------------------
-
-  # Summary plot for testing
-  # output$summaryPlot <- renderPlot({
-  #   req(input$selectSiteSummary, input$selectDrivSummary)
-  #   df_summary <- df_summary()
-  #   ggplot(data = df_summary, aes(x = date, y = value)) + geom_point(aes(colour = category))
-  # })
   
   # Interactive plotly summary figure
   output$summaryPlotly <- renderPlotly({
@@ -1130,7 +1053,6 @@ server <- function(input, output, session) {
     df_final <- df_crunch |> 
       left_join(long_names_sub, by = join_vars) |> 
       mutate(colour_choice = .data[[tolower(input$selectColourSummary[1])]])
-    # df_final$colour_choice <- df_final[tolower(input$selectColourSummary)]
     
     # Plot and exit
     if(nrow(df_summary) > 0){
@@ -1282,7 +1204,6 @@ server <- function(input, output, session) {
   # Count of data points per citation per site
   output$countCitationDT <- DT::renderDataTable({
     df_citation <- clean_citation %>% 
-      # dplyr::select(site_long, category_long, driver_long, count) %>% 
       dplyr::rename(Citation = citation, Site = site_long, Category = category_long, Driver = driver_long, `Data points` = count) %>% 
       arrange(Citation, Site, Category, Driver)
     df_citation_DT <- datatable(df_citation, rownames = FALSE, 
