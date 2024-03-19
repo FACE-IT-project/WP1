@@ -193,7 +193,7 @@ ui <- dashboardPage(
                      style = "material-flat",
                      color = "success"
                    ),
-                   br(), br(),
+                   br(),
                    
                    # Sidebar menu with multiple drop downs
                    sidebarMenu(
@@ -1222,11 +1222,23 @@ server <- function(input, output, session) {
       text = tags$span(
         "The FACE-IT data access portal is laid out as a dashboard with a ",tags$em("side bar"),
         " on the left and information and plots in the ",tags$em("body"),". The side bar buttons change the content of the body.",
+        tags$h3(icon("book"),"Data summary interface", style = "color: #008980;"),
+        tags$h4(tags$b("Filter data", style = "color: #f39c12;"),": This menu allows the user to filter data amalgemated for FACE-IT."),
+        tags$h4(tags$em("1. Study site"),": Select one or more of the seven FACE-IT study sites to begin summarising."),
+        tags$h4(tags$em("2. Category(s)"),": Categories are the broadest classification possible of the data. Select one or more values to move to step 3."),
+        tags$h4(tags$em("3. Driver(s)"),": Drivers are more specific than categories. Multiple values may be selected."),
+        tags$h4(tags$b("Summarise data", style = "color: #f39c12;"),": This menu allows the user to create grouped summaries."),
+        tags$h4(tags$em("1. Grouping"),": Select a value around which to group the summary output."),
+        tags$h4(tags$em("2. Date"),": Choose the temporal grouping of the data."),
+        tags$h4(tags$em("3. Data"),": Decide what aspect of the data grouping should be returned."),
+        tags$h4(tags$b("Visualise data", style = "color: #f39c12;"),": Here one may choose how to visualise the summary."),
+        tags$h4(tags$em("1. Group colour"),": The colour of the grouping to be shown. This is reactive to the choices above."),
+        tags$h4(tags$em("2. Plot type"),": For most choices a bar plot is ideal. For the raw data plots it is better to switch to 'Dot plot'."),
         tags$h3(icon("download"),"Data download interface", style = "color: #008980;"),
         tags$h4(tags$b("Filter data", style = "color: #f39c12;"),": This menu allows the user to filter and download from the data amalgemated for FACE-IT."),
-        tags$h4(tags$em("1. Study site"),": Select one of the seven FACE-IT study sites to begin the data exploration process."),
+        tags$h4(tags$em("1. Study site"),": Select one or more of the seven FACE-IT study sites to begin the data exploration process."),
         tags$h4(tags$em("2. Category(s)"),": Categories are the broadest classification possible of the data. Select one or more values to move to step 3."),
-        tags$h4(tags$em("3. Driver(s)"),": Drivers are more specific than categories. Multiple values may be selected"),
+        tags$h4(tags$em("3. Driver(s)"),": Drivers are more specific than categories. Multiple values may be selected."),
         tags$h4(tags$em("4. Variable(s)"),": Variables are specific types of measurements of the social/natural world. The values available here are a product of steps 2+3."),
         tags$h4(tags$em("5-8"),": The ranges in the data for: longitude, latitude, date, and depth. Moving these sliders will filter out the data accordingly."),
         tags$h4(tags$em("9. Filter data"),": After selecting all of the desired variables and sliding the filters, click here to load the data. 
@@ -1237,10 +1249,12 @@ server <- function(input, output, session) {
         tags$h4(tags$b("Date", style = "color: #3c8dbc"),": Displays the selected data as an annual time series. Mouse over the points to see more information."),
         tags$h4(tags$b("Depth", style = "color: #00a65a"),": Shows the selected data as a stacked bar plot from the surface (0 m) down to the deepest depth in the data. Data are binned into 10 m groups. Negative values show data above the sea surface (altimetry). Mouse over for more information."),
         tags$h3(icon("table"),"Advanced search tool", style = "color: #008980;"),
-        tags$h4(tags$b("Full variable names", style = "color: #f39c12;"),": This table shows the full names for all categories, drivers, and their variables. 
-                  The final column 'Long name' shows a longer name for a given variavle if one is available in the meta-data."),
+        tags$h4(tags$b("Data availability per citation", style = "color: #f39c12;"),": This table shows a count of the number of data points per driver per citation.
+                  This is meant to be a helpful guide to see if the data for a desired driver is available within a given citation (i.e. dataset) or not."),
         tags$h4(tags$b("Data availability per site", style = "color: #f39c12;"),": This table shows a count of the number of data points per driver per site.
                   This is meant to be a helpful guide to see if the data for a desired driver is available at a given site or not."),
+        tags$h4(tags$b("Full variable names", style = "color: #f39c12;"),": This table shows the full names for all categories, drivers, and their variables. 
+                  The final column 'Long name' shows a longer name for a given variavle if one is available in the meta-data."),
         tags$h3(icon("address-book"),"Contact", style = "color: #4472c4;"),
         tags$h4("For questions etc. please contact Robert Schlegel: robert.schlegel@imev-mer.fr")
       ),
