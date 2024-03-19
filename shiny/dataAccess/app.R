@@ -1033,6 +1033,7 @@ server <- function(input, output, session) {
       value_lab <- "Count"
     } else if(input$selectDataSummary == "Raw"){
       df_crunch <- df_date  |> 
+        filter(embargo == FALSE) |> 
         summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date", "embargo", all_of(grouping_vars)))
       value_lab <- "Value"
     } else if(input$selectDataSummary == "Citation"){
@@ -1057,11 +1058,14 @@ server <- function(input, output, session) {
     # Plot and exit
     if(nrow(df_summary) > 0){
       basePlot <- ggplot(data = df_final, aes(x = date, y = value)) +
-        labs(x = date_lab, y = value_lab, colour = group_lab) +
+        labs(x = date_lab, y = value_lab, 
+             colour = input$selectColourSummary[1], fill = input$selectColourSummary[1]) +
         theme_bw() +
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
-              axis.ticks = element_line(colour = "black"), legend.position = "none")
+              axis.ticks = element_line(colour = "black"),
+              legend.position = "bottom")
+              # legend.position = "none") # Disable legend
       if(input$selectGroupSummary == "Category"){
         if(input$selectPlotSummary == "Dot plot"){
           basePlot <- basePlot +
@@ -1148,11 +1152,16 @@ server <- function(input, output, session) {
         basePlot <- basePlot +
           scale_x_continuous(breaks = seq(2, 12, 2))
       }
+      # Remove embargo shape from legend
+      basePlot <- basePlot +
+        guides(shape = FALSE)
     } else {
       basePlot <- ggplot() + geom_blank()
     }
     
-    ggplotly(basePlot, tooltip = "text")
+    # Create plotly
+    ggplotly(basePlot, tooltip = "text") |> 
+      plotly::layout(legend = list(x = 0, xanchor = "left", yanchor = "bottom", orientation = "h"))
     
   })
   
