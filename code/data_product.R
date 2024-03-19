@@ -4833,6 +4833,17 @@ clean_all_meta <- clean_all |>
   summarise(category = toString(unique(category_long)), driver = toString(unique(driver_long)), .groups = "drop")
 save(clean_all_meta, file = "data/analyses/clean_all_meta.RData")
 
+# Count of datasets and data points per category+driver
+clean_all_count_data <- summarise(clean_all, `Data points` = n(), .by = c("category", "driver"))
+clean_all_count <- clean_all |> 
+  dplyr::select(category, driver, citation) |> distinct() |> 
+  summarise(`Datasets` = n(), .by = c("category", "driver")) |> 
+  left_join(clean_all_count_data, by = c("category", "driver")) |> 
+  left_join(long_names, by = c("category", "driver")) |> 
+  dplyr::select(category_long, driver_long, Datasets, `Data points`) |> 
+  dplyr::rename(Category = category_long, Driver = driver_long)
+save(clean_all_count, file = "presentations/clean_all_count_data.RData")
+
 
 ## References --------------------------------------------------------------
 

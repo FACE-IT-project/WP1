@@ -43,6 +43,19 @@ editor: source
 ## Overview
 <!-- Coloured table of categories, drivers, count of datasets (i.e. citations), and count of daily data points -->
 
+```{r}
+load("clean_all_count_data.RData")
+# knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL), 
+#              caption = "Table 6: The key drivers of changes on Arctic fjord and adjacent coastal systems as identified by the experts in FACE-IT for D1.1. The drivers have been separated into the following categories: Cryosphere, Physical, Chemistry, Biology, Social. The 'Crysophere' category contains any drivers related to ice, glaciers, and/or snow. This category contains both marine and terrestrial drivers that impact the marine environements of Arctic fjords and adjacent coastlines. The 'Physical' category contains atmospheric and oceanic drivers. The 'Chemistry' category contains primarily water quality variables that are no longer physical, but not yet biological. This includes inorganic as well as organic nutrients. The 'Biology' category contains drivers related to biology and ecology. The 'Social' category contains drivers that are primarily related to anthropogenic impacts on the natural world, as well as drivers that directly affect the well-being of local stakeholders. This category therefore contains all drivers relating to fisheries.") %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+#   row_spec(1:6, background = "mintcream") %>% # Cryosphere
+#   row_spec(7:20, color = "black", background = "skyblue") %>% # Physical
+#   row_spec(21:29, background = "#F6EA7C") %>% # Chemistry
+#   row_spec(30:36, background = "#A2ED84") %>% # Biology
+#   row_spec(37:42, background = "#F48080") # Social
+```
+
+
 ## Versioning: v1.0 -> v2.0
 <!-- List of each version and what was changed -->
 
