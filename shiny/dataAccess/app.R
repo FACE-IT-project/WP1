@@ -52,7 +52,8 @@ CatColAbr <- c(
 #                     selectDriv = c("sea ice", "nutrients"),
 #                     selectSiteSummary = c("stor", "young"),
 #                     selectCatSummary = c("chem"),
-#                     selectDrivSummary = c("carb", "nutrients"))
+#                     selectDrivSummary = c("carb", "nutrients"),
+#                     selectColourSummary = "Site")
 
 # Embargoed data
 data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
@@ -151,13 +152,12 @@ load("clean_citation.RData")
 # write_csv_arrow(param_list, "~/WP1/shiny/dataAccess/param_list.csv")
 param_list <- read_csv_arrow("param_list.csv")
 
-# Cat+driv choices
-# TODO: Better integration
+# Static category choices
 cat_choices <- c("Cryosphere" = "cryo", "Physical" = "phys", "Chemistry" = "chem",
                  "Biology" = "bio", "Social" = "soc")
-driv_choices_base <- long_names
-driv_choices <- as.character(driv_choices_base$driver)
-names(driv_choices) <- driv_choices_base$driver_long
+# driv_choices_base <- long_names
+# driv_choices <- as.character(driv_choices_base$driver)
+# names(driv_choices) <- driv_choices_base$driver_long
 
 
 # UI ----------------------------------------------------------------------
@@ -217,8 +217,8 @@ ui <- dashboardPage(
                    # Sidebar menu with multiple drop downs
                    sidebarMenu(
                      id = "tabs",
-                     menuItem("Data download", tabName = "download", icon = icon("download")),
                      menuItem("Data summary", tabName = "summary", icon = icon("book"), selected = TRUE),
+                     menuItem("Data download", tabName = "download", icon = icon("download")),
                      menuItem("Advanced search", tabName = "information", icon = icon("table")),
                      menuItem("Related pubs.", tabName = "publications", icon = icon("scroll"))
                    )
@@ -379,15 +379,15 @@ ui <- dashboardPage(
                            ),
                            
                            # Drivers - 3. Driver(s)
-                           # uiOutput("selectDrivSummaryUI"),
-                           selectizeInput(
-                             'selectDrivSummary', '3. Driver(s)',
-                             choices = driv_choices, multiple = T,
-                             options = list(
-                               placeholder = 'Select driver(s)',
-                               onInitialize = I('function() { this.setValue(""); }')
-                               )
-                             )
+                           uiOutput("selectDrivSummaryUI"),
+                           # selectizeInput(
+                           #   'selectDrivSummary', '3. Driver(s)',
+                           #   choices = driv_choices, multiple = T,
+                           #   options = list(
+                           #     placeholder = 'Select driver(s)',
+                           #     onInitialize = I('function() { this.setValue(""); }')
+                           #     )
+                           #   )
                        ),
                        box(width = 12, title = "Summarise data", # height = "880px",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
@@ -409,16 +409,24 @@ ui <- dashboardPage(
                            # Data grouping
                            selectInput(
                              'selectDataSummary', '3. Data',
-                             choices = c("Count", "Raw", "DOI", "Variable"),
+                             choices = c("Count", "Raw", "Variable", "Citation"),
                              selected = "Count"
                              )
                        ),
                        box(width = 12, title = "Visualise data", # height = "880px",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
 
+                           # Set colour grouping type
+                           uiOutput("selectColourSummaryUI"),
+                           # selectInput(
+                           #   'selectColourSummary', '1. Group colour',
+                           #   choices = c("Site", "Category", "Driver", "Variable", "Citation"),
+                           #   selected = "Site"
+                           # ),
+                           
                            # Set plot type
                            selectInput(
-                             'selectPlotSummary', '1. Plot type',
+                             'selectPlotSummary', '2. Plot type',
                              choices = c("Bar plot", "Dot plot"),
                              selected = "Bar plot"
                              )
@@ -439,17 +447,16 @@ ui <- dashboardPage(
       # Data tables
       tabItem(tabName = "information",
               box(width = 12, title = "Data availability per citation", #height = "390px",
-                  status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                  status = "warning", solidHeader = TRUE, collapsible = TRUE,
                   DT::dataTableOutput("countCitationDT")),
               box(width = 12, title = "Data availability per site", #height = "390px",
-                  status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                  status = "warning", solidHeader = TRUE, collapsible = TRUE,
                   DT::dataTableOutput("countDrivDT")),
               box(width = 12, title = "Full variable names", #height = "390px", 
-                  status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                  status = "warning", solidHeader = TRUE, collapsible = TRUE,
                   DT::dataTableOutput("longVarDT"))
               ),
 
-      
       # Data tables
       tabItem(tabName = "publications",
               fluidPage(
@@ -571,23 +578,47 @@ server <- function(input, output, session) {
   # })
   
   ## Select drivers
-  # output$selectDrivSummaryUI <- renderUI({
-  #   if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in% input$selectSiteSummary) & length(input$selectCatSummary) > 0){
-  #     driv_choices_base <- droplevels(unique(filter(long_names, category %in% input$selectCatSummary)))
-  #     driv_choices <- as.character(driv_choices_base$driver)
-  #     names(driv_choices) <- driv_choices_base$driver_long
-  #   } else{
-  #     driv_choices <- ""
-  #   }
-    # selectizeInput(
-    #   'selectDrivSummary', '3. Driver(s)',
-    #   choices = driv_choices, multiple = T,
-    #   options = list(
-    #     placeholder = 'Select driver(s)',
-    #     onInitialize = I('function() { this.setValue(""); }')
-    #   )
-    # )
-  # })
+  output$selectDrivSummaryUI <- renderUI({
+    if(any(c("kong", "is", "stor", "young", "disko", "nuup", "por") %in% input$selectSiteSummary) & length(input$selectCatSummary) > 0){
+      driv_choices_base <- droplevels(unique(filter(long_names, category %in% input$selectCatSummary)))
+      driv_choices <- as.character(driv_choices_base$driver)
+      names(driv_choices) <- driv_choices_base$driver_long
+    } else{
+      driv_choices <- ""
+    }
+  selectizeInput(
+    'selectDrivSummary', '3. Driver(s)',
+    choices = driv_choices, multiple = T,
+    options = list(
+      placeholder = 'Select driver(s)',
+      onInitialize = I('function() { this.setValue(""); }')
+    )
+  )
+  })
+  
+  ## Select colour groupings
+  output$selectColourSummaryUI <- renderUI({
+    colour_group_base <- c("Site", "Category")
+    if(input$selectGroupSummary == "Driver"){
+      colour_group_group <- unique(c(colour_group_base, "Driver"))
+    } else if(input$selectGroupSummary == "Variable"){
+      colour_group_group <- unique(c(colour_group_base, "Driver", "Variable"))
+    } else {
+      colour_group_group <- colour_group_base
+    }
+    if(input$selectDataSummary == "Variable"){
+      colour_group_data <- unique(c(colour_group_group, "Variable"))
+    } else if(input$selectDataSummary == "Citation"){
+      colour_group_data <- unique(c(colour_group_group, "Citation"))
+    } else {
+      colour_group_data <- colour_group_group
+    }
+    selectInput(
+      'selectColourSummary', '1. Group colour',
+      choices = colour_group_data,
+      selected = "Site"
+    )
+  })
   
   # Filter data
   ## Lon
@@ -810,16 +841,18 @@ server <- function(input, output, session) {
   })
 
   # 
-  # loadClick <- reactiveValues(click = 0)
   # Load full dataset with button click
-  # TODO: Figure out how to isolate this to only load on the first click
+  loadfull <- reactiveValues(loaded = 0)
   df_full <- reactive({
     
     # Look for button click
     input$loadCleanAll
     
     # Load data
-    if(input$loadCleanAll >= 1) df_full <- loadRData("full_data/clean_all.RData")
+    if(input$loadCleanAll >= 1 & loadfull$loaded == 0){
+      df_full <- loadRData("full_data/clean_all.RData")
+      loadfull$loaded <- loadfull$loaded+1
+    } 
     
     return(df_full)
   })
@@ -1025,80 +1058,79 @@ server <- function(input, output, session) {
   output$summaryPlotly <- renderPlotly({
     req(input$selectSiteSummary, input$selectDrivSummary)
     
+    # testing...
+    # df_summary <- clean_all |>
+    #   dplyr::filter(site %in% c("kong", "is"), category == "chem", driver == "carb") |>
+    #   mutate(date = as.Date(date), year = year(date), clim = month(date)) |> 
+    #   mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
+    
     # Initial data
     df_summary <- df_summary() |> 
       mutate(year = year(date),
              clim = month(date))
     
-    # Filter by year
-    ## If this remains a plotly this won't be necessary
-    
     # Grouping vector
     if(input$selectGroupSummary == "Category"){
       grouping_vars <- c("category")
       join_vars <- c("category")
+      long_names_sub <- dplyr::select(long_names, category, category_long) |> distinct()
       group_lab <- "Category"
     } else if(input$selectGroupSummary == "Driver"){
       grouping_vars <- c("category", "driver")
       join_vars <- c("category", "driver")
+      long_names_sub <- long_names
       group_lab <- "Driver"
     } else if(input$selectGroupSummary == "Variable"){
       grouping_vars <- c("category", "driver", "variable")
       join_vars <- c("category", "driver")
+      long_names_sub <- long_names
       group_lab <- "Driver"
     }
     
     # Summarise by date: Daily, Yearly, monthly clim
-    # & selectDataSummary == "Count"
     if(input$selectDateSummary == "Year"){
       df_date <- df_summary |> 
-        # summarise(value = n(), .by = c("year", "embargo", grouping_vars)) |> 
         dplyr::select(-date) |> 
         dplyr::rename(date = year)
       date_lab <- "Year"
     } else if(input$selectDateSummary == "Climatology"){
       df_date <- df_summary |> 
-        # summarise(value = n(), .by = c("clim", "embargo", grouping_vars)) |> 
         dplyr::select(-date) |> 
         dplyr::rename(date = clim)
       date_lab <- "Monthly climatology"
     } else if(input$selectDateSummary == "Day"){
-      df_date <- df_summary #|> 
-        # summarise(value = n(), .by = c("date", "embargo", grouping_vars))
+      df_date <- df_summary
       date_lab <- "Date"
     }
     
-    # Summarise by value: count, raw value, DOI, uniqe vars
+    # Summarise by value: count, raw value, citations, unique vars
     if(input$selectDataSummary == "Count"){
       df_crunch <- df_date |> 
-        summarise(value = n(), .by = c("date", "embargo", all_of(grouping_vars)))
+        summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
       value_lab <- "Count"
     } else if(input$selectDataSummary == "Raw"){
       df_crunch <- df_date  |> 
-        summarise(value = mean(value, na.rm = TRUE), .by = c("date", "embargo", all_of(grouping_vars)))
+        summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date", "embargo", all_of(grouping_vars)))
       value_lab <- "Value"
-    } else if(input$selectDataSummary == "DOI"){
+    } else if(input$selectDataSummary == "Citation"){
       df_crunch <- df_date  |>
-        dplyr::select("date", "embargo", "URL", all_of(grouping_vars)) |> 
+        dplyr::select("site", "date", "embargo", "citation", all_of(grouping_vars)) |> 
         distinct() |> 
-        summarise(value = n(), .by = c("date", "embargo", all_of(grouping_vars)))
-      value_lab <- "DOIs"
+        summarise(value = n(), .by = c("site", "date", "embargo", "citation", all_of(grouping_vars)))
+      value_lab <- "Citations"
     } else if(input$selectDataSummary == "Variable"){
       df_crunch <- df_date  |>
-        dplyr::select("date", "embargo", "variable", all_of(grouping_vars)) |> 
+        dplyr::select("site", "date", "embargo", "variable", all_of(grouping_vars)) |> 
         distinct() |> 
-        summarise(value = n(), .by = c("date", "embargo", all_of(grouping_vars)))
+        summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
       value_lab <- "Variables"
     }
     
-    # Summarise by meta: count of variables or DOIs
-    
-    # df_summarise <- df_summary |> 
-      # summarise(data_count = n(), .by = c("year", "category"))
-    
     # Join for pretty names
     df_final <- df_crunch |> 
-      left_join(long_names, by = join_vars)
+      left_join(long_names_sub, by = join_vars) |> 
+      mutate(colour_choice = .data[[tolower(input$selectColourSummary[1])]])
+    # df_final$colour_choice <- df_final[tolower(input$selectColourSummary)]
     
     # Plot and exit
     if(nrow(df_summary) > 0){
@@ -1111,20 +1143,22 @@ server <- function(input, output, session) {
       if(input$selectGroupSummary == "Category"){
         if(input$selectPlotSummary == "Dot plot"){
           basePlot <- basePlot +
-            geom_point(size = 2, #aes(colour = category),
-                       aes(shape = embargo, colour = category,
-                           text = paste0("Category: ",category,
+            geom_point(size = 2,
+                       aes(shape = embargo, colour = colour_choice,
+                           text = paste0("Site: ",site,
+                                         "<br>Category: ",category_long,
                                          "<br>Date: ",date,
-                                         # "<br>Count: ",count,
+                                         "<br>Value: ",value,
                                          "<br>Embargoed: ",embargo)
                        )
             )
         } else {
           basePlot <- basePlot +
-            geom_col(aes(shape = embargo, fill = category,
-                         text = paste0("Category: ",category,
+            geom_col(aes(shape = embargo, fill = colour_choice,
+                         text = paste0("Site: ",site,
+                                       "<br>Category: ",category_long,
                                        "<br>Date: ",date,
-                                       # "<br>Count: ",count,
+                                       "<br>Value: ",value,
                                        "<br>Embargoed: ",embargo)
                          )
                      ) 
@@ -1132,52 +1166,65 @@ server <- function(input, output, session) {
       } else if(input$selectGroupSummary == "Driver"){
         if(input$selectPlotSummary == "Dot plot"){
           basePlot <- basePlot +
-            geom_point(size = 2, #aes(colour = category),
-                       aes(shape = embargo, colour = driver,
-                           text = paste0("Category: ",category_long,
+            geom_point(size = 2,
+                       aes(shape = embargo, colour = colour_choice,
+                           text = paste0("Site: ",site,
+                                         "<br>Category: ",category_long,
                                          "<br>Driver: ",driver_long,
                                          "<br>Date: ",date,
-                                         # "<br>Count: ",count,
+                                         "<br>Value: ",value,
                                          "<br>Embargoed: ",embargo)
                        )
             )
         } else {
           basePlot <- basePlot +
-            geom_col(aes(shape = embargo, fill = driver,
-                           text = paste0("Category: ",category_long,
-                                         "<br>Driver: ",driver_long,
-                                         "<br>Date: ",date,
-                                         # "<br>Count: ",count,
-                                         "<br>Embargoed: ",embargo)
+            geom_col(aes(shape = embargo, fill = colour_choice,
+                         text = paste0("Site: ",site,
+                                       "<br>Category: ",category_long,
+                                       "<br>Driver: ",driver_long,
+                                       "<br>Date: ",date,
+                                       "<br>Value: ",value,
+                                       "<br>Embargoed: ",embargo)
                        )
             )
         }
       } else if(input$selectGroupSummary == "Variable"){
         if(input$selectPlotSummary == "Dot plot"){
           basePlot <- basePlot +
-            geom_point(size = 2, #aes(colour = category),
-                       aes(shape = embargo, colour = driver,
-                           text = paste0("Category: ",category_long,
+            geom_point(size = 2,
+                       aes(shape = embargo, colour = colour_choice,
+                           text = paste0("Site: ",site,
+                                         "<br>Category: ",category_long,
                                          "<br>Driver: ",driver_long,
                                          "<br>Variable: ",variable,
                                          "<br>Date: ",date,
-                                         # "<br>Count: ",count,
+                                         "<br>Value: ",value,
                                          "<br>Embargoed: ",embargo)
                        )
             )
         } else {
           basePlot <- basePlot +
-            geom_col(aes(shape = embargo, fill = driver,
-                           text = paste0("Category: ",category_long,
-                                         "<br>Driver: ",driver_long,
-                                         "<br>Variable: ",variable,
-                                         "<br>Date: ",date,
-                                         # "<br>Count: ",count,
-                                         "<br>Embargoed: ",embargo)
+            geom_col(aes(shape = embargo, fill = colour_choice,
+                         text = paste0("Site: ",site,
+                                       "<br>Category: ",category_long,
+                                       "<br>Driver: ",driver_long,
+                                       "<br>Variable: ",variable,
+                                       "<br>Date: ",date,
+                                       "<br>Value: ",value,
+                                       "<br>Embargoed: ",embargo)
                        )
             )
         }
-
+      }
+      if(input$selectDateSummary == "Year"){
+        x_breaks <- unique(round(seq(min(df_final$date, na.rm = TRUE), 
+                                     max(df_final$date, na.rm = TRUE), 5)))
+        basePlot <- basePlot +
+          scale_x_continuous(breaks = x_breaks)
+      }
+      if(input$selectDateSummary == "Climatology"){
+        basePlot <- basePlot +
+          scale_x_continuous(breaks = seq(2, 12, 2))
       }
     } else {
       basePlot <- ggplot() + geom_blank()
