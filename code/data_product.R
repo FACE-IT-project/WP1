@@ -4841,8 +4841,9 @@ clean_all_count <- clean_all |>
   left_join(clean_all_count_data, by = c("category", "driver")) |> 
   left_join(long_names, by = c("category", "driver")) |> 
   dplyr::select(category_long, driver_long, Datasets, `Data points`) |> 
-  dplyr::rename(Category = category_long, Driver = driver_long)
-save(clean_all_count, file = "presentations/clean_all_count_data.RData")
+  dplyr::rename(Category = category_long, Driver = driver_long) |> 
+  mutate(`Data points` = formatC(`Data points`, format = "d", big.mark = ","))
+save(clean_all_count, file = "presentations/clean_all_count.RData")
 
 
 ## References --------------------------------------------------------------

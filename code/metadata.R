@@ -333,6 +333,27 @@ long_driver_names <- data.frame(driver = c("sea ice", "glacier", "runoff",
                                                                   "carbonate chemistry", "nutrients",
                                                                   "primary production", "biomass", "species richness",
                                                                   "governance", "tourism", "fisheries")))
+long_names <- data.frame(category = c("cryo", "cryo", "cryo", "phys", "phys", "phys",
+                                      "chem", "chem", "bio", "bio", "bio", "soc", "soc", "soc"),
+                         category_long = c("cryosphere", "cryosphere", "cryosphere", "physics", "physics", "physics",
+                                           "chemistry", "chemistry", "biology", "biology", "biology",
+                                           "social", "social", "social"),
+                         driver = c("sea ice", "glacier", "runoff", "sea temp", "salinity", "light",
+                                    "carb", "nutrients", "prim prod", "biomass", "spp rich", 
+                                    "gov", "tourism", "fisheries"),
+                         driver_long = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                         "seawater temperature", "salinity", "light",
+                                         "carbonate chemistry", "nutrients",
+                                         "primary production", "biomass", "species richness",
+                                         "governance", "tourism", "fisheries")) %>% 
+  mutate(category_long = factor(category_long,
+                                levels = c("cryosphere", "physics", "chemistry", "biology", "social")),
+         driver_long = factor(driver_long, 
+                              levels = c("sea ice", "glacier mass balance", "terrestrial runoff",
+                                         "seawater temperature", "salinity", "light",
+                                         "carbonate chemistry", "nutrients",
+                                         "primary production", "biomass", "species richness",
+                                         "governance",  "tourism", "fisheries")))
 
 # For finding meta-data in PG files
 lon_names <- c("LONGITUDE", "Longitude", "longitude", "long", "lon")

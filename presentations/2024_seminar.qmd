@@ -14,50 +14,91 @@ format:
 editor: source
 ---
 
-## FACE-IT data: countdown to completion
+## {background-color="#008980"}
 
 <!-- During this third and final seminar from WP1, we will journey once again into the world of data management. A versioning system for the amalgamation of the large inter-fjord dataset from v1.0 to v2.0 was implemented and these incremental improvements will be presented. The v2.0 dataset itself will be submitted to PANGAEA for publication the week after this seminar, making the timing is excellent for any final comments or suggestions from the wider FACE-IT colloquium on what they would like to see added or any other things they think may make the dataset more user friendly. This discussion on the state of the data will be followed by a live demo of how to access, filter, and download these data from the dataAccess app. The dual purpose of this demo is to solicit comments on what changes or improvements would benefit the app considering that it will persist after the close of FACE-IT as one of its public outreach functions. -->
 
 <!-- ## -->
-
-<!-- <p style="font-size: 38pt"> -->
-<!-- <b>The changing fjords of the European Arctic:</b> -->
-<!-- </br> -->
-<!-- <b>what do the data say?</b> -->
-<!-- </p> -->
+<center>
+<p style="font-size: 52pt">
+<b>FACE-IT data:</b>
+</br>
+<b>countdown to completion</b>
+</p>
+</center>
 
 ::: columns
 ::: {.column style="text-align: center"}
 </br>
 ![](../logo/Logo_FACE-IT_PNG_1500.png){width="410"}
-<p style="font-size:22pt">Work package one (WP1)</p>
+<p style="font-size:30pt">Work package one (WP1)</p>
 :::
 
 ::: {.column style="text-align: center"}
 </br></br>
 ![](../logo/h2020.png){width="450"} 
-<p style="font-size:22pt">Funded under grant #869154</p>
+<p style="font-size:30pt">Funded under grant #869154</p>
 :::
 :::
 
 ## Overview
+
+-   Dataset/point count
+-   Versioning
+-   Considerations
+-   TODO
+-   Live demo
+
+## Final(ish) count {.scrollable}
 <!-- Coloured table of categories, drivers, count of datasets (i.e. citations), and count of daily data points -->
 
 ```{r}
-load("clean_all_count_data.RData")
-# knitr::kable(rbind(cryo_ALL, phys_ALL, chem_ALL, bio_ALL, soc_ALL), 
-#              caption = "Table 6: The key drivers of changes on Arctic fjord and adjacent coastal systems as identified by the experts in FACE-IT for D1.1. The drivers have been separated into the following categories: Cryosphere, Physical, Chemistry, Biology, Social. The 'Crysophere' category contains any drivers related to ice, glaciers, and/or snow. This category contains both marine and terrestrial drivers that impact the marine environements of Arctic fjords and adjacent coastlines. The 'Physical' category contains atmospheric and oceanic drivers. The 'Chemistry' category contains primarily water quality variables that are no longer physical, but not yet biological. This includes inorganic as well as organic nutrients. The 'Biology' category contains drivers related to biology and ecology. The 'Social' category contains drivers that are primarily related to anthropogenic impacts on the natural world, as well as drivers that directly affect the well-being of local stakeholders. This category therefore contains all drivers relating to fisheries.") %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-#   row_spec(1:6, background = "mintcream") %>% # Cryosphere
-#   row_spec(7:20, color = "black", background = "skyblue") %>% # Physical
-#   row_spec(21:29, background = "#F6EA7C") %>% # Chemistry
-#   row_spec(30:36, background = "#A2ED84") %>% # Biology
-#   row_spec(37:42, background = "#F48080") # Social
+library(dplyr)
+library(kableExtra)
+load("clean_all_count.RData")
+knitr::kable(x = clean_all_count) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>%
+  row_spec(1:3, background = "mintcream") %>% # Cryosphere
+  row_spec(4:6, color = "black", background = "skyblue") %>% # Physical
+  row_spec(7:8, background = "#F6EA7C") %>% # Chemistry
+  row_spec(9:11, background = "#A2ED84") %>% # Biology
+  row_spec(12:14, background = "#F48080") # Social
+# caption = "Table 1: The key drivers of changes on Arctic fjord and adjacent coastal systems as identified by the experts in FACE-IT for D1.1. The drivers have been separated into the following categories: Cryosphere, Physical, Chemistry, Biology, Social. The 'Crysophere' category contains any drivers related to ice, glaciers, and/or snow. This category contains both marine and terrestrial drivers that impact the marine environements of Arctic fjords and adjacent coastlines. The 'Physical' category contains atmospheric and oceanic drivers. The 'Chemistry' category contains primarily water quality variables that are no longer physical, but not yet biological. This includes inorganic as well as organic nutrients. The 'Biology' category contains drivers related to biology and ecology. The 'Social' category contains drivers that are primarily related to anthropogenic impacts on the natural world, as well as drivers that directly affect the well-being of local stakeholders. This category therefore contains all drivers relating to fisheries."
 ```
 
+## Versioning: v1.0 -> v2.0
+
+-   v1.0: Dataset published on PANGAEA
+-   v1.1: Removed EU from PANGAEA pipeline
+-   v1.2: Reduced file bloat and data points
+-   v1.3: Modular pipeline and feature names
+-   v1.4: Reinforced meta-data standards
+-   v1.5: Integration of species data
 
 ## Versioning: v1.0 -> v2.0
-<!-- List of each version and what was changed -->
+
+-   v1.6: Full re-work of PANGAEA pipeline
+-   v1.7: Address list of TODO items
+-   v1.8: Production checks
+-   v1.9: Final checks
+-   v2.0: Final dataset to publish on PANGAEA
+-   xxx lines of code
+
+## Considerations
+
+-   Time: daily averages
+-   Depth: 0-10, 20, 50, 100, 200, 500, 1000, 2000+
+-   Types: moorings, CTDs, bottles, surveys, satellites, etc.
+-   Sampling effort not always consistent
+
+## TODO
+
+-   Fix spp. classification for PANGAEA data
+-   Final checks on clean data
+-   Feedback from FACE-IT community
+-   Tutorials for working with dataset?
+-   Glossary/guidelines of spp. classifications?
+-   Publish on PANGAEA
 
 ## Data access
 
@@ -66,7 +107,7 @@ load("clean_all_count_data.RData")
 </br></br></br></br></br></br></br></br></br></br></br>
 
 <center>
-<p style="font-size:40pt">[http://choc.imev-mer.fr/shiny/dataAccess/](http://choc.imev-mer.fr/shiny/dataAccess/)</p>
+<p style="font-size:32pt">[http://choc.imev-mer.fr/shiny/dataAccess/](http://choc.imev-mer.fr/shiny/dataAccess/)</p>
 </center>
 
 ## {background-color="#008980"}
