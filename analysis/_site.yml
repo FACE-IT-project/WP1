@@ -43,6 +43,8 @@ navbar:
       href: 2023_seminar.html
     - text: "FACE-IT 36 month review - 2024"
       href: 2024_36_month.html
+    - text: "FACE-IT seminar - 2024"
+      href: 2024_seminar.html
   - text: "Posters"
     menu:
     - text: "Svalbard Science Conference - 2021"
