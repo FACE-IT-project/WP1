@@ -68,7 +68,7 @@ knitr::kable(x = clean_all_count) %>%
 
 ## Versioning: v1.0 -> v2.0
 
--   v1.0: Dataset published on PANGAEA (2023-01-31)
+-   v1.0: Dataset published on PANGAEA _(2023-01-31)_
 -   v1.1: Removed EU from PANGAEA pipeline
 -   v1.2: Reduced file bloat and data points
 -   v1.3: Modular pipeline and feature names
@@ -81,7 +81,7 @@ knitr::kable(x = clean_all_count) %>%
 -   v1.7: Address list of TODO items
 -   v1.8: Production checks
 -   v1.9: Final checks
--   v2.0: Dataset to be publish on PANGAEA (2024-03-29)
+-   v2.0: Dataset to be publish on PANGAEA _(2024-03-29)_
 -   ~10,000 lines of optimised code
 
 ## Considerations
