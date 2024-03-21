@@ -4447,12 +4447,14 @@ clean_sea_ice <- filter(full_ALL, driver == "sea ice") |>
 load("data/analyses/ice_4km_prop.RData")
 
 # Bind together
-clean_sea_ice <- rbind(clean_sea_ice, ice_4km_prop) %>% distinct()
+clean_sea_ice <- rbind(clean_sea_ice, ice_4km_prop) |> distinct() |> 
+  summarise(value = mean(value, na.rm = TRUE), 
+            .by = c("date_accessed", "URL", "citation", "type", "site", "lon", "lat", 
+                "date", "depth", "category", "driver", "variable"))
 rm(ice_4km_prop); gc(); print(unique(clean_sea_ice$variable))
 
-# Calculate sea ice breakup and formation dates
-## Not sure if this is useful/comparable for all the different sites. e.g. Young Sound vs. Disko Bay
-## Consider calculating open water days
+# Test depths etc.
+clean_sea_ice |> distinct(depth)
 
 
 ### Glacier -----------------------------------------------------------------
