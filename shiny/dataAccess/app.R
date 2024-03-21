@@ -1055,6 +1055,13 @@ server <- function(input, output, session) {
       left_join(long_names_sub, by = join_vars) |> 
       mutate(colour_choice = .data[[tolower(input$selectColourSummary[1])]])
     
+    # Automatic shift to dodge for barplots if showing Raw values
+    if(input$selectDataSummary == "Raw"){
+      col_dodge <- "dodge"
+    } else {
+      col_dodge <- "stack"
+    }
+    
     # Plot and exit
     if(nrow(df_summary) > 0){
       basePlot <- ggplot(data = df_final, aes(x = date, y = value)) +
@@ -1086,7 +1093,8 @@ server <- function(input, output, session) {
                                        "<br>Date: ",date,
                                        "<br>Value: ",value,
                                        "<br>Embargoed: ",embargo)
-                         )
+                         ),
+                     position = col_dodge
                      ) 
         }
       } else if(input$selectGroupSummary == "Driver"){
@@ -1100,8 +1108,8 @@ server <- function(input, output, session) {
                                          "<br>Date: ",date,
                                          "<br>Value: ",value,
                                          "<br>Embargoed: ",embargo)
+                           )
                        )
-            )
         } else {
           basePlot <- basePlot +
             geom_col(aes(shape = embargo, fill = colour_choice,
@@ -1111,8 +1119,9 @@ server <- function(input, output, session) {
                                        "<br>Date: ",date,
                                        "<br>Value: ",value,
                                        "<br>Embargoed: ",embargo)
-                       )
-            )
+                         ),
+                     position = col_dodge
+                     )
         }
       } else if(input$selectGroupSummary == "Variable"){
         if(input$selectPlotSummary == "Dot plot"){
@@ -1138,7 +1147,8 @@ server <- function(input, output, session) {
                                        "<br>Date: ",date,
                                        "<br>Value: ",value,
                                        "<br>Embargoed: ",embargo)
-                       )
+                       ),
+                     position = col_dodge
             )
         }
       }
