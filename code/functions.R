@@ -133,6 +133,7 @@ check_driver <- function(df){
 
 # Looks at variable names within the bio category and assigns a species classification if possible
 # df <- df_driv # tester...
+# df <- clean_biomass # tester...
 check_spp <- function(df, spp_type = "cat"){
   
   # Split dataframe by bio category
@@ -147,8 +148,11 @@ check_spp <- function(df, spp_type = "cat"){
   } else{
     suppressWarnings( # Ignore warnings about multiple pieces being cut off of species names
     df_not_PP <- df_not_PP |> 
-      dplyr::select(variable) |> distinct() |> 
+      dplyr::select(URL, variable) |> distinct() |> 
+      mutate(variable = trimws(sub("\\|.*\\|", "", variable)),
+             variable = trimws(sub("\\(.*\\)", "", variable))) |> 
       separate(variable, into = c("var", "units"), sep = "\\[", remove = FALSE) |>
+      # mutate(var = str_replace(var, "\\(=Oncaea", "")) |>
       separate(var, into = c("spp1", "spp2"), sep = " ", extra = "drop", remove = FALSE) |> 
       unite(spp1, spp2, col = "spp", sep = " ") |> 
       mutate(units = trimws(paste0("[",units)),
@@ -157,7 +161,7 @@ check_spp <- function(df, spp_type = "cat"){
   }
   
   # Get unique species
-  df_spp_unq <- dplyr::select(df_not_PP, spp) |> distinct()
+  df_spp_unq <- dplyr::select(df_not_PP, URL, spp) |> distinct() |> mutate(idx = 1:n())
   
   # Search WoRMS for UIDs etc
   if(spp_type == "tax"){
@@ -166,25 +170,28 @@ check_spp <- function(df, spp_type = "cat"){
   }
   
   # Search local NCBI database to get classifications
-  df_cat <- plyr::ldply(df_spp_unq$spp, wm_records_df, .parallel = T, res_type = "cat") |> distinct()
+  df_cat <- plyr::ddply(df_spp_unq, c("idx"), wm_records_df, .parallel = T, res_type = "cat") |> distinct()
   
   # Report on changes
   df_no_cat <- filter(df_cat, is.na(cat)) |> 
-    dplyr::select(species) |> distinct() |> arrange()
+    dplyr::select(species_fix) |> distinct() |> arrange()
   if(nrow(df_no_cat) > 0) {
     cat("These species were not found in NCBI, GBIF, or WoRMS: \n")
-    print(df_no_cat$species)
+    print(df_no_cat$species_fix)
   } else {
     cat("All species were matched.\n")
   }
   
   # Add category back into data.frame, merge, and exit
   df_not_PP_cat <- left_join(df_not_PP, df_cat, by = c("spp" = "species")) |> 
-    dplyr::select(variable, cat) |> 
+    mutate(species_fix_words = str_count(species_fix, "\\w+")) |> 
+    mutate(variable_new = case_when(species_fix_words == 2 ~ str_replace(variable, spp, species_fix), TRUE ~ variable)) |> 
+    dplyr::select(variable, variable_new, cat) |>
     mutate(cat = case_when(is.na(cat) ~ "|?|", TRUE ~ cat)) |> distinct()
   df_res <- left_join(df, df_not_PP_cat, by = "variable") |> 
-    mutate(variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |>
-    dplyr::select(-cat)
+    mutate(variable = variable_new,
+           variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |>
+    dplyr::select(-cat, -variable_new)
   return(df_res)
   # rm(df, spp_type, df_other, df_PP, df_not_PP); gc()
 }
@@ -229,11 +236,13 @@ check_data <- function(df, assign_site = NULL){
   df_driv <- check_driver(df_var)
   
   # Add species classifications and note any issues
-  df_spp <- check_spp(df_driv)
+  # NB: Thinking to disable this here and add it in at the clean data stage
+  # df_spp <- check_spp(df_driv)
   
   # Confirm site names and note any issues
   if(!is.null(assign_site)) df_spp$site <- assign_site
-  df_site <- check_site(df_spp)
+  # df_site <- check_site(df_spp)
+  df_site <- check_site(df_driv)
   
   # Finish and exit
   df_res <- dplyr::select(df_site, 
@@ -267,6 +276,12 @@ wm_records_df <- function(sp_name, res_type = "df"){
   URL_error <- NULL
   sp_info_df <- "none"
   
+  # Check if a data.frame has been provided
+  if(is.data.frame(sp_name)){
+    sp_df <- sp_name
+    sp_name <- sp_name$spp
+  }
+  
   # Trim trailing and leading bits
   sp_no_sp <- tm::removeNumbers(trimws(gsub("sp\\.$|spp\\.$|-Ciliata$|cf\\.$|indet\\.$|\\ sp$|\\ cf$", "", sp_name)))
   sp_no_pre <- trimws(gsub("young", "", sp_no_sp)) # NB: This will cause errors for a species name with 'young' in it
@@ -282,17 +297,28 @@ wm_records_df <- function(sp_name, res_type = "df"){
       sp_catch <- plyr::ldply(sp_names$canonicalName, wm_record_try, .parallel = TRUE)
       if(nrow(sp_catch) > 0) sp_catch <- filter(sp_catch, status == "accepted")
       if(nrow(sp_catch) == 1) sp_no_pre <- sp_catch$scientificname
+    }    
+    # Get metadat from PG download to determine Genus
+    if(substr(sp_no_pre, 2, 2) == "."){
+      if(grepl("PANGAEA", sp_df$URL)){
+        pg_doi <- sapply(str_split(sp_df$URL, "doi.org/"), "[[", 2)
+        pg_dl <- pg_data(pg_doi)
+        if("metadata" %in% names(pg_dl[[1]])){
+          pg_meta <- pg_dl[[1]]$metadata
+          if("parameters" %in% names(pg_meta)){
+            sp_sp <- trimws(sapply(str_split(sp_no_pre, "\\."), "[[", 2))
+            pg_param <- do.call(rbind.data.frame, lapply(pg_meta$parameters, "[[", 1)) |> `colnames<-`("params")
+            pg_hit <- pg_param$params[grepl(sp_sp, pg_param$params)]
+            if(is.character(pg_hit)){
+              sp_genus <- unique(trimws(sapply(str_split(pg_hit, sp_sp), "[[", 1)))
+              if(length(sp_genus) == 1){
+                sp_no_pre <- paste0(sp_genus," ",sp_sp) 
+              }
+            }
+          }
+        }
+      }
     }
-    # For this next step we will also needx the citation from which the species record comes
-    # This is so that it can see if it is from PANGAEA
-    # If so, it must then re-download the PANGAEA dataset
-    # Then it needs to look inside of the metadata and find the species name
-    # It should then be possible to find the word that exists before the species name
-    # This should be the genus
-    # Ensure it is the full genus name and not an abbreviation
-    # Grab it and exit
-    # Or perhaps this would be better to do during the original PG download step
-    # But that could be trickier
   }
   
   if(res_type == "df"){
@@ -333,7 +359,7 @@ wm_records_df <- function(sp_name, res_type = "df"){
       if(sp_name == "Tunicata") sp_info_df$class <- "Tunicata"
     }
     if(!is.character(sp_info_df)){
-      sp_res <- data.frame(species = sp_name) |> 
+      sp_res <- data.frame(species = sp_name, species_fix = sp_no_pre) |> 
         
         # NB: The first hit the machine makes is the classification that will be made
         mutate(cat = case_when(sp_info_df$class == "Mammalia" ~ "|MAM|",
@@ -367,7 +393,7 @@ wm_records_df <- function(sp_name, res_type = "df"){
                                TRUE ~ "|?|"))
       if(sp_name == "Pisces") sp_res$cat <- "|FIS|"
     } else {
-      sp_res <- data.frame(species = sp_name, cat = NA)
+      sp_res <- data.frame(species = sp_name, species_fix = sp_no_pre, cat = NA)
       if(grepl("Nitzschia|Pinnularia|Navicula|Groenlandiella", sp_name)) sp_res$cat <- "|PHY|"
       if(grepl("Zooplankton|finmarchicus", sp_name)) sp_res$cat <- "|ZOO|"
       # NB: This is a viable but time consuming solution to the Genera initial issue
@@ -376,7 +402,7 @@ wm_records_df <- function(sp_name, res_type = "df"){
     }
   }
   return(sp_res)
-  # rm(sp_name, sp_no_sp, sp_no_pre, sp_info, sp_info_df, sp_res, URL_error); gc()
+  # rm(sp_name, sp_names, sp_sp, sp_genus, sp_no_sp, sp_no_pre, sp_info, sp_info_df, sp_res, URL_error, pg_param, pg_dl, pg_doi, pg_hit); gc()
 }
 
 # Convenience function to catch inconsistent column types
