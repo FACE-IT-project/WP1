@@ -334,25 +334,32 @@ wm_records_df <- function(sp_name, res_type = "df"){
     }
     if(!is.character(sp_info_df)){
       sp_res <- data.frame(species = sp_name) |> 
-        mutate(cat = case_when(sp_info_df$class %in% c("Teleostei", "Actinopteri", "Chondrichthyes") ~ "|FIS|",
-                               sp_info_df$class == "Mammalia" ~ "|MAM|",
+        
+        # NB: The first hit the machine makes is the classification that will be made
+        mutate(cat = case_when(sp_info_df$class == "Mammalia" ~ "|MAM|",
                                sp_info_df$class == "Aves" ~ "|BIR|",
+                               sp_info_df$class %in% c("Teleostei", "Actinopteri", "Chondrichthyes") ~ "|FIS|",
+                               sp_info_df$order %in% c("Laminariales") ~ "|ALG|",
+                               
+                               # Order: Benthic -> Phytoplankton -> Zooplankton
+                               sp_info_df$order %in% c("Decapoda") ~ "|BEN|",
                                sp_info_df$order %in% c("Telonemida", "Coccolithales", "Syracosphaerales", "Pavlovales",
                                                        "Isochrysidales", "Mischococcales", "Chlorellales") ~ "|PHY|",
+                               sp_info_df$order %in% c("Amphipoda", "Anthoathecata", "Calanoida", "Copelata", "Cyclopoida", "Cydippida",
+                                                       "Euphausiacea", "Harpacticoida", "Isopoda", "Phragmophora", "Pteropoda",
+                                                       "Aphragmophora", "Mysida", "Cumacea", "Tanaidacea", "Craspedida") ~ "|ZOO|",
+                               
+                               # Class: Benthic -> Phytoplankton -> Zooplankton
+                               sp_info_df$class %in% c("Thecostraca", "Polychaeta", "Bivalvia", "Gastropoda", "Anthozoa",
+                                                       "Enteropneusta", "Tunicata") ~ "|BEN|",
                                sp_info_df$class %in% c("Dinophyceae", "Bacillariophyceae", "Telonemea", "Chlorophyceae",
                                                        "Cryptophyceae", "Pyramimonadophyceae", "Raphidophyceae", "Dictyochophyceae",
                                                        "Chrysophyceae", "Coccolithophyceae", "Zygnemophyceae", "Prymnesiophyceae",
                                                        "Prasinophyceae") ~ "|PHY|",
-                               sp_info_df$order %in% c("Amphipoda", "Anthoathecata", "Calanoida", "Copelata", "Cyclopoida", "Cydippida",
-                                                       "Euphausiacea", "Harpacticoida", "Isopoda", "Phragmophora", "Pteropoda",
-                                                       "Aphragmophora", "Mysida", "Cumacea", "Tanaidacea", "Craspedida") ~ "|ZOO|",
-                               sp_info_df$order %in% c("Laminariales") ~ "|ALG|",
-                               sp_info_df$order %in% c("Decapoda") ~ "|BEN|",
-                               # NB: These catch the cases when only a high level is given. E.g. 'Echinodermata'
                                sp_info_df$class %in% c("Hexanauplia", "Ostracoda", "Hydrozoa", "Scyphozoa", "Nuda", "Branchiopoda",
                                                        "Appendicularia", "Catenulida", "Centroplasthelida") ~ "|ZOO|",
-                               sp_info_df$class %in% c("Thecostraca", "Polychaeta", "Bivalvia", "Gastropoda", "Anthozoa",
-                                                       "Enteropneusta", "Tunicata") ~ "|BEN|",
+                               
+                               # Phylum: Benthic -> Phytoplankton -> Zooplankton
                                sp_info_df$phylum %in% c("Echinodermata", "Bryozoa", "Nemertea", "Nematoda") ~ "|BEN|",
                                sp_info_df$phylum %in% c("Bacillariophyta", "Cryptophyta") ~ "|PHY|",
                                sp_info_df$phylum %in% c("Foraminifera", "Ciliophora", "Rotifera", "Ctenophora", "Chaetognatha", 
