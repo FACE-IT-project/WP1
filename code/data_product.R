@@ -4534,6 +4534,7 @@ test1 <- clean_runoff |> distinct(depth)
 
 # TODO: Look into temperature values above 20°C
 # TODO: Still need to clean up these values
+# TODO: Investigate temperatures in carbonate chemistry datasets
 
 # Load OISST and CCI data
 # Prepared in code/data_processing.R
@@ -4717,6 +4718,7 @@ test1 <- clean_prim_prod |> distinct(depth)
 ### Biomass -----------------------------------------------------------------
 
 # TODO: Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
+# TODO: Add species classification
 
 # Get all biomass variables
 clean_biomass <- filter(full_ALL, driver == "biomass") |> 
@@ -4782,7 +4784,6 @@ clean_spp_rich <- filter(full_ALL, driver == "biomass") |>
          variable = str_replace(variable, "sp.0-40um|sp.0-30um", "sp."),
          variable = str_replace(variable, "sp.3", 'sp.')) |> 
   # Fixes by species
-  # TODO: Move this to earlier in the pipeline
   mutate(variable = case_when(str_detect(variable, "A. nodosum") ~ "A. nodosum", 
                               str_detect(variable, "S. latissima") ~ "S. latissima", 
                               str_detect(variable, "CiliophoraNon") ~ "Ciliophora",
@@ -4815,8 +4816,11 @@ clean_spp_rich <- filter(full_ALL, driver == "biomass") |>
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
 
+# Add species classifications
+
 # From the cleaned up data create a species count variable
 # From here the species are combined into counts - the names are therefore lost
+# TODO: Change this to properly account for different unique species values
 spp_count <- clean_spp_rich |> 
   group_by(lon, lat, date, depth, category, driver, site, type) |> 
   summarise(value = as.numeric(n()), .groups = "drop") |> 
@@ -4965,7 +4969,7 @@ data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
 data_shadow_df <- shadow(clean_all)
 
 # Prep for PANGAEA standard
-FACE_IT_v1.8 <- clean_all |> 
+FACE_IT_v1.9 <- clean_all |> 
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
@@ -4979,38 +4983,38 @@ FACE_IT_v1.8 <- clean_all |>
   #                                        TRUE ~ as.character(`date/time [UTC+0]`)))
 
 # Double check data shadows have been applied correctly
-shadow_test <- filter(FACE_IT_v1.8, grepl(data_shadow, URL))
+shadow_test <- filter(FACE_IT_v1.9, grepl(data_shadow, URL))
 rm(shadow_test); gc()
 
 # Save as .csv
 # NB: write_csv_arrow not currently working, file too large
-write_csv(FACE_IT_v1.8, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8.csv")
-write_csv(FACE_IT_v1.8, "data/full_data/FACE_IT_v1.8.csv")
+write_csv(FACE_IT_v1.9, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9.csv")
+write_csv(FACE_IT_v1.9, "data/full_data/FACE_IT_v1.9.csv")
 
 # Cryo data
-FACE_IT_v1.8_cryo <- filter(FACE_IT_v1.8, category == "cryo") |>
+FACE_IT_v1.9_cryo <- filter(FACE_IT_v1.9, category == "cryo") |>
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.8_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_cryo.csv", delim = ";")
+write_delim(FACE_IT_v1.9_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1.8_phys <- filter(FACE_IT_v1.8, category == "phys") |> 
+FACE_IT_v1.9_phys <- filter(FACE_IT_v1.9, category == "phys") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.8_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_phys.csv", delim = ";")
+write_delim(FACE_IT_v1.9_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1.8_chem <- filter(FACE_IT_v1.8, category == "chem") |> 
+FACE_IT_v1.9_chem <- filter(FACE_IT_v1.9, category == "chem") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.8_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_chem.csv", delim = ";")
+write_delim(FACE_IT_v1.9_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1.8_bio <- filter(FACE_IT_v1.8, category == "bio") |> 
+FACE_IT_v1.9_bio <- filter(FACE_IT_v1.9, category == "bio") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.8_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_bio.csv", delim = ";")
+write_delim(FACE_IT_v1.9_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1.8_soc <- filter(FACE_IT_v1.8, category == "soc") |> 
+FACE_IT_v1.9_soc <- filter(FACE_IT_v1.9, category == "soc") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.8_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.8_soc.csv", delim = ";")
+write_delim(FACE_IT_v1.9_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_soc.csv", delim = ";")
 
 
 ## Additional cleaning -----------------------------------------------------
