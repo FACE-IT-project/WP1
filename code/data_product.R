@@ -3434,9 +3434,26 @@ disko_GEM_nutrients <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko
   summarise(value = round(mean(value, na.rm = T), 6), .by = c(date_accessed, URL, citation, lon, lat, date, depth, category, variable))
 
 # Chlorophyll
-# https://data.g-e-m.dk/datasets?doi=10.17897/5RQ4-0775
-# NB: It is unclear what these ChlA values are
-# disko_GEM_nutrients <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Nutrients.csv") 
+## NB: The lon/lat coordinates in this file are dodgey
+disko_GEM_chla <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Chlorophyll_A.csv") |> 
+  dplyr::rename(date = Date, depth = `Depth(m)`, `Chl a [µg/l]` = `Avg T_Chla`) |> 
+  separate(`GPS position`, into = c("lat", "lon"), sep = ", ") |> 
+  separate(lat, into = c("lat", "lontry"), sep = "; ") |>
+  mutate(lon = case_when(is.na(lon) ~ lontry, TRUE ~ lon)) |> 
+  mutate(lat = gsub("’|N", "", lat), lon = gsub("’|W", "", lon)) |> 
+  mutate(lat = gsub("°|° |o|,|'", " ", lat), lon = gsub("°|° |o|,|'", " ", lon)) |>
+  mutate(lat = trimws(lat), lon = trimws(lon)) |>
+  separate(lat, into = c("lat1", "lat2"), sep = " ") |> separate(lon, into = c("lon1", "lon2"), sep = " ") |> 
+  mutate(lat2 = as.numeric(substr(lat2, 1, 2))/60, lon2 = as.numeric(substr(lon2, 1, 2))/60) |> 
+  mutate(lon = round(as.numeric(lon1)+lon2, 4), lat = round(as.numeric(lat1)+lat2, 4), depth = -depth) |> 
+  pivot_longer(`Chl a [µg/l]`, names_to = "variable", values_to = "value") |> 
+  filter(!is.na(value)) |> 
+  mutate(category = "bio",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/5RQ4-0775",
+         date_accessed = as.Date("2024-03-26"),
+         lon = -lon, # Convert from West to decimal degree
+         citation = "Chlorophyll A Water column. Water column MarineBasis Disko. doi: 10.17897/5RQ4-0775") %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .by = c(date_accessed, URL, citation, lon, lat, date, depth, category, variable))
 
 # pH + DIC
 ## NB: The lon/lat coordinates in this file are dodgey
@@ -3487,7 +3504,7 @@ disko_GEM_SPMC <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data
 # Combine and save
 disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow1, disko_GEM_snow2, 
                    disko_GEM_gmb, disko_GEM_glacier_ice, disko_GEM_air_temp_2m, disko_GEM_air_temp_7m, disko_GEM_CTD_cruise, 
-                   disko_GEM_historic_ts, disko_GEM_nutrients, disko_GEM_DIC, disko_GEM_SPMC) |> 
+                   disko_GEM_historic_ts, disko_GEM_nutrients, disko_GEM_chla, disko_GEM_DIC, disko_GEM_SPMC) |> 
   mutate(type = "in situ", site = "disko") |> distinct() |> check_data()
 save(disko_GEM, file = "data/restricted/disko_GEM.RData"); save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
