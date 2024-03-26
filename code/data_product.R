@@ -3249,9 +3249,7 @@ disko_GEM_CTD_open_water <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/
          URL = "https://data.g-e-m.dk/datasets?doi=10.17897/WH30-HT61",
          date_accessed = as.Date("2022-02-03"),
          citation = "CTD measurements. Water column MarineBasis Disko. doi: 10.17897/WH30-HT61") %>% 
-  # dplyr::select(date_accessed, URL, citation, lon, lat, date, depth, category, variable, value)
-  group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
-  summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
+  summarise(value = round(mean(value, na.rm = T), 6), .by = c(date_accessed, URL, citation, lon, lat, date, depth, category, variable))
 
 # Precipitation
 disko_GEM_precip <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Precipitation_Precipitation_60min_sample_mm.csv") %>% 
@@ -3412,10 +3410,85 @@ disko_GEM_historic_ts <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Dis
   group_by(date_accessed, URL, citation, lon, lat, date, depth, category, variable) %>% 
   summarise(value = round(mean(value, na.rm = T), 6), .groups = "drop")
 
+# Nutrients in the water column
+## NB: The lon/lat coordinates in this file are dodgey
+disko_GEM_nutrients <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Nutrients.csv") |> 
+  dplyr::rename(date = Date, depth = `Depth(m)`) |> 
+  separate(`GPS position`, into = c("lat", "lon"), sep = ", ") |> 
+  separate(lat, into = c("lat", "lontry"), sep = "; ") |>
+  mutate(lon = case_when(is.na(lon) ~ lontry, TRUE ~ lon)) |> 
+  mutate(lat = gsub("’|N", "", lat), lon = gsub("’|W", "", lon)) |> 
+  mutate(lat = gsub("°|° |o|,|'", " ", lat), lon = gsub("°|° |o|,|'", " ", lon)) |>
+  mutate(lat = trimws(lat), lon = trimws(lon)) |>
+  separate(lat, into = c("lat1", "lat2"), sep = " ") |> separate(lon, into = c("lon1", "lon2"), sep = " ") |> 
+  mutate(lat2 = as.numeric(substr(lat2, 1, 2))/60, lon2 = as.numeric(substr(lon2, 1, 2))/60) |> 
+  mutate(lon = round(as.numeric(lon1)+lon2, 4), lat = round(as.numeric(lat1)+lat2, 4), depth = -depth) |> 
+  mutate_at(11:15, ~as.numeric(.)) |> 
+  pivot_longer(`NO3 (µM)`:`Si (µM)`, names_to = "variable", values_to = "value") |> 
+  mutate(variable = str_replace(variable, "\\(µM\\)", "[µM]")) |> filter(!is.na(value)) |> 
+  mutate(category = "chem",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/88JA-QQ84",
+         date_accessed = as.Date("2024-03-26"),
+         lon = -lon, # Convert from West to decimal degree
+         citation = "Nutrients Water column. Water column MarineBasis Disko. doi: 10.17897/88JA-QQ84") |> 
+  summarise(value = round(mean(value, na.rm = T), 6), .by = c(date_accessed, URL, citation, lon, lat, date, depth, category, variable))
+
+# Chlorophyll
+# https://data.g-e-m.dk/datasets?doi=10.17897/5RQ4-0775
+# NB: It is unclear what these ChlA values are
+# disko_GEM_nutrients <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Nutrients.csv") 
+
+# pH + DIC
+## NB: The lon/lat coordinates in this file are dodgey
+disko_GEM_DIC <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_pH_and_Dissolved_Inorganic_Carbon_DIC.csv") |> 
+  dplyr::rename(date = Date, depth = `Depth(m)`, DIC = `Avg DIC`) |> 
+  separate(`GPS position`, into = c("lat", "lon"), sep = ", ") |> 
+  separate(lat, into = c("lat", "lontry"), sep = "; ") |>
+  mutate(lon = case_when(is.na(lon) ~ lontry, TRUE ~ lon)) |> 
+  mutate(lat = gsub("’|N", "", lat), lon = gsub("’|W", "", lon)) |> 
+  mutate(lat = gsub("°|° |o|,|'", " ", lat), lon = gsub("°|° |o|,|'", " ", lon)) |>
+  mutate(lat = trimws(lat), lon = trimws(lon)) |>
+  separate(lat, into = c("lat1", "lat2"), sep = " ") |> separate(lon, into = c("lon1", "lon2"), sep = " ") |> 
+  mutate(lat2 = as.numeric(substr(lat2, 1, 2))/60, lon2 = as.numeric(substr(lon2, 1, 2))/60) |> 
+  mutate(lon = round(as.numeric(lon1)+lon2, 4), lat = round(as.numeric(lat1)+lat2, 4), depth = -depth) |> 
+  mutate_at(11:16, ~as.numeric(.)) |> 
+  pivot_longer(pH:`STD DIC`, names_to = "variable", values_to = "value") |> 
+  filter(!is.na(value), variable %in% c("pH", "DIC")) |> 
+  mutate(category = "chem",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/3BD2-KM61",
+         date_accessed = as.Date("2024-03-26"),
+         lon = -lon, # Convert from West to decimal degree
+         citation = "pH and Dissolved Inorganic Carbon (DIC) Water column. Water column MarineBasis Disko. doi: 10.17897/3BD2-KM61") %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .by = c(date_accessed, URL, citation, lon, lat, date, depth, category, variable))
+
+# SPMC
+## NB: The lon/lat coordinates in this file are dodgey
+disko_GEM_SPMC <- read_delim("~/pCloudDrive/restricted_data/GEM/disko/Disko_Data_Water_column_Suspended_Particulate_Matter_Concentration_SPMC_and_Loss_On_Ignition_LOI.csv") |> 
+  dplyr::rename(date = Date, depth = `Depth(m)`, `SPMC [mg l-1]` = `SPMC (mg l-1)`) |> 
+  separate(`GPS position`, into = c("lat", "lon"), sep = ", ") |> 
+  separate(lat, into = c("lat", "lontry"), sep = "; ") |>
+  mutate(lon = case_when(is.na(lon) ~ lontry, TRUE ~ lon)) |> 
+  mutate(lat = gsub("’|N", "", lat), lon = gsub("’|W", "", lon)) |> 
+  mutate(lat = gsub("°|° |o|,|'", " ", lat), lon = gsub("°|° |o|,|'", " ", lon)) |>
+  mutate(lat = trimws(lat), lon = trimws(lon)) |>
+  separate(lat, into = c("lat1", "lat2"), sep = " ") |> separate(lon, into = c("lon1", "lon2"), sep = " ") |> 
+  mutate(lat2 = as.numeric(substr(lat2, 1, 2))/60, lon2 = as.numeric(substr(lon2, 1, 2))/60) |> 
+  mutate(lon = round(as.numeric(lon1)+lon2, 4), lat = round(as.numeric(lat1)+lat2, 4), depth = -depth) |> 
+  mutate_at(11, ~as.numeric(.)) |> 
+  pivot_longer(`SPMC [mg l-1]`, names_to = "variable", values_to = "value") |> 
+  filter(!is.na(value)) |> 
+  mutate(category = "phys",
+         URL = "https://data.g-e-m.dk/datasets?doi=10.17897/YC16-QW53",
+         date_accessed = as.Date("2024-03-26"),
+         lon = -lon, # Convert from West to decimal degree
+         citation = "Suspended Particulate Matter Concentration (SPMC) and Loss On Ignition (LOI) Water column. Water column MarineBasis Disko. doi: 10.17897/YC16-QW53") %>% 
+  summarise(value = round(mean(value, na.rm = T), 6), .by = c(date_accessed, URL, citation, lon, lat, date, depth, category, variable))
+
 # Combine and save
 disko_GEM <- rbind(disko_GEM_CTD_open_water, disko_GEM_precip, disko_GEM_air_press, disko_GEM_swr, disko_GEM_snow1, disko_GEM_snow2, 
                    disko_GEM_gmb, disko_GEM_glacier_ice, disko_GEM_air_temp_2m, disko_GEM_air_temp_7m, disko_GEM_CTD_cruise, 
-                   disko_GEM_historic_ts) |> mutate(type = "in situ", site = "disko") |> distinct() |> check_data()
+                   disko_GEM_historic_ts, disko_GEM_nutrients, disko_GEM_DIC, disko_GEM_SPMC) |> 
+  mutate(type = "in situ", site = "disko") |> distinct() |> check_data()
 save(disko_GEM, file = "data/restricted/disko_GEM.RData"); save(disko_GEM, file = "~/pCloudDrive/restricted_data/GEM/disko/disko_GEM.RData")
 rm(list = grep("disko_GEM",names(.GlobalEnv),value = TRUE)); gc()
 

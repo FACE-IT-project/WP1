@@ -28,7 +28,6 @@ library(pangaear)
 library(worrms)
 library(arrow)
 library(seacarb)
-# library(taxize)
 library(taxizedb)
 library(doParallel); registerDoParallel(cores = 12)
 
@@ -171,9 +170,9 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 ## Manually add variables -------------------------------------------------
 
 # full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("bio"),
-#                                   driver = c("spp rich"),
-#                                   variable = c("Bubo scandiacus [presence]"))) |>
+#                        data.frame(category = c("phys"),
+#                                   driver = c("light"),
+#                                   variable = c("SPMC [mg l-1]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
@@ -211,6 +210,11 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 ## Remove a specific variables --------------------------------------------
 
 # full_var_list <- filter(full_var_list, !grepl("-total", variable))
+# write_csv(full_var_list, "metadata/full_var_list.csv")
+
+## Fix cat or driver ------------------------------------------------------
+
+# full_var_list <- filter(full_var_list, !grepl("carb chem", driver))
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
 

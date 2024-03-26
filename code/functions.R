@@ -1194,6 +1194,17 @@ convert_even_grid <- function(df, z_col, pixel_res){
   return(z_df)
 }
 
+# Convert degree minutes seconds to decimal degrees
+dms2dec <- function(val) {
+  val_char <- as.character(val)
+  x <- do.call(rbind, strsplit(val_char, split = " "))
+  x <- apply(x, 1L, function(y) {
+    y <- as.numeric(y)
+    y[1] + y[2]/60 + y[3]/3600
+  })
+  return(x)
+}
+
 # Function for creating citations from a px JXON source (i.e. national stats websites)
 px_cite <- function(x){
   cit <- paste0(x$metadata[[1]]$source," (",lubridate::year(x$metadata[[1]]$updated),"). ",
