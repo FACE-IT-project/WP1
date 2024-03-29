@@ -611,7 +611,6 @@ Miller_sval_data_2 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/
 Miller_sval_data_3 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata MSH", na = "NaN") 
 Miller_sval_data_4 <- read_excel("~/pCloudDrive/restricted_data/Miller/Svalbard/Pangea data_STE paper.xlsx", "Metadata HT", na = "NaN") 
 Miller_sval_data <- rbind(Miller_sval_data_1, Miller_sval_data_2, Miller_sval_data_3, Miller_sval_data_4) |> 
-  # separate(`Datetime (UTC)`, into = c("date", "time"), sep = " ")
   mutate(`Datetime (UTC)` = round_date(as.POSIXct(`Datetime (UTC)`), unit = "1 minute")) |> 
   dplyr::rename("date/time [UTC+0]" = "Datetime (UTC)", "O2 [µmol kg-1]" = "O2 (µmol kg-1)",
                 "temp [°C]" = "Temperature (℃)", "sal" = "Salinity", "PAR [µmol phot m-2 min-1]" = "PAR (µmol photons m-2 min-1)") |> 
@@ -939,4 +938,27 @@ urchin_biomass_abundance <- read_csv("~/pCloudDrive/restricted_data/Koch/SU_Biom
   mutate_at(1:10, ~replace_na(., ""))
 write_csv(urchin_biomass_abundance, "~/pCloudDrive/restricted_data/Koch/urchin_biomass_abundance_PG.csv")
 rm(urchin_spp); gc()
+
+
+# Diehl -------------------------------------------------------------------
+
+hyper_spp <- wm_records_df("Laminaria hyperborea")
+hyper_MFE_header <- read_csv("~/pCloudDrive/restricted_data/Diehl/Diehl_MFE.csv", n_max = 3, skip = 0, col_names = FALSE) |> 
+  mutate(across(everything(), ~replace_na(.x, ""))) |> summarise(across(everything(), ~str_flatten(., collapse = "--")))
+hyper_MFE <- read_csv("~/pCloudDrive/restricted_data/Diehl/Diehl_MFE.csv", skip = 3, col_names = str_c(hyper_MFE_header)) |> 
+  pivot_longer(`Fv/Fm--HealthCheck--`:`Zea--w12--µg/g`, names_to = "var", values_to = "value") |> 
+  separate(var, into = c("variable", "week", "unit"), sep = "--") |> 
+  mutate(unit = case_when(unit == "cm²" ~ "cm^2", TRUE ~ unit),
+         unit = case_when(unit != "" ~ paste0("[",unit,"]"), TRUE ~ unit)) |> 
+  unite(col = variable, variable, unit, sep = " ") |> 
+  dplyr::rename(Species = `Species----`, Family = `Family----`, Location = `Location----`, `temp [°C]` = `Temp----°C`,
+                `Photoperiod [Treatment]` = `Photoperiod--Treatment--`, `Photoperiod [L:D; h:h]` = `Photoperiod--L:D--h:h`,
+                Replicate = `Replicate----`) |> 
+  left_join(hyper_spp, by = c("Species" = "species")) |> 
+  dplyr::select(Species, Family, url, lsid, everything()) |> 
+  filter(!is.na(value)) |> 
+  mutate(week = factor(week, levels = c("HealthCheck", "w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w10", "w11", "w12"))) |> 
+  arrange(Replicate, week, variable)
+write_csv(hyper_MFE, "~/pCloudDrive/restricted_data/Diehl/Diehl_MFE_PG.csv")
+
 
