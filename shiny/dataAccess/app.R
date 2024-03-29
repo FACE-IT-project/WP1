@@ -255,6 +255,84 @@ ui <- dashboardPage(
                               }
                               '))),
     tabItems(
+      
+      tabItem(tabName = "summary",
+              fluidRow(
+                column(width = 3,
+                       box(width = 12, title = "Filter data",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+                           
+                           # Load full clean_all dataset
+                           h5(HTML("<b>0. Load full dataset (optional)</b>")),
+                           shiny::actionButton("loadCleanAll", "", class = "btn-success", icon = icon("book")),
+                           
+                           # Site name
+                           selectizeInput(
+                             'selectSiteSummary', '1. Study site',
+                             choices = sites_named,
+                             multiple = TRUE,
+                             options = list(
+                               placeholder = 'Select a site to begin',
+                               onInitialize = I('function() { this.setValue(""); }'))
+                           ),
+                           
+                           # Category - 2. Category(s)
+                           selectizeInput(
+                             'selectCatSummary', '2. Category(s)',
+                             choices = cat_choices,
+                             multiple = T,
+                             options = list(
+                               placeholder = 'Select category(s)',
+                               onInitialize = I('function() { this.setValue(""); }')
+                             )
+                           ),
+                           
+                           # Drivers - 3. Driver(s)
+                           uiOutput("selectDrivSummaryUI"),
+                       ),
+                       box(width = 12, title = "Summarise data",
+                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
+
+                           # High level grouping
+                           selectInput(
+                             'selectGroupSummary', '1. Grouping (colour)',
+                             choices = c("Category", "Driver", "Variable"),
+                             selected = "Category",
+                             ),
+
+                           # Date grouping
+                           selectInput(
+                             'selectDateSummary', '2. Date (x-axis)',
+                             choices = c("Year", "Climatology", "Day"),
+                             selected = "Year"
+                             ),
+
+                           # Data grouping
+                           selectInput(
+                             'selectDataSummary', '3. Data (y-axis)',
+                             choices = c("Data points", "Real values", "Unique variables", "Unique citations"),
+                             selected = "Data points"
+                             ),
+                           
+                           # Plot type
+                           selectInput(
+                             'selectPlotSummary', '4. Plot type', 
+                             choices = c("Bar plot", "Dot plot"),
+                             selected = "Bar plot"
+                           )
+                       )
+                ),
+                
+                # Map and time series plots
+                column(width = 9,
+                       box(width = 12, title = "Summary", height = "850px", 
+                           status = "info", solidHeader = TRUE, collapsible = FALSE,
+                           shinycssloaders::withSpinner(plotlyOutput("summaryPlotly", height = "750px"),
+                                                        type = 6, color = "#b0b7be"))
+                       )
+                )
+      ),
+      
       tabItem(tabName = "download",
               fluidRow(
                 column(width = 3,
@@ -325,89 +403,6 @@ ui <- dashboardPage(
                            shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
                                                         type = 6, color = "#b0b7be")))
               )
-      ),
-      
-      tabItem(tabName = "summary",
-              fluidRow(
-                column(width = 3,
-                       box(width = 12, title = "Filter data",
-                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
-                           
-                           # Load full clean_all dataset
-                           h5(HTML("<b>0. Load full dataset (optional)</b>")),
-                           shiny::actionButton("loadCleanAll", "", class = "btn-success", icon = icon("book")),
-                           
-                           # Site name
-                           selectizeInput(
-                             'selectSiteSummary', '1. Study site',
-                             choices = sites_named,
-                             multiple = TRUE,
-                             options = list(
-                               placeholder = 'Select a site to begin',
-                               onInitialize = I('function() { this.setValue(""); }'))
-                           ),
-                           
-                           # Category - 2. Category(s)
-                           selectizeInput(
-                             'selectCatSummary', '2. Category(s)',
-                             choices = cat_choices,
-                             multiple = T,
-                             options = list(
-                               placeholder = 'Select category(s)',
-                               onInitialize = I('function() { this.setValue(""); }')
-                             )
-                           ),
-                           
-                           # Drivers - 3. Driver(s)
-                           uiOutput("selectDrivSummaryUI"),
-                       ),
-                       box(width = 12, title = "Summarise data",
-                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
-
-                           # High level grouping
-                           selectInput(
-                             'selectGroupSummary', '1. Grouping',
-                             choices = c("Category", "Driver", "Variable"),
-                             selected = "Category",
-                             ),
-
-                           # Date grouping
-                           selectInput(
-                             'selectDateSummary', '2. Date',
-                             choices = c("Year", "Climatology", "Day"),
-                             selected = "Year"
-                             ),
-
-                           # Data grouping
-                           selectInput(
-                             'selectDataSummary', '3. Data',
-                             choices = c("Count", "Raw", "Variable", "Citation"),
-                             selected = "Count"
-                             )
-                       ),
-                       box(width = 12, title = "Visualise data",
-                           status = "warning", solidHeader = TRUE, collapsible = FALSE,
-
-                           # Set colour grouping type
-                           uiOutput("selectColourSummaryUI"),
-                           
-                           # Set plot type
-                           selectInput(
-                             'selectPlotSummary', '2. Plot type',
-                             choices = c("Bar plot", "Dot plot"),
-                             selected = "Bar plot"
-                             )
-                       )
-                ),
-                
-                # Map and time series plots
-                column(width = 9,
-                       box(width = 12, title = "Summary", height = "850px", 
-                           status = "info", solidHeader = TRUE, collapsible = FALSE,
-                           shinycssloaders::withSpinner(plotlyOutput("summaryPlotly", height = "750px"),
-                                                        type = 6, color = "#b0b7be"))
-                       )
-                )
       ),
       
       # Data tables
@@ -543,28 +538,28 @@ server <- function(input, output, session) {
   })
   
   ## Select colour groupings
-  output$selectColourSummaryUI <- renderUI({
-    colour_group_base <- c("Site", "Category")
-    if(input$selectGroupSummary == "Driver"){
-      colour_group_group <- unique(c(colour_group_base, "Driver"))
-    } else if(input$selectGroupSummary == "Variable"){
-      colour_group_group <- unique(c(colour_group_base, "Driver", "Variable"))
-    } else {
-      colour_group_group <- colour_group_base
-    }
-    if(input$selectDataSummary == "Variable"){
-      colour_group_data <- unique(c(colour_group_group, "Variable"))
-    } else if(input$selectDataSummary == "Citation"){
-      colour_group_data <- unique(c(colour_group_group, "Citation"))
-    } else {
-      colour_group_data <- colour_group_group
-    }
-    selectInput(
-      'selectColourSummary', '1. Group colour',
-      choices = colour_group_data,
-      selected = "Site"
-    )
-  })
+  # output$selectColourSummaryUI <- renderUI({
+  #   colour_group_base <- c("Site", "Category")
+  #   if(input$selectGroupSummary == "Driver"){
+  #     colour_group_group <- unique(c(colour_group_base, "Driver"))
+  #   } else if(input$selectGroupSummary == "Variable"){
+  #     colour_group_group <- unique(c(colour_group_base, "Driver", "Variable"))
+  #   } else {
+  #     colour_group_group <- colour_group_base
+  #   }
+  #   if(input$selectDataSummary == "Variable"){
+  #     colour_group_data <- unique(c(colour_group_group, "Variable"))
+  #   } else if(input$selectDataSummary == "Citation"){
+  #     colour_group_data <- unique(c(colour_group_group, "Citation"))
+  #   } else {
+  #     colour_group_data <- colour_group_group
+  #   }
+  #   selectInput(
+  #     'selectColourSummary', '1. Group colour',
+  #     choices = colour_group_data,
+  #     selected = "Site"
+  #   )
+  # })
   
   # Filter data
   ## Lon
@@ -1026,37 +1021,37 @@ server <- function(input, output, session) {
       date_lab <- "Date"
     }
     
-    # Summarise by value: count, raw value, citations, unique vars
-    if(input$selectDataSummary == "Count"){
+    # Summarise by value: "Data points", "Real values", "Unique variables", "Unique citations"
+    if(input$selectDataSummary == "Data points"){
       df_crunch <- df_date |> 
         summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
-      value_lab <- "Count"
-    } else if(input$selectDataSummary == "Raw"){
+      value_lab <- "Count of data points per goruping"
+    } else if(input$selectDataSummary == "Real values"){
       df_crunch <- df_date  |> 
         filter(embargo == FALSE) |> 
         summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date", "embargo", all_of(grouping_vars)))
-      value_lab <- "Value"
-    } else if(input$selectDataSummary == "Citation"){
-      df_crunch <- df_date  |>
-        dplyr::select("site", "date", "embargo", "citation", all_of(grouping_vars)) |> 
-        distinct() |> 
-        summarise(value = n(), .by = c("site", "date", "embargo", "citation", all_of(grouping_vars)))
-      value_lab <- "Citations"
-    } else if(input$selectDataSummary == "Variable"){
+      value_lab <- "Mean value per grouping (hover over points to see units)"
+    } else if(input$selectDataSummary == "Unique variables"){
       df_crunch <- df_date  |>
         dplyr::select("site", "date", "embargo", "variable", all_of(grouping_vars)) |> 
         distinct() |> 
         summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
-      value_lab <- "Variables"
+      value_lab <- "Unique variables per grouping"
+    } else if(input$selectDataSummary == "Unique citations"){
+      df_crunch <- df_date  |>
+        dplyr::select("site", "date", "embargo", "citation", all_of(grouping_vars)) |> 
+        distinct() |> 
+        summarise(value = n(), .by = c("site", "date", "embargo", "citation", all_of(grouping_vars)))
+      value_lab <- "Unique citations per grouping"
     }
     
     # Join for pretty names
     df_final <- df_crunch |> 
       left_join(long_names_sub, by = join_vars) |> 
-      mutate(colour_choice = .data[[tolower(input$selectColourSummary[1])]])
+      mutate(colour_choice = .data[[tolower(input$selectGroupSummary[1])]])
     
     # Automatic shift to dodge for barplots if showing Raw values
-    if(input$selectDataSummary == "Raw"){
+    if(input$selectDataSummary == "Real values"){
       col_dodge <- "dodge"
     } else {
       col_dodge <- "stack"
@@ -1066,7 +1061,7 @@ server <- function(input, output, session) {
     if(nrow(df_summary) > 0){
       basePlot <- ggplot(data = df_final, aes(x = date, y = value)) +
         labs(x = date_lab, y = value_lab, 
-             colour = input$selectColourSummary[1], fill = input$selectColourSummary[1]) +
+             colour = input$selectGroupSummary[1], fill = input$selectGroupSummary[1]) +
         theme_bw() +
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
