@@ -961,4 +961,3 @@ hyper_MFE <- read_csv("~/pCloudDrive/restricted_data/Diehl/Diehl_MFE.csv", skip 
   arrange(Replicate, week, variable)
 write_csv(hyper_MFE, "~/pCloudDrive/restricted_data/Diehl/Diehl_MFE_PG.csv")
 
-
