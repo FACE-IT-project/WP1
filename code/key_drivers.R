@@ -99,7 +99,7 @@ if(!exists("query_phys")){
   query_salinity <- query_params("salinity", "salinity", 
                                  "Diatoms|Dinoflagellate|Radium|Snow|Treatment|Paleosalinity", "±")
   # Light extinction coefficient (kd, absorption); NB: "absorption" not used because of how wide those data are
-  query_light <- query_params("light", "UV-B|extinction|turbidity|sedimentation|suspended", 
+  query_light <- query_params("light", "photosynthetically active|photosynthetic active radiation|UV-B|extinction|turbidity|sedimentation|suspended", 
                               "aerosol|foraminifera|juvenile|bacteri|partial pressure|Aluminium|Backscattering|
                               |acid|Apparent|Dichloro", 
                               "#|‰ air|Ohm m")
@@ -147,7 +147,8 @@ if(!exists("query_bio")){
   # Primary production
   # Primary production; chlorophyll; Calcification; Nitrogen fixation; Photosynthesis; Respiration
   query_prim_prod <- query_params("prim prod", "photosynthetic|Primary production|chlorophyll|calcification|nitrogen fixation|
-                                  |Photosynthesis|community respiration|algae", no_units = "±")
+                                  |Photosynthesis|community respiration|algae", no_units = "±", 
+                                  no_words = "photosynthetically active|photosynthetic active radiation")
   # Species: presence/absence, abundance/biomass
   query_species <- filter(pg_parameters, grepl(sp_abb_one, Abbreviation)) %>% 
     mutate(pg_col_name = case_when(!is.na(Unit) ~ paste0(Abbreviation," [",Unit,"]"),

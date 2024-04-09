@@ -170,9 +170,9 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 ## Manually add variables -------------------------------------------------
 
 # full_var_list <- rbind(full_var_list,
-#                        data.frame(category = c("phys"),
-#                                   driver = c("light"),
-#                                   variable = c("SPMC [mg l-1]"))) |>
+#                        data.frame(category = c("chem"),
+#                                   driver = c("nutrients"),
+#                                   variable = c("SiO4 [µmol kg-1]", "PO4 [µmol kg-1]"))) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
@@ -185,25 +185,30 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
 # NB: Change as necessary
-# part_var_list <- full_product_green |> dplyr::select(category, variable) |> distinct() |>
-#   filter(grepl("Cruise passengers|Quota|Trawlers", variable)) |>
+# part_var_list <- pg_kong_bio |> dplyr::select(category, variable) |> distinct() |>
+#   # filter(grepl("Cruise passengers|Quota|Trawlers", variable)) |>
 #   # mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich", TRUE ~ "biomass")) |>
 #   # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>
-#   mutate(driver = case_when(grepl("Cruise passengers", variable) ~ "tourism", TRUE ~ "fisheries")) |>
-#   # mutate(driver = "sea ice") |>
+#   # mutate(driver = case_when(grepl("Cruise passengers", variable) ~ "tourism", TRUE ~ "fisheries")) |>
+#   mutate(driver = "biomass") |>
 #   dplyr::select(category, driver, variable)
 # full_var_list <- rbind(full_var_list, part_var_list) |>
 #   distinct() |> arrange(category, driver, variable)
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Check for duplicates
-# summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
+# dup_var <- summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
+# check_var <- filter(full_var_list, variable %in% dup_var$variable)
 
 
 ## Correct variables ------------------------------------------------------
 
 # full_var_list <- full_var_list |>
-#   mutate(variable = str_replace(variable, " -total [n]", " - total [n]"))
+#   # mutate(variable = str_replace(variable, " -total [n]", " - total [n]"))
+#   # mutate(category = case_when(variable == "Fv/Fm" ~ "bio", TRUE ~ category),
+#   #        driver = case_when(variable == "Fv/Fm" ~ "prim prod", TRUE ~ driver)) |> 
+#   mutate(driver = case_when(grepl("C/Chl a", variable) ~ "prim prod", TRUE ~ driver)) |> 
+#   distinct()
 # write_csv(full_var_list, "metadata/full_var_list.csv")
 
 
@@ -211,6 +216,13 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 # full_var_list <- filter(full_var_list, !grepl("-total", variable))
 # write_csv(full_var_list, "metadata/full_var_list.csv")
+
+
+## Remove many variables --------------------------------------------------
+
+# full_var_list <- filter(full_var_list, !grepl(paste0(LETTERS,". ", collapse = "|"), variable))
+# write_csv(full_var_list, "metadata/full_var_list.csv")
+
 
 ## Fix cat or driver ------------------------------------------------------
 

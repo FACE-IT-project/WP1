@@ -12,7 +12,7 @@ source("code/metadata.R")
 # Rename variables to a common project term
 # Tester...
 # df <- filter(full_ALL, category == "soc") |> dplyr::select(citation, category, driver, variable) |> distinct()
-# df <- pg_kong_bio
+# df <- pg_kong_phys
 check_variable <- function(df){
   if(!exists("full_var_list")) full_var_list <- read_csv("metadata/full_var_list.csv")
   df_var <- df |> 
@@ -29,7 +29,7 @@ check_variable <- function(df){
                                                     "sigmaT_kg_m3 [kg m-3]") ~ "density sigtheta [kg m-3]",
                                     variable %in% c("par_V [volt]") ~ "PAR [volt]",
                                     variable %in% c("par [micromol m-2 s-1]", "par [micromol photons / m^2 / s]",
-                                                    "par [mmol/m-2]", "PAR [µmol/m**2/s/sr]", # TODO: Double check these
+                                                    "par [mmol/m-2]", "PAR [µmol/m**2/s/sr]",
                                                     "PAR [umol m-2 s-1]", "PAR [umol m-2 s-1]",
                                                     "PAR [µmol photons m2/sec]", "PAR [µmol quanta/m**2/s]",
                                                     "PAR [µmol/m**2/s]", "PAR [µMol/m²/s]", "PAR [µmol/sec/m2]") ~ "PAR [µmol photons m-2 sec-1]",
@@ -60,11 +60,11 @@ check_variable <- function(df){
                                     variable %in% c("EP TA [µmol/kg]") ~ "EP TA [µmol kg-1]",
                                     variable == "nitrate [μmol kg-1]" ~ "NO3 [µmol kg-1]",   
                                     variable == "nitrite [μmol kg-1]" ~ "NO2 [µmol kg-1]",   
-                                    variable == "silicate [μmol kg-1]" ~ "SiO4 [µmol kg-1]",
-                                    variable %in% c("phosphate [μmol kg-1]", "PO4 [µmol/kg]") ~ "PO4 [µmol kg-1]",
+                                    variable %in% c("silicate [μmol kg-1]", "SILCAT [µmol/kg]") ~ "SiO4 [µmol kg-1]",
+                                    variable %in% c("phosphate [μmol kg-1]", "PO4 [µmol/kg]", "PHSPHT [µmol/kg]") ~ "PO4 [µmol kg-1]",
                                     variable %in% c("[NO3]- [µmol/l]",
                                                     # "NO3 [µmol/kg]", # Possible units issue
-                                                    "NO3 [µg-at/l]") ~ "NO3 [µmol/l]",
+                                                    "NO3 [µg-at/l]", "NO3 [µmol/l]") ~ "NO3 [µmol l-1]",
                                     variable %in% c("NO2 [µmol/kg]") ~ "NO2 [µmol kg-1]",
                                     variable %in% c("NO3 [µmol/kg]") ~ "NO3 [µmol kg-1]",
                                     variable %in% c("SiO4 [µmol/kg]") ~ "SiO4 [µmol kg-1]",
@@ -134,6 +134,7 @@ check_driver <- function(df){
 # Looks at variable names within the bio category and assigns a species classification if possible
 # df <- df_driv # tester...
 # df <- clean_biomass # tester...
+# df <- pg_melt_bio; spp_type = "genus"  # tester...
 check_spp <- function(df, spp_type = "cat"){
   
   # Split dataframe by bio category
@@ -166,32 +167,52 @@ check_spp <- function(df, spp_type = "cat"){
   # Search WoRMS for UIDs etc
   if(spp_type == "tax"){
     df_res <- plyr::ldply(df_spp_unq$spp, wm_records_df, .parallel = T, res_type = "tax") |> distinct()
-    return(df_res)
+  }
+  
+  # Search PG for genus names
+  if(spp_type == "genus"){
+    
+    # Get genus names
+    df_genus <-  plyr::ddply(df_spp_unq, c("idx"), wm_records_df, .parallel = T, res_type = spp_type) |> distinct()
+    
+    # Merge
+    df_not_PP_genus <- left_join(df_not_PP, df_genus, by = c("URL", "spp")) |> 
+      mutate(species_fix_words = str_count(species_fix, "\\w+")) |> 
+      mutate(variable_new = case_when(species_fix_words == 2 ~ str_replace(variable, spp, species_fix), TRUE ~ variable)) |> 
+      dplyr::select(URL, variable, variable_new) |> distinct()
+    
+    # Finish up
+    df_res <- left_join(df, df_not_PP_genus, by = c("URL", "variable")) |> 
+      mutate(variable = variable_new) |> dplyr::select(-variable_new) |> filter(!is.na(variable))
   }
   
   # Search local NCBI database to get classifications
-  df_cat <- plyr::ddply(df_spp_unq, c("idx"), wm_records_df, .parallel = T, res_type = "cat") |> distinct()
-  
-  # Report on changes
-  df_no_cat <- filter(df_cat, is.na(cat)) |> 
-    dplyr::select(species_fix) |> distinct() |> arrange()
-  if(nrow(df_no_cat) > 0) {
-    cat("These species were not found in NCBI, GBIF, or WoRMS: \n")
-    print(df_no_cat$species_fix)
-  } else {
-    cat("All species were matched.\n")
+  if(spp_type == "cat"){
+    
+    # Get functional groups
+    df_cat <- plyr::ddply(df_spp_unq, c("idx"), wm_records_df, .parallel = T, res_type = "cat") |> distinct()
+    
+    # Report on changes
+    df_no_cat <- filter(df_cat, is.na(cat)) |> 
+      dplyr::select(species_fix) |> distinct() |> arrange()
+    if(nrow(df_no_cat) > 0) {
+      cat("These species were not found in NCBI, GBIF, or WoRMS: \n")
+      print(df_no_cat$species_fix)
+    } else {
+      cat("All species were matched.\n")
+    }
+    
+    # Add category back into data.frame, merge, and exit
+    df_not_PP_cat <- left_join(df_not_PP, df_cat, by = c("spp" = "species")) |> 
+      mutate(species_fix_words = str_count(species_fix, "\\w+")) |> 
+      mutate(variable_new = case_when(species_fix_words == 2 ~ str_replace(variable, spp, species_fix), TRUE ~ variable)) |> 
+      dplyr::select(variable, variable_new, cat) |>
+      mutate(cat = case_when(is.na(cat) ~ "|?|", TRUE ~ cat)) |> distinct()
+    df_res <- left_join(df, df_not_PP_cat, by = "variable") |> 
+      mutate(variable = variable_new,
+             variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |>
+      dplyr::select(-cat, -variable_new)
   }
-  
-  # Add category back into data.frame, merge, and exit
-  df_not_PP_cat <- left_join(df_not_PP, df_cat, by = c("spp" = "species")) |> 
-    mutate(species_fix_words = str_count(species_fix, "\\w+")) |> 
-    mutate(variable_new = case_when(species_fix_words == 2 ~ str_replace(variable, spp, species_fix), TRUE ~ variable)) |> 
-    dplyr::select(variable, variable_new, cat) |>
-    mutate(cat = case_when(is.na(cat) ~ "|?|", TRUE ~ cat)) |> distinct()
-  df_res <- left_join(df, df_not_PP_cat, by = "variable") |> 
-    mutate(variable = variable_new,
-           variable = case_when(!is.na(cat) ~ paste0(cat," ",variable), TRUE ~ variable)) |>
-    dplyr::select(-cat, -variable_new)
   return(df_res)
   # rm(df, spp_type, df_other, df_PP, df_not_PP); gc()
 }
@@ -224,7 +245,7 @@ check_site <- function(df){
 # Checks that a given dataset meets all of the project standards
 # Tester...
 # df <- filter(full_ALL, category == "soc")
-# df <- pg_kong_bio
+# df <- pg_kong_ALL
 check_data <- function(df, assign_site = NULL){
   
   # NB: This order must note be changed
@@ -298,7 +319,7 @@ wm_records_df <- function(sp_name, res_type = "df"){
       if(nrow(sp_catch) > 0) sp_catch <- filter(sp_catch, status == "accepted")
       if(nrow(sp_catch) == 1) sp_no_pre <- sp_catch$scientificname
     }    
-    # Get metadat from PG download to determine Genus
+    # Get metadata from PG download to determine Genus
     if(substr(sp_no_pre, 2, 2) == "."){
       if(grepl("PANGAEA", sp_df$URL)){
         pg_doi <- sapply(str_split(sp_df$URL, "doi.org/"), "[[", 2)
@@ -337,6 +358,9 @@ wm_records_df <- function(sp_name, res_type = "df"){
       sp_res <- data.frame(species = sp_name, kingdom = NA, phylum = NA, 
                            class = NA, order = NA, family = NA, genus = NA)
     }
+  } else if(res_type == "genus"){
+    sp_res <- sp_df |> 
+      mutate(species_fix = sp_no_pre)
   } else if(res_type == "cat"){
     sp_info <- tryCatch(taxizedb::classification(sp_no_pre), 
                         error = function(sp_no_pre) {URL_error <<- "Species name doesn't match"})
@@ -989,18 +1013,74 @@ pg_var_melt <- function(pg_clean, query_sub){
              driver = "biomass", category = "bio") |> 
       filter(!is.na(value)) |> distinct()
     )
-    pg_melt <- rbind(pg_melt, pg_melt_bio) |> distinct()
-    print(unique(pg_melt_bio$variable))
+    # NB: This can't be done earlier in the pipeline due to genus acronyms via the PG database
+    pg_melt_genus <- check_spp(pg_melt_bio, spp_type = "genus")
+    pg_melt <- rbind(pg_melt, pg_melt_genus) |> distinct()
+    print(unique(pg_melt_genus$variable))
   }
   
   # Mean values and exit
   rm(pg_fix); gc()
   pg_res <- pg_melt |> 
-    mutate(type = "in situ") |> # TODO: This needs to be improved
+    mutate(type = "in situ") |> 
     group_by(date_accessed, URL, citation, type, site, lon, lat, date, depth, category, driver, variable) |> 
     summarise(value = mean(value, na.rm = T), .groups = "drop")
   return(pg_res)
   # rm(pg_clean, query_sub, sub_cols, pg_melt, pg_melt_bio, pg_res)
+}
+
+# Function to re-download PG files in order to retrieve the genus per species
+pg_genus <- function(df){
+  
+  # Split dataframe by bio category
+  df_other <- filter(df, category != "bio")
+  df_PP <- filter(df, category == "bio", driver == "prim prod")
+  df_not_PP <- filter(df, category == "bio", driver != "prim prod")
+  
+  # Exit if no species data
+  if(nrow(df_not_PP) == 0){
+    cat("No species data.\n")
+    return(df)
+  } else{
+    suppressWarnings( # Ignore warnings about multiple pieces being cut off of species names
+      df_not_PP <- df_not_PP |> 
+        dplyr::select(URL, variable) |> distinct() |> 
+        mutate(variable = trimws(sub("\\|.*\\|", "", variable)),
+               variable = trimws(sub("\\(.*\\)", "", variable))) |> 
+        separate(variable, into = c("var", "units"), sep = "\\[", remove = FALSE) |>
+        # mutate(var = str_replace(var, "\\(=Oncaea", "")) |>
+        separate(var, into = c("spp1", "spp2"), sep = " ", extra = "drop", remove = FALSE) |> 
+        unite(spp1, spp2, col = "spp", sep = " ") |> 
+        mutate(units = trimws(paste0("[",units)),
+               spp = trimws(gsub(";| -", "", spp)))
+    )
+  }
+  
+  # Trim trailing and leading bits
+  sp_no_sp <- tm::removeNumbers(trimws(gsub("sp\\.$|spp\\.$|-Ciliata$|cf\\.$|indet\\.$|\\ sp$|\\ cf$", "", sp_name)))
+  sp_no_pre <- trimws(gsub("young", "", sp_no_sp)) # NB: This will cause errors for a species name with 'young' in it
+  
+  # Get metadata from PG download to determine Genus
+  if(substr(sp_no_pre, 2, 2) == "."){
+    if(grepl("PANGAEA", sp_df$URL)){
+      pg_doi <- sapply(str_split(sp_df$URL, "doi.org/"), "[[", 2)
+      pg_dl <- pg_data(pg_doi)
+      if("metadata" %in% names(pg_dl[[1]])){
+        pg_meta <- pg_dl[[1]]$metadata
+        if("parameters" %in% names(pg_meta)){
+          sp_sp <- trimws(sapply(str_split(sp_no_pre, "\\."), "[[", 2))
+          pg_param <- do.call(rbind.data.frame, lapply(pg_meta$parameters, "[[", 1)) |> `colnames<-`("params")
+          pg_hit <- pg_param$params[grepl(sp_sp, pg_param$params)]
+          if(is.character(pg_hit)){
+            sp_genus <- unique(trimws(sapply(str_split(pg_hit, sp_sp), "[[", 1)))
+            if(length(sp_genus) == 1){
+              sp_no_pre <- paste0(sp_genus," ",sp_sp) 
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 # Load a PG site file and apply the name
