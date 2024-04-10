@@ -54,7 +54,8 @@ check_variable <- function(df){
                                     variable %in% c("UV-A [W*m^2]") ~ "UVA [W m-2]",
                                     variable %in% c("UV-B [W*m^2]") ~ "UVB [W m-2]",
                                     # Chem
-                                    variable %in% c("AT [µmol/kg]", "talk [μmol kg-1]") ~ "TA [µmol kg-1]",
+                                    variable %in% c("AT [µmol/kg]", "talk [μmol kg-1]", "TA [µmol/kg]") ~ "TA [µmol kg-1]",
+                                    variable %in% c("AT [µmol/l]") ~ "TA [µmol l-1]",
                                     variable %in% c("DIC [µmol/kg]") ~ "DIC [µmol kg-1]",
                                     variable %in% c("doc [μmol L-1 d]") ~ "DOC [μmol l-1 d-1]",
                                     variable %in% c("EP TA [µmol/kg]") ~ "EP TA [µmol kg-1]",
@@ -68,9 +69,10 @@ check_variable <- function(df){
                                     variable %in% c("NO2 [µmol/kg]") ~ "NO2 [µmol kg-1]",
                                     variable %in% c("NO3 [µmol/kg]") ~ "NO3 [µmol kg-1]",
                                     variable %in% c("SiO4 [µmol/kg]") ~ "SiO4 [µmol kg-1]",
-                                    variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]") ~ "PO4 [µmol l-1]",
-                                    variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]") ~ "NH4 [µmol l-1]",
-                                    variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]") ~ "NO2 [µmol l-1]",
+                                    variable %in% c("SiO4 [µmol/l]") ~ "SiO4 [µmol l-1]",
+                                    variable %in% c("[PO4]3- [µmol/l]", "PO4 [µg-at/l]", "PO4 [µmol/l]") ~ "PO4 [µmol l-1]",
+                                    variable %in% c("[NH4]+ [µmol/l]", "[NH4]+ [µg-at/l]", "NH4 [µmol/l]") ~ "NH4 [µmol l-1]",
+                                    variable %in% c("[NO2]- [µmol/l]", "[NO2]- [µg-at/l]", "NO2 [µmol/l]") ~ "NO2 [µmol l-1]",
                                     variable %in% c("nitrate+nitrite [µmol/l]", "[NO3]- + [NO2]- [µmol l-1]",
                                                     "NO2_NO3 [µmol l-1]", "NO2_NO3 [µmol/l]") ~ "NO2+NO3 [µmol l-1]",
                                     # Bio

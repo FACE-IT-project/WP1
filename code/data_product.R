@@ -1189,7 +1189,7 @@ system.time(
 pg_kong_cryo <- pg_var_melt(pg_kong_clean, query_cryo)
 pg_kong_phys <- pg_var_melt(pg_kong_clean, query_phys)
 pg_kong_chem <- pg_var_melt(pg_kong_clean, query_chem)
-pg_kong_bio <- pg_var_melt(pg_kong_clean, query_bio)
+pg_kong_bio <- pg_var_melt(pg_kong_clean, query_bio) # NB: This will re-download PG files
 pg_kong_soc <- pg_var_melt(pg_kong_clean, query_soc) # 0 values
 
 # Stack them together
@@ -1705,7 +1705,7 @@ system.time(
 pg_is_cryo <- pg_var_melt(pg_is_clean, query_cryo); gc()
 pg_is_phys <- pg_var_melt(pg_is_clean, query_phys); gc()
 pg_is_chem <- pg_var_melt(pg_is_clean, query_chem); gc()
-pg_is_bio <- pg_var_melt(pg_is_clean, query_bio); gc()
+pg_is_bio <- pg_var_melt(pg_is_clean, query_bio); gc() # NB: This will re-download PG files
 pg_is_soc <- pg_var_melt(pg_is_clean, query_soc); gc() # empty
 
 # Stack them together
@@ -2002,7 +2002,7 @@ system.time(
 pg_stor_cryo <- pg_var_melt(pg_stor_clean, query_cryo)
 pg_stor_phys <- pg_var_melt(pg_stor_clean, query_phys)
 pg_stor_chem <- pg_var_melt(pg_stor_clean, query_chem)
-pg_stor_bio <- pg_var_melt(pg_stor_clean, query_bio)
+pg_stor_bio <- pg_var_melt(pg_stor_clean, query_bio) # NB: This will re-download PG files
 pg_stor_soc <- pg_var_melt(pg_stor_clean, query_soc) # empty
 
 # Stack them together
@@ -2456,7 +2456,7 @@ system.time(
 pg_young_cryo <- pg_var_melt(pg_young_clean, query_cryo)
 pg_young_phys <- pg_var_melt(pg_young_clean, query_phys)
 pg_young_chem <- pg_var_melt(pg_young_clean, query_chem)
-pg_young_bio <- pg_var_melt(pg_young_clean, query_bio)
+pg_young_bio <- pg_var_melt(pg_young_clean, query_bio) # NB: This will re-download PG files
 pg_young_soc <- pg_var_melt(pg_young_clean, query_soc) # empty
 
 # Stack them together
@@ -3172,7 +3172,7 @@ system.time(
 pg_disko_cryo <- pg_var_melt(pg_disko_clean, query_cryo)
 pg_disko_phys <- pg_var_melt(pg_disko_clean, query_phys)
 pg_disko_chem <- pg_var_melt(pg_disko_clean, query_chem)
-pg_disko_bio <- pg_var_melt(pg_disko_clean, query_bio)
+pg_disko_bio <- pg_var_melt(pg_disko_clean, query_bio) # NB: This will re-download PG files
 pg_disko_soc <- pg_var_melt(pg_disko_clean, query_soc) # empty
 
 # Stack them together
@@ -3569,7 +3569,7 @@ system.time(
 pg_nuup_cryo <- pg_var_melt(pg_nuup_clean, query_cryo)
 pg_nuup_phys <- pg_var_melt(pg_nuup_clean, query_phys)
 pg_nuup_chem <- pg_var_melt(pg_nuup_clean, query_chem)
-pg_nuup_bio <- pg_var_melt(pg_nuup_clean, query_bio)
+pg_nuup_bio <- pg_var_melt(pg_nuup_clean, query_bio) # NB: This will re-download PG files
 pg_nuup_soc <- pg_var_melt(pg_nuup_clean, query_soc) # empty
 
 # Stack them together
