@@ -21,7 +21,7 @@ library(ggOceanMaps)
 library(ggraph) # Necessary to load here as one function is manually overwritten below
 library(RColorBrewer)
 library(raster)
-library(rgdal)
+# library(rgdal) # Dead package
 library(sf)
 library(circular) # For calculating mean daily wind direction from degree values
 library(pangaear)
@@ -64,7 +64,7 @@ Sys.setlocale("LC_TIME", "en_GB.UTF-8")
 
 ## Norway
 # Troms og Finnmark: Province(s) for Porsangerfjorden
-# Lakselv: Main city for Porsangerfjorden (?)
+# Lakselv: Main city for Porsnor_fish_exportsangerfjorden (?)
 # Lakselv Banak + Honningsvåg Valan: Airports on Porsangerfjorden 
 
 ## Svalbard
@@ -169,12 +169,12 @@ full_var_list <- read_csv("metadata/full_var_list.csv")
 
 ## Manually add variables -------------------------------------------------
 
-full_var_list <- rbind(full_var_list,
-                       data.frame(category = c("bio"),
-                                  driver = c("prim prod"),
-                                  variable = c("PP [mg C/m3/d]"))) |>
-  distinct() |> arrange(category, driver, variable)
-write_csv(full_var_list, "metadata/full_var_list.csv")
+# full_var_list <- rbind(full_var_list,
+#                        data.frame(category = c("bio"),
+#                                   driver = c("prim prod"),
+#                                   variable = c("PP [mg C/m3/d]"))) |>
+#   distinct() |> arrange(category, driver, variable)
+# write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # length(unique(full_var_list$category)) # Should be 5
 # length(unique(full_var_list$driver)) # Should be 14
@@ -184,31 +184,31 @@ write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Add variables via an entire dataset
 # NB: Change as necessary
-part_var_list <- nor_fish_exports |> dplyr::select(category, variable) |> distinct() |>
-  # filter(!grepl("Chl |Chl a|Chl b|Chlide|Fluores |Fv/Fm", variable)) |>
-  # mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich", TRUE ~ "biomass")) |>
-  # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>
-  # mutate(driver = case_when(grepl("Cruise passengers", variable) ~ "tourism", TRUE ~ "fisheries")) |>
-  mutate(driver = "fisheries") |>
-  dplyr::select(category, driver, variable)
-full_var_list <- rbind(full_var_list, part_var_list) |>
-  distinct() |> arrange(category, driver, variable)
-write_csv(full_var_list, "metadata/full_var_list.csv")
+# part_var_list <- nor_fish_exports |> dplyr::select(category, variable) |> distinct() |>
+#   # filter(!grepl("Chl |Chl a|Chl b|Chlide|Fluores |Fv/Fm", variable)) |>
+#   # mutate(driver = case_when(grepl("\\[presence|\\[present", variable) ~ "spp rich", TRUE ~ "biomass")) |>
+#   # mutate(driver = case_when(grepl("\\[prop", variable) ~ "spp rich", TRUE ~ "biomass")) |>
+#   # mutate(driver = case_when(grepl("Cruise passengers", variable) ~ "tourism", TRUE ~ "fisheries")) |>
+#   mutate(driver = "fisheries") |>
+#   dplyr::select(category, driver, variable)
+# full_var_list <- rbind(full_var_list, part_var_list) |>
+#   distinct() |> arrange(category, driver, variable)
+# write_csv(full_var_list, "metadata/full_var_list.csv")
 
 # Check for duplicates
-dup_var <- summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
-check_var <- filter(full_var_list, variable %in% dup_var$variable)
+# dup_var <- summarise(full_var_list, count = n(), .by = "variable") |> filter(count > 1)
+# check_var <- filter(full_var_list, variable %in% dup_var$variable)
 
 
 ## Correct variables ------------------------------------------------------
 
-full_var_list <- full_var_list |>
-  # mutate(variable = str_replace(variable, " -total [n]", " - total [n]"))
-  # mutate(category = case_when(variable == "Fv/Fm" ~ "bio", TRUE ~ category),
-  #        driver = case_when(variable == "Fv/Fm" ~ "prim prod", TRUE ~ driver)) |>
-  mutate(driver = case_when(grepl("Chl |Chl a|Chl b|Chlide|Fluores |Fv/Fm", variable) ~ "prim prod", TRUE ~ driver)) |>
-  distinct()
-write_csv(full_var_list, "metadata/full_var_list.csv")
+# full_var_list <- full_var_list |>
+#   # mutate(variable = str_replace(variable, " -total [n]", " - total [n]"))
+#   # mutate(category = case_when(variable == "Fv/Fm" ~ "bio", TRUE ~ category),
+#   #        driver = case_when(variable == "Fv/Fm" ~ "prim prod", TRUE ~ driver)) |>
+#   mutate(driver = case_when(grepl("Chl |Chl a|Chl b|Chlide|Fluores |Fv/Fm", variable) ~ "prim prod", TRUE ~ driver)) |>
+#   distinct()
+# write_csv(full_var_list, "metadata/full_var_list.csv")
 
 
 ## Remove a specific variables --------------------------------------------

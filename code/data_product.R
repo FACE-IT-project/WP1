@@ -4472,7 +4472,8 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
                   full_product_por,
                   full_product_EU, full_product_sval, full_product_green, full_product_nor,
                   young_GEM, disko_GEM, nuup_GEM,
-                  young_species_GEM, nuup_species_GEM)
+                  young_species_GEM, nuup_species_GEM) |> 
+  filter(URL != "https://doi.org/10.1594/PANGAEA.953962") # Too many issues with this one
 
 
 ## Cryosphere --------------------------------------------------------------
@@ -4491,6 +4492,8 @@ full_ALL <- rbind(full_product_kong, full_product_is, full_product_stor,
 # https://doi.org/10.1594/PANGAEA.59224; IRD [arbitrary units] = Ice rafted debris, general
 
 # Get sea ice data from full datasets
+clean_glacier_sea_ice <- filter(full_ALL, driver == "sea ice", depth < 0) |> mutate(driver = "glacier")
+clean_cryo_vars <- filter(full_ALL, variable %in% clean_glacier_sea_ice$variable) |> distinct(citation, variable)
 clean_sea_ice <- filter(full_ALL, driver == "sea ice") |> 
   filter(depth >= 0 | is.na(depth)) |> # For now it is necessary to reappoint some data here to the glacier file
   mutate(depth = NA, type = "in situ") |>  # Deeper depths are bottom depths and should be converted to NA
@@ -4550,17 +4553,8 @@ test1 <- clean_sea_ice |> distinct(depth)
 
 # Get height data from sea ice driver
 clean_glacier_sea_ice <- filter(full_ALL, driver == "sea ice", depth < 0) |> mutate(driver = "glacier")
-clean_glacier <- filter(full_ALL, driver == "glacier") |> rbind(clean_glacier_sea_ice) |> mutate(type = "in situ") |> distinct() |> 
-  # TODO: Move this depth binning earlier in the pipeline
-  mutate(depth = case_when(depth >= -10 ~ 0,
-                           depth >= -20 ~ -20,
-                           depth >= -50 ~ -50,
-                           depth >= -100 ~ -100,
-                           depth >= -200 ~ -200,
-                           depth >= -500 ~ -500,
-                           depth >= -1000 ~ -1000,
-                           depth >= -2000 ~ -2000,
-                           TRUE ~ as.numeric(NA))) |> 
+clean_glacier <- filter(full_ALL, driver == "glacier") |> rbind(clean_glacier_sea_ice) |> 
+  mutate(type = "in situ") |> distinct() |> depth_bin_average() |> 
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
 rm(clean_glacier_sea_ice); gc(); print(unique(clean_glacier$variable))
@@ -4570,8 +4564,6 @@ test1 <- clean_glacier |> distinct(depth)
 
 
 ### Runoff ------------------------------------------------------------------
-
-# Pedro Duarte has contacted a colleague to get Kongsfjorden area river discharge data
 
 # GRDC river discharge data
 ## NB: These are restricted data so they are not added to 'full_product_EU'
@@ -4599,17 +4591,7 @@ FACE_IT_GRDC <- site_GRDC |>
 # Get all river discharge data from full/GEM products and combine with GRDC
 clean_runoff <- filter(full_ALL, driver == "runoff") |> mutate(type = "in situ") |> 
   dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct() |> rbind(FACE_IT_GRDC) |> 
-  # TODO: Move this depth binning earlier in the pipeline
-  mutate(depth = case_when(depth >= -10 ~ 0,
-                           depth >= -20 ~ -20,
-                           depth >= -50 ~ -50,
-                           depth >= -100 ~ -100,
-                           depth >= -200 ~ -200,
-                           depth >= -500 ~ -500,
-                           depth >= -1000 ~ -1000,
-                           depth >= -2000 ~ -2000,
-                           TRUE ~ as.numeric(NA))) |> 
+  distinct() |> rbind(FACE_IT_GRDC) |> depth_bin_average() |> 
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
 rm(EU_GRDC, site_GRDC, FACE_IT_GRDC); gc(); print(unique(clean_runoff$variable))
@@ -4621,10 +4603,6 @@ test1 <- clean_runoff |> distinct(depth)
 ## Physics ----------------------------------------------------------------
 
 ### Sea temp ----------------------------------------------------------------
-
-# TODO: Look into temperature values above 20°C
-# TODO: Still need to clean up these values
-# TODO: Investigate temperatures in carbonate chemistry datasets
 
 # Load OISST and CCI data
 # Prepared in code/data_processing.R
@@ -4646,22 +4624,26 @@ if(!exists("CCI_all")) load("data/analyses/CCI_all.RData")
 # t [°C] = ground/snow temperatures e.g. https://doi.pangaea.de/10.1594/PANGAEA.930472
 # T tech [°C] + T cal [°C] = Temperatures from an experiment e.g. https://doi.pangaea.de/10.1594/PANGAEA.847626
 clean_sea_temp <- filter(full_ALL, driver == "sea temp") |> 
-  distinct() |> rbind(OISST_all, CCI_all) |> depth_bin_average() |> 
-  mutate(variable = case_when(variable == "Temp [°C]" ~ "temp [°C]", TRUE ~ variable)) |>
-  filter(variable %in% c("temp [°C]")) |> 
+  distinct() |> depth_bin_average() |> rbind(OISST_all, CCI_all) |>  
+  mutate(variable = case_when(variable == "Temp [°C]" ~ "temp [°C]", TRUE ~ variable),
+         depth = case_when(depth < 0 ~ -depth, TRUE ~ depth)) |> # A couple of datasets have negative depth values that need to be swapped
+  filter(variable %in% c("temp [°C]"), value <= 33,
+         !URL %in% c("https://doi.org/10.1594/PANGAEA.915790", "https://doi.org/10.1594/PANGAEA.915791")) |>   # Lab experiments)
   summarise(value = mean(value, na.rm = TRUE), 
-            .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
+            .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth)) |> 
+  filter(!grepl("Meteorological", citation), !grepl("PANGAEA.875652", citation)) # Atmospheric data
 rm(OISST_all, CCI_all); gc(); print(unique(clean_sea_temp$variable))
 
 # Test depths etc.
 test1 <- clean_sea_temp |> distinct(depth)
+test1 <- clean_sea_temp |> filter(depth < 0)
 test1 <- clean_sea_temp |> distinct(date)
 test1 <- clean_sea_temp |> distinct(citation)
+test1 <- clean_sea_temp |> filter(value >= 20)
+test1 <- clean_sea_temp |> filter(value < -1.8)
 
 
 ### Salinity ---------------------------------------------------------------
-
-# TODO: A couple of odd values
 
 ## Notes on salinity
 # Remove Sal [mg/l]
@@ -4671,21 +4653,21 @@ test1 <- clean_sea_temp |> distinct(citation)
 # variable = case_when(variable %in% c("s_fb [unit]") ~ "sal_pco2", # Salinity for pCO2 analyses
 clean_salinity <- filter(full_ALL, driver == "salinity") |> filter(value > 0) |> distinct() |> depth_bin_average() |> 
   mutate(variable = case_when(variable == "cond [S m]" ~ "cndc [S m-1]", TRUE ~ variable)) |>
+  filter(value < 1050) |> # Funny values. NB: this is so high because it accounts for density values, too
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
 print(unique(clean_salinity$variable))
 
 # Test depths etc.
 test1 <- clean_salinity |> distinct(depth)
+test1 <- clean_salinity |> filter(value >= 40) |> distinct(variable)
+test1 <- clean_salinity |> filter(value >= 35, variable == "sal")
 
 
 ### Light ------------------------------------------------------------------
 
-# TODO: Look into variables
-# TODO: Look into very deep PAR data
-# TODO: Look into dataset in ~2018 with way to many data points
-
 # Get all PAR+UV data
+# NB: One coastal land dataset is intentionally included (depth -50)
 clean_light <- filter(full_ALL, driver == "light") |> filter(value > 0) |> distinct() |> depth_bin_average() |> 
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
@@ -4693,17 +4675,15 @@ print(unique(clean_light$variable))
 
 # Test depths etc.
 test1 <- clean_light |> distinct(depth)
+test1 <- clean_light |> summarise(count = n(), .by = c(citation, date))
 
 
 ## Chemistry ---------------------------------------------------------------
 
 ### Carb -------------------------------------------------------------------
 
-# TODO: Sort out the variable conversions etc.
-# TODO: Look into dramatic increase in data points from ~2008
-# Bring DIC back into dataset
 # pH is not always the same, there are different scales with differences of up to 0.2
-## It requires expert knowledge and review of each citation to determine the provenence of the pH scale...
+## It requires expert knowledge and review of each citation to determine the provenance of the pH scale...
 # Difference in measured vs calculated pCO2, and difference in SST and normalised temperature
 
 # From Liqing Jiang:
@@ -4729,7 +4709,7 @@ clean_carb <- filter(full_ALL, driver == "carb") |>
                               variable %in% c("pH_sf [total scale]", "pHT in situ", "phtsinsitutp") ~ "pH in situ [total scale]",
                               variable %in% c("pH") ~ "pH [unknown scale]",
                               TRUE ~ variable)) |> 
-  filter(value > 0) |> distinct() |> depth_bin_average() |> 
+  filter(value > 0, depth >= 0) |> distinct() |> depth_bin_average() |> 
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
 # unique(clean_carb$variable[str_detect(clean_carb$variable, "ph|pH")]) # Double check that only pH values are screened this way
@@ -4740,11 +4720,10 @@ print(unique(clean_carb$variable))
 
 # Test depths etc.
 test1 <- clean_carb |> distinct(depth)
+test1 <- clean_carb |> mutate(year = year(date)) |> summarise(count = n(), .by = year)
 
 
 ### Nutrients ---------------------------------------------------------------
-
-# TODO: Create report showing difference in GLODAP l and kg values
 
 ## Notes on nutrients
 # [µmol/l] is the same as [µg-at/l]
@@ -4756,16 +4735,26 @@ test1 <- clean_carb |> distinct(depth)
   # PO4 vs [PO4]3-
 
 # Get all nutrient data
-clean_nutrients <- filter(full_ALL, driver == "nutrients") |> filter(value > 0) |>  distinct() |> depth_bin_average() |>
-  # TODO: Move this to earlier in the pipeline
-  mutate(variable = case_when(variable == "NO2 [µmol/l]" ~ "NO2 [µmol l-1]", 
-                              variable == "NO3 [µmol/l]" ~ "NO3 [µmol l-1]", 
-                              variable == "NH4 [µmol/l]" ~ "NH4 [µmol l-1]", 
-                              variable == "PO4 [µmol/l]" ~ "PO4 [µmol l-1]",
-                              variable == "SiO4 [µmol/l]" ~ "SiO4 [µmol l-1]",
+clean_nutrients <- filter(full_ALL, driver == "nutrients") |> filter(value > 0, value < 100) |>  distinct() |> depth_bin_average() |>
+  # Tidy things up            # NO2
+  mutate(variable = case_when(variable == "NO2 [µmol/l]" ~ "NO2 [µmol l-1]",
+                              variable == "[NO2]- [mg/l]" ~ "NO2 [mg l-1]",
+                              # NO3
+                              variable == "NO3 [µmol/l]" ~ "NO3 [µmol l-1]",
                               variable == "[NO3]- [mg/l]" ~ "NO3 [mg l-1]",
                               variable == "[NO3]- [µg/kg]" ~ "NO3 [µg kg-1]",
-                              variable == "N-[NO3]- [mg/l]" ~ "N-NO3 [mg l-1]", TRUE ~ variable)) |>
+                              variable == "[NO3]- [µg/m**3]" ~ "NO3 [µg m-3]",
+                              variable == "N-[NO3]- [mg/l]" ~ "N-NO3 [mg l-1]", 
+                              # NH4
+                              variable == "NH4 [µmol/l]" ~ "NH4 [µmol l-1]",
+                              variable == "[NH4]+ [ng/m**3]" ~ "NH4 [ng m-3]",
+                              variable == "[NH4]+ [µg/m**3]" ~ "NH4 [µg m-3]",
+                              variable == "[NH4]+ [mg/l]" ~ "NH4 [mg l-1]",
+                              # PO4
+                              variable == "PO4 [µmol/l]" ~ "PO4 [µmol l-1]",
+                              # SiO4
+                              variable == "SiO4 [µmol/l]" ~ "SiO4 [µmol l-1]",
+                              TRUE ~ variable)) |>
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
 # unique(clean_nutrients$variable)
@@ -4807,14 +4796,12 @@ test1 <- clean_prim_prod |> distinct(depth)
 
 ### Biomass -----------------------------------------------------------------
 
-# TODO: Check this for lot's of variables in Young Sound: https://zenodo.org/record/5572041#.YW_Lc5uxU5m
-# TODO: Add species classification
-
 # Get all biomass variables
 clean_biomass <- filter(full_ALL, driver == "biomass") |> 
   filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]"), !grepl("\\[\\%\\]", variable)) |> 
   filter(!grepl("blade growth", variable), !grepl("tip growth", variable)) |> # NB: Decided to remove growth data
   filter(!grepl("\\[presence\\]", variable)) |> # Presence data used in species richness driver
+  filter(!grepl("PAR ", variable)) |> # Sneaky PAR values
   mutate(variable = str_replace(variable, "individuals\\/m3", "ind\\/m3"), 
          variable = str_replace(variable, "Biomass - ", ""),
          type = "in situ") |> 
@@ -4825,19 +4812,21 @@ print(unique(clean_biomass$variable))
 
 # Test depths etc.
 test1 <- clean_biomass |> distinct(depth)
+test1 <- clean_biomass |> filter(grepl("PAR", variable)) |> distinct(variable)
 
 
 ### Species richness ------------------------------------------------------
 
 # The usefulness of this value will be adversely affected by how deep into the taxonomy a researcher has gone in one site vs another
 # E.g. by giving all species, or just grouping by a larger taxa
-# So don't use these comparisons in the data paper
-# Just describe the data
 
 # Get all species variables
+# NB: Intentionally includes a dataset from on top of a glacier (depth -500)
 clean_spp_rich <- filter(full_ALL, driver == "biomass") |> 
   filter(!variable  %in% c("chlA [µg/l]", "Chla [µg/l]")) |>  
   filter(value > 0) |> 
+  filter(!grepl("blade growth", variable), !grepl("tip growth", variable)) |> # NB: Decided to remove growth data
+  filter(!grepl("PAR ", variable)) |> # Sneaky PAR values
   # Fix sp. and spp.
   mutate(variable = str_replace(variable, " sp | spp | spp. ", " sp. "),
          # Remove life stages
@@ -4850,11 +4839,7 @@ clean_spp_rich <- filter(full_ALL, driver == "biomass") |>
                                 | - zoea| - veliger| - parasitic nauplii| - larvae| - ova| - medusae|
                                 | - megalopa| - pilidium| non.det| not det.", ""),
          # Remove units
-         variable = str_replace(variable, " \\[ind\\/m3\\]", ""),
-         variable = str_replace(variable, " \\[\\%\\]", ""),
-         variable = str_replace(variable, " \\[cells\\/l]", ""),
-         variable = str_replace(variable, " \\[individuals\\/m3\\]", ""),
-         variable = str_replace(variable, " \\[count\\]", ""),
+         variable = str_replace(variable, " \\[.*\\]", ""),
          variable = str_replace(variable, " 30-40um| 40-50um| 50-60um| 70-80um", ""),
          # Remove other specifications
          variable = str_replace(variable, " \\(veliger\\)| \\(AF\\)| \\(cypris\\)| \\(nauplii\\)|
@@ -4874,23 +4859,7 @@ clean_spp_rich <- filter(full_ALL, driver == "biomass") |>
          variable = str_replace(variable, "sp.0-40um|sp.0-30um", "sp."),
          variable = str_replace(variable, "sp.3", 'sp.')) |> 
   # Fixes by species
-  mutate(variable = case_when(str_detect(variable, "A. nodosum") ~ "A. nodosum", 
-                              str_detect(variable, "S. latissima") ~ "S. latissima", 
-                              str_detect(variable, "CiliophoraNon") ~ "Ciliophora",
-                              str_detect(variable, "Calanus finmarchicus") ~ "Calanus finmarchicus",
-                              str_detect(variable, "Calanus glacialis") ~ "Calanus glacialis",
-                              str_detect(variable, "Calanus hyperboreus") ~ "Calanus hyperboreus",
-                              str_detect(variable, "Metridia longa") ~ "Metridia longa",
-                              str_detect(variable, "Metridia lucens") ~ "Metridia lucens",
-                              str_detect(variable, "Neoscolecithrix farrani") ~ "Neoscolecithrix farrani",
-                              str_detect(variable, "Navicula sp") ~ "Navicula sp.",
-                              str_detect(variable, "Nitzschia sp.") ~ "Nitzschia sp.",
-                              str_detect(variable, "Pennate.") ~ "Pennate diatoms",
-                              str_detect(variable, "Pseudocalanus minutus") ~ "Pseudocalanus minutus",
-                              str_detect(variable, "Pseudocalanus acuspes") ~ "Pseudocalanus acuspes",
-                              str_detect(variable, "Pseudocalanus sp.") ~ "Pseudocalanus sp.",
-                              str_detect(variable, "Scolecithricella minor") ~ "Scolecithricella minor",
-                              str_detect(variable, "Polar cod") ~ "Boreogadus saida",
+  mutate(variable = case_when(str_detect(variable, "Polar cod") ~ "Boreogadus saida",
                               TRUE ~ variable)) |> 
   # More specific fixes
   mutate(variable = case_when(variable == "Acartia longiremisI" ~ "Acartia longiremis", 
@@ -4906,23 +4875,8 @@ clean_spp_rich <- filter(full_ALL, driver == "biomass") |>
   summarise(value = mean(value, na.rm = TRUE), 
             .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
 
-# Add species classifications
-
-# From the cleaned up data create a species count variable
-# From here the species are combined into counts - the names are therefore lost
-# TODO: Change this to properly account for different unique species values
-spp_count <- clean_spp_rich |> 
-  group_by(lon, lat, date, depth, category, driver, site, type) |> 
-  summarise(value = as.numeric(n()), .groups = "drop") |> 
-  mutate(variable = "spp count [n]",
-         date_accessed = as.Date(Sys.Date()), 
-         URL = "None", citation = "Value derived for FACE-IT dataset") |> 
-  dplyr::select(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth, value) |> 
-  distinct()
-
-# Combine and clean up
-clean_spp_rich <- rbind(clean_spp_rich, spp_count) |> distinct()
-rm(spp_count); gc(); print(unique(clean_biomass$variable))
+# Clean up
+print(unique(clean_biomass$variable))
 
 # Test depths etc.
 test1 <- clean_spp_rich |> distinct(depth)
@@ -4962,13 +4916,8 @@ test1 <- clean_tourism |> distinct(depth)
 # NB: Ship traffic is included here as it is mostly due to industry and not tourism
 
 # Get shipping variables
-clean_fisheries <- filter(full_ALL, driver == "fisheries") |> 
-  filter(!grepl("\\[Month Trips\\]", variable)) |> # NB: It is unclear what exactly these are
-  arrange(variable) |> distinct() |> 
+clean_fisheries <- filter(full_ALL, driver == "fisheries") |> distinct() |> 
   summarise(value = mean(value, na.rm = TRUE), .by = c(date_accessed, URL, citation, type, site, category, driver, variable, lon, lat, date, depth))
-# unique(clean_fisheries$category)
-# unique(clean_fisheries$driver)
-# unique(clean_fisheries$variable)
 print(unique(clean_fisheries$variable))
 
 # Test depths etc.
@@ -4983,6 +4932,14 @@ clean_all <- rbind(clean_sea_ice, clean_glacier, clean_runoff,
                    clean_carb, clean_nutrients,
                    clean_prim_prod, clean_biomass, clean_spp_rich,
                    clean_gov, clean_tourism, clean_fisheries) |> distinct()
+
+# Check that all variables are unique per driver+category
+# NB: There is a bit of overlap between sea ice and glacier drivers
+# In the central variable list these are saved only as 'sea ice'
+clean_all_var_check <- clean_all |> 
+  distinct(category, driver, variable) |> 
+  summarise(count = n(), .by = c(variable)) |> 
+  filter(count > 1)
 
 # Save all data in one file
 save(clean_all, file = "data/analyses/clean_all.RData")
@@ -5034,20 +4991,6 @@ all_ref <- dplyr::select(full_ALL, citation) |> distinct()
 save(all_ref, file = "data/analyses/all_ref.RData")
 
 
-## Summary -----------------------------------------------------------------
-
-# NB: Not currently running the data summaries
-# This was done for the v1.0 data paper
-# Combine analysed data
-# all_meta <- rbind(summary_sea_ice$monthly, summary_glacier$monthly, summary_runoff$monthly,
-#                   summary_sea_temp$monthly, summary_sal$monthly, summary_light$monthly,
-#                   summary_carb$monthly, summary_nutrients$monthly, 
-#                   summary_pp$monthly, summary_biomass$monthly, summary_spp_rich$monthly, 
-#                   summary_gov$monthly, summary_tourism$monthly, summary_fisheries$monthly)
-# save(all_meta, file = "data/analyses/all_meta.RData")
-# load("data/analyses/all_meta.RData")
-
-
 ## PANGAEA file ------------------------------------------------------------
 
 # Load all clean data
@@ -5059,13 +5002,14 @@ data_shadow <- "g-e-m|GRDC|Received directly from Mikael Sejr"
 data_shadow_df <- shadow(clean_all)
 
 # Prep for PANGAEA standard
-FACE_IT_v1.9 <- clean_all |> 
+FACE_IT_v2.0 <- clean_all |> 
   # Remove shadow data
   filter(!grepl(data_shadow, URL)) |> 
   # Convert to PANGAEA date standard
   rbind(data_shadow_df) |> 
   dplyr::rename(`depth [m]` = depth,
-                # `date/time [UTC+0]` = date,  # NB: No longer necessary
+                # NB: No longer necessary
+                # `date/time [UTC+0]` = date,
                 `longitude [°E]` = lon, `latitude [°N]` = lat) |> 
   mutate(citation = str_replace_all(citation, ";", "."))
   # NB: No longer necessary
@@ -5073,38 +5017,38 @@ FACE_IT_v1.9 <- clean_all |>
   #                                        TRUE ~ as.character(`date/time [UTC+0]`)))
 
 # Double check data shadows have been applied correctly
-shadow_test <- filter(FACE_IT_v1.9, grepl(data_shadow, URL))
+shadow_test <- filter(FACE_IT_v2.0, grepl(data_shadow, URL))
 rm(shadow_test); gc()
 
 # Save as .csv
 # NB: write_csv_arrow not currently working, file too large
-write_csv(FACE_IT_v1.9, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9.csv")
-write_csv(FACE_IT_v1.9, "data/full_data/FACE_IT_v1.9.csv")
+write_csv(FACE_IT_v2.0, "~/pCloudDrive/FACE-IT_data/FACE_IT_v2.0.csv")
+write_csv(FACE_IT_v2.0, "data/full_data/FACE_IT_v2.0.csv")
 
 # Cryo data
-FACE_IT_v1.9_cryo <- filter(FACE_IT_v1.9, category == "cryo") |>
+FACE_IT_v2.0_cryo <- filter(FACE_IT_v2.0, category == "cryo") |>
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.9_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_cryo.csv", delim = ";")
+write_delim(FACE_IT_v2.0_cryo, "~/pCloudDrive/FACE-IT_data/FACE_IT_v2.0_cryo.csv", delim = ";")
 
 # Phys data
-FACE_IT_v1.9_phys <- filter(FACE_IT_v1.9, category == "phys") |> 
+FACE_IT_v2.0_phys <- filter(FACE_IT_v2.0, category == "phys") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.9_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_phys.csv", delim = ";")
+write_delim(FACE_IT_v2.0_phys, "~/pCloudDrive/FACE-IT_data/FACE_IT_v2.0_phys.csv", delim = ";")
 
 # Chem data
-FACE_IT_v1.9_chem <- filter(FACE_IT_v1.9, category == "chem") |> 
+FACE_IT_v2.0_chem <- filter(FACE_IT_v2.0, category == "chem") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.9_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_chem.csv", delim = ";")
+write_delim(FACE_IT_v2.0_chem, "~/pCloudDrive/FACE-IT_data/FACE_IT_v2.0_chem.csv", delim = ";")
 
 # Bio data
-FACE_IT_v1.9_bio <- filter(FACE_IT_v1.9, category == "bio") |> 
+FACE_IT_v2.0_bio <- filter(FACE_IT_v2.0, category == "bio") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.9_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_bio.csv", delim = ";")
+write_delim(FACE_IT_v2.0_bio, "~/pCloudDrive/FACE-IT_data/FACE_IT_v2.0_bio.csv", delim = ";")
 
 # Soc data
-FACE_IT_v1.9_soc <- filter(FACE_IT_v1.9, category == "soc") |> 
+FACE_IT_v2.0_soc <- filter(FACE_IT_v2.0, category == "soc") |> 
   pivot_wider(names_from = variable, values_from = value)
-write_delim(FACE_IT_v1.9_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v1.9_soc.csv", delim = ";")
+write_delim(FACE_IT_v2.0_soc, "~/pCloudDrive/FACE-IT_data/FACE_IT_v2.0_soc.csv", delim = ";")
 
 
 ## Additional cleaning -----------------------------------------------------

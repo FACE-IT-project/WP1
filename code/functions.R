@@ -1967,7 +1967,7 @@ load_met_NetCDF <- function(file_name){
                      ncdf4::ncatt_get(nc_file, varid = 0, "metadata_link")$value)
   
   # Coords
-  # TODO: Figure out how to extract coordinates from messy NetCDF format
+  # NB: It would be ideal to figure out how to extract coordinates from messy NetCDF format
   # NCdump doesn't work and can't access coord values via ncatt_get
   # ncdump::NetCDF(file_name)
   # ncdf4::ncatt_get(nc_file, varid = 0, attname = "latitude")
@@ -2372,7 +2372,15 @@ area_average <- function(df, site_name){
 # Convenience wrapper to bin and average clean data by depth
 depth_bin_average <- function(df){
   df_res <- df |> 
-    mutate(depth = case_when(depth <= 10 ~ 0,
+    mutate(depth = case_when(depth >= -10 & depth <= 0 ~ 0,
+                             depth >= -20 & depth <= 0 ~ -20,
+                             depth >= -50 & depth <= 0 ~ -50,
+                             depth >= -100 & depth <= 0 ~ -100,
+                             depth >= -200 & depth <= 0 ~ -200,
+                             depth >= -500 & depth <= 0 ~ -500,
+                             depth >= -1000 & depth <= 0 ~ -1000,
+                             depth >= -2000 & depth <= 0 ~ -2000,
+                             depth <= 10 ~ 0,
                              depth <= 20 ~ 20,
                              depth <= 50 ~ 50,
                              depth <= 100 ~ 100,
@@ -2381,8 +2389,8 @@ depth_bin_average <- function(df){
                              depth <= 1000 ~ 1000,
                              depth <= 2000 ~ 2000,
                              TRUE ~ as.numeric(NA))) |>
-    # NB: This will remove data with NA for depth
-    filter(depth >= 0) |>
+    # NB: This will remove data with NA for depth, which is not desirable
+    # filter(!is.na(depth)) |>
     summarise(value = mean(value, na.rm = TRUE), 
               .by = c("date_accessed", "URL", "citation", "type", "site", "lon", "lat", 
                       "date", "depth", "category", "driver", "variable"))
@@ -2397,9 +2405,6 @@ save_data_one <- function(sub_levels, df){
     sub_df <- filter(df, category == sub_split[1], site == sub_split[2])
     file_path <- paste0("data/full_data/",sub_split[3],"_", sub_split[1],"_", sub_split[2],".csv")
   } else if(sub_split[4] == "clean") {
-    # TODO: have this split the data into the main data and a metadata lookup table and save each
-    # Or maybe not considering how small these files tend to be
-    # This may be interesting considering the size of the temp and sal files
     sub_df <- filter(df, category == sub_split[1], driver == sub_split[2], site == sub_split[3])
     file_path <- paste0("data/full_data/",sub_split[4],"_", sub_split[1],"_",
                         sub_split[2],"_", sub_split[3],".csv")
