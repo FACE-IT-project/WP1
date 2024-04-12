@@ -4967,6 +4967,7 @@ clean_all_meta <- clean_all |>
   group_by(date_accessed, URL, citation, type, site, year_min, year_max) |> 
   summarise(category = toString(unique(category_long)), driver = toString(unique(driver_long)), .groups = "drop")
 save(clean_all_meta, file = "data/analyses/clean_all_meta.RData")
+# load("data/analyses/clean_all_meta.RData")
 
 # Count of datasets and data points per category+driver
 clean_all_count_data <- summarise(clean_all, `Data points` = n(), .by = c("category", "driver"))
@@ -4980,6 +4981,7 @@ clean_all_count <- clean_all |>
   mutate(Datasets = formatC(Datasets, format = "d", big.mark = ","),
          `Data points` = formatC(`Data points`, format = "d", big.mark = ","))
 save(clean_all_count, file = "presentations/clean_all_count.RData")
+# load("presentations/clean_all_count.RData")
 
 
 ## References --------------------------------------------------------------
@@ -4989,6 +4991,7 @@ if(!exists("clean_all")) load("data/analyses/clean_all.RData")
 # Save just the references
 all_ref <- dplyr::select(full_ALL, citation) |> distinct()
 save(all_ref, file = "data/analyses/all_ref.RData")
+# load("data/analyses/all_ref.RData")
 
 
 ## PANGAEA file ------------------------------------------------------------
