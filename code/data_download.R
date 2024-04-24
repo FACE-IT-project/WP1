@@ -188,13 +188,13 @@ file.remove(ff, fx)
 boldq <- bold::bold_stats(taxon = taxon_list[1])
 bold1 <- bold::bold_seqspec(taxon = taxon_list[1])
 
-bold_algae <- plyr::ldply(taxon_list, bold::bold_seqspec, .parallel = TRUE)
-out <- dplyr::select(out, .data$source, .data$sequenceID, 
-                     .data$markercode, .data$phylum_name, .data$class_name, 
-                     .data$order_name, .data$family_name, .data$subfamily_name, 
-                     .data$genus_name, .data$species_name, .data$subspecies_name, 
-                     .data$nucleotides, .data$country, .data$province_state, 
-                     .data$lat, .data$lon)
+bold_algae_full <- plyr::ldply(taxon_list, bold::bold_seqspec, .parallel = TRUE)
+save(bold_algae_full, file = "~/pCloudDrive/FACE-IT_data/barcode/bold_algae_full.RData")
+bold_algae_slim <- dplyr::select(bold_algae_full, sequenceID, markercode, 
+                                 phylum_name, class_name, order_name, family_name, 
+                                 subfamily_name, genus_name, species_name, subspecies_name, 
+                                 country, province_state, lat, lon)
+write_csv(bold_algae_slim, file = "~/pCloudDrive/FACE-IT_data/barcode/bold_algae_slim.csv")
 
 
 ## rgbif ------------------------------------------------------------------
@@ -204,11 +204,15 @@ out <- dplyr::select(out, .data$source, .data$sequenceID,
 
 # Load files for analysis below if needed
 if(!exists("bold_algae")) bold_algae <- read_csv("~/pCloudDrive/FACE-IT_data/barcode/bold_algae.csv")
+if(!exists("bold_algae_slim")) bold_algae_slim <- read_csv("~/pCloudDrive/FACE-IT_data/barcode/bold_algae_slim.csv")
 if(!exists("bold_algae_Arctic")) bold_algae_Arctic <- read_csv("~/pCloudDrive/FACE-IT_data/barcode/bold_algae_Arctic.csv")
+bold_algae_slim_Arctic <- filter(bold_algae_slim, lat > 60)
 
 # Check number of BOLD records with no lon/lat coords
 filter(bold_algae, is.na(lon) | is.na(lat)) |> nrow()
+filter(bold_algae_slim, is.na(lon) | is.na(lat)) |> nrow()
 filter(bold_algae_Arctic, lat >= 66) |> nrow()
+filter(bold_algae_slim_Arctic, lat >= 66) |> nrow()
 
 # Extract just unique records per location
 # Not currently interested in quantifying the multiples
