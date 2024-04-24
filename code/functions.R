@@ -439,6 +439,63 @@ refdb_import_BOLD_char <- function(taxon_id, ncbi_tax = FALSE){
   return(df_res)
 }
 
+# Sped up version of refdb_import_NCBI()
+refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin = 500){
+  ff <- tempfile("refdb_NCBI_", fileext = ".csv")
+  fx <- tempfile("refdb_NCBI_", fileext = ".xml")
+  query_ORGN <- paste0(query,"[ORGN]")
+  query_SLEN <- paste0(query, " AND ( \"0\"[SLEN] : \"", max_seq_length, "\"[SLEN] )")
+  req <- rentrez::entrez_search(db = "nuccore", term = query_SLEN, use_history = TRUE)
+  if (req$count == 0) {
+    cat("No sequence found\n")
+  }
+  cat("Downloading", req$count, "sequences from NCBI...\n")
+  for (seq_start in seq(0, req$count, seq_bin)) {
+    recs <- refdb:::entrez_fetch_retry(db = "nuccore", web_history = req$web_history, 
+                                       rettype = "gb", retmode = "xml", retmax = seq_bin, 
+                                       retstart = seq_start, delay_retry = 3, n_retry = 3, 
+                                       verbose = TRUE)
+    if (is.na(recs)) {
+      next
+    }
+    readr::write_lines(recs, file = fx, append = FALSE)
+    NCBI_xml <- xml2::read_xml(fx)
+    NCBI_xml <- xml2::xml_children(NCBI_xml)
+    NCBI_table <- refdb:::make_ncbi_table(NCBI_xml)
+    taxo_id <- xml2::xml_text(xml2::xml_find_all(NCBI_xml, 
+                                                 ".//GBQualifier_name[text()=\"db_xref\"]/following-sibling::GBQualifier_value"))
+    taxo_id <- taxo_id[stringr::str_detect(taxo_id, "taxon:[0-9]+")]
+    taxo_id <- stringr::str_extract(taxo_id, "(?<=taxon:)[0-9]+")
+    taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, 
+                              id = taxo_id)
+    taxo_id <- taxo_id[!duplicated(taxo_id$taxonomy), ]
+    gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 3, 
+                                            n_retry = 3, verbose = TRUE)
+    taxo_id <- dplyr::left_join(taxo_id, gtax[, -ncol(gtax)], 
+                                by = "id")
+    NCBI_table <- dplyr::left_join(NCBI_table, taxo_id, by = "taxonomy", 
+                                   suffix = c("", "_taxonomy"))
+    NCBI_table <- tibble::tibble(source = "NCBI", NCBI_table)
+    NCBI_table <- dplyr::mutate(NCBI_table, species = .data$organism) |> 
+      dplyr::select(-sequence)
+    if (seq_start == 0) {
+      readr::write_csv(NCBI_table[0, ], file = ff)
+    }
+    readr::write_csv(NCBI_table, file = ff, append = TRUE, 
+                     col_names = FALSE)
+    cat("\r > ", seq_start + nrow(NCBI_table), " (", 
+        round((seq_start + nrow(NCBI_table))/req$count * 
+                100, digits = 1), "%) ", "sequences downloaded.", 
+        sep = "")
+  }
+  out <- readr::read_csv(ff, col_types = readr::cols())
+  out <- refdb:::process_geo_ncbi(out)
+  out <- refdb:::refdb_set_fields_NCBI(out)
+  out <- refdb:::refdb_set_fields(out, latitude = "latitude", longitude = "longitude")
+  file.remove(ff, fx)
+  return(out)
+}
+
 # Download any number of desired files and save them locally
 file_URL_save <- function(file_name, base_URL, save_folder){
   

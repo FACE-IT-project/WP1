@@ -6,10 +6,10 @@
 # Setup -------------------------------------------------------------------
 
 source("code/functions.R")
-library(refdb) # Access both GenBank and BOLD, but a bit wonky 
+library(rgbif) # Access GBIF
 library(rentrez) # Access GenBank
 library(bold) # Access BOLD
-library(rgbif) # Access GBIF
+library(refdb) # Access both GenBank and BOLD, but a bit wonky 
 
 
 # ERSST -------------------------------------------------------------------
@@ -57,7 +57,7 @@ bold_algae <- plyr::ldply(taxon_list, refdb_import_BOLD, .parallel = FALSE, ncbi
 # ncbi_algae <- plyr::ldply(taxon_list, refdb_import_NCBI, .parallel = FALSE, full = TRUE, seq_bin = 1000)
 ncbi_ban <- refdb_import_NCBI(taxon_list[1], full = TRUE, seq_bin = 2000)
 ncbi_flo <- refdb_import_NCBI(taxon_list[2], full = TRUE, seq_bin = 2000)
-# ncbi_pha <- refdb_import_NCBI(taxon_list[3], full = TRUE, seq_bin = 2000) # Some sort of internal error via refdb
+ncbi_pha <- refdb_import_NCBI_fast(taxon_list[3]) # Some sort of internal error via refdb
 ncbi_ulv <- refdb_import_NCBI(taxon_list[4], full = TRUE, seq_bin = 2000)
 ncbi_xan <- refdb_import_NCBI(taxon_list[5], full = TRUE, seq_bin = 2000)
 ncbi_algae <- rbind(ncbi_ban, ncbi_flo, ncbi_ulv, ncbi_xan)
@@ -94,7 +94,7 @@ write_csv(ncbi_algae_Arctic, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_algae_Arct
 # https://docs.ropensci.org/rentrez/articles/rentrez_tutorial.html
 entrez_dbs()
 (tax_fields <- entrez_db_searchable("taxonomy"))
-(bio_fields <- entrez_db_searchable("biosample"))
+(bio_fields <- entrez_db_searchable("nuccore"))
 rentrez::entrez_db_summary("nuccore")
 rentrez::entrez_db_summary("biosample")
 rentrez::entrez_db_summary("geoprofiles")
@@ -115,72 +115,7 @@ tax_list$Taxon$GeneticCode
 
 
 # refdb_import_NCBI() source code
-ff <- tempfile("refdb_NCBI_", fileext = ".csv")
-fx <- tempfile("refdb_NCBI_", fileext = ".xml")
-query <- paste0(query, " AND ( \"0\"[SLEN] : \"", max_seq_length, 
-                "\"[SLEN] )")
-req <- rentrez::entrez_search(db = "nuccore", term = query, 
-                              use_history = TRUE)
-if (req$count == 0) {
-  if (verbose) 
-    cat("No sequence found\n")
-  return(NULL)
-}
-if (verbose) 
-  cat("Downloading", req$count, "sequences from NCBI...\n")
-for (seq_start in seq(0, req$count, seq_bin)) {
-  recs <- entrez_fetch_retry(db = "nuccore", web_history = req$web_history, 
-                             rettype = "gb", retmode = "xml", retmax = seq_bin, 
-                             retstart = seq_start, delay_retry = 60, n_retry = 50, 
-                             verbose = verbose)
-  if (is.na(recs)) {
-    next
-  }
-  readr::write_lines(recs, file = fx, append = FALSE)
-  NCBI_xml <- xml2::read_xml(fx)
-  NCBI_xml <- xml2::xml_children(NCBI_xml)
-  NCBI_table <- make_ncbi_table(NCBI_xml)
-  taxo_id <- xml2::xml_text(xml2::xml_find_all(NCBI_xml, 
-                                               ".//GBQualifier_name[text()=\"db_xref\"]/following-sibling::GBQualifier_value"))
-  taxo_id <- taxo_id[stringr::str_detect(taxo_id, "taxon:[0-9]+")]
-  taxo_id <- stringr::str_extract(taxo_id, "(?<=taxon:)[0-9]+")
-  taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, 
-                            id = taxo_id)
-  taxo_id <- taxo_id[!duplicated(taxo_id$taxonomy), ]
-  gtax <- get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 60, 
-                                  n_retry = 50, verbose = verbose)
-  taxo_id <- dplyr::left_join(taxo_id, gtax[, -ncol(gtax)], 
-                              by = "id")
-  NCBI_table <- dplyr::left_join(NCBI_table, taxo_id, by = "taxonomy", 
-                                 suffix = c("", "_taxonomy"))
-  NCBI_table <- tibble::tibble(source = "NCBI", NCBI_table)
-  NCBI_table <- dplyr::mutate(NCBI_table, species = .data$organism)
-  if (full == FALSE) {
-    NCBI_table <- dplyr::select(NCBI_table, .data$source, 
-                                .data$id, .data$gene, .data$sequence, .data$superkingdom, 
-                                .data$kingdom, .data$phylum, .data$subphylum, 
-                                .data$class, .data$subclass, .data$infraclass, 
-                                .data$order, .data$suborder, .data$infraorder, 
-                                .data$superfamily, .data$family, .data$genus, 
-                                .data$species, .data$country_location, .data$lat_lon)
-  }
-  if (seq_start == 0) {
-    readr::write_csv(NCBI_table[0, ], file = ff)
-  }
-  readr::write_csv(NCBI_table, file = ff, append = TRUE, 
-                   col_names = FALSE)
-  if (verbose) {
-    cat("\r > ", seq_start + nrow(NCBI_table), " (", 
-        round((seq_start + nrow(NCBI_table))/req$count * 
-                100, digits = 1), "%) ", "sequences downloaded.", 
-        sep = "")
-  }
-}
-out <- readr::read_csv(ff, col_types = readr::cols())
-out <- process_geo_ncbi(out)
-out <- refdb_set_fields_NCBI(out)
-out <- refdb_set_fields(out, latitude = "latitude", longitude = "longitude")
-file.remove(ff, fx)
+
 
 
 ## bold -------------------------------------------------------------------
@@ -204,8 +139,10 @@ write_csv(bold_algae_slim, file = "~/pCloudDrive/FACE-IT_data/barcode/bold_algae
 
 # Load files for analysis below if needed
 if(!exists("bold_algae")) bold_algae <- read_csv("~/pCloudDrive/FACE-IT_data/barcode/bold_algae.csv")
+if(!exists("bold_algae_full")) load("~/pCloudDrive/FACE-IT_data/barcode/bold_algae_full.RData")
 if(!exists("bold_algae_slim")) bold_algae_slim <- read_csv("~/pCloudDrive/FACE-IT_data/barcode/bold_algae_slim.csv")
 if(!exists("bold_algae_Arctic")) bold_algae_Arctic <- read_csv("~/pCloudDrive/FACE-IT_data/barcode/bold_algae_Arctic.csv")
+if(!exists("ncbi_algae_Arctic")) ncbi_algae_Arctic <- read_csv("~/pCloudDrive/FACE-IT_data/barcode/ncbi_algae_Arctic.csv")
 bold_algae_slim_Arctic <- filter(bold_algae_slim, lat > 60)
 
 # Check number of BOLD records with no lon/lat coords
@@ -213,6 +150,7 @@ filter(bold_algae, is.na(lon) | is.na(lat)) |> nrow()
 filter(bold_algae_slim, is.na(lon) | is.na(lat)) |> nrow()
 filter(bold_algae_Arctic, lat >= 66) |> nrow()
 filter(bold_algae_slim_Arctic, lat >= 66) |> nrow()
+filter(ncbi_algae_Arctic, latitude >= 66) |> nrow()
 
 # Extract just unique records per location
 # Not currently interested in quantifying the multiples
