@@ -40,3 +40,10 @@ MHW_def <- meme(img = "meme/Afraid-To-Ask-Andy.jpg",
 MHW_def
 meme_save(MHW_def, file = "meme/MHW_def.png")
 
+# MHW So hot right now
+MHW_hot <- meme(img = "meme/so-hot-right-now.jpg", 
+                upper = "Marine   heatwaves", 
+                lower = "", size = 9, r = 0.9)
+MHW_hot
+meme_save(MHW_hot, file = "meme/MHW_hot.png")
+
