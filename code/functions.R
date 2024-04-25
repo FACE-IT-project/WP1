@@ -439,8 +439,43 @@ refdb_import_BOLD_char <- function(taxon_id, ncbi_tax = FALSE){
   return(df_res)
 }
 
+# Retry function that doesn't stop after errors
+entrez_fetch_retry_no_stop <- function (..., delay_retry, n_retry, verbose = TRUE){
+  res <- "error"
+  while (res == "error" & n_retry > 0) {
+    res <- tryCatch({
+      Sys.sleep(0.1)
+      httr_conf <- structure(list(method = NULL, url = NULL, 
+                                  headers = NULL, fields = NULL, 
+                                  options = list(low_speed_limit = 30L, low_speed_time = 10L), 
+                                  auth_token = NULL, output = NULL), 
+                             class = "request")
+      rentrez::entrez_fetch(..., config = httr_conf)
+    }, error = function(cond) {
+      if (verbose) {
+        message("\nSomething went wrong:")
+        message(cond)
+        message("\n")
+        for (i in delay_retry:0) {
+          cat("\rRetrying in", i, "s.  ")
+          Sys.sleep(1)
+        }
+        cat("\n")
+      }
+      return("error")
+    })
+    n_retry <- n_retry - 1
+  }
+  if (res == "error") {
+    cat("All attempts failed.")
+  }
+  else {
+    return(res)
+  }
+}
+
 # Sped up version of refdb_import_NCBI()
-refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin = 500){
+refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin = 1000){
   ff <- tempfile("refdb_NCBI_", fileext = ".csv")
   fx <- tempfile("refdb_NCBI_", fileext = ".xml")
   query_ORGN <- paste0(query,"[ORGN]")
@@ -451,9 +486,9 @@ refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin =
   }
   cat("Downloading", req$count, "sequences from NCBI...\n")
   for (seq_start in seq(0, req$count, seq_bin)) {
-    recs <- refdb:::entrez_fetch_retry(db = "nuccore", web_history = req$web_history, 
+    recs <- entrez_fetch_retry_no_stop(db = "nuccore", web_history = req$web_history, 
                                        rettype = "gb", retmode = "xml", retmax = seq_bin, 
-                                       retstart = seq_start, delay_retry = 3, n_retry = 3, 
+                                       retstart = seq_start, delay_retry = 10, n_retry = 10, 
                                        verbose = TRUE)
     if (is.na(recs)) {
       next
@@ -469,8 +504,8 @@ refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin =
     taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, 
                               id = taxo_id)
     taxo_id <- taxo_id[!duplicated(taxo_id$taxonomy), ]
-    gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 3, 
-                                            n_retry = 3, verbose = TRUE)
+    gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 10, 
+                                            n_retry = 10, verbose = TRUE)
     taxo_id <- dplyr::left_join(taxo_id, gtax[, -ncol(gtax)], 
                                 by = "id")
     NCBI_table <- dplyr::left_join(NCBI_table, taxo_id, by = "taxonomy", 
@@ -484,9 +519,8 @@ refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin =
     readr::write_csv(NCBI_table, file = ff, append = TRUE, 
                      col_names = FALSE)
     cat("\r > ", seq_start + nrow(NCBI_table), " (", 
-        round((seq_start + nrow(NCBI_table))/req$count * 
-                100, digits = 1), "%) ", "sequences downloaded.", 
-        sep = "")
+        round((seq_start + nrow(NCBI_table))/req$count * 100, digits = 1), "%) ", 
+        "sequences downloaded.", sep = "")
   }
   out <- readr::read_csv(ff, col_types = readr::cols())
   out <- refdb:::process_geo_ncbi(out)

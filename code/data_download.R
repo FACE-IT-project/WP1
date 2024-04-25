@@ -50,26 +50,26 @@ ncbi1 <- refdb_import_NCBI(taxon_list[5], full = TRUE)
 # NB: One of these BOLD taxa calls has an error in a column that prevents the internal rbind from working
 # Running all of these at once is too time consuming/error prone
 # Better to run and save each one individually
-## That being said, on 2024-02-12 the full BOLD query managed to run
+## That being said, on 2024-02-12 the full BOLD query managed to run. So...
 bold_algae <- plyr::ldply(taxon_list, refdb_import_BOLD, .parallel = FALSE, ncbi_taxo = FALSE, full = TRUE)
 
 # The same goes for GenBank
 # ncbi_algae <- plyr::ldply(taxon_list, refdb_import_NCBI, .parallel = FALSE, full = TRUE, seq_bin = 1000)
-ncbi_ban <- refdb_import_NCBI(taxon_list[1], full = TRUE, seq_bin = 2000)
-ncbi_flo <- refdb_import_NCBI(taxon_list[2], full = TRUE, seq_bin = 2000)
+ncbi_ban <- refdb_import_NCBI_fast(taxon_list[1])
+ncbi_flo <- refdb_import_NCBI_fast(taxon_list[2])
 ncbi_pha <- refdb_import_NCBI_fast(taxon_list[3]) # Some sort of internal error via refdb
-ncbi_ulv <- refdb_import_NCBI(taxon_list[4], full = TRUE, seq_bin = 2000)
-ncbi_xan <- refdb_import_NCBI(taxon_list[5], full = TRUE, seq_bin = 2000)
-ncbi_algae <- rbind(ncbi_ban, ncbi_flo, ncbi_ulv, ncbi_xan)
+ncbi_ulv <- refdb_import_NCBI_fast(taxon_list[4])
+ncbi_xan <- refdb_import_NCBI_fast(taxon_list[5])
+# ncbi_algae <- rbind(ncbi_ban, ncbi_flo, ncbi_ulv, ncbi_xan)
 
 # Save
 write_csv(bold_algae, "~/pCloudDrive/FACE-IT_data/barcode/bold_algae.csv")
 write_csv(ncbi_algae, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_algae.csv")
 
-# Indivudal files
+# Individual files
 write_csv(ncbi_ban, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ban.csv")
 write_csv(ncbi_flo, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_flo.csv")
-# write_csv(ncbi_pha, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pha.csv") #throws an error
+write_csv(ncbi_pha, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pha.csv") #throws an error
 write_csv(ncbi_ulv, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ulv.csv")
 write_csv(ncbi_xan, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_xan.csv")
 
@@ -112,10 +112,6 @@ tax_rec <- entrez_fetch(db="taxonomy", id=Tt$ids, rettype="xml", parsed=TRUE)
 class(tax_rec)
 tax_list <- XML::xmlToList(tax_rec)
 tax_list$Taxon$GeneticCode
-
-
-# refdb_import_NCBI() source code
-
 
 
 ## bold -------------------------------------------------------------------
