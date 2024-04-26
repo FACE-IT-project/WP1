@@ -958,6 +958,12 @@ hyper_MFE <- read_csv("~/pCloudDrive/restricted_data/Diehl/Diehl_MFE.csv", skip 
   dplyr::select(Species, Family, url, lsid, everything()) |> 
   filter(!is.na(value)) |> 
   mutate(week = factor(week, levels = c("HealthCheck", "w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w10", "w11", "w12"))) |> 
-  arrange(Replicate, week, variable)
+  arrange(Replicate, week, variable) |> 
+  group_by(Species, Family, url, lsid, Location, `temp [°C]`, `Photoperiod [Treatment]`, `Photoperiod [L:D; h:h]`, 
+           Replicate, week, variable) |> 
+  mutate(Sample = 1:n(), .after = "Replicate") |> ungroup() |> 
+  pivot_wider(names_from = variable, values_from = value) |> 
+  mutate_at(1:24, ~as.character(.)) |>
+  mutate_at(1:24, ~replace_na(., ""))
 write_csv(hyper_MFE, "~/pCloudDrive/restricted_data/Diehl/Diehl_MFE_PG.csv")
 

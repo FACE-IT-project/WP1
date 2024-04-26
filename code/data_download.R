@@ -38,7 +38,7 @@ download.file("https://www.metoffice.gov.uk/hadobs/hadcrut5/data/HadCRUT.5.0.2.0
 # https://cran.r-project.org/web/packages/refdb/vignettes/ncbi_bold.html
 
 # Taxon of interest
-taxon_list <- c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Ulvophyceae", "Xanthophyceae")
+taxon_list <- c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Prasiolaceae", "Ulvophyceae", "Xanthophyceae")
 
 
 ## redfdb -----------------------------------------------------------------
@@ -58,9 +58,10 @@ bold_algae <- plyr::ldply(taxon_list, refdb_import_BOLD, .parallel = FALSE, ncbi
 ncbi_ban <- refdb_import_NCBI_fast(taxon_list[1])
 ncbi_flo <- refdb_import_NCBI_fast(taxon_list[2])
 ncbi_pha <- refdb_import_NCBI_fast(taxon_list[3]) # Some sort of internal error via refdb
-ncbi_ulv <- refdb_import_NCBI_fast(taxon_list[4])
-ncbi_xan <- refdb_import_NCBI_fast(taxon_list[5])
-# ncbi_algae <- rbind(ncbi_ban, ncbi_flo, ncbi_ulv, ncbi_xan)
+ncbi_pra <- refdb_import_NCBI_fast(taxon_list[4])
+ncbi_ulv <- refdb_import_NCBI_fast(taxon_list[5])
+ncbi_xan <- refdb_import_NCBI_fast(taxon_list[6])
+# ncbi_algae <- rbind(ncbi_ban, ncbi_flo, ncbi_pha, ncbi_pra, ncbi_ulv, ncbi_xan)
 
 # Save
 write_csv(bold_algae, "~/pCloudDrive/FACE-IT_data/barcode/bold_algae.csv")
@@ -70,6 +71,7 @@ write_csv(ncbi_algae, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_algae.csv")
 write_csv(ncbi_ban, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ban.csv")
 write_csv(ncbi_flo, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_flo.csv")
 write_csv(ncbi_pha, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pha.csv") #throws an error
+write_csv(ncbi_pra, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pra.csv") #throws an error
 write_csv(ncbi_ulv, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ulv.csv")
 write_csv(ncbi_xan, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_xan.csv")
 

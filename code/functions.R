@@ -474,8 +474,32 @@ entrez_fetch_retry_no_stop <- function (..., delay_retry, n_retry, verbose = TRU
   }
 }
 
+make_ncbi_table_no_seq <- function (x) {
+  tibble::tibble(id = refdb:::xml_extract(x, "./GBSeq_primary-accession"), 
+                 organism = refdb:::xml_extract(x, "./GBSeq_organism"), 
+                 taxonomy = refdb:::xml_extract(x, "./GBSeq_taxonomy"), 
+                 # sequence = xml_extract(x, "./GBSeq_sequence"), 
+                 create_date = refdb:::xml_extract(x, "./GBSeq_create-date"), 
+                 update_date = refdb:::xml_extract(x, "./GBSeq_update-date"), 
+                 definition = refdb:::xml_extract(x, "./GBSeq_definition"), 
+                 other_seqids = refdb:::xml_extract(x,"./GBSeq_other-seqids"), 
+                 moltype = refdb:::xml_extract(x, "./GBSeq_moltype"), 
+                 length = refdb:::xml_extract(x, "./GBSeq_length"), 
+                 topology = refdb:::xml_extract(x, "./GBSeq_topology"), 
+                 gene = refdb:::xml_extract(x, ".//GBQualifier_name[text()=\"gene\"]/following-sibling::GBQualifier_value"), 
+                 product = refdb:::xml_extract(x, ".//GBQualifier_name[text()=\"product\"]/following-sibling::GBQualifier_value"), 
+                 country_location = refdb:::xml_extract(x, ".//GBQualifier_name[text()=\"country\"]/following-sibling::GBQualifier_value"), 
+                 lat_lon = refdb:::xml_extract(x, ".//GBQualifier_name[text()=\"lat_lon\"]/following-sibling::GBQualifier_value"), 
+                 isolation_source = refdb:::xml_extract(x, ".//GBQualifier_name[text()=\"isolation_source\"]/following-sibling::GBQualifier_value"), 
+                 specimen_voucher = refdb:::xml_extract(x, ".//GBQualifier_name[text()=\"specimen_voucher\"]/following-sibling::GBQualifier_value"), 
+                 reference_authors = sapply(xml2::xml_find_first(x, "./GBSeq_references/GBReference/GBReference_authors"),
+                                            function(x) paste(xml2::xml_text(xml2::xml_find_all(x, "./GBAuthor")), collapse = ", ")), 
+                 reference_title = refdb:::xml_extract(x, "./GBSeq_references/GBReference/GBReference_title"), 
+                 reference_journal = refdb:::xml_extract(x, "./GBSeq_references/GBReference/GBReference_journal"))
+}
+
 # Sped up version of refdb_import_NCBI()
-refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin = 1000){
+refdb_import_NCBI_fast <- function(query, max_seq_length = 100000000, seq_bin = 1000){
   ff <- tempfile("refdb_NCBI_", fileext = ".csv")
   fx <- tempfile("refdb_NCBI_", fileext = ".xml")
   query_ORGN <- paste0(query,"[ORGN]")
@@ -496,23 +520,18 @@ refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin =
     readr::write_lines(recs, file = fx, append = FALSE)
     NCBI_xml <- xml2::read_xml(fx)
     NCBI_xml <- xml2::xml_children(NCBI_xml)
-    NCBI_table <- refdb:::make_ncbi_table(NCBI_xml)
+    NCBI_table <- make_ncbi_table_no_seq(NCBI_xml)
     taxo_id <- xml2::xml_text(xml2::xml_find_all(NCBI_xml, 
                                                  ".//GBQualifier_name[text()=\"db_xref\"]/following-sibling::GBQualifier_value"))
     taxo_id <- taxo_id[stringr::str_detect(taxo_id, "taxon:[0-9]+")]
     taxo_id <- stringr::str_extract(taxo_id, "(?<=taxon:)[0-9]+")
-    taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, 
-                              id = taxo_id)
+    taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, id = taxo_id)
     taxo_id <- taxo_id[!duplicated(taxo_id$taxonomy), ]
-    gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 10, 
-                                            n_retry = 10, verbose = TRUE)
-    taxo_id <- dplyr::left_join(taxo_id, gtax[, -ncol(gtax)], 
-                                by = "id")
-    NCBI_table <- dplyr::left_join(NCBI_table, taxo_id, by = "taxonomy", 
-                                   suffix = c("", "_taxonomy"))
+    gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 10, n_retry = 10, verbose = TRUE)
+    taxo_id <- dplyr::left_join(taxo_id, gtax[, -ncol(gtax)], by = "id")
+    NCBI_table <- dplyr::left_join(NCBI_table, taxo_id, by = "taxonomy", suffix = c("", "_taxonomy"))
     NCBI_table <- tibble::tibble(source = "NCBI", NCBI_table)
-    NCBI_table <- dplyr::mutate(NCBI_table, species = .data$organism) |> 
-      dplyr::select(-sequence)
+    NCBI_table <- dplyr::mutate(NCBI_table, species = .data$organism)
     if (seq_start == 0) {
       readr::write_csv(NCBI_table[0, ], file = ff)
     }
@@ -524,8 +543,9 @@ refdb_import_NCBI_fast <- function(query, max_seq_length = 1000000000, seq_bin =
   }
   out <- readr::read_csv(ff, col_types = readr::cols())
   out <- refdb:::process_geo_ncbi(out)
-  out <- refdb:::refdb_set_fields_NCBI(out)
-  out <- refdb:::refdb_set_fields(out, latitude = "latitude", longitude = "longitude")
+  out <- mutate_all(out, as.character)
+  if("latitude" %in% colnames(out)) out <- mutate(out, latitude = as.numeric(latitude))
+  if("longitude" %in% colnames(out)) out <- mutate(out, longitude = as.numeric(longitude))
   file.remove(ff, fx)
   return(out)
 }
