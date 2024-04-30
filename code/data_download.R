@@ -71,7 +71,7 @@ write_csv(ncbi_algae, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_algae.csv")
 write_csv(ncbi_ban, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ban.csv")
 write_csv(ncbi_flo, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_flo.csv")
 write_csv(ncbi_pha, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pha.csv") #throws an error
-write_csv(ncbi_pra, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pra.csv") #throws an error
+write_csv(ncbi_pra, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_pra.csv")
 write_csv(ncbi_ulv, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_ulv.csv")
 write_csv(ncbi_xan, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_xan.csv")
 
@@ -88,49 +88,6 @@ ncbi_algae_Arctic <- filter(ncbi_algae, latitude >= 60)
 # Save
 write_csv(bold_algae_Arctic, "~/pCloudDrive/FACE-IT_data/barcode/bold_algae_Arctic.csv")
 write_csv(ncbi_algae_Arctic, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_algae_Arctic.csv")
-
-
-## rentrez ----------------------------------------------------------------
-
-# Info
-# https://docs.ropensci.org/rentrez/articles/rentrez_tutorial.html
-entrez_dbs()
-(tax_fields <- entrez_db_searchable("taxonomy"))
-(bio_fields <- entrez_db_searchable("nuccore"))
-rentrez::entrez_db_summary("nuccore")
-rentrez::entrez_db_summary("biosample")
-rentrez::entrez_db_summary("geoprofiles")
-
-r_search <- entrez_search(db = "pubmed", term = "R Language")
-r_search$ids
-web_env_search <- entrez_search(db = "biosample", term = paste0(taxon_list[1],"[ORGN]"), 
-                               retmax = 10, use_history = TRUE)
-rentrez_algae <- entrez_fetch(db = "biosample", id = web_env_search$ids, WebEnv = web_env_search$WebEnv, 
-                              query_key = web_env_search$QueryKey, rettype = "fasta")
-cat(strwrap(substr(rentrez_algae, 1, 500)), sep="\n")
-
-Tt <- entrez_search(db="taxonomy", term="(Tetrahymena thermophila[ORGN]) AND Species[RANK]")
-tax_rec <- entrez_fetch(db="taxonomy", id=Tt$ids, rettype="xml", parsed=TRUE)
-class(tax_rec)
-tax_list <- XML::xmlToList(tax_rec)
-tax_list$Taxon$GeneticCode
-
-
-## bold -------------------------------------------------------------------
-
-boldq <- bold::bold_stats(taxon = taxon_list[1])
-bold1 <- bold::bold_seqspec(taxon = taxon_list[1])
-
-bold_algae_full <- plyr::ldply(taxon_list, bold::bold_seqspec, .parallel = TRUE)
-save(bold_algae_full, file = "~/pCloudDrive/FACE-IT_data/barcode/bold_algae_full.RData")
-bold_algae_slim <- dplyr::select(bold_algae_full, sequenceID, markercode, 
-                                 phylum_name, class_name, order_name, family_name, 
-                                 subfamily_name, genus_name, species_name, subspecies_name, 
-                                 country, province_state, lat, lon)
-write_csv(bold_algae_slim, file = "~/pCloudDrive/FACE-IT_data/barcode/bold_algae_slim.csv")
-
-
-## rgbif ------------------------------------------------------------------
 
 
 ## Analyses ---------------------------------------------------------------

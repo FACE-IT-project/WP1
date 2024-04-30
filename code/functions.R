@@ -431,14 +431,6 @@ wm_records_df <- function(sp_name, res_type = "df"){
   # rm(sp_name, sp_names, sp_sp, sp_genus, sp_no_sp, sp_no_pre, sp_info, sp_info_df, sp_res, URL_error, pg_param, pg_dl, pg_doi, pg_hit); gc()
 }
 
-# Convenience function to catch inconsistent column types
-# NB: Not used at the moment
-refdb_import_BOLD_char <- function(taxon_id, ncbi_tax = FALSE){
-  df_res <- refdb_import_BOLD(taxon = taxon_id, ncbi_taxo = ncbi_tax)
-  df_res$x <- as.character(df_res$x)
-  return(df_res)
-}
-
 # Retry function that doesn't stop after errors
 entrez_fetch_retry_no_stop <- function (..., delay_retry, n_retry, verbose = TRUE){
   res <- "error"
@@ -499,17 +491,22 @@ make_ncbi_table_no_seq <- function (x) {
 }
 
 # Sped up version of refdb_import_NCBI()
-refdb_import_NCBI_fast <- function(query, max_seq_length = 100000000, seq_bin = 1000){
+# query <- taxon_list[5]; seq_bin <- 100; ulv_fix <- TRUE
+refdb_import_NCBI_fast <- function(query, seq_bin = 100, ulv_fix = FALSE){
   ff <- tempfile("refdb_NCBI_", fileext = ".csv")
   fx <- tempfile("refdb_NCBI_", fileext = ".xml")
   query_ORGN <- paste0(query,"[ORGN]")
-  query_SLEN <- paste0(query, " AND ( \"0\"[SLEN] : \"", max_seq_length, "\"[SLEN] )")
-  req <- rentrez::entrez_search(db = "nuccore", term = query_SLEN, use_history = TRUE)
+  # query_SLEN <- paste0(query, " AND ( \"0\"[SLEN] : \"", max_seq_length, "\"[SLEN] )")
+  req <- rentrez::entrez_search(db = "nuccore", term = query_ORGN, use_history = TRUE)
   if (req$count == 0) {
     cat("No sequence found\n")
   }
   cat("Downloading", req$count, "sequences from NCBI...\n")
-  for (seq_start in seq(0, req$count, seq_bin)) {
+  dl_rep <- seq(0, req$count, seq_bin)
+  # dl_rep <- c(0, seq(120000, 140000, seq_bin) # For testing...
+  # if(ulv_fix) dl_rep <- c(seq(0, 1800, seq_bin), seq(2000, req$count, seq_bin)) # NB: Asumes a seq_bin of 100
+  for (seq_start in dl_rep) {
+  # for (seq_start in c(0, seq(1900, 2000, seq_bin))) {
     recs <- entrez_fetch_retry_no_stop(db = "nuccore", web_history = req$web_history, 
                                        rettype = "gb", retmode = "xml", retmax = seq_bin, 
                                        retstart = seq_start, delay_retry = 10, n_retry = 10, 
@@ -518,29 +515,39 @@ refdb_import_NCBI_fast <- function(query, max_seq_length = 100000000, seq_bin = 
       next
     }
     readr::write_lines(recs, file = fx, append = FALSE)
-    NCBI_xml <- xml2::read_xml(fx)
-    NCBI_xml <- xml2::xml_children(NCBI_xml)
-    NCBI_table <- make_ncbi_table_no_seq(NCBI_xml)
-    taxo_id <- xml2::xml_text(xml2::xml_find_all(NCBI_xml, 
-                                                 ".//GBQualifier_name[text()=\"db_xref\"]/following-sibling::GBQualifier_value"))
-    taxo_id <- taxo_id[stringr::str_detect(taxo_id, "taxon:[0-9]+")]
-    taxo_id <- stringr::str_extract(taxo_id, "(?<=taxon:)[0-9]+")
-    taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, id = taxo_id)
-    taxo_id <- taxo_id[!duplicated(taxo_id$taxonomy), ]
-    gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 10, n_retry = 10, verbose = TRUE)
-    taxo_id <- dplyr::left_join(taxo_id, gtax[, -ncol(gtax)], by = "id")
-    NCBI_table <- dplyr::left_join(NCBI_table, taxo_id, by = "taxonomy", suffix = c("", "_taxonomy"))
-    NCBI_table <- tibble::tibble(source = "NCBI", NCBI_table)
-    NCBI_table <- dplyr::mutate(NCBI_table, species = .data$organism)
-    if (seq_start == 0) {
-      readr::write_csv(NCBI_table[0, ], file = ff)
+
+    # Check for XML parse issues
+    XML_error <- NULL
+    NCBI_xml <- tryCatch(xml2::read_xml(fx), 
+                        error = function(fx) {XML_error <<- "Can't parse XML text"})
+    if(is.null(XML_error)){
+      # NCBI_xml <- xml2::read_xml(fx)
+      NCBI_xml <- xml2::xml_children(NCBI_xml)
+      NCBI_table <- make_ncbi_table_no_seq(NCBI_xml)
+      taxo_id <- xml2::xml_text(xml2::xml_find_all(NCBI_xml, 
+                                                   ".//GBQualifier_name[text()=\"db_xref\"]/following-sibling::GBQualifier_value"))
+      taxo_id <- taxo_id[stringr::str_detect(taxo_id, "taxon:[0-9]+")]
+      taxo_id <- stringr::str_extract(taxo_id, "(?<=taxon:)[0-9]+")
+      if(length(taxo_id) > nrow(NCBI_table)) taxo_id <- taxo_id[1:nrow(NCBI_table),]
+      taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, id = taxo_id)
+      taxo_id <- taxo_id[!duplicated(taxo_id$taxonomy), ]
+      gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 10, n_retry = 10, verbose = TRUE)
+      taxo_id <- dplyr::left_join(taxo_id, gtax[, -ncol(gtax)], by = "id")
+      NCBI_table <- dplyr::left_join(NCBI_table, taxo_id, by = "taxonomy", suffix = c("", "_taxonomy"))
+      NCBI_table <- tibble::tibble(source = "NCBI", NCBI_table)
+      NCBI_table <- dplyr::mutate(NCBI_table, species = .data$organism)
+      if (seq_start == 0) {
+        readr::write_csv(NCBI_table[0, ], file = ff)
+      }
+      readr::write_csv(NCBI_table, file = ff, append = TRUE, 
+                       col_names = FALSE)
+      cat("\r > ", seq_start + nrow(NCBI_table), " (", 
+          round((seq_start + nrow(NCBI_table))/req$count * 100, digits = 1), "%) ", 
+          "sequences downloaded.", sep = "")
     }
-    readr::write_csv(NCBI_table, file = ff, append = TRUE, 
-                     col_names = FALSE)
-    cat("\r > ", seq_start + nrow(NCBI_table), " (", 
-        round((seq_start + nrow(NCBI_table))/req$count * 100, digits = 1), "%) ", 
-        "sequences downloaded.", sep = "")
   }
+  
+  # Process and exit
   out <- readr::read_csv(ff, col_types = readr::cols())
   out <- refdb:::process_geo_ncbi(out)
   out <- mutate_all(out, as.character)
@@ -548,6 +555,7 @@ refdb_import_NCBI_fast <- function(query, max_seq_length = 100000000, seq_bin = 
   if("longitude" %in% colnames(out)) out <- mutate(out, longitude = as.numeric(longitude))
   file.remove(ff, fx)
   return(out)
+  # rm(query, seq_bin, ff, fx, query_ORGN, req, recs, NCBI_table, NCBI_xml, taxo_id, gtax, out); gc()
 }
 
 # Download any number of desired files and save them locally
