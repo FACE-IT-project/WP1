@@ -41,6 +41,9 @@ CatColAbr <- c(
   "soc" = "#F48080"
 )
 
+# Enable thematic 
+thematic::thematic_shiny(font = "auto")
+
 
 # Data --------------------------------------------------------------------
 
