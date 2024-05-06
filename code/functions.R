@@ -491,8 +491,8 @@ make_ncbi_table_no_seq <- function (x) {
 }
 
 # Sped up version of refdb_import_NCBI()
-# query <- taxon_list[5]; seq_bin <- 100; ulv_fix <- TRUE
-refdb_import_NCBI_fast <- function(query, seq_bin = 100, ulv_fix = FALSE){
+# query <- taxon_list[3]; seq_bin <- 100
+refdb_import_NCBI_fast <- function(query, seq_bin = 100){
   ff <- tempfile("refdb_NCBI_", fileext = ".csv")
   fx <- tempfile("refdb_NCBI_", fileext = ".xml")
   query_ORGN <- paste0(query,"[ORGN]")
@@ -503,7 +503,7 @@ refdb_import_NCBI_fast <- function(query, seq_bin = 100, ulv_fix = FALSE){
   }
   cat("Downloading", req$count, "sequences from NCBI...\n")
   dl_rep <- seq(0, req$count, seq_bin)
-  # dl_rep <- c(0, seq(120000, 140000, seq_bin) # For testing...
+  # dl_rep <- c(0, seq(454000, 455000, seq_bin)) # For testing...
   # if(ulv_fix) dl_rep <- c(seq(0, 1800, seq_bin), seq(2000, req$count, seq_bin)) # NB: Asumes a seq_bin of 100
   for (seq_start in dl_rep) {
   # for (seq_start in c(0, seq(1900, 2000, seq_bin))) {
@@ -528,7 +528,7 @@ refdb_import_NCBI_fast <- function(query, seq_bin = 100, ulv_fix = FALSE){
                                                    ".//GBQualifier_name[text()=\"db_xref\"]/following-sibling::GBQualifier_value"))
       taxo_id <- taxo_id[stringr::str_detect(taxo_id, "taxon:[0-9]+")]
       taxo_id <- stringr::str_extract(taxo_id, "(?<=taxon:)[0-9]+")
-      if(length(taxo_id) > nrow(NCBI_table)) taxo_id <- taxo_id[1:nrow(NCBI_table),]
+      if(length(taxo_id) > nrow(NCBI_table)) taxo_id <- taxo_id[1:nrow(NCBI_table)]
       taxo_id <- tibble::tibble(taxonomy = NCBI_table$taxonomy, id = taxo_id)
       taxo_id <- taxo_id[!duplicated(taxo_id$taxonomy), ]
       gtax <- refdb:::get_ncbi_taxonomy_retry(taxo_id$id, delay_retry = 10, n_retry = 10, verbose = TRUE)
