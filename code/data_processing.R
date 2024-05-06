@@ -458,6 +458,52 @@ green_MHW <- read_csv("~/pCloudDrive/restricted_data/Niedzwiedz/green_MHW.csv") 
   mutate_at(11:31, ~replace_na(.,""))
 write_csv(green_MHW, "~/pCloudDrive/restricted_data/Niedzwiedz/green_MHW_PG.csv")
 
+# Holobiont dataset
+holo_abiotic_devices <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae.xlsx", 
+                                  sheet = "dataAbiotics", guess_max = 2000) |> 
+  mutate(Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
+  dplyr::select(Category, Device, Variable) |> distinct()
+write_csv(holo_abiotic_devices, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_abiotic_devices.csv")
+holo_abiotic <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae.xlsx", 
+                          sheet = "dataAbiotics", guess_max = 2000) |> 
+  mutate(Date = as.Date(Date),
+         Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
+  dplyr::select(-Unit, -Device, -Category) |> pivot_wider(names_from = "Variable", values_from = "Value") |> 
+  dplyr::rename(`depth [m]` = Depth, `Latitude [°N]` = Lat, `Longitude [°E]` = Lon, `date [UTC+0]` = Date) |> 
+  mutate_at(1:74, ~as.character(.)) |> mutate_at(1:74, ~replace_na(.,""))
+write_csv(holo_abiotic, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_abiotic_data.csv")
+holo_kelp_devices <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae.xlsx", sheet = "dataKelp") |> 
+  mutate(Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
+  dplyr::select(Category, Device, Variable) |> distinct()
+write_csv(holo_kelp_devices, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_kelp_devices.csv")
+holo_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae.xlsx", sheet = "dataKelp") |> 
+  mutate(Date = as.Date(Date),
+         Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
+  dplyr::select(-Unit, -Device, -Category) |> pivot_wider(names_from = "Variable", values_from = "Value") |> 
+  mutate_at(1:72, ~as.character(.)) |> mutate_at(1:72, ~replace_na(.,""))
+write_csv(holo_kelp, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_kelp_data.csv")
+
+# Hurtigruten dataset
+hurti_light <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/Pangaea_Hurtigruten.xlsx", sheet = "data_Light") |> 
+  mutate(Date = as.Date(Date))
+hurti_CTD <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/Pangaea_Hurtigruten.xlsx", sheet = "data_CTD") |> 
+  mutate(Date = as.Date(Date))
+hurti_abiotic <- left_join(hurti_light, hurti_CTD) |> 
+  dplyr::rename(`depth [m]` = Depth, `Latitude [°N]` = Lat, `Longitude [°E]` = Lon, `date [UTC+0]` = Date,
+                `Wavelength [nm]` = `Wavelength (nm)`, 
+                `Intensity [µmol photons m-2 s-1 nm]` = `Intensity (µmol photons/m^2 s^1 nm)`,
+                `PAR [µmol photons m-2 s-1]` = `PAR (µmol photons/m^2 s^1)`,
+                `temp [°C]` = Temp, salinity = Sal, `turbidity [NTU]` = Tur) |> 
+  mutate_at(1:14, ~as.character(.)) |> mutate_at(1:14, ~replace_na(.,""))
+write_csv(hurti_abiotic, "~/pCloudDrive/restricted_data/Niedzwiedz/hurtigruten_abiotic_data.csv")
+hurti_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/Pangaea_Hurtigruten.xlsx", sheet = "data_Kelp") |> 
+  mutate(Date = as.Date(Date),
+         Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
+  dplyr::select(-Unit, -Category) |> pivot_wider(names_from = "Variable", values_from = "Value") |> 
+  dplyr::rename(`Latitude [°N]` = Lat, `Longitude [°E]` = Lon, `date [UTC+0]` = Date) |> 
+  mutate_at(1:21, ~as.character(.)) |> mutate_at(1:21, ~replace_na(.,""))
+write_csv(hurti_kelp, "~/pCloudDrive/restricted_data/Niedzwiedz/hurtigruten_kelp_data.csv")
+
 
 # Marambio dataset --------------------------------------------------------
 
