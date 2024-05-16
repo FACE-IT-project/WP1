@@ -511,7 +511,7 @@ rm(list = grep("EU_",names(.GlobalEnv),value = TRUE)); gc()
 ### Species ----------------------------------------------------------------
 
 # Svalbard ivory gull population
-sval_ivory_gull_population <- read.csv("~/pCloudDrive//FACE-IT_data/svalbard/the-number-of-breeding-p.csv", sep = ";") %>% # read the csv
+sval_ivory_gull_population <- read.csv("~/pCloudDrive/FACE-IT_data/svalbard/the-number-of-breeding-p.csv", sep = ";") %>% # read the csv
   mutate(date_accessed = as.Date("2023-04-12"), 
          URL = "https://mosj.no/en/indikator/fauna/marine-fauna/ivory-gull/", 
          citation = "Norwegian Polar Institute (2022). The number of breeding pairs of ivory gulls in Svalbard. Environmental monitoring of Svalbard and Jan Mayen (MOSJ). URL: http://www.mosj.no/en/fauna/marine/ismaake.html", 

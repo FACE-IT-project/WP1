@@ -566,6 +566,17 @@ write_csv(sval_info_clean, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_
 
 # Visualise Sval AIS ------------------------------------------------------
 
+# TODO: overlaid with map layers with sea bird nesting sites (sjøfuglkolonier), whalerus and tourism landing sites
+# found here: https://geokart.npolar.no/Html5Viewer/index.html?viewer=Svalbardkartet
+
+# TODO: Zoom in on nesting sites and show difference by season, e.g. hatching time
+# Show the time spent of ships close to nesting sites by counting each point as a 5 minute time point
+# These can be summed up to imply tourism presence
+# Colour code sites to show increase or decrease in nesting pairs
+# t-test or ANOVA to show relationship between ship time and proximity to nesting sites
+
+# TODO: Good source of data for this: https://mosj.no/en/indikator/fauna/marine-fauna/
+
 # Load full Svalbard AIS database
 # NB: This is massive, be cautious
 if(!exists("sval_AIS")) sval_AIS <- data.table::fread("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv") # 320 seconds
