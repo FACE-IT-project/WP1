@@ -479,6 +479,7 @@ write_csv(holo_kelp_devices, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont
 holo_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae.xlsx", sheet = "dataKelp") |> 
   mutate(Date = as.Date(Date),
          Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
+  filter(Variable != "holo") |> 
   dplyr::select(-Unit, -Device, -Category) |> pivot_wider(names_from = "Variable", values_from = "Value") |> 
   mutate_at(1:72, ~as.character(.)) |> mutate_at(1:72, ~replace_na(.,""))
 write_csv(holo_kelp, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_kelp_data.csv")
@@ -488,7 +489,7 @@ hurti_light <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/Pangaea_Hurti
   mutate(Date = as.Date(Date))
 hurti_CTD <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/Pangaea_Hurtigruten.xlsx", sheet = "data_CTD") |> 
   mutate(Date = as.Date(Date))
-hurti_abiotic <- left_join(hurti_light, hurti_CTD) |> 
+hurti_abiotic <- bind_rows(hurti_light, hurti_CTD) |> 
   dplyr::rename(`depth [m]` = Depth, `Latitude [°N]` = Lat, `Longitude [°E]` = Lon, `date [UTC+0]` = Date,
                 `Wavelength [nm]` = `Wavelength (nm)`, 
                 `Intensity [µmol photons m-2 s-1 nm]` = `Intensity (µmol photons/m^2 s^1 nm)`,
