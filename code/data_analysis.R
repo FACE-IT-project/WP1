@@ -295,3 +295,30 @@ DATA$Lon.s <- decostand(sqrt(DATA$Lon+9) , "standardize")
 DATA$Naturalness.s <- decostand(DATA$Naturalness, "standardize")
 DATA$PTot_S.s <- decostand(DATA$PTot_S, "standardize")
 
+
+# CO2 flux ----------------------------------------------------------------
+
+# Draw a graph to show the normality of the distribution of the flux values
+# Can it be normalised?
+# Or do we just have to forget it and compare one distribution against another
+# What is the best estimate we can derive from the dataset
+# Can we arrive at a global value? With a range and uncertainty?
+# Or must we have regional values
+# Also difference between restored and natural systems
+# And the decrease in storage rates years after initial restoration
+
+# Create a scatterplot with CO2 uptake in a year (y-axis) vs number of years since restoration (x-axis)
+# Show this with natural and restored sites as different colours
+
+# Timeline
+# e-mail the figures and results by Tuesday, June 4th
+# Two figures: one for accumulation rate, one for gas flux
+# Include statistical measure of skewness of these two distributions
+# One plot of the relationship between CO2 uptake and year since restoration
+# Superimpose the statistical model that shows it (probably negative exponential)
+# Also settle on what the best measure of central tendency is
+## Show both mean and median estimates
+# Compare accumulation rates of natural vs restored salt marshes
+
+# Remember that the main issue is upscaling daily chamber measurements to annual average rates
+
