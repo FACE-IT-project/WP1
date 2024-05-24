@@ -1836,6 +1836,12 @@ CTD_to_long <- function(nc_file, var_id){
   return(nc_val)
 }
 
+# Function for re-loading .RData files as necessary
+loadRData <- function(fileName){
+  load(fileName)
+  get(ls()[ls() != "fileName"])
+}
+
 # Simple wrapper for loading Isfjorden mooring NetCDF files
 load_is_mooring <- function(file_name){
   
@@ -2480,6 +2486,16 @@ load_optics <- function(file_name){
     mutate(variable = var_name, .before = "value")
   nc_close(nc_file)
   return(nc_all)
+}
+
+# Convenience wrapper to load an RData file and get the site name
+load_fjord_site <- function(file_name){
+  site_name_split <- strsplit(file_name, "/")
+  site_name <- str_remove(string = sapply(site_name_split, "[[", length(site_name_split[[1]])), pattern = ".Rdata")
+  df <- loadRData(file_name)
+  df$site <- site_name
+  df <- df[c("site", "t", "temp")]
+  # rm(file_name, site_name_split, site_name, df)
 }
 
 # Convenience wrapper for creating area averaged SST time series

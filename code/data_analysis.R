@@ -296,6 +296,26 @@ DATA$Naturalness.s <- decostand(DATA$Naturalness, "standardize")
 DATA$PTot_S.s <- decostand(DATA$PTot_S, "standardize")
 
 
+# SST bbox ----------------------------------------------------------------
+
+# Look at some bbox averaged SST values sent to Sebastien Descamps
+
+# Fjord names
+
+# load the files
+fjord_sites <- map_dfr(dir("~/pCloudDrive/FACE-IT_data/fjord_SST", full.names = TRUE), load_fjord_site)
+
+# Average by month
+# fjord_sites_monthly <- fjord_sites
+
+# Visualise each one
+ggplot(data = fjord_sites, aes(x = t, y = temp)) +
+  annotate("segment", x = as.Date("2016-01-01"), xend = as.Date("2016-01-01"),
+           y = -2, yend = 13, colour = "purple", linewidth = 2, linetype = "dashed") +
+  geom_line() + geom_smooth(method = "lm", se = FALSE) + 
+  facet_wrap("site") + labs(x = NULL, y = "Temperature [°C]")
+
+
 # CO2 flux ----------------------------------------------------------------
 
 # Draw a graph to show the normality of the distribution of the flux values
