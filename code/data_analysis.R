@@ -318,6 +318,43 @@ ggplot(data = fjord_sites, aes(x = t, y = temp)) +
 
 # CO2 flux ----------------------------------------------------------------
 
+# Load data
+CO2_flux <- readxl::read_xls("~/pCloudDrive/restricted_data/CO2/Aug2023_GlobalCarbonReview_FullDataset.xls", sheet = "All data")
+colnames(CO2_flux)
+
+# Number of rows
+nrow(CO2_flux) # 2055
+filter(CO2_flux, !is.na(time_since_restoration)) |> nrow() # 314
+filter(CO2_flux, !is.na(time_since_restoration), !is.na(co2_flux)) |> nrow() # 33
+CO2_flux |> filter(!is.na(time_since_restoration), !is.na(co2_flux)) |> summarise(max(time_since_restoration)) # 31
+
+# co2_net stats
+mean(CO2_flux$co2_net, na.rm = TRUE)
+median(CO2_flux$co2_net, na.rm = TRUE)
+lm(CO2_flux$co2_net ~ CO2_flux$time_since_restoration)
+
+# Filter out younger sites
+CO2_flux_old <- filter(CO2_flux, time_since_restoration >= 50)
+
+# Create a scatterplot with CO2 uptake in a year (y-axis) vs number of years since restoration (x-axis)
+# Show this with natural and restored sites as different colours
+ggplot(data = CO2_flux, aes(x = time_since_restoration, y = co2_flux)) +
+  geom_point(aes(colour = co2_component, shape = natural_or_restored), size = 3) +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(limits = c(0, 35)) +
+  scale_y_continuous(limits = c(-150, 150)) +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/pCloudDrive/restricted_data/CO2/co2flux_vs_time_since_restore.png", height = 4, width = 7)
+
+ggplot(data = CO2_flux, aes(x = time_since_restoration, y = co2_net)) +
+  geom_point(aes(colour = co2_component, shape = natural_or_restored), size = 3) +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(limits = c(0, 35)) +
+  scale_y_continuous(limits = c(-150, 150)) +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/pCloudDrive/restricted_data/CO2/co2net_vs_time_since_restore.png", height = 4, width = 7)
+
+
 # Draw a graph to show the normality of the distribution of the flux values
 # Can it be normalised?
 # Or do we just have to forget it and compare one distribution against another
@@ -327,8 +364,7 @@ ggplot(data = fjord_sites, aes(x = t, y = temp)) +
 # Also difference between restored and natural systems
 # And the decrease in storage rates years after initial restoration
 
-# Create a scatterplot with CO2 uptake in a year (y-axis) vs number of years since restoration (x-axis)
-# Show this with natural and restored sites as different colours
+
 
 # Timeline
 # e-mail the figures and results by Tuesday, June 4th
