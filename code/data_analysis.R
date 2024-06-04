@@ -322,40 +322,89 @@ ggplot(data = fjord_sites, aes(x = t, y = temp)) +
 CO2_flux <- readxl::read_xls("~/pCloudDrive/restricted_data/CO2/Aug2023_GlobalCarbonReview_FullDataset.xls", sheet = "All data")
 colnames(CO2_flux)
 
+# Primary variable
+# c_acc
+
+# Predictor variables
+# time_since_restoration, natural_or_restored, 
+
+# Interesting variables
+# continent, country, marsh_size_ha, rest_area_ha, marsh_position, rest_cat_simp, main_climate, sediment_type, grazed, diked
+
 # Number of rows
 nrow(CO2_flux) # 2055
+filter(CO2_flux, !is.na(c_acc)) |> nrow() # 394
 filter(CO2_flux, !is.na(time_since_restoration)) |> nrow() # 314
-filter(CO2_flux, !is.na(time_since_restoration), !is.na(co2_flux)) |> nrow() # 33
-CO2_flux |> filter(!is.na(time_since_restoration), !is.na(co2_flux)) |> summarise(max(time_since_restoration)) # 31
+filter(CO2_flux, !is.na(time_since_restoration), !is.na(c_acc)) |> nrow() # 96
+filter(CO2_flux, !is.na(time_since_restoration), !is.na(c_acc)) |> summarise(max(time_since_restoration)) # 97.3
 
-# co2_net stats
-mean(CO2_flux$co2_net, na.rm = TRUE)
-median(CO2_flux$co2_net, na.rm = TRUE)
-lm(CO2_flux$co2_net ~ CO2_flux$time_since_restoration)
+# Prep data as vectors for easier testing
+CO2_flux_c_acc_time <- CO2_flux |> filter(!is.na(c_acc), !is.na(time_since_restoration))
+CO2_flux_c_acc_time_restored <- CO2_flux_c_acc_time |> filter(natural_or_restored == "restored")
+CO2_flux_c_acc_time_natural <- CO2_flux_c_acc_time |> filter(natural_or_restored == "natural")
+c_acc_vec <- as.vector(filter(CO2_flux, !is.na(c_acc)) |> dplyr::select(c_acc))[[1]]
+c_acc_time_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration)) |> dplyr::select(c_acc))[[1]]
+c_acc_time_rest_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration),
+                                        natural_or_restored == "restored") |> dplyr::select(c_acc))[[1]]
+c_acc_time_natur_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration),
+                                        natural_or_restored == "natural") |> dplyr::select(c_acc))[[1]]
+time_vec <- as.vector(filter(CO2_flux, !is.na(time_since_restoration)) |> dplyr::select(time_since_restoration))[[1]]
+time_c_acc_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration)) |> dplyr::select(time_since_restoration))[[1]]
+
+# c_acc_time_vec stats
+mean(c_acc_time_vec) # 4.0
+median(c_acc_time_vec) # 2.3
+# Geometric mean
+base::prod(c_acc_time_vec[c_acc_time_vec != 0])^(1/length(c_acc_time_vec[c_acc_time_vec != 0])) # 2.4
+# Harmonic mean
+1/mean(1/c_acc_time_vec[c_acc_time_vec != 0]) # 1.4
+shapiro.test(c_acc_time_vec) # p< 0.001 - not normal distribution
+ks.test(c_acc_time_vec, 'pnorm') # p< 0.001 - not normal distribution
+moments::skewness(c_acc_time_vec, na.rm = TRUE) # skewness = 3.686574 - heavy positive skewness
+moments::kurtosis(c_acc_time_vec, na.rm = TRUE) # kurtosis = 18.83658 - leptokurtic - long tail(s)
+fitdistrplus::descdist(c_acc_time_vec, discrete = FALSE)
+fitdistrplus::fitdist(c_acc_time_vec, "norm")
+fitdistrplus::fitdist(c_acc_time_vec, "exp") # Much better fit
+univariateML::model_select(c_acc_time_vec, criterion = "aic") # Skew Student-t model 
+univariateML::model_select(c_acc_time_rest_vec, criterion = "aic") # Lomax model
+univariateML::model_select(c_acc_time_natur_vec, criterion = "aic") # Skew Normal model
+
+# time_c_acc_vec stats
+mean(time_c_acc_vec, na.rm = TRUE) # 13.9
+median(time_c_acc_vec, na.rm = TRUE) # 7.5
+shapiro.test(time_c_acc_vec) # p< 0.001 - not normal distribution
+ks.test(time_c_acc_vec, 'pnorm') # p< 0.001 - not normal distribution
+moments::skewness(time_c_acc_vec, na.rm = TRUE) # skewness = 2.732808 - heavy positive skewness
+moments::kurtosis(time_c_acc_vec, na.rm = TRUE) # kurtosis = 12.33001 - leptokurtic - long tail(s)
+
+# Relationship between the two
+lm(CO2_flux_c_acc_time$c_acc ~ CO2_flux_c_acc_time$time_since_restoration) # intercept of 5.324 with linear trend of -0.09393
+lm(CO2_flux_c_acc_time$c_acc ~ log(CO2_flux_c_acc_time$time_since_restoration)) # intercept of 10.123 with log trend of -2.737
+lm(CO2_flux_c_acc_time_natural$c_acc ~ CO2_flux_c_acc_time_natural$time_since_restoration) # intercept of 1.504037 with linear trend of 0.007461
+lm(CO2_flux_c_acc_time_restored$c_acc ~ log(CO2_flux_c_acc_time_restored$time_since_restoration)) # intercept of 11.065 with log trend of -3.245
 
 # Filter out younger sites
 CO2_flux_old <- filter(CO2_flux, time_since_restoration >= 50)
 
+fit_restored <- lm(CO2_flux_c_acc_time_restored$c_acc ~ log(CO2_flux_c_acc_time_restored$time_since_restoration))
+ggplot(fit_restored, aes(x = stats::fitted(fit_restored), 
+                         y = stats::residuals(fit_restored))) + 
+  geom_point() + xlab("Fitted Values") + 
+  ylab("Studentized Residuals")
+
+# Compare accumulation rates of natural vs restored salt marshes
+# Draw a graph to show the normality of the distribution of the flux values
 # Create a scatterplot with CO2 uptake in a year (y-axis) vs number of years since restoration (x-axis)
 # Show this with natural and restored sites as different colours
-ggplot(data = CO2_flux, aes(x = time_since_restoration, y = co2_flux)) +
-  geom_point(aes(colour = co2_component, shape = natural_or_restored), size = 3) +
-  geom_smooth(method = "lm") +
-  scale_x_continuous(limits = c(0, 35)) +
-  scale_y_continuous(limits = c(-150, 150)) +
+ggplot(data = CO2_flux, aes(x = time_since_restoration, y = c_acc)) +
+  geom_point(aes(colour = natural_or_restored), size = 3) +
+  geom_smooth(formula = y ~ log(x), colour = "black") +
+  geom_smooth(formula = y ~ log(x), aes(colour = natural_or_restored)) +
+  scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-10, 40), expand = c(0, 0)) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/pCloudDrive/restricted_data/CO2/co2flux_vs_time_since_restore.png", height = 4, width = 7)
+ggsave("~/pCloudDrive/restricted_data/CO2/c_acc_vs_time_since_restore.png", height = 4, width = 7)
 
-ggplot(data = CO2_flux, aes(x = time_since_restoration, y = co2_net)) +
-  geom_point(aes(colour = co2_component, shape = natural_or_restored), size = 3) +
-  geom_smooth(method = "lm") +
-  scale_x_continuous(limits = c(0, 35)) +
-  scale_y_continuous(limits = c(-150, 150)) +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
-ggsave("~/pCloudDrive/restricted_data/CO2/co2net_vs_time_since_restore.png", height = 4, width = 7)
-
-
-# Draw a graph to show the normality of the distribution of the flux values
 # Can it be normalised?
 # Or do we just have to forget it and compare one distribution against another
 # What is the best estimate we can derive from the dataset
@@ -363,7 +412,6 @@ ggsave("~/pCloudDrive/restricted_data/CO2/co2net_vs_time_since_restore.png", hei
 # Or must we have regional values
 # Also difference between restored and natural systems
 # And the decrease in storage rates years after initial restoration
-
 
 
 # Timeline
@@ -374,7 +422,6 @@ ggsave("~/pCloudDrive/restricted_data/CO2/co2net_vs_time_since_restore.png", hei
 # Superimpose the statistical model that shows it (probably negative exponential)
 # Also settle on what the best measure of central tendency is
 ## Show both mean and median estimates
-# Compare accumulation rates of natural vs restored salt marshes
 
 # Remember that the main issue is upscaling daily chamber measurements to annual average rates
 
