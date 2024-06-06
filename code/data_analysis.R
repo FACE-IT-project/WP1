@@ -318,12 +318,21 @@ ggplot(data = fjord_sites, aes(x = t, y = temp)) +
 
 # CO2 flux ----------------------------------------------------------------
 
+# Specific statistics libraries for this section
+library(Renext)
+library(moments)
+library(fitdistrplus)
+library(univariateML)
+library(gamlss)
+library(gamlss.dist)
+library(trend)
+
 # Load data
 CO2_flux <- readxl::read_xls("~/pCloudDrive/restricted_data/CO2/Aug2023_GlobalCarbonReview_FullDataset.xls", sheet = "All data")
 colnames(CO2_flux)
 
-# Primary variable
-# c_acc
+# Primary variables
+# c_acc, 
 
 # Predictor variables
 # time_since_restoration, natural_or_restored, 
@@ -338,16 +347,21 @@ filter(CO2_flux, !is.na(time_since_restoration)) |> nrow() # 314
 filter(CO2_flux, !is.na(time_since_restoration), !is.na(c_acc)) |> nrow() # 96
 filter(CO2_flux, !is.na(time_since_restoration), !is.na(c_acc)) |> summarise(max(time_since_restoration)) # 97.3
 
-# Prep data as vectors for easier testing
-CO2_flux_c_acc_time <- CO2_flux |> filter(!is.na(c_acc), !is.na(time_since_restoration))
+# Prep data for easier testing
+CO2_flux_c_acc_time <- CO2_flux |> filter(!is.na(c_acc), !is.na(time_since_restoration)) |> 
+  dplyr::select(c_acc, time_since_restoration, natural_or_restored) #|> 
+  # filter(c_acc != 0)
+  # mutate(c_acc = case_when(c_acc == 0 ~ c_acc+0.00000000001, TRUE ~ c_acc))
+# It seems odd that there are several 'natural' data points in the graph of time since restoration.  
+# If the sites are 'natural', then I am surprised that there are also data entries for 'time since restoration'.  Best ignored??
 CO2_flux_c_acc_time_restored <- CO2_flux_c_acc_time |> filter(natural_or_restored == "restored")
 CO2_flux_c_acc_time_natural <- CO2_flux_c_acc_time |> filter(natural_or_restored == "natural")
+
+# Vectors for simpler stats
 c_acc_vec <- as.vector(filter(CO2_flux, !is.na(c_acc)) |> dplyr::select(c_acc))[[1]]
-c_acc_time_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration)) |> dplyr::select(c_acc))[[1]]
-c_acc_time_rest_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration),
-                                        natural_or_restored == "restored") |> dplyr::select(c_acc))[[1]]
-c_acc_time_natur_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration),
-                                        natural_or_restored == "natural") |> dplyr::select(c_acc))[[1]]
+c_acc_time_vec <- as.vector(CO2_flux_c_acc_time |> dplyr::select(c_acc))[[1]]
+c_acc_time_rest_vec <- as.vector(CO2_flux_c_acc_time_restored |> dplyr::select(c_acc))[[1]]
+c_acc_time_natur_vec <- as.vector(CO2_flux_c_acc_time_natural |> dplyr::select(c_acc))[[1]]
 time_vec <- as.vector(filter(CO2_flux, !is.na(time_since_restoration)) |> dplyr::select(time_since_restoration))[[1]]
 time_c_acc_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_restoration)) |> dplyr::select(time_since_restoration))[[1]]
 
@@ -355,55 +369,80 @@ time_c_acc_vec <- as.vector(filter(CO2_flux, !is.na(c_acc), !is.na(time_since_re
 mean(c_acc_time_vec) # 4.0
 median(c_acc_time_vec) # 2.3
 # Geometric mean
-base::prod(c_acc_time_vec[c_acc_time_vec != 0])^(1/length(c_acc_time_vec[c_acc_time_vec != 0])) # 2.4
+base::prod(c_acc_time_vec)^(1/length(c_acc_time_vec)) # 2.4
 # Harmonic mean
 1/mean(1/c_acc_time_vec[c_acc_time_vec != 0]) # 1.4
 shapiro.test(c_acc_time_vec) # p< 0.001 - not normal distribution
 ks.test(c_acc_time_vec, 'pnorm') # p< 0.001 - not normal distribution
-moments::skewness(c_acc_time_vec, na.rm = TRUE) # skewness = 3.686574 - heavy positive skewness
-moments::kurtosis(c_acc_time_vec, na.rm = TRUE) # kurtosis = 18.83658 - leptokurtic - long tail(s)
-fitdistrplus::descdist(c_acc_time_vec, discrete = FALSE)
-fitdistrplus::fitdist(c_acc_time_vec, "norm")
-fitdistrplus::fitdist(c_acc_time_vec, "exp") # Much better fit
-univariateML::model_select(c_acc_time_vec, criterion = "aic") # Skew Student-t model 
-univariateML::model_select(c_acc_time_rest_vec, criterion = "aic") # Lomax model
-univariateML::model_select(c_acc_time_natur_vec, criterion = "aic") # Skew Normal model
+skewness(c_acc_time_vec, na.rm = TRUE) # skewness = 3.686574 - heavy positive skewness
+kurtosis(c_acc_time_vec, na.rm = TRUE) # kurtosis = 18.83658 - leptokurtic - long tail(s)
+descdist(c_acc_time_vec, discrete = FALSE)
+fitdist(c_acc_time_vec, "norm")
+fitdist(c_acc_time_vec, "exp") # Much better fit
+model_select(c_acc_time_vec, criterion = "aic") # Skew Student-t model 
+model_select(c_acc_time_rest_vec, criterion = "aic") # Lomax model
+model_select(c_acc_time_natur_vec, criterion = "aic") # Skew Normal model
+ks.test(c_acc_time_rest_vec, 'plomax') # p< 0.001 - not lomax distribution
+flomax(c_acc_time_rest_vec, plot = TRUE)
+mod <- gamlss(c_acc~time_since_restoration, family = PARETO2o, data = CO2_flux_c_acc_time_restored)
+plot(mod) # Diagnostic plots
+wp(mod, ylim.all = c(1)) # Worm-plot (detrended Q-Q plot)
+dtop(mod) # Detrended Owen's plot
+# Extract for plotting
+mod_df <- data.frame(x = mod$mu.x[1:80, 2], y = mod$y, mu = mod$mu.fv)
+
+# c_acc_time_rest_vec stats
+mean(c_acc_time_rest_vec) # 4.519297
+median(c_acc_time_rest_vec) # 2.86
+# Geometric mean
+base::prod(c_acc_time_rest_vec)^(1/length(c_acc_time_rest_vec)) # 2.6
+# Harmonic mean
+1/mean(1/c_acc_time_rest_vec) # 1.4
+shapiro.test(c_acc_time_rest_vec) # p< 0.001 - not normal distribution
+ks.test(c_acc_time_rest_vec, 'pnorm') # p< 0.001 - not normal distribution
+skewness(c_acc_time_rest_vec, na.rm = TRUE) # skewness = 3.377091 - heavy positive skewness
+kurtosis(c_acc_time_rest_vec, na.rm = TRUE) # kurtosis = 16.04111 - leptokurtic - long tail(s)
 
 # time_c_acc_vec stats
 mean(time_c_acc_vec, na.rm = TRUE) # 13.9
 median(time_c_acc_vec, na.rm = TRUE) # 7.5
 shapiro.test(time_c_acc_vec) # p< 0.001 - not normal distribution
 ks.test(time_c_acc_vec, 'pnorm') # p< 0.001 - not normal distribution
-moments::skewness(time_c_acc_vec, na.rm = TRUE) # skewness = 2.732808 - heavy positive skewness
-moments::kurtosis(time_c_acc_vec, na.rm = TRUE) # kurtosis = 12.33001 - leptokurtic - long tail(s)
+skewness(time_c_acc_vec, na.rm = TRUE) # skewness = 2.732808 - heavy positive skewness
+kurtosis(time_c_acc_vec, na.rm = TRUE) # kurtosis = 12.33001 - leptokurtic - long tail(s)
 
 # Relationship between the two
 lm(CO2_flux_c_acc_time$c_acc ~ CO2_flux_c_acc_time$time_since_restoration) # intercept of 5.324 with linear trend of -0.09393
-lm(CO2_flux_c_acc_time$c_acc ~ log(CO2_flux_c_acc_time$time_since_restoration)) # intercept of 10.123 with log trend of -2.737
+lm(log(CO2_flux_c_acc_time$c_acc) ~ CO2_flux_c_acc_time$time_since_restoration) # intercept of 1.17493 with log trend of -0.02092
 lm(CO2_flux_c_acc_time_natural$c_acc ~ CO2_flux_c_acc_time_natural$time_since_restoration) # intercept of 1.504037 with linear trend of 0.007461
-lm(CO2_flux_c_acc_time_restored$c_acc ~ log(CO2_flux_c_acc_time_restored$time_since_restoration)) # intercept of 11.065 with log trend of -3.245
-
-# Filter out younger sites
-CO2_flux_old <- filter(CO2_flux, time_since_restoration >= 50)
-
-fit_restored <- lm(CO2_flux_c_acc_time_restored$c_acc ~ log(CO2_flux_c_acc_time_restored$time_since_restoration))
-ggplot(fit_restored, aes(x = stats::fitted(fit_restored), 
-                         y = stats::residuals(fit_restored))) + 
-  geom_point() + xlab("Fitted Values") + 
-  ylab("Studentized Residuals")
+lm(log(CO2_flux_c_acc_time_restored$c_acc) ~ CO2_flux_c_acc_time_restored$time_since_restoration) # intercept 0.43116 slope -0.01054
+lm(log(CO2_flux_c_acc_time_restored$c_acc) ~ log(CO2_flux_c_acc_time_restored$time_since_restoration)) # intercept 2.0692 slope -0.5417
 
 # Compare accumulation rates of natural vs restored salt marshes
 # Draw a graph to show the normality of the distribution of the flux values
 # Create a scatterplot with CO2 uptake in a year (y-axis) vs number of years since restoration (x-axis)
 # Show this with natural and restored sites as different colours
-ggplot(data = CO2_flux, aes(x = time_since_restoration, y = c_acc)) +
+ggplot(data = CO2_flux_c_acc_time, aes(x = time_since_restoration, y = c_acc)) +
   geom_point(aes(colour = natural_or_restored), size = 3) +
-  geom_smooth(formula = y ~ log(x), colour = "black") +
-  geom_smooth(formula = y ~ log(x), aes(colour = natural_or_restored)) +
-  scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(-10, 40), expand = c(0, 0)) +
+  geom_smooth(data = CO2_flux_c_acc_time_natural, method = "lm", se = FALSE, formula = y ~ x, colour = "black") +
+  geom_smooth(data = CO2_flux_c_acc_time_restored, method = "lm", se = FALSE, formula = y ~ log(x), colour = "yellow") +
+  geom_smooth(data = CO2_flux_c_acc_time_restored, method = "lm", se = FALSE, formula = log(y) ~ x, colour = "red") +
+  geom_smooth(data = CO2_flux_c_acc_time_restored, method = "lm", se = FALSE, formula = log(y) ~ log(x), colour = "purple") +
+  geom_line(dat = mod_df, aes(x = x, y = mu), colour = "blue") +
+  # geom_smooth(method = "glm", se = FALSE, formula = y ~ x, colour = "black") +
+  # geom_smooth(method = "glm", se = FALSE, formula = exp(y) ~ x, aes(colour = natural_or_restored)) +
+  # geom_smooth(method = "glm", se = FALSE, formula = log(y) ~ log(x), aes(colour = natural_or_restored)) +
+  # scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
+  # scale_y_continuous(limits = c(-10, 40), expand = c(0, 0)) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
 ggsave("~/pCloudDrive/restricted_data/CO2/c_acc_vs_time_since_restore.png", height = 4, width = 7)
+
+ggplot(data = CO2_flux_c_acc_time_restored, aes(x = log(time_since_restoration), y = log(c_acc))) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, colour = "black") +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
+ggsave("~/pCloudDrive/restricted_data/CO2/c_acc_vs_time_since_restore_restored_log.png", height = 4, width = 4)
+
 
 # Can it be normalised?
 # Or do we just have to forget it and compare one distribution against another
@@ -424,4 +463,78 @@ ggsave("~/pCloudDrive/restricted_data/CO2/c_acc_vs_time_since_restore.png", heig
 ## Show both mean and median estimates
 
 # Remember that the main issue is upscaling daily chamber measurements to annual average rates
+
+# Proposed workflow
+## Separately for global natural and global restored; provide median values of CH4 flux and for N2O flux (as CO2e ha-1 yr-1)
+## Extract c_acc for natural and restored systems separately
+## Breakpoint analysis for c_acc
+## Calc mean, medial, and lm for each break group
+
+# Load data
+CO2_flux <- readxl::read_xls("~/pCloudDrive/restricted_data/CO2/Aug2023_GlobalCarbonReview_FullDataset.xls", sheet = "All data")
+colnames(CO2_flux)
+
+# Prep data for easier testing
+c_acc_restored <- CO2_flux |> filter(!is.na(c_acc), !is.na(time_since_restoration), natural_or_restored == "restored") |> 
+  dplyr::select(c_acc, time_since_restoration, natural_or_restored)
+
+## Breakpoint analysis (pettitt test)
+# Get annual trends
+min(c_acc_restored$time_since_restoration); max(c_acc_restored$time_since_restoration) # 1 - 97
+c_acc_annual_trends <- c_acc_restored |> 
+  mutate(time_since_restoration = round(time_since_restoration)) |> 
+  nest() |> 
+  mutate(ts_out = purrr::map(data, ~ts(.x$c_acc, start = 1, end = 97, frequency = 1))) |> 
+  mutate(sens = purrr::map(ts_out, ~sens.slope(.x, conf.level = 0.95)), 
+         pettitt = purrr::map(ts_out, ~pettitt.test(.x)),
+         lm = purrr::map(data, ~lm(c_acc ~ time_since_restoration, .x))) |> 
+  mutate(Sens_Slope = as.numeric(unlist(sens)[1]),
+         P_Value = as.numeric(unlist(sens)[3]),
+         Change_Point_Year = time(ts_out[[1]])[as.numeric(unlist(pettitt)[3])],
+         Change_Point_pvalue = as.numeric(unlist(pettitt)[4]),
+         lm_slope = unlist(lm)$coefficients.time_since_restoration) |> 
+  # Add step of cutting time series in 2 using Change_Point_Year 
+  mutate(pre_ts = purrr::map(ts_out, ~window(.x, start = 1, end = Change_Point_Year)),
+         post_ts = purrr::map(ts_out, ~window(.x, start = Change_Point_Year, end = 97))) |> 
+  # Add step of calculating sen's slope and p-value to pre and post change point year
+  mutate(sens_pre = purrr::map(pre_ts, ~sens.slope(.x, conf.level = 0.95)),
+         Sens_Slope_pre = as.numeric(unlist(sens_pre)[1]), 
+         P_Value_pre = as.numeric(unlist(sens_pre)[3]),
+         sens_post = purrr::map(post_ts, ~sens.slope(.x, conf.level = 0.95)),
+         Sens_Slope_post = as.numeric(unlist(sens_post)[1]),
+         P_Value_post = as.numeric(unlist(sens_post)[3])) |> 
+  dplyr::select(Sens_Slope, P_Value, Change_Point_Year, Change_Point_pvalue, lm_slope,
+                Sens_Slope_pre, P_Value_pre, Sens_Slope_post, P_Value_post)
+
+# Calculate common sense slopes
+c_acc_sense_trends <- c_acc_restored |> 
+  mutate(cut_point = base::cut(time_since_restoration, breaks = c(0, 4, 19, 100))) |> 
+  group_by(cut_point) |> nest() |> 
+  mutate(ts_out = purrr::map(data, ~ts(.x$c_acc, start = 1, end = 97, frequency = 1))) |>
+  mutate(sens = purrr::map(ts_out, ~sens.slope(.x, conf.level = 0.95)),
+         lm = purrr::map(data, ~lm(c_acc ~ time_since_restoration, .x)),
+         lm_tidy = purrr::map(lm, ~broom::tidy(.x)),
+         sens_tidy = purrr::map(sens, ~broom::tidy(.x))) |> 
+  dplyr::select(cut_point, lm_tidy) |> 
+  unnest(lm_tidy) |> arrange(cut_point) |> ungroup() |> 
+  filter(term == "time_since_restoration") |> 
+  dplyr::select(cut_point, estimate, p.value) |> 
+  dplyr::rename(slope = estimate) |> 
+  mutate(slope = round(slope, 4), p.value = round(p.value, 3)) |> 
+  mutate(x_pos = c(0, 11, 60), lab_name = c("Rapid", "Moderate", "Slow"))
+
+# Plot with labels
+c_acc_restored |> 
+  ggplot(aes(x = time_since_restoration, y = c_acc)) +
+  geom_point() +
+  # geom_vline(xintercept = 0, colour = "red1") + geom_vline(xintercept = 3.9, colour = "red1") + 
+  geom_vline(xintercept = 4, colour = "red4") + #geom_vline(xintercept = 18.9, colour = "orange1") +
+  geom_vline(xintercept = 20, colour = "goldenrod4") +
+  # annotate("label", x = 2, y = -1, label = "Rapid c_acc < 4 years") +
+  # annotate("label", x = 19, y = -1, label = "Moderate c_acc < 19 years") +
+  # annotate("label", x = 20, y = -1, label = "7") +
+  geom_vline(xintercept = 34, colour = "dodgerblue4") +
+  geom_label(data = c_acc_sense_trends, aes(x = x_pos, y = -1, label = paste0(lab_name,"\n",slope," (",p.value,")"))) +
+  annotate("label", x = 34, y = 20, label = "Breakpoint = 34 years\n[Pettitt test]") +
+  theme(panel.border = element_rect(colour = "black", fill = NA))
 
