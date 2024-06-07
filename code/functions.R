@@ -2498,6 +2498,23 @@ load_fjord_site <- function(file_name){
   # rm(file_name, site_name_split, site_name, df)
 }
 
+# Function for loading Sval AIS files
+load_sval_AIS <- function(file_name){
+  suppressMessages(
+    df <- read_delim_arrow(file_name, delim = ";") |> 
+      dplyr::select(mmsi, imo_num_ais, name_ais, type, shiptype, length, draught, date_time_utc,
+                    lon, lat, dist_prevpoint, sec_prevpoint, sog, cog, true_heading) |> 
+      mutate(mmsi = as.numeric(mmsi))
+  )
+  # if(nrow(df) > 0){
+  #   df <- df |>
+  #     mutate(dist_prevpoint = case_when(dist_prevpoint == -99 ~ 0, TRUE ~ dist_prevpoint),
+  #            sec_prevpoint = case_when(sec_prevpoint == -99 ~ 0, TRUE ~ sec_prevpoint))
+  # }
+  return(df)
+  # rm(df, file_name); gc()
+}
+
 # Convenience wrapper for creating area averaged SST time series
 area_average <- function(df, site_name){
   df_res <- df |> dplyr::summarise(value = mean(temp, na.rm = T), .by = c("t")) |> 
