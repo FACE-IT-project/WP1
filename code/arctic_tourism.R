@@ -10,6 +10,15 @@ source("code/functions.R")
 
 # Data --------------------------------------------------------------------
 
+# Hi-res map data
+if(!exists("coastline_full_df")) load("metadata/coastline_full_df.RData")
+
+# Cut to Svalbard
+sval_coast_df <- coastline_full_df |> 
+  dplyr::rename(lon = x, lat = y) |> 
+  filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
+         lat >= bbox_sval[3], lat <= bbox_sval[4])
+
 # NB: This file is created from a massive number of daily files from the Norwegian coast guard
 # The code for the creation is in 'code/ice_cover_AIS.R' subsection 'Process Sval AIS data'
 # NB: This dataset is massive, be cautious
@@ -32,6 +41,8 @@ sval_landings <- readxl::read_xlsx("~/pCloudDrive/restricted_data/arctic_tourism
   # NB: Replacing missing data with 0 count for landings, this may be incorrect to do
   mutate(landings = case_when(is.na(landings) ~ 0, TRUE ~ landings),
          `2025` = case_when(is.na(`2025`) ~ FALSE, TRUE ~ `2025`)) 
+sval_landings_sites <- sval_landings |> 
+  dplyr::select(-year, -landings) |> distinct()
 
 
 # Visualise Sval AIS ------------------------------------------------------
@@ -107,30 +118,44 @@ map_vessel_spring <- ggplot(data = sval_AIS_type_spring, aes(x = lon, y = lat)) 
 # map_vessel_spring
 ggsave("figures/ship_spring_type_map_sval.png", map_vessel_spring, width = 20, height = 7.5)
 
-# Sval map with 2022 cruise ship traffic and sea bird nesting sites
+# Sval map with 2022 cruise ship traffic, landing sites and sea bird nesting sites
 map_vessel_sbird_2022 <- ggplot(data = filter(sval_AIS_type_yearly, year == 2022), aes(x = lon, y = lat)) +
-  borders() + geom_tile(aes(fill = log10(type_count_yearly))) +
+  borders(fill = "grey70") + geom_tile(aes(fill = log10(type_count_yearly))) +
+  geom_point(data = filter(sval_landings, year == 2022), colour = "darkred", 
+             aes(size = landings, shape = `2025`)) +
   geom_point(data = sval_sbird_sites, colour = "darkblue") +
   ggrepel::geom_label_repel(data = sval_sbird_sites, aes(label = Colony), 
-                            max.overlaps = 20, colour = "darkblue") +
+                            max.overlaps = 20, colour = "darkblue", alpha = 0.6) +
   scale_fill_viridis_c(option = "A") +
   coord_quickmap(xlim = c(9, 31), ylim = c(76.5, 81), expand = FALSE) +
   labs(x = NULL, y = NULL, fill = "Annual count\n[log10(n)]",
-       title = "Heatmap of unique ship AIS tracks by ~0.01° pixels from 2011 - 2022 overlaid with sea bird nesting sites",
+       title = "Heatmap of 2022 ship tracks with landing sites and sea bird nesting sites",
        subtitle = "NB: Values shown are log10 transformed and only one unique ship is counted per pixel per month") +
   theme(panel.border = element_rect(colour = "black", fill = NA))
 # map_vessel_sbird_2022
-ggsave("figures/ship_sbird_map_sval.png", map_vessel_sbird_2022, width = 8, height = 7.5)
-  # facet_grid(Type ~ year) +
-  # theme(legend.position = "bottom")
+ggsave("figures/ship_sbird_map_sval.png", map_vessel_sbird_2022, width = 9, height = 8)
 
 # TODO: Sval map with walrus and tourism landing sites
 # TODO: Good source of data for this: https://mosj.no/en/indikator/fauna/marine-fauna/
 
-# TODO: Zoom in on nesting sites and show difference by season, e.g. hatching time
+# Calculate trends in sbird ind and nests
+sval_sbird_trend <- sval_sbird_count |> 
+  group_by(Species, Colony, lon, lat, Unit) |> nest() |> 
+  mutate(ts_out = purrr::map(data, ~ts(.x$Number, start = 1988, end = 2023, frequency = 1))) |>
+  mutate(lm = purrr::map(data, ~lm(Number ~ year, .x)),
+         lm_tidy = purrr::map(lm, ~broom::tidy(.x))) |> 
+  dplyr::select(-lm) |> unnest(lm_tidy) |> ungroup() |> filter(term == "year") |>
+  dplyr::select(Species, Colony, lon, lat, Unit, term, estimate, p.value) |> 
+  dplyr::rename(slope = estimate) |> 
+  mutate(slope = round(slope, 2), p.value = round(p.value, 4),
+         p.sig = case_when(p.value <= 0.05 ~ TRUE, TRUE ~ FALSE))
+
+# Zoom in on nesting sites and show difference by season, e.g. hatching time
 # Show the time spent of ships close to nesting sites by counting each point as a 5 minute time point
 # These can be summed up to imply tourism presence
 # Colour code sites to show increase or decrease in nesting pairs
+
+
 # t-test or ANOVA to show relationship between ship time and proximity to nesting sites
 ## Or perhaps a linear model with y = ship time and x = distance from nest
 ## This may not be a linear fit, depends on the methodology of comparison
