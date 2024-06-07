@@ -3798,6 +3798,96 @@ driver2_lm <- function(driver1, driver2){
   return(df_lm)
 }
 
+# Plot ship traffic around colonies
+# colony_choice <- unique(sval_sbird_trend$Colony)[2]
+ship_col_rast_plot <- function(colony_choice){
+  
+  ## Get name and coords
+  colony_coords <- filter(sval_sbird_sites, Colony == colony_choice)
+  colony_bbox <- c(colony_coords$lon-0.5, colony_coords$lon+0.5,
+                   colony_coords$lat-0.125, colony_coords$lat+0.125)
+  colony_bbox_wide <- c(colony_coords$lon-3, colony_coords$lon+3,
+                        colony_coords$lat-1, colony_coords$lat+1)
+  colony_coast <- filter(sval_coast_df, 
+                         lon >= colony_bbox_wide[1], lon <= colony_bbox_wide[2],
+                         lat >= colony_bbox_wide[3], lon <= colony_bbox_wide[4])
+  
+  ## Filter sbird info
+  sbird_data <- filter(sval_sbird_trend, Colony == colony_choice) |> 
+    left_join(filter(sval_sbird_count, Colony == colony_choice, year == 2022),
+              by = join_by(Species, Colony, lon, lat, Unit))
+  
+  # Filter landings
+  colony_landings <- sval_landings |> 
+    filter(year == 2022,
+           lon >= colony_bbox[1], lon <= colony_bbox[2],
+           lat >= colony_bbox[3], lat <= colony_bbox[4]) |> 
+    left_join(sval_landings_trend, by = join_by(Stedsnavn, Overordnet_sted, lon, lat, `2025`))
+  
+  ## Filter AIS
+  colony_AIS <- sval_AIS |> 
+    filter(date_time_utc >= as.POSIXct("2022-01-01")) |> 
+    filter(date_time_utc <= as.POSIXct("2022-12-31")) |> 
+    filter(lon >= colony_bbox[1]) |> filter(lon <= colony_bbox[2]) |> 
+    filter(lat >= colony_bbox[3]) |> filter(lat <= colony_bbox[4])
+  colony_AIS_cruise <- right_join(colony_AIS, sval_info_Morten, by = "mmsi") |> 
+    filter(!is.na(lon)) |> dplyr::select(mmsi, Ship, Type, date_time_utc, lon, lat)
+  colony_AIS_unique <- colony_AIS_cruise |> 
+    dplyr::select(mmsi, Ship, Type) |> distinct()
+  colony_AIS_coarse <- colony_AIS_cruise |> 
+    mutate(lon = round(lon, 2), lat = round(lat, 2),
+           month = lubridate::month(date_time_utc),
+           season = case_when(month %in% c(12, 1, 2) ~ "Winter",
+                              month %in% 3:5 ~ "Spring",
+                              month %in% 6:8 ~ "Summer",
+                              month %in% 9:11 ~ "Autumn"),
+           season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn"))) |> 
+    filter(season != "Winter") |> # NB: This isn't interesting
+    summarise(minutes_per_pixel = n(), .by = c(lon, lat, season)) |> 
+    mutate(hours_per_pixel = as.integer(round(minutes_per_pixel/60)))
+  
+  # Create sbird data table
+  sbird_flex <- sbird_data |> dplyr::select(Species, Unit, Number, slope, p.value) |> arrange(Species) |> 
+    dplyr::rename(`Count in 2022` = Number, `trend: 1988-2022` = slope, `p-value` = p.value) |> 
+    flextable::flextable()
+  sbird_grob <- ggplot() + theme_void() + 
+    annotation_custom(flextable::gen_grob(sbird_flex, scaling = "full"), 
+                      xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf)
+  # sbird_grob
+  
+  # Raster of ship traffic by hour
+  colony_map <- ggplot(data = colony_coast, aes(x = lon, y = lat)) +
+    geom_raster(data = colony_AIS_coarse, aes(fill = hours_per_pixel)) +
+    geom_polygon(aes(group = polygon_id), fill = "grey70", colour = "black") +
+    # geom_point(data = sval_sbird_sites, fill = "darkgreen", size = 4, shape = 22) +
+    geom_point(data = sbird_data, fill = "darkgreen", size = 8, shape = 22) +
+    geom_point(data = colony_landings,
+               # colour = "darkred",
+               aes(size = landings, shape = `2025`, colour = slope)) +
+    scale_fill_viridis_c() + scale_colour_viridis_c(option = "A") +
+    coord_quickmap(xlim = colony_bbox[1:2], ylim = colony_bbox[3:4], expand = FALSE) +
+    labs(x = NULL, y = NULL, fill = "Ship presence\n[sum hours]", 
+         size = "Landings\n[n humans]",  shape = "Approved for\n2025", colour = "Landings\n[change/year]",
+         title = paste0(colony_choice," colony and tourist presence in 2022"), 
+         subtitle = "NB: Landings are annual values, so red dots are the same in each panel; Spring = March to May") +
+    guides(fill = guide_legend(order = 1, nrow = 1), colour = guide_legend(order = 3, nrow = 1, override.aes = list(size = 6)),
+           size = guide_legend(order = 2, nrow = 1), shape = guide_legend(order = 4, override.aes = list(size = 6))) +
+    facet_wrap("season", nrow = 1) +
+    theme(panel.border = element_rect(colour = "black", fill = NA),
+          legend.position = "bottom", 
+          legend.text.position = "bottom",
+          legend.key.width = unit(1, "cm"),
+          legend.title.position = "top")
+  # colony_map
+  
+  # Combine and save
+  colony_sbird_map <- ggpubr::ggarrange(colony_map, sbird_grob, ncol = 1, nrow = 2, heights = c(1, 0.15)) +
+    theme(plot.background = element_rect(fill = "white", color = NA))
+  # colony_sbird_map
+  ggsave(paste0("~/pCloudDrive/restricted_data/arctic_tourism/sbird_landings_",colony_choice,".png"), 
+         colony_sbird_map, width = 12, height = 8)
+}
+
 # Network arrows grob
 # This changes the arrow heads from the end to the middle
 # NB: This overrides the default behaviour
