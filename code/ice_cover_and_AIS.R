@@ -1,4 +1,4 @@
-# code# code/ice_cover_and_AIS.R
+# code/ice_cover_and_AIS.R
 # This script contains the code used to prep and process ice cover and ship AIS (presence) data
 # Currently this is only done for Isfjorden, but could be expanded in the future
 
@@ -463,23 +463,6 @@ ggsave("figures/ship_sum_type_map_is.png", map_vessel_year, width = 18, height =
 
 # Process Sval AIS data ---------------------------------------------------
 
-# Function for loading Sval AIS files
-load_sval_AIS <- function(file_name){
-  suppressMessages(
-    df <- read_delim_arrow(file_name, delim = ";") |> 
-      dplyr::select(mmsi, imo_num_ais, name_ais, type, shiptype, length, draught, date_time_utc,
-                    lon, lat, dist_prevpoint, sec_prevpoint, sog, cog, true_heading) |> 
-      mutate(mmsi = as.numeric(mmsi))
-  )
-  # if(nrow(df) > 0){
-  #   df <- df |>
-  #     mutate(dist_prevpoint = case_when(dist_prevpoint == -99 ~ 0, TRUE ~ dist_prevpoint),
-  #            sec_prevpoint = case_when(sec_prevpoint == -99 ~ 0, TRUE ~ sec_prevpoint))
-  # }
-  return(df)
-  # rm(df, file_name); gc()
-}
-
 # Find .csv files
 sval_AIS_dir <- dir("~/pCloudDrive/FACE-IT_data/svalbard/AIS", full.names = T, pattern = ".csv")
 sval_AIS_info <- as.data.frame(file.info(sval_AIS_dir)) |> dplyr::filter(size > 0)
@@ -561,94 +544,4 @@ sval_info_clean <- sval_mst_info |>
   mutate(GT  = as.numeric(str_remove(str_remove(GT, " Tons"), ",")),
          DWT  = as.numeric(str_remove(str_remove(DWT, " Tons"), ",")))
 write_csv(sval_info_clean, file = "~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_info_clean.csv")
-###
-
-
-# Visualise Sval AIS ------------------------------------------------------
-
-# TODO: overlaid with map layers with sea bird nesting sites (sjøfuglkolonier), whalerus and tourism landing sites
-# found here: https://geokart.npolar.no/Html5Viewer/index.html?viewer=Svalbardkartet
-
-# TODO: Zoom in on nesting sites and show difference by season, e.g. hatching time
-# Show the time spent of ships close to nesting sites by counting each point as a 5 minute time point
-# These can be summed up to imply tourism presence
-# Colour code sites to show increase or decrease in nesting pairs
-# t-test or ANOVA to show relationship between ship time and proximity to nesting sites
-
-# TODO: Good source of data for this: https://mosj.no/en/indikator/fauna/marine-fauna/
-
-# Load full Svalbard AIS database
-# NB: This is massive, be cautious
-if(!exists("sval_AIS")) sval_AIS <- data.table::fread("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.csv") # 320 seconds
-
-# Morten has since cleaned up this list further
-sval_info_Morten <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_info_Morten.csv")
-
-# Create coarser resolution for easier use
-sval_AIS_coarse <- sval_AIS %>% 
-  mutate(lon = round(lon, 2),
-         lat = round(lat, 2),
-         year = lubridate::year(date_time_utc),
-         month = lubridate::month(date_time_utc)) %>% 
-  group_by(mmsi, length, draught, lon, lat, year, month) %>% 
-  summarise(ship_count = n(), .groups = "drop")
-# rm(sval_AIS); gc() # When working on laptop
-
-# Filter by Morten's list
-sval_AIS_cruise <- right_join(sval_AIS_coarse, sval_info_Morten, by = "mmsi")
-
-# Get monthly count of unique ships
-sval_AIS_unique_monthly <- sval_AIS_cruise %>% 
-  dplyr::select(lon, lat, year, month, mmsi) %>% 
-  distinct() %>% 
-  group_by(lon, lat, year, month) %>% 
-  summarise(unique_count_monthly = n(), .groups = "drop") #%>%
-# NB:Time series is already complete so this is unnecessary
-# mutate(date = as.Date(paste0(year,"-",month,"-01"))) #%>% 
-# complete(date = seq.Date(min(date), max(date), by = "month")) %>% 
-# replace(is.na(.), 0)
-
-# Get monthly count of unique ships per type
-sval_AIS_type_monthly <- sval_AIS_cruise %>% 
-  dplyr::select(lon, lat, year, month, Type, mmsi) %>% 
-  distinct() %>% 
-  group_by(lon, lat, year, month, Type) %>% 
-  summarise(type_count_monthly = n(), .groups = "drop")
-
-# Get spring season count of unique ships per type per year
-sval_AIS_type_spring <- sval_AIS_type_monthly %>% 
-  filter(month %in% 3:5) |> 
-  group_by(lon, lat, year, Type) %>% 
-  summarise(type_count_spring = sum(type_count_monthly), .groups = "drop")
-
-# Get yearly count of unique ships per type
-sval_AIS_type_yearly <- sval_AIS_type_monthly %>% 
-  group_by(lon, lat, year, Type) %>% 
-  summarise(type_count_yearly = sum(type_count_monthly), .groups = "drop")
-
-# Heat maps for Svalbard for the different ship categories per year
-map_vessel_year <- ggplot(data = sval_AIS_type_yearly, aes(x = lon, y = lat)) +
-  borders() + geom_tile(aes(fill = log10(type_count_yearly))) +
-  scale_fill_viridis_c(option = "A") +
-  coord_quickmap(xlim = bbox_sval[1:2], ylim = bbox_sval[3:4]) +
-  labs(x = NULL, y = NULL, fill = "Annual count\n[log10(n)]",
-       title = "Heatmap of unique ship AIS tracks per type by ~0.01° pixels from 2011 - 2022",
-       subtitle = "NB: Values shown are log10 transformed and only one unique ship is counted per pixel per month") +
-  facet_grid(Type ~ year) +
-  theme(legend.position = "bottom")
-map_vessel_year
-ggsave("figures/ship_sum_type_map_sval.png", map_vessel_year, width = 20, height = 7.5)
-
-# Heat maps for Svalbard for the spring season (March-May) per year
-map_vessel_spring <- ggplot(data = sval_AIS_type_spring, aes(x = lon, y = lat)) +
-  borders() + geom_tile(aes(fill = log10(type_count_spring))) +
-  scale_fill_viridis_c(option = "A") +
-  coord_quickmap(xlim = bbox_sval[1:2], ylim = bbox_sval[3:4]) +
-  labs(x = NULL, y = NULL, fill = "Spring count\n[log10(n)]",
-       title = "Heatmap of unique ship AIS tracks per type by ~0.01° pixels for spring (March-May) from 2011 - 2022",
-       subtitle = "NB: Values shown are log10 transformed and only one unique ship is counted per pixel per month") +
-  facet_grid(Type ~ year) +
-  theme(legend.position = "bottom")
-map_vessel_spring
-ggsave("figures/ship_spring_type_map_sval.png", map_vessel_spring, width = 20, height = 7.5)
 
