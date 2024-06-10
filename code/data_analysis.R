@@ -434,8 +434,10 @@ c_acc_restored |>
 ggsave("~/pCloudDrive/restricted_data/CO2/c_acc_vs_time_since_restore.png", height = 12, width = 20)
 
 # Mean and median values for the cut points for restored systems and global values for restored and natural
+CO2_flux |> filter(!is.na(c_acc), natural_or_restored == "natural") |> nrow()
 CO2_flux |> filter(!is.na(c_acc), natural_or_restored == "natural") |> 
   summarise(mean = round(mean(c_acc), 2), median = round(median(c_acc), 2))
+CO2_flux |> filter(!is.na(c_acc), natural_or_restored == "restored") |> nrow()
 CO2_flux |> filter(!is.na(c_acc), natural_or_restored == "restored") |> 
   summarise(mean = round(mean(c_acc), 2), median = round(median(c_acc), 2))
 CO2_flux |> filter(!is.na(c_acc), natural_or_restored == "restored") |> mutate(cut_point = base::cut(time_since_restoration, breaks = cut_points)) |> 
@@ -454,6 +456,7 @@ CO2_flux |> filter(natural_or_restored == "restored") |>
             mean_n2o_flux = round(mean(n2o_flux, na.rm = TRUE), 2), median_n2o_flux = round(median(n2o_flux, na.rm = TRUE), 2), .by = cut_point) |> 
   arrange(cut_point)
 
+# Look at the two flux gases over time
 CO2_flux |> filter(natural_or_restored == "restored", !is.na(time_since_restoration)) |> 
   mutate(cut_point = base::cut(time_since_restoration, breaks = cut_points)) |> 
   dplyr::select(time_since_restoration, ch4_flux, n2o_flux) |> 
@@ -463,4 +466,45 @@ CO2_flux |> filter(natural_or_restored == "restored", !is.na(time_since_restorat
   scale_x_continuous(limits = c(0, 25)) +
   theme(panel.border = element_rect(colour = "black", fill = NA))
 ggsave("~/pCloudDrive/restricted_data/CO2/ch4_n2o_flux_vs_time_since_restore.png", height = 6, width = 10)
+
+# Non-parametric comparison of c_acc with boxplots
+wilcox.test(c_acc~natural_or_restored, data = filter(CO2_flux, c_acc < 40)) # p <0.001
+wilcox.test(c_acc~natural_or_restored, data = CO2_flux) # p <0.001
+nat_v_res <- CO2_flux |> 
+  # filter(c_acc < 40) |> 
+  ggplot() +
+  geom_boxplot(aes(x = natural_or_restored, y = c_acc, fill = natural_or_restored)) +
+  scale_fill_viridis_d() + guides(fill = FALSE) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  labs(title = "Natural vs restored with all data", subtitle = "W = 7438.5; p-value < 0.001")
+nat_v_res
+CO2_flux_test_1 <- CO2_flux |>
+  # filter(c_acc < 40) |> 
+  mutate(c_acc = case_when(natural_or_restored == "natural" ~ c_acc,
+                           natural_or_restored == "restored" & time_since_restoration >= 11 ~ c_acc, 
+                           TRUE ~ NA))
+wilcox.test(c_acc~natural_or_restored, data = CO2_flux_test_1) # p <0.001
+nat_v_res_1 <- CO2_flux_test_1 |> 
+  ggplot() +
+  geom_boxplot(aes(x = natural_or_restored, y = c_acc, fill = natural_or_restored)) +
+  scale_fill_viridis_d() + guides(fill = FALSE) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  labs(title = "11 years or more since restoration", subtitle = "W = 2786; p-value = 0.018")
+nat_v_res_1
+CO2_flux_test_2 <- CO2_flux |> 
+  # filter(CO2_flux, c_acc < 40) |> 
+  mutate(c_acc = case_when(natural_or_restored == "natural" ~ c_acc,
+                           natural_or_restored == "restored" & time_since_restoration >= 12 ~ c_acc, 
+                           TRUE ~ NA))
+wilcox.test(c_acc~natural_or_restored, data = CO2_flux_test_2) # p <0.001
+nat_v_res_2 <- CO2_flux_test_2 |> 
+  ggplot() +
+  geom_boxplot(aes(x = natural_or_restored, y = c_acc, fill = natural_or_restored)) +
+  scale_fill_viridis_d() + guides(fill = FALSE) +
+  theme(panel.border = element_rect(colour = "black", fill = NA)) +
+  labs(title = "12 years or more since restoration", subtitle = "W = 2261.5, p-value = 0.827")
+nat_v_res_2
+nat_v_res_3 <- ggpubr::ggarrange(nat_v_res, nat_v_res_1, nat_v_res_2, nrow = 1, ncol = 3)
+nat_v_res_3
+ggsave("~/pCloudDrive/restricted_data/CO2/c_acc_boxplots.png", height = 6, width = 16)
 
