@@ -1477,7 +1477,7 @@ server <- function(input, output, session) {
                          "Sensor_owner", "Sensor_brand", "Sensor_number", "Site", "Lon", "Lat")) %>% 
         dplyr::select(Uploader, upload_date, file_name, embargo, total_rows, `0`, `1`, `2`, `3`,
                       Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, 
-                      Site, Lon, Lat, everything(), -Data_owner) %>% 
+                      Site, Lon, Lat, everything()) %>% 
         filter(Uploader %in% input$selectUp,
                Owner_person %in% input$selectDOP,
                # Owner_institute %in% input$selectDOIn, # NB: Not needed
