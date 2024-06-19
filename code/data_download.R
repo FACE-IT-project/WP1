@@ -121,38 +121,52 @@ filter(ncbi_algae, is.na(longitude) | is.na(latitude)) |> nrow()
 # Records in the Arctic
 filter(bold_algae, lat >= 60) |> nrow()
 filter(ncbi_algae, latitude >= 60) |> nrow()
+filter(ncbi_algae, latitude >= 60,
+       class %in% c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Trebouxiophyceae", "Ulvophyceae")) |> nrow()
 
 # Records in the high Arctic
 filter(bold_algae, lat >= 66) |> nrow()
 filter(ncbi_algae, latitude >= 66) |> nrow()
+filter(ncbi_algae, latitude >= 66, 
+       class %in% c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Trebouxiophyceae", "Ulvophyceae")) |> nrow()
 
 # Extract just unique records per location
 # Not currently interested in quantifying the multiples
 bold_Arctic_unq <- bold_algae |> filter(lat >= 60) |> 
   dplyr::select(phylum_name, class_name, order_name, family_name, genus_name, species_name, lon, lat, country) |> 
-  distinct()
+  distinct() |> 
+  mutate(class_name = factor(class_name, 
+                             levels = c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Trebouxiophyceae", "Ulvophyceae")))
 bold_high_Arctic_unq <- bold_Arctic_unq |> filter(lat >= 66)
 ncbi_Arctic_unq <- ncbi_algae |> filter(latitude >= 60) |>  
+  filter(class %in% c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Trebouxiophyceae", "Ulvophyceae")) |> 
   dplyr::select(phylum, class, order, family, genus, species, longitude, latitude, country_location) |> 
-  distinct() |> filter(!is.na(class))
+  distinct() |> filter(!is.na(class)) |> 
+  mutate(class = factor(class, levels = c("Bangiophyceae", "Florideophyceae", "Phaeophyceae", "Trebouxiophyceae", "Ulvophyceae")))
 ncbi_high_Arctic_unq <- ncbi_Arctic_unq |> filter(latitude >= 66)
 
 # Create map of records
-ggplot(bold_Arctic_unq, aes(x = lon, y = lat)) + borders() +
-  geom_point(aes(colour = class_name), size = 5, alpha = 0.7,
+bold_Arctic_unq |> 
+  ggplot(aes(x = lon, y = lat)) + borders(fill = "grey70") +
+  geom_point(aes(fill = class_name), size = 5, shape = 21, alpha = 0.7,
              position = position_dodge(width = 5.0)) +
+  annotate(geom = "label", x = -170, y = 80, label = "BOLD") +
+  scale_fill_manual(values = c("deeppink1", "firebrick1", "tan1", "deepskyblue1", "palegreen1")) +
   coord_quickmap(ylim = c(59, 81), xlim = c(-172, 30)) +
-  labs(x = NULL, y = NULL) +
+  labs(x = "Longitude (°E)", y = "Latitude (°N)", fill = NULL) +
   theme(legend.position = "bottom",
         panel.border = element_rect(fill = NA, colour = "black"))
-ggsave("~/pCloudDrive/FACE-IT_data/barcode/bold_Arctic_unq_map.png", height = 3, width = 7)
+ggsave("~/pCloudDrive/FACE-IT_data/barcode/bold_Arctic_unq_map.png", height = 4, width = 9)
 
-ggplot(ncbi_Arctic_unq, aes(x = longitude, y = latitude)) + borders() +
-  geom_point(aes(colour = class), size = 5, alpha = 0.7,
+ncbi_Arctic_unq |> 
+  ggplot(aes(x = longitude, y = latitude)) + borders(fill = "grey70") +
+  geom_point(aes(fill = class), size = 5, shape = 21, alpha = 0.7,
              position = position_dodge(width = 5.0)) +
+  annotate(geom = "label", x = -170, y = 80, label = "GenBank") +
+  scale_fill_manual(values = c("deeppink1", "firebrick1", "tan1", "deepskyblue1", "palegreen1")) +
   coord_quickmap(ylim = c(59, 81), xlim = c(-172, 30)) +
-  labs(x = NULL, y = NULL) +
+  labs(x = "Longitude (°E)", y = "Latitude (°N)", fill = NULL) +
   theme(legend.position = "bottom",
         panel.border = element_rect(fill = NA, colour = "black"))
-ggsave("~/pCloudDrive/FACE-IT_data/barcode/ncbi_Arctic_unq_map.png", height = 3, width = 7)
+ggsave("~/pCloudDrive/FACE-IT_data/barcode/ncbi_Arctic_unq_map.png", height = 4, width = 9)
 
