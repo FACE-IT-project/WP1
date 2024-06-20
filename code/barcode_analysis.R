@@ -159,14 +159,21 @@ bold_high_Arctic <- barcode_Arctic_summary(bold_algae, lat_filter = 66, table_ou
 ncbi_high_Arctic <- barcode_Arctic_summary(ncbi_algae, lat_filter = 66, table_out = FALSE, unq_records = FALSE)
 
 # Create tables of unique records
+## Bold Arctic
 bold_Arctic_records <- barcode_Arctic_summary(bold_algae, table_out = TRUE)
 write_csv(bold_Arctic_records, "~/pCloudDrive/FACE-IT_data/barcode/bold_Arctic_records.csv")
+
+## Bold high Arctic
 bold_high_Arctic_records <- barcode_Arctic_summary(bold_algae, lat_filter = 66, table_out = TRUE)
-write_csv(bold_Arctic_records, "~/pCloudDrive/FACE-IT_data/barcode/bold_high_Arctic_records.csv")
+write_csv(bold_high_Arctic_records, "~/pCloudDrive/FACE-IT_data/barcode/bold_high_Arctic_records.csv")
+
+## GenBank Arctic
 ncbi_Arctic_records <- barcode_Arctic_summary(ncbi_algae, table_out = TRUE)
 write_csv(ncbi_Arctic_records, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_Arctic_records.csv")
+
+## GenBank high Arctic
 ncbi_high_Arctic_records <- barcode_Arctic_summary(ncbi_algae, lat_filter = 66, table_out = TRUE)
-write_csv(ncbi_Arctic_records, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_high_Arctic_records.csv")
+write_csv(ncbi_high_Arctic_records, "~/pCloudDrive/FACE-IT_data/barcode/ncbi_high_Arctic_records.csv")
 
 
 # Plotting ----------------------------------------------------------------
