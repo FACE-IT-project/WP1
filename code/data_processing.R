@@ -559,6 +559,33 @@ mar_full <- left_join(mar_1_proc, mar_2_proc, by = join_columns) |>
   mutate_at(12:19, ~replace_na(.,""))
 write_csv(mar_full, "~/pCloudDrive/restricted_data/Marambio/Marambio_full.csv")
 
+# Desmarestia aculeata
+mar_desm_spp <- plyr::ldply(c("Desmarestia aculeata"), wm_records_df, .parallel = T)
+mar_desm1 <- read_xlsx("~/pCloudDrive/restricted_data/Marambio/Marambio 2022_PANGEA_DESMARESTIA.xlsx", sheet = "Pigment")
+mar_desm2 <- read_xlsx("~/pCloudDrive/restricted_data/Marambio/Marambio 2022_PANGEA_DESMARESTIA.xlsx", sheet = "Phothosynthethic parameters")
+mar_desm3 <- read_xlsx("~/pCloudDrive/restricted_data/Marambio/Marambio 2022_PANGEA_DESMARESTIA.xlsx", sheet = "C N")
+mar_desm <- rbind(mar_desm1, mar_desm2, mar_desm3) |> 
+  pivot_longer(cols = t1:t21, names_to = "Time [days]", values_to = "value") |> 
+  mutate(Parameter = case_when(Parameter == "Chla" ~ "Chl a [µg/g]",
+                               Parameter == "CHL c2" ~ "Chl c2 [µg/g]",
+                               Parameter == "β Car" ~ "β Car [µg/g]",
+                               Parameter == "Fucox" ~ "Fucox [µg/g]",
+                               Parameter == "Fv/Fm" ~ "Fv/Fm",
+                               Parameter == "rETRmax" ~ "rETRmax",
+                               Parameter == "Ek" ~ "Ek [µmol Photons m-2 s-1]",
+                               Parameter == "α" ~ "α [µmol Photons m-2 s-1]",
+                               Parameter == "C" ~ "C [%DW]",
+                               Parameter == "N" ~ "N [%DW]",
+                               Parameter == "C:N" ~ "C:N [%DW]"),
+         Replicate = rep(seq(1:3), 132),
+         `Time [days]` = as.numeric(str_remove(`Time [days]`, "t"))) |> 
+  pivot_wider(names_from = Parameter, values_from = value) |> 
+  left_join(mar_desm_spp, by = c("Species" = "species")) |> 
+  dplyr::rename(`Species UID` = Species, `Species UID (URI)` = url, `Species UID (Semantic URI)` = lsid,
+                `Treatment [light]` = Treat_Light, `Treatment [salinity]` = Treat_SA) |> 
+  dplyr::select(Family, `Species UID`, `Species UID (URI)`, `Species UID (Semantic URI)`, everything())
+write_csv(mar_desm, file = "~/pCloudDrive/restricted_data/Marambio/Marambio_Desmarestia_aculeata.csv")
+
 
 # Lebrun dataset ----------------------------------------------------------
 
