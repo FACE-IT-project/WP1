@@ -1,8 +1,7 @@
 # shiny/kongCTD/app.R
 # This single script contains the code used to run the app for uploading Kongsfjorden CTD data
 
-### TODO: 
-## General fixes
+## NB: Below are notes on things that were discussed, but never implemented.
 
 ## Graphical features
 # Time series by site/user of count of when and how much data were uploaded
@@ -29,13 +28,10 @@
 # NB: This is currently on hold due to the infinite possible spellings that could be uploaded
 ## Rather this should be done by a human during the PANGAEA publishing step
 
-## Next steps
-
 
 # Setup -------------------------------------------------------------------
 
 # setwd("shiny/kongCTD/") # For local testing
-# setwd("/srv/shiny-server/kongCTD") # For database testing at Villefranche
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
@@ -64,17 +60,7 @@ ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
 # Map ---------------------------------------------------------------------
 
 # The base land polygon
-## NB: Only needed to run following code once. It is left here for posterity.
-## Load shapefile
-# coastline_full <- sf::read_sf("~/pCloudDrive/FACE-IT_data/maps/GSHHG/GSHHS_shp/f/GSHHS_f_L1.shp")
-## Convert to data.frame
-# coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
-## Subset to Kongsfjorden area and save
-# coastline_kong <- coastline_full_df |>
-#   filter(x >= 9, x <= 13.5, y >= 78, y <= 79.5) |>
-#   dplyr::select(x, y, polygon_id) |>
-#   rename(lon = x, lat = y)
-# save(coastline_kong, file = "coastline_kong.RData")
+# setwd("shiny/kongCTD/") # For local testing
 load("coastline_kong.RData")
 
 # The base map
@@ -82,7 +68,6 @@ frame_base <- ggplot() +
   geom_polygon(data = coastline_kong, aes(x = lon, y = lat, group = polygon_id), 
                fill = "grey70", colour = "black") +
   scale_x_continuous(breaks = c(11.5, 12.0, 12.5),
-                     # position = "top",
                      labels = scales::unit_format(suffix = "°E", accuracy = 0.1, sep = "")) +
   scale_y_continuous(breaks = c(78.9, 79.0, 79.1, 79.2, 79.3),
                      labels = scales::unit_format(suffix = "°N", accuracy = 0.1, sep = "")) +
@@ -97,39 +82,33 @@ frame_base <- ggplot() +
 # Database ----------------------------------------------------------------
 
 # This code checks for the presence of the database
-# If it doesn't find it it searches for the local database
-# setwd("/srv/shiny-server/kongCTD") # For database testing
-if(file.exists("../kongData/data_base.Rds")){
-  database_dir <- dir("../kongData", full.names = T)
-  print("Loading from central database.")
-} else if(file.exists("data/data_base.Rds")){
-  database_dir <- dir("data", full.names = T)
-  print("Loading from test database.")
-} else {
-  stop("No database directory detected.")
-}
+database_dir <- dir("data", full.names = T)
 
-## NB: The following code is only able to be run on the Villefranche server
-## It is used to remove test files uploaded while bug hunting
+## NB: The following code is only meant to be run if the database needs editing
+## It is primarily used to remove test files uploaded while bug hunting
 ## Only uncomment and run necessary code, then re-comment to prevent interfering with app
 
 # Load database
-# setwd("/srv/shiny-server/kongCTD") # For database testing
-# data_base <- read_rds("../kongData/data_base.Rds")
+# setwd("shiny/kongCTD") # For database testing
+# data_base <- read_rds("data/data_base.Rds")
+
+# View the list of uploaders, owners, and institutes
+# unique(data_base$Uploader); unique(data_base$Owner_person); unique(data_base$Owner_institute)
 
 # Remove all 'test' data
-# unique(data_base$Uploader); unique(data_base$Owner_person); unique(data_base$Owner_institute)
 # data_base <- data_base |> filter(Owner_person != "Test")
 # data_base <- data_base |> filter(Owner_person != "admin")
-# write_rds(data_base, "../kongData/data_base.Rds")
+# write_rds(data_base, "data/data_base.Rds")
 
 # Load meta-database
-# meta_data_base <- read_rds("../kongData/meta_data_base.Rds")
+# meta_data_base <- read_rds("data/meta_data_base.Rds")
+
+# View the list of uploaders, owners, and institutes
+# unique(meta_data_base$Uploader); unique(meta_data_base$Owner_person); unique(meta_data_base$Owner_institute)
 
 # Remove all 'test' data
-# unique(meta_data_base$Uploader); unique(meta_data_base$Owner_person); unique(meta_data_base$Owner_institute)
 # meta_data_base <- meta_data_base |> filter(!Owner_person %in% c("Test", "test", "admin"))
-# write_rds(meta_data_base, "../kongData/meta_data_base.Rds")
+# write_rds(meta_data_base, "data/meta_data_base.Rds")
 
 # Fix bad columns - usually due to incorrect data types
 # data_base$Timestamp <- as.character(data_base$Timestamp)
@@ -138,14 +117,7 @@ if(file.exists("../kongData/data_base.Rds")){
 ## These are columns that were uploaded without headers and cannot be used
 ## because it is impossible to be certain what data they are
 # data_base <- dplyr::select(data_base, -starts_with("X"))
-# write_rds(data_base, "../kongData/data_base.Rds")
-
-# Calculate correct depths and times from available columns
-# TODO: Implement this
-
-# Fix meta-data-base to show all uploaded files
-# TODO: Write code that can take the database and meta-database to fix missing meta-data
-# this will then allow the files to appear on the download screen
+# write_rds(data_base, "data/data_base.Rds")
 
 
 # Schema ------------------------------------------------------------------
@@ -450,11 +422,11 @@ ui <- dashboardPage(
                 column(width = 3,
                        
                        box(width = 12,
-                           title = "Download from database",
+                           title = "Download from meta-database",
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
                            
                            # Message
-                           h6("Download all data, or subset using the filters below."),
+                           h6("Download all meta-data, or subset using the filters below."),
                            
                            ## Data uploader
                            uiOutput("selectUpUI"),
@@ -479,7 +451,8 @@ ui <- dashboardPage(
                            uiOutput("slideLatUI"),
                            
                            ### Depth
-                           uiOutput("slideDepthUI"),
+                           # NB: Column naming issues
+                           # uiOutput("slideDepthUI"),
                            
                            ### Date
                            uiOutput("slideDateUI"),
@@ -494,11 +467,11 @@ ui <- dashboardPage(
                 # The data display
                 column(9,
                        box(width = 12,
-                           title = "Data selected from database",
+                           title = "Data selected from meta-database",
                            status = "danger", solidHeader = TRUE, collapsible = FALSE,
                            DT::dataTableOutput("dataBaseFilter")),
                        box(width = 7,
-                           title = "Time series of selected data",
+                           title = "Preview of selected data",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
                            fluidRow(
                              column(2, h4("Axis controls:")),
@@ -788,18 +761,10 @@ server <- function(input, output, session) {
                               fileEncoding = upload_opts$encoding,
                               blank.lines.skip = TRUE,
                               fill = TRUE) |>
-                     mutate(file_temp = file_temp), 
+                     mutate(file_temp = file_temp) |>
+                     # NB: Columns that don't load correctly will start with an 'X'
+                     dplyr::select(-starts_with("X")),
                    error = function(file_temp) {df <- data.frame(file_temp = file_temp, error = "File format not understood")})
-    # df <- read.table(file_temp,
-    #                  header = upload_opts$header,
-    #                  skip = upload_opts$skip,
-    #                  sep = upload_opts$sep,
-    #                  dec = upload_opts$dec,
-    #                  quote = upload_opts$quote,
-    #                  fileEncoding = upload_opts$encoding,
-    #                  blank.lines.skip = TRUE,
-    #                  fill = TRUE) |>
-    #   mutate(file_temp = file_temp)
     
     # Add column names to instruments that don't have direct column headers
     if(input$schema == "Sea-Bird"){
@@ -862,7 +827,6 @@ server <- function(input, output, session) {
     } else {
       df <- mutate(df, Depth = as.numeric(NA))
     }
-    
     
     # Flag data
     ## Flags: 0 = none, 1 = implausible, 2 = surface, 3 = upcast
@@ -989,7 +953,6 @@ server <- function(input, output, session) {
                           Sensor_owner = as.character(NA),
                           Sensor_brand = brand_meta,
                           Sensor_number = as.character(NA))
-    # }
     return(df_meta)
   }
   
@@ -1124,13 +1087,12 @@ server <- function(input, output, session) {
   # Reactive data for datatable
   df_time <- reactive({
     req(input$file1, table$table1$file_name, df_load())
-    # meta_table <- table$table1() # Can't be called this way
     df_meta <- as.data.frame(table$table1) |>
       mutate(file_name = as.character(file_name)) |> 
       mutate(upload_date = as.Date(upload_date))
     df_time <- df_load() |> 
       mutate(file_name = as.character(file_name)) |>
-      left_join(df_meta, by = c("file_name", "upload_date")) |>  #, "file_num")) |> 
+      left_join(df_meta, by = c("file_name", "upload_date")) |>
       dplyr::select(Uploader, upload_date, file_name, Owner_person, Owner_institute, DOI,
                     Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat, everything())
     return(df_time)
@@ -1179,7 +1141,6 @@ server <- function(input, output, session) {
       }
       # Create bordered figure
       mp <- frame_base +
-        # geom_point(data = df_point, aes(x = Lon, y = Lat), size = 5, colour = "green") +
         geom_label(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = border_colour) +
         geom_text(data = df_point, aes(x = Lon, y = Lat, label = count), size = 6, colour = "black") +
         theme(panel.border = element_rect(colour = border_colour, linewidth = 5))
@@ -1200,6 +1161,7 @@ server <- function(input, output, session) {
   df_final <- reactive({
     req(df_time())
     df_final <- df_time() #|>
+    # NB: Intentionally deactivated due to issues
     # filter(!flag %in% input$qc_flag_filter)
     return(df_final)
   })
@@ -1228,7 +1190,7 @@ server <- function(input, output, session) {
   # Check that all necessary columns and meta-data have been provided
   df_meta_check <- reactive({
     req(df_time())
-    df_meta_check <- df_time() |> #df_final() |> 
+    df_meta_check <- df_time() |>
       mutate(Owner_person = case_when(Owner_person == "" ~ as.character(NA), TRUE ~ Owner_person),
              Owner_institute = case_when(Owner_institute == "" ~ as.character(NA), TRUE ~ Owner_institute),
              Sensor_owner = case_when(Sensor_owner == "" ~ as.character(NA), TRUE ~ Sensor_owner),
@@ -1247,8 +1209,8 @@ server <- function(input, output, session) {
   
   # Final meta-database entry
   df_meta_final <- reactive({
-    req(df_QC_flags(), df_time())#df_final())
-    df_meta_final <- df_time() |> #df_final() |> 
+    req(df_QC_flags(), df_time())
+    df_meta_final <- df_time() |>
       group_by(Uploader, upload_date, file_name, Owner_person, Owner_institute, DOI, 
                Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) |> 
       summarise(rows_n = n(), .groups = "drop") |> 
@@ -1338,14 +1300,6 @@ server <- function(input, output, session) {
     df_data_res <- bind_rows(df_final(), data_base$df) |> distinct()
     write_rds(df_data_res, file = database_dir[1], compress = "gz")
     data_base$df <- read_rds(database_dir[1])
-    
-    # Create backups if necessary/possible
-    if(file.exists("../kongData/data_base.Rds")){
-      write_rds(df_meta_res, compress = "gz", 
-                file = paste0("../kongDataBackup/meta_data_base_",Sys.Date(),".Rds"))
-      write_rds(df_data_res, compress = "gz", 
-                file = paste0("../kongDataBackup/data_base_",Sys.Date(),".Rds"))
-    }
   })
   
   
@@ -1377,7 +1331,7 @@ server <- function(input, output, session) {
     table$table2 <- df
   }, ignoreInit = TRUE, ignoreNULL = TRUE)
   
-  # When the Upload button is clicked, save df_final()
+  # When the Upload button is clicked, save meta_data_base
   observeEvent(input$saveEdit, {
     # Save meta-data
     df_meta_res <- meta_data_base$df |> 
@@ -1488,7 +1442,7 @@ server <- function(input, output, session) {
                Sensor_owner %in% input$selectSO,
                Lon >= input$slideLon[1], Lon <= input$slideLon[2],
                Lat >= input$slideLat[1], Lat <= input$slideLat[2],
-               Depth >= input$slideDepth[1], Depth <= input$slideDepth[2],
+               # Depth >= input$slideDepth[1], Depth <= input$slideDepth[2], # NB: Column naming issues
                date_time >= as.POSIXct(input$slideDate[1]-1), date_time <= as.POSIXct(input$slideDate[2]+1))
       if(input$selectEm == "Yes"){
         df_filter <- filter(df_filter, embargo == "No")
@@ -1506,13 +1460,16 @@ server <- function(input, output, session) {
     
     # Create metadata output
     df_meta <- df_filter |> 
-      group_by(Uploader, upload_date, file_name, DOI, embargo, 
-               Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Site, 
+      dplyr::select(Uploader, upload_date, file_name, DOI, embargo, 
+                    Owner_person, Owner_institute, Sensor_owner, Sensor_brand, Sensor_number, Site, 
                total_rows, `0`, `1`, `2`, `3`) |> 
-      summarise(min_date = min(date_time, na.rm = T),
-                max_date = max(date_time, na.rm = T),
-                min_depth = min(Depth, na.rm = T),
-                max_depth = max(Depth, na.rm = T), .groups = "drop")
+      distinct()
+    # NB: Not considered interesting
+      # summarise(min_date = min(date_time, na.rm = T),
+      #           max_date = max(date_time, na.rm = T), .groups = "drop")
+    # NB: Column naming issues
+                # min_depth = min(Depth, na.rm = T),
+                # max_depth = max(Depth, na.rm = T), .groups = "drop")
     
     # Return
     return(df_meta)
@@ -1611,7 +1568,7 @@ server <- function(input, output, session) {
   
   # Reactive download button
   output$downloadFilterUI <- renderUI({
-    downloadButton("downloadFilter", HTML("Download <br/> metadata"))
+    downloadButton("downloadFilter", HTML("Download <br/> meta-data"))
   })
   
   # Download handler
@@ -1631,7 +1588,7 @@ server <- function(input, output, session) {
   
   # Download full meta-database from published data section
   output$metaFull <- downloadHandler(
-    filename = "Kong_meta_database.csv",  # desired file name on client 
+    filename = "Kong_meta_database.csv", # desired file name on client 
     content = function(file) {
       df_meta_data_base <- df_meta_data_base()
       readr::write_csv(df_meta_data_base, file)
@@ -1640,7 +1597,7 @@ server <- function(input, output, session) {
   
   # Download manual from about section
   output$manFile <- downloadHandler(
-    filename = "Kong_portal_manual_ver1.docx",  # desired file name on client 
+    filename = "Kong_portal_manual_ver1.docx", # desired file name on client 
     content = function(con) {
       file.copy("www/Kong_portal_manual_ver1.docx", con)
     }

@@ -5,9 +5,7 @@ account: robert-schlegel
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5398107
-bundleId: 5722576
+bundleId: 8796009
 url: https://robert-schlegel.shinyapps.io/kongCTD/
-when: 1648133983.45739
-lastSyncTime: 1648133983.4574
 asMultiple: FALSE
 asStatic: FALSE
