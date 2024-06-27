@@ -17,7 +17,7 @@
 # https://discindo.org/post/2022-05-09-building-a-multi-session-shiny-application-with-brochure/
 
 ## Documentation
-# Somehow create an edit date log for whenever a user editsdata
+# Somehow create an edit date log for whenever a user edits data
 
 ## QC
 
@@ -35,7 +35,7 @@
 # Setup -------------------------------------------------------------------
 
 # setwd("shiny/kongCTD/") # For local testing
-# setwd("/srv/shiny-server/kongCTD") # For database testing
+# setwd("/srv/shiny-server/kongCTD") # For database testing at Villefranche
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
@@ -70,9 +70,9 @@ ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
 ## Convert to data.frame
 # coastline_full_df <- sfheaders::sf_to_df(coastline_full, fill = TRUE)
 ## Subset to Kongsfjorden area and save
-# coastline_kong <- coastline_full_df %>%
-#   filter(x >= 9, x <= 13.5, y >= 78, y <= 79.5) %>%
-#   dplyr::select(x, y, polygon_id) %>%
+# coastline_kong <- coastline_full_df |>
+#   filter(x >= 9, x <= 13.5, y >= 78, y <= 79.5) |>
+#   dplyr::select(x, y, polygon_id) |>
 #   rename(lon = x, lat = y)
 # save(coastline_kong, file = "coastline_kong.RData")
 load("coastline_kong.RData")
@@ -97,13 +97,12 @@ frame_base <- ggplot() +
 # Database ----------------------------------------------------------------
 
 # This code checks for the presence of the database
-# If it doesn't find it it searches for the testing database
-# This ensures different directories for the testing app vs the real app
+# If it doesn't find it it searches for the local database
 # setwd("/srv/shiny-server/kongCTD") # For database testing
 if(file.exists("../kongData/data_base.Rds")){
   database_dir <- dir("../kongData", full.names = T)
   print("Loading from central database.")
-} else if(file.exists("data/test_data_base.Rds")){
+} else if(file.exists("data/data_base.Rds")){
   database_dir <- dir("data", full.names = T)
   print("Loading from test database.")
 } else {
@@ -212,6 +211,7 @@ load("credentials.RData")
 # )
 # credentials <- rbind(credentials, cred_new)
 # save(credentials, file = "credentials.RData")
+# setwd("../../")
 
 
 # UI ----------------------------------------------------------------------
@@ -382,6 +382,7 @@ ui <- dashboardPage(
               )
       ),
       
+      
       ## QC/Up menu --------------------------------------------------------------
       
       tabItem(tabName = "QCup",
@@ -438,6 +439,7 @@ ui <- dashboardPage(
                              icon = icon("save"), color = "success", block = T)
               )
       ),
+      
       
       ## Download menu -----------------------------------------------------------
       
@@ -531,6 +533,7 @@ ui <- dashboardPage(
                 )
               )
       ),
+      
       
       ## App explanation ---------------------------------------------------------
       
@@ -766,7 +769,7 @@ server <- function(input, output, session) {
     req(input$file1)
     df <- data.frame(file_temp = input$file1$datapath,
                      file_name = input$file1$name,
-                     upload_date = Sys.Date()) #%>% 
+                     upload_date = Sys.Date()) #|> 
     # mutate(file_num = paste0("file_", 1:n()))
     return(df)
   })
@@ -784,7 +787,7 @@ server <- function(input, output, session) {
                               quote = upload_opts$quote,
                               fileEncoding = upload_opts$encoding,
                               blank.lines.skip = TRUE,
-                              fill = TRUE) %>%
+                              fill = TRUE) |>
                      mutate(file_temp = file_temp), 
                    error = function(file_temp) {df <- data.frame(file_temp = file_temp, error = "File format not understood")})
     # df <- read.table(file_temp,
@@ -795,19 +798,19 @@ server <- function(input, output, session) {
     #                  quote = upload_opts$quote,
     #                  fileEncoding = upload_opts$encoding,
     #                  blank.lines.skip = TRUE,
-    #                  fill = TRUE) %>%
+    #                  fill = TRUE) |>
     #   mutate(file_temp = file_temp)
     
     # Add column names to instruments that don't have direct column headers
     if(input$schema == "Sea-Bird"){
-      df <- df %>% 
+      df <- df |> 
         dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Salinity = V4, date = V5, time = V6)
     } else if(input$schema == "Sea-Bird O2"){
-      df <- df %>% 
+      df <- df |> 
         dplyr::rename(Temperature = V1, Conductivity = V2, Pressure = V3, Oxygen = V4, 
                       Salinity = V5, Sound_velocity = V6, date = V7, time = V8)
     } else if(input$schema == "Sea & Sun"){
-      df <- df %>% 
+      df <- df |> 
         dplyr::rename(row_n = V1, date = V2, time = V3, Pressure = V4, 
                       Temperature = V5, Conductivity = V6, Salinity = V7)
     } else {
@@ -897,9 +900,9 @@ server <- function(input, output, session) {
     req(input$file1)
     
     # Upload all selected files
-    df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) %>% 
-      left_join(file_info_df(), by = "file_temp") %>% 
-      mutate(Uploader = reactiveValuesToList(res_auth)[["user"]]) %>% 
+    df_load <- purrr::map_dfr(input$file1$datapath, df_load_func) |> 
+      left_join(file_info_df(), by = "file_temp") |> 
+      mutate(Uploader = reactiveValuesToList(res_auth)[["user"]]) |> 
       dplyr::select(Uploader, upload_date, file_name, everything(), -file_temp)
     
     # Exit
@@ -946,18 +949,18 @@ server <- function(input, output, session) {
   output$contents_load_QC <- DT::renderDataTable({
     req(input$file1, df_load())
     
-    df_rows <- df_load() %>% 
-      group_by(file_name) %>% 
+    df_rows <- df_load() |> 
+      group_by(file_name) |> 
       summarise(total_rows = n(), .groups = "drop")
     
-    df_QC_flags <- df_load() %>% 
-      group_by(file_name, flag) %>%
-      summarise(flag_count = n(), .groups = "drop") %>% 
-      right_join(data.frame(flag = 0:3), by = "flag") %>% 
-      pivot_wider(names_from = "flag", values_from = "flag_count") %>% 
-      left_join(df_rows, by = "file_name") %>% 
-      dplyr::select(file_name, total_rows, `0`, `1`, `2`, `3`) %>% 
-      replace_na(list(`0` = 0, `1` = 0, `2` = 0, `3` = 0)) %>% 
+    df_QC_flags <- df_load() |> 
+      group_by(file_name, flag) |>
+      summarise(flag_count = n(), .groups = "drop") |> 
+      right_join(data.frame(flag = 0:3), by = "flag") |> 
+      pivot_wider(names_from = "flag", values_from = "flag_count") |> 
+      left_join(df_rows, by = "file_name") |> 
+      dplyr::select(file_name, total_rows, `0`, `1`, `2`, `3`) |> 
+      replace_na(list(`0` = 0, `1` = 0, `2` = 0, `3` = 0)) |> 
       filter(!is.na(file_name))
     
     df_load_QC_DT <- datatable(df_QC_flags, 
@@ -995,9 +998,9 @@ server <- function(input, output, session) {
     req(input$file1)
     
     # Extract meta-data for all uploaded files
-    df_meta <- purrr::map_dfr(input$file1$datapath, file_meta_func) %>% 
-      left_join(file_info_df(), by = "file_temp") %>% 
-      mutate(upload_date = as.character(upload_date)) %>%  # For rHandsOnTable date formatting
+    df_meta <- purrr::map_dfr(input$file1$datapath, file_meta_func) |> 
+      left_join(file_info_df(), by = "file_temp") |> 
+      mutate(upload_date = as.character(upload_date)) |>  # For rHandsOnTable date formatting
       dplyr::select(upload_date, file_name, everything(), -file_temp)
     
     # Exit
@@ -1007,9 +1010,9 @@ server <- function(input, output, session) {
   # Interactive meta-datatable
   table <- reactiveValues()
   output$table1output <- renderRHandsontable({
-    rhandsontable(file_meta_all(), stretchH = "all", useTypes = F) %>% 
-      hot_col(col = "file_name", readOnly = TRUE) %>% 
-      hot_col(col = "upload_date", readOnly = TRUE) %>% 
+    rhandsontable(file_meta_all(), stretchH = "all", useTypes = F) |> 
+      hot_col(col = "file_name", readOnly = TRUE) |> 
+      hot_col(col = "upload_date", readOnly = TRUE) |> 
       hot_col(col = "Sensor_number", strict = FALSE)})
   observeEvent(input$table1output, {
     df <- hot_to_r(input$table1output)
@@ -1122,12 +1125,12 @@ server <- function(input, output, session) {
   df_time <- reactive({
     req(input$file1, table$table1$file_name, df_load())
     # meta_table <- table$table1() # Can't be called this way
-    df_meta <- as.data.frame(table$table1) %>%
-      mutate(file_name = as.character(file_name)) %>% 
+    df_meta <- as.data.frame(table$table1) |>
+      mutate(file_name = as.character(file_name)) |> 
       mutate(upload_date = as.Date(upload_date))
-    df_time <- df_load() %>% 
-      mutate(file_name = as.character(file_name)) %>%
-      left_join(df_meta, by = c("file_name", "upload_date")) %>%  #, "file_num")) %>% 
+    df_time <- df_load() |> 
+      mutate(file_name = as.character(file_name)) |>
+      left_join(df_meta, by = c("file_name", "upload_date")) |>  #, "file_num")) |> 
       dplyr::select(Uploader, upload_date, file_name, Owner_person, Owner_institute, DOI,
                     Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat, everything())
     return(df_time)
@@ -1157,8 +1160,8 @@ server <- function(input, output, session) {
     } else {
       
       # Get unique coordinates and count of data
-      df_point <- df_coords %>%
-        group_by(Lon, Lat) %>% 
+      df_point <- df_coords |>
+        group_by(Lon, Lat) |> 
         summarise(count = n(), .groups = "drop")
       
       # Check that coords are within he fjord region
@@ -1196,7 +1199,7 @@ server <- function(input, output, session) {
   # Final df filtered by QC flags
   df_final <- reactive({
     req(df_time())
-    df_final <- df_time() #%>%
+    df_final <- df_time() #|>
     # filter(!flag %in% input$qc_flag_filter)
     return(df_final)
   })
@@ -1206,18 +1209,18 @@ server <- function(input, output, session) {
     req(df_final())
     embargo <- "No"
     if(input$embargo) embargo <- as.character(Sys.Date()+730)
-    df_rows <- df_final() %>% 
-      mutate(embargo = embargo) %>% 
-      group_by(file_name, embargo) %>% 
+    df_rows <- df_final() |> 
+      mutate(embargo = embargo) |> 
+      group_by(file_name, embargo) |> 
       summarise(total_rows = n(), .groups = "drop")
-    df_QC_flags <- df_final() %>% 
-      group_by(file_name, flag) %>%
-      summarise(flag_count = n(), .groups = "drop") %>% 
-      right_join(data.frame(flag = 0:3), by = "flag") %>% 
-      pivot_wider(names_from = "flag", values_from = "flag_count") %>% 
-      left_join(df_rows, by = "file_name") %>% 
-      dplyr::select(file_name, embargo, total_rows, `0`, `1`, `2`, `3`) %>%
-      replace_na(list(`0` = 0, `1` = 0, `2` = 0, `3` = 0)) %>% 
+    df_QC_flags <- df_final() |> 
+      group_by(file_name, flag) |>
+      summarise(flag_count = n(), .groups = "drop") |> 
+      right_join(data.frame(flag = 0:3), by = "flag") |> 
+      pivot_wider(names_from = "flag", values_from = "flag_count") |> 
+      left_join(df_rows, by = "file_name") |> 
+      dplyr::select(file_name, embargo, total_rows, `0`, `1`, `2`, `3`) |>
+      replace_na(list(`0` = 0, `1` = 0, `2` = 0, `3` = 0)) |> 
       filter(!is.na(file_name))
     return(df_QC_flags)
   })
@@ -1225,7 +1228,7 @@ server <- function(input, output, session) {
   # Check that all necessary columns and meta-data have been provided
   df_meta_check <- reactive({
     req(df_time())
-    df_meta_check <- df_time() %>% #df_final() %>% 
+    df_meta_check <- df_time() |> #df_final() |> 
       mutate(Owner_person = case_when(Owner_person == "" ~ as.character(NA), TRUE ~ Owner_person),
              Owner_institute = case_when(Owner_institute == "" ~ as.character(NA), TRUE ~ Owner_institute),
              Sensor_owner = case_when(Sensor_owner == "" ~ as.character(NA), TRUE ~ Sensor_owner),
@@ -1245,11 +1248,11 @@ server <- function(input, output, session) {
   # Final meta-database entry
   df_meta_final <- reactive({
     req(df_QC_flags(), df_time())#df_final())
-    df_meta_final <- df_time() %>% #df_final() %>% 
+    df_meta_final <- df_time() |> #df_final() |> 
       group_by(Uploader, upload_date, file_name, Owner_person, Owner_institute, DOI, 
-               Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) %>% 
-      summarise(rows_n = n(), .groups = "drop") %>% 
-      left_join(df_QC_flags(), by = "file_name") %>% 
+               Sensor_owner, Sensor_brand, Sensor_number, Site, Lon, Lat) |> 
+      summarise(rows_n = n(), .groups = "drop") |> 
+      left_join(df_QC_flags(), by = "file_name") |> 
       dplyr::select(Uploader, upload_date, file_name, total_rows, 
                     `0`, `1`, `2`, `3`, embargo, everything(), -rows_n)
     return(df_meta_final)
@@ -1327,12 +1330,12 @@ server <- function(input, output, session) {
   observeEvent(input$upload, {
     
     # Save meta-data
-    df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) %>% distinct()
+    df_meta_res <- bind_rows(df_meta_final(), meta_data_base$df) |> distinct()
     write_rds(df_meta_res, file = database_dir[2], compress = "gz")
     meta_data_base$df <- read_rds(database_dir[2])
     
     # Save raw data
-    df_data_res <- bind_rows(df_final(), data_base$df) %>% distinct()
+    df_data_res <- bind_rows(df_final(), data_base$df) |> distinct()
     write_rds(df_data_res, file = database_dir[1], compress = "gz")
     data_base$df <- read_rds(database_dir[1])
     
@@ -1352,21 +1355,21 @@ server <- function(input, output, session) {
     if(reactiveValuesToList(res_auth)[["user"]] == "r"){
       df_meta_user <- df_meta_data_base()
     } else {
-      df_meta_user <- df_meta_data_base() %>% 
+      df_meta_user <- df_meta_data_base() |> 
         filter(Uploader == reactiveValuesToList(res_auth)[["user"]])
     }
   })
   
   output$table2output <- renderRHandsontable({
-    rhandsontable(df_meta_user(), stretchH = "all", useTypes = F) %>% 
-      hot_col("Uploader", readOnly = TRUE) %>% 
-      hot_col("upload_date", readOnly = TRUE) %>% 
-      hot_col("file_name", readOnly = TRUE) %>% 
-      hot_col("total_rows", readOnly = TRUE) %>% 
-      hot_col("0", readOnly = TRUE) %>% 
-      hot_col("1", readOnly = TRUE) %>% 
-      hot_col("2", readOnly = TRUE) %>% 
-      hot_col("3", readOnly = TRUE) %>% 
+    rhandsontable(df_meta_user(), stretchH = "all", useTypes = F) |> 
+      hot_col("Uploader", readOnly = TRUE) |> 
+      hot_col("upload_date", readOnly = TRUE) |> 
+      hot_col("file_name", readOnly = TRUE) |> 
+      hot_col("total_rows", readOnly = TRUE) |> 
+      hot_col("0", readOnly = TRUE) |> 
+      hot_col("1", readOnly = TRUE) |> 
+      hot_col("2", readOnly = TRUE) |> 
+      hot_col("3", readOnly = TRUE) |> 
       hot_col(col = "Sensor_number", strict = FALSE)})
   observeEvent(input$table2output, {
     df <- hot_to_r(input$table2output)
@@ -1377,11 +1380,11 @@ server <- function(input, output, session) {
   # When the Upload button is clicked, save df_final()
   observeEvent(input$saveEdit, {
     # Save meta-data
-    df_meta_res <- meta_data_base$df %>% 
-      filter(Uploader != reactiveValuesToList(res_auth)[["user"]]) %>% 
-      bind_rows(table$table2) %>% distinct()
-    write_rds(df_meta_res, file = "../kongData/meta_data_base.Rds", compress = "gz")
-    meta_data_base$df <- read_rds("../kongData/meta_data_base.Rds")
+    df_meta_res <- meta_data_base$df |> 
+      filter(Uploader != reactiveValuesToList(res_auth)[["user"]]) |> 
+      bind_rows(table$table2) |> distinct()
+    write_rds(df_meta_res, file = "data/meta_data_base.Rds", compress = "gz")
+    meta_data_base$df <- read_rds("data/meta_data_base.Rds")
   })
   
   
@@ -1471,13 +1474,13 @@ server <- function(input, output, session) {
       df_filter <- data.frame(Empty = "Please expand your search in the blue 'Controls' panel to the left.")
     } else if(length(input$selectDOP) > 0){
       req(input$slideLon)
-      df_filter <- df_data_base() %>%
+      df_filter <- df_data_base() |>
         left_join(df_meta_data_base(), 
                   by = c("Uploader", "upload_date", "file_name", "Owner_person", "Owner_institute", "DOI", 
-                         "Sensor_owner", "Sensor_brand", "Sensor_number", "Site", "Lon", "Lat")) %>% 
+                         "Sensor_owner", "Sensor_brand", "Sensor_number", "Site", "Lon", "Lat")) |> 
         dplyr::select(Uploader, upload_date, file_name, embargo, total_rows, `0`, `1`, `2`, `3`,
                       Owner_person, Owner_institute, DOI, Sensor_owner, Sensor_brand, Sensor_number, 
-                      Site, Lon, Lat, everything()) %>% 
+                      Site, Lon, Lat, everything()) |> 
         filter(Uploader %in% input$selectUp,
                Owner_person %in% input$selectDOP,
                # Owner_institute %in% input$selectDOIn, # NB: Not needed
@@ -1556,7 +1559,7 @@ server <- function(input, output, session) {
     }
     
     if(input$selectEm == "No"){
-      df_embargoed <- df_filter %>% filter(embargo != "No")
+      df_embargoed <- df_filter |> filter(embargo != "No")
       ts <- ts + geom_point(data = df_embargoed, colour = "red")
     }
     
@@ -1579,8 +1582,8 @@ server <- function(input, output, session) {
     } else {
       
       # Get unique coordinates and count of data
-      df_point <- df_filter %>%
-        group_by(Lon, Lat) %>%
+      df_point <- df_filter |>
+        group_by(Lon, Lat) |>
         summarise(count = n(), .groups = "drop")
       
       # Check that coords are within he fjord region
