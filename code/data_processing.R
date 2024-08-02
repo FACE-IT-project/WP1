@@ -497,11 +497,13 @@ hurti_abiotic <- bind_rows(hurti_light, hurti_CTD) |>
                 `temp [°C]` = Temp, salinity = Sal, `turbidity [NTU]` = Tur) |> 
   mutate_at(1:14, ~as.character(.)) |> mutate_at(1:14, ~replace_na(.,""))
 write_csv(hurti_abiotic, "~/pCloudDrive/restricted_data/Niedzwiedz/hurtigruten_abiotic_data.csv")
-hurti_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/Pangaea_Hurtigruten.xlsx", sheet = "data_Kelp") |> 
+hurti_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/Pangaea_Hurtigruten_kelp_COR.xlsx", sheet = "Sheet1") |> 
   mutate(Date = as.Date(Date),
          Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
-  dplyr::select(-Unit, -Category) |> pivot_wider(names_from = "Variable", values_from = "Value") |> 
-  dplyr::rename(`Latitude [°N]` = Lat, `Longitude [°E]` = Lon, `date [UTC+0]` = Date) |> 
+  group_by(no, Variable) |> 
+  mutate(Replicate = row_number()) |>
+  dplyr::select(-Unit, -Category, -ID) |> pivot_wider(names_from = "Variable", values_from = "Value") |> 
+  dplyr::rename(`Latitude [°N]` = Lat, `Longitude [°E]` = Lon, `date [UTC+0]` = Date, `Sampling station` = no) |> 
   mutate_at(1:21, ~as.character(.)) |> mutate_at(1:21, ~replace_na(.,""))
 write_csv(hurti_kelp, "~/pCloudDrive/restricted_data/Niedzwiedz/hurtigruten_kelp_data.csv")
 
