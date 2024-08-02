@@ -476,10 +476,12 @@ holo_kelp_devices <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobio
   mutate(Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
   dplyr::select(Category, Device, Variable) |> distinct()
 write_csv(holo_kelp_devices, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_kelp_devices.csv")
-holo_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae.xlsx", sheet = "dataKelp") |> 
+holo_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae_dataKelp_COR.xlsx", sheet = "Sheet1") |>
+# holo_kelp <- read_xlsx("~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_data_Pangeae.xlsx", sheet = "dataKelp") |> 
   mutate(Date = as.Date(Date),
          Variable = case_when(!is.na(Unit) ~ paste0(Variable," [",Unit,"]"), TRUE ~ Variable)) |> 
   filter(Variable != "holo") |> 
+  rename(`Sampling Area` = Area, `Sampling station` = Label) |>
   dplyr::select(-Unit, -Device, -Category) |> pivot_wider(names_from = "Variable", values_from = "Value") |> 
   mutate_at(1:72, ~as.character(.)) |> mutate_at(1:72, ~replace_na(.,""))
 write_csv(holo_kelp, "~/pCloudDrive/restricted_data/Niedzwiedz/holobiont_kelp_data.csv")
