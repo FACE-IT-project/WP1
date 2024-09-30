@@ -28,7 +28,7 @@ library(pangaear)
 library(worrms)
 library(arrow)
 library(seacarb)
-library(taxizedb)
+# library(taxizedb) # It is non-neglibile to get this package to install correctly
 library(doParallel); registerDoParallel(cores = 12)
 
 # Find who is the user and define the pCloud path

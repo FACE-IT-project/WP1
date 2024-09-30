@@ -52,46 +52,55 @@ sval_landings_sites <- sval_landings |>
 # Prep AIS ----------------------------------------------------------------
 
 # Create coarser resolution for easier use
-sval_AIS_coarse <- sval_AIS %>% 
+sval_AIS_coarse <- sval_AIS |> 
   mutate(lon = round(lon, 2),
          lat = round(lat, 2),
          year = lubridate::year(date_time_utc),
-         month = lubridate::month(date_time_utc)) %>% 
-  group_by(mmsi, length, draught, lon, lat, year, month) %>% 
-  summarise(ship_count = n(), .groups = "drop")
+         month = lubridate::month(date_time_utc)) |> 
+  summarise(ship_count = n(), .by = c("lon", "lat", "year", "month", "mmsi"))
 # rm(sval_AIS); gc() # When working on laptop
+
+# Get the distances travelled per ship
+sval_AIS_dist <- sval_AIS |> 
+  # NB: Filtering out suspicious values, the 95 percentile - 421
+  filter(dist_prevpoint != -99, dist_prevpoint <= 500) |> 
+  mutate(year = lubridate::year(date_time_utc),
+         month = lubridate::month(date_time_utc)) |> 
+  summarise(dist = sum(dist_prevpoint), .by = c("year", "month", "mmsi"))
 
 # Filter by Morten's list
 sval_AIS_cruise <- right_join(sval_AIS_coarse, sval_info_Morten, by = "mmsi")
+sval_AIS_dist_cruise <- right_join(sval_AIS_dist, sval_info_Morten, by = "mmsi")
 
 # Get monthly count of unique ships
-sval_AIS_unique_monthly <- sval_AIS_cruise %>% 
-  dplyr::select(lon, lat, year, month, mmsi) %>% 
-  distinct() %>% 
-  group_by(lon, lat, year, month) %>% 
-  summarise(unique_count_monthly = n(), .groups = "drop") #%>%
+sval_AIS_unique_monthly <- sval_AIS_cruise |> 
+  dplyr::select(lon, lat, year, month, mmsi) |>  
+  distinct() |> 
+  group_by(lon, lat, year, month) |>  
+  summarise(unique_count_monthly = n(), .groups = "drop") # |> 
 # NB:Time series is already complete so this is unnecessary
-# mutate(date = as.Date(paste0(year,"-",month,"-01"))) #%>% 
-# complete(date = seq.Date(min(date), max(date), by = "month")) %>% 
+# mutate(date = as.Date(paste0(year,"-",month,"-01"))) # |> 
+# complete(date = seq.Date(min(date), max(date), by = "month")) |> 
 # replace(is.na(.), 0)
 
-# Get monthly count of unique ships per type
-sval_AIS_type_monthly <- sval_AIS_cruise %>% 
-  dplyr::select(lon, lat, year, month, Type, mmsi) %>% 
-  distinct() %>% 
-  group_by(lon, lat, year, month, Type) %>% 
-  summarise(type_count_monthly = n(), .groups = "drop")
+# Get monthly count of ships per type
+sval_AIS_type_monthly <- sval_AIS_cruise |> 
+  summarise(type_count_monthly = sum(ship_count), .by = c("lon", "lat", "year", "month", "Type"))
 
 # Get spring season count of unique ships per type per year
-sval_AIS_type_spring <- sval_AIS_type_monthly %>% 
-  filter(month %in% 3:5) |> 
-  group_by(lon, lat, year, Type) %>% 
-  summarise(type_count_spring = sum(type_count_monthly), .groups = "drop")
+sval_AIS_type_spring <- sval_AIS_type_monthly |> 
+  filter(month %in% 3:5) |>
+  summarise(type_count_spring = sum(type_count_monthly), .by = c("lon", "lat", "year", "Type"))
 
 # Get yearly count of unique ships per type
-sval_AIS_type_yearly <- sval_AIS_type_monthly %>% 
-  group_by(lon, lat, year, Type) %>% 
-  summarise(type_count_yearly = sum(type_count_monthly), .groups = "drop")
+sval_AIS_type_yearly <- sval_AIS_cruise |> 
+  summarise(type_count_yearly = sum(ship_count), .by = c("lon", "lat", "year", "Type"))
+
+# Get overall yearly counts
+sval_AIS_yearly <- sval_AIS_cruise |> 
+  summarise(count_yearly = sum(ship_count),
+            minutes_per_pixel = sum(ship_count)*5, .by = c("lon", "lat", "year")) |> 
+  mutate(hours_per_pixel = as.integer(round(minutes_per_pixel/60)))
 
 
 # Analyses ----------------------------------------------------------------
@@ -124,54 +133,105 @@ sval_landings_trend <- sval_landings |>
   mutate(slope = round(slope, 2), p.value = round(p.value, 4),
          p.sig = case_when(p.value <= 0.05 ~ TRUE, TRUE ~ FALSE))
 
+# Cut landings values for easier plotting
+sval_landings <- sval_landings |> 
+  mutate(landings_cut = cut(landings, c(-Inf, 0, 10, 100, 500, 1000, 10000, Inf), 
+                            labels = c("0", "1-10", "11-100", "101-500", "501-1,000", "1,001-10,000", "10,000+")))
+
 
 # Visualise Sval AIS ------------------------------------------------------
 
-# Heat maps for Svalbard for the different ship categories per year
-map_vessel_year <- ggplot(data = sval_AIS_type_yearly, aes(x = lon, y = lat)) +
-  borders() + geom_tile(aes(fill = log10(type_count_yearly))) +
+# Barplot of overall ship traffic per year vy type
+barplot_ship_type <- sval_AIS_dist_cruise |> 
+  summarise(dist_yearly = sum(dist), .by = c("year", "Type")) |>
+  complete(year = 2011:2022, Type = c("Cruise", "Daytrip", "Expedition")) |> 
+  ggplot(aes(x = year, y = dist_yearly)) +
+  geom_col(aes(fill = Type), position = "dodge") +
+  scale_fill_brewer(palette = "Set1") +
+  scale_x_continuous(breaks = seq(2011, 2022, 2)) +
+  scale_y_continuous(breaks = seq(0, 125000000, 25000000), labels = seq(0, 125000000, 25000000)/1000000, limits = c(0, 130000000), expand = c(0, 0)) +
+  labs(x = "Year", y = "Distance travelled [1,000,000 m]", title = "Distances travelled around Svalbard per ship type") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+# barplot_ship_type
+ggsave("figures/ship_sum_type_barplot.png", barplot_ship_type, width = 6, height = 4, dpi = 600)
+
+# Heat maps for Svalbard for the different ship categories for the years of 2011, 2018, 2022
+map_vessel_year <- sval_AIS_type_yearly |> 
+  filter(year %in% c(2011, 2018, 2022)) |> 
+  ggplot(aes(x = lon, y = lat)) +
+  borders(colour = "black", fill = "grey70") + 
+  geom_tile(aes(fill = log10(type_count_yearly))) +
   scale_fill_viridis_c(option = "A") +
-  coord_quickmap(xlim = bbox_sval[1:2], ylim = bbox_sval[3:4]) +
-  labs(x = NULL, y = NULL, fill = "Annual count\n[log10(n)]",
-       title = "Heatmap of unique ship AIS tracks per type by ~0.01° pixels from 2011 - 2022",
-       subtitle = "NB: Values shown are log10 transformed and only one unique ship is counted per pixel per month") +
+  coord_quickmap(xlim = range(sval_AIS_type_yearly$lon), 
+                 ylim = range(sval_AIS_type_yearly$lat), expand = FALSE) +
+  labs(x = "Longitude [°E]", y = "Latitude [°N]", 
+       fill = "Annual sum of\nship recordings\n[log10(n)]",
+       title = "Heat map of AIS ship track records around Svalbard") +
   facet_grid(Type ~ year) +
+  theme_bw() +
   theme(legend.position = "bottom")
 # map_vessel_year
-ggsave("figures/ship_sum_type_map_sval.png", map_vessel_year, width = 20, height = 7.5)
+ggsave("figures/ship_sum_type_map_sval.png", map_vessel_year, width = 7.5, height = 7.5, dpi = 600)
 
 # Heat maps for Svalbard for the spring season (March-May) per year
-map_vessel_spring <- ggplot(data = sval_AIS_type_spring, aes(x = lon, y = lat)) +
-  borders() + geom_tile(aes(fill = log10(type_count_spring))) +
+map_vessel_spring <- sval_AIS_type_spring |> 
+  filter(year %in% c(2011, 2018, 2022)) |> 
+  ggplot(aes(x = lon, y = lat)) +
+  borders(colour = "black", fill = "grey70") + 
+  geom_tile(aes(fill = log10(type_count_spring))) +
   scale_fill_viridis_c(option = "A") +
-  coord_quickmap(xlim = bbox_sval[1:2], ylim = bbox_sval[3:4]) +
-  labs(x = NULL, y = NULL, fill = "Spring count\n[log10(n)]",
-       title = "Heatmap of unique ship AIS tracks per type by ~0.01° pixels for spring (March-May) from 2011 - 2022",
-       subtitle = "NB: Values shown are log10 transformed and only one unique ship is counted per pixel per month") +
+  coord_quickmap(xlim = range(sval_AIS_type_yearly$lon), 
+                 ylim = range(sval_AIS_type_yearly$lat), expand = FALSE) +
+  labs(x = "Longitude [°E]", y = "Latitude [°N]", 
+       fill = "Spring sum of\nship recordings\n[log10(n)]",
+       title = "Heat map of AIS ship track records around Svalbard",
+       subtitle = "Sum of vaues only for spring (March-May)") +
   facet_grid(Type ~ year) +
+  theme_bw() +
   theme(legend.position = "bottom")
 # map_vessel_spring
-ggsave("figures/ship_spring_type_map_sval.png", map_vessel_spring, width = 20, height = 7.5)
+ggsave("figures/ship_spring_type_map_sval.png", map_vessel_spring, width = 7.5, height = 7.5, dpi = 600)
 
 
 # Visualise sbird colonies ------------------------------------------------
 
+# Prep landings data
+sval_landings_2022 <- sval_landings |> 
+  filter(year == 2022, landings > 0) |> 
+  droplevels()
+
 # Sval map with 2022 cruise ship traffic, landing sites and sea bird nesting sites
-map_vessel_sbird_2022 <- ggplot(data = filter(sval_AIS_type_yearly, year == 2022), aes(x = lon, y = lat)) +
-  borders(fill = "grey70") + geom_tile(aes(fill = log10(type_count_yearly))) +
-  geom_point(data = filter(sval_landings, year == 2022), colour = "darkred", 
-             aes(size = landings, shape = `2025`)) +
-  geom_point(data = sval_sbird_sites, colour = "darkblue") +
+map_vessel_sbird_2022 <- sval_AIS_yearly |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = lon, y = lat)) +
+  # borders(fill = "grey70") + 
+  geom_polygon(data = sval_coast_df, fill = "grey70", colour = "black",
+               aes(x = lon, y = lat, group = polygon_id)) +
+  geom_tile(aes(fill = log10(count_yearly))) +
+  geom_point(data = sval_landings_2022, size = 2,
+             # colour = "black", fill = "darkred", shape = 21, 
+             # aes(size = landings, shape = `2025`)) +
+             aes(colour = landings_cut)) +
+  geom_point(data = sval_sbird_sites, colour = "black", fill = "darkblue", shape = 22, size = 4) +
   ggrepel::geom_label_repel(data = sval_sbird_sites, aes(label = Colony), 
                             max.overlaps = 20, colour = "darkblue", alpha = 0.6) +
-  scale_fill_viridis_c(option = "A") +
-  coord_quickmap(xlim = c(9, 31), ylim = c(76.5, 81), expand = FALSE) +
-  labs(x = NULL, y = NULL, fill = "Annual count\n[log10(n)]",
-       title = "Heatmap of 2022 ship tracks with landing sites and sea bird nesting sites",
-       subtitle = "NB: Values shown are log10 transformed and only one unique ship is counted per pixel per month") +
-  theme(panel.border = element_rect(colour = "black", fill = NA))
+  scale_fill_viridis_c() +
+  scale_colour_viridis_d(option = "E") +
+  # scale_size_continuous(range = c(1, 4)) +
+  # coord_quickmap(xlim = c(9, 31), ylim = c(76.5, 81), expand = FALSE) +
+  coord_quickmap(xlim = range(sval_AIS_type_yearly$lon), 
+                 ylim = range(sval_AIS_type_yearly$lat), expand = FALSE) +
+  labs(x = "Longitude [°E]", y = "Latitude [°N]", 
+       colour = "Annual sum\nof landings\n[log10(n)]",
+       fill = "Annual sum of\nship recordings\n[log10(n)]",
+       title = "Heatmap of 2022 ship traffic with landings and sea bird nesting sites") +
+  guides(colour = guide_legend(override.aes = list(size = 6))) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+  # theme(panel.border = element_rect(colour = "black", fill = NA))
 # map_vessel_sbird_2022
-ggsave("figures/ship_sbird_map_sval.png", map_vessel_sbird_2022, width = 9, height = 8)
+ggsave("figures/ship_sbird_map_sval.png", map_vessel_sbird_2022, width = 9, height = 8, dpi = 600)
 ggsave("~/pCloudDrive/restricted_data/arctic_tourism/ship_sbird_map_sval.png", map_vessel_sbird_2022, width = 9, height = 8)
 
 # TODO: Sval map with walrus and tourism landing sites

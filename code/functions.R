@@ -3843,7 +3843,7 @@ ship_col_rast_plot <- function(colony_choice){
                               month %in% 9:11 ~ "Autumn"),
            season = factor(season, levels = c("Winter", "Spring", "Summer", "Autumn"))) |> 
     filter(season != "Winter") |> # NB: This isn't interesting
-    summarise(minutes_per_pixel = n(), .by = c(lon, lat, season)) |> 
+    summarise(minutes_per_pixel = n()*5, .by = c(lon, lat, season)) |> 
     mutate(hours_per_pixel = as.integer(round(minutes_per_pixel/60)))
   
   # Create sbird data table
@@ -3860,21 +3860,21 @@ ship_col_rast_plot <- function(colony_choice){
     geom_raster(data = colony_AIS_coarse, aes(fill = hours_per_pixel)) +
     geom_polygon(aes(group = polygon_id), fill = "grey70", colour = "black") +
     # geom_point(data = sval_sbird_sites, fill = "darkgreen", size = 4, shape = 22) +
-    geom_point(data = sbird_data, fill = "darkgreen", size = 8, shape = 22) +
+    geom_point(data = sbird_data, fill = "darkblue", size = 8, shape = 22) +
     geom_point(data = colony_landings,
                # colour = "darkred",
-               aes(size = landings, shape = `2025`, colour = slope)) +
+               aes(size = landings, colour = slope)) +
     scale_fill_viridis_c() + scale_colour_viridis_c(option = "A") +
     coord_quickmap(xlim = colony_bbox[1:2], ylim = colony_bbox[3:4], expand = FALSE) +
     labs(x = NULL, y = NULL, fill = "Ship presence\n[sum hours]", 
          size = "Landings\n[n humans]",  shape = "Approved for\n2025", colour = "Landings\n[change/year]",
          title = paste0(colony_choice," colony and tourist presence in 2022"), 
-         subtitle = "NB: Landings are annual values, so red dots are the same in each panel; Spring = March to May") +
-    guides(fill = guide_legend(order = 1, nrow = 1), colour = guide_legend(order = 3, nrow = 1, override.aes = list(size = 6)),
-           size = guide_legend(order = 2, nrow = 1), shape = guide_legend(order = 4, override.aes = list(size = 6))) +
+         subtitle = "NB: Spring = March to May") +
+    guides(fill = guide_legend(order = 1, nrow = 1), size = guide_legend(order = 2, nrow = 1),
+           colour = guide_legend(order = 3, nrow = 1, override.aes = list(size = 6))) +
     facet_wrap("season", nrow = 1) +
-    theme(panel.border = element_rect(colour = "black", fill = NA),
-          legend.position = "bottom", 
+    theme_bw() +
+    theme(legend.position = "bottom", 
           legend.text.position = "bottom",
           legend.key.width = unit(1, "cm"),
           legend.title.position = "top")
