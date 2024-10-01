@@ -118,6 +118,7 @@ sval_sbird_trend <- sval_sbird_count |>
   dplyr::rename(slope = estimate) |> 
   mutate(slope = round(slope, 2), p.value = round(p.value, 4),
          p.sig = case_when(p.value <= 0.05 ~ TRUE, TRUE ~ FALSE))
+write_csv(sval_sbird_trend, "~/pCloudDrive/restricted_data/arctic_tourism/sval_sbird_trend.csv")
 
 # Calculate trends in landings from 2011-2022
 sval_landings_trend <- sval_landings |> 
@@ -132,6 +133,7 @@ sval_landings_trend <- sval_landings |>
   dplyr::rename(slope = estimate) |> 
   mutate(slope = round(slope, 2), p.value = round(p.value, 4),
          p.sig = case_when(p.value <= 0.05 ~ TRUE, TRUE ~ FALSE))
+write_csv(sval_landings_trend, "~/pCloudDrive/restricted_data/arctic_tourism/sval_landings_trend.csv")
 
 # Cut landings values for easier plotting
 sval_landings <- sval_landings |> 
@@ -141,20 +143,42 @@ sval_landings <- sval_landings |>
 
 # Visualise Sval AIS ------------------------------------------------------
 
-# Barplot of overall ship traffic per year vy type
-barplot_ship_type <- sval_AIS_dist_cruise |> 
+# Prep count of unique ships per year by type
+sval_type_unique_annual <- sval_AIS_cruise |> 
+  dplyr::select(year, Type, mmsi) |>  
+  distinct() |> 
+  summarise(unique_type = n(), .by = c("year", "Type")) |> 
+  complete(year = 2011:2022, Type = c("Cruise", "Daytrip", "Expedition"), fill = list(unique_type = 0))
+sval_AIS_dist_cruise_prep <- sval_AIS_dist_cruise |> 
   summarise(dist_yearly = sum(dist), .by = c("year", "Type")) |>
-  complete(year = 2011:2022, Type = c("Cruise", "Daytrip", "Expedition")) |> 
-  ggplot(aes(x = year, y = dist_yearly)) +
-  geom_col(aes(fill = Type), position = "dodge") +
-  scale_fill_brewer(palette = "Set1") +
+  complete(year = 2011:2022, Type = c("Cruise", "Daytrip", "Expedition"), fill = list(dist_yearly = 0)) |> 
+  mutate(km_yearly  = dist_yearly/1000,
+         Nm_yearly = km_yearly*0.5399568) |> 
+  left_join(sval_type_unique_annual, by = c("year", "Type")) |> 
+  mutate(Type = factor(Type, levels = c("Cruise", "Daytrip", "Expedition")))
+
+# Calculate growth from 2018 tp 20222
+sum(filter(sval_AIS_dist_cruise_prep, year == 2022)$Nm_yearly)/sum(filter(sval_AIS_dist_cruise_prep, year == 2018)$Nm_yearly)
+sum(filter(sval_AIS_dist_cruise_prep, year == 2022)$unique_type)/sum(filter(sval_AIS_dist_cruise_prep, year == 2018)$unique_type)
+
+# Barplot of overall ship traffic per year vy type
+barplot_ship_type <- sval_AIS_dist_cruise_prep |> 
+  ggplot(aes(x = year, y = Nm_yearly)) +
+  geom_col(aes(fill = Type), colour = "black", position = "dodge") +
+  geom_text(aes(label = unique_type, group = Type), colour = "black", 
+            position = position_dodge(width = 1.0), vjust = -0.8, size = 2.5) +
+  scale_fill_brewer(palette = "Set1", aesthetics = c("colour", "fill")) +
   scale_x_continuous(breaks = seq(2011, 2022, 2)) +
-  scale_y_continuous(breaks = seq(0, 125000000, 25000000), labels = seq(0, 125000000, 25000000)/1000000, limits = c(0, 130000000), expand = c(0, 0)) +
-  labs(x = "Year", y = "Distance travelled [1,000,000 m]", title = "Distances travelled around Svalbard per ship type") +
+  scale_y_continuous(breaks = seq(0, 60000, 20000),
+                     labels = seq(0, 60000, 20000)/1000,
+                     limits = c(0, 80000), expand = c(0, 0)) +
+  labs(x = "Year", y = "Distance travelled [1,000 Nm]", fill = "Ship type", 
+       title = "Nautical miles travelled around Svalbard per ship type") +
   theme_bw() +
   theme(legend.position = "bottom")
 # barplot_ship_type
 ggsave("figures/ship_sum_type_barplot.png", barplot_ship_type, width = 6, height = 4, dpi = 600)
+ggsave("~/pCloudDrive/restricted_data/arctic_tourism/fig_1.png", barplot_ship_type, width = 6, height = 4, dpi = 600)
 
 # Heat maps for Svalbard for the different ship categories for the years of 2011, 2018, 2022
 map_vessel_year <- sval_AIS_type_yearly |> 
@@ -173,6 +197,7 @@ map_vessel_year <- sval_AIS_type_yearly |>
   theme(legend.position = "bottom")
 # map_vessel_year
 ggsave("figures/ship_sum_type_map_sval.png", map_vessel_year, width = 7.5, height = 7.5, dpi = 600)
+ggsave("~/pCloudDrive/restricted_data/arctic_tourism/fig_2.png", map_vessel_year, width = 7.5, height = 7.5, dpi = 600)
 
 # Heat maps for Svalbard for the spring season (March-May) per year
 map_vessel_spring <- sval_AIS_type_spring |> 
@@ -192,6 +217,7 @@ map_vessel_spring <- sval_AIS_type_spring |>
   theme(legend.position = "bottom")
 # map_vessel_spring
 ggsave("figures/ship_spring_type_map_sval.png", map_vessel_spring, width = 7.5, height = 7.5, dpi = 600)
+ggsave("~/pCloudDrive/restricted_data/arctic_tourism/ship_spring_type_map_sval.png", map_vessel_spring, width = 7.5, height = 7.5, dpi = 600)
 
 
 # Visualise sbird colonies ------------------------------------------------
@@ -209,21 +235,22 @@ map_vessel_sbird_2022 <- sval_AIS_yearly |>
   geom_polygon(data = sval_coast_df, fill = "grey70", colour = "black",
                aes(x = lon, y = lat, group = polygon_id)) +
   geom_tile(aes(fill = log10(count_yearly))) +
-  geom_point(data = sval_landings_2022, size = 2,
-             # colour = "black", fill = "darkred", shape = 21, 
-             # aes(size = landings, shape = `2025`)) +
-             aes(colour = landings_cut)) +
-  geom_point(data = sval_sbird_sites, colour = "black", fill = "darkblue", shape = 22, size = 4) +
+  geom_point(data = sval_landings_2022, 
+             # size = 2,
+             colour = "black", fill = "darkred", shape = 21,
+             aes(size = landings_cut)) +
+             # aes(colour = landings_cut)) +
+  geom_point(data = sval_sbird_sites, colour = "black", fill = "darkblue", shape = 22, size = 5) +
   ggrepel::geom_label_repel(data = sval_sbird_sites, aes(label = Colony), 
-                            max.overlaps = 20, colour = "darkblue", alpha = 0.6) +
-  scale_fill_viridis_c() +
+                            max.overlaps = 20, colour = "darkblue", alpha = 0.8) +
+  scale_fill_viridis_c(option = "A") +
   scale_colour_viridis_d(option = "E") +
-  # scale_size_continuous(range = c(1, 4)) +
+  scale_size_discrete(range = c(1, 6)) +
   # coord_quickmap(xlim = c(9, 31), ylim = c(76.5, 81), expand = FALSE) +
   coord_quickmap(xlim = range(sval_AIS_type_yearly$lon), 
                  ylim = range(sval_AIS_type_yearly$lat), expand = FALSE) +
   labs(x = "Longitude [°E]", y = "Latitude [°N]", 
-       colour = "Annual sum\nof landings\n[log10(n)]",
+       size = "Annual sum\nof landings\n[n humans]",
        fill = "Annual sum of\nship recordings\n[log10(n)]",
        title = "Heatmap of 2022 ship traffic with landings and sea bird nesting sites") +
   guides(colour = guide_legend(override.aes = list(size = 6))) +
@@ -232,10 +259,7 @@ map_vessel_sbird_2022 <- sval_AIS_yearly |>
   # theme(panel.border = element_rect(colour = "black", fill = NA))
 # map_vessel_sbird_2022
 ggsave("figures/ship_sbird_map_sval.png", map_vessel_sbird_2022, width = 9, height = 8, dpi = 600)
-ggsave("~/pCloudDrive/restricted_data/arctic_tourism/ship_sbird_map_sval.png", map_vessel_sbird_2022, width = 9, height = 8)
-
-# TODO: Sval map with walrus and tourism landing sites
-# TODO: Good source of data for this: https://mosj.no/en/indikator/fauna/marine-fauna/
+ggsave("~/pCloudDrive/restricted_data/arctic_tourism/fig_3.png", map_vessel_sbird_2022, width = 9, height = 8, dpi = 600)
 
 # Generate ship traffic rasters per colony
 # NB: 'ship_col_rast_plot()' requires dataframes loaded above in order to work correctly
