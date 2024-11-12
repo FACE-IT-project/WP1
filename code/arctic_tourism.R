@@ -236,10 +236,10 @@ map_vessel_sbird_2022 <- sval_AIS_yearly |>
   geom_tile(aes(fill = log10(count_yearly))) +
   geom_point(data = sval_landings_2022, 
              # size = 2,
-             colour = "black", fill = "darkred", shape = 21,
+             colour = "black", fill = "darkred", shape = 21, alpha = 0.7,
              aes(size = landings_cut)) +
              # aes(colour = landings_cut)) +
-  geom_point(data = sval_sbird_sites, colour = "black", fill = "darkblue", shape = 22, size = 5) +
+  geom_point(data = sval_sbird_sites, colour = "black", fill = "darkblue", shape = 22, size = 5, alpha = 0.7) +
   ggrepel::geom_label_repel(data = sval_sbird_sites, aes(label = Colony), 
                             max.overlaps = 20, colour = "darkblue", alpha = 0.8) +
   scale_fill_viridis_c(option = "A") +
@@ -251,7 +251,7 @@ map_vessel_sbird_2022 <- sval_AIS_yearly |>
   labs(x = "Longitude [°E]", y = "Latitude [°N]", 
        size = "Annual sum\nof landings\n[n humans]",
        fill = "Annual sum of\nship recordings\n[log10(n)]",
-       title = "Heatmap of 2022 ship traffic with landings and sea bird nesting sites") +
+       title = "Heatmap of 2022 ship traffic with landings and seabird monitored nesting sites") +
   guides(colour = guide_legend(override.aes = list(size = 6))) +
   theme_bw() +
   theme(legend.position = "bottom")
