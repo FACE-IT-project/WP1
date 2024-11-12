@@ -18,6 +18,7 @@ sval_coast_df <- coastline_full_df |>
   dplyr::rename(lon = x, lat = y) |> 
   filter(lon >= bbox_sval[1], lon <= bbox_sval[2],
          lat >= bbox_sval[3], lat <= bbox_sval[4])
+rm(coastline_full_df); gc()
 
 # NB: This file is created from a massive number of daily files from the Norwegian coast guard
 # The code for the creation is in 'code/ice_cover_AIS.R' subsection 'Process Sval AIS data'
@@ -25,7 +26,9 @@ sval_coast_df <- coastline_full_df |>
 if(!exists("sval_AIS")) system.time(load("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_AIS.RData")) # 33 seconds
 
 # The cleaned up mmsi list from Morten
-sval_info_Morten <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_info_Morten.csv")
+sval_info_Morten <- read_csv("~/pCloudDrive/FACE-IT_data/svalbard/AIS/sval_info_Morten.csv") |> 
+  # On 2024-10-24 it was decided to remove Daytrip vessels
+  filter(Type != "Daytrip")
 
 # Nesting sites
 # NB: No coordinates were provided for "Løvenøyane and Breøyane" (two Kongsfjorden nesting sites)
@@ -51,26 +54,22 @@ sval_landings_sites <- sval_landings |>
 
 # Prep AIS ----------------------------------------------------------------
 
-# Create coarser resolution for easier use
-sval_AIS_coarse <- sval_AIS |> 
+# Create coarser resolution for easier use and filter by Morten's list
+sval_AIS_cruise <- right_join(sval_AIS, sval_info_Morten, by = "mmsi") |> 
   mutate(lon = round(lon, 2),
          lat = round(lat, 2),
          year = lubridate::year(date_time_utc),
          month = lubridate::month(date_time_utc)) |> 
-  summarise(ship_count = n(), .by = c("lon", "lat", "year", "month", "mmsi"))
-# rm(sval_AIS); gc() # When working on laptop
+  summarise(ship_count = n(), .by = c("lon", "lat", "year", "month", "mmsi", "Type"))
 
-# Get the distances travelled per ship
-sval_AIS_dist <- sval_AIS |> 
+# Get the distances travelled per ship and filter by Morten's list
+sval_AIS_dist_cruise <- right_join(sval_AIS, sval_info_Morten, by = "mmsi") |> 
   # NB: Filtering out suspicious values, the 95 percentile - 421
   filter(dist_prevpoint != -99, dist_prevpoint <= 500) |> 
   mutate(year = lubridate::year(date_time_utc),
-         month = lubridate::month(date_time_utc)) |> 
-  summarise(dist = sum(dist_prevpoint), .by = c("year", "month", "mmsi"))
-
-# Filter by Morten's list
-sval_AIS_cruise <- right_join(sval_AIS_coarse, sval_info_Morten, by = "mmsi")
-sval_AIS_dist_cruise <- right_join(sval_AIS_dist, sval_info_Morten, by = "mmsi")
+         month = lubridate::month(date_time_utc)) |>
+  summarise(dist = sum(dist_prevpoint), .by = c("year", "month", "mmsi", "Type"))
+# rm(sval_AIS); gc() # When working on laptop
 
 # Get monthly count of unique ships
 sval_AIS_unique_monthly <- sval_AIS_cruise |> 
@@ -148,20 +147,20 @@ sval_type_unique_annual <- sval_AIS_cruise |>
   dplyr::select(year, Type, mmsi) |>  
   distinct() |> 
   summarise(unique_type = n(), .by = c("year", "Type")) |> 
-  complete(year = 2011:2022, Type = c("Cruise", "Daytrip", "Expedition"), fill = list(unique_type = 0))
+  complete(year = 2011:2022, Type = c("Cruise", "Expedition"), fill = list(unique_type = 0))
 sval_AIS_dist_cruise_prep <- sval_AIS_dist_cruise |> 
   summarise(dist_yearly = sum(dist), .by = c("year", "Type")) |>
-  complete(year = 2011:2022, Type = c("Cruise", "Daytrip", "Expedition"), fill = list(dist_yearly = 0)) |> 
+  complete(year = 2011:2022, Type = c("Cruise", "Expedition"), fill = list(dist_yearly = 0)) |> 
   mutate(km_yearly  = dist_yearly/1000,
          Nm_yearly = km_yearly*0.5399568) |> 
   left_join(sval_type_unique_annual, by = c("year", "Type")) |> 
-  mutate(Type = factor(Type, levels = c("Cruise", "Daytrip", "Expedition")))
+  mutate(Type = factor(Type, levels = c("Cruise", "Expedition")))
 
 # Calculate growth from 2018 tp 20222
 sum(filter(sval_AIS_dist_cruise_prep, year == 2022)$Nm_yearly)/sum(filter(sval_AIS_dist_cruise_prep, year == 2018)$Nm_yearly)
 sum(filter(sval_AIS_dist_cruise_prep, year == 2022)$unique_type)/sum(filter(sval_AIS_dist_cruise_prep, year == 2018)$unique_type)
 
-# Barplot of overall ship traffic per year vy type
+# Barplot of overall ship traffic per year by type
 barplot_ship_type <- sval_AIS_dist_cruise_prep |> 
   ggplot(aes(x = year, y = Nm_yearly)) +
   geom_col(aes(fill = Type), colour = "black", position = "dodge") +
@@ -196,8 +195,8 @@ map_vessel_year <- sval_AIS_type_yearly |>
   theme_bw() +
   theme(legend.position = "bottom")
 # map_vessel_year
-ggsave("figures/ship_sum_type_map_sval.png", map_vessel_year, width = 7.5, height = 7.5, dpi = 600)
-ggsave("~/pCloudDrive/restricted_data/arctic_tourism/fig_2.png", map_vessel_year, width = 7.5, height = 7.5, dpi = 600)
+ggsave("figures/ship_sum_type_map_sval.png", map_vessel_year, width = 7.5, height = 5, dpi = 600)
+ggsave("~/pCloudDrive/restricted_data/arctic_tourism/fig_2.png", map_vessel_year, width = 7.5, height = 5, dpi = 600)
 
 # Heat maps for Svalbard for the spring season (March-May) per year
 map_vessel_spring <- sval_AIS_type_spring |> 
