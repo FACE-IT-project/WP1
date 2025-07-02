@@ -11,11 +11,10 @@ library(shinyBS)
 library(DT)
 library(dplyr)
 library(tidyr)
-# library(purrr)
 library(lubridate)
 library(arrow)
 library(ggplot2)
-# library(plotly)
+library(plotly)
 
 # Function for re-loading .RData files as necessary
 loadRData <- function(fileName){
@@ -42,6 +41,7 @@ CatColAbr <- c(
 )
 
 # Enable thematic 
+# NB: This causes issues. Left here for reference NOT to use it.
 # thematic::thematic_shiny(font = "auto")
 
 
@@ -262,17 +262,16 @@ ui <- dashboardPage(
                               '))),
     tabItems(
       
+
+      ## Summary UI section ------------------------------------------------------
+      
       tabItem(tabName = "summary",
               fluidRow(
                 column(width = 3,
                        box(width = 12, title = "Filter data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            
-                           # Load full clean_all dataset
-                           # h5(HTML("<b>0. Load full dataset (optional)</b>")),
-                           # shiny::actionButton("loadCleanAll", "", class = "btn-success", icon = icon("book")),
-                           
-                           # Site name
+                           # 1. Study site
                            selectizeInput(
                              'selectSiteSummary', '1. Study site',
                              choices = sites_named,
@@ -282,7 +281,7 @@ ui <- dashboardPage(
                                onInitialize = I('function() { this.setValue(""); }'))
                            ),
                            
-                           # Category - 2. Category(s)
+                           # 2. Category(s)
                            selectizeInput(
                              'selectCatSummary', '2. Category(s)',
                              choices = cat_choices,
@@ -293,7 +292,7 @@ ui <- dashboardPage(
                              )
                            ),
                            
-                           # Drivers - 3. Driver(s)
+                           # 3. Driver(s)
                            uiOutput("selectDrivSummaryUI"),
                        ),
                        box(width = 12, title = "Summarise data",
@@ -329,25 +328,26 @@ ui <- dashboardPage(
                        )
                 ),
                 
-                # Map and time series plots
+                # Summary plot of selected data
                 column(width = 9,
                        box(width = 12, title = "Summary", height = "850px", 
                            status = "info", solidHeader = TRUE, collapsible = FALSE,
-                           # shinycssloaders::withSpinner(plotlyOutput("summaryPlotly", height = "750px"),
-                           #                              type = 6, color = "#b0b7be"))
-                           shinycssloaders::withSpinner(plotOutput("summaryPlotly", height = "750px"),
+                           shinycssloaders::withSpinner(plotlyOutput("summaryPlotly", height = "750px"),
                                                         type = 6, color = "#b0b7be"))
                        )
                 )
       ),
       
+
+      ## Download UI section -----------------------------------------------------
+
       tabItem(tabName = "download",
               fluidRow(
                 column(width = 3,
                        box(width = 12, title = "Filter data",
                            status = "warning", solidHeader = TRUE, collapsible = FALSE,
                            
-                           # Site name
+                           # 1. Study site(s)
                            selectizeInput(
                              'selectSite', '1. Study site',
                              multiple = TRUE,
@@ -357,35 +357,35 @@ ui <- dashboardPage(
                                onInitialize = I('function() { this.setValue(""); }'))
                            ),
                            
-                           # Category - 2. Category(s)
+                           # 2. Category(s)
                            uiOutput("selectCatUI"),
                            
-                           # Drivers - 3. Driver(s)
+                           # 3. Driver(s)
                            uiOutput("selectDrivUI"),
                            
-                           # Variables - 4. Variable(s)
+                           # 4. Variable(s)
                            uiOutput("selectVarUI"),
                            
-                           # Filter - 5. lon 
+                           # 5. lon 
                            uiOutput("slideLonUI"), 
                            
-                           # Filter - 6. lat
+                           # 6. lat
                            uiOutput("slideLatUI"),
                            
-                           # Filter -7. Date
+                           # 7. Date
                            uiOutput("slideDateUI"), 
                            
-                           # Filter - 8. Depth
+                           # 8. Depth
                            uiOutput("slideDepthUI"), 
                            
                            fluidRow(
                              
-                             # Process - 9. Load
+                             # 9. Load (process the data)
                              column(width = 6,
                                     h5(tags$b("9. Filter data")),
                                     uiOutput("filterDataUI")),
                              
-                             # Download - 10. Download
+                             # 10. Download
                              column(width = 6,
                                     h5(tags$b("10. Preview data")),
                                     uiOutput("previewDataUI"))
@@ -397,29 +397,23 @@ ui <- dashboardPage(
                 column(width = 6,
                        box(width = 12, title = "Location", height = "410px", 
                            status = "info", solidHeader = TRUE, collapsible = FALSE,
-                           # shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "355px"), 
-                           #                              type = 6, color = "#b0b7be")),
-                           shinycssloaders::withSpinner(plotOutput("mapPlot", height = "355px"), 
+                           shinycssloaders::withSpinner(plotlyOutput("mapPlot", height = "355px"),
                                                         type = 6, color = "#b0b7be")),
                        box(width = 12, title = "Date", height = "410px", 
                            status = "primary", solidHeader = TRUE, collapsible = FALSE,
-                           # shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "355px"), 
-                           #                              type = 6, color = "#b0b7be"))),
-                           shinycssloaders::withSpinner(plotOutput("tsPlot", height = "355px"), 
+                           shinycssloaders::withSpinner(plotlyOutput("tsPlot", height = "355px"),
                                                         type = 6, color = "#b0b7be"))),
                 
                 # Depth plot
                 column(width = 3,
                        box(width = 12, height = "840px", title = "Depth",
                            status = "success", solidHeader = TRUE, collapsible = FALSE,
-                           # shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"), 
-                           #                              type = 6, color = "#b0b7be")))
-                           shinycssloaders::withSpinner(plotOutput("depthPlot", height = "780px"), 
+                           shinycssloaders::withSpinner(plotlyOutput("depthPlot", height = "780px"),
                                                         type = 6, color = "#b0b7be")))
               )
       ),
       
-      # Data tables
+      # Advanced data tables for text based searching
       tabItem(tabName = "information",
               box(width = 12, title = "Data availability per citation",
                   status = "warning", solidHeader = TRUE, collapsible = TRUE,
@@ -432,7 +426,7 @@ ui <- dashboardPage(
                   DT::dataTableOutput("longVarDT"))
               ),
 
-      # Data tables
+      # Info on related publications
       tabItem(tabName = "publications",
               fluidPage(
                 column(12,
@@ -462,7 +456,7 @@ ui <- dashboardPage(
               )
       )
     )
-  ),
+  )
   # NB: Don't change colour here. This is done above via in-line CSS.
   # skin = "purple"
 )
@@ -550,30 +544,6 @@ server <- function(input, output, session) {
     )
   )
   })
-  
-  ## Select colour groupings
-  # output$selectColourSummaryUI <- renderUI({
-  #   colour_group_base <- c("Site", "Category")
-  #   if(input$selectGroupSummary == "Driver"){
-  #     colour_group_group <- unique(c(colour_group_base, "Driver"))
-  #   } else if(input$selectGroupSummary == "Variable"){
-  #     colour_group_group <- unique(c(colour_group_base, "Driver", "Variable"))
-  #   } else {
-  #     colour_group_group <- colour_group_base
-  #   }
-  #   if(input$selectDataSummary == "Variable"){
-  #     colour_group_data <- unique(c(colour_group_group, "Variable"))
-  #   } else if(input$selectDataSummary == "Citation"){
-  #     colour_group_data <- unique(c(colour_group_group, "Citation"))
-  #   } else {
-  #     colour_group_data <- colour_group_group
-  #   }
-  #   selectInput(
-  #     'selectColourSummary', '1. Group colour',
-  #     choices = colour_group_data,
-  #     selected = "Site"
-  #   )
-  # })
   
   # Filter data
   ## Lon
@@ -675,24 +645,19 @@ server <- function(input, output, session) {
   
   ## Process data ------------------------------------------------------------
   
-  # Subset by category+driver
+  # Subset by category + driver
   df_driv <- reactive({
     req(input$selectDriv)
-    
-    # Assemble possible files
-    file_choice <- expand.grid("clean", input$selectCat, input$selectDriv, input$selectSite) |> 
-      unite(col = "all", sep = "_")
-    file_list <- full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]
     
     # Load initial data
     df_driv <- df_full |> 
       dplyr::filter(category %in% input$selectCat) |> 
+      mutate(embargo = TRUE) |> 
       dplyr::filter(driver %in% input$selectDriv) |> 
-      dplyr::filter(site %in% input$selectSite) |> 
-      mutate(embargo = FALSE)
+      dplyr::filter(site %in% input$selectSite)
+    
+    # Remove embargoed data and add shadows
     if(nrow(df_driv) > 0){
-      
-      # Remove embargoed data and add shadows
       df_driv <- df_driv |> 
         mutate(date = as.Date(date)) |> 
         mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
@@ -790,51 +755,30 @@ server <- function(input, output, session) {
       arrange(-embargo)
     return(df_dl)
   })
-
-  # 
-  # Load full dataset with button click
-  # loadfull <- reactiveValues(loaded = 0)
-  # df_full <- reactive({
-  #   
-  #   # Look for button click
-  #   input$loadCleanAll
-  #   
-  #   # Load data
-  #   if(input$loadCleanAll >= 1 & loadfull$loaded == 0){
-  #     df_full <- loadRData("full_data/clean_all.RData")
-  #     loadfull$loaded <- loadfull$loaded+1
-  #   } 
-  #   
-  #   return(df_full)
-  # })
   
   # Subset by category+driver for summary panel
   df_summary <- reactive({
     req(input$selectDrivSummary)
     
-    # Assemble possible files
-    # file_choice <- expand.grid("clean", input$selectCatSummary, input$selectDrivSummary, input$selectSiteSummary) |> 
-    #   unite(col = "all", sep = "_")
-    # file_list <- full_data_paths[grepl(paste(file_choice$all, collapse = "|"), full_data_paths)]
+    # Filter the full dataset accordingly
+    df_summary <- df_full |> 
+      dplyr::filter(site %in% input$selectSiteSummary) |> 
+      dplyr::mutate(embargo = TRUE) |> 
+      dplyr::filter(category %in% input$selectCatSummary) |> 
+      dplyr::filter(driver %in% input$selectDrivSummary)
     
-    # Check if full dataset has been loaded
-    # df_full <- df_full()
-    # if("site" %in% colnames(df_full)){
-      df_summary <- df_full |> 
-        filter(site %in% input$selectSiteSummary, category %in% input$selectCatSummary, driver %in% input$selectDrivSummary)
-    # } else {
-    #   # Load initial data
-    #   df_summary <- purrr::map_dfr(file_list, read_csv_arrow)
-    # }
-    
+    # Flag embargoed data and add shadows
     if(nrow(df_summary) > 0){
       
-      # Remove embargoed data and add shadows
       df_summary <- df_summary |> 
         mutate(date = as.Date(date)) |> 
         mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
+      
     }
+    
+    # Exit
     return(df_summary)
+    
   })
   
   
@@ -859,82 +803,99 @@ server <- function(input, output, session) {
   
   # The map data
   map_base <- reactive({
-    req(input$selectSite)
+    # req(input$selectSite)
     
-    if(length(input$selectSite) > 1) return()
+    if(length(input$selectSite) == 1){
+      
+      # Base map reacts to site selection
+      if(input$selectSite == "por") bbox_name <- bbox_por
+      if(input$selectSite == "kong") bbox_name <- bbox_kong
+      if(input$selectSite == "is") bbox_name <- bbox_is
+      if(input$selectSite == "stor") bbox_name <- bbox_stor
+      if(input$selectSite == "young") bbox_name <- bbox_young
+      if(input$selectSite == "disko") bbox_name <- bbox_disko
+      if(input$selectSite == "nuup") bbox_name <- bbox_nuup
+      
+      # Get buffer area for plot
+      xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
+      xmax <- bbox_name[2]+(bbox_name[2]-bbox_name[1])/4
+      ymin <- bbox_name[3]-(bbox_name[4]-bbox_name[3])/8
+      ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
+      
+      # Filter map size for minor speed boost
+      map_sub <- filter(map_hi,
+                        between(lon, bbox_name[1], bbox_name[2]),
+                        between(lat, bbox_name[3], bbox_name[4]))
+      map_sub_fix <- filter(map_hi, group %in% map_sub$group)
+      
+      # The base map
+      baseMap <- ggplot() + 
+        geom_polygon(data = map_sub_fix, fill = "grey80", colour = "black",
+                     aes(x = lon, y = lat, group = group, text = "Land")) +
+        coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
+        labs(x = NULL, y = NULL, shape = "Driver", fill = "Variable") +
+        theme_bw() +
+        theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+              axis.text = element_text(size = 12, colour = "black"),
+              axis.ticks = element_line(colour = "black"), legend.position = "none")
+      
+    } else {
+      
+      baseMap <- ggplot() + geom_blank() + 
+        ggplot2::annotate("text", x = 0.5, y = 0.5, 
+                          label = "Select a single site to view the map",
+               size = 5, colour = "black") +
+        labs(x = NULL, y = NULL) +
+        theme_void()
+      
+    }
     
-    # Base map reacts to site selection
-    if(input$selectSite == "por") bbox_name <- bbox_por
-    if(input$selectSite == "kong") bbox_name <- bbox_kong
-    if(input$selectSite == "is") bbox_name <- bbox_is
-    if(input$selectSite == "stor") bbox_name <- bbox_stor
-    if(input$selectSite == "young") bbox_name <- bbox_young
-    if(input$selectSite == "disko") bbox_name <- bbox_disko
-    if(input$selectSite == "nuup") bbox_name <- bbox_nuup
-    
-    # Get buffer area for plot
-    xmin <- bbox_name[1]-(bbox_name[2]-bbox_name[1])/4
-    xmax <- bbox_name[2]+(bbox_name[2]-bbox_name[1])/4
-    ymin <- bbox_name[3]-(bbox_name[4]-bbox_name[3])/8
-    ymax <- bbox_name[4]+(bbox_name[4]-bbox_name[3])/8
-    
-    # Filter map size for minor speed boost
-    map_sub <- filter(map_hi,
-                      between(lon, bbox_name[1], bbox_name[2]),
-                      between(lat, bbox_name[3], bbox_name[4]))
-    map_sub_fix <- filter(map_hi, group %in% map_sub$group)
-    
-    # The base map
-    baseMap <- ggplot() + 
-      geom_polygon(data = map_sub_fix, fill = "grey80", colour = "black",
-                   aes(x = lon, y = lat, group = group, text = "Land")) +
-      coord_cartesian(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = F) +
-      labs(x = NULL, y = NULL, shape = "Driver", fill = "Variable") +
-      theme_bw() +
-      theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
-            axis.text = element_text(size = 12, colour = "black"),
-            axis.ticks = element_line(colour = "black"), legend.position = "none")
     return(baseMap)
+
   })
   
-  output$mapPlot <- renderPlot({
-    req(input$filterData)
-    
-    # TODO: Implement a wrapper function that can create faceted maps for multiple site choices
-    if(length(input$selectSite) > 1) return()
+  output$mapPlot <- renderPlotly({
+    # req(input$filterData)
     
     baseMap <- map_base()
     
-    # Map data for plotting
-    df_filter_map <- df_filter()[["map_count"]]
-    if(nrow(df_filter_map) > 0){
-      baseMap <- baseMap +
-        geom_point(data = df_filter_map,
-                   aes(x = lon, y = lat, shape = embargo, colour = variable,
-                       text = paste0("Category: ",category_long,
-                                     "<br>Driver: ",driver_long,
-                                     "<br>Variable: ",variable,
-                                     "<br>Lon: ",lon,
-                                     "<br>Lat: ",lat,
-                                     "<br>Count: ",count,
-                                     "<br>Embargoed: ",embargo)))
+    if(length(input$selectSite) == 1){
+      
+      # Map data for plotting
+      df_filter_map <- df_filter()[["map_count"]]
+      
+      if(nrow(df_filter_map) > 0){
+        
+        baseMap <- baseMap +
+          geom_point(data = df_filter_map,
+                     aes(x = lon, y = lat, shape = embargo, colour = variable,
+                         text = paste0("Category: ",category_long,
+                                       "<br>Driver: ",driver_long,
+                                       "<br>Variable: ",variable,
+                                       "<br>Lon: ",lon,
+                                       "<br>Lat: ",lat,
+                                       "<br>Count: ",count,
+                                       "<br>Embargoed: ",embargo)))
+        
+      }
     }
     
-    # ggplotly(baseMap, tooltip = "text")
-    baseMap
+    ggplotly(baseMap, tooltip = "text")
+    # baseMap
     
   })
   
   
   ## Time series -------------------------------------------------------------
   
-  output$tsPlot <- renderPlot({
+  output$tsPlot <- renderPlotly({
     req(input$filterData)
     
     df_filter_ts <- df_filter()[["ts_count"]]
     
     # Plot and exit
     if(nrow(df_filter_ts) > 0){
+      
       basePlot <- ggplot(data = df_filter_ts, aes(x = year, y = log10(count))) +
         geom_point(aes(shape = embargo, colour = variable,
                        text = paste0("Category: ",category_long,
@@ -948,25 +909,29 @@ server <- function(input, output, session) {
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
               axis.ticks = element_line(colour = "black"), legend.position = "none")
+      
     } else {
+      
       basePlot <- ggplot() + geom_blank()
+      
     }
     
-    # ggplotly(basePlot, tooltip = "text")
-    basePlot
+    ggplotly(basePlot, tooltip = "text")
+    # basePlot
     
   })
   
   
   ## Depth plot --------------------------------------------------------------
   
-  output$depthPlot <- renderPlot({
+  output$depthPlot <- renderPlotly({
     req(input$filterData)
     
     df_filter_depth <- df_filter()[["depth_count"]]
     
     # Count of data at depth by var name
     if(nrow(df_filter_depth) > 0){
+      
       basePlot <- ggplot(df_filter_depth, aes(x = depth, y = log10(count))) +
         geom_col(aes(fill = variable, colour = embargo,
                      text = paste0("Category: ",category_long,
@@ -981,12 +946,15 @@ server <- function(input, output, session) {
         theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
               axis.text = element_text(size = 12, colour = "black"),
               axis.ticks = element_line(colour = "black"), legend.position = "none")
+      
     } else {
+      
       basePlot <- ggplot() + geom_blank()
+      
     }
     
-    # ggplotly(basePlot, tooltip = "text")
-    basePlot
+    ggplotly(basePlot, tooltip = "text")
+    # basePlot
     
   })
   
@@ -994,7 +962,7 @@ server <- function(input, output, session) {
   ## Summary plot ------------------------------------------------------------
   
   # Interactive plotly summary figure
-  output$summaryPlotly <- renderPlot({
+  output$summaryPlotly <- renderPlotly({
     # req(input$selectDrivSummary)
     
     # testing...
@@ -1004,208 +972,224 @@ server <- function(input, output, session) {
     #   mutate(embargo = case_when(grepl(data_shadow, URL) ~ TRUE, TRUE ~ FALSE))
     
     # Initial data
-    if(length(input$selectDrivSummary) > 0){
+    if(length(input$selectDrivSummary) == 0){
+      
+      # No data to plot
+      basePlot <- ggplot() + geom_blank() +
+        ggplot2::annotate("text", x = 0.5, y = 0.5, label = "Finish selection to plot data", size = 6, colour = "black") +
+        labs(x = NULL, y = NULL) +
+        theme_void()
+      
+      # Create plotly
+      ggplotly(basePlot, tooltip = "text") |>
+        plotly::layout(legend = list(x = 0, xanchor = "left", yanchor = "bottom", orientation = "h"))
+      # basePlot
+      
+    } else {
       
       # Establish dataset
       df_summary <- df_summary()
       
-      # Grouping vector
-      if(input$selectGroupSummary == "Category"){
-        grouping_vars <- c("category")
-        join_vars <- c("category")
-        long_names_sub <- dplyr::select(long_names, category, category_long) |> distinct()
-        group_lab <- "Category"
-      } else if(input$selectGroupSummary == "Driver"){
-        grouping_vars <- c("category", "driver")
-        join_vars <- c("category", "driver")
-        long_names_sub <- long_names
-        group_lab <- "Driver"
-      } else if(input$selectGroupSummary == "Variable"){
-        grouping_vars <- c("category", "driver", "variable")
-        join_vars <- c("category", "driver")
-        long_names_sub <- long_names
-        group_lab <- "Driver"
-      }
-      
-      # Summarise by date: Daily, Yearly, monthly clim
-      if(input$selectDateSummary == "Year"){
-        df_date <- df_summary |> 
-          dplyr::mutate(year = lubridate::year(date)) |>
-          dplyr::select(-date) |> 
-          dplyr::rename(date = year)
-        date_lab <- "Year"
-      } else if(input$selectDateSummary == "Climatology"){
-        df_date <- df_summary |> 
-          dplyr::mutate(clim = lubridate::month(date)) |>
-          dplyr::select(-date) |> 
-          dplyr::rename(date = clim)
-        date_lab <- "Monthly climatology"
-      } else if(input$selectDateSummary == "Day"){
-        df_date <- df_summary
-        date_lab <- "Date"
-      }
-      
-      # Summarise by value: "Data points", "Real values", "Unique variables", "Unique citations"
-      if(input$selectDataSummary == "Data points"){
-        df_crunch <- df_date |> 
-          summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
-        value_lab <- "Count of data points per goruping"
-      } else if(input$selectDataSummary == "Real values"){
-        df_crunch <- df_date  |> 
-          filter(embargo == FALSE) |> 
-          summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date", "embargo", all_of(grouping_vars)))
-        value_lab <- "Mean value per grouping (hover over points to see units)"
-      } else if(input$selectDataSummary == "Unique variables"){
-        df_crunch <- df_date  |>
-          dplyr::select("site", "date", "embargo", "variable", all_of(grouping_vars)) |> 
-          distinct() |> 
-          summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
-        value_lab <- "Unique variables per grouping"
-      } else if(input$selectDataSummary == "Unique citations"){
-        df_crunch <- df_date  |>
-          dplyr::select("site", "date", "embargo", "citation", all_of(grouping_vars)) |> 
-          distinct() |> 
-          summarise(value = n(), .by = c("site", "date", "embargo", "citation", all_of(grouping_vars)))
-        value_lab <- "Unique citations per grouping"
-      }
-      
-      # Join for pretty names
-      df_final <- df_crunch |> 
-        left_join(long_names_sub, by = join_vars) |> 
-        mutate(colour_choice = .data[[tolower(input$selectGroupSummary[1])]])
-      
-      # Automatic shift to dodge for barplots if showing Raw values
-      if(input$selectDataSummary == "Real values"){
-        col_dodge <- "dodge"
+      if(nrow(df_summary) == 0){
+        
+        # No data to plot
+        basePlot <- ggplot() + geom_blank() +
+          ggplot2::annotate("text", x = 0.5, y = 0.5, label = "No data in selection", size = 6, colour = "black") +
+          labs(x = NULL, y = NULL) +
+          theme_void()
+        
+        # Create plotly
+        ggplotly(basePlot, tooltip = "text") |>
+          plotly::layout(legend = list(x = 0, xanchor = "left", yanchor = "bottom", orientation = "h"))
+        # basePlot
+        
       } else {
-        col_dodge <- "stack"
-      }
-      
-      # Plot and exit
-      if(nrow(df_summary) > 0){
-        basePlot <- ggplot(data = df_final, aes(x = date, y = value)) +
-          labs(x = date_lab, y = value_lab, 
-               colour = input$selectGroupSummary[1], fill = input$selectGroupSummary[1]) +
-          theme_bw() +
-          theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
-                axis.text = element_text(size = 12, colour = "black"),
-                axis.ticks = element_line(colour = "black"),
-                legend.position = "bottom")
-        # legend.position = "none") # Disable legend
+        
+        # Grouping vector
         if(input$selectGroupSummary == "Category"){
-          if(input$selectPlotSummary == "Dot plot"){
-            basePlot <- basePlot +
-              geom_point(size = 2,
-                         aes(shape = embargo, colour = colour_choice,
+          grouping_vars <- c("category")
+          join_vars <- c("category")
+          long_names_sub <- dplyr::select(long_names, category, category_long) |> distinct()
+          group_lab <- "Category"
+        } else if(input$selectGroupSummary == "Driver"){
+          grouping_vars <- c("category", "driver")
+          join_vars <- c("category", "driver")
+          long_names_sub <- long_names
+          group_lab <- "Driver"
+        } else if(input$selectGroupSummary == "Variable"){
+          grouping_vars <- c("category", "driver", "variable")
+          join_vars <- c("category", "driver")
+          long_names_sub <- long_names
+          group_lab <- "Driver"
+        }
+        
+        # Summarise by date: Daily, Yearly, monthly clim
+        if(input$selectDateSummary == "Year"){
+          df_date <- df_summary |> 
+            dplyr::mutate(year = lubridate::year(date)) |>
+            dplyr::select(-date) |> 
+            dplyr::rename(date = year)
+          date_lab <- "Year"
+        } else if(input$selectDateSummary == "Climatology"){
+          df_date <- df_summary |> 
+            dplyr::mutate(clim = lubridate::month(date)) |>
+            dplyr::select(-date) |> 
+            dplyr::rename(date = clim)
+          date_lab <- "Monthly climatology"
+        } else if(input$selectDateSummary == "Day"){
+          df_date <- df_summary
+          date_lab <- "Date"
+        }
+        
+        # Summarise by value: "Data points", "Real values", "Unique variables", "Unique citations"
+        if(input$selectDataSummary == "Data points"){
+          df_crunch <- df_date |> 
+            summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
+          value_lab <- "Count of data points per goruping"
+        } else if(input$selectDataSummary == "Real values"){
+          df_crunch <- df_date  |> 
+            filter(embargo == FALSE) |> 
+            summarise(value = mean(value, na.rm = TRUE), .by = c("site", "date", "embargo", all_of(grouping_vars)))
+          value_lab <- "Mean value per grouping (hover over points to see units)"
+        } else if(input$selectDataSummary == "Unique variables"){
+          df_crunch <- df_date  |>
+            dplyr::select("site", "date", "embargo", "variable", all_of(grouping_vars)) |> 
+            distinct() |> 
+            summarise(value = n(), .by = c("site", "date", "embargo", all_of(grouping_vars)))
+          value_lab <- "Unique variables per grouping"
+        } else if(input$selectDataSummary == "Unique citations"){
+          df_crunch <- df_date  |>
+            dplyr::select("site", "date", "embargo", "citation", all_of(grouping_vars)) |> 
+            distinct() |> 
+            summarise(value = n(), .by = c("site", "date", "embargo", "citation", all_of(grouping_vars)))
+          value_lab <- "Unique citations per grouping"
+        }
+        
+        # Join for pretty names
+        df_final <- df_crunch |> 
+          left_join(long_names_sub, by = join_vars) |> 
+          mutate(colour_choice = .data[[tolower(input$selectGroupSummary[1])]])
+        
+        # Automatic shift to dodge for barplots if showing Raw values
+        if(input$selectDataSummary == "Real values"){
+          col_dodge <- "dodge"
+        } else {
+          col_dodge <- "stack"
+        }
+        
+        # A lot of plotting logic gates
+        if(nrow(df_summary) > 0){
+          
+          basePlot <- ggplot(data = df_final, aes(x = date, y = value)) +
+            labs(x = date_lab, y = value_lab, 
+                 colour = input$selectGroupSummary[1], fill = input$selectGroupSummary[1]) +
+            theme_bw() +
+            theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 1),
+                  axis.text = element_text(size = 12, colour = "black"),
+                  axis.ticks = element_line(colour = "black"),
+                  legend.position = "bottom")
+
+          # Add points or bars
+          if(input$selectGroupSummary == "Category"){
+            if(input$selectPlotSummary == "Dot plot"){
+              
+              basePlot <- basePlot +
+                geom_point(size = 2,
+                           aes(shape = embargo, colour = colour_choice,
+                               text = paste0("Site: ",site,
+                                             "<br>Category: ",category_long,
+                                             "<br>Date: ",date,
+                                             "<br>Value: ",value,
+                                             "<br>Embargoed: ",embargo)))
+              
+            } else {
+              
+              basePlot <- basePlot +
+                geom_col(aes(shape = embargo, fill = colour_choice,
                              text = paste0("Site: ",site,
                                            "<br>Category: ",category_long,
                                            "<br>Date: ",date,
                                            "<br>Value: ",value,
-                                           "<br>Embargoed: ",embargo)
-                         )
-              )
-          } else {
-            basePlot <- basePlot +
-              geom_col(aes(shape = embargo, fill = colour_choice,
-                           text = paste0("Site: ",site,
-                                         "<br>Category: ",category_long,
-                                         "<br>Date: ",date,
-                                         "<br>Value: ",value,
-                                         "<br>Embargoed: ",embargo)
-              ),
-              position = col_dodge
-              ) 
-          }
-        } else if(input$selectGroupSummary == "Driver"){
-          if(input$selectPlotSummary == "Dot plot"){
-            basePlot <- basePlot +
-              geom_point(size = 2,
-                         aes(shape = embargo, colour = colour_choice,
+                                           "<br>Embargoed: ",embargo)),
+                         position = col_dodge) 
+              
+            }
+          } else if(input$selectGroupSummary == "Driver"){
+            if(input$selectPlotSummary == "Dot plot"){
+              
+              basePlot <- basePlot +
+                geom_point(size = 2,
+                           aes(shape = embargo, colour = colour_choice,
+                               text = paste0("Site: ",site,
+                                             "<br>Category: ",category_long,
+                                             "<br>Driver: ",driver_long,
+                                             "<br>Date: ",date,
+                                             "<br>Value: ",value,
+                                             "<br>Embargoed: ",embargo)))
+              
+            } else {
+              
+              basePlot <- basePlot +
+                geom_col(aes(shape = embargo, fill = colour_choice,
                              text = paste0("Site: ",site,
                                            "<br>Category: ",category_long,
                                            "<br>Driver: ",driver_long,
                                            "<br>Date: ",date,
                                            "<br>Value: ",value,
-                                           "<br>Embargoed: ",embargo)
-                         )
-              )
-          } else {
-            basePlot <- basePlot +
-              geom_col(aes(shape = embargo, fill = colour_choice,
-                           text = paste0("Site: ",site,
-                                         "<br>Category: ",category_long,
-                                         "<br>Driver: ",driver_long,
-                                         "<br>Date: ",date,
-                                         "<br>Value: ",value,
-                                         "<br>Embargoed: ",embargo)
-              ),
-              position = col_dodge
-              )
-          }
-        } else if(input$selectGroupSummary == "Variable"){
-          if(input$selectPlotSummary == "Dot plot"){
-            basePlot <- basePlot +
-              geom_point(size = 2,
-                         aes(shape = embargo, colour = colour_choice,
+                                           "<br>Embargoed: ",embargo)),
+                         position = col_dodge)
+              
+            }
+          } else if(input$selectGroupSummary == "Variable"){
+            if(input$selectPlotSummary == "Dot plot"){
+              
+              basePlot <- basePlot +
+                geom_point(size = 2,
+                           aes(shape = embargo, colour = colour_choice,
+                               text = paste0("Site: ",site,
+                                             "<br>Category: ",category_long,
+                                             "<br>Driver: ",driver_long,
+                                             "<br>Variable: ",variable,
+                                             "<br>Date: ",date,
+                                             "<br>Value: ",value,
+                                             "<br>Embargoed: ",embargo)))
+              
+            } else {
+              
+              basePlot <- basePlot +
+                geom_col(aes(shape = embargo, fill = colour_choice,
                              text = paste0("Site: ",site,
                                            "<br>Category: ",category_long,
                                            "<br>Driver: ",driver_long,
                                            "<br>Variable: ",variable,
                                            "<br>Date: ",date,
                                            "<br>Value: ",value,
-                                           "<br>Embargoed: ",embargo)
-                         )
-              )
-          } else {
-            basePlot <- basePlot +
-              geom_col(aes(shape = embargo, fill = colour_choice,
-                           text = paste0("Site: ",site,
-                                         "<br>Category: ",category_long,
-                                         "<br>Driver: ",driver_long,
-                                         "<br>Variable: ",variable,
-                                         "<br>Date: ",date,
-                                         "<br>Value: ",value,
-                                         "<br>Embargoed: ",embargo)
-              ),
-              position = col_dodge
-              )
+                                           "<br>Embargoed: ",embargo)),
+                         position = col_dodge)
+              
+            }
           }
+          if(input$selectDateSummary == "Year"){
+            x_breaks <- unique(round(seq(min(df_final$date, na.rm = TRUE), 
+                                         max(df_final$date, na.rm = TRUE), 5)))
+            basePlot <- basePlot + scale_x_continuous(breaks = x_breaks)
+          }
+          if(input$selectDateSummary == "Climatology"){
+            basePlot <- basePlot + scale_x_continuous(breaks = seq(2, 12, 2))
+          }
+          # Remove embargo shape from legend
+          basePlot <- basePlot + guides(shape = "none")
+        } else {
+          basePlot <- ggplot() + geom_blank()
         }
-        if(input$selectDateSummary == "Year"){
-          x_breaks <- unique(round(seq(min(df_final$date, na.rm = TRUE), 
-                                       max(df_final$date, na.rm = TRUE), 5)))
-          basePlot <- basePlot +
-            scale_x_continuous(breaks = x_breaks)
-        }
-        if(input$selectDateSummary == "Climatology"){
-          basePlot <- basePlot +
-            scale_x_continuous(breaks = seq(2, 12, 2))
-        }
-        # Remove embargo shape from legend
-        basePlot <- basePlot +
-          guides(shape = "none")
-      } else {
-        basePlot <- ggplot() + geom_blank()
+        
+        # Create plotly
+        ggplotly(basePlot, tooltip = "text") |>
+          plotly::layout(legend = list(x = 0, xanchor = "left", yanchor = "bottom", orientation = "h"))
+        # basePlot
+        
       }
       
-      # Create plotly
-      # ggplotly(basePlot, tooltip = "text") #|> 
-        # plotly::layout(legend = list(x = 0, xanchor = "left", yanchor = "bottom", orientation = "h"))
-      basePlot
-      
-    } else {
-
-      # No data to plot
-      basePlot <- ggplot() + geom_blank() +
-        ggplot2::annotate("text", x = 0.5, y = 0.5, label = "Finish selection to plot data", size = 6, colour = "black") +
-        labs(x = NULL, y = NULL) +
-        theme_void()
-
-      # Create plotly
-      # ggplotly(basePlot, tooltip = "text") #|>
-        # plotly::layout(legend = list(x = 0, xanchor = "left", yanchor = "bottom", orientation = "h"))
-      basePlot
-
     }
     
   })
@@ -1282,12 +1266,10 @@ server <- function(input, output, session) {
         tags$h4(tags$em("2. Category(s)"),": Categories are the broadest classification possible of the data. Select one or more values to move to step 3."),
         tags$h4(tags$em("3. Driver(s)"),": Drivers are more specific than categories. Multiple values may be selected."),
         tags$h4(tags$b("Summarise data", style = "color: #f39c12;"),": This menu allows the user to create grouped summaries."),
-        tags$h4(tags$em("1. Grouping"),": Select a value around which to group the summary output."),
-        tags$h4(tags$em("2. Date"),": Choose the temporal grouping of the data."),
-        tags$h4(tags$em("3. Data"),": Decide what aspect of the data grouping should be returned."),
-        tags$h4(tags$b("Visualise data", style = "color: #f39c12;"),": Here one may choose how to visualise the summary."),
-        tags$h4(tags$em("1. Group colour"),": The colour of the grouping to be shown. This is reactive to the choices above."),
-        tags$h4(tags$em("2. Plot type"),": For most choices a bar plot is ideal. For the raw data plots it is better to switch to 'Dot plot'."),
+        tags$h4(tags$em("1. Grouping"),": Select a value around which to group the summary output. This will be displayed as changes to the colour of the items on the plot."),
+        tags$h4(tags$em("2. Date"),": Choose the temporal grouping of the data. These changes are organised along the x-axis."),
+        tags$h4(tags$em("3. Data"),": Decide what aspect of the data grouping should be returned. This will affect the y-axis."),
+        tags$h4(tags$em("4. Plot type"),": For most choices a bar plot is ideal. For the raw data plots it is better to switch to 'Dot plot'."),
         tags$h3(icon("download"),"Data download interface", style = "color: #008980;"),
         tags$h4(tags$b("Filter data", style = "color: #f39c12;"),": This menu allows the user to filter and download from the data amalgemated for FACE-IT."),
         tags$h4(tags$em("1. Study site"),": Select one or more of the seven FACE-IT study sites to begin the data exploration process."),
@@ -1299,7 +1281,8 @@ server <- function(input, output, session) {
                   This will create figures in the three boxes to the right."),
         tags$h4(tags$em("10. Download"),": When one is happy with the selected/filtered data click here to open a final preview menu. 
                   After confirming that the desired data have been selected, scroll to the bottom of the window were one may choose the file type and then click the download button."),
-        tags$h4(tags$b("Location", style = "color: #00c0ef;"),": Displays a map of where the selected data are located. Different drivers are shown by shape, and colours show variables. Mouse over the dots to see more information."),
+        tags$h4(tags$b("Location", style = "color: #00c0ef;"),": Displays a map of where the selected data are located. Different drivers are shown by shape, and colours show variables. 
+                  Mouse over the dots to see more information. Note that the map will only appear if a single site was selected."),
         tags$h4(tags$b("Date", style = "color: #3c8dbc"),": Displays the selected data as an annual time series. Mouse over the points to see more information."),
         tags$h4(tags$b("Depth", style = "color: #00a65a"),": Shows the selected data as a stacked bar plot from the surface (0 m) down to the deepest depth in the data. Data are binned into 10 m groups. Negative values show data above the sea surface (altimetry). Mouse over for more information."),
         tags$h3(icon("table"),"Advanced search tool", style = "color: #008980;"),
@@ -1308,9 +1291,9 @@ server <- function(input, output, session) {
         tags$h4(tags$b("Data availability per site", style = "color: #f39c12;"),": This table shows a count of the number of data points per driver per site.
                   This is meant to be a helpful guide to see if the data for a desired driver is available at a given site or not."),
         tags$h4(tags$b("Full variable names", style = "color: #f39c12;"),": This table shows the full names for all categories, drivers, and their variables. 
-                  The final column 'Long name' shows a longer name for a given variavle if one is available in the meta-data."),
+                  The final column 'Long name' shows a longer name for a given variable if one is available in the meta-data."),
         tags$h3(icon("address-book"),"Contact", style = "color: #4472c4;"),
-        tags$h4("For questions etc. please contact Robert Schlegel: robert.schlegel@imev-mer.fr")
+        tags$h4("For questions etc. please contact Robert Schlegel: robwschlegel@gmail.com")
       ),
       html = TRUE,
       type = "info"
